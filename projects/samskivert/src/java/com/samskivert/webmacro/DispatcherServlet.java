@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.3 2001/03/01 21:06:22 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.4 2001/03/01 21:09:54 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -175,6 +175,15 @@ public class DispatcherServlet extends WMServlet
 		// construct an application object and add it to our list
 		_apps.add(app);
 	    }
+	}
+    }
+
+    public void stop ()
+    {
+	// shutdown our applications
+	for (int i = 0; i < _apps.size(); i++) {
+	    Application app = (Application)_apps.get(i);
+	    app.shutdown();
 	}
     }
 

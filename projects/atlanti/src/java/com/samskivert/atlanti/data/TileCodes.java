@@ -1,5 +1,5 @@
 //
-// $Id: TileCodes.java,v 1.8 2001/10/18 20:54:20 mdb Exp $
+// $Id: TileCodes.java,v 1.9 2001/12/18 11:58:53 mdb Exp $
 
 package com.threerings.venison;
 
@@ -120,7 +120,7 @@ public interface TileCodes
 
     /** Human readable names to go along with the feature constants. */
     public static final String[] FEATURE_NAMES = {
-        "city", "farm", "road", "cloister" };
+        "island", "fishery", "boardwalk", "temple" };
 
     /** A flag used to mark a tile as part of a completed city. */
     public static final int COMPLETED_CITY = 0x01;

@@ -1,10 +1,13 @@
 //
-// $Id: Feature.java,v 1.3 2001/11/08 08:01:42 mdb Exp $
+// $Id: Feature.java,v 1.4 2001/12/18 11:58:53 mdb Exp $
 
 package com.threerings.venison;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Shape;
 
 import java.awt.geom.AffineTransform;
@@ -54,6 +57,10 @@ public class Feature
         if (py < 0) {
             py *= -1;
             py -= TILE_HEIGHT/8;
+        }
+        // oh, just a teeny hack for aesthetic shield placement
+        if (type == -1) {
+            px += 2; py += 2;
         }
         piecenSpots[NORTH] = new Point2D.Float(px, py);
 
@@ -192,34 +199,23 @@ public class Feature
      *
      * @param g the graphics context to use when painting the feature.
      * @param orientation the orientation at which to paint this feature.
-     * @param color the piecen color to be painted.
+     * @param image the piecen image to be painted.
      * @param claimGroup the claim group to which this piecen belongs (or
      * zero if it belongs to no claim group).
      */
-    public void paintPiecen (Graphics2D g, int orientation, int color,
+    public void paintPiecen (Graphics2D g, int orientation, Image image,
                              int claimGroup)
     {
-        // paint a colored circle around the proper piecen spot
         Point2D point = piecenSpots[orientation];
-        double swidth = TILE_WIDTH/5;
-        double sheight = TILE_HEIGHT/5;
+        int iwidth = image.getWidth(null);
+        int iheight = image.getHeight(null);
 
-        Shape spot = new RoundRectangle2D.Double(
-            point.getX()-swidth/2, point.getY()-sheight/2,
-            swidth, sheight, swidth/4, sheight/4);
-        g.setColor(PIECEN_COLOR_MAP[color]);
-        g.fill(spot);
-
-        // fucking ridiculous: draw()ing the same shape that was fill()ed
-        // doesn't generate the same shape. a draw()n shape is one pixel
-        // larger than a fill()ed shape (probably to account for some
-        // backwards compatible bad decision), so we have to create a
-        // whole new shape object to generate the outline. thanks sun
-        spot = new RoundRectangle2D.Double(
-            point.getX()-swidth/2, point.getY()-sheight/2,
-            swidth-1, sheight-1, swidth/4, sheight/4);
-        g.setColor(Color.black);
-        g.draw(spot);
+        // render the piecen image slightly transparent
+        Composite ocomp = g.getComposite();
+        g.setComposite(ALPHA_PLACING);
+        g.drawImage(image, (int)(point.getX() - iwidth/2),
+                    (int)(point.getY() - iheight/2), null);
+        g.setComposite(ocomp);
 
 //          // for now, draw the claim group next to the piecen
 //          g.drawString(Integer.toString(claimGroup),
@@ -367,4 +363,8 @@ public class Feature
         Color.yellow, // YELLOW
         Color.green, // GREEN
     };
+
+    /** For rendering piecens with alpha. */
+    protected static final Composite ALPHA_PLACING =
+	AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
 }

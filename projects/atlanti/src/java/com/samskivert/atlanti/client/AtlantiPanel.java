@@ -65,7 +65,7 @@ public class VenisonPanel
         JPanel sidePanel = new JPanel(sgl);
 
         // add a big fat label because we love it!
-        JLabel vlabel = new JLabel("Venison!");
+        JLabel vlabel = new JLabel("Atlantissonne!");
         vlabel.setFont(new Font("Helvetica", Font.BOLD, 24));
         vlabel.setForeground(Color.black);
         sidePanel.add(vlabel, VGroupLayout.FIXED);
@@ -111,6 +111,7 @@ public class VenisonPanel
                 ImageManager imgr = new ImageManager(_rmgr, rpane);
                 TileManager tmgr = new TileManager(imgr);
                 VenisonTile.setTileManager(tmgr);
+                PiecenUtil.init(tmgr);
             }
             public void ancestorMoved (AncestorEvent event) {
             }

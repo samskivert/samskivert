@@ -1,5 +1,5 @@
 //
-// $Id: TileGeometryTest.java,v 1.3 2001/10/16 09:31:46 mdb Exp $
+// $Id: TileGeometryTest.java,v 1.4 2001/12/18 11:58:53 mdb Exp $
 
 package com.threerings.venison;
 
@@ -12,6 +12,10 @@ import javax.swing.JPanel;
 
 import com.samskivert.swing.util.SwingUtil;
 
+import com.threerings.resource.ResourceManager;
+import com.threerings.media.ImageManager;
+import com.threerings.media.tile.TileManager;
+
 /**
  * A simple class for testing the tile geometry specifications by drawing
  * them.
@@ -22,7 +26,7 @@ public class TileGeometryTest
     public TileGeometryTest ()
     {
         for (int i = 0; i < TILE_TYPES; i++) {
-            _tiles[i] = new VenisonTile(i+1, false, NORTH, i % 5, i / 5);
+            _tiles[i] = new VenisonTile(i+1, true, NORTH, i % 5, i / 5);
         }
     }
 
@@ -45,6 +49,15 @@ public class TileGeometryTest
     public static void main (String[] args)
     {
         JFrame frame = new JFrame("Tile geometry test");
+
+        ResourceManager rmgr = new ResourceManager(null, "rsrc");
+        ImageManager imgr = new ImageManager(rmgr, frame);
+        TileManager tmgr = new TileManager(imgr);
+
+        VenisonTile.setTileManager(tmgr);
+        VenisonTile.piecenDebug = true;
+        PiecenUtil.init(tmgr);
+
         // quit if we're closed
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         TileGeometryTest panel = new TileGeometryTest();

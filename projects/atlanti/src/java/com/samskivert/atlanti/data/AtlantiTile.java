@@ -1,13 +1,17 @@
 //
-// $Id: AtlantiTile.java,v 1.12 2001/11/24 04:29:04 mdb Exp $
+// $Id: AtlantiTile.java,v 1.13 2001/12/18 11:58:54 mdb Exp $
 
 package com.threerings.venison;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Image;
+import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Polygon;
+
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 
 import java.io.IOException;
 import java.io.DataInputStream;
@@ -33,6 +37,10 @@ public class VenisonTile
     /** The starting tile. */
     public static final VenisonTile STARTING_TILE =
         new VenisonTile(CITY_ONE_ROAD_STRAIGHT, false, NORTH, 0, 0);
+
+    /** Activate this to render a piecen on every feature (useful for the
+     * tile geometry test). */
+    public static boolean piecenDebug = false;
 
     /** The tile type. */
     public int type;
@@ -290,27 +298,51 @@ public class VenisonTile
                         ", img=" + _tileImage + "].");
         }
 
-        // render our features and piecen
-        for (int i = 0; i < features.length; i++) {
-            // paint the feature
-//              features[i].paint(g, orientation, claims[i]);
+//         // render our features
+//         for (int i = 0; i < features.length; i++) {
+//             // paint the feature
+//             features[i].paint(g, orientation, claims[i]);
+//         }
 
-            // if we have a piecen on this tile, render it as well
-            if (piecen != null && piecen.featureIndex == i) {
-                features[i].paintPiecen(
-                    g, orientation, piecen.owner, piecen.claimGroup);
+        // if we have a shield, draw a square in the lower right
+        if (hasShield) {
+            Point2D sspot = FeatureUtil.getShieldSpot(orientation);
+            Image image = getShieldImage();
+
+            if (image != null) {
+                int iwidth = image.getWidth(null);
+                int iheight = image.getHeight(null);
+                Composite ocomp = g.getComposite();
+                g.setComposite(ALPHA_PLACING);
+                g.drawImage(image, (int)(sspot.getX() - iwidth/2),
+                            (int)(sspot.getY() - iheight/2), null);
+                g.setComposite(ocomp);
+
+            } else {
+                g.setColor(Color.orange);
+                g.drawRect((int)(sspot.getX()-5),
+                           (int)(sspot.getY()-5), 10, 10);
+            }
+        }
+
+        // if we have a piecen on this tile, render it as well
+        if (piecen != null || piecenDebug) {
+            for (int i = 0; i < features.length; i++) {
+                if (piecenDebug) {
+                    Image pimg = PiecenUtil.getPiecenImage(0);
+                    features[i].paintPiecen(g, orientation, pimg, 0);
+
+                } else if (piecen.featureIndex == i) {
+                    Image pimg = PiecenUtil.getPiecenImage(piecen.owner);
+                    features[i].paintPiecen(
+                        g, orientation, pimg, piecen.claimGroup);
+                }
             }
         }
 
 //          // draw a rectangular outline
 //          g.setColor(Color.black);
 //          g.drawRect(0, 0, TILE_WIDTH-1, TILE_HEIGHT-1);
-
-        // if we have a shield, draw a square in the lower right
-        if (hasShield) {
-            g.setColor(Color.orange);
-            g.drawRect(TILE_WIDTH-15, TILE_HEIGHT-15, 10, 10);
-        }
 
         // translate back out
         g.translate(-sx, -sy);
@@ -458,17 +490,52 @@ public class VenisonTile
         return null;
     }
 
+    /**
+     * Fetches the shield image.
+     */
+    protected static Image getShieldImage ()
+    {
+        // load up the tile set if we haven't already
+        if (_stset == null) {
+            _stset = new UniformTileSet();
+            _stset.setTileCount(1);
+            _stset.setWidth(SHIELD_SIZE);
+            _stset.setHeight(SHIELD_SIZE);
+            _stset.setImagePath(SHIELD_IMG_PATH);
+            _stset.setImageProvider(_tmgr);
+        }
+
+        // fetch the tile
+        try {
+            return _stset.getTileImage(0);
+        } catch (NoSuchTileException nste) {
+            // fall through
+        }
+
+        Log.warning("Unable to load shield image!");
+        return null;
+    }
+
     /** The tile image that we use to render this tile. */
     protected Image _tileImage;
 
     /** Our tile manager. */
     protected static TileManager _tmgr;
 
-    /** Our tileset. */
+    /** Our tile image tileset. */
     protected static UniformTileSet _tset;
+
+    /** Our shield image tileset. */
+    protected static UniformTileSet _stset;
 
     /** The path to our tileset image. */
     protected static final String TILES_IMG_PATH = "media/tiles.png";
+
+    /** The path to our shield image. */
+    protected static final String SHIELD_IMG_PATH = "media/shield.png";
+
+    /** The size of the shield image (width and height). */
+    protected static final int SHIELD_SIZE = 17;
 
     /** Three affine transforms for rendering an image in three rotated
      * orientations. */
@@ -488,4 +555,8 @@ public class VenisonTile
             _xforms[orient] = (AffineTransform)xform.clone();
         }
     }
+
+    /** For rendering shields with alpha. */
+    protected static final Composite ALPHA_PLACING =
+	AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f);
 }

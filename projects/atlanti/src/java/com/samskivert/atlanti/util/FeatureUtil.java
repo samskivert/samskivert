@@ -1,7 +1,9 @@
 //
-// $Id: FeatureUtil.java,v 1.4 2001/10/18 21:52:01 mdb Exp $
+// $Id: FeatureUtil.java,v 1.5 2001/12/18 11:58:53 mdb Exp $
 
 package com.threerings.venison;
+
+import java.awt.geom.Point2D;
 
 /**
  * Feature related constants and utility functions.
@@ -108,6 +110,15 @@ public class FeatureUtil implements TileCodes
         }
 
         return features;
+    }
+
+    /**
+     * Returns the position of the shield on a tile of the given
+     * orientation.
+     */
+    public static Point2D getShieldSpot (int orientation)
+    {
+        return _shieldFeature.piecenSpots[orientation];
     }
 
     /**
@@ -223,7 +234,7 @@ public class FeatureUtil implements TileCodes
         { CITY, EAST_F|WEST_F, // EW_CITY
           2,2, 0,0, 1,1, 3,1, 4,0, 4,4, 3,3, 1,3, 0,4 },
         { CITY, NORTH_F|WEST_F, // NW_CITY
-          1,1, 0,0, 4,0, 0,4 },
+          1,2, 0,0, 4,0, 0,4 },
         { CITY, NORTH_F, // N_CITY
           2,-1, 0,0, 1,1, 3,1, 4,0 },
         { CITY, EAST_F, // E_CITY
@@ -239,10 +250,15 @@ public class FeatureUtil implements TileCodes
         { GRASS, SOUTH_F, // S_GRASS
           2,-4, 0,4, 1,3, 3,3, 4,4 },
         { GRASS, ESE_F|SSE_F, // SE_GRASS
-          3,3, 2,2, 4,2, 4,4, 2,4 },
+          -4,-4, 2,2, 4,2, 4,4, 2,4 },
         { GRASS, WSW_F|SSW_F, // SW_GRASS
-          1,3, 0,2, 2,2, 2,4, 0,4 },
+          -1,-4, 0,2, 2,2, 2,4, 0,4 },
     };
+
+    /** A feature that is used to obtain the position information for
+     * rendering shields on city tiles that use shields. */
+    protected static final int[] SHIELD_FEATURE = new int[]
+        { -1, NORTH_F|WEST_F, -1,-1, 0,0, 4,0, 0,4 };
 
     /** A table describing the features of each tile. */
     protected static final int[][][] TILE_FEATURES = new int[][][] {
@@ -254,15 +270,15 @@ public class FeatureUtil implements TileCodes
           { S_GRASS } },
 
         { { NEW_CITY }, // CITY_THREE_ROAD
-          { GRASS, SSW_F, -2,-4, 0,4, 1,3, 2,3, 2,4 },
-          { GRASS, SSE_F, -3,-4, 2,4, 2,3, 3,3, 4,4 },
+          { GRASS, SSW_F, 1,-4, 0,4, 1,3, 2,3, 2,4 },
+          { GRASS, SSE_F, 3,-4, 2,4, 2,3, 3,3, 4,4 },
           { ROAD, SOUTH_F, 2,-4, 2,3, 2,4 } },
 
         { { NW_CITY }, // CITY_TWO
-          { GRASS, EAST_F|SOUTH_F, 3,3, 0,4, 4,0, 4,4 } },
+          { GRASS, EAST_F|SOUTH_F, 3,-4, 0,4, 4,0, 4,4 } },
 
         { { NW_CITY }, // CITY_TWO_ROAD
-          { GRASS, ENE_F|SSW_F, -3,-3, 0,4, 4,0, 4,2, 2,4 },
+          { GRASS, ENE_F|SSW_F, -3,-2, 0,4, 4,0, 4,2, 2,4 },
           { GRASS, ESE_F|SSE_F, -4,-4, 2,4, 4,2, 4,4 },
           { ROAD, EAST_F|SOUTH_F, 3,3, 2,4, 4,2 } },
 
@@ -270,25 +286,20 @@ public class FeatureUtil implements TileCodes
           { GRASS, NORTH_F, 2,-1, 0,0, 1,1, 3,1, 4,0 }, 
           { S_GRASS } },
 
-//          { { GRASS, WEST_F|SOUTH_F, // TWO_CITY_TWO
-//              2,2, 0,0, 1,1, 3,1, 3,3, 4,4, 0,4 },
-//            { N_CITY },
-//            { E_CITY } },
-
         { { GRASS, WEST_F|SOUTH_F, // TWO_CITY_TWO
-            2,2, 0,0, 4,0, 4,4, 0,4 },
+            -1,-3, 0,0, 4,0, 4,4, 0,4 },
           { CITY, NORTH_F,
             2,-1, 0,0, 2,1, 4,0 },
           { CITY, EAST_F,
             -4,2, 4,0, 3,2, 4,4 } },
 
         { { GRASS, NORTH_F|SOUTH_F, // TWO_CITY_TWO_ACROSS
-            2,2, 0,0, 4,0, 3,1, 3,3, 4,4, 0,4, 1,3, 1,1 },
+            2,-4, 0,0, 4,0, 3,1, 3,3, 4,4, 0,4, 1,3, 1,1 },
           { W_CITY },
           { E_CITY } },
 
         { { GRASS, EAST_F|SOUTH_F|WEST_F, // CITY_ONE
-            2,2, 0,0, 1,1, 3,1, 4,0, 4,4, 0,4 },
+            2,-3, 0,0, 1,1, 3,1, 4,0, 4,4, 0,4 },
           { N_CITY } },
 
         { { GRASS, ENE_F|SSW_F|WEST_F, // CITY_ONE_ROAD_RIGHT
@@ -304,7 +315,7 @@ public class FeatureUtil implements TileCodes
           { N_CITY } },
 
         { { GRASS, ENE_F|WNW_F, // CITY_ONE_ROAD_TEE
-            2,-2, 0,0, 1,1, 3,1, 4,0, 4,2, 0,2 },
+            -1,1, 0,0, 1,1, 3,1, 4,0, 4,2, 0,2 },
           { SE_GRASS },
           { SW_GRASS },
           { E_ROAD },
@@ -313,23 +324,23 @@ public class FeatureUtil implements TileCodes
           { N_CITY } },
 
         { { GRASS, ENE_F|WNW_F, // CITY_ONE_ROAD_STRAIGHT
-            2,-2, 0,0, 1,1, 3,1, 4,0, 4,2, 0,2 },
+            -1,1, 0,0, 1,1, 3,1, 4,0, 4,2, 0,2 },
           { GRASS, ESE_F|SOUTH_F|WSW_F, 2,3, 0,2, 4,2, 4,4, 0,4 },
           { ROAD, EAST_F|WEST_F, 2,2, 0,2, 4,2 },
           { N_CITY } },
 
         { { GRASS, NORTH_F|EAST_F|SOUTH_F|WEST_F, // CLOISTER_PLAIN
-            1,1, 0,0, 4,0, 4,4, 0,4 },
+            -1,-1, 0,0, 4,0, 4,4, 0,4 },
           { CLOISTER, 0, 2,2, 1,1, 3,1, 3,3, 1,3 } },
 
         { { GRASS, NORTH_F|EAST_F|WEST_F|SSE_F|SSW_F, // CLOISTER_ROAD
-            1,1, 0,0, 4,0, 4,4, 0,4 },
+            -1,-1, 0,0, 4,0, 4,4, 0,4 },
           { CLOISTER, 0, 2,2, 1,1, 3,1, 3,3, 1,3 },
           { ROAD, SOUTH_F, 2,-4, 2,3, 2,4 } },
 
         { { GRASS, WNW_F|NNW_F, // FOUR_WAY_ROAD
-            1,1, 0,0, 2,0, 2,2, 0,2 },
-          { GRASS, NNE_F|ENE_F, 3,1, 2,0, 4,0, 4,2, 2,2 },
+            -1,-1, 0,0, 2,0, 2,2, 0,2 },
+          { GRASS, NNE_F|ENE_F, -4,-1, 2,0, 4,0, 4,2, 2,2 },
           { SE_GRASS },
           { SW_GRASS },
           { ROAD, NORTH_F, 2,1, 2,0, 2,2 },
@@ -338,7 +349,7 @@ public class FeatureUtil implements TileCodes
           { W_ROAD } },
 
         { { GRASS, WNW_F|NORTH_F|ENE_F, // THREE_WAY_ROAD
-            2,1, 0,0, 4,0, 4,2, 0,2 },
+            2,-1, 0,0, 4,0, 4,2, 0,2 },
           { SE_GRASS },
           { SW_GRASS },
           { E_ROAD },
@@ -346,8 +357,8 @@ public class FeatureUtil implements TileCodes
           { W_ROAD } },
 
         { { GRASS, NNW_F|WEST_F|SSW_F, // STRAIGHT_ROAD
-            1,2, 0,0, 2,0, 2,4, 0,4 },
-          { GRASS, SSE_F|EAST_F|NNE_F, 3,2, 2,0, 4,0, 4,4, 2,4 },
+            -1,2, 0,0, 2,0, 2,4, 0,4 },
+          { GRASS, SSE_F|EAST_F|NNE_F, -4,2, 2,0, 4,0, 4,4, 2,4 },
           { ROAD, NORTH_F|SOUTH_F, 2,2, 2,0, 2,4 } },
 
         { { GRASS, WNW_F|NORTH_F|EAST_F|SSE_F, // CURVED_ROAD
@@ -371,11 +382,16 @@ public class FeatureUtil implements TileCodes
     /** A table of features that are used on more than one tile. */
     protected static Feature[] _reusedFeatures;
 
+    /** The feature that provides the location information for shield
+     * rendering. */
+    protected static Feature _shieldFeature;
+
     // create our reused features table
     static {
         _reusedFeatures = new Feature[FEATURES.length];
         for (int i = 0; i < FEATURES.length; i++) {
             _reusedFeatures[i] = new Feature(FEATURES[i]);
         }
+        _shieldFeature = new Feature(SHIELD_FEATURE);
     }
 }

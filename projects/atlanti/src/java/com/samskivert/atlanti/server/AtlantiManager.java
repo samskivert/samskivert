@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.20 2001/12/18 10:17:50 mdb Exp $
+// $Id: AtlantiManager.java,v 1.21 2001/12/18 11:58:53 mdb Exp $
 
 package com.threerings.venison;
 
@@ -307,7 +307,7 @@ public class VenisonManager
                         // deliver a chat notification to tell the
                         // players about the score
                         String message = _players[p.owner] + " scored " +
-                            score + " points for " + qual + " cloister.";
+                            score + " points for " + qual + " temple.";
                         ChatProvider.sendSystemMessage(
                             _venobj.getOid(), message);
 
@@ -455,7 +455,7 @@ public class VenisonManager
             if (cityScores[i] > 0) {
                 _venobj.scores[i] += cityScores[i];
                 String message = _players[i] + " scores " + cityScores[i] +
-                    " points for farmed cities.";
+                    " points for fisheries.";
                 ChatProvider.sendSystemMessage(_venobj.getOid(), message);
             }
         }

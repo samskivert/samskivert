@@ -1,5 +1,5 @@
 //
-// $Id: FriendlyException.java,v 1.1 2001/02/13 18:49:41 mdb Exp $
+// $Id: FriendlyException.java,v 1.2 2001/02/15 01:44:34 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -11,7 +11,7 @@ package com.samskivert.webmacro;
  * construct a friendly exception with the desired error message and throw
  * it during the call to <code>populateContext</code>.
  *
- * @see FriendlyServlet
+ * @see DispatcherServlet
  */
 public class FriendlyException extends Exception
 {

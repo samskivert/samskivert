@@ -1,19 +1,55 @@
 //
-// $Id: ExceptionMap.java,v 1.1 2001/02/13 20:00:28 mdb Exp $
+// $Id: ExceptionMap.java,v 1.2 2001/02/15 01:44:34 mdb Exp $
 
 package com.samskivert.webmacro;
 
 import java.io.*;
 import java.util.*;
 
+import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;
 
 /**
- * The exception map is used to load the exception to error message
- * mapping information and to look up the appropriate response for a given
- * exception instance.
+ * The exception map is used to map exceptions to error messages based on
+ * a static, server-wide configuration.
  *
- * @see FriendlyServlet
+ * <p>The configuration file is loaded via the classpath. The file should
+ * be named <code>exceptionmap.properties</code> and placed in the
+ * classpath of the JVM in which the servlet is executed. The file should
+ * contain colon-separated mappings from exception classes to friendly
+ * error messages. For example:
+ *
+ * <pre>
+ * # Exception mappings (lines beginning with # are ignored)
+ * com.samskivert.webmacro.FriendlyException: An error occurred while \
+ * processing your request: {m}
+ *
+ * # lines ending with \ are continued on the next line
+ * java.sql.SQLException: The database is currently unavailable. Please \
+ * try your request again later.
+ *
+ * java.lang.Exception: An unexpected error occurred while processing \
+ * your request. Please try again later.
+ * </pre>
+ *
+ * The message associated with the exception will be substituted into the
+ * error string in place of <code>{m}</code>. The exceptions should be
+ * listed in order of most to least specific, as the first mapping for
+ * which the exception to report is an instance of the listed exception
+ * will be used.
+ *
+ * <p><em>Note:</em> These exception mappings are used for all requests
+ * (perhaps some day only for requests associated with a particular
+ * application). Regardless, this error handling mechanism should not be
+ * used for request specific errors. For example, an SQL exception
+ * reporting a duplicate key should probably be caught and reported
+ * specifically by the appropriate populator (it can still leverage the
+ * pattern of inserting the error message into the context as
+ * <code>"error"</code>) rather than relying on the default SQL exception
+ * error message which is not likely to be meaningful for such a
+ * situation.
+ *
+ * @see DispatcherServlet
  */
 public class ExceptionMap
 {
@@ -33,13 +69,8 @@ public class ExceptionMap
 	}
 
 	// first try loading the properties file without a leading slash
-	InputStream config = getStream(PROPS_NAME);
-	if (config == null) {
-	    // some JVMs require the leading slash, some don't
-	    config = getStream("/" + PROPS_NAME);
-	}
-
-	// still no props, then we complain
+	ClassLoader cld = ExceptionMap.class.getClassLoader();
+	InputStream config = ConfigUtil.getStream(PROPS_NAME, cld);
 	if (config == null) {
 	    Log.log.warning("Unable to load " + PROPS_NAME +
 			    " from CLASSPATH.");
@@ -111,19 +142,6 @@ public class ExceptionMap
 	return StringUtil.replace(msg, MESSAGE_MARKER, ex.getMessage());
     }
 
-    protected static InputStream getStream (String path)
-    {
-	// first try using the classloader that loaded us
-	Class c = ExceptionMap.class;
-	InputStream in = c.getResourceAsStream(path);
-	if (null == in) {
-	    // if that didn't work, try the system classloader
-            c = Class.class;
-            in = c.getResourceAsStream(path);
-	}
-	return in;
-    }
-
     public static void main (String[] args)
     {
 	ExceptionMap map = new ExceptionMap();
@@ -137,6 +155,6 @@ public class ExceptionMap
     static { init(); }
 
     protected static final String PROPS_NAME = "exceptionmap.properties";
-    protected static final String DEFAULT_ERROR_MSG = "Error: {m}.";
+    protected static final String DEFAULT_ERROR_MSG = "Error: {m}";
     protected static final String MESSAGE_MARKER = "{m}";
 }

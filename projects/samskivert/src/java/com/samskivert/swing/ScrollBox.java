@@ -133,6 +133,14 @@ public class ScrollBox extends JPanel
         _box.height = (int) Math.round(_vert.getExtent() * _vFactor);
     }
 
+    /**
+     * Return true if the specified button is ok for dragging the box around.
+     */
+    protected boolean isActiveButton (MouseEvent e)
+    {
+        return e.getButton() == MouseEvent.BUTTON1;
+    }
+
     /** The bounds that we observe / modify. */
     protected BoundedRangeModel _horz, _vert;
 
@@ -150,7 +158,7 @@ public class ScrollBox extends JPanel
         // documentation inherited
         public void mousePressed (MouseEvent e)
         {
-            if (e.getButton() == MouseEvent.BUTTON1) {
+            if (isActiveButton(e)) {
                 setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
                 Point p = e.getPoint();
                 if (_box.contains(p)) {
@@ -180,7 +188,7 @@ public class ScrollBox extends JPanel
         // documentation inherited
         public void mouseReleased (MouseEvent e)
         {
-            if (e.getButton() == MouseEvent.BUTTON1) {
+            if (isActiveButton(e)) {
                 setCursor(null);
                 _lastPoint = null;
             }

@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.38 2004/01/31 06:24:01 mdb Exp $
+// $Id: UserRepository.java,v 1.39 2004/01/31 06:38:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -97,11 +97,8 @@ public class UserRepository extends JORARepository
     /**
      * Requests that a new user be created in the repository.
      *
-     * @param username the username of the new user to create. Usernames
-     * must consist only of characters that match the following regular
-     * expression: <code>[_A-Za-z0-9]+</code> and be longer than two
-     * characters.
-     * @param password the (unencrypted) password for the new user.
+     * @param uname the username of the new user to create.
+     * @param pass the (unencrypted) password for the new user.
      * @param realname the user's real name.
      * @param email the user's email address.
      * @param siteId the unique identifier of the site through which this
@@ -112,12 +109,11 @@ public class UserRepository extends JORARepository
      *
      * @return The userid of the newly created user.
      */
-    public int createUser (String username, String password, String realname,
+    public int createUser (Username uname, String pass, String realname,
                            String email, int siteId)
-	throws InvalidUsernameException, UserExistsException,
-        PersistenceException
+	throws UserExistsException, PersistenceException
     {
-        return createUser(username, new Password(username, password),
+        return createUser(uname, new Password(uname.getUsername(), pass),
                           realname, email, siteId);
     }
 
@@ -125,10 +121,9 @@ public class UserRepository extends JORARepository
      * Like {@link #createUser(String,String,String,String,int)} except
      * that the supplied password has already been encrypted.
      */
-    public int createUser (String username, Password password, String realname,
-                           String email, int siteId)
-	throws InvalidUsernameException, UserExistsException,
-        PersistenceException
+    public int createUser (Username username, Password password,
+                           String realname, String email, int siteId)
+	throws UserExistsException, PersistenceException
     {
 	// create a new user object...
         User user = new User();
@@ -143,23 +138,11 @@ public class UserRepository extends JORARepository
      * in preparation for inserting the record into the database for the
      * first time.
      */
-    protected void populateUser (User user, String username, Password password,
+    protected void populateUser (User user, Username name, Password pass,
                                  String realname, String email, int siteId)
-        throws InvalidUsernameException
     {
-	// check minimum length
-	if (username.length() < MINIMUM_USERNAME_LENGTH) {
-	    throw new InvalidUsernameException("error.username_too_short");
-	}
-
-	// check that it's only valid characters
-	if (!username.matches("^[_A-Za-z0-9]+$")) {
-            Log.info("Mismatch " + username + ".");
-	    throw new InvalidUsernameException("error.invalid_username");
-	}
-
-	user.username = username;
-	user.password = password.getEncrypted();
+	user.username = name.getUsername();
+	user.password = pass.getEncrypted();
 	user.realname = realname;
 	user.email = email;
 	user.created = new Date(System.currentTimeMillis());
@@ -605,10 +588,10 @@ public class UserRepository extends JORARepository
 	    System.out.println(rep.loadUser("mdb"));
 	    System.out.println(rep.loadUserBySession("auth"));
 
-	    rep.createUser("samskivert", "foobar", "Michael Bayne",
-			   "mdb@samskivert.com",
+	    rep.createUser(new Username("samskivert"), "foobar",
+                           "Michael Bayne", "mdb@samskivert.com",
                            SiteIdentifier.DEFAULT_SITE_ID);
-	    rep.createUser("mdb", "foobar", "Michael Bayne",
+	    rep.createUser(new Username("mdb"), "foobar", "Michael Bayne",
 			   "mdb@samskivert.com",
                            SiteIdentifier.DEFAULT_SITE_ID);
 
@@ -621,7 +604,4 @@ public class UserRepository extends JORARepository
 
     /** A wrapper that provides access to the userstable. */
     protected Table _utable;
-
-    /** The minimum allowable length of a username. */
-    protected static final int MINIMUM_USERNAME_LENGTH = 3;
 }

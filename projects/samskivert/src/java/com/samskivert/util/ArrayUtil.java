@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.18 2002/11/08 02:34:54 shaper Exp $
+// $Id: ArrayUtil.java,v 1.19 2002/11/29 20:39:21 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -172,7 +172,19 @@ public class ArrayUtil
      */
     public static void shuffle (byte[] values)
     {
-        shuffle(values, 0, values.length);
+        shuffle(values, _rnd);
+    }
+
+    /**
+     * Shuffles the elements in the given array into a random sequence.
+     *
+     * @param values the array to shuffle.
+     * @param rnd the source from which random values for shuffling the
+     * array are obtained.
+     */
+    public static void shuffle (byte[] values, Random rnd)
+    {
+        shuffle(values, 0, values.length, rnd);
     }
 
     /**
@@ -185,11 +197,27 @@ public class ArrayUtil
      */
     public static void shuffle (byte[] values, int offset, int length)
     {
+        shuffle(values, offset, length, _rnd);
+    }
+
+    /**
+     * Shuffles a subset of elements within the specified array into a
+     * random sequence.
+     *
+     * @param values the array containing elements to shuffle.
+     * @param offset the index at which to start shuffling elements.
+     * @param length the number of elements to shuffle.
+     * @param rnd the source from which random values for shuffling the
+     * array are obtained.
+     */
+    public static void shuffle (
+        byte[] values, int offset, int length, Random rnd)
+    {
         // starting from the end of the specified region, repeatedly swap
         // the element in question with a random element previous to it
         // (in the specified region) up to and including itself
         for (int ii = offset + length - 1; ii > offset; ii--) {
-            int idx = offset + _rnd.nextInt(ii - offset + 1);
+            int idx = offset + rnd.nextInt(ii - offset + 1);
             byte tmp = values[ii];
             values[ii] = values[idx];
             values[idx] = tmp;
@@ -203,7 +231,19 @@ public class ArrayUtil
      */
     public static void shuffle (int[] values)
     {
-        shuffle(values, 0, values.length);
+        shuffle(values, _rnd);
+    }
+
+    /**
+     * Shuffles the elements in the given array into a random sequence.
+     *
+     * @param values the array to shuffle.
+     * @param rnd the source from which random values for shuffling the
+     * array are obtained.
+     */
+    public static void shuffle (int[] values, Random rnd)
+    {
+        shuffle(values, 0, values.length, rnd);
     }
 
     /**
@@ -216,11 +256,27 @@ public class ArrayUtil
      */
     public static void shuffle (int[] values, int offset, int length)
     {
+        shuffle(values, offset, length, _rnd);
+    }
+
+    /**
+     * Shuffles a subset of elements within the specified array into a
+     * random sequence.
+     *
+     * @param values the array containing elements to shuffle.
+     * @param offset the index at which to start shuffling elements.
+     * @param length the number of elements to shuffle.
+     * @param rnd the source from which random values for shuffling the
+     * array are obtained.
+     */
+    public static void shuffle (
+        int[] values, int offset, int length, Random rnd)
+    {
         // starting from the end of the specified region, repeatedly swap
         // the element in question with a random element previous to it
         // (in the specified region) up to and including itself
         for (int ii = offset + length - 1; ii > offset; ii--) {
-            int idx = offset + _rnd.nextInt(ii - offset + 1);
+            int idx = offset + rnd.nextInt(ii - offset + 1);
             int tmp = values[ii];
             values[ii] = values[idx];
             values[idx] = tmp;
@@ -234,7 +290,19 @@ public class ArrayUtil
      */
     public static void shuffle (Object[] values)
     {
-        shuffle(values, 0, values.length);
+        shuffle(values, _rnd);
+    }
+
+    /**
+     * Shuffles the elements in the given array into a random sequence.
+     *
+     * @param values the array to shuffle.
+     * @param rnd the source from which random values for shuffling the
+     * array are obtained.
+     */
+    public static void shuffle (Object[] values, Random rnd)
+    {
+        shuffle(values, 0, values.length, rnd);
     }
 
     /**
@@ -247,11 +315,27 @@ public class ArrayUtil
      */
     public static void shuffle (Object[] values, int offset, int length)
     {
+        shuffle(values, offset, length, _rnd);
+    }
+
+    /**
+     * Shuffles a subset of elements within the specified array into a
+     * random sequence.
+     *
+     * @param values the array containing elements to shuffle.
+     * @param offset the index at which to start shuffling elements.
+     * @param length the number of elements to shuffle.
+     * @param rnd the source from which random values for shuffling the
+     * array are obtained.
+     */
+    public static void shuffle (
+        Object[] values, int offset, int length, Random rnd)
+    {
         // starting from the end of the specified region, repeatedly swap
         // the element in question with a random element previous to it
         // (in the specified region) up to and including itself
         for (int ii = offset + length - 1; ii > offset; ii--) {
-            int idx = offset + _rnd.nextInt(ii - offset + 1);
+            int idx = offset + rnd.nextInt(ii - offset + 1);
             Object tmp = values[ii];
             values[ii] = values[idx];
             values[idx] = tmp;
@@ -595,6 +679,6 @@ public class ArrayUtil
         return nvalues;
     }
 
-    /** The random object used when shuffling an array. */
+    /** The default random object used when shuffling an array. */
     protected static Random _rnd = new Random();
 }

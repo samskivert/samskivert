@@ -1,5 +1,5 @@
 /**
- * $Id: create_site_tables.mysql,v 1.1 2001/11/01 21:34:19 mdb Exp $
+ * $Id: create_site_tables.mysql,v 1.2 2003/11/13 16:57:47 mdb Exp $
  *
  * Creates the necessary database tables in MySQL for the JDBC table site
  * identifier.
@@ -11,8 +11,8 @@
  */
 DROP TABLE IF EXISTS sites;
 CREATE TABLE sites (
-    siteId    INTEGER(5) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    stringId  VARCHAR(24) NOT NULL
+    siteId     INTEGER(5) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    siteString VARCHAR(24) NOT NULL
 );
 
 /**

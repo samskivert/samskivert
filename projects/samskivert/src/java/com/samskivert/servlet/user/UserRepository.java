@@ -344,6 +344,10 @@ public class UserRepository extends JORARepository
     public void deleteUser (final User user)
 	throws PersistenceException
     {
+        if (user.isDeleted()) {
+            return;
+        }
+
 	execute(new Operation () {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
@@ -357,20 +361,15 @@ public class UserRepository extends JORARepository
                 // set the password to unusable
                 user.password = "";
 
-                String join = "=";
-                String newName = user.username;
-                if (newName.length() > 21) {
-                    newName = newName.substring(0,21);
-                    join = "-";
-                }
-
                 // 'disable' their email address
                 String newEmail = user.email.replace('@','#');
                 user.email = newEmail;
 
+                String oldName = user.username;
                 for (int ii = 0; ii < 100; ii++) {
                     try {
-                        user.username = ii + join + newName;
+                        user.username = StringUtil.truncate(
+                            ii + "=" + oldName, 24);
                         _utable.update(user, mask);
                         return null; // nothing to return
                     } catch (SQLException se) {

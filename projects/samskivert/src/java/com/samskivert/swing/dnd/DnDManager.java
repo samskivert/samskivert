@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.14 2003/04/30 23:03:52 ray Exp $
+// $Id: DnDManager.java,v 1.15 2003/05/01 01:28:07 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -427,8 +427,13 @@ public class DnDManager
     {
         Component comp = exitEvent.getComponent();
         Point p = exitEvent.getPoint();
-        Point scr = comp.getLocationOnScreen();
-        p.translate(scr.x, scr.y);
+        try {
+            Point scr = comp.getLocationOnScreen();
+            p.translate(scr.x, scr.y);
+        } catch (IllegalComponentStateException icse) {
+            // the component is no longer on screen. Deal.
+            return;
+        }
 
         Component parent;
         Object target;

@@ -1,5 +1,5 @@
 //
-// $Id: Collections.java,v 1.3 2002/05/24 21:31:56 mdb Exp $
+// $Id: Collections.java,v 1.4 2002/11/07 18:40:40 ray Exp $
 
 package com.samskivert.util;
 
@@ -14,6 +14,15 @@ import java.util.*;
  */
 public class Collections
 {
+    /**
+     * Returns an iterator that iterates over all the elements contained
+     * within the collections within the specified collection.
+     */
+    public static Iterator getMetaIterator (Collection metaCollection)
+    {
+        return new MetaIterator(metaCollection);
+    }
+
     /**
      * Returns a synchronized (thread-safe) int map backed by the
      * specified int map.  In order to guarantee serial access, it is
@@ -256,5 +265,60 @@ public class Collections
 	public String toString() {
 	    synchronized(mutex) {return c.toString();}
         }
+    }
+
+    /**
+     * An iterator that iterates over the union of the iterators provided by a
+     * collection of collections.
+     */
+    protected static class MetaIterator implements Iterator
+    {
+        /**
+         * @param collections a Collection containing more Collections
+         * whose elements we are to iterate over.
+         */
+        public MetaIterator (Collection collections)
+        {
+            _meta = collections.iterator();
+        }
+
+        // documentation inherited from interface Iterator
+        public boolean hasNext ()
+        {
+            while ((_current == null) || (!_current.hasNext())) {
+                if (_meta.hasNext()) {
+                    _current = ((Collection) _meta.next()).iterator();
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // documentation inherited from interface Iterator
+        public Object next ()
+        {
+            if (hasNext()) {
+                return _current.next();
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+
+        // documentation inherited from interface Iterator
+        public void remove ()
+        {
+            if (_current != null) {
+                _current.remove();
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+
+        /** The iterator through the collection we were constructed with. */
+        protected Iterator _meta;
+
+        /** The current sub-collection's iterator. */
+        protected Iterator _current;
     }
 }

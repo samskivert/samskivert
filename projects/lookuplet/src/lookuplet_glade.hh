@@ -24,7 +24,6 @@ protected:
         ~lookuplet_glade();
 private:
         virtual bool on_query_key_press_event(GdkEventKey *ev) = 0;
-        virtual void on_query_selection_received(GtkSelectionData *selection_data,guint time) = 0;
         virtual void on_prefs_clicked() = 0;
 };
 #endif

@@ -46,7 +46,6 @@ lookuplet_glade::lookuplet_glade(
    mainbox->show();
    lookuplet->show();
    _query->signal_key_press_event().connect(SigC::slot(*this, &lookuplet_glade::on_query_key_press_event));
-   _query->signal_selection_received().connect(SigC::slot(*this, &lookuplet_glade::on_query_selection_received), true);
    prefs->signal_clicked().connect(SigC::slot(*this, &lookuplet_glade::on_prefs_clicked));
 }
 

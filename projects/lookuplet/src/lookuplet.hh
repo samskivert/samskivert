@@ -1,5 +1,5 @@
 //
-// $Id: lookuplet.hh,v 1.1 2003/11/28 21:34:59 mdb Exp $
+// $Id: lookuplet.hh,v 1.2 2003/11/30 23:50:18 mdb Exp $
 
 #ifndef _LOOKUPLET_HH
 #include "lookuplet_glade.hh"
@@ -9,9 +9,10 @@ class lookuplet : public lookuplet_glade
 {  
     friend class lookuplet_glade;
     bool on_query_key_press_event(GdkEventKey *ev);
-    void on_query_selection_received(GtkSelectionData *data, guint time);
     void on_prefs_clicked();
     void exit_lookuplet();
+public:
+    void on_clip_text_received(const gchar* text);
 };
 
 #endif

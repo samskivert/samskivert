@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.19 2003/10/08 23:52:50 ray Exp $
+// $Id: UserManager.java,v 1.20 2003/10/09 00:48:37 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -261,10 +261,7 @@ public class UserManager
 	}
 
 	// set them up the bomb
-	Cookie rmcookie = new Cookie(USERAUTH_COOKIE, authcode);
-	rmcookie.setPath("/");
-	rmcookie.setMaxAge(0);
-	rsp.addCookie(rmcookie);
+        CookieUtil.clearCookie(rsp, USERAUTH_COOKIE);
     }
 
     /** The user repository. */

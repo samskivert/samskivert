@@ -1,10 +1,11 @@
 //
-// $Id: CookieUtil.java,v 1.1 2003/10/06 22:50:28 ray Exp $
+// $Id: CookieUtil.java,v 1.2 2003/10/09 00:48:37 ray Exp $
 
 package com.samskivert.servlet.util;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Utility methods for dealing with cookies.
@@ -36,5 +37,16 @@ public class CookieUtil
     {
         Cookie c = getCookie(req, name);
         return (c == null) ? null : c.getValue();
+    }
+
+    /**
+     * Clear the cookie with the specified name.
+     */
+    public static void clearCookie (HttpServletResponse rsp, String name)
+    {
+        Cookie c = new Cookie(name, "x");
+        c.setPath("/");
+        c.setMaxAge(0);
+        rsp.addCookie(c);
     }
 }

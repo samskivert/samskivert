@@ -277,6 +277,14 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
+     * Returns true if this label has been laid out, false if not.
+     */
+    public boolean isLaidOut ()
+    {
+        return (_layouts != null);
+    }
+
+    /**
      * Calls {@link #layout(Graphics2D)} with the graphics context for the
      * given component.
      */

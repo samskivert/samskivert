@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.1 2001/10/10 06:14:57 mdb Exp $
+// $Id: TileUtil.java,v 1.2 2001/10/11 04:00:49 mdb Exp $
 
 package com.threerings.venison;
 
@@ -65,6 +65,7 @@ public class TileUtil implements TileCodes
             } else if (sum ==  1) {
                 // they're neighbors, we may have a match
                 int targetEdge = EDGE_MAP[(ydiff+1)*3 + xdiff+1];
+
                 // we want the edge of the placed tile that matches up
                 // with the tile in the candidate location, but we also
                 // need to take into account the orientation of the placed
@@ -102,6 +103,62 @@ public class TileUtil implements TileCodes
             orients[i] = (matches[i] > 0);
         }
         return orients;
+    }
+
+    /**
+     * Returns true if the position and orientation of the target tile is
+     * legal given the placement of all of the existing tiles.
+     *
+     * @param tiles an iterator that enumerates all of the tile already on
+     * the board.
+     * @param target the tile whose validity we want to determine.
+     *
+     * @return true if the target tile is configured with a valid position
+     * and orientation, false if it is not.
+     */
+    public static boolean isValidPlacement (
+        Iterator tiles, VenisonTile target)
+    {
+        boolean matchedAnEdge = false;
+
+        while (tiles.hasNext()) {
+            VenisonTile tile = (VenisonTile)tiles.next();
+
+            // figure out where this tile is in relation to the candidate
+            int xdiff = tile.x - target.x;
+            int ydiff = tile.y - target.y;
+            int sum = Math.abs(xdiff) + Math.abs(ydiff);
+
+            if (sum == 0) {
+                // they overlap, nothing doing
+                return false;
+
+            } else if (sum ==  1) {
+                // they're neighbors, we may have a match
+                int targetEdge = EDGE_MAP[(ydiff+1)*3 + xdiff+1];
+
+                // we want the edge of the placed tile that matches up
+                // with the tile in the candidate location, but we also
+                // need to take into account the orientation of the placed
+                // tile
+                int tileEdge = (targetEdge+(4-tile.orientation)+2) % 4;
+
+                // see if the edges match
+                if (getEdge(tile.type, tileEdge) ==
+                    getEdge(target.type, targetEdge)) {
+                    // make a note that we matched at least one edge
+                    matchedAnEdge = true;
+
+                } else {
+                    // the edges don't match, nothing doing
+                    return false;
+                }
+            }
+        }
+
+        // if we got this far, we didn't have any mismatches, so we need
+        // only know that we matched at least one edge
+        return matchedAnEdge;
     }
 
     /**

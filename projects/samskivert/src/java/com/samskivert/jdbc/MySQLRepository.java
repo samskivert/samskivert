@@ -1,5 +1,5 @@
 //
-// $Id: MySQLRepository.java,v 1.1 2001/02/13 00:25:14 mdb Exp $
+// $Id: MySQLRepository.java,v 1.2 2001/03/01 22:59:51 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -37,5 +37,19 @@ public abstract class MySQLRepository extends Repository
 	} else {
 	    return -1;
 	}
+    }
+
+    /**
+     * Determines whether or not the supplied SQL exception originated
+     * from a duplicate row error.
+     *
+     * @return true if the exception was thrown because a duplicate row
+     * was inserted into a table that does not allow such things, false if
+     * the exception is not related to duplicate rows.
+     */
+    protected boolean isDuplicateRowException (SQLException sqe)
+    {
+	String msg = sqe.getMessage();
+	return (msg != null && msg.indexOf("Duplicate entry") != -1);
     }
 }

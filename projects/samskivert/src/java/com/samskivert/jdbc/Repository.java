@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.2 2001/02/13 05:55:57 mdb Exp $
+// $Id: Repository.java,v 1.3 2001/03/01 02:04:09 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -52,7 +52,8 @@ public abstract class Repository
 
 	// the only reason session.open() fails is class not found
 	if (!_session.open(url, username, password)) {
-	    throw new SQLException("Unable to load JDBC driver class.");
+	    throw new SQLException("Unable to load JDBC driver class: " +
+				   dclass);
 	}
 
 	// set auto-commit to false

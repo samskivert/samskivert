@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.9 2001/07/24 21:25:46 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.10 2001/08/12 02:40:44 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -56,9 +56,11 @@ public class HierarchyVisualizer implements Printable
 
         // remove the packages on our exclusion list
         String expkg = System.getProperty("exclude");
-        StringTokenizer tok = new StringTokenizer(expkg, ":");
-        while (tok.hasMoreTokens()) {
-            pkgset.remove(tok.nextToken());
+        if (expkg != null) {
+            StringTokenizer tok = new StringTokenizer(expkg, ":");
+            while (tok.hasMoreTokens()) {
+                pkgset.remove(tok.nextToken());
+            }
         }
 
         // sort our package names

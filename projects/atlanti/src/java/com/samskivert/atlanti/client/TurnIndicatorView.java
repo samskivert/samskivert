@@ -1,5 +1,5 @@
 //
-// $Id: TurnIndicatorView.java,v 1.1 2001/10/16 01:41:55 mdb Exp $
+// $Id: TurnIndicatorView.java,v 1.2 2001/10/18 20:55:05 mdb Exp $
 
 package com.threerings.venison;
 
@@ -49,6 +49,12 @@ public class TurnIndicatorView
         // ourselves as an attribute change listener
         _venobj = (VenisonObject)plobj;
         _venobj.addListener(this);
+
+        // update our displays
+        updateCurrentTile();
+        updateGameState();
+        updateTurnHolder();
+        updateRemainingTiles();
     }
 
     // documentation inherited
@@ -62,38 +68,54 @@ public class TurnIndicatorView
     // documentation inherited
     public void attributeChanged (AttributeChangedEvent event)
     {
-        // we care about the current tile display
         if (event.getName().equals(VenisonObject.CURRENT_TILE)) {
-            // display the tile to be placed
-            _tileLabel.setTile(_venobj.currentTile);
+            // update the current tile display
+            updateCurrentTile();
 
         } else if (event.getName().equals(VenisonObject.STATE)) {
-            switch (_venobj.state) {
-            case VenisonObject.AWAITING_PLAYERS:
-                _whoLabel.setText("Awaiting players...");
-                _tileLabel.setTile(null);
-                break;
-            case VenisonObject.GAME_OVER:
-                _whoLabel.setText("Game over.");
-                _tileLabel.setTile(null);
-                break;
-            case VenisonObject.CANCELLED:
-                _whoLabel.setText("Cancelled.");
-                _tileLabel.setTile(null);
-                break;
-            }
-
+            // update the game state display
+            updateGameState();
             // update the tiles remaining
             updateRemainingTiles();
 
         } else if (event.getName().equals(VenisonObject.TURN_HOLDER)) {
-            if (_venobj.state == VenisonObject.IN_PLAY) {
-                _whoLabel.setText(_venobj.turnHolder);
-            }
+            // update the turn holder
+            updateTurnHolder();
 
             // update the tiles remaining when the turn changes
             updateRemainingTiles();
         }
+    }
+
+    protected void updateGameState ()
+    {
+        switch (_venobj.state) {
+        case VenisonObject.AWAITING_PLAYERS:
+            _whoLabel.setText("Awaiting players...");
+            _tileLabel.setTile(null);
+            break;
+        case VenisonObject.GAME_OVER:
+            _whoLabel.setText("Game over.");
+            _tileLabel.setTile(null);
+            break;
+        case VenisonObject.CANCELLED:
+            _whoLabel.setText("Cancelled.");
+            _tileLabel.setTile(null);
+            break;
+        }
+    }
+
+    protected void updateTurnHolder ()
+    {
+        if (_venobj.state == VenisonObject.IN_PLAY) {
+            _whoLabel.setText(_venobj.turnHolder);
+        }
+    }
+
+    protected void updateCurrentTile ()
+    {
+        // display the tile to be placed
+        _tileLabel.setTile(_venobj.currentTile);
     }
 
     protected void updateRemainingTiles ()

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.4 2001/10/12 20:34:13 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.5 2001/10/15 19:54:53 mdb Exp $
 
 package com.threerings.venison;
 
@@ -12,8 +12,6 @@ import com.samskivert.swing.Controller;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.presents.dobj.DSet;
-
-import com.threerings.venison.Log;
 
 /**
  * Displays the tiles that make up the Venison board.
@@ -66,8 +64,6 @@ public class VenisonBoard
      */
     public void refreshTiles ()
     {
-        Log.info("Refreshing tiles " + _tiles + ".");
-
         // recompute our desired dimensions and then have our parent
         // adjust to our changed size
         if (_tiles != null) {

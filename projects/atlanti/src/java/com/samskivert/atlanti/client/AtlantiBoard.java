@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.18 2002/12/12 05:51:53 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.19 2003/03/23 05:12:43 mdb Exp $
 
 package com.samskivert.atlanti.client;
 
@@ -237,9 +237,9 @@ public class AtlantiBoard extends JPanel
     }
 
     // documentation inherited
-    public void layout ()
+    public void doLayout ()
     {
-        super.layout();
+        super.doLayout();
 
         // compute our translation coordinates based on our size
         _tx = (getWidth() - TILE_WIDTH * _width)/2;

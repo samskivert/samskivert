@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.15 2002/10/18 21:45:10 ray Exp $
+// $Id: SwingUtil.java,v 1.16 2002/10/27 22:17:08 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,17 @@
 
 package com.samskivert.swing.util;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Toolkit;
+import java.awt.Window;
 
 import java.awt.geom.Area;
 

@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.9 2002/12/19 22:41:13 mdb Exp $
+// $Id: SortableArrayList.java,v 1.10 2003/01/18 02:41:19 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -166,7 +166,10 @@ public class SortableArrayList extends AbstractList
         }
 
         // copy the elements
-        System.arraycopy(_elements, 0, target, 0, _size);
+        if (_elements != null) {
+            System.arraycopy(_elements, 0, target, 0, _size);
+        }
+
         return target;
     }
 

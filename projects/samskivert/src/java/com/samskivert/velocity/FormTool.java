@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.7 2002/11/09 00:48:51 mdb Exp $
+// $Id: FormTool.java,v 1.8 2003/07/04 01:29:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -248,6 +248,23 @@ public class FormTool
             buf.append(" selected");
         }
         buf.append(">").append(item).append("</option>");
+        return buf.toString();
+    }
+
+    /**
+     * Creates a radio button with the specified name and value.
+     */
+    public String radio (String name, String value)
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("<input type=\"radio\"");
+        buf.append(" name=\"").append(name).append("\"");
+        buf.append(" value=\"").append(value).append("\"");
+        String selectedValue = getValue(name, null);
+        if (value.equals(selectedValue)) {
+            buf.append(" checked");
+        }
+        buf.append(">");
         return buf.toString();
     }
 

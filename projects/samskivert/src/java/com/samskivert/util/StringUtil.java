@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.50 2003/01/08 22:51:07 mdb Exp $
+// $Id: StringUtil.java,v 1.51 2003/01/24 00:31:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -751,11 +751,29 @@ public class StringUtil
      */
     public static String join (String[] values, boolean escape)
     {
+        return join(values, ", ", escape);
+    }
+
+    /**
+     * Joins the supplied array of strings into a single string separated
+     * by the supplied separator.
+     */
+    public static String join (String[] values, String separator)
+    {
+        return join(values, separator, false);
+    }
+
+    /**
+     * Helper function for the various <code>join</code> methods.
+     */
+    protected static String join (
+        String[] values, String separator, boolean escape)
+    {
         StringBuffer buf = new StringBuffer();
         int vlength = values.length;
         for (int i = 0; i < vlength; i++) {
             if (i > 0) {
-                buf.append(", ");
+                buf.append(separator);
             }
             String value = (values[i] == null) ? "" : values[i];
             buf.append((escape) ? replace(value, ",", ",,") : value);

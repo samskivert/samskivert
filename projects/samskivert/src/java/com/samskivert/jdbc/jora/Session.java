@@ -36,7 +36,7 @@ public class Session {
     /** Construct a session with a pre-existing connection instance. In
      * this case, {@link #open} should not be called on this session.
      *
-     * @param conn the connection to use.
+     * @param connection the connection to use.
      */
     public Session(Connection connection)
     {
@@ -102,9 +102,10 @@ public class Session {
      *  The DriverManager attempts to select an appropriate driver from
      *  the set of registered JDBC drivers.
      *
-     * @param url a database url of the form 
+     * @param dataSource a database url of the form 
      *  jdbc:<em>subprotocol</em>:<em>subname</em>
-     * @param user the database user on whose behalf the Connection is being made
+     * @param user the database user on whose behalf the Connection is
+     * being made
      * @param password the user's password
      * @return true if session is succesfully openned, false otherwise
      */      

@@ -28,10 +28,10 @@ public class CalendarUtil
      * leap seconds, etc. The order of the two dates in time does not
      * matter, the absolute number of days between them will be returned.
      *
+     * <p> From: http://www.jguru.com/forums/view.jsp?EID=489372
+     *
      * @return the number of days between d1 and d2, 0 if they are the
      * same day.
-     *
-     * @author http://www.jguru.com/forums/view.jsp?EID=489372
      */
     public static int getDaysBetween (Calendar d1, Calendar d2)
     {

@@ -3,6 +3,8 @@
 
 package com.samskivert.text;
 
+import java.text.MessageFormat;
+
 import com.samskivert.util.StringUtil;
 
 /**
@@ -24,8 +26,7 @@ public class MessageUtil
     /**
      * Call this to "taint" any string that has been entered by an entity
      * outside the application so that the translation code knows not to
-     * attempt to translate this string when doing recursive translations
-     * (see {@link #xlate}).
+     * attempt to translate this string when doing recursive translations.
      */
     public static String taint (Object text)
     {
@@ -34,7 +35,8 @@ public class MessageUtil
 
     /**
      * Composes a message key with an array of arguments. The message can
-     * subsequently be translated in a single call using {@link #xlate}.
+     * subsequently be decomposed and translated without prior knowledge
+     * of how many arguments were provided.
      */
     public static String compose (String key, Object[] args)
     {

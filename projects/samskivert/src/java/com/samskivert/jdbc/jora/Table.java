@@ -25,7 +25,7 @@ public class Table {
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param tclassName name of Java class
+     * @param className name of Java class
      * @param tableName name of database table mapped on this Java class
      * @param s session, which should be opened before first access to the table
      * @param key table's primary key. This parameter is used in UPDATE/DELETE
@@ -42,7 +42,7 @@ public class Table {
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param tclassName name of Java class
+     * @param className name of Java class
      * @param tableName name of database table mapped on this Java class
      * @param key table's primary key. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
@@ -56,7 +56,7 @@ public class Table {
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param tclassName name of Java class
+     * @param className name of Java class
      * @param tableName name of database table mapped on this Java class
      * @param keys table primary keys. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
@@ -70,9 +70,9 @@ public class Table {
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param tclassName name of Java class
+     * @param className name of Java class
      * @param tableName name of database table mapped on this Java class
-     * @param key table's primary key. This parameter is used in UPDATE/DELETE
+     * @param keys table primary keys. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
      * @param s session, which should be opened before first access to the table
      * @param mixedCaseConvert whether or not to convert mixed case field

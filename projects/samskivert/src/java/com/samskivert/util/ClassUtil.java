@@ -165,8 +165,8 @@ public class ClassUtil
      *
      * @param clazz a class.
      * @param methodName name of a method.
-     * @param paramTypes Class array representing the types of a method's
-     * formal parameters.
+     * @param parameterTypes Class array representing the types of a
+     * method's formal parameters.
      *
      * @return the nearest method located, or null if there is no such
      * method.

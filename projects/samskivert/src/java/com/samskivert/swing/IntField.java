@@ -1,5 +1,5 @@
 //
-// $Id: IntField.java,v 1.6 2004/02/25 13:17:41 mdb Exp $
+// $Id: IntField.java,v 1.7 2004/05/27 22:57:47 ray Exp $
 
 package com.samskivert.swing;
 
@@ -43,8 +43,12 @@ public class IntField extends JTextField
      */
     public int getValue ()
     {
+        String s = getText();
+        if ("".equals(s)) {
+            return 0;
+        }
         try {
-            return Integer.parseInt(getText());
+            return Integer.parseInt(s);
         } catch (NumberFormatException nfe) {
             Log.warning("This should never, ever, happen");
         }
@@ -81,6 +85,9 @@ public class IntField extends JTextField
     // from interface SwingUtil.DocumentTransformer
     public String transform (String s)
     {
+        if ("".equals(s)) {
+            return s;
+        }
         int val = Integer.parseInt(s);
         return Integer.toString(Math.min(_maxValue, Math.max(_minValue, val)));
     }

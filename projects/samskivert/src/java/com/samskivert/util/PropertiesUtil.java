@@ -1,5 +1,5 @@
 //
-// $Id: PropertiesUtil.java,v 1.7 2003/11/13 00:05:08 mdb Exp $
+// $Id: PropertiesUtil.java,v 1.8 2003/11/13 00:08:11 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -131,6 +131,23 @@ public class PropertiesUtil
         try {
             Properties props = new Properties();
             props.load(new FileInputStream(propFile));
+            return props.getProperty(key);
+        } catch (IOException ioe) {
+            return null;
+        }
+    }
+
+    /**
+     * Like {@link #loadAndGet(File,String)} but obtains the properties
+     * data via the classloader.
+     *
+     * @return the value of the key in question or null if no such key
+     * exists or an error occurred loading the properties file.
+     */
+    public String loadAndGet (String loaderPath, String key)
+    {
+        try {
+            Properties props = ConfigUtil.loadProperties(loaderPath);
             return props.getProperty(key);
         } catch (IOException ioe) {
             return null;

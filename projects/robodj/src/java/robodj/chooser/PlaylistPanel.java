@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.2 2001/07/13 00:11:05 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.3 2001/07/13 00:35:42 mdb Exp $
 
 package robodj.chooser;
 
@@ -68,13 +68,13 @@ public class PlaylistPanel
     public void actionPerformed (ActionEvent e)
     {
 	String cmd = e.getActionCommand();
-	if (cmd.equals("...")) {
-
-        } else if (cmd.equals("clear")) {
+	if (cmd.equals("clear")) {
             Chooser.scontrol.clear();
+            refreshPlaylist();
 
         } else if (cmd.equals("skip")) {
             Chooser.scontrol.skip();
+            refreshPlaying();
 
         } else if (cmd.equals("refresh")) {
             refreshPlaylist();
@@ -84,14 +84,21 @@ public class PlaylistPanel
             PlaylistEntry entry =
                 (PlaylistEntry)src.getClientProperty("entry");
             Chooser.scontrol.skipto(entry.song.songid);
-            refreshPlaylist();
+            refreshPlaying();
 
         } else if (cmd.equals("remove")) {
             JButton src = (JButton)e.getSource();
             PlaylistEntry entry =
                 (PlaylistEntry)src.getClientProperty("entry");
             Chooser.scontrol.remove(entry.song.songid);
-            refreshPlaylist();
+
+            // remove the entry UI elements
+            JPanel epanel = (JPanel)entry.label.getParent();
+            epanel.getParent().remove(epanel);
+
+            // update the playing indicator because we may have removed
+            // the playing entry
+            refreshPlaying();
         }
     }
 
@@ -106,6 +113,18 @@ public class PlaylistPanel
         TaskMaster.invokeMethodTask("readPlaylist", this, this);
     }
 
+    protected void refreshPlaying ()
+    {
+        // unhighlight whoever is playing now
+        PlaylistEntry pentry = getPlayingEntry();
+        if (pentry != null) {
+            pentry.label.setForeground(Color.black);
+        }
+
+        // figure out who's playing
+        TaskMaster.invokeMethodTask("readPlaying", this, this);
+    }
+
     public void readPlaylist ()
         throws SQLException
     {
@@ -113,17 +132,7 @@ public class PlaylistPanel
         _plist.clear();
 
         // find out what's currently playing
-        String playing = Chooser.scontrol.getPlaying();
-        playing = StringUtil.split(playing, ":")[1].trim();
-        _playid = -1;
-        if (!playing.equals("<none>")) {
-            try {
-                _playid = Integer.parseInt(playing);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Unable to parse currently playing id '" +
-                            playing + "'.");
-            }
-        }
+        readPlaying();
 
         // get the playlist from the music daemon
         String[] plist = Chooser.scontrol.getPlaylist();
@@ -145,10 +154,28 @@ public class PlaylistPanel
         }
     }
 
+    public void readPlaying ()
+    {
+        String playing = Chooser.scontrol.getPlaying();
+        playing = StringUtil.split(playing, ":")[1].trim();
+        _playid = -1;
+        if (!playing.equals("<none>")) {
+            try {
+                _playid = Integer.parseInt(playing);
+            } catch (NumberFormatException nfe) {
+                Log.warning("Unable to parse currently playing id '" +
+                            playing + "'.");
+            }
+        }
+    }
+
     public void taskCompleted (String name, Object result)
     {
 	if (name.equals("readPlaylist")) {
             populatePlaylist();
+
+        } else if (name.equals("readPlaying")) {
+            highlightPlaying();
         }
     }
 
@@ -197,9 +224,8 @@ public class PlaylistPanel
             hpanel.setLayout(gl);
 
             entry.label = new JLabel(entry.song.title);
-            if (entry.song.songid == _playid) {
-                entry.label.setForeground(Color.red);
-            }
+            entry.label.setForeground((entry.song.songid == _playid) ?
+                                      Color.red : Color.black);
             entry.label.setFont(_nameFont);
             hpanel.add(entry.label);
 
@@ -227,6 +253,27 @@ public class PlaylistPanel
         }
     }
 
+    protected void highlightPlaying ()
+    {
+        for (int i = 0; i < _plist.size(); i++) {
+            PlaylistEntry entry = (PlaylistEntry)_plist.get(i);
+            if (entry.song.songid == _playid) {
+                entry.label.setForeground(Color.red);
+            }
+        }
+    }
+
+    protected PlaylistEntry getPlayingEntry ()
+    {
+        for (int i = 0; i < _plist.size(); i++) {
+            PlaylistEntry entry = (PlaylistEntry)_plist.get(i);
+            if (entry.song.songid == _playid) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
     protected static class PlaylistEntry
     {
         public Entry entry;
@@ -247,6 +294,7 @@ public class PlaylistPanel
 
     protected ArrayList _plist = new ArrayList();
     protected int _playid;
+    protected int _oldid = -1;
 
     protected Font _nameFont;
 }

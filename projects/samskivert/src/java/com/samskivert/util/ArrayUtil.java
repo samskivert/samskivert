@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.25 2003/02/06 18:51:50 mdb Exp $
+// $Id: ArrayUtil.java,v 1.26 2003/02/10 22:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -423,6 +423,59 @@ public class ArrayUtil
      * which all subsequent values are to be removed.  This must be a
      * valid index within the <code>values</code> array.
      */
+    public static short[] splice (short[] values, int offset)
+    {
+        int length = (values == null) ? 0 : values.length - offset;
+        return splice(values, offset, length);
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * concatenated subset of values from indexes <code>0</code> to
+     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>values.length</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array at
+     * which the first element will be removed.  This must be a valid
+     * index within the <code>values</code> array.
+     * @param length the number of elements to be removed.  Note that
+     * <code>offset + length</code> must be a valid index within the
+     * <code>values</code> array.
+     */
+    public static short[] splice (short[] values, int offset, int length)
+    {
+        // make sure we've something to work with
+        if (values == null) {
+            throw new IllegalArgumentException("Can't splice a null array.");
+        }
+
+        // require that the entire range to remove be within the array bounds
+        int size = values.length;
+        int tstart = offset + length;
+        if (offset < 0 || tstart > size) {
+            throw new ArrayIndexOutOfBoundsException(
+                "Splice range out of bounds [offset=" + offset +
+                ", length=" + length + ", size=" + size + "].");
+        }
+
+        // create a new array and populate it with the spliced-in values
+        short[] nvalues = new short[size - length];
+        System.arraycopy(values, 0, nvalues, 0, offset);
+        System.arraycopy(values, tstart, nvalues, offset, size - tstart);
+        return nvalues;
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * subset of values from indexes <code>0</code> to </code>offset -
+     * 1</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array after
+     * which all subsequent values are to be removed.  This must be a
+     * valid index within the <code>values</code> array.
+     */
     public static int[] splice (int[] values, int offset)
     {
         int length = (values == null) ? 0 : values.length - offset;
@@ -539,7 +592,8 @@ public class ArrayUtil
      * Creates and returns a new array sized to fit and populated with the
      * concatenated subset of values from indexes <code>0</code> to
      * </code>offset - 1</code>, and <code>offset + length</code> to
-     * <code>values.length</code> (inclusive) in the supplied array.
+     * <code>values.length</code> (inclusive) in the supplied array. The
+     * type of the array is preserved.
      *
      * @param values the array of values to splice.
      * @param offset the index within the <code>values</code> array at
@@ -566,7 +620,8 @@ public class ArrayUtil
         }
 
         // create a new array and populate it with the spliced-in values
-        Object[] nvalues = new Object[size - length];
+        Object[] nvalues = (Object[])Array.newInstance(
+            values.getClass().getComponentType(), size - length);
         System.arraycopy(values, 0, nvalues, 0, offset);
         System.arraycopy(values, tstart, nvalues, offset, size - tstart);
         return nvalues;

@@ -1,5 +1,5 @@
 //
-// $Id: VizPanel.java,v 1.3 2001/08/12 04:36:57 mdb Exp $
+// $Id: VizPanel.java,v 1.4 2001/08/13 23:43:09 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -42,6 +42,8 @@ public class VizPanel extends JPanel
 
     public void paintComponent (Graphics g)
     {
+        super.paintComponent(g);
+
         Graphics2D gfx = (Graphics2D)g;
         Rectangle2D bounds = getBounds();
         _viz.layout(gfx, 0, 0, bounds.getWidth(), bounds.getHeight());

@@ -1,5 +1,5 @@
 //
-// $Id: ScrollablePanel.java,v 1.1 2002/02/28 16:24:03 mdb Exp $
+// $Id: ScrollablePanel.java,v 1.2 2002/02/28 16:31:11 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -47,6 +47,13 @@ public class ScrollablePanel extends JPanel
     public ScrollablePanel (boolean isDoubleBuffered)
     {
         super(isDoubleBuffered);
+    }
+
+    /**
+     * Pass through constructor.
+     */
+    public ScrollablePanel ()
+    {
     }
 
     // documentation inherited from interface

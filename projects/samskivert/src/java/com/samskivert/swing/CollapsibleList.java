@@ -1,5 +1,5 @@
 //
-// $Id: CollapsibleList.java,v 1.1 2002/03/12 17:17:38 mdb Exp $
+// $Id: CollapsibleList.java,v 1.2 2002/04/23 17:05:47 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -22,6 +22,7 @@ public class CollapsibleList extends JPanel
     {
         // set up our layout manager
         VGroupLayout gl = new VGroupLayout(VGroupLayout.NONE);
+        gl.setOffAxisPolicy(VGroupLayout.STRETCH);
         gl.setJustification(VGroupLayout.TOP);
         gl.setOffAxisJustification(VGroupLayout.LEFT);
         setLayout(gl);

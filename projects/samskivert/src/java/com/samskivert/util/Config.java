@@ -1,11 +1,10 @@
 //
-// $Id: Config.java,v 1.1 2001/07/12 02:44:34 mdb Exp $
+// $Id: Config.java,v 1.2 2001/07/12 18:13:19 mdb Exp $
 
 package com.samskivert.util;
 
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Properties;
+import java.util.*;
 
 import com.samskivert.Log;
 
@@ -189,6 +188,90 @@ public class Config
         return result;
     }
 
+    /**
+     * Returns an iterator that returns all of the configuration keys that
+     * match the specified prefix. The prefix should at least contain a
+     * namespace identifier but can contain further path components to
+     * restrict the iteration. For example: <code>foo</code> would iterate
+     * over every property key in the properties file that was bound to
+     * <code>foo</code>. <code>foo.bar</code> would iterate over every
+     * property key in the <code>foo</code> property file that began with
+     * the string <code>bar</code>.
+     *
+     * <p> If an invalid or non-existent namespace identifier is supplied,
+     * a warning will be logged and an empty iterator.
+     */
+    public Iterator keys (String prefix)
+    {
+        String id = prefix;
+        String key = "";
+
+        // parse the key prefix if one was provided
+        int didx = prefix.indexOf(".");
+        if (didx != -1) {
+            id = prefix.substring(0, didx);
+            key = prefix.substring(didx+1);
+        }
+
+        Properties props = (Properties)_props.get(id);
+        if (props == null) {
+            Log.warning("No property file bound to top-level name " +
+                        "[name=" + id + ", key=" + key + "].");
+            return new Iterator() {
+                public boolean hasNext () { return false; }
+                public Object next () { return null; }
+                public void remove () { /* do nothing */ };
+            };
+        }
+
+        return new PropertyIterator(key, props.keys());
+    }
+
+    protected static class PropertyIterator implements Iterator
+    {
+        public PropertyIterator (String prefix, Enumeration enum)
+        {
+            _prefix = prefix;
+            _enum = enum;
+            scanToNext();
+        }
+
+        public boolean hasNext ()
+        {
+            return (_next != null);
+        }
+
+        public Object next ()
+        {
+            String next = _next;
+            scanToNext();
+            return next;
+        }
+
+        public void remove ()
+        {
+            // not supported
+        }
+
+        protected void scanToNext ()
+        {
+            // assume that nothing is left
+            _next = null;
+
+            while (_enum.hasMoreElements()) {
+                String next = (String)_enum.nextElement();
+                if (next.startsWith(_prefix)) {
+                    _next = next;
+                    break;
+                }
+            }
+        }
+
+        protected String _prefix;
+        protected Enumeration _enum;
+        protected String _next;
+    }
+
     protected String resolveProperty (String name)
     {
         int didx = name.indexOf(".");
@@ -232,6 +315,21 @@ public class Config
 
             System.out.println("test.prop5: " +
                                config.getValue("test.prop5", "undefined"));
+
+            Iterator iter = config.keys("test.prop2");
+            while (iter.hasNext()) {
+                System.out.println(iter.next());
+            }
+
+            iter = config.keys("test.prop");
+            while (iter.hasNext()) {
+                System.out.println(iter.next());
+            }
+
+            iter = config.keys("test");
+            while (iter.hasNext()) {
+                System.out.println(iter.next());
+            }
 
         } catch (IOException ioe) {
             ioe.printStackTrace(System.err);

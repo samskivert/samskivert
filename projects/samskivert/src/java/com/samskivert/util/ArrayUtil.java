@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.6 2002/07/11 01:33:54 shaper Exp $
+// $Id: ArrayUtil.java,v 1.7 2002/08/09 23:33:49 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -20,6 +20,7 @@
 
 package com.samskivert.util;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.samskivert.Log;
@@ -29,6 +30,34 @@ import com.samskivert.Log;
  */
 public class ArrayUtil
 {
+    /**
+     * Returns an array of the indexes in the given array of values that
+     * have the maximum value in the array.
+     */
+    public static int[] getMaxIndexes (int[] values)
+    {
+        // get the indices with the maximum values
+        ArrayList list = new ArrayList();
+        int max = 0;
+        for (int ii = 0; ii < values.length; ii++) {
+            if (values[ii] == max) {
+                list.add(new Integer(ii));
+            } else if (values[ii] > max) {
+                list.clear();
+                max = values[ii];
+                list.add(new Integer(ii));
+            }
+        }
+        
+        // convert the list to an array
+        int size = list.size();
+        int[] maxes = new int[size];
+        for (int ii = 0; ii < size; ii++) {
+            maxes[ii] = ((Integer)list.get(ii)).intValue();
+        }
+        return maxes;
+    }
+
     /**
      * Reverses the elements in the given array.
      *

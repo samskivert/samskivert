@@ -1,5 +1,5 @@
 //
-// $Id: DragSource.java,v 1.1 2002/08/20 02:49:19 ray Exp $
+// $Id: DragSource.java,v 1.2 2003/05/20 17:35:51 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -23,6 +23,12 @@ public interface DragSource
      * @return true if the drag may begin.
      */
     public boolean startDrag (Cursor[] cursors, Object[] data);
+
+    /**
+     * Is the drop target an acceptable one?
+     * @param a potential DropTarget
+     */
+    public boolean checkDrop (DropTarget target);
 
     /**
      * A callback to let the source know that the drop completed successfully.

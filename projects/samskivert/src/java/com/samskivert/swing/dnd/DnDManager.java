@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.18 2003/05/15 22:02:11 mdb Exp $
+// $Id: DnDManager.java,v 1.19 2003/05/20 17:35:51 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -228,6 +228,7 @@ public class DnDManager
             target = (comp == _sourceComp) ? null
                                            : (DropTarget) _droppers.get(comp);
             if ((target != null) && comp.isEnabled() &&
+                _source.checkDrop(target) &&
                 target.checkDrop(_source, _data[0])) {
                 return target;
             }

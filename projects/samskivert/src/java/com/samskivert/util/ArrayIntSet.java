@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.14 2003/06/24 22:55:38 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.15 2003/11/27 02:10:34 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -40,14 +40,24 @@ public class ArrayIntSet extends AbstractSet
      */
     public ArrayIntSet (int[] values)
     {
+        this(values.length);
         add(values);
     }
 
     /**
-     * Constructs an empty set.
+     * Construct an ArrayIntSet of the specified initial capacity.
+     */
+    public ArrayIntSet (int initialCapacity)
+    {
+        _values = new int[initialCapacity];
+    }
+
+    /**
+     * Constructs an empty set with the default initial capacity.
      */
     public ArrayIntSet ()
     {
+        this(16);
     }
 
     // documentation inherited from interface
@@ -398,7 +408,7 @@ public class ArrayIntSet extends AbstractSet
     }
 
     /** An array containing the values in this set. */
-    protected int[] _values = new int[16];
+    protected int[] _values;
 
     /** The number of elements in this set. */
     protected int _size;

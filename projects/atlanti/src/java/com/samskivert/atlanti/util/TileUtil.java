@@ -1,11 +1,15 @@
 //
-// $Id: TileUtil.java,v 1.2 2001/10/11 04:00:49 mdb Exp $
+// $Id: TileUtil.java,v 1.3 2001/10/15 19:55:15 mdb Exp $
 
 package com.threerings.venison;
+
+import java.awt.Polygon;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+
+import com.samskivert.util.IntTuple;
 
 /**
  * Utility functions relating to the Venison tiles.
@@ -176,6 +180,65 @@ public class TileUtil implements TileCodes
         return TILE_EDGES[4*tileType + edge];
     }
 
+    /**
+     * Massages a road segment (specified in tile feature coordinates)
+     * into a polygon (in screen coordinates) that can be used to render
+     * or hit test the road. The coordinates must obey the following
+     * constraints: (x1 < x2 and y1 == y2) or (x1 == x2 and y1 < y2) or
+     * (x1 < x2 and y1 > y2).
+     *
+     * @return a polygon representing the road segment (with origin at 0,
+     * 0).
+     */
+    public static Polygon roadSegmentToPolygon (
+        int x1, int y1, int x2, int y2)
+    {
+        // first convert the coordinates into screen coordinates
+        x1 = (x1 * TILE_WIDTH) / 4;
+        y1 = (y1 * TILE_HEIGHT) / 4;
+        x2 = (x2 * TILE_WIDTH) / 4;
+        y2 = (y2 * TILE_HEIGHT) / 4;
+
+        Polygon poly = new Polygon();
+        int dx = 4, dy = 4;
+
+        // figure out what sort of line segment it is
+        if (x1 == x2) { // vertical
+            // make adjustments to ensure that we stay inside the tile
+            // bounds
+            if (y1 == 0) {
+                y1 += dy;
+            } else if (y2 == TILE_HEIGHT) {
+                y2 -= dy;
+            }
+            poly.addPoint(x1 - dx, y1 - dy);
+            poly.addPoint(x1 + dx, y1 - dy);
+            poly.addPoint(x2 + dx, y2 + dy);
+            poly.addPoint(x2 - dx, y2 + dy);
+
+        } else if (y1 == y2) { // horizontal
+            // make adjustments to ensure that we stay inside the tile
+            // bounds
+            if (x1 == 0) {
+                x1 += dx;
+            } else if (x2 == TILE_WIDTH) {
+                x2 -= dx;
+            }
+            poly.addPoint(x1 - dx, y1 - dy);
+            poly.addPoint(x1 - dx, y1 + dy);
+            poly.addPoint(x2 + dx, y2 + dy);
+            poly.addPoint(x2 + dx, y2 - dy);
+
+        } else { // diagonal
+            poly.addPoint(x1 - dx, y1);
+            poly.addPoint(x1 + dx, y1);
+            poly.addPoint(x2, y2 + dy);
+            poly.addPoint(x2, y2 - dy);
+        }
+
+        return poly;
+    }
+
     /** Used to generate our standard tile set. */
     protected static void addTiles (int count, List list, VenisonTile tile)
     {
@@ -253,5 +316,129 @@ public class TileUtil implements TileCodes
         GRASS, ROAD, ROAD, ROAD, // THREE_WAY_ROAD
         ROAD, GRASS, ROAD, GRASS, // STRAIGHT_ROAD
         GRASS, GRASS, ROAD, ROAD, // CURVED_ROAD
+    };
+
+    /** A table describing the geometry of the features (cities, roads,
+     * etc.) of each tile. */
+    protected static final Object[] TILE_FEATURES = new Object[] {
+        new Object[0], // null tile
+
+        new Object[] { new IntTuple(CITY, 0), }, // CITY_FOUR
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_THREE
+                       new IntTuple(GRASS, 0),
+                       new int[] { 0, 4, 1, 3, 3, 3, 4, 4 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_THREE_ROAD
+                       new IntTuple(GRASS, 0),
+                       new int[] { 0, 4, 1, 3, 2, 3, 2, 4 },
+                       new IntTuple(GRASS, 1),
+                       new int[] { 2, 4, 2, 3, 3, 3, 4, 4 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 3, 2, 4 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_TWO
+                       new IntTuple(GRASS, 0),
+                       new int[] { 0, 4, 4, 0, 4, 4 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ROAD
+                       new IntTuple(GRASS, 0),
+                       new int[] { 0, 4, 4, 0, 4, 2, 2, 4 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 4, 4, 2 },
+                       new IntTuple(GRASS, 0),
+                       new int[] { 2, 4, 4, 2, 4, 4 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ACROSS
+                       new IntTuple(GRASS, 0),
+                       new int[] { 0, 4, 1, 3, 3, 3, 4, 4 },
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // DISCONNECTED_CITY_TWO
+                       new IntTuple(CITY, 0),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
+                       new IntTuple(CITY, 1),
+                       new int[] { 4, 0, 3, 1, 3, 3, 4, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // DISCONNECTED_CITY_TWO_ACROSS
+                       new IntTuple(CITY, 0),
+                       new int[] { 0, 0, 1, 1, 1, 3, 0, 4 },
+                       new IntTuple(CITY, 1),
+                       new int[] { 4, 0, 3, 1, 3, 3, 4, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE
+                       new IntTuple(CITY, 0),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_RIGHT
+                       new IntTuple(CITY, 0),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 2, 4, 2 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_LEFT
+                       new IntTuple(CITY, 0),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 0, 2, 2, 2 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_TEE
+                       new IntTuple(CITY, 0),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 0, 2, 2, 2 },
+                       new IntTuple(ROAD, 1),
+                       new int[] { 2, 2, 4, 2 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 2, 2, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_STRAIGHT
+                       new IntTuple(CITY, 0),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 0, 2, 4, 2 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CLOISTER
+                       new IntTuple(CITY, 0),
+                       new int[] { 1, 1, 3, 1, 3, 3, 1, 3 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CLOISTER_ROAD
+                       new IntTuple(CITY, 0),
+                       new int[] { 1, 1, 3, 1, 3, 3, 1, 3 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 3, 2, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // FOUR_WAY_ROAD
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 0, 2, 2 },
+                       new IntTuple(ROAD, 1),
+                       new int[] { 2, 2, 4, 2 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 3),
+                       new int[] { 0, 2, 2, 2 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // THREE_WAY_ROAD
+                       new IntTuple(ROAD, 0),
+                       new int[] { 0, 2, 2, 2 },
+                       new IntTuple(ROAD, 1),
+                       new int[] { 2, 2, 4, 2 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 2, 2, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // STRAIGHT_ROAD
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 0, 2, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CURVED_ROAD
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 0, 2, 2, 2 }},
     };
 }

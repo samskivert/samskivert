@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.7 2002/05/16 22:15:08 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.8 2002/05/16 22:42:15 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -226,9 +226,17 @@ public class ArrayIntSet extends AbstractSet
     public boolean addAll (Collection c)
     {
         boolean modified = false;
-        Iterator iter = c.iterator();
-        while (iter.hasNext()) {
-            modified = (add(iter.next()) || modified);
+        if (c instanceof ArrayIntSet) {
+            ArrayIntSet other = (ArrayIntSet)c;
+            for (int ii = 0; ii < other._size; ii++) {
+                modified = (add(other._values[ii]) || modified);
+            }
+
+        } else {
+            Iterator iter = c.iterator();
+            while (iter.hasNext()) {
+                modified = (add(iter.next()) || modified);
+            }
         }
         return modified;
     }

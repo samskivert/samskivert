@@ -1,5 +1,5 @@
 //
-// $Id: PlayerInfoView.java,v 1.2 2001/10/18 18:10:57 mdb Exp $
+// $Id: PlayerInfoView.java,v 1.3 2001/10/18 20:53:53 mdb Exp $
 
 package com.threerings.venison;
 
@@ -64,6 +64,7 @@ public class PlayerInfoView
         }
 
         // update the piecen count
+        updatePiecenCount();
     }
 
     /**

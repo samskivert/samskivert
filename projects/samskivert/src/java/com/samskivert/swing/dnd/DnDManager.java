@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.11 2002/09/06 21:56:57 ray Exp $
+// $Id: DnDManager.java,v 1.12 2002/09/16 21:29:25 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -43,19 +43,62 @@ public class DnDManager
 {
     /**
      * Add the specified component as a source of drags, with the DragSource
-     * controller.
+     * controller, and remove the source when it is removed from the component
+     * hierarchy.
      */
     public static void addDragSource (DragSource source, JComponent comp)
     {
-        singleton.addSource(source, comp);
+        addDragSource(source, comp, true);
+    }
+
+    /**
+     * Add the specified component as a source of drags, with the DragSource
+     * controller.
+     *
+     * @param autoremove if true, the source will automatically be removed
+     * from the DnD system when it is removed from the component hierarchy.
+     */
+    public static void addDragSource (
+        DragSource source, JComponent comp, boolean autoremove)
+    {
+        singleton.addSource(source, comp, autoremove);
+    }
+
+    /**
+     * Add the specified component as a drop target, and remove the target
+     * when it is removed from the component hierarchy.
+     */
+    public static void addDropTarget (DropTarget target, JComponent comp)
+    {
+        addDropTarget(target, comp, true);
     }
 
     /**
      * Add the specified component as a drop target.
+     *
+     * @param autoremove if true, the source will automatically be removed
+     * from the DnD system when it is removed from the component hierarchy.
      */
-    public static void addDropTarget (DropTarget target, JComponent comp)
+    public static void addDropTarget (
+        DropTarget target, JComponent comp, boolean autoremove)
     {
-        singleton.addTarget(target, comp);
+        singleton.addTarget(target, comp, autoremove);
+    }
+
+    /**
+     * Remove the specified component as a drag source.
+     */
+    public static void removeDragSource (JComponent comp)
+    {
+        singleton.removeSource(comp);
+    }
+
+    /**
+     * Remove the specified component as a drop target.
+     */
+    public static void removeDropTarget (JComponent comp)
+    {
+        singleton.removeTarget(comp);
     }
 
     /**
@@ -124,20 +167,43 @@ public class DnDManager
     /**
      * Add a dragsource.
      */
-    protected void addSource (DragSource source, JComponent comp)
+    protected void addSource (
+        DragSource source, JComponent comp, boolean autoremove)
     {
         _draggers.put(comp, source);
-        comp.addAncestorListener(_remover);
         comp.addMouseMotionListener(this);
+        if (autoremove) {
+            comp.addAncestorListener(_remover);
+        }
+    }
+
+    /**
+     * Remove a dragsource.
+     */
+    protected void removeSource (JComponent comp)
+    {
+        _draggers.remove(comp);
+        comp.removeMouseMotionListener(this);
     }
 
     /**
      * Add a droptarget.
      */
-    protected void addTarget (DropTarget target, JComponent comp)
+    protected void addTarget (
+        DropTarget target, JComponent comp, boolean autoremove)
     {
         _droppers.put(comp, target);
-        comp.addAncestorListener(_remover);
+        if (autoremove) {
+            comp.addAncestorListener(_remover);
+        }
+    }
+
+    /**
+     * Remove a droptarget.
+     */
+    protected void removeTarget (JComponent comp)
+    {
+        _droppers.remove(comp);
     }
 
     // documentation inherited from interface MouseMotionListener
@@ -424,8 +490,9 @@ public class DnDManager
         public void ancestorRemoved (AncestorEvent ae)
         {
             JComponent comp = ae.getComponent();
-            _draggers.remove(comp);
-            _droppers.remove(comp);
+            // try both..
+            singleton.removeTarget(comp);
+            singleton.removeSource(comp);
         }
     };
 

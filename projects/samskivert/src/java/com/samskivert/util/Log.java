@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.7 2002/05/31 20:44:41 mdb Exp $
+// $Id: Log.java,v 1.8 2002/10/08 02:17:57 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -135,6 +135,14 @@ public final class Log
     public static void setLevel (int level)
     {
 	_provider.setLevel(level);
+    }
+
+    /**
+     * Returns the log provider currently in use by the logging services.
+     */
+    public static LogProvider getLogProvider ()
+    {
+        return _provider;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.14 2002/09/24 07:57:40 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.15 2002/10/08 02:17:57 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,14 +22,19 @@ package com.samskivert.util;
 
 import java.awt.Dimension;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import java.text.SimpleDateFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * If no log provider is registered with the log services, the default
- * provider will be used. The default provider simple logs messages to
+ * provider will be used. The default provider simply logs messages to
  * <code>System.err</code> and manages log levels in a simplistic way.
  *
  * @see Log
@@ -54,13 +59,42 @@ public class DefaultLogProvider implements LogProvider
         }
     }
 
+    /**
+     * Sets whether recent log messages should be cached and made
+     * available via {@link #getRecentMessages}.  The default setting is
+     * <code>false</code>.  Note that currently all messages logged after
+     * caching is turned on will be kept forever (or until caching is
+     * turned off.)
+     */
+    public synchronized void setCacheMessages (boolean cache)
+    {
+        if (cache && _recent == null) {
+            _recent = new ArrayList();
+        } else if (!cache && _recent != null) {
+            _recent = null;
+        }
+    }
+
+    /**
+     * Returns a list of the recent log messages, or <code>null</code> if
+     * log messages are not currently being cached.
+     */
+    public synchronized List getRecentMessages ()
+    {
+        return _recent;
+    }
+
     public synchronized void log (
         int level, String moduleName, String message)
     {
 	Integer tlevel = (Integer)_levels.get(moduleName);
 	if ((tlevel != null && level >= tlevel.intValue()) ||
 	    (level >= _level)) {
-	    System.err.println(formatEntry(moduleName, level, message));
+            String entry = formatEntry(moduleName, level, message);
+            if (_recent != null) {
+                _recent.add(entry);
+            }
+	    System.err.println(entry);
 	}
     }
 
@@ -70,7 +104,17 @@ public class DefaultLogProvider implements LogProvider
 	Integer tlevel = (Integer)_levels.get(moduleName);
 	if ((tlevel != null && level >= tlevel.intValue()) ||
 	    (level >= _level)) {
-	    System.err.println(formatEntry(moduleName, level, t.getMessage()));
+            String entry = formatEntry(moduleName, level, t.getMessage());
+            if (_recent != null) {
+                _recent.add(entry);
+            }
+	    System.err.println(entry);
+
+            if (_recent != null) {
+                StringWriter sw = new StringWriter();
+                t.printStackTrace(new PrintWriter(sw));
+                _recent.add(sw.toString());
+            }
 	    t.printStackTrace(System.err);
 	}
     }
@@ -180,6 +224,11 @@ public class DefaultLogProvider implements LogProvider
     /** Used to accompany log messages with time stamps. */
     protected SimpleDateFormat _format =
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
+
+    /** The cached recent log messages that are made available to any
+     * external entities that would like access to them if we're actually
+     * caching messages. */
+    protected ArrayList _recent;
 
     /** Contains the dimensions of the terminal window in which we're
      * running, if it was possible to obtain them. Otherwise, it contains

@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.3 2001/03/18 06:58:55 mdb Exp $
+// $Id: Repository.java,v 1.4 2001/06/02 02:22:55 mdb Exp $
 
 package robodj.repository;
 
@@ -63,6 +63,9 @@ public class Repository extends MySQLRepository
     public Entry getEntry (int entryid)
 	throws SQLException
     {
+        // make sure the connection is open
+        ensureConnection();
+
 	// look up the entry
 	Cursor ec = _etable.select("where entryid = " + entryid);
 
@@ -84,6 +87,58 @@ public class Repository extends MySQLRepository
     }
 
     /**
+     * @param query a WHERE clause describing which entries should be
+     * selected (ie. 'where title like "%foo%"').
+     *
+     * @return all entries in the table matching the query
+     * parameters. <em>Note</em>: this member function does not populate
+     * the songs arrays of the returned entries. Call
+     * <code>populateSongs</code> on an entry by entry basis for that.
+     */
+    public Entry[] getEntries (final String query)
+	throws SQLException
+    {
+	return (Entry[])execute(new Operation () {
+	    public Object invoke () throws SQLException
+	    {
+                // look up the entry
+                Cursor ec = _etable.select(query);
+
+                // fetch the entries from the cursor
+                List elist = ec.toArrayList();
+                Entry[] entries = new Entry[elist.size()];
+                elist.toArray(entries);
+
+                return entries;
+            }
+        });
+    }
+
+    /**
+     * Loads the songs for this entry from the database and inserts them
+     * into its songs array. If the songs are already loaded, this
+     * function does nothing.
+     */
+    public void populateSongs (final Entry entry)
+	throws SQLException
+    {
+        if (entry.songs == null) {
+            execute(new Operation () {
+                public Object invoke () throws SQLException
+                {
+                    // load up the songs for this entry
+                    String query = "where entryid = " + entry.entryid;
+                    Cursor sc = _stable.select(query);
+                    List slist = sc.toArrayList();
+                    entry.songs = new Song[slist.size()];
+                    slist.toArray(entry.songs);
+                    return null;
+                }
+            });
+        }
+    }
+
+    /**
      * Inserts a new entry into the table. All fields except the entryid
      * should contain valid values. The entryid field should be zero. The
      * songs array should contain song objects for all of the songs
@@ -95,7 +150,7 @@ public class Repository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
                 // insert the entry into the entry table
                 _etable.insert(entry);
@@ -113,6 +168,8 @@ public class Repository extends MySQLRepository
                         entry.songs[i].songid = lastInsertedId();
                     }
                 }
+
+                return null;
             }
         });
     }
@@ -131,7 +188,7 @@ public class Repository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
                 // update the entry
                 _etable.update(entry);
@@ -142,6 +199,8 @@ public class Repository extends MySQLRepository
                         _stable.update(entry.songs[i]);
                     }
                 }
+
+                return null;
             }
         });
     }
@@ -153,12 +212,13 @@ public class Repository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
                 // remove the entry from the entry table and the foreign
                 // key constraints will automatically remove all of the
                 // corresponding songs
                 _etable.delete(entry);
+                return null;
             }
         });
     }
@@ -179,7 +239,7 @@ public class Repository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
                 // fill in the appropriate entry id value
                 song.entryid = entry.entryid;
@@ -188,6 +248,8 @@ public class Repository extends MySQLRepository
                 _stable.insert(song);
                 // communicate the songid back to the caller
                 song.songid = lastInsertedId();
+
+                return null;
             }
         });
     }
@@ -200,9 +262,10 @@ public class Repository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
                 _stable.update(song);
+                return null;
             }
         });
     }
@@ -215,11 +278,12 @@ public class Repository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
                 Category cat = new Category();
                 cat.name = name;
                 _ctable.insert(cat);
+                return null;
             }
         });
 
@@ -233,60 +297,51 @@ public class Repository extends MySQLRepository
     public Category[] getCategories ()
 	throws SQLException
     {
-	Cursor ccur = _ctable.select("");
-	List clist = ccur.toArrayList();
-	Category[] cats = new Category[clist.size()];
-	clist.toArray(cats);
-	return cats;
+	return (Category[])execute(new Operation () {
+	    public Object invoke () throws SQLException
+	    {
+                Cursor ccur = _ctable.select("");
+                List clist = ccur.toArrayList();
+                Category[] cats = new Category[clist.size()];
+                clist.toArray(cats);
+                return cats;
+            }
+        });
     }
 
     /**
      * Associates the specified entry with the specified category. An
      * entry can be mapped into multiple categories.
      */
-    public void associateEntry (Entry entry, int categoryid)
+    public void associateEntry (final Entry entry, final int categoryid)
 	throws SQLException
     {
-	try {
-	    CategoryMapping map =
-		new CategoryMapping(categoryid, entry.entryid);
-	    _cmtable.insert(map);
-	    _session.commit();
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+        execute(new Operation () {
+            public Object invoke () throws SQLException
+            {
+                CategoryMapping map =
+                    new CategoryMapping(categoryid, entry.entryid);
+                _cmtable.insert(map);
+                return null;
+            }
+        });
     }
 
     /**
      * Disassociates the specified entry from the specified category.
      */
-    public void disassociateEntry (Entry entry, int categoryid)
+    public void disassociateEntry (final Entry entry, final int categoryid)
 	throws SQLException
     {
-	try {
-	    CategoryMapping map =
-		new CategoryMapping(categoryid, entry.entryid);
-	    _cmtable.delete(map);
-	    _session.commit();
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+        execute(new Operation () {
+            public Object invoke () throws SQLException
+            {
+                CategoryMapping map =
+                    new CategoryMapping(categoryid, entry.entryid);
+                _cmtable.delete(map);
+                return null;
+            }
+        });
     }
 
     protected Table _etable;

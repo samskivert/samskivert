@@ -78,7 +78,7 @@ public class DefaultLogProvider implements LogProvider
     {
 	Integer tlevel = (Integer)_levels.get(moduleName);
 	if (level >= getLevel(moduleName)) {
-	    System.err.println(formatEntry(moduleName, level, t.getMessage()));
+	    System.err.print(formatEntry(moduleName, level, ""));
 	    t.printStackTrace(System.err);
 	}
     }

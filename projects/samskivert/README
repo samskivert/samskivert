@@ -37,7 +37,10 @@ following principles:
 Distribution
 ------------
 
-The samskivert library is released under the LGPL.
+The samskivert library is released under the LGPL. The most recent version
+of the library is available here:
+
+  http://www.waywardgeeks.org/code/samskivert/
 
 Contribution
 ------------
@@ -53,3 +56,5 @@ Contact Information
 
 The person primarily responsible for SL is Michael Bayne and can be
 contacted at <mdb@samskivert.com>.
+
+$Id: README,v 1.5 2001/08/11 22:15:53 mdb Exp $

@@ -86,12 +86,12 @@ public abstract class Interval
     public final void schedule (long initialDelay, long repeatDelay)
     {
         cancel();
-        _task = new IntervalTask();
+        TimerTask task = _task = new IntervalTask();
 
         if (repeatDelay == 0L) {
-            _timer.schedule(_task, initialDelay);
+            _timer.schedule(task, initialDelay);
         } else {
-            _timer.scheduleAtFixedRate(_task, initialDelay, repeatDelay);
+            _timer.scheduleAtFixedRate(task, initialDelay, repeatDelay);
         }
     }
 
@@ -101,17 +101,10 @@ public abstract class Interval
      */
     public final void cancel ()
     {
-        if (_task != null) {
-            try {
-                _task.cancel();
-                _task = null;
-            } catch (NullPointerException npe) {
-                // This could happen if two threads call this method
-                // simultaneously. I could prevent it by synchronizing
-                // this method and schedule(), but this is less taxing
-                // in the common case.
-                // (Also, it's impossible to NPE inside task.cancel())
-            }
+        TimerTask task = _task;
+        if (task != null) {
+            _task = null;
+            task.cancel();
         }
     }
 
@@ -128,6 +121,20 @@ public abstract class Interval
                 Log.warning("Interval broken in expired(): " + t);
                 Log.logStackTrace(t);
             }
+
+        } else {
+            // If the task has been defanged, we go ahead and try cancelling
+            // it again. The reason for this is that it's possible
+            // to have a runaway task if two threads call schedule() and
+            // cancel() at the same time.
+            // 1) ThreadA calls cancel() and gets a handle on taskA, yields.
+            // 2) ThreadB calls schedule(), gets a handle on taskA, cancel()s,
+            //    which sets _task to null, then sets up taskB, returns.
+            // 3) ThreadA resumes, sets _task to null and re-cancels taskA.
+            // taskB is now an active TimerTask but is not referenced anywhere.
+            // In case this is taskB, we cancel it so that it doesn't
+            // ineffectually expire repeatedly until the JVM exists.
+            task.cancel();
         }
     }
 

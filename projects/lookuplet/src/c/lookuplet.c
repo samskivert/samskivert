@@ -1,5 +1,5 @@
 /**
- * $Id: lookuplet.c,v 1.3 2001/02/24 02:45:18 mdb Exp $
+ * $Id: lookuplet.c,v 1.4 2001/08/16 19:26:31 mdb Exp $
  */
  
 #include <config.h>
@@ -20,12 +20,14 @@ main (int argc, char** argv)
     GtkWidget* window;
     GtkWidget* contents;
 
+#ifdef ENABLE_NLS
     /* initialize the i18n stuff */
     bindtextdomain(PACKAGE, GNOMELOCALEDIR);
     textdomain(PACKAGE);
+#endif
 
-    /* initialize gtk */
-    gtk_init(&argc, &argv);
+    /* initialize gnome */
+    gnome_init(PACKAGE, VERSION, argc, argv);
 
     /* initialize our preferences */
     lk_prefs_init();

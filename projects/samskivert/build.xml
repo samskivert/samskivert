@@ -13,7 +13,6 @@
 
   <!-- we want to access the environment -->
   <property environment="env"/>
-  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
 
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/java"/>
@@ -22,21 +21,32 @@
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
   <property name="savedoc.dir" value="docs"/>
 
-  <!-- declare our classpath -->
-  <path id="classpath">
+  <!-- declare our classpath business -->
+  <path id="base.classpath">
     <pathelement location="${deploy.dir}/classes"/>
     <fileset dir="lib" includes="**/*.jar"/>
-    <fileset dir="${java.libraries}" includes="**/*.jar"/>
+  </path>
+  <path id="classpath">
+    <path refid="base.classpath"/>
   </path>
 
+  <!-- include JAVA_LIBS jars in our classpath if it exists -->
+  <target name="check-java-libs" if="env.JAVA_LIBS">
+    <!-- overwrite the classpath with one that contains JAVA_LIBS jars -->
+    <path id="classpath">
+      <path refid="base.classpath"/>
+      <fileset dir="${env.JAVA_LIBS}" includes="**/*.jar"/>
+    </path>
+  </target>
+
   <!-- checks to see which packages are available -->
-  <target name="check-available">
+  <target name="check-available" depends="check-java-libs">
     <echo message="The packages required for building are listed below."/>
     <echo message="A package followed by 'true' indicates that the package"/>
     <echo message="is present. One followed by '${package.present}' indicates"/>
     <echo message="that it was not found. Jar files can be placed into the"/>
     <echo message="lib/ directory or placed in the directory referenced"/>
-    <echo message="by your JAVA_LIBRARIES environment variable."/>
+    <echo message="by your JAVA_LIBS environment variable."/>
 
     <echo message=""/>
     <echo message="------------------------------------------"/>

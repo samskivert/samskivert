@@ -1,5 +1,5 @@
 //
-// $Id: HTMLUtil.java,v 1.1 2001/10/31 09:44:22 mdb Exp $
+// $Id: HTMLUtil.java,v 1.2 2002/12/30 04:52:36 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -43,5 +43,16 @@ public class HTMLUtil
         text = StringUtil.replace(text, "<", "&lt;");
         text = StringUtil.replace(text, ">", "&gt;");
         return StringUtil.replace(text, "\"", "&quot;");
+    }
+
+    /**
+     * Inserts a &lt;p&gt; tag between every two consecutive newlines.
+     */
+    public static String makeParagraphs (String text)
+    {
+        if (text == null) {
+            return text;
+        }
+        return StringUtil.replace(text, "\n\n", "\n<p>\n");
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: LoopingThread.java,v 1.7 2002/10/07 17:52:59 mdb Exp $
+// $Id: LoopingThread.java,v 1.8 2003/03/31 04:09:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -85,6 +85,18 @@ public class LoopingThread extends Thread
     }
 
     /**
+     * Indicates whether or not the thread should still be running. If a
+     * thread is calling this within {@link #iterate}, it should exit
+     * quickly and cleanly if the function returns false. It is
+     * automatically called as part of the {@link #iterate} loop, so
+     * normally a derived-class won't have to call it.
+     */
+    public synchronized boolean isRunning ()
+    {
+        return _running;
+    }
+
+    /**
      * Called to wake the thread up from any blocking wait that it might
      * be in. This function should result in the thread exiting the {@link
      * #iterate} function as soon as possible so that the running flag can
@@ -138,18 +150,6 @@ public class LoopingThread extends Thread
      */
     protected void didShutdown ()
     {
-    }
-
-    /**
-     * Indicates whether or not the thread should still be running. If a
-     * thread is calling this within {@link #iterate}, it should exit
-     * quickly and cleanly if the function returns false. It is
-     * automatically called as part of the {@link #iterate} loop, so
-     * normally a derived-class won't have to call it.
-     */
-    protected synchronized boolean isRunning ()
-    {
-        return _running;
     }
 
     protected boolean _running = true;

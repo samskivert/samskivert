@@ -1,7 +1,7 @@
 //
-// $Id: CommandEvent.java,v 1.1 2001/12/20 00:38:03 mdb Exp $
+// $Id: CommandEvent.java,v 1.2 2002/02/28 21:55:15 mdb Exp $
 
-package com.samskivert.swing;
+package com.samskivert.swing.event;
 
 import java.awt.event.ActionEvent;
 

@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.8 2002/02/16 06:57:13 mdb Exp $
+// $Id: Controller.java,v 1.9 2002/02/28 21:55:14 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.samskivert.Log;
+import com.samskivert.swing.event.CommandEvent;
 
 /**
  * The controller class provides a basis for the separation of user

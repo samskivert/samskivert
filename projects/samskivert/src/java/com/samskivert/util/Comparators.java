@@ -28,10 +28,29 @@ import java.util.Comparator;
 public class Comparators
 {
     /**
+     * A comparator that can be used to reverse the results of another
+     * comparator.
+     */
+    public static class ReversingComparator implements Comparator
+    {
+        public ReversingComparator (Comparator reversable)
+        {
+            _reversable = reversable;
+        }
+
+        // documentation inherited from interface Comparator
+        public int compare (Object o1, Object o2)
+        {
+            return _reversable.compare(o2, o1); // switching the order
+        }
+
+        protected Comparator _reversable;
+    }
+
+    /**
      * A comparator that compares {@link Comparable} instances.
      */
-    public static final Comparator COMPARABLE = new Comparator()
-    {
+    public static final Comparator COMPARABLE = new Comparator() {
         public int compare (Object o1, Object o2)
         {
             if (o1 == o2) {
@@ -45,7 +64,9 @@ public class Comparators
     };
 
     /**
-     * A comparator that compares {@link String} instances.
+     * A comparator that imposes a reverse ordering on {@link Comparable}
+     * instances.
      */
-    public static final Comparator STRING = COMPARABLE;
+    public static final Comparator REVERSE_COMPARABLE =
+        new ReversingComparator(COMPARABLE);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.7 2003/11/13 16:58:39 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.8 2003/11/13 17:02:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -81,6 +81,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     // documentation inherited
     public int identifySite (HttpServletRequest req)
     {
+        checkReloadSites();
         String serverName = req.getServerName();
 
         // scan for the mapping that matches the specified domain
@@ -99,6 +100,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     // documentation inherited
     public String getSiteString (int siteId)
     {
+        checkReloadSites();
         Site site = (Site)_sitesById.get(siteId);
         return (site == null) ? DEFAULT_SITE_STRING : site.siteString;
     }
@@ -106,6 +108,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     // documentation inherited
     public int getSiteId (String siteString)
     {
+        checkReloadSites();
         Site site = (Site)_sitesByString.get(siteString);
         return (site == null) ? DEFAULT_SITE_ID : site.siteId;
     }
@@ -113,6 +116,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     // documentation inherited from interface
     public Iterator enumerateSites ()
     {
+        checkReloadSites();
         return _sitesById.values().iterator();
     }
 
@@ -138,6 +142,23 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         return site;
     }
 
+    /**
+     * Checks to see if we should reload our sites information from the
+     * sites table.
+     */
+    protected void checkReloadSites ()
+    {
+        long now = System.currentTimeMillis();
+        if (now - _lastReload > RELOAD_INTERVAL) {
+            _lastReload = now;
+            try {
+                _repo.refreshSiteData();
+            } catch (PersistenceException pe) {
+                Log.warning("Error refreshing site data.");
+                Log.logStackTrace(pe);
+            }
+        }
+    }
 
     /**
      * Used to load information from the site database.
@@ -289,4 +310,10 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     /** The mapping from string site identifiers to integer site
      * identifiers. */
     protected HashMap _sitesByString = new HashMap();
+
+    /** Used to periodically reload our site data. */
+    protected long _lastReload;
+
+    /** Reload our site data every 15 minutes. */
+    protected static final long RELOAD_INTERVAL = 15 * 60 * 1000L;
 }

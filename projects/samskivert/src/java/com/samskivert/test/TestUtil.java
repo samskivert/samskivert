@@ -1,5 +1,5 @@
 //
-// $Id: TestUtil.java,v 1.1 2001/11/05 09:13:24 mdb Exp $
+// $Id: TestUtil.java,v 1.2 2001/12/13 01:31:22 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -38,15 +38,12 @@ public class TestUtil
      * Returns the path via which a test-related resource can be loaded.
      * This assumes that the mechanism used to invoke the test code
      * defined a system property named <code>test_dir</code> which is the
-     * path to the project top-level test directory and that the top-level
-     * test directory contains a subdirectory named <code>rsrc</code>, to
-     * which the supplied path will be appended to obtain the path to the
-     * resource.
+     * path to the project top-level test directory, to which the supplied
+     * path will be appended to obtain the path to the resource.
      *
-     * @param path the path to the resource, relative to the
-     * <code>rsrc</code> directory in the top-level test directory. It
-     * should contain a leading slash but one will be provided if
-     * necessary.
+     * @param path the path to the resource, relative to the the top-level
+     * test directory. It should contain a leading slash but one will be
+     * provided if necessary.
      */
     public static String getResourcePath (String path)
     {
@@ -59,10 +56,6 @@ public class TestUtil
         }
 
         StringBuffer rpath = new StringBuffer(testdir);
-        if (rpath.charAt(rpath.length()-1) != '/') {
-            rpath.append("/");
-        }
-        rpath.append(RESOURCE_DIR);
         if (!path.startsWith("/")) {
             rpath.append("/");
         }
@@ -88,8 +81,4 @@ public class TestUtil
         // from which to load it
         return new FileInputStream(getResourcePath(path));
     }
-
-    /** The name of the directory in the top-level test directory that
-     * contains test-related resources. This is <code>rsrc</code>. */
-    protected static final String RESOURCE_DIR = "rsrc";
 }

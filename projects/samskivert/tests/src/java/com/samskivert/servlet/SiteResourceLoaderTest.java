@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoaderTest.java,v 1.3 2001/11/08 01:57:18 mdb Exp $
+// $Id: SiteResourceLoaderTest.java,v 1.4 2001/12/13 01:31:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -56,7 +56,7 @@ public class SiteResourceLoaderTest extends TestCase
 
         // now create a resource loader and load up some resources
         SiteResourceLoader loader = new SiteResourceLoader(
-            ident, TestUtil.getResourcePath("servlet/srl"));
+            ident, TestUtil.getResourcePath("rsrc/servlet/srl"));
 
         try {
             testResourceLoader(SiteIdentifier.DEFAULT_SITE_ID,
@@ -80,7 +80,7 @@ public class SiteResourceLoaderTest extends TestCase
         appendResource(siteId, gen, loader, "/footer.txt");
 
         StringBuffer cmp = new StringBuffer();
-        compareFile = "servlet/srl/" + compareFile;
+        compareFile = "rsrc/servlet/srl/" + compareFile;
         InputStream cin = TestUtil.getResourceAsStream(compareFile);
         if (cin == null) {
             throw new IOException("Unable to load " + compareFile);
@@ -110,7 +110,7 @@ public class SiteResourceLoaderTest extends TestCase
         if (rin == null) {
             // fall back to the "default" resource if we couldn't load a
             // site-specific version
-            String rpath = "servlet/srl/default/" + path;
+            String rpath = "rsrc/servlet/srl/default/" + path;
             rpath = TestUtil.getResourcePath(rpath);
             rin = new FileInputStream(rpath);
         }

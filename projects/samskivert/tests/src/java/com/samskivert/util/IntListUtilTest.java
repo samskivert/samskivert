@@ -1,5 +1,5 @@
 //
-// $Id: IntListUtilTest.java,v 1.1 2001/11/06 02:13:29 mdb Exp $
+// $Id: IntListUtilTest.java,v 1.2 2001/12/13 01:31:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,7 +24,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import com.samskivert.Log;
-import com.samskivert.test.TestUtil;
 
 public class IntListUtilTest extends TestCase
 {

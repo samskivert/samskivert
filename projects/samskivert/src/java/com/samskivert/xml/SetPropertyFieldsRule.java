@@ -1,5 +1,5 @@
 //
-// $Id: SetPropertyFieldsRule.java,v 1.1 2001/11/26 23:44:40 mdb Exp $
+// $Id: SetPropertyFieldsRule.java,v 1.2 2001/12/13 01:31:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -58,10 +58,14 @@ public class SetPropertyFieldsRule extends Rule
             }
 
             // look for a public field with this name
-            Field field = topclass.getField(name);
-            if (field == null) {
+            Field field = null;
+            try {
+                field = topclass.getField(name);
+            } catch (NoSuchFieldException nsfe) {
+                digester.log("Skipping property '" + name +
+                             "' for which there is no field.");
                 continue;
-            }
+            } 
 
             // convert the value into the appropriate object type
 	    String valstr = attrs.getValue(i);

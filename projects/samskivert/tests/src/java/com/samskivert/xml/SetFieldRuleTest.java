@@ -1,5 +1,5 @@
 //
-// $Id: SetFieldRuleTest.java,v 1.1 2001/11/17 03:45:52 mdb Exp $
+// $Id: SetFieldRuleTest.java,v 1.2 2001/12/13 01:31:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -78,7 +78,8 @@ public class SetFieldRuleTest extends TestCase
                          new SetFieldRule(digester, "stringArrayField"));
 
         try {
-            String xmlpath = TestUtil.getResourcePath("xml/setfieldtest.xml");
+            String xmlpath =
+                TestUtil.getResourcePath("rsrc/xml/setfieldtest.xml");
             InputStream input = new FileInputStream(xmlpath);
             digester.parse(input);
             input.close();

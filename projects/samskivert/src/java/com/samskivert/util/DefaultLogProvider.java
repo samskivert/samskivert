@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.10 2002/06/06 20:53:30 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.11 2002/09/19 18:42:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -147,7 +147,7 @@ public class DefaultLogProvider implements LogProvider
 
             // if we were unable to obtain our dimensions, use defaults
             if (_tdimens == null) {
-                _tdimens = new Dimension(80, 24);
+                _tdimens = new Dimension(132, 24);
             }
         }
     }

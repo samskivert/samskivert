@@ -143,12 +143,16 @@ public class IntField extends JTextField
             {
                 boolean wouldaBeenEqual = current.equals(potential);
                 potential = transform(potential);
+                boolean selection = (getSelectionEnd() != getSelectionStart());
                 // we only change it if it needs changing
                 if (!current.equals(potential) ||
                         // or if it would have been the same pre-transforming
                         // and there is a selection (IE undo the selection)
-                        (wouldaBeenEqual &&
-                         (getSelectionEnd() != getSelectionStart()))) {
+                        (wouldaBeenEqual && selection)) {
+                    if (selection) {
+                        // undo the selection to not cause an exception
+                        setCaretPosition(0);
+                    }
                     fb.replace(0, doc.getLength(), potential, null);
                 }
             }

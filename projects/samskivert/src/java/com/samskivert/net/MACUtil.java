@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.2 2003/07/07 18:52:56 eric Exp $
+// $Id: MACUtil.java,v 1.3 2003/07/25 22:29:53 eric Exp $
 
 package com.samskivert.net;
 
@@ -110,6 +110,6 @@ public class MACUtil
 
     // TODO maybe we should obfuscate these with rot13 or something so
     // that people can't run 'strings' on us and instantly see what we try
-    protected static String[] WINDOWS_CMDS = {"ipconfig"};
+    protected static String[] WINDOWS_CMDS = {"ipconfig /all"};
     protected static String[] UNIX_CMDS = {"/sbin/ifconfig", "/etc/ifconfig"};
 }

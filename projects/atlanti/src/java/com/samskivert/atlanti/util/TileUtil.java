@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.11 2001/10/18 02:17:54 mdb Exp $
+// $Id: TileUtil.java,v 1.12 2001/10/18 20:54:34 mdb Exp $
 
 package com.threerings.venison;
 
@@ -639,14 +639,14 @@ public class TileUtil implements TileCodes
 
     /** Used to figure out which edges match up to which when comparing
      * adjacent tiles. */
-    protected static final int[] EDGE_MAP = new int[] {
+    protected static final int[] EDGE_MAP = {
         -1, NORTH, -1,
         WEST, -1, EAST,
         -1, SOUTH, -1
     };
 
     /** A table indicating which tiles have which edges. */
-    protected static final int[] TILE_EDGES = new int[] {
+    protected static final int[] TILE_EDGES = {
         -1, -1, -1, -1, // null tile
         CITY, CITY, CITY, CITY, // CITY_FOUR
         CITY, CITY, GRASS, CITY, // CITY_THREE

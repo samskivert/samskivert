@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.4 2001/09/15 17:22:11 mdb Exp $
+// $Id: HashIntMap.java,v 1.5 2001/11/26 19:23:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,16 @@
 
 package com.samskivert.util;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * An int map is like a regular map, but with integers as keys. We avoid
@@ -284,6 +293,47 @@ public class HashIntMap
         return values().iterator();
     }
 
+    /**
+     * Save the state of this instance to a stream (i.e., serialize it).
+     */
+    private void writeObject (ObjectOutputStream s)
+        throws IOException
+    {
+	// write out number of buckets
+	s.writeInt(_buckets.length);
+
+	// write out size (number of mappings)
+	s.writeInt(_size);
+
+        // write out keys and values
+        for (Iterator i = entrySet().iterator(); i.hasNext(); ) {
+            Entry e = (Entry)i.next();
+            s.writeInt(((Integer)e.getKey()).intValue());
+            s.writeObject(e.getValue());
+        }
+    }
+
+    /**
+     * Reconstitute the <tt>HashIntMap</tt> instance from a stream (i.e.,
+     * deserialize it).
+     */
+    private void readObject (ObjectInputStream s)
+         throws IOException, ClassNotFoundException
+    {
+	// read in number of buckets and allocate the bucket array
+        _buckets = new Record[s.readInt()];
+
+	// read in size (number of mappings)
+	int size = s.readInt();
+
+	// read the keys and values
+	for (int i=0; i<size; i++) {
+	    int key = s.readInt();
+	    Object value = s.readObject();
+	    put(key, value);
+	}
+    }
+
     protected static class Record implements Entry
     {
 	public Record next;
@@ -328,41 +378,6 @@ public class HashIntMap
             return key ^ ((value == null) ? 0 : value.hashCode());
         }
     }
-
-   public static void main (String[] args)
-   {
-       HashIntMap table = new HashIntMap();
-
-       System.out.print("Inserting: ");
-       for (int i = 10; i < 100; i++) {
-           Integer value = new Integer(i);
-           table.put(i, value);
-           System.out.print("(" + i + "," + value + ")");
-       }
-       System.out.println("");
-
-       System.out.print("Looking up: ");
-       for (int i = 10; i < 100; i++) {
-           System.out.print("(" + i + "," + table.get(i) + ")");
-       }
-       System.out.println("");
-
-       System.out.println("Keys: " +
-                          StringUtil.toString(table.keys()));
-       System.out.println("Elems: " +
-                          StringUtil.toString(table.elements()));
-
-       System.out.print("Removing: ");
-       for (int i = 10; i < 98; i++) {
-           System.out.print("(" + i + "," + table.remove(i) + ")");
-       }
-       System.out.println("");
-
-       System.out.println("Keys: " +
-                          StringUtil.toString(table.keys()));
-       System.out.println("Elems: " +
-                          StringUtil.toString(table.elements()));
-   }
 
     private Record[] _buckets;
     private int _size;

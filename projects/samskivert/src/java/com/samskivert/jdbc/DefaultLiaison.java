@@ -1,5 +1,5 @@
 //
-// $Id: MySQLLiaison.java,v 1.2 2001/09/20 02:09:09 mdb Exp $
+// $Id: DefaultLiaison.java,v 1.1 2001/09/20 02:09:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,45 +20,37 @@
 
 package com.samskivert.jdbc;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
- * A database liaison for the MySQL database.
+ * The default liaison is used if no other liaison could be matched for a
+ * particular database connection. It isn't very smart or useful but we
+ * need something.
  */
-public class MySQLLiaison
+public class DefaultLiaison implements DatabaseLiaison
 {
     // documentation inherited
     public boolean matchesURL (String url)
     {
-        return url.startsWith("jdbc:mysql");
+        return true;
     }
 
     // documentation inherited
     public boolean isDuplicateRowException (SQLException sqe)
     {
-	String msg = sqe.getMessage();
-	return (msg != null && msg.indexOf("Duplicate entry") != -1);
+        return false;
     }
 
     // documentation inherited
     public boolean isTransientException (SQLException sqe)
     {
-	String msg = sqe.getMessage();
-	return (msg != null &&
-                (msg.indexOf("Lost connection") != -1 ||
-                 msg.indexOf("Broken pipe") != -1));
+        return false;
     }
 
     // documentation inherited
     public int lastInsertedId (Connection conn) throws SQLException
     {
-	// we have to do this by hand. alas all is not roses.
-	Statement stmt = conn.createStatement();
-	ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
-	if (rs.next()) {
-	    return rs.getInt(1);
-	} else {
-	    return -1;
-	}
+        return -1;
     }
 }

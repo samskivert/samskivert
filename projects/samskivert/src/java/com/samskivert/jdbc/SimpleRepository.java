@@ -1,5 +1,5 @@
 //
-// $Id: SimpleRepository.java,v 1.1 2001/09/20 01:53:20 mdb Exp $
+// $Id: SimpleRepository.java,v 1.2 2001/09/20 02:09:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -77,19 +77,22 @@ public class SimpleRepository extends Repository
     protected Object execute (Operation op, boolean retryOnTransientFailure)
 	throws PersistenceException
     {
-        // obtain our database connection
         Connection conn = null;
+        DatabaseMetaData dmd = null;
+        DatabaseLiaison liaison = null;
+
+        // obtain our database connection and associated goodies
         try {
             conn = _provider.getConnection(_dbident);
             conn.setAutoCommit(false);
+            dmd = conn.getMetaData();
+            liaison = LiaisonRegistry.getLiaison(conn);
             gotConnection(conn);
         } catch (SQLException sqe) {
             String err = "Unable to obtain connection.";
             throw new PersistenceException(err, sqe);
         }
 
-        // obtain a liaison for this connection
-        DatabaseLiaison liaison = LiaisonRegistry.getLiaison(conn);
         Object rv = null;
 
         try {
@@ -97,7 +100,7 @@ public class SimpleRepository extends Repository
 	    rv = op.invoke(conn, liaison);
 
 	    // commit the transaction
-            if (liaison.supportsTransactions()) {
+            if (dmd.supportsTransactions()) {
                 conn.commit();
             }
 
@@ -106,13 +109,13 @@ public class SimpleRepository extends Repository
 
 	} catch (SQLException sqe) {
 	    // back out our changes if something got hosed
-            if (liaison.supportsTransactions()) {
-                try {
+            try {
+                if (dmd.supportsTransactions()) {
                     conn.rollback();
-                } catch (SQLException rbe) {
-                    Log.warning("Unable to roll back operation.");
-                    Log.logStackTrace(rbe);
                 }
+            } catch (SQLException rbe) {
+                Log.warning("Unable to roll back operation.");
+                Log.logStackTrace(rbe);
             }
 
             // let the connection provider know that the connection failed
@@ -134,25 +137,25 @@ public class SimpleRepository extends Repository
 
 	} catch (PersistenceException pe) {
 	    // back out our changes if something got hosed
-            if (liaison.supportsTransactions()) {
-                try {
+            try {
+                if (dmd.supportsTransactions()) {
                     conn.rollback();
-                } catch (SQLException rbe) {
-                    Log.warning("Unable to roll back operation.");
-                    Log.logStackTrace(rbe);
                 }
+            } catch (SQLException rbe) {
+                Log.warning("Unable to roll back operation.");
+                Log.logStackTrace(rbe);
             }
             throw pe;
 
 	} catch (RuntimeException rte) {
 	    // back out our changes if something got hosed
-            if (conn != null && liaison.supportsTransactions()) {
-                try {
+            try {
+                if (conn != null && dmd.supportsTransactions()) {
                     conn.rollback();
-                } catch (SQLException rbe) {
-                    Log.warning("Unable to roll back operation.");
-                    Log.logStackTrace(rbe);
                 }
+            } catch (SQLException rbe) {
+                Log.warning("Unable to roll back operation.");
+                Log.logStackTrace(rbe);
             }
 	    throw rte;
 

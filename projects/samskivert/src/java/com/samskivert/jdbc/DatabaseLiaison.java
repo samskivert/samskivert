@@ -1,5 +1,5 @@
 //
-// $Id: DatabaseLiaison.java,v 1.1 2001/09/20 01:53:19 mdb Exp $
+// $Id: DatabaseLiaison.java,v 1.2 2001/09/20 02:09:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -33,12 +33,13 @@ import java.sql.SQLException;
 public interface DatabaseLiaison
 {
     /**
-     * Indicates whether this particular RDBMS/JDBC driver combination
-     * supports transactions.
+     * Indicates whether or not this database liaison is the proper
+     * liaison for the specified database URL.
      *
-     * @return true if transactions are supported, false if not.
+     * @return true if we should use this liaison for connections created
+     * with the supplied URL, false if we should not.
      */
-    public boolean supportsTransactions ();
+    public boolean matchesURL (String url);
 
     /**
      * Determines whether or not the supplied SQL exception was caused by

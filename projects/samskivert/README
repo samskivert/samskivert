@@ -1,0 +1,55 @@
+The samskivert Project
+----------------------
+
+The samskivert Project (TSP) aims to provide useful reusable Java routines
+that do things for which I've been unable to find useful reusable
+implementations on the net.
+
+Given the emphasis on reusability, TSP attempts to closely adhere to the
+following principles:
+
+* Each individual module should depend as little as possible on other TSP
+  modules. Obvious exceptions include modules that are a logical extension
+  of other modules and modules that clearly require a service that is
+  implemented by another TSP module and would have to implement that
+  service themselves in the absence of dependence on the other module.
+
+* Modules should be both simple to use and as general purpose as possible.
+  To meet these two competing requirements, a balance must be struck at
+  that sweet spot where reusability is maximized.
+
+* Code included in TSP will freely depend on JDK packages available in the
+  Java 2 platform and beyond. TSP is initially a repository of software
+  useful for server-side or standalone applications and therefore need not
+  compromise because it needs to function in the JVMs of commonly
+  available web browsers.
+
+* We are not here to reinvent the wheel, nor to provide a uniform
+  interface to every software service under the sun. If something is
+  available in a freely redistributable and reusable form from someone
+  else, it won't be found in TSP. If TSP depends on such software from
+  another source, it will provide clear documentation on how to get that
+  software and make use of it within the scope of TSP's particular needs.
+  Again a balance of reusability will be struck here and software that is
+  sufficiently difficult to make usable in an arbitrary environment will
+  not be used by TSP and may be "reinvented".
+
+Distribution
+------------
+
+TSP is released under the GPL.
+
+Contribution
+------------
+
+Contributions to TSP are welcome. Control of the CVS repository is
+presently in the hands of TSP's creator, mdb@samskivert.com and
+submissions will be reviewed prior to inclusion. Facilities for management
+of major contributions by external parties will, of course, be provided
+when such contributions exist.
+
+Contact Information
+-------------------
+
+The person primarily reponsible for TSP is Michael Bayne and can be
+contacted at <mdb@samskivert.com>.

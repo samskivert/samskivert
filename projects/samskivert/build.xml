@@ -77,10 +77,6 @@
      classpathref="classpath"/>
     <echo message="Commons Digester: ${jakarta.commons-digester.present}"/>
 
-    <available property="jakarta.regexp.present"
-     classname="org.apache.regexp.RE" classpathref="classpath"/>
-    <echo message="Regexp: ${jakarta.regexp.present}"/>
-
     <available property="jakarta.velocity.present"
      classname="org.apache.velocity.Template" classpathref="classpath"/>
     <echo message="Velocity: ${jakarta.velocity.present}"/>
@@ -118,19 +114,15 @@
     <!--<echo message="com.samskivert.jdbc: ${build.jdbc}"/>-->
 
     <condition property="build.net">
-      <and>
-        <isset property="build.io"/>
-        <isset property="jakarta.regexp.present"/>
-      </and>
+      <isset property="build.io"/>
     </condition>
-    <echo message="com.samskivert.net: ${build.net}"/>
+    <!--<echo message="com.samskivert.net: ${build.net}"/>-->
 
     <condition property="build.servlet">
       <and>
         <isset property="build.io"/>
         <isset property="build.jdbc"/>
         <isset property="build.util"/>
-        <isset property="jakarta.regexp.present"/>
         <isset property="servlet2.2.present"/>
       </and>
     </condition>

@@ -1,5 +1,5 @@
 //
-// $Id: Entry.java,v 1.4 2002/02/22 07:06:33 mdb Exp $
+// $Id: Entry.java,v 1.5 2004/01/28 02:35:55 mdb Exp $
 
 package robodj.repository;
 
@@ -51,6 +51,9 @@ public class Entry
      */
     public Song getSong (int songid)
     {
+        if (songs == null) {
+            return null;
+        }
         for (int i = 0; i < songs.length; i++) {
             if (songs[i].songid == songid) {
                 return songs[i];

@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.22 2002/05/11 20:31:59 mdb Exp $
+// $Id: UserRepository.java,v 1.23 2002/05/11 20:32:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -269,13 +269,16 @@ public class UserRepository extends JORARepository
      * Only fields that have been modified since it was loaded will be
      * written to the database and those fields will subsequently be
      * marked clean once again.
+     *
+     * @return true if the record was updated, false if the update was
+     * skipped because no fields in the user record were modified.
      */
-    public void updateUser (final User user)
+    public boolean updateUser (final User user)
 	throws PersistenceException
     {
         if (!user.getDirtyMask().isModified()) {
             // nothing doing!
-            return;
+            return false;
         }
 
 	execute(new Operation () {
@@ -287,6 +290,8 @@ public class UserRepository extends JORARepository
                 return null;
 	    }
 	});
+
+        return true;
     }
 
     /**

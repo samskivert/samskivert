@@ -1,5 +1,5 @@
 //
-// $Id: FileUtil.java,v 1.1 2003/05/03 00:50:57 ray Exp $
+// $Id: FileUtil.java,v 1.2 2003/05/23 18:13:36 mdb Exp $
 
 package com.samskivert.util;
 
@@ -18,14 +18,31 @@ public class FileUtil
      */
     public static void recursiveDelete (File file)
     {
+        recursiveWipe(file, false);
+    }
+
+    /**
+     * Recursively deletes all of the files and directories in the
+     * supplied directory, but not the directory itself.
+     */
+    public static void recursiveClean (File file)
+    {
+        recursiveWipe(file, false);
+    }
+
+    /** Helper function. */
+    protected static void recursiveWipe (File file, boolean wipeMe)
+    {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             for (int ii = 0; ii < files.length; ii++) {
-                recursiveDelete(files[ii]);
+                recursiveWipe(files[ii], true);
             }
         }
-        if (!file.delete()) {
-            Log.warning("Failed to delete " + file + ".");
+        if (wipeMe) {
+            if (!file.delete()) {
+                Log.warning("Failed to delete " + file + ".");
+            }
         }
     }
 }

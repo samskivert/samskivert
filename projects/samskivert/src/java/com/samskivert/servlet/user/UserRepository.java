@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.2 2001/03/02 02:08:50 mdb Exp $
+// $Id: UserRepository.java,v 1.3 2001/03/02 02:38:31 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -219,8 +219,8 @@ public class UserRepository extends MySQLRepository
 	    {
 		_session.execute("insert into sessions " +
 				 "(authcode, userid, expires) values('" +
-				 authcode + "', " + user.userid + ", " +
-				 expires + ")");
+				 authcode + "', " + user.userid + ", '" +
+				 expires + "')");
 	    }
 	});
 

@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.9 2002/11/21 22:41:53 mdb Exp $
+// $Id: Log.java,v 1.10 2003/01/15 01:23:21 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -184,6 +184,19 @@ public final class Log
             return WARNING;
         } else {
             return -1;
+        }
+    }
+
+    /**
+     * Returns a string representation of the specified log level.
+     */
+    public static String levelToString (int level)
+    {
+        switch (level) {
+        case DEBUG: return "DEBUG";
+        case INFO: return "INFO";
+        case WARNING: return "WARNING";
+        default: return "UNKNOWN";
         }
     }
 

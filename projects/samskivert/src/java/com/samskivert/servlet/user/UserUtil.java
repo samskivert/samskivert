@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.1 2001/03/02 02:08:50 mdb Exp $
+// $Id: UserUtil.java,v 1.2 2001/03/02 02:35:17 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -23,6 +23,7 @@ public class UserUtil
 	buf.append(user.password);
 	buf.append(System.currentTimeMillis());
 	buf.append(Math.random());
+
 	// and MD5 hash it
 	try {
 	    MessageDigest digest = MessageDigest.getInstance("MD5");

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.14 2001/10/18 20:57:21 mdb Exp $
+// $Id: AtlantiManager.java,v 1.15 2001/10/18 23:11:03 mdb Exp $
 
 package com.threerings.venison;
 
@@ -423,6 +423,11 @@ public class VenisonManager
 
             Log.info("Counted city [cityClaim=" + cityClaim +
                      ", counts=" + StringUtil.toString(pcount) + "].");
+
+            // ignore this city if no one has any farmers nearby
+            if (max == 0) {
+                continue;
+            }
 
             // now score four points for every player that has the max
             for (int i = 0; i < pcount.length; i++) {

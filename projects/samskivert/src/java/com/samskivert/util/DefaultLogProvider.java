@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.8 2002/05/31 21:19:58 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.9 2002/05/31 22:19:07 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -91,6 +91,11 @@ public class DefaultLogProvider implements LogProvider
             buf.append(REVERSE);
         }
         buf.append(LEVEL_CHARS[level]).append(" ");
+
+        // make sure the message isn't wack
+        if (message == null) {
+            message = "null";
+        }
 
         // let the formatting continue to influence the module name and
         // then it will be turned off when underlining is turned off

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.2 2000/10/31 00:51:13 mdb Exp $
+// $Id: StringUtil.java,v 1.3 2001/02/13 19:54:43 mdb Exp $
 
 package com.samskivert.util;
 
@@ -14,6 +14,32 @@ public class StringUtil
     public static boolean blank (String value)
     {
 	return (value == null || value.trim().length() == 0);
+    }
+
+    /**
+     * Returns a new string based on <code>source</code> with all
+     * instances of <code>before</code> replaced with <code>after</code>.
+     */
+    public static String replace (String source, String before, String after)
+    {
+	int pos = source.indexOf(before);
+	if (pos == -1) {
+	    return source;
+	}
+
+	StringBuffer sb = new StringBuffer(source.length() + 32);
+
+	int blength = before.length();
+	int start = 0;
+	while (pos != -1) {
+	    sb.append(source.substring(start, pos));
+	    sb.append(after);
+	    start = pos + blength;
+	    pos = source.indexOf(before, start);
+	}
+	sb.append(source.substring(start));
+
+	return sb.toString();
     }
 
     /**

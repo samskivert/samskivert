@@ -1,5 +1,5 @@
 //
-// $Id: ServerControl.java,v 1.3 2001/07/13 00:10:05 mdb Exp $
+// $Id: ServerControl.java,v 1.4 2002/02/22 08:37:34 mdb Exp $
 
 package robodj.util;
 
@@ -60,6 +60,11 @@ public class ServerControl
     public void remove (int sid)
     {
         sendCommand("REMOVE " + sid);
+    }
+
+    public void removeGroup (int sid, int count)
+    {
+        sendCommand("REMOVEGRP " + sid + " " + count);
     }
 
     public void skipto (int sid)

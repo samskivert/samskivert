@@ -1,5 +1,5 @@
 //
-// $Id: ChainGroup.java,v 1.8 2001/07/24 20:07:33 mdb Exp $
+// $Id: ChainGroup.java,v 1.9 2001/07/24 20:30:53 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -7,8 +7,7 @@ import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.font.TextLayout;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * A chain group is used to group together all of the classes from a
@@ -28,6 +27,13 @@ public class ChainGroup
 
         // process the classes provided by our enumerator
         _roots = ChainUtil.buildChains(pkgroot, iter);
+
+        // sort our roots
+        for (int i = 0; i < _roots.size(); i++) {
+            Chain root = (Chain)_roots.get(i);
+            root.sortChildren(NAME_COMP);
+        }
+
         // System.err.println(_roots.size() + " chains for " + pkg + ".");
     }
 
@@ -206,4 +212,21 @@ public class ChainGroup
     protected int _page;
 
     protected static final double BORDER = 72/8;
+
+    protected static class NameComparator implements Comparator
+    {
+        public int compare (Object o1, Object o2)
+        {
+            Chain c1 = (Chain)o1;
+            Chain c2 = (Chain)o2;
+            return c1.getName().compareTo(c2.getName());
+        }
+
+        public boolean equals (Object other)
+        {
+            return (other == this);
+        }
+    }
+
+    protected static final Comparator NAME_COMP = new NameComparator();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.10 2003/10/15 00:16:17 eric Exp $
+// $Id: FormTool.java,v 1.11 2003/10/20 16:59:07 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -140,12 +140,30 @@ public class FormTool
     }
 
     /**
+     * Constructs a submit element with the name <code>submit</code> and
+     * the specified button text with the specified extra text.
+     */
+    public String submitExtra (String text, String extra)
+    {
+        return fixedInput("submit", "submit", text, extra);
+    }
+
+    /**
      * Constructs a submit element with the specified parameter name and
      * the specified button text.
      */
     public String submit (String name, String text)
     {
         return fixedInput("submit", name, text, "");
+    }
+
+    /**
+     * Constructs a submit element with the specified parameter name and
+     * the specified button text with the specified extra text.
+     */
+    public String submitExtra (String name, String text, String extra)
+    {
+        return fixedInput("submit", name, text, extra);
     }
 
     /**

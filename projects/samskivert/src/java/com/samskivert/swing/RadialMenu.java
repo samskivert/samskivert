@@ -1,5 +1,5 @@
 //
-// $Id: RadialMenu.java,v 1.3 2003/04/16 22:50:55 mdb Exp $
+// $Id: RadialMenu.java,v 1.4 2003/04/22 22:04:55 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -47,6 +47,14 @@ public class RadialMenu
          * Returns the component on which we will be rendered.
          */
         public Component getComponent ();
+
+        /**
+         * Requests the bounds of the visible region in which we'll be
+         * rendering the menu. The menu will be constrained to fit within
+         * these bounds starting with a natural position around the
+         * supplied target bounds and adjusting minimally to fit.
+         */
+        public Rectangle getViewBounds ();
 
         /**
          * Requests that the appropriate region of the host be repainted.
@@ -562,7 +570,7 @@ public class RadialMenu
 
         // now make sure the whole shebang is fully visible within the
         // host component
-        Rectangle hbounds = new Rectangle(_host.getComponent().getSize());
+        Rectangle hbounds = _host.getViewBounds();
         Point pos = SwingUtil.fitRectInRect(_bounds, hbounds);
         _bounds.setLocation(pos);
     }

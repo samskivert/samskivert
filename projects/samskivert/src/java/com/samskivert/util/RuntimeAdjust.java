@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.2 2003/01/15 01:25:55 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.3 2003/01/15 01:41:25 mdb Exp $
 
 package com.samskivert.util;
 
@@ -117,7 +117,7 @@ public class RuntimeAdjust
             _value = _config.getValue(_name, defval);
         }
 
-        public boolean getValue ()
+        public final boolean getValue ()
         {
             return _value;
         }
@@ -168,7 +168,7 @@ public class RuntimeAdjust
             _value = _config.getValue(_name, defval);
         }
 
-        public int getValue ()
+        public final int getValue ()
         {
             return _value;
         }
@@ -224,7 +224,7 @@ public class RuntimeAdjust
             _value = _config.getValue(_name, defval);
         }
 
-        public String getValue ()
+        public final String getValue ()
         {
             return _value;
         }

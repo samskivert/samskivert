@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.12 2003/10/21 21:05:44 eric Exp $
+// $Id: FormTool.java,v 1.13 2003/11/04 03:12:39 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -89,6 +89,15 @@ public class FormTool
                         Object defaultValue)
     {
         return input("text", name, extra, defaultValue);
+    }
+
+    /**
+     * Creates a text input field with the specified name and the
+     * specified extra arguments and the specified value.
+     */
+    public String fixedText (String name, String extra, String value)
+    {
+        return fixedInput("text", name, value, extra);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.12 2003/09/17 18:50:07 ray Exp $
+// $Id: ParameterUtil.java,v 1.13 2003/12/16 01:11:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -141,6 +141,24 @@ public class ParameterUtil
     }
 
     /**
+     * Fetches the supplied parameter from the request and converts it to
+     * a long. If the parameter does not exist, <code>defval</code> is
+     * returned. If the parameter is not a well-formed integer, a data
+     * validation exception is thrown with the supplied message.
+     */
+    public static long getLongParameter (
+        HttpServletRequest req, String name, long defval,
+        String invalidDataMessage)
+	throws DataValidationException
+    {
+	String value = getParameter(req, name, false);
+        if (StringUtil.blank(value)) {
+            return defval;
+        }
+        return parseLongParameter(value, invalidDataMessage);
+    }
+
+    /**
      * Fetches the supplied parameter from the request. If the parameter
      * does not exist, a data validation exception is thrown with the
      * supplied message.
@@ -265,6 +283,20 @@ public class ParameterUtil
     {
         try {
 	    return Integer.parseInt(value);
+	} catch (NumberFormatException nfe) {
+	    throw new DataValidationException(invalidDataMessage);
+	}
+    }
+
+    /**
+     * Internal method to parse long values.
+     */
+    protected static long parseLongParameter (
+        String value, String invalidDataMessage)
+        throws DataValidationException
+    {
+        try {
+	    return Long.parseLong(value);
 	} catch (NumberFormatException nfe) {
 	    throw new DataValidationException(invalidDataMessage);
 	}

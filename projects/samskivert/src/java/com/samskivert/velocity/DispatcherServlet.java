@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.11 2001/11/06 20:55:51 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.12 2001/11/20 21:13:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -204,6 +204,10 @@ public class DispatcherServlet extends VelocityServlet
 
         // wire up our #import directive
         props.put("userdirective", ImportDirective.class.getName());
+
+        // configure the servlet context logger
+        props.put(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM,
+                  new ServletContextLogger(getServletContext()));
 
         // now return our augmented properties
         return props;

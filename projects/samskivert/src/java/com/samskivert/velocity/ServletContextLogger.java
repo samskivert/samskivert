@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextLogger.java,v 1.1 2001/11/20 21:08:35 mdb Exp $
+// $Id: ServletContextLogger.java,v 1.2 2001/11/20 21:13:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -30,12 +30,34 @@ import org.apache.velocity.runtime.log.LogSystem;
  */
 public class ServletContextLogger implements LogSystem
 {
+    /**
+     * Constructs a servlet context logger that will obtain its servlet
+     * context reference via {@link RuntimeServices#getApplicationContext}
+     * when initialized.
+     */
+    public ServletContextLogger ()
+    {
+    }
+
+    /**
+     * Constructs a servlet context logger with the supplied servlet
+     * context.
+     */
+    public ServletContextLogger (ServletContext sctx)
+    {
+        _sctx = sctx;
+    }
+
     // documentation inherited
     public void init (RuntimeServices rsvc)
     {
-        // the web framework was kind enough to slip this into the runtime
-        // instance when it started up
-        _sctx = (ServletContext)rsvc.getApplicationContext();
+        // if we weren't constructed with a servlet context, try to obtain
+        // one via the application context
+        if (_sctx == null) {
+            _sctx = (ServletContext)rsvc.getApplicationContext();
+        }
+
+        // if we still don't have one, complain
         if (_sctx == null) {
             rsvc.warn("ServletContextLogger: servlet context was not " +
                       "supplied as application context. A user of the " +

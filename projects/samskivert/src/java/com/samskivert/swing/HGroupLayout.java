@@ -1,5 +1,5 @@
 //
-// $Id: HGroupLayout.java,v 1.4 2001/05/28 18:26:27 mdb Exp $
+// $Id: HGroupLayout.java,v 1.5 2001/06/07 08:39:10 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -113,7 +113,6 @@ public class HGroupLayout extends GroupLayout
 	    break;
 
 	case EQUALIZE:
-	    sy = insets.top + (b.height - info.maxhei)/2;
 	    defhei = info.maxhei;
 	    break;
 
@@ -129,7 +128,7 @@ public class HGroupLayout extends GroupLayout
 	    break;
 	case RIGHT:
 	case BOTTOM:
-	    sx += b.width - totwid;
+	    sx += b.width - totwid - insets.right;
 	    break;
 	}
 
@@ -150,8 +149,25 @@ public class HGroupLayout extends GroupLayout
 
 	    if (_offpolicy == NONE) {
 		newhei = info.dimens[i].height;
-		sy = insets.top + (b.height - newhei)/2;
 	    }
+
+            // determine our off-axis position
+            switch (_offjust) {
+            case LEFT:
+            case TOP:
+		sy = insets.top;
+                break;
+
+            case RIGHT:
+            case BOTTOM:
+		sy = b.height - newhei - insets.bottom;
+                break;
+
+            default:
+            case CENTER:
+		sy = insets.top + (b.height - newhei)/2;
+                break;
+            }
 
 	    child.setBounds(sx, sy, newwid, newhei);
 	    sx += child.getSize().width + _gap;

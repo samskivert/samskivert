@@ -1,5 +1,5 @@
 //
-// $Id: GroupLayout.java,v 1.1 2000/12/07 05:41:07 mdb Exp $
+// $Id: GroupLayout.java,v 1.2 2001/06/07 08:39:10 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -116,6 +116,16 @@ public abstract class GroupLayout
     public int getJustification ()
     {
 	return _justification;
+    }
+
+    public void setOffAxisJustification (int justification)
+    {
+	_offjust = justification;
+    }
+
+    public int getOffAxisJustification ()
+    {
+	return _offjust;
     }
 
     public void addLayoutComponent (String name, Component comp)
@@ -272,6 +282,7 @@ public abstract class GroupLayout
     protected int _offpolicy = NONE;
     protected int _gap = 5;
     protected int _justification = CENTER;
+    protected int _offjust = CENTER;
 
     protected HashMap _constraints;
 

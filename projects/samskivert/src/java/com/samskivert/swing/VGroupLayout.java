@@ -1,5 +1,5 @@
 //
-// $Id: VGroupLayout.java,v 1.4 2001/05/28 18:26:27 mdb Exp $
+// $Id: VGroupLayout.java,v 1.5 2001/06/07 08:39:10 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -113,7 +113,6 @@ public class VGroupLayout extends GroupLayout
 	    break;
 
 	case EQUALIZE:
-	    sx = insets.left + (b.width - info.maxwid)/2;
 	    defwid = info.maxwid;
 	    break;
 
@@ -129,7 +128,7 @@ public class VGroupLayout extends GroupLayout
 	    break;
 	case RIGHT:
 	case BOTTOM:
-	    sy += b.height - tothei;
+	    sy += b.height - tothei - insets.bottom;
 	    break;
 	}
 
@@ -150,8 +149,25 @@ public class VGroupLayout extends GroupLayout
 
 	    if (_offpolicy == NONE) {
 		newwid = info.dimens[i].width;
-		sx = insets.left + (b.width - newwid)/2;
 	    }
+
+            // determine our off-axis position
+            switch (_offjust) {
+            case LEFT:
+            case TOP:
+		sx = insets.left;
+                break;
+
+            case RIGHT:
+            case BOTTOM:
+		sx = b.width - newwid - insets.right;
+                break;
+
+            default:
+            case CENTER:
+		sx = insets.left + (b.width - newwid)/2;
+                break;
+            }
 
 	    child.setBounds(sx, sy, newwid, newhei);
 	    sy += child.getSize().height + _gap;

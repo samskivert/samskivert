@@ -1,2 +1,2 @@
-?package(lookuplet):needs=X11 section=Apps/Net\
+?package(lookuplet):needs=X11 section=Apps/Tools\
   title="lookuplet" command="/usr/bin/lookuplet"

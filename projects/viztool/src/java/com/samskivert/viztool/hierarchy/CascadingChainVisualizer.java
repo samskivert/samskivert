@@ -1,5 +1,5 @@
 //
-// $Id: CascadingChainVisualizer.java,v 1.6 2001/07/17 05:31:37 mdb Exp $
+// $Id: CascadingChainVisualizer.java,v 1.7 2001/07/17 06:01:08 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -30,7 +30,8 @@ public class CascadingChainVisualizer
     public void layoutChain (Chain chain, Graphics2D gfx)
     {
         // create a text layout based on the current rendering conditions
-        Font font = chain.getRoot().isInterface() ? _ifaceFont : _classFont;
+        Font font = chain.getRoot().isInterface() ?
+            FontPicker.getInterfaceFont() : FontPicker.getClassFont();
         TextLayout layout = new TextLayout(chain.getName(), font,
                                            gfx.getFontRenderContext());
 
@@ -70,7 +71,8 @@ public class CascadingChainVisualizer
         double y = bounds.getY();
 
         // create a text layout based on the current rendering conditions
-        Font font = chain.getRoot().isInterface() ? _ifaceFont : _classFont;
+        Font font = chain.getRoot().isInterface() ?
+            FontPicker.getInterfaceFont() : FontPicker.getClassFont();
         TextLayout layout = new TextLayout(chain.getName(), font,
                                            gfx.getFontRenderContext());
 
@@ -137,7 +139,4 @@ public class CascadingChainVisualizer
      * The number of points of spacing between each child chain.
      */
     protected static final double GAP = 4;
-
-    protected static Font _classFont = new Font("Helvetica", Font.PLAIN, 8);
-    protected static Font _ifaceFont = new Font("Helvetica", Font.ITALIC, 8);
 }

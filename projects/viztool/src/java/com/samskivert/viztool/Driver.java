@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.3 2001/07/17 05:21:33 mdb Exp $
+// $Id: Driver.java,v 1.4 2001/07/17 06:01:08 mdb Exp $
 
 package com.samskivert.viztool;
 
@@ -38,6 +38,9 @@ public class Driver
         for (int i = 0; i < warnings.length; i++) {
             System.err.println("Warning: " + warnings[i].reason);
         }
+
+        // initialize the font picker
+        FontPicker.init(print);
 
         // and finally generate the visualization
         PackageEnumerator penum = new PackageEnumerator(pkgroot, enum, true);

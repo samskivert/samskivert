@@ -1,5 +1,5 @@
 //
-// $Id: ChainGroup.java,v 1.5 2001/07/17 05:28:46 mdb Exp $
+// $Id: ChainGroup.java,v 1.6 2001/07/17 06:01:08 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -44,7 +44,7 @@ public class ChainGroup
         }
 
         // we'll need room to incorporate our title
-        TextLayout layout = new TextLayout(_pkg, _titleFont,
+        TextLayout layout = new TextLayout(_pkg, FontPicker.getTitleFont(),
                                            gfx.getFontRenderContext());
 
         // we let the title stick halfway up out of our rectangular
@@ -82,7 +82,7 @@ public class ChainGroup
      */
     public void render (Graphics2D gfx, double x, double y)
     {
-        TextLayout layout = new TextLayout(_pkg, _titleFont,
+        TextLayout layout = new TextLayout(_pkg, FontPicker.getTitleFont(),
                                            gfx.getFontRenderContext());
 
         // we let the title stick halfway up out of our rectangular
@@ -137,6 +137,4 @@ public class ChainGroup
     protected Rectangle2D _size;
 
     protected static final double BORDER = 72/8;
-
-    protected static Font _titleFont = new Font("Helvetica", Font.BOLD, 8);
 }

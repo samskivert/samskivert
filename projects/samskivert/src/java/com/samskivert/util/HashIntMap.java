@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.14 2004/02/25 13:20:44 mdb Exp $
+// $Id: HashIntMap.java,v 1.15 2004/03/15 18:13:15 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -413,7 +413,7 @@ public class HashIntMap
         // write out keys and values
         for (Iterator i = entrySet().iterator(); i.hasNext(); ) {
             Entry e = (Entry)i.next();
-            s.writeInt(((Integer)e.getKey()).intValue());
+            s.writeInt(e.getIntKey());
             s.writeObject(e.getValue());
         }
     }

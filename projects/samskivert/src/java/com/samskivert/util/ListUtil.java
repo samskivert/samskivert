@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.9 2002/09/20 21:27:54 mdb Exp $
+// $Id: ListUtil.java,v 1.10 2002/10/23 23:31:32 mdb Exp $
 
 package com.samskivert.util;
 
@@ -47,6 +47,14 @@ package com.samskivert.util;
  */
 public class ListUtil
 {
+    /**
+     * Rounds the specified value up to the next nearest power of two.
+     */
+    public static int nextPowerOfTwo (int value)
+    {
+        return (int)Math.pow(2, Math.ceil(Math.log(value) / Math.log(2)));
+    }
+
     /**
      * Adds the specified element to the first empty slot in the specified
      * list. Begins searching for empty slots at zeroth index.

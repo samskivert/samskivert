@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.10 2002/12/19 22:41:13 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.11 2003/01/31 02:27:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -116,6 +116,19 @@ public class ArrayIntSet extends AbstractSet
         int[] values = new int[_size];
         System.arraycopy(_values, 0, values, 0, _size);
         return values;
+    }
+
+    /**
+     * Serializes this int set into an array at the specified offset. The
+     * array must be large enough to hold all the integers in our set at
+     * the offset specified.
+     *
+     * @return the array passed in.
+     */
+    public int[] toIntArray (int[] target, int offset)
+    {
+        System.arraycopy(_values, 0, target, offset, _size);
+        return target;
     }
 
     // documentation inherited from interface

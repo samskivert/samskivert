@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.23 2002/11/06 04:29:56 mdb Exp $
+// $Id: Label.java,v 1.24 2002/11/10 04:48:52 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -347,9 +347,16 @@ public class Label implements SwingConstants, LabelStyleConstants
             // lay out our text one line at a time
             TextLayout layout;
             int lastposition = _text.length();
-            while ((layout = measurer.nextLayout(
-                        targetWidth, lastposition, keepWordsWhole)) != null) {
-
+            while (true) {
+                int nextret = _text.indexOf('\n', measurer.getPosition() + 1);
+                if (nextret == -1) {
+                    nextret = lastposition;
+                }
+                layout = measurer.nextLayout(
+                    targetWidth, nextret, keepWordsWhole);
+                if (layout == null) {
+                    break;
+                }
                 Rectangle2D bounds = layout.getBounds();
                 width = Math.max(width, bounds.getWidth());
                 height += getHeight(layout);

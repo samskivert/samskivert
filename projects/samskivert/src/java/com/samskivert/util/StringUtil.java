@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.8 2001/07/19 18:32:02 mdb Exp $
+// $Id: StringUtil.java,v 1.9 2001/07/21 22:21:42 mdb Exp $
 
 package com.samskivert.util;
 
@@ -61,7 +61,20 @@ public class StringUtil
     public static String toString (Object val)
     {
 	StringBuffer buf = new StringBuffer();
+        toString(buf, val);
+	return buf.toString();
+    }
 
+    /**
+     * Converts the supplied value to a string and appends it to the
+     * supplied string buffer. See the single argument
+     * version for more information.
+     *
+     * @param buf the string buffer to which we will append the string.
+     * @param val the value from which to generate the string.
+     */
+    public static void toString (StringBuffer buf, Object val)
+    {
 	if (val instanceof int[]) {
 	    buf.append("(");
 	    int[] v = (int[])val;
@@ -120,8 +133,6 @@ public class StringUtil
 	} else {
 	    buf.append(val);
 	}
-
-	return buf.toString();
     }
 
     /**

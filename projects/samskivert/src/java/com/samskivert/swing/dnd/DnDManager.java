@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.10 2002/09/06 17:46:29 ray Exp $
+// $Id: DnDManager.java,v 1.11 2002/09/06 21:56:57 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -11,9 +11,12 @@ import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -23,6 +26,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 import javax.swing.JComponent;
+import javax.swing.Timer;
 
 import javax.swing.event.AncestorEvent;
 
@@ -173,7 +177,7 @@ public class DnDManager
 
         // install a listener so we know everywhere that the mouse enters
         Toolkit.getDefaultToolkit().addAWTEventListener(this, 
-                AWTEvent.MOUSE_EVENT_MASK);
+                AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
 
         // find the top-level window and set the cursor there.
         for (_topComp = _sourceComp; true; ) {
@@ -219,15 +223,19 @@ public class DnDManager
     {
         switch (event.getID()) {
         case MouseEvent.MOUSE_ENTERED:
-            mouseEntered((MouseEvent) event);
+            globalMouseEntered((MouseEvent) event);
             break;
 
         case MouseEvent.MOUSE_EXITED:
-            mouseExited((MouseEvent) event);
+            globalMouseExited((MouseEvent) event);
             break;
 
         case MouseEvent.MOUSE_RELEASED:
-            mouseReleased((MouseEvent) event);
+            globalMouseReleased((MouseEvent) event);
+            break;
+
+        case MouseEvent.MOUSE_DRAGGED:
+            globalMouseDragged((MouseEvent) event);
             break;
         }
     }
@@ -235,7 +243,7 @@ public class DnDManager
     /**
      * Handle the mouse entering a new component.
      */
-    protected void mouseEntered (MouseEvent event)
+    protected void globalMouseEntered (MouseEvent event)
     {
         Component newcomp = ((MouseEvent) event).getComponent();
         _lastTarget = findAppropriateTarget(newcomp);
@@ -253,7 +261,7 @@ public class DnDManager
     /**
      * Handle the mouse leaving a component.
      */
-    protected void mouseExited (MouseEvent event)
+    protected void globalMouseExited (MouseEvent event)
     {
         clearComponentCursor();
 
@@ -262,12 +270,14 @@ public class DnDManager
             _lastTarget.noDrop();
             _lastTarget = null;
         }
+
+        checkAutoscroll(event);
     }
 
     /**
      * Handle the mouse button being released.
      */
-    protected void mouseReleased (MouseEvent event)
+    protected void globalMouseReleased (MouseEvent event)
     {
         // stop listening to every little event
         Toolkit.getDefaultToolkit().removeAWTEventListener(this);
@@ -283,6 +293,34 @@ public class DnDManager
             _source.dragCompleted(_lastTarget);
         }
         reset();
+    }
+
+    /**
+     * Track global drags for autoscrolling support.
+     */
+    protected void globalMouseDragged (MouseEvent event)
+    {
+        if (_scrollComp == null) {
+            return;
+        }
+
+        int x = event.getX();
+        int y = event.getY();
+        Point p = event.getComponent().getLocationOnScreen();
+        p.translate(x, y);
+
+        Rectangle r = getRectOnScreen(_scrollComp);
+        if (!r.contains(p)) {
+            r.grow(_scrollDim.width, _scrollDim.height);
+            if (r.contains(p)) {
+                _scrollPoint = p;
+                return;  // still autoscrolling
+            }
+        }
+
+        // stop autoscrolling
+        _scrollComp = null;
+        _scrollTimer.stop();
     }
 
     /**
@@ -308,10 +346,62 @@ public class DnDManager
     }
 
     /**
+     * Check to see if we want to enter autoscrolling mode. 
+     */
+    protected void checkAutoscroll (MouseEvent exitEvent)
+    {
+        Component comp = exitEvent.getComponent();
+        Point p = exitEvent.getPoint();
+        Point scr = comp.getLocationOnScreen();
+        p.translate(scr.x, scr.y);
+
+        Component parent;
+        Object target;
+        while (true) {
+            target = _droppers.get(comp);
+            if (target instanceof AutoscrollingDropTarget) {
+                AutoscrollingDropTarget adt = (AutoscrollingDropTarget) target;
+                JComponent jc = (JComponent) comp;
+
+                Rectangle r = getRectOnScreen(jc);
+                // make sure we're actually out of the autoscrolling component
+                if (!r.contains(p)) {
+                    // start autoscrolling.
+                    _scrollComp = jc;
+                    _scrollDim = adt.getAutoscrollBorders();
+                    _scrollPoint = p;
+                    _scrollTimer.start();
+                    return;
+                }
+            }
+
+            parent = comp.getParent();
+            if (parent == null) {
+                return;
+            }
+            comp = parent;
+        }
+    }
+
+    /**
+     * Find the rectangular area that is visible in screen coordinates
+     * for the given component.
+     */
+    protected Rectangle getRectOnScreen (JComponent comp)
+    {
+        Rectangle r = comp.getVisibleRect();
+        Point p = comp.getLocationOnScreen();
+        r.translate(p.x, p.y);
+        return r;
+    }
+
+    /**
      * Reset dnd to a starting state.
      */
     protected void reset ()
     {
+        _scrollTimer.stop();
+
         _source = null;
         _sourceComp = null;
         _lastComp = null;
@@ -322,6 +412,10 @@ public class DnDManager
         _topComp = null;
         _topCursor = null;
         _curCursor = null;
+
+        _scrollComp = null;
+        _scrollDim = null;
+        _scrollPoint = null;
     }
 
     /** A handy helper that removes components when they're no longer in
@@ -334,6 +428,25 @@ public class DnDManager
             _droppers.remove(comp);
         }
     };
+
+    /** A timer used for autoscrolling. */
+    protected Timer _scrollTimer = new Timer(100, new ActionListener() {
+        public void actionPerformed (ActionEvent x)
+        {
+            // bail if we're behind the times
+            if (_scrollComp == null) {
+                return;
+            }
+
+            // translate the scrollpoint into a point in the scroll component's
+            // coordinates
+            Point p = _scrollComp.getLocationOnScreen();
+
+            // and tell the scrolling component to scroll that bit on screen
+            _scrollComp.scrollRectToVisible(new Rectangle(
+                _scrollPoint.x - p.x, _scrollPoint.y - p.y, 1, 1));
+        }
+    });
 
     /** Our DropTargets, indexed by associated Component. */
     protected HashMap _droppers = new HashMap();
@@ -364,6 +477,16 @@ public class DnDManager
 
     /** The data to be passed in the drop. */
     protected Object[] _data = new Object[1];
+
+    /** The component associated with an AutoscrollingDropTarget when we're
+     * in autoscrolling mode. */
+    protected JComponent _scrollComp;
+
+    /** The area around the _scrollComp that is active for autoscrolling. */
+    protected Dimension _scrollDim;
+
+    /** The last screen-coordinate point of a drag while autoscrolling. */
+    protected Point _scrollPoint;
 
     /** A single manager for the entire JVM. */
     protected static final DnDManager singleton = new DnDManager();

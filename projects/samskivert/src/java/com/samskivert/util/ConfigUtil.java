@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.10 2003/01/12 00:49:22 mdb Exp $
+// $Id: ConfigUtil.java,v 1.11 2003/04/02 04:01:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -398,10 +398,17 @@ public class ConfigUtil
                 throw new IOException(errmsg);
 
             } else if (crowns.size() > 1) {
-                String errmsg = "Multiple top-level properties were found, " +
-                    "one definitive top-level file must provide an order " +
-                    "for all others " + StringUtil.toString(crowns);
-                throw new IOException(errmsg);
+                StringBuffer errmsg = new StringBuffer();
+                errmsg.append("Multiple top-level properties were found, ");
+                errmsg.append("one definitive top-level file must provide ");
+                errmsg.append("an order for all others:\n");
+                for (int ii = 0; ii < crowns.size(); ii++) {
+                    if (ii > 0) {
+                        errmsg.append("\n");
+                    }
+                    errmsg.append(crowns.get(ii));
+                }
+                throw new IOException(errmsg.toString());
             }
 
             crown = (PropRecord)crowns.get(0);

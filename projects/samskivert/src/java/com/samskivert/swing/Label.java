@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.6 2002/03/11 22:07:00 shaper Exp $
+// $Id: Label.java,v 1.7 2002/03/15 17:34:48 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -80,6 +80,16 @@ public class Label implements SwingConstants
     public void setFont (Font font)
     {
         _font = font;
+    }
+
+    /**
+     * Sets the color used to render the text.  Setting the text color to
+     * <code>null</code> will render the label in the graphics context
+     * color (which is the default).
+     */
+    public void setTextColor (Color color)
+    {
+        _textColor = color;
     }
 
     /**
@@ -240,6 +250,11 @@ public class Label implements SwingConstants
             return;
         }
 
+        Color old = gfx.getColor();
+        if (_textColor != null) {
+            gfx.setColor(_textColor);
+        }
+
         // render our text
         for (int i = 0; i < _layouts.length; i++) {
             TextLayout layout = _layouts[i];
@@ -257,13 +272,13 @@ public class Label implements SwingConstants
             // render the outline using the hacky, but much nicer than
             // using "real" outlines (via TextLayout.getOutline), method
             if (_outlineColor != null) {
-                Color old = gfx.getColor();
+                Color textColor = gfx.getColor();
                 gfx.setColor(_outlineColor);
                 layout.draw(gfx, x + dx - 1, y - 1);
                 layout.draw(gfx, x + dx - 1, y + 1);
                 layout.draw(gfx, x + dx + 1, y + 1);
                 layout.draw(gfx, x + dx + 1, y - 1);
-                gfx.setColor(old);
+                gfx.setColor(textColor);
             }
 
             // and draw the text itself
@@ -271,6 +286,8 @@ public class Label implements SwingConstants
 
             y += layout.getDescent() + layout.getLeading();
         }
+
+        gfx.setColor(old);
     }
 
     /**
@@ -318,4 +335,8 @@ public class Label implements SwingConstants
     /** The color in which to outline the text when rendering or null if
      * the text should not be outlined. */
     protected Color _outlineColor = null;
+
+    /** The color in which to render the text or null if the text should
+     * be rendered with the graphics context color. */
+    protected Color _textColor = null;
 }

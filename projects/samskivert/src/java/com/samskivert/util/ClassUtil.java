@@ -1,5 +1,5 @@
 //
-// $Id: ClassUtil.java,v 1.1 2001/10/03 02:09:12 mdb Exp $
+// $Id: ClassUtil.java,v 1.2 2001/10/03 02:20:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -56,7 +56,7 @@ public class ClassUtil
      * @return an array of Class objects representing the classes of the
      * objects in the given Object array.  If args is null, a zero-length
      * Class array is returned.  If an element in args is null, then
-     * {@link Void#TYPE} is the corresponding Class in the return array.
+     * Void.TYPE is the corresponding Class in the return array.
      */
     public static Class[] getParameterTypesFrom (Object[] args)
     {

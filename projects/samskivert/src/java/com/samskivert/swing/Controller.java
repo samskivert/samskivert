@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.5 2001/08/14 00:59:19 mdb Exp $
+// $Id: Controller.java,v 1.6 2001/10/03 02:20:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -30,7 +30,7 @@ import com.samskivert.Log;
 /**
  * The controller class provides a basis for the separation of user
  * interface code into display code and control code. The display code
- * lives in a panel class ({@link javax.swing.JPanel} or something
+ * lives in a panel class (<code>javax.swing.JPanel</code> or something
  * conceptually similar) and the control code lives in an associated
  * controller class.
  *

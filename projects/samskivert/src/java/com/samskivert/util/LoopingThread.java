@@ -1,5 +1,5 @@
 //
-// $Id: LoopingThread.java,v 1.4 2001/10/02 22:35:26 mdb Exp $
+// $Id: LoopingThread.java,v 1.5 2001/10/03 02:20:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -47,8 +47,9 @@ public class LoopingThread extends Thread
     }
 
     /**
-     * Processes the loop. Derived classes should override {@link iterate}
-     * to perform whatever action needs to be performed inside the loop.
+     * Processes the loop. Derived classes should override {@link
+     * #iterate} to perform whatever action needs to be performed inside
+     * the loop.
      */
     public void run ()
     {
@@ -71,7 +72,7 @@ public class LoopingThread extends Thread
     /**
      * Called to wake the thread up from any blocking wait that it might
      * be in. This function should result in the thread exiting the {@link
-     * iterate} function as soon as possible so that the running flag can
+     * #iterate} function as soon as possible so that the running flag can
      * be checked and the thread can cleanly exit.
      */
     protected void kick ()
@@ -82,7 +83,7 @@ public class LoopingThread extends Thread
     /**
      * Called before the thread enters the processing loop. Any
      * initialization that needs to be performed prior to the {@link
-     * iterate} loop can be done here.
+     * #iterate} loop can be done here.
      */
     protected void willStart ()
     {
@@ -91,7 +92,7 @@ public class LoopingThread extends Thread
     /**
      * This is the main body of the loop. It will be called over and over
      * again until the thread is requested to exit via a call to {@link
-     * shutdown}. At minimum, a derived class must override this function
+     * #shutdown}. At minimum, a derived class must override this function
      * and do something useful.
      */
     protected void iterate ()
@@ -100,7 +101,7 @@ public class LoopingThread extends Thread
     }
 
     /**
-     * If an exception propagates past {@link iterate}, it will be caught
+     * If an exception propagates past {@link #iterate}, it will be caught
      * and supplied to this function, which may want to do something
      * useful with it. Presently, the exception is logged and the thread
      * is allowed to terminate.
@@ -117,7 +118,7 @@ public class LoopingThread extends Thread
 
     /**
      * Called after the thread has been requested to exit. Any cleanup
-     * that should take place after the {@link iterate} loop has exited
+     * that should take place after the {@link #iterate} loop has exited
      * can be done here.
      */
     protected void didShutdown ()
@@ -126,9 +127,9 @@ public class LoopingThread extends Thread
 
     /**
      * Indicates whether or not the thread should still be running. If a
-     * thread is calling this within {@link iterate}, it should exit
+     * thread is calling this within {@link #iterate}, it should exit
      * quickly and cleanly if the function returns false. It is
-     * automatically called as part of the {@link iterate} loop, so
+     * automatically called as part of the {@link #iterate} loop, so
      * normally a derived-class won't have to call it.
      */
     protected synchronized boolean isRunning ()

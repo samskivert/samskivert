@@ -1,5 +1,5 @@
 //
-// $Id: MethodFinder.java,v 1.1 2001/10/03 02:09:12 mdb Exp $
+// $Id: MethodFinder.java,v 1.2 2001/10/03 02:20:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -49,7 +49,7 @@ import java.util.*;
  * Report, Vol. 5, No. 2, Feb. 2000, pp. 70-74.
  * </cite>
  */
-public final class MethodFinder
+public class MethodFinder
 {
     /**
      * Constructs a method finder for the supplied class.
@@ -96,7 +96,7 @@ public final class MethodFinder
      * that accepts the number and type of parameters in the given Class
      * array in a reflective invocation.
      *
-     * <p> A null value or {@link Void#TYPE} in parameterTypes matches a
+     * <p> A null value or Void.TYPE parameterTypes matches a
      * corresponding Object or array reference in a constructor's formal
      * parameter list, but not a primitive formal parameter.
      * 
@@ -128,8 +128,8 @@ public final class MethodFinder
      * the given name and accepts the number and type of parameters in the
      * given Class array in a reflective invocation.
      *
-     * <p> A null value or {@link Void#TYPE} in parameterTypes will match
-     * a corresponding Object or array reference in a method's formal
+     * <p> A null value or Void.TYPE in parameterTypes will match a
+     * corresponding Object or array reference in a method's formal
      * parameter list, but not a primitive formal parameter.
      * 
      * @param methodName name of the method to search for.
@@ -344,22 +344,22 @@ public final class MethodFinder
     /**
      * The target class to look for methods and constructors in.
      */
-    private final Class clazz;
+    private Class clazz;
 
     /**
      * Mapping from method name to the Methods in the target class with
      * that name.
      */
-    private final Map methodMap = null;
+    private Map methodMap = null;
 
     /**
      * List of the Constructors in the target class.
      */
-    private final List ctorList = null;
+    private List ctorList = null;
 
     /**
      * Mapping from a Constructor or Method object to the Class objects
      * representing its formal parameters.
      */
-    private final Map paramMap = new HashMap();
+    private Map paramMap = new HashMap();
 }

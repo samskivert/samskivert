@@ -8,7 +8,6 @@
   <property name="doc.packages"     value="com.samskivert.*"/>
   <property name="doc.overview"     value="com/samskivert/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
-  <property name="build.optimize"   value="on"/>
 
   <!-- we want to access the environment -->
   <property environment="env"/>

@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.5 2001/09/20 20:39:49 mdb Exp $
+// $Id: ConfigUtil.java,v 1.6 2002/01/29 23:19:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -261,19 +261,5 @@ public class ConfigUtil
 	} else {
 	    return "/" + path;
 	}
-    }
-
-    /**
-     * Unit test driver.
-     */
-    public static void main (String[] args)
-    {
-        try {
-            String path = "/com/samskivert/util/test.properties";
-            Properties props = loadInheritedProperties(path);
-            System.out.println(props);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
     }
 }

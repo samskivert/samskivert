@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.6 2001/07/12 02:43:43 mdb Exp $
+// $Id: StringUtil.java,v 1.7 2001/07/12 23:29:16 mdb Exp $
 
 package com.samskivert.util;
 
@@ -200,6 +200,20 @@ public class StringUtil
             vals[i] = token;
         }
         return vals;
+    }
+
+    /**
+     * Splits the supplied string into components based on the specified
+     * separator character.
+     */
+    public static String[] split (String source, String sep)
+    {
+        StringTokenizer tok = new StringTokenizer(source, sep);
+        String[] tokens = new String[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            tokens[i] = tok.nextToken();
+        }
+        return tokens;
     }
 
     private final static String XLATE = "0123456789abcdef";

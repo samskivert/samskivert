@@ -22,7 +22,7 @@ import robodj.util.ButtonUtil;
 
 public class PlaylistPanel extends ControlledPanel
 {
-    public static class PlaylistEntry
+    public static class PLE
     {
         public Entry entry;
 
@@ -30,7 +30,7 @@ public class PlaylistPanel extends ControlledPanel
 
         public SongItem item;
 
-        public PlaylistEntry (Entry entry, Song song)
+        public PLE (Entry entry, Song song)
         {
             this.entry = entry;
             this.song = song;
@@ -41,8 +41,6 @@ public class PlaylistPanel extends ControlledPanel
             return StringUtil.fieldsToString(this);
         }
     }
-
-    public static final String REFRESH = "refresh";
 
     public static final String CLEAR = "clear";
 
@@ -81,8 +79,6 @@ public class PlaylistPanel extends ControlledPanel
             CLEAR_TIP, CLEAR, CLEAR_ICON_PATH);
         cbar.add(_clearbut);
         cbar.add(ButtonUtil.createControlButton(
-                     REFRESH_TIP, REFRESH, REFRESH_ICON_PATH));
-        cbar.add(ButtonUtil.createControlButton(
                      SHUFFLE_TIP, SHUFFLE, SHUFFLE_ICON_PATH));
         add(cbar, GroupLayout.FIXED);
 
@@ -97,8 +93,6 @@ public class PlaylistPanel extends ControlledPanel
     public void addNotify ()
     {
         super.addNotify();
-        // load up the playlist
-        _controller.postAction(this, REFRESH);
     }
 
     // documentation inherited
@@ -118,7 +112,7 @@ public class PlaylistPanel extends ControlledPanel
         _bpanel.revalidate();
     }
 
-    protected void populatePlaylist (ArrayList plist, int playid)
+    protected void populatePlaylist (ArrayList plist)
     {
         // clear out any existing children
         _bpanel.removeAll();
@@ -128,10 +122,12 @@ public class PlaylistPanel extends ControlledPanel
         gl.setOffAxisPolicy(GroupLayout.EQUALIZE);
         gl.setOffAxisJustification(GroupLayout.LEFT);
 
+        int current = Chooser.djobj.playing;
+
         // add buttons for every entry
         String title = null;
-        for (int i = 0; i < plist.size(); i++) {
-            PlaylistEntry entry = (PlaylistEntry)plist.get(i);
+        for (int ii = 0; ii < plist.size(); ii++) {
+            PLE entry = (PLE)plist.get(ii);
             JButton button;
 
             // add record/artist indicators when the record and artist
@@ -155,13 +151,13 @@ public class PlaylistPanel extends ControlledPanel
 
             // create a song item to display this playlist entry
             entry.item = new SongItem(entry.song, SongItem.PLAYLIST);
-            entry.item.setIsPlaying(entry.song.songid == playid);
-            entry.item.extra = entry;
+            entry.item.setIsPlaying(current == ii);
+            entry.item.extra = new Integer(ii);
             _bpanel.add(entry.item);
 
             // let the bpanel know that we want to scroll the active track
             // label into place once we're all laid out
-            if (entry.song.songid == playid) {
+            if (current == ii) {
                 _bpanel.setScrollTarget(entry.item);
             }
         }
@@ -229,7 +225,6 @@ public class PlaylistPanel extends ControlledPanel
 
     // icon paths
     protected static final String ICON_ROOT = "/robodj/chooser/images/";
-    protected static final String REFRESH_ICON_PATH = ICON_ROOT + "refresh.png";
     protected static final String CLEAR_ICON_PATH = ICON_ROOT + "clear.png";
     protected static final String SHUFFLE_ICON_PATH = ICON_ROOT + "shuffle.png";
     protected static final String SKIPTO_ICON_PATH = ICON_ROOT + "skip.png";
@@ -239,7 +234,6 @@ public class PlaylistPanel extends ControlledPanel
         ICON_ROOT + "remove_song.png";
 
     // button tips
-    protected static final String REFRESH_TIP = "Refresh the playlist";
     protected static final String CLEAR_TIP =
         "Clear all songs from the playlist";
     protected static final String SHUFFLE_TIP =

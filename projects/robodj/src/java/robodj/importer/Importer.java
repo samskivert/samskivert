@@ -67,11 +67,10 @@ public class Importer
 
         // create our frame and first panel
 	ImporterFrame frame = new ImporterFrame();
-	InsertCDPanel panel = new InsertCDPanel();
-	frame.pushPanel(panel);
+	frame.pushPanel(new StartPanel());
 
         // center the frame in the screen and show it
-	frame.setSize(640, 480);
+	frame.setSize(1024, 600);
 	SwingUtil.centerWindow(frame);
 	frame.setVisible(true);
     }

@@ -16,8 +16,10 @@ import javax.swing.event.AncestorListener;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.swing.util.TaskMaster;
+import com.samskivert.util.ArrayUtil;
 
 import robodj.Log;
+import robodj.data.PlaylistEntry;
 import robodj.repository.Entry;
 import robodj.repository.Song;
 
@@ -71,11 +73,7 @@ public abstract class EntryController extends ItemController
             _list.populateEntries(_entries);
 
 	} else if (name.equals("readAndPlay")) {
-            for (int i = 0; i < _entry.songs.length; i++) {
-                Chooser.scontrol.append(_entry.songs[i].entryid,
-                                        _entry.songs[i].songid,
-                                        _entry.songs[i].location);
-            }
+            appendToPlaylist(_entry.songs);
 
 	} else if (name.equals("readSongs")) {
             _list.populateSong(_entry);
@@ -110,7 +108,7 @@ public abstract class EntryController extends ItemController
 
         } else if (cmd.equals(SongItem.PLAY)) {
             Song song = SongItem.getSong(e.getSource());
-            Chooser.scontrol.append(song.entryid, song.songid, song.location);
+            appendToPlaylist(new Song[] { song });
 
         } else if (cmd.equals("refresh")) {
             // re-read the category
@@ -162,6 +160,20 @@ public abstract class EntryController extends ItemController
     public void ancestorMoved (AncestorEvent e)
     {
         // nothing doing
+    }
+
+    protected void appendToPlaylist (Song[] songs)
+    {
+        PlaylistEntry[] plist = Chooser.djobj.playlist;
+        if (plist == null) {
+            plist = new PlaylistEntry[0];
+        }
+        for (int i = 0; i < songs.length; i++) {
+            PlaylistEntry entry = new PlaylistEntry(
+                songs[i].entryid, songs[i].songid, songs[i].title);
+            plist = (PlaylistEntry[])ArrayUtil.append(plist, entry);
+        }
+        Chooser.djobj.setPlaylist(plist);
     }
 
     protected EntryList _list;

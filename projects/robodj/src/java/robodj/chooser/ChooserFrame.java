@@ -6,6 +6,8 @@ package robodj.chooser;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
@@ -19,17 +21,21 @@ import robodj.repository.*;
 import robodj.util.ButtonUtil;
 import robodj.util.FancyPanel;
 import robodj.util.RDJPrefs;
-import robodj.util.ServerControl.PlayingListener;
 
 public class ChooserFrame extends JFrame
-    implements PlayingListener, ControllerProvider
+    implements ControllerProvider
 {
     public ChooserFrame ()
     {
 	super("RoboDJ Chooser " + Version.RELEASE_VERSION);
 
-        // quit if we're closed
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        // quit gracefully if we're closed
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing (WindowEvent e) {
+                Chooser.exit();
+            }
+        });
 
         // we create a top-level panel to manage everything
 	GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);
@@ -109,8 +115,8 @@ public class ChooserFrame extends JFrame
             }
         });
 
-        // add ourselves as a playing listener
-        Chooser.scontrol.addPlayingListener(this);
+        // TODO: add ourselves as a playing listener
+        // Chooser.djobj.addListener(this);
 
         // create our controller
         _controller = new ChooserController();
@@ -152,6 +158,7 @@ public class ChooserFrame extends JFrame
         return user;
     }
 
+    // TODO: convert to dobj biz
     public void playingUpdated (int songid, boolean paused)
     {
         if (songid == -1 || paused) {

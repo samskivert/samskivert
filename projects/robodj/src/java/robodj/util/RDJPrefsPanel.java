@@ -168,6 +168,11 @@ public class RDJPrefsPanel extends JPanel
         protected String _prefKey;
     }
 
+    public static void main (String[] args)
+    {
+        display(true);
+    }
+
     protected JFrame _frame;
 
     /** Defines our configurable preferences. */

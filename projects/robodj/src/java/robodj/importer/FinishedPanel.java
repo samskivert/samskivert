@@ -16,7 +16,7 @@ public class FinishedPanel
     extends ImporterPanel
     implements ActionListener
 {
-    public FinishedPanel (Entry entry)
+    public FinishedPanel ()
     {
 	GroupLayout gl = new HGroupLayout(GroupLayout.STRETCH);
 	gl.setOffAxisPolicy(GroupLayout.STRETCH);
@@ -35,7 +35,7 @@ public class FinishedPanel
 
         // create our action buttons
         String[] labels = new String[]
-            { "Import another CD", "Edit/categorize CDs" };
+            { "Import more music", "Edit/categorize CDs" };
         String[] actions = new String[] { "import", "edit" };
 
         for (int i = 0; i < labels.length; i++) {
@@ -47,9 +47,6 @@ public class FinishedPanel
 
         // add our panel to the main group
         add(ppanel);
-
-        // save this guy for later
-        _entry = entry;
     }
 
     public void wasAddedToFrame (ImporterFrame frame, boolean popped)
@@ -68,7 +65,7 @@ public class FinishedPanel
 	    System.exit(0);
 
 	} else if (cmd.equals("import")) {
-	    _frame.setPanel(new InsertCDPanel());
+	    _frame.setPanel(new StartPanel());
 
 	} else {
 	    System.out.println("Unknown action event: " + cmd);
@@ -76,5 +73,4 @@ public class FinishedPanel
     }
 
     protected ImporterFrame _frame;
-    protected Entry _entry;
 }

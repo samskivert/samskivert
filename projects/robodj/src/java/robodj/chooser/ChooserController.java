@@ -4,11 +4,8 @@
 package robodj.chooser;
 
 import java.awt.event.ActionEvent;
-import javax.swing.JOptionPane;
 
 import com.samskivert.swing.Controller;
-import com.samskivert.swing.util.TaskMaster;
-import com.samskivert.swing.util.TaskObserver;
 
 import robodj.Log;
 
@@ -16,12 +13,9 @@ import robodj.Log;
  * Handles top-level chooser UI commands.
  */
 public class ChooserController extends Controller
-    implements TaskObserver
 {
     public ChooserController ()
     {
-        // read our playing state
-        TaskMaster.invokeMethodTask("refreshPlaying", Chooser.scontrol, this);
     }
 
     // documentation inherited
@@ -29,48 +23,28 @@ public class ChooserController extends Controller
     {
 	String cmd = event.getActionCommand();
 	if (cmd.equals("exit")) {
-	    System.exit(0);
+	    Chooser.exit();
 
         } else if (cmd.equals("skip")) {
-            TaskMaster.invokeMethodTask("skip", Chooser.scontrol, this);
+            Chooser.djobj.skip();
 
         } else if (cmd.equals("back")) {
-            TaskMaster.invokeMethodTask("back", Chooser.scontrol, this);
+            Chooser.djobj.back();
 
         } else if (cmd.equals("pause")) {
-            TaskMaster.invokeMethodTask("pause", Chooser.scontrol, this);
+            Chooser.djobj.pause();
 
         } else if (cmd.equals("play")) {
-            TaskMaster.invokeMethodTask("play", Chooser.scontrol, this);
+            Chooser.djobj.play();
 
         } else if (cmd.equals("stop")) {
-            TaskMaster.invokeMethodTask("stop", Chooser.scontrol, this);
+            Chooser.djobj.stop();
 
 	} else {
-	    System.out.println("Unknown action event: " + cmd);
+	    Log.warning("Unknown action event: " + cmd);
             return false;
 	}
 
         return true;
-    }
-
-    // documentation inherited from interface
-    public void taskCompleted (String name, Object result)
-    {
-        // nothing to do here
-    }
-
-    // documentation inherited from interface
-    public void taskFailed (String name, Throwable exception)
-    {
-        String msg;
-        if (Exception.class.equals(exception.getClass())) {
-            msg = exception.getMessage();
-        } else {
-            msg = exception.toString();
-        }
-        JOptionPane.showMessageDialog(Chooser.frame, msg, "Error",
-                                      JOptionPane.ERROR_MESSAGE); 
-        Log.logStackTrace(exception);
     }
 }

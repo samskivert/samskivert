@@ -60,11 +60,8 @@ public class RipPanel
         // create the status log
         JLabel sl = new JLabel("Status", JLabel.LEFT);
         ppanel.add(sl, GroupLayout.FIXED);
-	_statusLog = new JTextArea();
-	_statusLog.setLineWrap(true);
-	_statusLog.setEditable(false);
 	// make something for it to scroll around in
-	ppanel.add(new JScrollPane(_statusLog));
+	ppanel.add(new JScrollPane(_status));
 
         // add our panel to the main group
         add(ppanel);
@@ -72,16 +69,6 @@ public class RipPanel
 	// save this stuff for later
 	_info = info;
 	_entry = entry;
-    }
-
-    protected void postAsyncStatus (final String status)
-    {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run ()
-            {
-                _statusLog.append(status + "\n");
-            }
-        });
     }
 
     protected void postAsyncProgress (final int overallComplete,
@@ -390,7 +377,7 @@ public class RipPanel
         } else {
             msg = exception.toString();
         }
-        _statusLog.append("Error: " + msg + "\n");
+        _status.append("Error: " + msg + "\n");
         Log.logStackTrace(exception);
     }
 
@@ -401,7 +388,7 @@ public class RipPanel
 	    System.exit(0);
 
 	} else if (cmd.equals("next")) {
-	    _frame.pushPanel(new FinishedPanel(_entry));
+	    _frame.pushPanel(new FinishedPanel());
 
 	} else {
 	    System.out.println("Unknown action event: " + cmd);
@@ -424,7 +411,6 @@ public class RipPanel
 
     protected JProgressBar _oprogress;
     protected JProgressBar _progress;
-    protected JTextArea _statusLog;
 
     protected Ripper.TrackInfo[] _info;
     protected Entry _entry;

@@ -13,32 +13,42 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.swing.util.TaskAdapter;
 import com.samskivert.swing.util.TaskMaster;
 
+import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
+
 import robodj.Log;
-import robodj.chooser.PlaylistPanel.PlaylistEntry;
+import robodj.data.DJObject;
+import robodj.data.PlaylistEntry;
 import robodj.repository.Entry;
 import robodj.repository.Song;
-import robodj.util.ServerControl.PlayingListener;
 
 /**
  * Handles playlist UI commands.
  */
 public class PlaylistController extends ItemController
-    implements PlayingListener
+    implements AttributeChangeListener
 {
     public PlaylistController (PlaylistPanel panel)
     {
         super(panel);
         _panel = panel;
 
-        // add ourselves as a playing listener
-        Chooser.scontrol.addPlayingListener(this);
+        // listen to the DJ object
+        Chooser.djobj.addListener(this);
+    }
+
+    public void wasAdded ()
+    {
+        super.wasAdded();
+
+        // start up the task that reads the CD info from the database
+        TaskMaster.invokeMethodTask("readPlaylist", this, this);
     }
 
     // documentation inherited
@@ -46,121 +56,47 @@ public class PlaylistController extends ItemController
     {
 	String cmd = e.getActionCommand();
 	if (cmd.equals(PlaylistPanel.CLEAR)) {
-            TaskMaster.invokeMethodTask("clear", Chooser.scontrol, this);
-
-        } else if (cmd.equals(PlaylistPanel.REFRESH)) {
-            _panel.prepareForRefresh();
-
-            // start up the task that reads the CD info from the database
-            TaskMaster.invokeMethodTask("readPlaylist", this, this);
+            Chooser.djobj.clear();
 
         } else if (cmd.equals(SongItem.SKIP_TO)) {
             JButton button = (JButton)e.getSource();
             SongItem item =  (SongItem)button.getParent();
-
-            // fire up a task to talk to the music daemon
-            final int songid = item.getSong().songid;
-            TaskMaster.invokeTask("noop", new TaskAdapter() {
-                public Object invoke () throws Exception {
-                    Chooser.scontrol.skipto(songid);
-                    return null;
-                }
-            }, this);
+            Chooser.djobj.play(((Integer)item.extra).intValue());
 
         } else if (cmd.equals(SongItem.REMOVE)) {
             JButton button = (JButton)e.getSource();
             SongItem item =  (SongItem)button.getParent();
-
-            // remove the entry UI elements
-            item.getParent().remove(item);
-            SwingUtil.refresh(_panel); // relayout
-
-            // remove the entry from the playlist
-            _panel.plist.remove((PlaylistEntry)item.extra);
-
-            // fire up a task to talk to the music daemon
-            final int songid = item.getSong().songid;
-            TaskMaster.invokeTask("noop", new TaskAdapter() {
-                public Object invoke () throws Exception {
-                    Chooser.scontrol.remove(songid);
-                    return null;
-                }
-            }, this);
+            int sidx = ((Integer)item.extra).intValue();
+            Chooser.djobj.remove(sidx, 1);
 
         } else if (cmd.equals(PlaylistPanel.REMOVE_ALL)) {
             JButton src = (JButton)e.getSource();
-            PlaylistEntry entry =
-                (PlaylistEntry)src.getClientProperty("entry");
+            PlaylistPanel.PLE entry =
+                (PlaylistPanel.PLE)src.getClientProperty("entry");
 
             // remove all entries starting with this one until we get to
             // one that has a different entryid
-            int count = 0;
-            Iterator iter = _panel.plist.iterator();
-            while (iter.hasNext()) {
-                PlaylistEntry pe = (PlaylistEntry)iter.next();
+            int start = -1, length = 1;
+            for (int ii = 0; ii < _panel.plist.size(); ii++) {
+                PlaylistPanel.PLE pe = (PlaylistPanel.PLE)_panel.plist.get(ii);
                 if (entry == pe) {
-                    count++;
-                    // remove the entry UI elements
-                    pe.item.getParent().remove(pe.item);
-                    // remove the entry
-                    iter.remove();
-
-                } else if (count > 0) {
+                    start = ii;
+                } else if (start != -1) {
                     if (pe.entry.entryid == entry.entry.entryid) {
-                        count++;
-                        // remove the entry UI elements
-                        pe.item.getParent().remove(pe.item);
-                        // remove the entry
-                        iter.remove();
-
+                        length++;
                     } else {
                         // we hit an entry that doesn't match, bail
                         break;
                     }
                 }
             }
-
-            // remove the title and stuff
-            JPanel tpanel = (JPanel)src.getParent();
-            tpanel.getParent().remove(tpanel);
-
-            _panel.revalidate(); // relayout
-
-            // fire up a task to talk to the music daemon, telling it to
-            // remove those entries
-            final int songid = entry.song.songid;
-            final int fcount = count;
-            TaskMaster.invokeTask("noop", new TaskAdapter() {
-                public Object invoke () throws Exception {
-                    Chooser.scontrol.removeGroup(songid, fcount);
-                    return null;
-                }
-            }, this);
+            if (start != -1) {
+                Chooser.djobj.remove(start, length);
+            }
 
         } else if (cmd.equals(PlaylistPanel.SHUFFLE)) {
-            // put all of the songs in the playlist into a list and
-            // shuffle them
-            ArrayList slist = new ArrayList();
-            for (Iterator iter = _panel.plist.iterator(); iter.hasNext(); ) {
-                slist.add(((PlaylistEntry)iter.next()).song);
-            }
-            final Song[] songs = (Song[])slist.toArray(new Song[slist.size()]);
-            ArrayUtil.shuffle(songs);
-
-            // now clear and reload the playlist entirely
-            TaskMaster.invokeTask("noop", new TaskAdapter() {
-                public Object invoke () throws Exception {
-                    Chooser.scontrol.clear();
-                    for (int ii = 0; ii < songs.length; ii++) {
-                        Chooser.scontrol.append(
-                            songs[ii].entryid, songs[ii].songid,
-                            songs[ii].location);
-                    }
-                    // finally queue up a UI refresh
-                    postAction(_panel, PlaylistPanel.REFRESH);
-                    return null;
-                }
-            }, this);
+            // shuffle!
+            Chooser.djobj.shuffle();
 
         } else {
             return super.handleAction(e);
@@ -169,86 +105,70 @@ public class PlaylistController extends ItemController
         return true;
     }
 
+    // documentation inherited from interface
+    public void attributeChanged (AttributeChangedEvent event)
+    {
+        if (event.getName().equals(DJObject.PLAYLIST)) {
+            TaskMaster.invokeMethodTask("readPlaylist", this, this);
+
+        } else if (event.getName().equals(DJObject.PLAYING)) {
+            playingUpdated();
+        }
+    }
+
     public void readPlaylist ()
         throws PersistenceException
     {
         // clear out any previous playlist
         _panel.plist.clear();
 
-        // get the playlist from the music daemon
-        String[] plist = Chooser.scontrol.getPlaylist();
-
-        // parse it into playlist entries
-        for (int i = 0; i < plist.length; i++) {
-            String[] toks = StringUtil.split(plist[i], "\t");
-            int eid, sid;
-            try {
-                eid = Integer.parseInt(toks[0]);
-                sid = Integer.parseInt(toks[1]);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Bogus playlist record: '" + plist[i] + "'.");
-                continue;
-            }
-            Entry entry = Chooser.model.getEntry(eid);
+        int pcount = (Chooser.djobj.playlist == null) ? 0 :
+            Chooser.djobj.playlist.length;
+        for (int ii = 0; ii < pcount; ii++) {
+            PlaylistEntry pentry = Chooser.djobj.playlist[ii];
+            Entry entry = Chooser.model.getEntry(pentry.entryId);
             if (entry != null) {
-                Song song = entry.getSong(sid);
+                Song song = entry.getSong(pentry.songId);
                 if (song != null) {
-                    _panel.plist.add(new PlaylistEntry(entry, song));
+                    _panel.plist.add(new PlaylistPanel.PLE(entry, song));
                 } else {
-                    Log.warning("No song for entry? [sid=" + sid +
-                                ", entry=" + entry + "].");
+                    Log.warning("No song for entry? [pentry=" + pentry + "].");
                 }
             } else {
-                Log.warning("Unable to load entry [eid=" + eid + "].");
+                Log.warning("Unable to load entry? [pentry=" + pentry + "].");
             }
         }
-
-        // now find out what's currently playing
-        Chooser.scontrol.refreshPlaying();
     }
 
-    public void playingUpdated (int songid, boolean paused)
+    public void playingUpdated ()
     {
         // unhighlight whoever is playing now
-        PlaylistEntry pentry = getPlayingEntry();
-        if (pentry != null && pentry.item != null) {
-            pentry.item.setIsPlaying(false);
+        if (_playing != null) {
+            _playing.item.setIsPlaying(false);
+            _playing = null;
         }
 
-        // grab the new playing song id
-        _playid = songid;
+        int pidx = Chooser.djobj.playing;
+        if (pidx >= 0 && _panel.plist.size() > pidx) {
+            _playing = (PlaylistPanel.PLE)_panel.plist.get(pidx);
+        }
 
-        // highlight the playing song
-        for (int i = 0; i < _panel.plist.size(); i++) {
-            PlaylistEntry entry = (PlaylistEntry)_panel.plist.get(i);
-            if (entry.song.songid == _playid && entry.item != null) {
-                entry.item.setIsPlaying(true);
-            }
+        if (_playing != null) {
+            _playing.item.setIsPlaying(true);
         }
         _panel.repaint();
-    }
-
-    protected PlaylistEntry getPlayingEntry ()
-    {
-        for (int i = 0; i < _panel.plist.size(); i++) {
-            PlaylistEntry entry = (PlaylistEntry)_panel.plist.get(i);
-            if (entry.song.songid == _playid) {
-                return entry;
-            }
-        }
-        return null;
     }
 
     public void taskCompleted (String name, Object result)
     {
 	if (name.equals("readPlaylist")) {
-            _panel.populatePlaylist(_panel.plist, _playid);
+            _panel.populatePlaylist(_panel.plist);
+            playingUpdated();
         } else {
             super.taskCompleted(name, result);
         }
     }
 
     protected PlaylistPanel _panel;
-
-    protected int _playid;
+    protected PlaylistPanel.PLE _playing;
 }

@@ -9,6 +9,7 @@
   <property name="build.compiler" value="jikes"/>
   <property name="web.home"       value="/export/samskivert/pages/code"/>
   <property name="install.dir"    value="${web.home}/${app.name}"/>
+  <property name="narya.home"     value="../../work/narya"/>
 
   <!-- we want to access the environment -->
   <property environment="env"/>
@@ -21,22 +22,51 @@
   <property name="javadoc.dir"      value="${deploy.dir}/docs"/>
   <property name="doc.packages"     value="robodj.*"/>
   <property name="doc.overview"     value="robodj/overview.html"/>
-  <property name="copyright.holder" value="Michael Bayne"/>
+  <property name="nartool.path"     value="${narya.home}/bin"/>
+  <property name="classes.dir"      value="${deploy.dir}/classes"/>
 
   <!-- declare our classpath -->
   <path id="classpath">
     <fileset dir="${java.libraries}" includesfile="lib/CLIENT_LIBS"/>
     <fileset dir="lib" includes="**/*.jar"/>
-    <pathelement location="${deploy.dir}/classes"/>
+    <pathelement location="${classes.dir}"/>
   </path>
 
+  <!-- generates .java files for all .dobj files -->
+  <target name="gendobj">
+    <apply executable="${nartool.path}/gendobj"
+      failonerror="true" parallel="true">
+      <srcfile/>
+      <fileset dir="src/java" includes="**/*.dobj"/>
+    </apply>
+  </target>
+
+  <!-- generates marshaller and dispatcher classes for all invocation -->
+  <!-- service declarations -->
+  <target name="genservice">
+    <!-- make sure the service class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" optimize="${build.optimize}" deprecation="on">
+      <classpath refid="classpath"/>
+      <include name="**/*Service.java"/>
+    </javac>
+    <apply executable="${nartool.path}/genservice"
+      failonerror="true" parallel="true">
+      <arg value="--classpath"/>
+      <arg value="${classes.dir}:${java.libraries}/narya-distrib.jar:${java.libraries}/narya-base.jar"/>
+      <arg value="--sourcedir"/>
+      <arg value="src/java"/>
+      <fileset dir="src/java" includes="**/*Service.java"/>
+    </apply>
+  </target>
+
   <!-- prepares the application directories -->
-  <target name="prepare">
+  <target name="prepare" depends="gendobj">
     <mkdir dir="${deploy.dir}"/>
-    <mkdir dir="${deploy.dir}/classes"/>
+    <mkdir dir="${classes.dir}"/>
     <mkdir dir="${javadoc.dir}"/>
     <!-- copy media and properties into the target directory -->
-    <copy todir="${deploy.dir}/classes">
+    <copy todir="${classes.dir}">
       <fileset dir="${src.dir}" includes="**/*.jpg"/>
       <fileset dir="${src.dir}" includes="**/*.png"/>
       <fileset dir="${src.dir}" includes="**/*.properties"/>
@@ -55,7 +85,7 @@
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
-    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
+    <javac srcdir="${src.dir}" destdir="${classes.dir}"
            debug="on" optimize="off" deprecation="off">
       <classpath refid="classpath"/>
     </javac>
@@ -68,7 +98,6 @@
              windowtitle="${app.name} API"
              doctitle="${app.name} API"
              overview="${src.dir}/${doc.overview}"
-             bottom="Copyright &#169; 2002 ${copyright.holder}. All Rights Reserved."
              destdir="${javadoc.dir}">
       <classpath refid="classpath"/>
       <link href="http://www.waywardgeeks.org/code/samskivert/javadoc"/>
@@ -82,7 +111,7 @@
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
     <jar destfile="${deploy.dir}/${dist.jar}"
-         basedir="${deploy.dir}/classes"/>
+         basedir="${classes.dir}"/>
   </target>
 
   <!-- installs the JWS app -->

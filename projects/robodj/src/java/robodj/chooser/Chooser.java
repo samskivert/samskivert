@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.3 2001/07/13 00:10:48 mdb Exp $
+// $Id: Chooser.java,v 1.4 2001/07/21 02:04:37 shaper Exp $
 
 package robodj.chooser;
 
@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.PropertiesUtil;
 
 import robodj.Log;
@@ -76,11 +77,8 @@ public class Chooser
         // create our primary user interface frame, center the frame in
         // the screen and show it
 	ChooserFrame frame = new ChooserFrame();
-        Toolkit tk = frame.getToolkit();
-        Dimension ss = tk.getScreenSize();
-        int width = 550, height = 500;
-        frame.setBounds((ss.width-width)/2, (ss.height-height)/2,
-                        width, height);
+	frame.setSize(550, 500);
+	SwingUtil.centerFrame(frame);
 	frame.setVisible(true);
     }
 }

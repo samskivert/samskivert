@@ -1,5 +1,5 @@
 //
-// $Id: Importer.java,v 1.4 2001/06/05 17:40:18 mdb Exp $
+// $Id: Importer.java,v 1.5 2001/07/21 02:04:37 shaper Exp $
 
 package robodj.importer;
 
@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Log;
 import com.samskivert.util.PropertiesUtil;
 
@@ -59,11 +60,8 @@ public class Importer
 	frame.setPanel(panel);
 
         // center the frame in the screen and show it
-        Toolkit tk = frame.getToolkit();
-        Dimension ss = tk.getScreenSize();
-        int width = 640, height = 480;
-        frame.setBounds((ss.width-width)/2, (ss.height-height)/2,
-                        width, height);
+	frame.setSize(640, 480);
+	SwingUtil.centerFrame(frame);
 	frame.setVisible(true);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.12 2002/09/16 21:29:25 ray Exp $
+// $Id: DnDManager.java,v 1.13 2002/10/28 19:19:43 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -224,7 +224,8 @@ public class DnDManager
         _source = (DragSource) _draggers.get(_sourceComp);
 
         // make sure the source wants to start a drag.
-        if ((_source == null) || (!_source.startDrag(_cursors, _data))) {
+        if ((_source == null) || (!_sourceComp.isEnabled()) ||
+            (!_source.startDrag(_cursors, _data))) {
             // if not, reset our start conditions and bail
             reset();
             return;
@@ -400,7 +401,8 @@ public class DnDManager
             // here we sneakily prevent dropping on the source
             target = (comp == _sourceComp) ? null
                                            : (DropTarget) _droppers.get(comp);
-            if ((target != null) && target.checkDrop(_source, _data[0])) {
+            if ((target != null) && comp.isEnabled() &&
+                target.checkDrop(_source, _data[0])) {
                 return target;
             }
             parent = comp.getParent();

@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.4 2002/05/29 00:08:17 shaper Exp $
+// $Id: ArrayUtil.java,v 1.5 2002/05/29 18:00:04 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -96,7 +96,7 @@ public class ArrayUtil
      *
      * @param values the array to shuffle.
      */
-    public static void shuffle (long[] values)
+    public static void shuffle (Object[] values)
     {
         shuffle(values, 0, values.length);
     }
@@ -109,14 +109,14 @@ public class ArrayUtil
      * @param offset the index at which to start shuffling elements.
      * @param length the number of elements to shuffle.
      */
-    public static void shuffle (long[] values, int offset, int length)
+    public static void shuffle (Object[] values, int offset, int length)
     {
         // starting from the end of the specified region, repeatedly swap
         // the element in question with a random element previous to it
         // (in the specified region) up to and including itself
         for (int ii = offset + length - 1; ii > offset; ii--) {
             int idx = offset + _rnd.nextInt(ii - offset + 1);
-            long tmp = values[ii];
+            Object tmp = values[ii];
             values[ii] = values[idx];
             values[idx] = tmp;
         }

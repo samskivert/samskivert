@@ -28,14 +28,6 @@ import com.samskivert.Log;
  */
 public class Invoker extends LoopingThread
 {
-    /** An interface by which the invoker communicates back to the entity
-     * that manages the main thread. */
-    public static interface ResultReceiver
-    {
-        /** Posts an unit that should be executed on the main thread. */
-        public void postUnit (Runnable unit);
-    }
-
     /**
      * The unit encapsulates a unit of executable code that will be run on
      * the invoker thread. It also provides facilities for additional code
@@ -99,10 +91,10 @@ public class Invoker extends LoopingThread
      * Creates an invoker that will post results to the supplied result
      * receiver.
      */
-    public Invoker (String name, ResultReceiver receiver)
+    public Invoker (String name, RunQueue resultReceiver)
     {
         super(name);
-        _receiver = receiver;
+        _receiver = resultReceiver;
     }
 
     /**
@@ -131,7 +123,7 @@ public class Invoker extends LoopingThread
             if (unit.invoke()) {
                 // if it returned true, we post it to the receiver thread
                 // to invoke the result processing
-                _receiver.postUnit(unit);
+                _receiver.postRunnable(unit);
             }
 
             // track some performance metrics
@@ -176,7 +168,7 @@ public class Invoker extends LoopingThread
     protected Queue _queue = new Queue();
 
     /** The result receiver with which we're working. */
-    protected ResultReceiver _receiver;
+    protected RunQueue _receiver;
 
     /** Tracks the counts of invocations by unit's class. */
     protected HashMap _tracker = new HashMap();

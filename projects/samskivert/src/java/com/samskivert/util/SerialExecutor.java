@@ -45,7 +45,7 @@ public class SerialExecutor
     /**
      * Construct the SerialExecutor.
      */
-    public SerialExecutor (Invoker.ResultReceiver receiver)
+    public SerialExecutor (RunQueue receiver)
     {
         _receiver = receiver;
     }
@@ -105,7 +105,7 @@ public class SerialExecutor
                 Log.logStackTrace(t);
             }
 
-            _receiver.postUnit(new Runnable() {
+            _receiver.postRunnable(new Runnable() {
                 public void run () {
                     try {
                         _task.resultReceived();
@@ -123,7 +123,7 @@ public class SerialExecutor
     }
 
     /** The receiver to which we post a unit to process results. */
-    protected Invoker.ResultReceiver _receiver;
+    protected RunQueue _receiver;
 
     /** True if there is a thread currently executing a task. */
     protected boolean _executingNow = false;

@@ -1,51 +1,20 @@
 //
-// $Id: RunQueue.java,v 1.1 2003/08/13 01:55:30 ray Exp $
+// $Id$
 
 package com.samskivert.util;
 
-import com.samskivert.Log;
-
 /**
- * Used to serialize access to some resource.
+ * An interface for a service that queues up execution of Runnables.
  */
-public class RunQueue extends LoopingThread
+public interface RunQueue
 {
-    public RunQueue ()
-    {
-        super("RunQueue");
-    }
-    
     /**
-     * Post a runnable unit for running on the run queue.
+     * Post the specified Runnable to be run on the RunQueue.
      */
-    public void post (Runnable r)
-    {
-        _queue.append(r);
-    }
+    public void postRunnable (Runnable r);
 
-    // documentation inherited
-    protected void iterate ()
-    {
-        Runnable r = (Runnable) _queue.get();
-        try {
-            r.run();
-
-        } catch (Throwable t) {
-            Log.warning("Runnable posted to RunQueue barfed.");
-            Log.logStackTrace(t);
-        }
-    }
-
-    // documentation inherited
-    protected void kick ()
-    {
-        post(new Runnable() {
-            public void run () {
-                // nothing
-            }
-        });
-    }
-
-    /** The queue of things to run. */
-    protected Queue _queue = new Queue();
+    /**
+     * @return true if the calling thread is the RunQueue dispatch thread.
+     */
+    public boolean isDispatchThread ();
 }

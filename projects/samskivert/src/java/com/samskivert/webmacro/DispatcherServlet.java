@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.9 2001/03/04 06:37:51 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.10 2001/05/26 03:24:19 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -303,8 +303,9 @@ public class DispatcherServlet extends WMServlet
     protected Template selectTemplate (WebContext ctx)
 	throws NotFoundException
     {
-	String path = cleanupURI(ctx.getRequest().getRequestURI());
-	// Log.info("Loading template [path=" + path + "].");
+	// String path = cleanupURI(ctx.getRequest().getRequestURI());
+        String path = ctx.getRequest().getServletPath();
+	Log.info("Loading template [path=" + path + "].");
 	return getTemplate(path);
     }
 

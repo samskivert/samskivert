@@ -1,5 +1,5 @@
 //
-// $Id: IntListUtil.java,v 1.2 2002/03/14 03:48:44 mdb Exp $
+// $Id: IntListUtil.java,v 1.3 2002/11/12 05:23:41 mdb Exp $
 
 package com.samskivert.util;
 
@@ -285,6 +285,18 @@ public class IntListUtil
         }
 
         return nlist;
+    }
+
+    /**
+     * Returns the total of all of the values in the list.
+     */
+    public static int total (int[] list)
+    {
+        int total = 0, lsize = list.length;
+        for (int ii = 0; ii < lsize; ii++) {
+            total += list[ii];
+        }
+        return total;
     }
 
     /**

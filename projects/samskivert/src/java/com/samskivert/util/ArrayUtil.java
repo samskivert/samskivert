@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.1 2001/12/14 18:57:36 shaper Exp $
+// $Id: ArrayUtil.java,v 1.2 2001/12/14 19:07:47 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -46,7 +46,7 @@ public class ArrayUtil
      */
     public static void shuffle (int[] values, int offset, int length)
     {
-        for (int ii = (offset + length); ii > offset; ii--) {
+        for (int ii = (offset + length); ii > (offset + 1); ii--) {
             int temp = values[ii - 1];
             int idx = _rnd.nextInt(ii);
             values[ii - 1] = values[idx];

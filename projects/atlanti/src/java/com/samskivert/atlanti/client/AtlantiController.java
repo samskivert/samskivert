@@ -66,8 +66,10 @@ public class VenisonController
         _panel.board.setTiles(_venobj.tiles);
         _panel.board.setPiecens(_venobj.piecens);
 
-        // TBD: check to see if it's our turn and set things up
-        // accordingly
+        // if it's our turn, set the tile to be placed
+        if (_venobj.turnHolder.equals(_self.username)) {
+            _panel.board.setTileToBePlaced(_venobj.currentTile);
+        }
     }
 
     // documentation inherited
@@ -121,8 +123,18 @@ public class VenisonController
     {
         if (event.getName().equals(VenisonObject.PIECENS)) {
             // a piecen was removed, update the board
-            Log.info("Clearing piecen " + event.getKey() + ".");
             _panel.board.clearPiecen(event.getKey());
+
+            // if we just freed up our only playable piecen...
+            int pcount = TileUtil.countPiecens(_venobj.piecens, _selfIndex);
+            if (pcount == (PIECENS_PER_PLAYER-1) &&
+                // ...and it's also our turn...
+                _venobj.turnHolder.equals(_self.username)) {
+                // ...reenable piecen placement
+                _panel.board.enablePiecenPlacement();
+                // and, enable the noplace button
+                _panel.noplace.setEnabled(true);
+            }
         }
     }
 
@@ -138,14 +150,18 @@ public class VenisonController
             _ctx.getDObjectManager().postEvent(mevt);
 
             // if we have no piecens to place, we immediately disable
-            // piecen placement in the board
+            // piecen placement in the board and expect that the server
+            // will end our turn (however, it may determine that our
+            // placement freed up one of our pieces which we will react to
+            // and reenable piecen placement)
             int pcount = TileUtil.countPiecens(_venobj.piecens, _selfIndex);
             if (pcount >= PIECENS_PER_PLAYER) {
                 _panel.board.cancelPiecenPlacement();
-            }
 
-            // enable the noplace button
-            _panel.noplace.setEnabled(true);
+            } else {
+                // otherwise, enable the noplace button
+                _panel.noplace.setEnabled(true);
+            }
 
         } else if (action.getActionCommand().equals(PIECEN_PLACED)) {
             // the user placed a piecen on the tile. grab the piecen from

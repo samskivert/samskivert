@@ -1,5 +1,5 @@
 //
-// $Id: ImportDirective.java,v 1.1 2001/11/06 04:49:32 mdb Exp $
+// $Id: ImportDirective.java,v 1.2 2004/01/14 09:10:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -153,12 +153,12 @@ public class ImportDirective extends Directive
             context.pushCurrentTemplateName(path);
             ((SimpleNode)t.getData()).render(context, writer);
 
-        } catch (Exception e) {        
+        } catch (Throwable th) {        
+            rsvc.error("Exception rendering #import(" + path + "): " + th);
             // we want to pass method invocation exceptions through
-            if (e instanceof MethodInvocationException) {
-                throw (MethodInvocationException)e;
+            if (th instanceof MethodInvocationException) {
+                throw (MethodInvocationException)th;
             }
-            rsvc.error("Exception rendering #import(" + path + "): " + e);
             return false;
 
         } finally {

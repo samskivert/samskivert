@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
+// $Id: ChooserFrame.java,v 1.3 2001/07/12 22:31:04 mdb Exp $
 
 package robodj.chooser;
 
@@ -18,6 +18,9 @@ public class ChooserFrame
     public ChooserFrame ()
     {
 	super("RoboDJ Chooser");
+
+        // quit if we're closed
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // we create a top-level panel to manage everything
 	JPanel top = new JPanel();

@@ -10,10 +10,12 @@ import java.text.ParseException;
 
 import javax.swing.JTextField;
 
-import javax.swing.text.AbstractDocument;
+import javax.swing.event.DocumentEvent;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
 
 import com.samskivert.Log;
 import com.samskivert.swing.util.SwingUtil;
@@ -56,9 +58,9 @@ public class IntField extends JTextField
      */
     public IntField (int initial, int minValue, int maxValue)
     {
-        if (minValue < 0) {
-            throw new IllegalArgumentException("minValue must be at least 0");
-        }
+        super(new IntDocument(), format(initial), 5);
+
+        validateMinMax(minValue, maxValue);
         if (initial > maxValue || initial < minValue) {
             throw new IllegalArgumentException("initial value not between " +
                     "min and max");
@@ -67,13 +69,12 @@ public class IntField extends JTextField
         _maxValue = maxValue;
 
         setHorizontalAlignment(JTextField.RIGHT);
-        setColumns(5);
 
         // create a document filter which enforces the restrictions on
         // what text may be entered. This is similar to the filter
         // that is configured in SwingUtil.setDocumentHelpers, only the
         // remove operation is modified to do the sneaky highlighting we do.
-        final AbstractDocument doc = (AbstractDocument) getDocument();
+        final IntDocument doc = (IntDocument) getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
             public void remove (FilterBypass fb, int offset, int length)
                 throws BadLocationException
@@ -83,8 +84,7 @@ public class IntField extends JTextField
                     current.substring(offset + length);
                 // if the bit to be removed is still a valid value, go ahead
                 if (unformatSafe(potential) >= _minValue) {
-                    fb.remove(offset, length);
-                    transform(fb);
+                    transform(fb, current, potential);
                     return;
                 }
 
@@ -121,27 +121,35 @@ public class IntField extends JTextField
                 String s, AttributeSet attr)
                 throws BadLocationException
             {
-                fb.insertString(offset, s, attr);
-                transform(fb);
+                String current = doc.getText(0, doc.getLength());
+                String potential = current.substring(0, offset) + s +
+                    current.substring(offset);
+                transform(fb, current, potential);
             }
 
             public void replace (FilterBypass fb, int offset, int length,
                 String text, AttributeSet attrs)
                 throws BadLocationException
             {
-                fb.replace(offset, length, text, attrs);
-                transform(fb);
+                String current = doc.getText(0, doc.getLength());
+                String potential = current.substring(0, offset) + text +
+                    current.substring(offset + length);
+                transform(fb, current, potential);
             }
 
-            protected void transform (FilterBypass fb)
+            protected void transform (FilterBypass fb,
+                    String current, String potential)
+                throws BadLocationException
             {
-                try {
-                    String text = doc.getText(0, doc.getLength());
-                    String xform = transform(text);
-                    if (!text.equals(xform)) {
-                        fb.replace(0, text.length(), xform, null);
-                    }
-                } catch (BadLocationException ble) {
+                boolean wouldaBeenEqual = current.equals(potential);
+                potential = transform(potential);
+                // we only change it if it needs changing
+                if (!current.equals(potential) ||
+                        // or if it would have been the same pre-transforming
+                        // and there is a selection (IE undo the selection)
+                        (wouldaBeenEqual &&
+                         (getSelectionEnd() != getSelectionStart()))) {
+                    fb.replace(0, doc.getLength(), potential, null);
                 }
             }
 
@@ -205,9 +213,20 @@ public class IntField extends JTextField
                 return newText;
             }
         });
+    }
 
-        // and set the initial value
-        setValue(initial);
+    /**
+     * Validate min/max.
+     */
+    protected void validateMinMax (int minValue, int maxValue)
+    {
+        if (minValue < 0) {
+            throw new IllegalArgumentException("minValue must be at least 0");
+        }
+        if (maxValue < minValue) {
+            throw new IllegalArgumentException(
+                "maxValue must be greater than minValue");
+        }
     }
 
     /**
@@ -231,9 +250,7 @@ public class IntField extends JTextField
      */
     public void setMinValue (int minValue)
     {
-        if (minValue < 0) {
-            throw new IllegalArgumentException("minValue must be at least 0");
-        }
+        validateMinMax(minValue, _maxValue);
         _minValue = minValue;
         validateText();
     }
@@ -243,6 +260,7 @@ public class IntField extends JTextField
      */
     public void setMaxValue (int maxValue)
     {
+        validateMinMax(_minValue, maxValue);
         _maxValue = maxValue;
         validateText();
     }
@@ -283,6 +301,23 @@ public class IntField extends JTextField
             return unformat(text);
         } catch (ParseException pe) {
             return 0;
+        }
+    }
+
+    /**
+     * Our own special Document class.
+     */
+    protected static class IntDocument extends PlainDocument
+    {
+        // documentation inherited
+        protected void fireRemoveUpdate (DocumentEvent e)
+        {
+            // suppress: the DocumentFilter implements replace by doing
+            // a remove and then an insert. We do not want listeners to ever
+            // be notified when the document contains invalid text.
+            // (Gosh, it'd be nice if we didn't have to hack this, but
+            // the standard implementation has a bunch of methods with
+            // package-protected access. Thanks Sun!)
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.9 2002/03/03 20:56:12 mdb Exp $
+// $Id: ChooserFrame.java,v 1.10 2002/11/11 17:04:41 mdb Exp $
 
 package robodj.chooser;
 
@@ -72,6 +72,7 @@ public class ChooserFrame extends JFrame
         cbar.add(_pause);
         cbar.add(ButtonUtil.createControlButton(
                      SKIP_TIP, "skip", SKIP_ICON_PATH, this, true));
+        cbar.add(new Spacer(50, 10));
         cbar.add(ButtonUtil.createControlButton(
                      EXIT_TIP, "exit", EXIT_ICON_PATH, this, true));
 

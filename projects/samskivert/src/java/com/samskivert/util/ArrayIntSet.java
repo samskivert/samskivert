@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.9 2002/12/16 01:57:36 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.10 2002/12/19 22:41:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -360,4 +360,10 @@ public class ArrayIntSet extends AbstractSet
 
     /** The number of elements in this set. */
     protected int _size;
+
+    /** Change this if the fields or inheritance hierarchy ever changes
+     * (which is extremely unlikely). We override this because I'm tired
+     * of serialized crap not working depending on whether I compiled with
+     * jikes or javac. */
+    private static final long serialVersionUID = 1;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Tuple.java,v 1.4 2001/11/26 21:57:42 mdb Exp $
+// $Id: Tuple.java,v 1.5 2002/12/19 22:41:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -77,4 +77,10 @@ public class Tuple implements Serializable
     {
         return "[left=" + left + ", right=" + right + "]";
     }
+
+    /** Change this if the fields or inheritance hierarchy ever changes
+     * (which is extremely unlikely). We override this because I'm tired
+     * of serialized crap not working depending on whether I compiled with
+     * jikes or javac. */
+    private static final long serialVersionUID = 1;
 }

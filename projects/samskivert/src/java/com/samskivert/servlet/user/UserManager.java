@@ -32,7 +32,6 @@ import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.util.CookieUtil;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -130,8 +129,8 @@ public class UserManager
         }
 
 	// register a cron job to prune the session table every hour
-	Interval pruner = new Interval() {
-	    public void intervalExpired (int id, Object arg)
+	_pruner = new Interval() {
+	    public void expired ()
 	    {
 		try {
 		    _repository.pruneSessions();
@@ -141,8 +140,7 @@ public class UserManager
 		}
 	    }
 	};
-	_prunerid = IntervalManager.register(pruner, SESSION_PRUNE_INTERVAL,
-					     null, true);
+        _pruner.schedule(SESSION_PRUNE_INTERVAL, true);
     }
 
     /**
@@ -159,7 +157,7 @@ public class UserManager
     public void shutdown ()
     {
 	// cancel our session table pruning thread
-	IntervalManager.remove(_prunerid);
+        _pruner.cancel();
     }
 
     /**
@@ -321,8 +319,8 @@ public class UserManager
     /** The user repository. */
     protected UserRepository _repository;
 
-    /** The interval id for the user session pruning interval. */
-    protected int _prunerid = -1;
+    /** The interval for user session pruning. */
+    protected Interval _pruner;
 
     /** The URL for the user login page. */
     protected String _loginURL;

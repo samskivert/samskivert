@@ -23,7 +23,6 @@ import com.samskivert.Log;
  * collection, processing and possible archiving of the logs.
  */
 public class AuditLogger
-    implements Interval
 {
     /**
      * Creates an audit logger that logs to the specified file.
@@ -119,8 +118,10 @@ public class AuditLogger
         }
     }
 
-    // documentation inherited from interface Interval
-    public synchronized void intervalExpired (int id, Object arg)
+    /**
+     * Check to see if it's time to roll over the log file.
+     */
+    protected synchronized void checkRollOver ()
     {
         // check to see if we should roll over the log
         String newDayStamp = _dayFormat.format(new Date());
@@ -160,7 +161,7 @@ public class AuditLogger
             (59L - cal.get(Calendar.SECOND)) * 1000L +
             (59L - cal.get(Calendar.MINUTE)) * (1000L * 60L);
 
-        IntervalManager.register(this, nextCheck, null, false);
+        _rollover.schedule(nextCheck);
     }
 
     /** The path to our log file. */
@@ -168,6 +169,13 @@ public class AuditLogger
 
     /** We actually write to this feller here. */
     protected PrintWriter _logWriter;
+
+    /** The interval that rolls over the log file. */
+    protected Interval _rollover = new Interval() {
+        public void expired () {
+            checkRollOver();
+        }
+    };
 
     /** Suppress freakouts if our log file becomes hosed. */
     protected Throttle _throttle = new Throttle(2, 5*60*1000L);

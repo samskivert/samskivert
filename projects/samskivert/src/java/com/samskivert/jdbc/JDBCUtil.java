@@ -300,8 +300,8 @@ public class JDBCUtil
         throws SQLException
     {
         if (JDBCUtil.tableContainsColumn(conn, table, cname)) {
-            Log.info("Database table '" + table + "' already has column '" +
-                     cname + "'.");
+//             Log.info("Database table '" + table + "' already has column '" +
+//                      cname + "'.");
             return;
         }
 
@@ -334,13 +334,13 @@ public class JDBCUtil
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(update);
-            stmt.executeUpdate();
+            if (stmt.executeUpdate() == 1) {
+                Log.info("Database index '" + iname + "' removed from " +
+                        "table '" + table + "'.");
+            }
         } finally {
             close(stmt);
         }
-
-        Log.info("Database index '" + iname + "' removed from table '" + table +
-                 "'.");
     }
 
     /**
@@ -354,12 +354,12 @@ public class JDBCUtil
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(update);
-            stmt.executeUpdate();
+            if (stmt.executeUpdate() == 1) {
+                Log.info("Database primary key removed from '" + table + "'.");
+            }
         } finally {
             close(stmt);
         }
-
-        Log.info("Database primary key removed from table '" + table + "'.");
     }
 
     /**
@@ -372,9 +372,9 @@ public class JDBCUtil
         throws SQLException
     {
         if (JDBCUtil.tableContainsIndex(conn, table, cname, iname)) {
-            Log.info("Database table '" + table + "' already has an index on " +
-                     "column '" + cname + "'" +
-                     (iname != null ? " named '" + iname + "'." : "."));
+//             Log.info("Database table '" + table + "' already has an index " +
+//                      "on column '" + cname + "'" +
+//                      (iname != null ? " named '" + iname + "'." : "."));
             return;
         }
 

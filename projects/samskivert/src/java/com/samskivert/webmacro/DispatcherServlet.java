@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.1 2001/02/15 01:44:34 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.2 2001/02/16 03:27:54 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -119,7 +119,7 @@ public class DispatcherServlet extends WMServlet
     public void start ()
 	throws ServletException
     {
-	// Log.log.info("Initializing dispatcher servlet.");
+	// Log.info("Initializing dispatcher servlet.");
 
 	// first load the properties file
 	Properties props = null;
@@ -129,15 +129,14 @@ public class DispatcherServlet extends WMServlet
 	    props = ConfigUtil.loadProperties("dispatcher.properties", cld);
 
 	} catch (IOException ioe) {
-	    Log.log.warning("Failure trying to load " +
-			    "'dispatcher.properties': " + ioe);
+	    Log.warning("Failure trying to load 'dispatcher.properties': " +
+			ioe);
 	}
 
 	if (props == null) {
-	    Log.log.warning("Unable to load properties for " +
-			    "dispatcher servlet.");
-	    Log.log.warning("Make sure 'dispatcher.properties' file " +
-			    "exists somewhere in your classpath.");
+	    Log.warning("Unable to load properties for dispatcher servlet.");
+	    Log.warning("Make sure 'dispatcher.properties' file exists " +
+			"somewhere in your classpath.");
 	    props = new Properties();
 	}
 
@@ -152,13 +151,13 @@ public class DispatcherServlet extends WMServlet
 
 		// make sure we're not missing anything
 		if (baseURI == null) {
-		    Log.log.warning("Application '" + appid +
-				    "' missing base_uri specification.");
+		    Log.warning("Application '" + appid + "' missing " +
+				"base_uri specification.");
 		    continue;
 		}
 		if (basePkg == null) {
-		    Log.log.warning("Application '" + appid +
-				    "' missing base_pkg specification.");
+		    Log.warning("Application '" + appid + "' missing " +
+				"base_pkg specification.");
 		    continue;
 		}
 
@@ -177,6 +176,10 @@ public class DispatcherServlet extends WMServlet
 	} catch (NotFoundException e) {
 	    throw new HandlerException("Unable to load template: " + e);
 	}
+
+	// assume an HTML response unless otherwise massaged by the data
+	// populator
+	ctx.getResponse().setContentType("text/html");
 
 	// then we populate the context with data
 	try {
@@ -214,7 +217,7 @@ public class DispatcherServlet extends WMServlet
 	throws NotFoundException
     {
 	String path = cleanupURI(ctx.getRequest().getRequestURI());
-	// Log.log.info("Loading template [path=" + path + "].");
+	// Log.info("Loading template [path=" + path + "].");
 	return getTemplate(path);
     }
 
@@ -234,7 +237,7 @@ public class DispatcherServlet extends WMServlet
     {
 	String path = cleanupURI(ctx.getRequest().getRequestURI());
 	String pclass = null;
-	// Log.log.info("Loading populator [path=" + path + "].");
+	// Log.info("Loading populator [path=" + path + "].");
 
 	// try to locate an application that matches this URI
 	for (int i = 0; i < _apps.size(); i++) {
@@ -258,9 +261,9 @@ public class DispatcherServlet extends WMServlet
 		pop = (ContextPopulator)pcl.newInstance();
 
 	    } catch (Throwable t) {
-		Log.log.warning("Unable to instantiate populator for " +
-				"matching application [path=" + path +
-				", pclass=" + pclass + ", error=" + t + "].");
+		Log.warning("Unable to instantiate populator for " +
+			    "matching application [path=" + path +
+			    ", pclass=" + pclass + ", error=" + t + "].");
 		// use a dummy in it's place so that we don't sit around
 		// all day freaking out about our inability to instantiate
 		// the proper populator class
@@ -288,7 +291,7 @@ public class DispatcherServlet extends WMServlet
 
 	int sidx = uri.indexOf("/", dsidx + 2);
 	if (sidx == -1) {
-	    Log.log.warning("Malformed URI?! [uri=" + uri + "].");
+	    Log.warning("Malformed URI?! [uri=" + uri + "].");
 	    return "/";
 	}
 

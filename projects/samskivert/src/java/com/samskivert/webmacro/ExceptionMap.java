@@ -1,5 +1,5 @@
 //
-// $Id: ExceptionMap.java,v 1.2 2001/02/15 01:44:34 mdb Exp $
+// $Id: ExceptionMap.java,v 1.3 2001/02/16 03:27:54 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -72,8 +72,7 @@ public class ExceptionMap
 	ClassLoader cld = ExceptionMap.class.getClassLoader();
 	InputStream config = ConfigUtil.getStream(PROPS_NAME, cld);
 	if (config == null) {
-	    Log.log.warning("Unable to load " + PROPS_NAME +
-			    " from CLASSPATH.");
+	    Log.warning("Unable to load " + PROPS_NAME + " from CLASSPATH.");
 
 	} else {
 	    // otherwise process ye old config file.
@@ -101,9 +100,9 @@ public class ExceptionMap
 			_keys.set(i, cl);
 
 		    } catch (Throwable t) {
-			Log.log.warning("Unable to resolve exception " +
-					"class. [class=" + exclass +
-					", error=" + t + "].");
+			Log.warning("Unable to resolve exception class. " +
+				    "[class=" + exclass +
+				    ", error=" + t + "].");
 			_keys.remove(i);
 			_values.remove(i);
 			i--; // back on up a notch
@@ -111,8 +110,7 @@ public class ExceptionMap
 		}
 
 	    } catch (IOException ioe) {
-		Log.log.warning("Error reading exception mapping file: " +
-				ioe);
+		Log.warning("Error reading exception mapping file: " + ioe);
 	    }
 	}
     }

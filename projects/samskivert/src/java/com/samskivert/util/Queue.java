@@ -1,5 +1,5 @@
 //
-// $Id: Queue.java,v 1.1 2001/03/02 00:47:10 mdb Exp $
+// $Id: Queue.java,v 1.2 2001/05/25 18:44:39 mdb Exp $
 
 package com.samskivert.util;
 
@@ -39,14 +39,11 @@ public class Queue
         return _count;
     }
 
-    public void appendItem (Object item)
+    public synchronized void prepend (Object item)
     {
-        addItem(item);
-    }
-
-    public synchronized void prependItem (Object item)
-    {
-        if (_count == _size) makeMoreRoom();
+        if (_count == _size) {
+            makeMoreRoom();
+        }
 
         if (_start == 0) {
             _start = _size - 1;
@@ -57,51 +54,71 @@ public class Queue
         _items[_start] = item;
         _count++;
 
-        if (_count == 1) notify();
+        if (_count == 1) {
+            notify();
+        }
     }
 
-    public synchronized void addItem (Object item)
+    /**
+     * Appends the supplied item to the end of the queue.
+     */
+    public synchronized void append (Object item)
     {
-        if (_count == _size) makeMoreRoom();
+        if (_count == _size) {
+            makeMoreRoom();
+        }
 
         _items[_end] = item;
         _end = (_end + 1) % _size;
         _count++;
 
-        if (_count == 1) notify();
+        if (_count == 1) {
+            notify();
+        }
     }
 
     /**
-     * Adds an item to the queue without notifying anyone. Useful for
-     * adding a bunch of items and then waking up the listener.
+     * Appends an item to the queue without notifying anyone. Useful for
+     * appending a bunch of items and then waking up the listener.
      */
-    public synchronized void addItemSilent (Object item)
+    public synchronized void appendSilent (Object item)
     {
-        if (_count == _size) makeMoreRoom();
+        if (_count == _size) {
+            makeMoreRoom();
+        }
         _items[_end] = item;
         _end = (_end + 1) % _size;
         _count++;
     }
 
     /**
-     * Adds an item to the queue and notify any listeners regardless of
-     * how many items are on the queue. Use this for the last item you add
-     * to a queue in a batch via addItemSilent() because the regular
-     * addItem() will think it doesn't need to notify anyone because the
-     * queue size isn't zero prior to this add.
+     * Appends an item to the queue and notify any listeners regardless of
+     * how many items are on the queue. Use this for the last item you
+     * append to a queue in a batch via <code>appendSilent</code> because
+     * the regular <code>append</code> will think it doesn't need to
+     * notify anyone because the queue size isn't zero prior to this add.
      */
-    public synchronized void addItemLoud (Object item)
+    public synchronized void appendLoud (Object item)
     {
-        if (_count == _size) makeMoreRoom();
+        if (_count == _size) {
+            makeMoreRoom();
+        }
         _items[_end] = item;
         _end = (_end + 1) % _size;
         _count++;
         notify();
     }
 
-    public synchronized Object getItemNonBlocking ()
+    /**
+     * Returns the next item on the queue or null if the queue is
+     * empty. This method will not block waiting for an item to be added
+     * to the queue.
+     */
+    public synchronized Object getNonBlocking ()
     {
-        if (_count == 0) return null;
+        if (_count == 0) {
+            return null;
+        }
 
         // pull the object off, and clear our reference to it
         Object retval = _items[_start];
@@ -113,6 +130,11 @@ public class Queue
         return retval;
     }
 
+    /**
+     * Blocks the current thread waiting for an item to be added to the
+     * queue. If the queue is currently non-empty, this function will
+     * return immediately.
+     */
     public synchronized void waitForItem ()
     {
         while (_count == 0) {
@@ -120,7 +142,12 @@ public class Queue
         }
     }
 
-    public synchronized Object getItem (long maxwait)
+    /**
+     * Gets the next item from the queue blocking for no longer than
+     * <code>maxwait</code> milliseconds waiting for an item to be added
+     * to the queue if it is empty at the time of invocation.
+     */
+    public synchronized Object get (long maxwait)
     {
 	if (_count == 0) {
 	    try { wait(maxwait); } catch (InterruptedException e) {}
@@ -132,10 +159,14 @@ public class Queue
 	    }
 	}
 
-	return getItem();
+	return get();
     }
 
-    public synchronized Object getItem ()
+    /**
+     * Gets the next item from the queue, blocking until an item is added
+     * to the queue if the queue is empty at time of invocation.
+     */
+    public synchronized Object get ()
     {
         while (_count == 0) {
             try { wait(); } catch (InterruptedException e) {}
@@ -213,70 +244,70 @@ public class Queue
 
 //         // add three items and dump the queue
 //         for (int i = 0; i < 3; i++) {
-//             queue.addItem(new Integer(value++));
+//             queue.append(new Integer(value++));
 //         }
 //         System.out.println("Add three: " + queue);
 
 //         // now add three more items and cause it to expand and see how it
 //         // does
 //         for (int i = 0; i < 3; i++) {
-//             queue.addItem(new Integer(value++));
+//             queue.append(new Integer(value++));
 //         }
 //         System.out.println("Add three more: " + queue);
 
 //         // now remove three items and move the queue pointer up a bit
 //         for (int i = 0; i < 3; i++) {
-//             queue.getItem();
+//             queue.get();
 //         }
 //         System.out.println("Remove three: " + queue);
 
 //         // now add three again and cause the queue to wrap around
 //         for (int i = 0; i < 3; i++) {
-//             queue.addItem(new Integer(value++));
+//             queue.append(new Integer(value++));
 //         }
 //         System.out.println("Add three more: " + queue);
 
 //         // now add three more and cause it to expand while wrapped
 //         for (int i = 0; i < 3; i++) {
-//             queue.addItem(new Integer(value++));
+//             queue.append(new Integer(value++));
 //         }
 //         System.out.println("Add three more: " + queue);
 
 //         // now remove three elements and add 8 to cause it to wrap around
 //         // again
 //         for (int i = 0; i < 3; i++) {
-//             queue.getItem();
+//             queue.get();
 //         }
 //         for (int i = 0; i < 8; i++) {
-//             queue.addItem(new Integer(value++));
+//             queue.append(new Integer(value++));
 //         }
 //         System.out.println("-3 and +8: " + queue);
 
 //         // now add 2030 elements, cause it to expand a great deal
 //         for (int i = 0; i < 2030; i++) {
-//             queue.addItem(new Integer(value++));
+//             queue.append(new Integer(value++));
 //         }
 //         // now remove some from the front so that we may wrap
 //         for (int i = 0; i < 8; i++) {
-//             queue.getItem();
+//             queue.get();
 //         }
 //         // now add a few more to the end to cause us to wrap
 //         for (int i = 0; i < 8; i++) {
-//             queue.addItem(new Integer(value++));
+//             queue.append(new Integer(value++));
 //         }
 //         System.out.println("+2030 -8 and +8: " + queue);
 
 //         // finally, remove 2030 and see where we end up after the shrink
 //         for (int i = 0; i < 2030; i++) {
-//             queue.getItem();
+//             queue.get();
 //         }
 //         System.out.println("Remove 2030: " + queue);
 
 //         // now add and remove two elements to make sure the append and
 //         // remove pointers are in the right place
 //         for (int i = 0; i < 2; i++) {
-//             queue.addItem(new Integer(value++));
-//             queue.getItem();
+//             queue.append(new Integer(value++));
+//             queue.get();
 //         }
 //         System.out.println("Add two and remove two: " + queue);
 //     }

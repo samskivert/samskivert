@@ -1,58 +1,145 @@
 /**
- * $Id: querybox.c,v 1.1 2000/12/10 23:38:39 mdb Exp $
+ * $Id: querybox.c,v 1.2 2001/02/24 02:35:20 mdb Exp $
  */
 
 #include <config.h>
 #include <glib.h>
 #include <gnome.h>
 
+#include "binding.h"
 #include "launcher.h"
+#include "keysym-util.h"
+#include "preferences.h"
 #include "querybox.h"
 
-#define BORDER 1
-#define SPACER 2
+static GtkWidget* _query;
+
+static void
+selection_received (GtkWidget* widget, GtkSelectionData* selection_data, 
+		    gpointer data)
+{
+    /* make sure some selection was provided */
+    if (selection_data->length > 0) {
+	/* select the text in the entry so that it can be easily replaced */
+	gtk_editable_select_region(GTK_EDITABLE(_query), 0,
+				   selection_data->length);
+    }
+}
+
+static gint
+key_pressed (GtkWidget* widget, GdkEvent* event, gpointer callback_data)
+{
+    GdkEventKey* ek = (GdkEventKey*)event;
+    GPtrArray* bindings;
+    gint handled = FALSE, i;
+    gchar* keystr;
+
+    /* ignore plain or shifted keystrokes */
+    if (ek->state <= 1) {
+	return FALSE;
+    }
+
+    /* otherwise convert the key combo to a name and look it up */
+    keystr = convert_keysym_state_to_string(ek->keyval, ek->state);
+    bindings = lk_prefs_get_bindings();
+
+    g_print("key pressed: %s (%d %d)\n", keystr, ek->state, ek->keyval);
+
+    for (i = 0; i < bindings->len; i++) {
+	LkBinding* binding = LK_BINDING(g_ptr_array_index(bindings, i));
+	if (!strcmp(keystr, binding->key)) {
+	    /* get the terms from the query box */
+	    gchar* search_text =
+		gtk_editable_get_chars(GTK_EDITABLE(widget), 0, -1);
+	    /* launch the appropriate thing */
+	    lk_launcher_launch(binding, search_text);
+	    g_free(search_text);
+	    /* clear out the contents of the entry box */
+	    gtk_entry_set_text(GTK_ENTRY(widget), "");
+	    handled = TRUE;
+	    break;
+	}
+    }
+
+    g_free(keystr);
+
+    return handled;
+}
+
+static void
+prefs_clicked (GtkWidget* widget, gpointer data)
+{
+    lk_prefs_display();
+}
 
 static void
 launch (GtkWidget* widget, gpointer data)
 {
-    gchar* search_text = gtk_entry_get_text(GTK_ENTRY(widget));
-
     /* pass the contents of the querybox on to the launcher for display
      * (specifying NULL for the qualifier since they just pressed return
      * instead of pressing some special key combination) */
-    lookuplet_launcher_launch(search_text, NULL);
+    gchar* search_text = gtk_editable_get_chars(GTK_EDITABLE(widget), 0, -1);
+    lk_launcher_launch(NULL, search_text);
+    g_free(search_text);
 
     /* clear out the contents of the entry box */
     gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
 
 GtkWidget*
-lookuplet_querybox_create ()
+lk_querybox_create (void)
 {
-    GtkWidget* vbox;
+    GtkWidget* hbox;
     GtkWidget* label;
-    GtkWidget* query;
+    GtkWidget* prefs;
 
     /* create the widget we are going to put on the applet */
     label = gtk_label_new(_("Query"));
-    gtk_widget_show(label);
 
     /* make the query text box and attach the "activate" signal handler */
-    query = gtk_entry_new();
+    _query = gtk_entry_new();
 
     /* Connect "return" in the search box to the launch func. */
-    gtk_signal_connect(GTK_OBJECT(query), "activate",
+    gtk_signal_connect(GTK_OBJECT(_query), "activate",
 		       GTK_SIGNAL_FUNC(launch), NULL);
 
+    /* create our preferences button */
+    prefs = gtk_button_new_with_label(_("Prefs"));
+    gtk_signal_connect (GTK_OBJECT(prefs), "clicked",
+			GTK_SIGNAL_FUNC(prefs_clicked), NULL);
+
     /* create a vertical box to hold our query input box and the label */
-    vbox = gtk_hbox_new(FALSE, SPACER);
+    hbox = gtk_hbox_new(FALSE, GNOME_PAD_SMALL);
 
-    /*	pack the query box and label into the vbox */
-    gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, SPACER);
-    gtk_box_pack_start(GTK_BOX(vbox), query, FALSE, FALSE, SPACER);
+    /*	pack the query box and label into the hbox */
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), _query, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), prefs, FALSE, FALSE, 0);
 
-    gtk_widget_show(query);
-    gtk_widget_show(label);
+    return hbox;
+}
 
-    return vbox;
+void
+lk_querybox_init (void)
+{
+    static GdkAtom targets_atom = GDK_NONE;
+
+    /* wire up our key press event handler */
+    gtk_signal_connect(GTK_OBJECT(_query), "key_press_event",
+		       GTK_SIGNAL_FUNC(key_pressed), NULL);
+
+    /* focus the text entry box */
+    gtk_widget_grab_focus(_query);
+
+    /* register a signal handler that will select the selection when it
+       arrives */
+    gtk_signal_connect_after(GTK_OBJECT(_query), "selection_received",
+			     GTK_SIGNAL_FUNC(selection_received), NULL);
+
+    /* request the selection as type "STRING" */
+    if (targets_atom == GDK_NONE) {
+	targets_atom = gdk_atom_intern ("STRING", FALSE);
+    }
+    gtk_selection_convert(_query, GDK_SELECTION_PRIMARY, targets_atom,
+			  GDK_CURRENT_TIME);
 }

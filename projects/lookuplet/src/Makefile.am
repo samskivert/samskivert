@@ -1,21 +1,39 @@
 #
-# $Id: Makefile.am,v 1.1 2000/12/10 23:38:39 mdb Exp $
+# $Id: Makefile.am,v 1.2 2001/02/24 02:35:20 mdb Exp $
 
-AUTOMAKE_OPTIONS = no-dependencies
-
-INCLUDES = \
-	$(GNOME_INCLUDEDIR)
+INCLUDES = 						\
+	-I.						\
+	-I$(srcdir)					\
+	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
+	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"	\
+	-I$(includedir) $(GNOME_INCLUDEDIR)
 
 bin_PROGRAMS = lookuplet
-bin_DIR = ../install.d/
 
 lookuplet_SOURCES = \
-	launcher.c \
 	lookuplet.c \
-	querybox.c
+	launcher.c \
+	querybox.c \
+	preferences.c \
+	binding.c \
+	keysym-util.c
 
 lookuplet_LDADD = \
 	$(GNOME_LIBDIR) \
-	$(GTK_LIBS) \
-	$(GNOMEGNORBA_LIBS) \
-	-lpanel_applet
+	$(GNOME_APPLETS_LIBS) \
+	$(INTLLIBS) 
+
+# currently the installation of these bitmaps wouldn't be necessary
+bitmapsdir = $(datadir)/pixmaps
+bitmaps_DATA = gnome-lookuplet.xpm
+
+EXTRA_DIST = \
+	lookuplet.desktop \
+	lookuplet.gnorba \
+	$(bitmaps_DATA)
+
+sysdir = $(datadir)/applets/Network
+sys_DATA = lookuplet.desktop
+
+gnorbadir  = $(sysconfdir)/CORBA/servers
+gnorba_DATA = lookuplet.gnorba

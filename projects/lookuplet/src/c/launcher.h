@@ -1,5 +1,5 @@
 /**
- * $Id: launcher.h,v 1.1 2000/12/10 23:38:39 mdb Exp $
+ * $Id: launcher.h,v 1.2 2001/02/24 02:35:20 mdb Exp $
  */
 
 #ifndef _LAUNCHER_H_
@@ -7,13 +7,9 @@
 
 #include <glib.h>
 
-extern void
-lookuplet_launcher_init (void);
-
-extern void
-lookuplet_launcher_cleanup (void);
+#include "binding.h"
 
 extern gboolean
-lookuplet_launcher_launch (const char* terms, const char* qualifier);
+lk_launcher_launch (const LkBinding* binding, const gchar* terms);
 
 #endif /* _LAUNCHER_H_ */

@@ -1,9 +1,9 @@
 //
-// $Id: StringTool.java,v 1.6 2002/12/30 04:55:01 mdb Exp $
+// $Id: StringTool.java,v 1.7 2003/10/01 22:58:31 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -21,6 +21,7 @@
 package com.samskivert.velocity;
 
 import java.net.URLEncoder;
+import java.text.NumberFormat;
 
 import com.samskivert.servlet.util.HTMLUtil;
 import com.samskivert.util.StringUtil;
@@ -55,10 +56,29 @@ public class StringTool
     }
 
     /**
+     * Converts a number representing dollars to a currency display string.
+     */
+    public String currency (double value)
+    {
+        return _curFormatter.format(value);
+    }
+
+    /**
+     * Converts a number representing pennies to a currency display string.
+     */
+    public String currencyPennies (double value)
+    {
+        return _curFormatter.format(value/100.0);
+    }
+
+    /**
      * Adds &lt;p&gt; tags between each pair of consecutive newlines.
      */
     public String parafy (String text)
     {
         return HTMLUtil.makeParagraphs(text);
     }
+
+    protected static NumberFormat _curFormatter =
+        NumberFormat.getCurrencyInstance();
 }

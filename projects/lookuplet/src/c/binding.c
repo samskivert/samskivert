@@ -1,5 +1,22 @@
 /**
- * $Id: binding.c,v 1.1 2001/02/24 02:35:20 mdb Exp $
+ * $Id: binding.c,v 1.2 2001/08/16 20:25:09 mdb Exp $
+ * 
+ * lookuplet - a utility for quickly looking up information
+ * Copyright (C) 2001 Michael Bayne
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2.1 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include <gnome.h>
@@ -7,7 +24,6 @@
 
 static gchar* DEFAULT_BINDING_KEYS[] =
 {
-    "Control-m",
     "Control-g",
     "Control-d",
     "Control-Shift-d",
@@ -17,28 +33,28 @@ static gchar* DEFAULT_BINDING_KEYS[] =
 static LkBindingType DEFAULT_BINDING_TYPES[] =
 {
     URL,
-    URL,
     EXEC,
+    URL,
     URL,
     URL,
 };
 
 static gchar* DEFAULT_BINDING_NAMES[] =
 {
-    "MetaCrawler search",
     "Google search",
     "Dictionary lookup",
     "Debian package search",
     "Freshmeat search",
+    "IMDB Title search",
 };
 
 static gchar* DEFAULT_BINDING_ARGUMENTS[] =
 {
-    "http://search.metacrawler.com/crawler?general=%U",
     "http://www.google.com/search?client=googlet&q=%U",
     "gdict -a %T",
     "http://cgi.debian.org/cgi-bin/search_contents.pl?word=%U&case=insensitive&version=unstable&arch=i386&directories=yes",
     "http://freshmeat.net/search/?q=%U",
+    "http://www.imdb.com/Tsearch?title=%U&restrict=Movies+only"
 };
 
 #define DEFAULT_BINDING_COUNT \

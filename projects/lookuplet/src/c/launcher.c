@@ -1,5 +1,22 @@
 /**
- * $Id: launcher.c,v 1.2 2001/02/24 02:35:20 mdb Exp $
+ * $Id: launcher.c,v 1.3 2001/08/16 20:25:09 mdb Exp $
+ * 
+ * lookuplet - a utility for quickly looking up information
+ * Copyright (C) 2001 Michael Bayne
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2.1 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include <string.h>
@@ -95,14 +112,10 @@ guint g_string_replace (GString* source, const gchar* before,
 #define ENCODED_TERM_TOKEN "U"
 
 /**
- * Displays a URL with the supplied terms appropriately embedded. The URL
- * shown depends on the supplied qualifier. Each qualifier is mapped to a
- * particular URL into which the terms are substituted before loading.
- *
- * @return false if no qualifier mapping could be found for the supplied
- * qualifier.
+ * Either displays a URL or invokes an command line with the supplied
+ * terms appropriately embedded.
  */
-gboolean
+void
 lk_launcher_launch (const LkBinding* binding, const gchar* terms)
 {
     char cwdbuf[1024];
@@ -144,6 +157,4 @@ lk_launcher_launch (const LkBinding* binding, const gchar* terms)
     }
 
     g_string_free(cmd, TRUE);
-
-    return TRUE;
 }

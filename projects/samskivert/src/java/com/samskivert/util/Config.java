@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.11 2002/03/28 22:21:06 mdb Exp $
+// $Id: Config.java,v 1.12 2002/04/07 23:44:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -77,7 +77,7 @@ public class Config
             String ppath = path + PROPS_SUFFIX;
 
             // load the properties file
-            _props = ConfigUtil.loadProperties(ppath);
+            _props = ConfigUtil.loadInheritedProperties(ppath);
             if (_props == null) {
                 Log.warning("Unable to locate configuration definitions " +
                             "[path=" + path + "].");

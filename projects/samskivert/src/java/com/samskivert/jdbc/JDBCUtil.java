@@ -324,6 +324,34 @@ public class JDBCUtil
     }
 
     /**
+     * Changes a column's definition. Takes a full column definition
+     * 'cdef' (including the name of the column) with which to replace the
+     * specified column 'cname'.
+     *
+     * NOTE: A handy thing you can do with this is to rename a column by
+     * providing a column definition that has a different name, but the
+     * same column type.
+     */
+    public static void changeColumn (Connection conn, String table,
+                                     String cname, String cdef)
+        throws SQLException
+    {
+        String update = "ALTER TABLE " + table + " CHANGE " + cname + " " +
+            cdef;
+
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(update);
+            stmt.executeUpdate();
+        } finally {
+            close(stmt);
+        }
+
+        Log.info("Database column '" + cname + "' of table '" + table +
+                 "' modified to have this def '" + cdef + "'.");
+    }
+
+    /**
      * Removes a named index from the specified table.
      */
     public static void dropIndex (Connection conn, String table, String iname)

@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.5 2002/05/02 07:20:25 mdb Exp $
+// $Id: MessageManager.java,v 1.6 2003/07/04 20:34:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -217,6 +217,7 @@ public class MessageManager
                 // got real problems. time to freak out
                 Log.warning("Unable to resolve any message bundle " +
                             "[bundlePath=" + bundlePath +
+                            ", siteBundlePath=" + _siteBundlePath +
                             ", locale=" + req.getLocale() +
                             ", loader=" + loader + "].");
             }

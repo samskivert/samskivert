@@ -1,5 +1,5 @@
 //
-// $Id: CDInfoEditor.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
+// $Id: CDInfoEditor.java,v 1.3 2001/06/05 17:41:00 mdb Exp $
 
 package robodj.importer;
 
@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
+import java.util.StringTokenizer;
 
 import com.samskivert.swing.*;
 import com.samskivert.net.cddb.CDDB;
@@ -83,6 +84,16 @@ public class CDInfoEditor
 	JScrollPane tscroll = new JScrollPane(_trackTable);
 	add(tscroll);
 
+	JPanel butPanel = new JPanel(new HGroupLayout(GroupLayout.NONE));
+        JButton fixCaseBtn = new JButton("Canonicalize text");
+        fixCaseBtn.addActionListener(new ActionListener () {
+            public void actionPerformed (ActionEvent ae) {
+                fixCase();
+            }
+        });
+        butPanel.add(fixCaseBtn);
+	add(butPanel, GroupLayout.FIXED);
+
 	selectDetail(0);
     }
 
@@ -106,6 +117,91 @@ public class CDInfoEditor
 	return _tmodel.getTrackNames();
     }
 
+    /**
+     * Cleans up the case of the track, title and artist text. This
+     * currently means capitalizing every word and performing some case
+     * fixups according to an exception list.
+     */
+    public void fixCase ()
+    {
+        // clean up the title
+        String title = fixCase(_tmodel.getTitle());
+        _tmodel.setTitle(title);
+        _titText.setText(title);
+
+        // clean up the artist
+        String artist = fixCase(_tmodel.getArtist());
+        _tmodel.setArtist(artist);
+        _artText.setText(artist);
+
+        // clean up the tracks
+        String[] names = getTrackNames();
+        for (int i = 0; i < names.length; i++) {
+            _tmodel.setTrackName(i, fixCase(names[i]));
+        }
+    }
+
+    /**
+     * Fixes the case of the supplied string according to our case fixing
+     * rules.
+     */
+    protected String fixCase (String text)
+    {
+        StringTokenizer tok = new StringTokenizer(text);
+        StringBuffer ntbuf = new StringBuffer();
+        String excep;
+
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            String token = tok.nextToken();
+            if (i > 0) {
+                ntbuf.append(" ");
+            }
+
+            if ((excep = getException(token)) != null) {
+                // if this token should be overridden explicitly, do so
+                ntbuf.append(excep);
+
+            } else if (Character.isLowerCase(token.charAt(0))) {
+                // if the first character is lower case, fix it
+                ntbuf.append(Character.toUpperCase(token.charAt(0)));
+                if (token.length() > 1) {
+                    ntbuf.append(token.substring(1));
+                }
+
+            } else {
+                // otherwise don't mess with it
+                ntbuf.append(token);
+            }
+        }
+
+        // report modifications for now
+        String ntext = ntbuf.toString();
+//          if (!ntext.equals(text)) {
+//              System.out.println("Adjusted case '" + text + "' to '" +
+//                                 ntext + "'.");
+//          }
+
+        return ntext;
+    }
+
+    /**
+     * Returns the exception string for this token if there is one
+     * otherwise null.
+     */
+    protected String getException (String token)
+    {
+        // we could toLowerCase() the token and keep all this stuff in a
+        // hashtable, but the list is small and we'd rather not create a
+        // zillion objects with all those toLowerCase() calls, so we just
+        // search the exception list linearly
+        for (int i = 0; i < OVERRIDE_KEYS.length; i++) {
+            if (token.equalsIgnoreCase(OVERRIDE_KEYS[i])) {
+                return OVERRIDE_VALS[i];
+            }
+        }
+        return null;
+    }
+
     protected void selectDetail (int index)
     {
 	_tmodel.selectDetail(index);
@@ -119,4 +215,12 @@ public class CDInfoEditor
     protected JTable _trackTable;
 
     protected DetailTableModel _tmodel;
+
+    // used in case fixups
+    protected static String[] OVERRIDE_KEYS = {
+        "vs.", "dj", "/"
+    };
+    protected static String[] OVERRIDE_VALS = {
+        "vs.", "DJ", "-"
+    };
 }

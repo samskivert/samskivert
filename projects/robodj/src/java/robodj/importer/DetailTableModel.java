@@ -1,5 +1,5 @@
 //
-// $Id: DetailTableModel.java,v 1.1 2000/12/10 07:02:09 mdb Exp $
+// $Id: DetailTableModel.java,v 1.2 2001/06/05 17:41:00 mdb Exp $
 
 package robodj.importer;
 
@@ -46,6 +46,27 @@ public class DetailTableModel
     public String getArtist ()
     {
 	return _artist;
+    }
+
+    // this does not cause the UI displaying the title to update because
+    // it isn't listening to the model, we're only listening to it
+    public void setTitle (String title)
+    {
+        _title = title;
+    }
+
+    // this does not cause the UI displaying the artist to update because
+    // it isn't listening to the model, we're only listening to it
+    public void setArtist (String artist)
+    {
+        _artist = artist;
+    }
+
+    // this does cause the track display to update
+    public void setTrackName (int index, String name)
+    {
+        _names[index] = name;
+        fireTableCellUpdated(index, TITLE_COLUMN);
     }
 
     public String[] getTrackNames ()

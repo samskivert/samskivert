@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.10 2003/11/13 17:28:58 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.11 2003/11/13 18:36:52 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -144,9 +144,14 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         site.siteString = siteString;
         _repo.insertNewSite(site);
 
-        // add it to our two mapping tables
-        _sitesById.put(site.siteId, site);
-        _sitesByString.put(site.siteString, site);
+        // add it to our two mapping tables,
+        // avoiding causing enumerateSites() to choke
+        HashMap newStrings = (HashMap) _sitesByString.clone();
+        HashIntMap newIds = (HashIntMap) _sitesById.clone();
+        newIds.put(site.siteId, site);
+        newStrings.put(site.siteString, site);
+        _sitesByString = newStrings;
+        _sitesById = newIds;
 
         return site;
     }

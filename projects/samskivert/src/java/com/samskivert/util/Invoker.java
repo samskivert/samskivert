@@ -36,6 +36,9 @@ public class Invoker extends LoopingThread
      */
     public static abstract class Unit implements Runnable
     {
+        /** The time at which this unit was placed on the queue. */
+        public long queueStamp;
+
         /** The default constructor. */
         public Unit () {}
 
@@ -103,7 +106,9 @@ public class Invoker extends LoopingThread
      */
     public void postUnit (Unit unit)
     {
-        // simply append it to the queue
+        // note the time
+        unit.queueStamp = System.currentTimeMillis();
+        // and append it to the queue
         _queue.append(unit);
     }
 
@@ -115,8 +120,11 @@ public class Invoker extends LoopingThread
 
         long start;
         if (PERF_TRACK) {
+            // record the time spent on the queue as a special unit
             start = System.currentTimeMillis();
             _unitsRun++;
+            // record the time spent on the queue as a special unit
+            recordMetrics("queue_wait_time", start - unit.queueStamp);
         }
 
         try {
@@ -130,12 +138,7 @@ public class Invoker extends LoopingThread
             if (PERF_TRACK) {
                 long duration = System.currentTimeMillis() - start;
                 Object key = unit.getClass();
-                Histogram histo = (Histogram)_tracker.get(key);
-                if (histo == null) {
-                    // track in buckets of 50ms up to 500ms
-                    _tracker.put(key, histo = new Histogram(0, 50, 10));
-                }
-                histo.addValue((int)duration);
+                recordMetrics(key, duration);
 
                 // report long runners
                 if (duration > 500L) {
@@ -162,6 +165,37 @@ public class Invoker extends LoopingThread
                 return false;
             }
         });
+    }
+
+    protected void recordMetrics (Object key, long duration)
+    {
+        UnitProfile prof = (UnitProfile)_tracker.get(key);
+        if (prof == null) {
+            _tracker.put(key, prof = new UnitProfile());
+        }
+        prof.record(duration);
+    }
+
+    /** Used to track profile information on invoked units. */
+    protected static class UnitProfile
+    {
+        public void record (long duration)
+        {
+            _totalElapsed += duration;
+            _histo.addValue((int)duration);
+        }
+
+        public String toString ()
+        {
+            int count = _histo.size();
+            return _totalElapsed + "ms/" + count + " = " +
+                (_totalElapsed/count) + "ms avg " +
+                StringUtil.toString(_histo.getBuckets());
+        }
+
+        // track in buckets of 50ms up to 500ms
+        protected Histogram _histo = new Histogram(0, 50, 10);
+        protected long _totalElapsed;
     }
 
     /** The invoker's queue of units to be executed. */

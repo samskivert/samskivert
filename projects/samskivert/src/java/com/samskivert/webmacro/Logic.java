@@ -1,5 +1,5 @@
 //
-// $Id: Logic.java,v 1.1 2001/03/01 21:06:22 mdb Exp $
+// $Id: Logic.java,v 1.2 2001/03/04 06:37:51 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -22,9 +22,11 @@ public interface Logic
      * converted into friendly error messages using the exception mapping
      * services.
      *
+     * @param app The application that generated this logic instance (used
+     * to access application-wide resources).
      * @param context The WebMacro context in scope for this request.
      *
      * @see ExceptionMap
      */
-    public void invoke (WebContext context) throws Exception;
+    public void invoke (Application app, WebContext context) throws Exception;
 }

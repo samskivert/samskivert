@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.8 2001/03/04 06:22:17 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.9 2001/03/04 06:37:51 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -186,7 +186,7 @@ public class DispatcherServlet extends WMServlet
                     }
 
                     // now initialize the applicaiton
-                    app.setConfig(baseURI, basePkg);
+                    app.preInit(baseURI, basePkg);
                     app.init(getServletContext());
 
                     // finally add it to our list
@@ -240,7 +240,7 @@ public class DispatcherServlet extends WMServlet
                 // execute it if it exists
                 Logic logic = resolveLogic(app, path);
                 if (logic != null) {
-                    logic.invoke(ctx);
+                    logic.invoke(app, ctx);
                 }
 	    }
 

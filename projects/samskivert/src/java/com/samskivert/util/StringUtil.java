@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.21 2002/02/02 00:03:14 mdb Exp $
+// $Id: StringUtil.java,v 1.22 2002/02/02 09:51:19 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -296,6 +296,22 @@ public class StringUtil
         }
 
         return buf.append("]").toString();
+    }
+
+    /**
+     * Attempts to generate a string representation of the object using
+     * <code>object.toString()</code>, but catches any exceptions that are
+     * thrown and reports them in the returned string instead. Useful for
+     * situations where you can't trust the rat bastards that implemented
+     * the object you're toString()ing.
+     */
+    public static String safeToString (Object object)
+    {
+        try {
+            return object.toString();
+        } catch (Exception e) {
+            return "<toString() failure: " + e + ">";
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.7 2001/03/04 06:15:39 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.8 2001/03/04 06:22:17 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -22,6 +22,7 @@ import org.webmacro.servlet.WMServlet;
 import org.webmacro.servlet.WebContext;
 
 import com.samskivert.Log;
+import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;
@@ -222,12 +223,14 @@ public class DispatcherServlet extends WMServlet
 	// assume an HTML response unless otherwise massaged by the logic
 	ctx.getResponse().setContentType("text/html");
 
-	// then we populate the context with data
-	try {
-            String path = cleanupURI(ctx.getRequest().getRequestURI());
+        // select the proper application for the request
+        String path = cleanupURI(ctx.getRequest().getRequestURI());
+        Application app = selectApplication(path);
+        String errmsg = null;
 
-            // select the proper application for the request
-            Application app = selectApplication(path);
+	try {
+            // if we don't have a matching app, we'll just execute the
+            // template as is without first invoking a logic object
             if (app != null) {
                 // insert the application into the web context in case the
                 // logic or a tool wishes to make use of it
@@ -250,12 +253,26 @@ public class DispatcherServlet extends WMServlet
 	    }
 
 	} catch (FriendlyException fe) {
-	    ctx.put(ERROR_KEY, fe.getMessage());
+            // grab the error message, we'll deal with it shortly
+            errmsg = fe.getMessage();
 
 	} catch (Exception e) {
-	    ctx.put(ERROR_KEY, ExceptionMap.getMessage(e));
+            errmsg = ExceptionMap.getMessage(e);
 	    Log.logStackTrace(e);
 	}
+
+        // if we have an error message, insert it into the template
+        if (errmsg != null) {
+            // if we have an application, try using it to localize the
+            // error message before we insert it
+            if (app != null) {
+                MessageManager msgmgr = app.getMessageManager();
+                if (msgmgr != null) {
+                    errmsg = msgmgr.getMessage(ctx.getRequest(), errmsg);
+                }
+            }
+	    ctx.put(ERROR_KEY, errmsg);
+        }
 
 	return tmpl;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.23 2002/02/03 02:07:26 shaper Exp $
+// $Id: StringUtil.java,v 1.24 2002/02/03 02:11:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -350,7 +350,7 @@ public class StringUtil
      */
     public static String hexlate (byte[] bytes)
     {
-        return hexlate(bytes, bytes.length);
+        return (bytes == null) ? "" : hexlate(bytes, bytes.length);
     }
 
     /**

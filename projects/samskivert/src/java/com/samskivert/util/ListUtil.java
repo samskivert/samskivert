@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.10 2002/10/23 23:31:32 mdb Exp $
+// $Id: ListUtil.java,v 1.11 2002/12/12 00:29:39 mdb Exp $
 
 package com.samskivert.util;
 
@@ -156,6 +156,23 @@ public class ListUtil
 
     /**
      * Searches through the list checking to see if the element supplied
+     * is already in the list (using reference equality to check for
+     * existence) and adds it if it is not.
+     *
+     * @param list the list to which to add the element. Can be null.
+     * @param element the element to test and add.
+     *
+     * @return a reference to the list with element added (might not be
+     * the list you passed in due to expansion, or allocation) or null if
+     * the element was already in the original array.
+     */
+    public static Object[] testAndAdd (Object[] list, Object element)
+    {
+        return testAndAdd(REFERENCE_COMP, list, element);
+    }
+
+    /**
+     * Searches through the list checking to see if the element supplied
      * is already in the list (using <code>equals()</code> to check for
      * equality) and adds it if it is not.
      *
@@ -166,7 +183,14 @@ public class ListUtil
      * the list you passed in due to expansion, or allocation) or null if
      * the element was already in the original array.
      */
-    public static Object[] testAndAdd (Object[] list, Object element)
+    public static Object[] testAndAddEqual (Object[] list, Object element)
+    {
+        return testAndAdd(EQUALS_COMP, list, element);
+    }
+
+    /** Helper function for {@link #testAndAdd}, etc. */
+    protected static Object[] testAndAdd (
+        EqualityComparator eqc, Object[] list, Object element)
     {
         // make sure we've got a list to work with
         if (list == null) {
@@ -186,7 +210,7 @@ public class ListUtil
                     index = i;
                 }
 
-            } else if (elem.equals(element)) {
+            } else if (eqc.equals(elem, element)) {
                 // oops, it's already in the list
                 return null;
             }
@@ -214,17 +238,7 @@ public class ListUtil
      */
     public static boolean contains (Object[] list, Object element)
     {
-        if (list == null) {
-            return false;
-        }
-
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            if (list[i] == element) {
-                return true;
-            }
-        }
-        return false;
+        return contains(REFERENCE_COMP, list, element);
     }
 
     /**
@@ -238,6 +252,13 @@ public class ListUtil
      */
     public static boolean containsEqual (Object[] list, Object element)
     {
+        return contains(EQUALS_COMP, list, element);
+    }
+
+    /** Helper function for {@link #contains}, etc. */
+    protected static boolean contains (
+        EqualityComparator eqc, Object[] list, Object element)
+    {
         if (list == null) {
             return false;
         }
@@ -245,10 +266,11 @@ public class ListUtil
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
-            if (elem != null && elem.equals(element)) {
+            if (eqc.equals(elem, element)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -264,13 +286,7 @@ public class ListUtil
      */
     public static int indexOf (Object[] list, Object element)
     {
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            if (list[i] == element) {
-                return i;
-            }
-        }
-        return -1;
+        return indexOf(REFERENCE_COMP, list, element);
     }
 
     /**
@@ -285,10 +301,17 @@ public class ListUtil
      */
     public static int indexOfEqual (Object[] list, Object element)
     {
+        return indexOf(EQUALS_COMP, list, element);
+    }
+
+    /** Helper function for {@link #indexOf}, etc. */
+    protected static int indexOf (
+        EqualityComparator eqc, Object[] list, Object element)
+    {
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
-            if (elem != null && elem.equals(element)) {
+            if (eqc.equals(elem, element)) {
                 return i;
             }
         }
@@ -306,20 +329,7 @@ public class ListUtil
      */
     public static Object clear (Object[] list, Object element)
     {
-        // nothing to clear from an empty list
-        if (list == null) {
-            return null;
-        }
-
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            Object elem = list[i];
-            if (elem == element) {
-                list[i] = null;
-                return elem;
-            }
-        }
-        return null;
+        return clear(REFERENCE_COMP, list, element);
     }
 
     /**
@@ -334,6 +344,13 @@ public class ListUtil
      */
     public static Object clearEqual (Object[] list, Object element)
     {
+        return clear(EQUALS_COMP, list, element);
+    }
+
+    /** Helper function for {@link #clear}, etc. */
+    protected static Object clear (
+        EqualityComparator eqc, Object[] list, Object element)
+    {
         // nothing to clear from an empty list
         if (list == null) {
             return null;
@@ -342,7 +359,7 @@ public class ListUtil
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
-            if (elem != null && elem.equals(element)) {
+            if (eqc.equals(elem, element)) {
                 list[i] = null;
                 return elem;
             }
@@ -361,21 +378,7 @@ public class ListUtil
      */
     public static Object remove (Object[] list, Object element)
     {
-        // nothing to remove from an empty list
-        if (list == null) {
-            return null;
-        }
-
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            Object elem = list[i];
-            if (elem == element) {
-                System.arraycopy(list, i+1, list, i, llength-(i+1));
-                list[llength-1] = null;
-                return elem;
-            }
-        }
-        return null;
+        return remove(REFERENCE_COMP, list, element);
     }
 
     /**
@@ -392,6 +395,13 @@ public class ListUtil
      */
     public static Object removeEqual (Object[] list, Object element)
     {
+        return remove(EQUALS_COMP, list, element);
+    }
+
+    /** Helper function for {@link #remove}, etc. */
+    protected static Object remove (
+        EqualityComparator eqc, Object[] list, Object element)
+    {
         // nothing to remove from an empty list
         if (list == null) {
             return null;
@@ -400,7 +410,7 @@ public class ListUtil
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
-            if (elem != null && elem.equals(element)) {
+            if (eqc.equals(elem, element)) {
                 System.arraycopy(list, i+1, list, i, llength-(i+1));
                 list[llength-1] = null;
                 return elem;
@@ -531,6 +541,29 @@ public class ListUtil
                                StringUtil.toString(list));
         }
     }
+
+    /** Used to allow the same code to optionally use reference equality
+     * and {@link Object#equals}.equality. */
+    protected static interface EqualityComparator
+    {
+        public boolean equals (Object o1, Object o2);
+    }
+
+    protected static final EqualityComparator REFERENCE_COMP =
+        new EqualityComparator() {
+            public boolean equals (Object o1, Object o2)
+            {
+                return o1 == o2;
+            }
+        };
+
+    protected static final EqualityComparator EQUALS_COMP =
+        new EqualityComparator() {
+            public boolean equals (Object o1, Object o2)
+            {
+                return (o1 == null) ? (o1 == o2) : o1.equals(o2);
+            }
+        };
 
     /**
      * The size of a list to create if we have to create one entirely

@@ -1,5 +1,5 @@
 //
-// $Id: CDDB.java,v 1.2 2000/10/23 07:32:12 mdb Exp $
+// $Id: CDDB.java,v 1.3 2000/10/23 07:37:43 mdb Exp $
 
 package com.samskivert.net.cddb;
 
@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * The CDDB class provides access to the information provided by servers
@@ -23,10 +24,14 @@ public class CDDB
     public static final int STANDARD_PORT = 888;
 
     /**
-     * The client name and version reported to the CDDB server.
+     * The client name reported to the CDDB server.
      */
-    public static final String CLIENT_NAME_AND_VERSION =
-	"TSP/CDDB_client $Revision: 1.2 $";
+    public static final String CLIENT_NAME = "TSP/CDDB_client";
+
+    /**
+     * The client version reported to the CDDB server.
+     */
+    public static String CLIENT_VERSION; // assigned during static init
 
     public class Entry
     {
@@ -138,7 +143,8 @@ public class CDDB
 	StringBuffer req = new StringBuffer("cddb hello ");
 	req.append(username).append(" ");
 	req.append(localhost).append(" ");
-	req.append(CLIENT_NAME_AND_VERSION);
+	req.append(CLIENT_NAME).append(" ");
+	req.append(CLIENT_VERSION);
 
 	Response rsp = request(req.toString());
 
@@ -464,6 +470,18 @@ public class CDDB
 	}
 
 	return rsp;
+    }
+
+    /**
+     * The client version number is extracted from the version control
+     * revision of this file from a string that is managed by the version
+     * control system.
+     */
+    static
+    {
+	StringTokenizer tok = new StringTokenizer("$Revision: 1.3 $");
+	tok.nextToken();
+	CLIENT_VERSION = tok.nextToken();
     }
 
     protected Socket _sock;

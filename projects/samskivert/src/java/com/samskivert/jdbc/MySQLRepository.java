@@ -1,5 +1,5 @@
 //
-// $Id: MySQLRepository.java,v 1.6 2001/05/30 17:02:52 mdb Exp $
+// $Id: MySQLRepository.java,v 1.7 2001/06/01 07:15:05 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -70,7 +70,6 @@ public abstract class MySQLRepository extends Repository
 	String msg = sqe.getMessage();
 	return (msg != null &&
                 (msg.indexOf("Lost connection") != -1 ||
-                 msg.indexOf("Communication link failure") != -1 ||
                  msg.indexOf("Broken pipe") != -1));
     }
 }

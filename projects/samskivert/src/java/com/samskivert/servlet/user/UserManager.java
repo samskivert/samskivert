@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.21 2003/10/13 23:16:41 mdb Exp $
+// $Id: UserManager.java,v 1.22 2003/10/14 01:49:10 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -248,7 +248,7 @@ public class UserManager
         String domain = req.getServerName();
         int didx = domain.indexOf(".");
         if (didx != -1) {
-            domain = domain.substring(0, didx);
+            domain = domain.substring(didx);
         }
         acookie.setDomain(domain);
 	acookie.setPath("/");

@@ -62,6 +62,10 @@ public class StringTool
 
     /**
      * Convert a float to a nicely formated percent string.
+     * Examples:
+     * .34     "34.00%"
+     * .341    "34.10%"
+     * .34121  "34.121%"
      */
     public String percent (float value)
     {

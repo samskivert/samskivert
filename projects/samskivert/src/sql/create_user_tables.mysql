@@ -1,5 +1,5 @@
 /**
- * $Id: create_user_tables.mysql,v 1.1 2001/03/02 01:22:46 mdb Exp $
+ * $Id: create_user_tables.mysql,v 1.2 2001/11/01 00:07:19 mdb Exp $
  *
  * Creates the necessary database tables in MySQL for the user repository.
  */
@@ -9,12 +9,13 @@
  */
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
-       userid      INTEGER(10) PRIMARY KEY AUTO_INCREMENT,
+       userId      INTEGER(10) PRIMARY KEY AUTO_INCREMENT,
        username    VARCHAR(24) NOT NULL,
        password    VARCHAR(13) NOT NULL,
        email       VARCHAR(128) NOT NULL,
        realname    VARCHAR(128) NOT NULL,
        created     DATE NOT NULL,
+       siteId      INTEGER(5) NOT NULL,
 
        UNIQUE INDEX username_index (username)
 );
@@ -28,9 +29,9 @@ CREATE TABLE users (
  */
 DROP TABLE IF EXISTS sessions;
 CREATE TABLE sessions (
-       sessionid INTEGER(10) PRIMARY KEY AUTO_INCREMENT,
+       sessionId INTEGER(10) PRIMARY KEY AUTO_INCREMENT,
        authcode  VARCHAR(32) NOT NULL,
-       userid    INTEGER(10) NOT NULL,
+       userId    INTEGER(10) NOT NULL,
        expires	 DATE NOT NULL,
 
        UNIQUE INDEX authcode_index (authcode)

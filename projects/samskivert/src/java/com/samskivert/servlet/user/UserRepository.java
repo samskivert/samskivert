@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.18 2001/09/21 03:01:46 mdb Exp $
+// $Id: UserRepository.java,v 1.19 2001/11/01 00:07:18 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -31,6 +31,7 @@ import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.*;
 import com.samskivert.jdbc.jora.*;
+import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.util.HashIntMap;
 
 /**
@@ -64,24 +65,29 @@ public class UserRepository extends JORARepository
     {
 	// create our table object
 	_utable = new Table(User.class.getName(), "users", session,
-			    "userid");
+			    "userId");
     }
 
     /**
      * Requests that a new user be created in the repository.
      *
-     * @param username The username of the new user to create. Usernames
+     * @param username the username of the new user to create. Usernames
      * must consist only of characters that match the following regular
      * expression: <code>[_A-Za-z0-9]+</code> and be longer than two
      * characters.
-     * @param password The (unencrypted) password for the new user.
-     * @param realname The user's real name.
-     * @param email The user's email address.
+     * @param password the (unencrypted) password for the new user.
+     * @param realname the user's real name.
+     * @param email the user's email address.
+     * @param siteId the unique identifier of the site through which this
+     * account is being created. The resulting user will be tracked as
+     * originating from this site for accounting purposes ({@link
+     * SiteIdentifier#DEFAULT_SITE_ID} can be used by systems that don't
+     * desire to perform site tracking.
      *
      * @return The userid of the newly created user.
      */
     public int createUser (String username, String password,
-			   String realname, String email)
+			   String realname, String email, int siteId)
 	throws InvalidUsernameException, UserExistsException,
         PersistenceException
     {
@@ -102,6 +108,7 @@ public class UserRepository extends JORARepository
 	user.realname = realname;
 	user.email = email;
 	user.created = new Date(System.currentTimeMillis());
+        user.siteId = siteId;
 
         execute(new Operation () {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
@@ -110,7 +117,7 @@ public class UserRepository extends JORARepository
                 try {
 		    _utable.insert(user);
 		    // update the userid now that it's known
-		    user.userid = liaison.lastInsertedId(conn);
+		    user.userId = liaison.lastInsertedId(conn);
                     // nothing to return
                     return null;
 
@@ -124,7 +131,7 @@ public class UserRepository extends JORARepository
             }
         });
 
-	return user.userid;
+	return user.userId;
     }
 
     /**
@@ -162,7 +169,7 @@ public class UserRepository extends JORARepository
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public User loadUser (final int userid)
+    public User loadUser (final int userId)
 	throws PersistenceException
     {
         return (User)execute(new Operation () {
@@ -170,7 +177,7 @@ public class UserRepository extends JORARepository
                 throws PersistenceException, SQLException
             {
                 // look up the user
-                Cursor ec = _utable.select("where userid = " + userid);
+                Cursor ec = _utable.select("where userId = " + userId);
 
                 // fetch the user from the cursor
                 User user = (User)ec.next();
@@ -198,7 +205,7 @@ public class UserRepository extends JORARepository
                 throws PersistenceException, SQLException
             {
                 String query = "where authcode = '" + sessionKey +
-                    "' AND sessions.userid = users.userid";
+                    "' AND sessions.userId = users.userId";
                 // look up the user
                 Cursor ec = _utable.select("sessions", query);
 
@@ -273,8 +280,8 @@ public class UserRepository extends JORARepository
                 throws PersistenceException, SQLException
 	    {
 		_session.execute("insert into sessions " +
-				 "(authcode, userid, expires) values('" +
-				 authcode + "', " + user.userid + ", '" +
+				 "(authcode, userId, expires) values('" +
+				 authcode + "', " + user.userId + ", '" +
 				 expires + "')");
                 // nothing to return
                 return null;
@@ -308,10 +315,10 @@ public class UserRepository extends JORARepository
      * ids and returns them in an array. If any users do not exist, their
      * slot in the array will contain a null.
      */
-    public String[] loadUserNames (int[] userids)
+    public String[] loadUserNames (int[] userIds)
 	throws PersistenceException
     {
-	return loadNames(userids, "username");
+	return loadNames(userIds, "username");
     }
 
     /**
@@ -319,27 +326,27 @@ public class UserRepository extends JORARepository
      * ids and returns them in an array. If any users do not exist, their
      * slot in the array will contain a null.
      */
-    public String[] loadRealNames (int[] userids)
+    public String[] loadRealNames (int[] userIds)
 	throws PersistenceException
     {
-	return loadNames(userids, "realname");
+	return loadNames(userIds, "realname");
     }
 
-    protected String[] loadNames (int[] userids, final String column)
+    protected String[] loadNames (int[] userIds, final String column)
 	throws PersistenceException
     {
         // if userids is zero length, we've got no work to do
-        if (userids.length == 0) {
+        if (userIds.length == 0) {
             return new String[0];
         }
 
 	// build up the string we need for the query
 	final StringBuffer ids = new StringBuffer();
-	for (int i = 0; i < userids.length; i++) {
+	for (int i = 0; i < userIds.length; i++) {
 	    if (ids.length() > 0) {
 		ids.append(", ");
 	    }
-	    ids.append(userids[i]);
+	    ids.append(userIds[i]);
 	}
 
 	final HashIntMap map = new HashIntMap();
@@ -351,14 +358,14 @@ public class UserRepository extends JORARepository
             {
                 Statement stmt = _session.connection.createStatement();
                 try {
-                    String query = "select userid, " + column +
+                    String query = "select userId, " + column +
                         " from users " +
-                        "where userid in (" + ids + ")";
+                        "where userId in (" + ids + ")";
                     ResultSet rs = stmt.executeQuery(query);
                     while (rs.next()) {
-                        int userid = rs.getInt(1);
+                        int userId = rs.getInt(1);
                         String name = rs.getString(2);
-                        map.put(userid, name);
+                        map.put(userId, name);
                     }
 
                     // nothing to return
@@ -371,9 +378,9 @@ public class UserRepository extends JORARepository
         });
 
 	// finally construct our result
-	String[] result = new String[userids.length];
-	for (int i = 0; i < userids.length; i++) {
-	    result[i] = (String)map.get(userids[i]);
+	String[] result = new String[userIds.length];
+	for (int i = 0; i < userIds.length; i++) {
+	    result[i] = (String)map.get(userIds[i]);
 	}
 
 	return result;
@@ -437,9 +444,11 @@ public class UserRepository extends JORARepository
 	    System.out.println(rep.loadUserBySession("auth"));
 
 	    rep.createUser("samskivert", "foobar", "Michael Bayne",
-			   "mdb@samskivert.com");
+			   "mdb@samskivert.com",
+                           SiteIdentifier.DEFAULT_SITE_ID);
 	    rep.createUser("mdb", "foobar", "Michael Bayne",
-			   "mdb@samskivert.com");
+			   "mdb@samskivert.com",
+                           SiteIdentifier.DEFAULT_SITE_ID);
 
 	    scp.shutdown();
 

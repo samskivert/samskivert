@@ -1,5 +1,5 @@
 //
-// $Id: User.java,v 1.3 2001/08/11 22:43:28 mdb Exp $
+// $Id: User.java,v 1.4 2001/11/01 00:07:18 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -35,7 +35,7 @@ import java.sql.Date;
 public class User
 {
     /** The user's assigned integer userid. */
-    public int userid;
+    public int userId;
 
     /** The user's chosen username. */
     public String username;
@@ -43,10 +43,8 @@ public class User
     /** The date this record was created. */
     public Date created;
 
-    /**
-     * The user's real name (first, last and whatever else they opt to
-     * provide).
-     */
+    /** The user's real name (first, last and whatever else they opt to
+     * provide). */
     public String realname;
 
     /** The user's chosen password (encrypted). */
@@ -54,6 +52,10 @@ public class User
 
     /** The user's email address. */
     public String email;
+
+    /** The site identifier of the site through which the user created
+     * their account. (Their affiliation, if you will.) */
+    public int siteId;
 
     /**
      * Updates the user's real name.

@@ -1,5 +1,5 @@
 //
-// $Id: SetNextFieldRule.java,v 1.1 2001/11/29 18:11:42 mdb Exp $
+// $Id: SetNextFieldRule.java,v 1.2 2001/11/29 21:29:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -59,6 +59,18 @@ public class SetNextFieldRule extends Rule
         // stuff the child object into the field of the parent
         Field field = pclass.getField(_fieldName);
         field.set(parent, child);
+    }
+
+    /**
+     * Render a printable version of this rule.
+     */
+    public String toString ()
+    {
+        StringBuffer sb = new StringBuffer("SetNextFieldRule[");
+        sb.append("fieldName=");
+        sb.append(_fieldName);
+        sb.append("]");
+        return (sb.toString());
     }
 
     protected String _fieldName;

@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.2 2001/12/20 02:00:12 mdb Exp $
+// $Id: LabelDemo.java,v 1.3 2002/06/20 23:45:15 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -22,11 +22,15 @@ public class LabelDemo extends JPanel
         _labelOne.setFont(font);
         _labelOne.setTargetWidth(100);
         _labelOne.setAlignment(Label.RIGHT);
+        _labelOne.setOutlineColor(Color.white);
+        _labelOne.setFont(new Font("Dialog", Font.PLAIN, 12));
 
         _labelTwo = new Label(text);
         _labelTwo.setFont(font);
         _labelTwo.setTargetHeight(30);
         _labelTwo.setAlignment(Label.CENTER);
+        _labelTwo.setOutlineColor(Color.white);
+        _labelTwo.setFont(new Font("Dialog", Font.PLAIN, 12));
     }
 
     public void layout ()
@@ -52,29 +56,29 @@ public class LabelDemo extends JPanel
         Dimension size;
         int x = 10, y = 10;
 
+        size = _labelZero.getSize();
+        g2.setColor(Color.white);
+        g2.fillRect(x, y, size.width, size.height);
         g2.setColor(Color.black);
         _labelZero.render(g2, x, y);
-        g2.setColor(Color.red);
-        size = _labelZero.getSize();
-        g2.drawRect(x, y, size.width, size.height);
 
         y += 20;
+        size = _labelTwo.getSize();
+        g2.setColor(Color.white);
+        g2.fillRect(x, y, size.width, 30);
+        g2.setColor(Color.gray);
+        g2.fillRect(x, y, size.width, size.height);
         g2.setColor(Color.black);
         _labelTwo.render(g2, x, y);
-        g2.setColor(Color.red);
-        size = _labelTwo.getSize();
-        g2.drawRect(x, y, size.width, size.height);
-        g2.setColor(Color.blue);
-        g2.drawRect(x, y, size.width, 30);
 
         y += 40;
+        size = _labelOne.getSize();
+        g2.setColor(Color.white);
+        g2.fillRect(x, y, 100, size.height);
+        g2.setColor(Color.gray);
+        g2.fillRect(x, y, size.width, size.height);
         g2.setColor(Color.black);
         _labelOne.render(g2, x, y);
-        g2.setColor(Color.red);
-        size = _labelOne.getSize();
-        g2.drawRect(x, y, size.width, size.height);
-        g2.setColor(Color.blue);
-        g2.drawRect(x, y, 100, size.height);
     }
 
     public Dimension getPreferredSize ()

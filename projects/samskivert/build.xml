@@ -46,6 +46,7 @@
              packagenames="com.samskivert.*"
              destdir="${javadoc.home}">
       <classpath refid="classpath"/>
+      <link href="http://java.sun.com/products/jdk/1.3/docs/api"/>
     </javadoc>
   </target>
 

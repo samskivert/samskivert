@@ -50,7 +50,7 @@ $xcats.clear()
 &nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
 #end
 </td>
-<td valign="top" $border>$task.getDisplayCategory()</td>
+<td valign="top" $border>$task.complexity</td>
 <td valign="top" $border><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0" alt="Edit this task"></a></td>
 </tr>

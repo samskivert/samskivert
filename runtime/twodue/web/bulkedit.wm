@@ -13,7 +13,7 @@ Priority:
 <select name="priority">
 #set ($dpri = "15")
   $form.option("priority", "50", "Urgent", $dpri)
-  $form.option("priority", "25", "Next release", $dpri)
+  $form.option("priority", "25", "Next up", $dpri)
   $form.option("priority", "15", "Near term", $dpri)
   $form.option("priority", "10", "Medium term", $dpri)
   $form.option("priority", "5", "Long term", $dpri)
@@ -55,7 +55,7 @@ $xcats.clear()
 <td valign="top"><select name="priority$id">
 #set ($cpri = $string.valueOf($task.priority))
   $form.option("priority$id", "50", "Urgent", $cpri)
-  $form.option("priority$id", "25", "Next release", $cpri)
+  $form.option("priority$id", "25", "Next up", $cpri)
   $form.option("priority$id", "15", "Near term", $cpri)
   $form.option("priority$id", "10", "Medium term", $cpri)
   $form.option("priority$id", "5", "Long term", $cpri)

@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceManager.java,v 1.1 2001/11/06 04:49:32 mdb Exp $
+// $Id: SiteResourceManager.java,v 1.2 2001/11/06 05:22:39 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -67,6 +67,12 @@ public class SiteResourceManager extends ResourceManagerImpl
         // create our resource loaders
         _siteLoader = new SiteResourceLoader(_ident, _sctx);
         _contextLoader = new ServletContextResourceLoader(_sctx);
+
+        // for now, turn caching on with the expectation that new
+        // resources of any sort will result in the entire web application
+        // being reloaded and clearing out the cache
+        _siteLoader.setCachingOn(true);
+        _contextLoader.setCachingOn(true);
     }
 
     protected Resource loadResource(

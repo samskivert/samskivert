@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+#
+# $Id: mpcmd,v 1.1 2001/03/22 02:41:36 mdb Exp $
+#
+# Appends the supplied song or songs to the playlist of a running MP3
+# daemon.
+
+use strict;
+use IO::Socket;
+
+my $usage = "Usage: $0 COMMAND [ARGUMENT ...]\n";
+my $command = shift or die $usage;
+
+my $port = 2500;
+my $sock = new IO::Socket::INET(PeerAddr => "localhost",
+                                PeerPort => $port,
+                                Proto => "tcp");
+
+# send the command
+print $sock "$command " . join(" ", @ARGV) . "\n";
+
+# PLAYLIST has a multiline response, others are single line
+if ($command eq "PLAYLIST") {
+    my $rsp = <$sock>;
+    print $rsp;
+    if ($rsp =~ m/200 Playlist songs: (\d+)/) {
+        my $i;
+        for ($i = 0; $i < $1; $i++) {
+            print scalar <$sock>;
+        }
+    }
+
+} else {
+    print scalar <$sock>;
+}
+
+close $sock;

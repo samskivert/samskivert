@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+#
+# $Id: append,v 1.1 2001/03/22 02:41:36 mdb Exp $
+#
+# Appends the supplied song or songs to the playlist of a running MP3
+# daemon.
+
+use strict;
+use IO::Socket;
+
+my $usage = "Usage: $0 mp3_file [mp3_file ...]\n";
+my $path = shift or die $usage;
+
+my $port = 2500;
+my $sock = new IO::Socket::INET(PeerAddr => "localhost",
+                                PeerPort => $port,
+                                Proto => "tcp");
+
+do {
+    # send the command
+    print $sock "APPEND $path\n";
+    # print the response
+    print scalar <$sock>;
+} while ($path = shift);
+
+close $sock;

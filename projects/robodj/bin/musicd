@@ -1,0 +1,166 @@
+#!/usr/bin/perl -w
+#
+# $Id: musicd,v 1.1 2001/03/22 02:41:36 mdb Exp $
+#
+# MP3 audio server. Manages playlists of mp3 files that live on a local
+# filesystem. The playlsits can be manipulated by connecting to the server
+# on a port and issuing simple text commands.
+
+use strict;
+use IO::Socket;
+use IO::Select;
+use MPEG::MP3Play;
+
+# this is what's currently being played
+my $playing;
+# this is our primary playlist
+my @playlist;
+# this is our current index into the playlist
+my $index = -1;
+# this is our handle on the MP3 player object
+my $mp3;
+
+main: {
+    # create the server part of things
+    my $sock = new IO::Socket::INET(LocalHost => "localhost",
+                                    LocalPort => 2500,
+                                    Proto => "tcp",
+                                    Listen => SOMAXCONN,
+                                    Reuse => 1);
+    $sock or die "Unable to create server socket: $!\n";
+
+    # create our MP3 interface
+    $mp3 = new MPEG::MP3Play;
+
+    # manage our various inputs
+    my $sel = new IO::Select($sock);
+    my $mph = $mp3->get_command_read_pipe();
+    $sel->add($mph);
+
+    # do our main loop thang
+    my (@ready, $fh);
+    while (@ready = $sel->can_read()) {
+        foreach $fh (@ready) {
+            if ($fh == $mph) {
+                $mp3->process_messages_nowait();
+
+            } elsif ($fh == $sock) {
+                $sel->add($sock->accept());
+
+            } else {
+                # if handle_client() returns false, we remove this client from
+                # the select list and close the socket
+                if (!handle_client($fh)) {
+                    $sel->remove($fh);
+                    $fh->close();
+                }
+            }
+        }
+    }
+}
+
+# handles input from a client
+sub handle_client
+{
+    my ($cfh) = @_;
+
+    # see what the client has to say
+    my $input = <$cfh>;
+
+    if (defined $input) {
+        # remove trailing cr/nl
+        $input =~ s:[\r\n]+$::g;
+    } else {
+        # bail out if the socket is closed
+        return 0;
+    }
+
+    # parse and process the command
+    if ($input =~ m/^APPEND (.*)/) {
+        # append this song to the playlist
+        my $path = $1;
+
+        # make sure the file they provided exists and is readable
+        if (-r $path) {
+            push @playlist, $path;
+            print $cfh "200 Appended '$path' to playlist.\n";
+        } else {
+            print $cfh "404 Unable to read playlist candidate: '$path'\n";
+        }
+
+        # if we're not playing a song, start playing now that we have a
+        # playlist with songs in it
+        if (!defined $playing) {
+            play_next_tune();
+        }
+
+    } elsif ($input =~ m/^CLEAR/) {
+        # clear out the current playlist and reset the playing index
+        @playlist = ();
+        $index = -1;
+        print $cfh "200 Playlist cleared.\n";
+
+    } elsif ($input =~ m/^PLAYLIST/) {
+        print $cfh "200 Playlist songs: " . @playlist .
+            " current: $playing\n";
+        my $path;
+        foreach $path (@playlist) {
+            print $cfh "$path\n";
+        }
+        return 1;
+
+    } elsif ($input =~ m/^STOP/) {
+        $mp3->stop();
+        print $cfh "200 Music stopped.\n";
+
+    } elsif ($input =~ m/^PLAY/) {
+        $mp3->play();
+        print $cfh "200 Music started.\n";
+
+    } elsif ($input =~ m/^PAUSE/) {
+        $mp3->pause();
+        print $cfh "200 Music paused (use PLAY to unpause).\n";
+
+    } elsif ($input =~ m/^CLOSE/) {
+        print $cfh "200 Bye bye.\n";
+        return 0;
+
+    } else {
+        print $cfh "500 Unknown command: '$input'\n";
+    }
+
+    return 1;
+}
+
+sub play_next_tune
+{
+    # bail if the playlist is empty
+    if (@playlist == 0) {
+        $index = -1;
+        undef $playing;
+        return;
+    }
+
+    # advance the playlist pointer (wrapping around at the end because we
+    # always loop)
+    $index = ($index + 1) % @playlist;
+    $playing = $playlist[$index];
+
+    # open it
+    $mp3->open($playing);
+
+    # and play it
+    $mp3->play();
+}
+
+# message handlers
+package MPEG::MP3Play;
+
+sub msg_notify_player_state
+{
+    my ($mp3, $msg) = @_;
+    # play the next tune if we hit the end of this one
+  main::play_next_tune()
+      if ($msg->{state} == &XA_PLAYER_STATE_EOF);
+    return 1;
+}

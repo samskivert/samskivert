@@ -62,6 +62,14 @@ if (opendir(DIR, "$root/lib")) {
     closedir DIR;
 }
 
+# any zip or jar files in our lib/ directory get added to the class path
+if (opendir(DIR, "/usr/share/java")) {
+    foreach $lib (grep { /.(zip|jar)/ && -f "/usr/share/java/$_" } readdir(DIR)) {
+	$classpath .= ":/usr/share/java/$lib";
+    }
+    closedir DIR;
+}
+
 # specify our server root (this is for server code)
 my $serverroot = "-Dserver.root=$root";
 

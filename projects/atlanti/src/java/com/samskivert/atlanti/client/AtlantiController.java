@@ -8,9 +8,9 @@ import com.samskivert.util.ListUtil;
 
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.dobj.ElementAddedEvent;
-import com.threerings.presents.dobj.ElementRemovedEvent;
-import com.threerings.presents.dobj.ElementUpdatedEvent;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.SetListener;
 
@@ -18,8 +18,12 @@ import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.client.PlaceView;
 
+import com.threerings.parlor.game.GameController;
 import com.threerings.parlor.turn.TurnGameController;
+import com.threerings.parlor.turn.TurnGameControllerDelegate;
 import com.threerings.parlor.util.ParlorContext;
+
+import com.threerings.micasa.util.MiCasaContext;
 
 import com.threerings.venison.Log;
 
@@ -27,9 +31,17 @@ import com.threerings.venison.Log;
  * The main coordinator of user interface activities on the client-side of
  * the Venison game.
  */
-public class VenisonController
-    extends TurnGameController implements VenisonCodes, SetListener
+public class VenisonController extends GameController
+    implements TurnGameController, VenisonCodes, SetListener
 {
+    /**
+     * Creates our controller and prepares it for operation.
+     */
+    public VenisonController ()
+    {
+        addDelegate(_delegate = new TurnGameControllerDelegate(this));
+    }
+
     // documentation inherited
     protected void didInit ()
     {
@@ -42,7 +54,7 @@ public class VenisonController
     // documentation inherited
     protected PlaceView createPlaceView ()
     {
-        _panel = new VenisonPanel(_ctx, this);
+        _panel = new VenisonPanel((MiCasaContext)_ctx, this);
         return _panel;
     }
 
@@ -67,16 +79,14 @@ public class VenisonController
         _panel.board.setPiecens(_venobj.piecens);
 
         // if it's our turn, set the tile to be placed
-        if (isOurTurn()) {
+        if (_delegate.isOurTurn()) {
             _panel.board.setTileToBePlaced(_venobj.currentTile);
         }
     }
 
     // documentation inherited
-    protected void turnDidChange (String turnHolder)
+    public void turnDidChange (String turnHolder)
     {
-        super.turnDidChange(turnHolder);
-
         // if it's our turn, set the tile to be placed
         if (turnHolder.equals(_self.username)) {
             _panel.board.setTileToBePlaced(_venobj.currentTile);
@@ -98,28 +108,28 @@ public class VenisonController
     }
 
     // documentation inherited
-    public void elementAdded (ElementAddedEvent event)
+    public void entryAdded (EntryAddedEvent event)
     {
         // we care about additions to TILES and PIECENS
         if (event.getName().equals(VenisonObject.TILES)) {
             // a tile was added, add it to the board
-            VenisonTile tile = (VenisonTile)event.getElement();
+            VenisonTile tile = (VenisonTile)event.getEntry();
             _panel.board.addTile(tile);
 
         } else if (event.getName().equals(VenisonObject.PIECENS)) {
             // a piecen was added, place it on the board
-            Piecen piecen = (Piecen)event.getElement();
+            Piecen piecen = (Piecen)event.getEntry();
             _panel.board.placePiecen(piecen);
         }
     }
 
     // documentation inherited
-    public void elementUpdated (ElementUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent event)
     {
     }
 
     // documentation inherited
-    public void elementRemoved (ElementRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent event)
     {
         if (event.getName().equals(VenisonObject.PIECENS)) {
             // a piecen was removed, update the board
@@ -189,6 +199,9 @@ public class VenisonController
 
         return true;
     }
+
+    /** Our turn game delegate. */
+    protected TurnGameControllerDelegate _delegate;
 
     /** A reference to our game panel. */
     protected VenisonPanel _panel;

@@ -1,5 +1,5 @@
 //
-// $Id: Piecen.java,v 1.2 2001/10/17 23:27:52 mdb Exp $
+// $Id: Piecen.java,v 1.3 2002/05/21 04:45:09 mdb Exp $
 
 package com.threerings.venison;
 
@@ -25,7 +25,7 @@ import com.threerings.presents.dobj.DSet;
  * points for the group.
  */
 public class Piecen
-    implements DSet.Element
+    implements DSet.Entry
 {
     /** A color constant. */
     public static final int RED = 0;

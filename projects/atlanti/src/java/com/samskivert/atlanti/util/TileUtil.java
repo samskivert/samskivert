@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.15 2001/11/08 08:00:22 mdb Exp $
+// $Id: TileUtil.java,v 1.16 2002/05/21 04:45:09 mdb Exp $
 
 package com.threerings.venison;
 
@@ -571,7 +571,7 @@ public class TileUtil implements TileCodes
     public static int countPiecens (DSet piecens, int playerIndex)
     {
         int count = 0;
-        Iterator iter = piecens.elements();
+        Iterator iter = piecens.entries();
         while (iter.hasNext()) {
             if (((Piecen)iter.next()).owner == playerIndex) {
                 count++;

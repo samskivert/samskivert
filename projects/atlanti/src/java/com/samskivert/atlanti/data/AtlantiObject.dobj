@@ -1,0 +1,46 @@
+//
+// $Id: AtlantiObject.dobj,v 1.1 2002/05/21 04:45:10 mdb Exp $
+
+package com.threerings.venison;
+
+import com.samskivert.util.StringUtil;
+import com.threerings.presents.dobj.DSet;
+import com.threerings.parlor.game.GameObject;
+import com.threerings.parlor.turn.TurnGameObject;
+
+/**
+ * The distributed object used to maintain state for the Venison game.
+ */
+public class VenisonObject extends GameObject
+    implements TurnGameObject
+{
+    /** The username of the current turn holder. */
+    public String turnHolder;
+
+    /** A set containing all of the tiles that are in play in this
+     * game. */
+    public DSet tiles = new DSet(VenisonTile.class);
+
+    /** The tile being placed by the current turn holder. This value is
+     * only valid while it is someone's turn. */
+    public VenisonTile currentTile = VenisonTile.STARTING_TILE;
+
+    /** A set containing all of the piecens that are placed on the
+     * board. */
+    public DSet piecens = new DSet(Piecen.class);
+
+    /** The scores for each player. */
+    public int[] scores;
+
+    // documentation inherited from interface
+    public String getTurnHolderFieldName ()
+    {
+        return TURN_HOLDER;
+    }
+
+    // documentation inherited from interface
+    public String getTurnHolder ()
+    {
+        return turnHolder;
+    }
+}

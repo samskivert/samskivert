@@ -1,17 +1,22 @@
 //
-// $Id: AtlantiObject.java,v 1.7 2001/10/17 04:34:14 mdb Exp $
+// $Id: AtlantiObject.java,v 1.8 2002/05/21 04:45:10 mdb Exp $
 
 package com.threerings.venison;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.presents.dobj.DSet;
+import com.threerings.parlor.game.GameObject;
 import com.threerings.parlor.turn.TurnGameObject;
 
 /**
  * The distributed object used to maintain state for the Venison game.
  */
-public class VenisonObject extends TurnGameObject
+public class VenisonObject extends GameObject
+    implements TurnGameObject
 {
+    /** The field name of the <code>turnHolder</code> field. */
+    public static final String TURN_HOLDER = "turnHolder";
+
     /** The field name of the <code>tiles</code> field. */
     public static final String TILES = "tiles";
 
@@ -23,6 +28,9 @@ public class VenisonObject extends TurnGameObject
 
     /** The field name of the <code>scores</code> field. */
     public static final String SCORES = "scores";
+
+    /** The username of the current turn holder. */
+    public String turnHolder;
 
     /** A set containing all of the tiles that are in play in this
      * game. */
@@ -39,103 +47,163 @@ public class VenisonObject extends TurnGameObject
     /** The scores for each player. */
     public int[] scores;
 
-    /**
-     * Requests that the <code>tiles</code> field be set to the specified
-     * value.
-     */
-    public void setTiles (DSet value)
+    // documentation inherited from interface
+    public String getTurnHolderFieldName ()
     {
-        requestAttributeChange(TILES, value);
+        return TURN_HOLDER;
+    }
+
+    // documentation inherited from interface
+    public String getTurnHolder ()
+    {
+        return turnHolder;
     }
 
     /**
-     * Requests that the specified element be added to the
-     * <code>tiles</code> set.
+     * Requests that the <code>turnHolder</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
-    public void addToTiles (DSet.Element elem)
+    public void setTurnHolder (String turnHolder)
     {
-        requestElementAdd(TILES, elem);
+        this.turnHolder = turnHolder;
+        requestAttributeChange(TURN_HOLDER, turnHolder);
     }
 
     /**
-     * Requests that the element matching the supplied key be removed from
-     * the <code>tiles</code> set.
+     * Requests that the specified entry be added to the
+     * <code>tiles</code> set. The set will not change until the event is
+     * actually propagated through the system.
+     */
+    public void addToTiles (DSet.Entry elem)
+    {
+        requestEntryAdd(TILES, elem);
+    }
+
+    /**
+     * Requests that the entry matching the supplied key be removed from
+     * the <code>tiles</code> set. The set will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFromTiles (Object key)
     {
-        requestElementRemove(TILES, key);
+        requestEntryRemove(TILES, key);
     }
 
     /**
-     * Requests that the specified element be updated in the
-     * <code>tiles</code> set.
+     * Requests that the specified entry be updated in the
+     * <code>tiles</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
-    public void updateTiles (DSet.Element elem)
+    public void updateTiles (DSet.Entry elem)
     {
-        requestElementUpdate(TILES, elem);
+        requestEntryUpdate(TILES, elem);
     }
 
     /**
-     * Requests that the <code>currentTile</code> field be set to the
-     * specified value.
+     * Requests that the <code>tiles</code> field be set to the
+     * specified value. Generally one only adds, updates and removes
+     * entries of a distributed set, but certain situations call for a
+     * complete replacement of the set value. The local value will be
+     * updated immediately and an event will be propagated through the
+     * system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
      */
-    public void setCurrentTile (VenisonTile value)
+    public void setTiles (DSet tiles)
     {
-        requestAttributeChange(CURRENT_TILE, value);
+        this.tiles = tiles;
+        requestAttributeChange(TILES, tiles);
     }
 
     /**
-     * Requests that the <code>piecens</code> field be set to the specified
-     * value.
+     * Requests that the <code>currentTile</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
-    public void setPiecens (DSet value)
+    public void setCurrentTile (VenisonTile currentTile)
     {
-        requestAttributeChange(PIECENS, value);
+        this.currentTile = currentTile;
+        requestAttributeChange(CURRENT_TILE, currentTile);
     }
 
     /**
-     * Requests that the specified element be added to the
-     * <code>piecens</code> set.
+     * Requests that the specified entry be added to the
+     * <code>piecens</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
-    public void addToPiecens (DSet.Element elem)
+    public void addToPiecens (DSet.Entry elem)
     {
-        requestElementAdd(PIECENS, elem);
+        requestEntryAdd(PIECENS, elem);
     }
 
     /**
-     * Requests that the element matching the supplied key be removed from
-     * the <code>piecens</code> set.
+     * Requests that the entry matching the supplied key be removed from
+     * the <code>piecens</code> set. The set will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFromPiecens (Object key)
     {
-        requestElementRemove(PIECENS, key);
+        requestEntryRemove(PIECENS, key);
     }
 
     /**
-     * Requests that the specified element be updated in the
-     * <code>piecens</code> set.
+     * Requests that the specified entry be updated in the
+     * <code>piecens</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
-    public void updatePiecens (DSet.Element elem)
+    public void updatePiecens (DSet.Entry elem)
     {
-        requestElementUpdate(PIECENS, elem);
+        requestEntryUpdate(PIECENS, elem);
+    }
+
+    /**
+     * Requests that the <code>piecens</code> field be set to the
+     * specified value. Generally one only adds, updates and removes
+     * entries of a distributed set, but certain situations call for a
+     * complete replacement of the set value. The local value will be
+     * updated immediately and an event will be propagated through the
+     * system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
+     */
+    public void setPiecens (DSet piecens)
+    {
+        this.piecens = piecens;
+        requestAttributeChange(PIECENS, piecens);
     }
 
     /**
      * Requests that the <code>scores</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
-    public void setScores (int[] value)
+    public void setScores (int[] scores)
     {
-        requestAttributeChange(SCORES, value);
+        this.scores = scores;
+        requestAttributeChange(SCORES, scores);
     }
 
-    // documentation inherited
-    protected void toString (StringBuffer buf)
+    /**
+     * Requests that the <code>index</code>th element of
+     * <code>scores</code> field be set to the specified value. The local
+     * value will be updated immediately and an event will be propagated
+     * through the system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
+     */
+    public void setScoresAt (int value, int index)
     {
-        super.toString(buf);
-        buf.append(", tiles=").append(tiles);
-        buf.append(", currentTile=").append(currentTile);
-        buf.append(", piecens=").append(piecens);
-        buf.append(", scores=").append(StringUtil.toString(scores));
+        this.scores[index] = value;
+        requestElementUpdate(SCORES, new Integer(value), index);
     }
 }

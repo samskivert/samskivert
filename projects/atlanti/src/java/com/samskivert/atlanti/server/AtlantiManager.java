@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.22 2002/01/29 23:46:37 mdb Exp $
+// $Id: AtlantiManager.java,v 1.23 2002/05/21 04:45:10 mdb Exp $
 
 package com.threerings.venison;
 
@@ -12,34 +12,50 @@ import java.util.List;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.dobj.ElementAddedEvent;
-import com.threerings.presents.dobj.ElementRemovedEvent;
-import com.threerings.presents.dobj.ElementUpdatedEvent;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.MessageEvent;
 
-import com.threerings.crowd.chat.ChatMessageHandler;
+import com.threerings.presents.dobj.MessageEvent;
+
 import com.threerings.crowd.chat.ChatProvider;
+import com.threerings.crowd.data.PlaceObject;
+
+import com.threerings.crowd.chat.ChatMessageHandler;
 import com.threerings.crowd.chat.ChatService;
+import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.server.PlaceManager;
 
+import com.threerings.parlor.game.GameManager;
 import com.threerings.parlor.turn.TurnGameManager;
 
 /**
  * The main coordinator of the Venison game on the server side.
  */
-public class VenisonManager
-    extends TurnGameManager implements VenisonCodes, SetListener
+public class VenisonManager extends GameManager
+    implements TurnGameManager, VenisonCodes, SetListener
 {
+    public VenisonManager ()
+    {
+        addDelegate(_delegate = new VenisonManagerDelegate(this));
+    }
+
     // documentation inherited
     protected Class getPlaceObjectClass ()
     {
         return VenisonObject.class;
     }
 
+    public int getTilesInBox ()
+    {
+        return _tilesInBox.size();
+    }
+
     // documentation inherited
-    protected void didInit ()
+    public void didInit ()
     {
         super.didInit();
 
@@ -54,7 +70,7 @@ public class VenisonManager
     }
 
     // documentation inherited
-    protected void didStartup ()
+    public void didStartup ()
     {
         super.didStartup();
 
@@ -98,38 +114,21 @@ public class VenisonManager
         _tiles.add(start);
     }
 
-    protected void turnWillStart ()
+    // documentation inherited
+    public void turnWillStart ()
     {
-        super.turnWillStart();
-
         // let the players know what the next tile is that should be
         // played
         VenisonTile tile = (VenisonTile)_tilesInBox.remove(0);
         _venobj.setCurrentTile(tile);
     }
 
-    protected void turnDidEnd ()
+    // documentation inherited
+    public void turnDidEnd ()
     {
-        super.turnDidEnd();
-
         // if there are no tiles left, we end the game
         if (_tilesInBox.size() == 0) {
             endGame();
-        }
-    }
-
-    /**
-     * Continue the game until we're out of tiles.
-     */
-    protected void setNextTurnHolder ()
-    {
-        // if we have tiles left, we move to the next player as normal
-        if (_tilesInBox.size() > 0) {
-            super.setNextTurnHolder();
-        } else {
-            // if we don't, we ensure that a new turn isn't started by
-            // setting _turnIdx to -1
-            _turnIdx = -1;
         }
     }
 
@@ -139,11 +138,11 @@ public class VenisonManager
     protected void gameDidEnd ()
     {
         super.gameDidEnd();
-
+        
         // compute the final scores by iterating over each tile and
         // scoring its features
         Piecen[] piecens = getPiecens();
-        Iterator iter = _venobj.tiles.elements();
+        Iterator iter = _venobj.tiles.entries();
         while (iter.hasNext()) {
             VenisonTile tile = (VenisonTile)iter.next();
             scoreFeatures(tile, piecens, true);
@@ -165,7 +164,7 @@ public class VenisonManager
     {
         // create a piecen array that we can manipulate while scoring
         Piecen[] piecens = new Piecen[_venobj.piecens.size()];
-        Iterator iter = _venobj.piecens.elements();
+        Iterator iter = _venobj.piecens.entries();
         for (int i = 0; iter.hasNext(); i++) {
             piecens[i] = (Piecen)iter.next();
         }
@@ -177,7 +176,7 @@ public class VenisonManager
      *
      * @param tile the tile whose features should be scored.
      * @param piecens an array of the pieces on the board which we can
-     * manipulate directly without having to wait for element removed
+     * manipulate directly without having to wait for entry removed
      * events to be dispatched.
      * @param finalTally during the final tally, we score differently and
      * we don't remove piecens from the board as we score them.
@@ -236,7 +235,8 @@ public class VenisonManager
 
                 String message = qual + " " + TileCodes.FEATURE_NAMES[f.type] +
                     " scored " + score + " points for " + names + ".";
-                ChatProvider.sendSystemMessage(_venobj.getOid(), message);
+                ChatProvider.sendSystemMessage(
+                    _venobj.getOid(), VENISON_MESSAGE_BUNDLE, message);
 
                 Log.info("New scores: " + StringUtil.toString(_venobj.scores));
 
@@ -309,7 +309,7 @@ public class VenisonManager
                         String message = _players[p.owner] + " scored " +
                             score + " points for " + qual + " temple.";
                         ChatProvider.sendSystemMessage(
-                            _venobj.getOid(), message);
+                            _venobj.getOid(), VENISON_MESSAGE_BUNDLE, message);
 
                         // add the score to the owning player
                         _venobj.scores[p.owner] += score;
@@ -413,7 +413,7 @@ public class VenisonManager
             int[] pcount = new int[_players.length];
             int max = 0;
 
-            Iterator piter = _venobj.piecens.elements();
+            Iterator piter = _venobj.piecens.entries();
             while (piter.hasNext()) {
                 Piecen p = (Piecen)piter.next();
                 // see if the piecen is on any of the farms
@@ -456,7 +456,8 @@ public class VenisonManager
                 _venobj.scores[i] += cityScores[i];
                 String message = _players[i] + " scores " + cityScores[i] +
                     " points for fisheries.";
-                ChatProvider.sendSystemMessage(_venobj.getOid(), message);
+                ChatProvider.sendSystemMessage(
+                    _venobj.getOid(), VENISON_MESSAGE_BUNDLE, message);
             }
         }
     }
@@ -523,7 +524,7 @@ public class VenisonManager
 
         // if this isn't the final tally, we also clear 'em from the board
         if (!finalTally) {
-            Iterator iter = _venobj.piecens.elements();
+            Iterator iter = _venobj.piecens.entries();
             while (iter.hasNext()) {
                 Piecen p = (Piecen)iter.next();
                 if (p.claimGroup == claimGroup) {
@@ -561,7 +562,7 @@ public class VenisonManager
     }
 
     // documentation inherited
-    public void elementAdded (ElementAddedEvent event)
+    public void entryAdded (EntryAddedEvent event)
     {
         // we react to piecen additions by potentially scoring the placed
         // piecen. we allow the piecen to be added to the piecens set
@@ -569,7 +570,7 @@ public class VenisonManager
         // their screen and then disappear with a scoring notice rather
         // than never show up at all; plus it simplifies our code
         if (event.getName().equals(VenisonObject.PIECENS)) {
-            Piecen piecen = (Piecen)event.getElement();
+            Piecen piecen = (Piecen)event.getEntry();
 
             // make sure this is a valid placement
             VenisonTile tile = (VenisonTile)_venobj.tiles.get(piecen.getKey());
@@ -584,18 +585,125 @@ public class VenisonManager
             }
 
             // now that we've scored the piecen, we can end the turn
-            endTurn();
+            _delegate.endTurn();
         }
     }
 
     // documentation inherited
-    public void elementUpdated (ElementUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent event)
     {
     }
 
     // documentation inherited
-    public void elementRemoved (ElementRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent event)
     {
+    }
+
+    /**
+     * Called when the user requests to place a tile.
+     */
+    protected void handlePlaceTileRequest (MessageEvent event)
+    {
+        VenisonTile tile = (VenisonTile)event.getArgs()[0];
+        int pidx = _delegate.getTurnHolderIndex();
+
+        // make sure it's this player's turn
+        if (_playerOids[pidx] != event.getSourceOid()) {
+            Log.warning("Requested to place tile by non-turn holder " +
+                        "[event=" + event +
+                        ", turnHolder=" + _venobj.turnHolder + "].");
+
+            // make sure this is a valid placement
+        } else if (TileUtil.isValidPlacement(_tiles, tile)) {
+            // add the tile to the list and resort it
+            _tiles.add(tile);
+            Collections.sort(_tiles);
+
+            // inherit its claim groups
+            TileUtil.inheritClaims(_tiles, tile);
+
+            // add the tile to the tiles set
+            _venobj.addToTiles(tile);
+
+            // placing a piece may have completed road or city
+            // features. if it did, we score them now
+            scoreFeatures(tile, getPiecens(), false);
+
+            Log.info("Placed tile " + tile + ".");
+
+            // if the player has no free piecens or if there are no
+            // unclaimed features on this tile, we end their turn
+            // straight away
+            int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
+            if (pcount >= PIECENS_PER_PLAYER ||
+                !tile.hasUnclaimedFeature()) {
+                _delegate.endTurn();
+            }
+
+        } else {
+            Log.warning("Received invalid placement " + event + ".");
+        }
+    }
+
+    /**
+     * Called when the user requests to place a piecen.
+     */
+    protected void handlePlacePiecenRequest (MessageEvent event)
+    {
+        Piecen piecen = (Piecen)event.getArgs()[0];
+        VenisonTile tile = (VenisonTile)_venobj.tiles.get(piecen.getKey());
+        int pidx = _delegate.getTurnHolderIndex();
+        int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
+
+        // make sure it's this player's turn
+        if (_playerOids[pidx] != event.getSourceOid()) {
+            Log.warning("Requested to place piecen by non-turn holder " +
+                        "[event=" + event +
+                        ", turnHolder=" + _venobj.turnHolder + "].");
+
+            // do some checking before we place the piecen
+        } else if (pcount >= PIECENS_PER_PLAYER) {
+            Log.warning("Requested to place piecen for player that " +
+                        "has all of their piecens in play " +
+                        "[event=" + event + "].");
+
+        } else if (tile == null) {
+            Log.warning("Can't find tile for requested piecen " +
+                        "placement " + piecen + ".");
+
+        } else if (tile.claims[piecen.featureIndex] != 0) {
+            Log.warning("Requested to place piecen on claimed feature " +
+                        "[tile=" + tile + ", piecen=" + piecen + "].");
+
+        } else {
+            // otherwise stick the piece in the tile to update the
+            // claim groups
+            tile.setPiecen(piecen, _tiles);
+
+            // and add the piecen to the game object. when we receive
+            // the piecen added event, we'll score it and then end the
+            // turn
+            _venobj.addToPiecens(piecen);
+        }
+    }
+
+    /**
+     * Called when the user requests to forgo their piecen placement for
+     * this turn.
+     */
+    protected void handlePlaceNothingRequest (MessageEvent event)
+    {
+        int pidx = _delegate.getTurnHolderIndex();
+        if (_playerOids[pidx] != event.getSourceOid()) {
+            Log.warning("Requested to place nothing by non-turn holder " +
+                        "[event=" + event +
+                        ", turnHolder=" + _venobj.turnHolder + "].");
+
+        } else {
+            // player doesn't want to place anything, so we just end
+            // the turn
+            _delegate.endTurn();
+        }
     }
 
     /** Handles place tile requests. */
@@ -603,45 +711,7 @@ public class VenisonManager
     {
         public void handleEvent (MessageEvent event, PlaceManager pmgr)
         {
-            VenisonTile tile = (VenisonTile)event.getArgs()[0];
-            int pidx = getTurnHolderIndex();
-
-            // make sure it's this player's turn
-            if (_playerOids[pidx] != event.getSourceOid()) {
-                Log.warning("Requested to place tile by non-turn holder " +
-                            "[event=" + event +
-                            ", turnHolder=" + _venobj.turnHolder + "].");
-
-            // make sure this is a valid placement
-            } else if (TileUtil.isValidPlacement(_tiles, tile)) {
-                // add the tile to the list and resort it
-                _tiles.add(tile);
-                Collections.sort(_tiles);
-
-                // inherit its claim groups
-                TileUtil.inheritClaims(_tiles, tile);
-
-                // add the tile to the tiles set
-                _venobj.addToTiles(tile);
-
-                // placing a piece may have completed road or city
-                // features. if it did, we score them now
-                scoreFeatures(tile, getPiecens(), false);
-
-                Log.info("Placed tile " + tile + ".");
-
-                // if the player has no free piecens or if there are no
-                // unclaimed features on this tile, we end their turn
-                // straight away
-                int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
-                if (pcount >= PIECENS_PER_PLAYER ||
-                    !tile.hasUnclaimedFeature()) {
-                    endTurn();
-                }
-
-            } else {
-                Log.warning("Received invalid placement " + event + ".");
-            }
+            handlePlaceTileRequest(event);
         }
     }
 
@@ -650,41 +720,7 @@ public class VenisonManager
     {
         public void handleEvent (MessageEvent event, PlaceManager pmgr)
         {
-            Piecen piecen = (Piecen)event.getArgs()[0];
-            VenisonTile tile = (VenisonTile)_venobj.tiles.get(piecen.getKey());
-            int pidx = getTurnHolderIndex();
-            int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
-
-            // make sure it's this player's turn
-            if (_playerOids[pidx] != event.getSourceOid()) {
-                Log.warning("Requested to place piecen by non-turn holder " +
-                            "[event=" + event +
-                            ", turnHolder=" + _venobj.turnHolder + "].");
-
-            // do some checking before we place the piecen
-            } else if (pcount >= PIECENS_PER_PLAYER) {
-                Log.warning("Requested to place piecen for player that " +
-                            "has all of their piecens in play " +
-                            "[event=" + event + "].");
-
-            } else if (tile == null) {
-                Log.warning("Can't find tile for requested piecen " +
-                            "placement " + piecen + ".");
-
-            } else if (tile.claims[piecen.featureIndex] != 0) {
-                Log.warning("Requested to place piecen on claimed feature " +
-                            "[tile=" + tile + ", piecen=" + piecen + "].");
-
-            } else {
-                // otherwise stick the piece in the tile to update the
-                // claim groups
-                tile.setPiecen(piecen, _tiles);
-
-                // and add the piecen to the game object. when we receive
-                // the piecen added event, we'll score it and then end the
-                // turn
-                _venobj.addToPiecens(piecen);
-            }
+            handlePlacePiecenRequest(event);
         }
     }
 
@@ -693,19 +729,12 @@ public class VenisonManager
     {
         public void handleEvent (MessageEvent event, PlaceManager pmgr)
         {
-            int pidx = getTurnHolderIndex();
-            if (_playerOids[pidx] != event.getSourceOid()) {
-                Log.warning("Requested to place nothing by non-turn holder " +
-                            "[event=" + event +
-                            ", turnHolder=" + _venobj.turnHolder + "].");
-
-            } else {
-                // player doesn't want to place anything, so we just end
-                // the turn
-                endTurn();
-            }
+            handlePlaceNothingRequest(event);
         }
     }
+
+    /** Our turn game delegate. */
+    protected VenisonManagerDelegate _delegate;
 
     /** A casted reference to our Venison game object. */
     protected VenisonObject _venobj;

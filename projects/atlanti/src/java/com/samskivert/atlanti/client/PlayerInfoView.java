@@ -1,5 +1,5 @@
 //
-// $Id: PlayerInfoView.java,v 1.3 2001/10/18 20:53:53 mdb Exp $
+// $Id: PlayerInfoView.java,v 1.4 2002/05/21 04:45:09 mdb Exp $
 
 package com.threerings.venison;
 
@@ -13,9 +13,9 @@ import javax.swing.JPanel;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.SetListener;
-import com.threerings.presents.dobj.ElementAddedEvent;
-import com.threerings.presents.dobj.ElementUpdatedEvent;
-import com.threerings.presents.dobj.ElementRemovedEvent;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
 
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
@@ -115,18 +115,18 @@ public class PlayerInfoView
     }
 
     // documentation inherited
-    public void elementAdded (ElementAddedEvent event)
+    public void entryAdded (EntryAddedEvent event)
     {
         updatePiecenCount();
     }
 
     // documentation inherited
-    public void elementUpdated (ElementUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent event)
     {
     }
 
     // documentation inherited
-    public void elementRemoved (ElementRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent event)
     {
         updatePiecenCount();
     }

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.13 2001/12/18 11:58:54 mdb Exp $
+// $Id: AtlantiTile.java,v 1.14 2002/05/21 04:45:10 mdb Exp $
 
 package com.threerings.venison;
 
@@ -21,7 +21,6 @@ import java.util.List;
 import com.samskivert.util.IntTuple;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.UniformTileSet;
@@ -32,7 +31,7 @@ import com.threerings.presents.dobj.DSet;
  * Represents a single tile in play on the Venison game board.
  */
 public class VenisonTile
-    implements DSet.Element, TileCodes, Cloneable, Comparable
+    implements DSet.Entry, TileCodes, Cloneable, Comparable
 {
     /** The starting tile. */
     public static final VenisonTile STARTING_TILE =
@@ -476,18 +475,7 @@ public class VenisonTile
         }
 
         // fetch the tile
-        try {
-            Tile tile = _tset.getTile(type-1);
-            if (tile != null) {
-                return tile.getImage();
-            }
-
-        } catch (NoSuchTileException nste) {
-            // fall through
-        }
-
-        Log.warning("Unable to load tile image [type=" + type + "].");
-        return null;
+        return _tset.getTileImage(type-1);
     }
 
     /**
@@ -506,14 +494,7 @@ public class VenisonTile
         }
 
         // fetch the tile
-        try {
-            return _stset.getTileImage(0);
-        } catch (NoSuchTileException nste) {
-            // fall through
-        }
-
-        Log.warning("Unable to load shield image!");
-        return null;
+        return _stset.getTileImage(0);
     }
 
     /** The tile image that we use to render this tile. */

@@ -8,12 +8,14 @@
   <property name="copyright.holder" value="Michael Bayne"/>
   <property name="build.compiler"   value="jikes"/>
   <property name="java.libraries"   value="/usr/share/java"/>
+  <property name="narya.home"       value="../../work/narya"/>
 
   <!-- things you probably don't want to change -->
-  <property name="src.dir"     value="src/java"/>
-  <property name="deploy.dir"  value="dist"/>
-  <property name="dist.jar"    value="${app.name}.jar"/>
-  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+  <property name="src.dir"      value="src/java"/>
+  <property name="deploy.dir"   value="dist"/>
+  <property name="dist.jar"     value="${app.name}.jar"/>
+  <property name="javadoc.dir"  value="${deploy.dir}/docs"/>
+  <property name="gendobj.path" value="${narya.home}/bin/gendobj"/>
 
   <!-- declare our classpath -->
   <path id="classpath">
@@ -22,8 +24,16 @@
     <pathelement location="${deploy.dir}/classes"/>
   </path>
 
+  <!-- generates .java files for all .dobj files -->
+  <target name="gendobj">
+    <apply executable="${gendobj.path}" failonerror="true">
+      <srcfile/>
+      <fileset dir="src/java" includes="**/*.dobj"/>
+    </apply>
+  </target>
+
   <!-- prepares the application directories -->
-  <target name="prepare">
+  <target name="prepare" depends="gendobj">
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/classes"/>
     <mkdir dir="${deploy.dir}/classes/rsrc"/>

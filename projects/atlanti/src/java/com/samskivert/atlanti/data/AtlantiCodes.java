@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiCodes.java,v 1.4 2001/10/24 03:24:20 mdb Exp $
+// $Id: AtlantiCodes.java,v 1.5 2002/05/21 04:45:10 mdb Exp $
 
 package com.threerings.venison;
 
@@ -8,6 +8,9 @@ package com.threerings.venison;
  */
 public interface VenisonCodes
 {
+    /** The message bundle identifier for translation messages. */
+    public static final String VENISON_MESSAGE_BUNDLE = "venison";
+
     /** The number of piecens provided to each player. */
     public static final int PIECENS_PER_PLAYER = 7;
 

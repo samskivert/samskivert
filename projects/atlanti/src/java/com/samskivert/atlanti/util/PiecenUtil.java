@@ -1,5 +1,5 @@
 //
-// $Id: PiecenUtil.java,v 1.1 2001/12/18 11:59:09 mdb Exp $
+// $Id: PiecenUtil.java,v 1.2 2002/05/21 04:45:09 mdb Exp $
 
 package com.threerings.venison;
 
@@ -8,7 +8,6 @@ import java.awt.Image;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.UniformTileSet;
-import com.threerings.media.tile.NoSuchTileException;
 
 public class PiecenUtil
 {
@@ -28,11 +27,7 @@ public class PiecenUtil
         // fetch the tile images
         _images = new Image[PIECEN_TYPES];
         for (int i = 0; i < PIECEN_TYPES; i++) {
-            try {
-                _images[i] = piecenSet.getTileImage(i);
-            } catch (NoSuchTileException nste) {
-                Log.warning("Unable to obtain piecen tile [id=" + i + "].");
-            }
+            _images[i] = piecenSet.getTileImage(i);
         }
     }
 

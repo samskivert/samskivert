@@ -24,8 +24,8 @@ import com.threerings.media.tile.TileManager;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.client.PlaceView;
 
-import com.threerings.parlor.util.ParlorContext;
 import com.threerings.micasa.client.ChatPanel;
+import com.threerings.micasa.util.MiCasaContext;
 
 /**
  * The top-level user interface component for the Venison game display.
@@ -42,7 +42,7 @@ public class VenisonPanel
     /**
      * Constructs a new Venison game display.
      */
-    public VenisonPanel (ParlorContext ctx, VenisonController controller)
+    public VenisonPanel (MiCasaContext ctx, VenisonController controller)
     {
 	// give ourselves a wee bit of a border
 	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

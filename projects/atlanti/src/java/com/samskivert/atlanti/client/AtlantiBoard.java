@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.16 2001/11/24 08:25:04 shaper Exp $
+// $Id: AtlantiBoard.java,v 1.17 2002/05/21 04:45:10 mdb Exp $
 
 package com.threerings.venison;
 
@@ -65,7 +65,7 @@ public class VenisonBoard
         _tiles.clear();
 
         // copy the tiles from the set into our local list
-        CollectionUtil.addAll(_tiles, tset.elements());
+        CollectionUtil.addAll(_tiles, tset.entries());
 
         // sort the list
         Collections.sort(_tiles);
@@ -84,7 +84,7 @@ public class VenisonBoard
     public void setPiecens (DSet piecens)
     {
         //  just iterate over the set placing each of the piecens in turn
-        Iterator iter = piecens.elements();
+        Iterator iter = piecens.entries();
         while (iter.hasNext()) {
             placePiecen((Piecen)iter.next());
         }
@@ -616,7 +616,7 @@ public class VenisonBoard
 
         // set a feature group to test propagation
         List tiles = new ArrayList();
-        CollectionUtil.addAll(tiles, set.elements());
+        CollectionUtil.addAll(tiles, set.entries());
         Collections.sort(tiles);
 
         zero.setPiecen(new Piecen(Piecen.GREEN, 0, 0, 2), tiles);

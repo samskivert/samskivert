@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.13 2002/10/28 19:19:43 ray Exp $
+// $Id: DnDManager.java,v 1.14 2003/04/30 23:03:52 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -9,6 +9,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
+import java.awt.IllegalComponentStateException;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -373,16 +374,22 @@ public class DnDManager
 
         int x = event.getX();
         int y = event.getY();
-        Point p = event.getComponent().getLocationOnScreen();
-        p.translate(x, y);
 
-        Rectangle r = getRectOnScreen(_scrollComp);
-        if (!r.contains(p)) {
-            r.grow(_scrollDim.width, _scrollDim.height);
-            if (r.contains(p)) {
-                _scrollPoint = p;
-                return;  // still autoscrolling
+        try {
+            Point p = event.getComponent().getLocationOnScreen();
+            p.translate(x, y);
+
+            Rectangle r = getRectOnScreen(_scrollComp);
+            if (!r.contains(p)) {
+                r.grow(_scrollDim.width, _scrollDim.height);
+                if (r.contains(p)) {
+                    _scrollPoint = p;
+                    return;  // still autoscrolling
+                }
             }
+        } catch (IllegalComponentStateException icse) {
+            // the component could no longer be on screen
+            // don't complain, just stop autoscroll
         }
 
         // stop autoscrolling

@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.7 2003/01/15 22:11:18 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.8 2003/01/20 20:06:33 ray Exp $
 
 package com.samskivert.util;
 
@@ -9,6 +9,9 @@ import java.awt.event.ActionListener;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import java.io.File;
+
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -16,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -274,6 +278,98 @@ public class RuntimeAdjust
         protected String _value;
         protected String[] _values;
         protected JComboBox _valbox;
+    }
+
+    /** Provides runtime adjustable file path variables. */
+    public static class FileAdjust extends Adjust
+        implements ActionListener
+    {
+        public FileAdjust (String descrip, String name,
+                           Config config, boolean directoriesOnly,
+                           String defval)
+        {
+            super(descrip, name, config);
+            _value = _config.getValue(_name, defval);
+            _directories = directoriesOnly;
+            _default = defval;
+        }
+
+        public final String getValue ()
+        {
+            return _value;
+        }
+
+        public void setValue (String value)
+        {
+            _config.setValue(_name, value);
+        }
+
+        protected void populateEditor (JPanel editor)
+        {
+            // set up the label
+            JPanel p = GroupLayout.makeVBox();
+            p.add(_display = new JLabel());
+            redisplay();
+
+            JPanel buts = GroupLayout.makeHBox();
+            JButton set = new JButton("set");
+            set.setActionCommand("set");
+            set.addActionListener(this);
+            buts.add(set);
+            JButton def = new JButton("default");
+            def.setActionCommand("default");
+            def.addActionListener(this);
+            buts.add(def);
+            p.add(buts);
+
+            editor.add(p, GroupLayout.FIXED);
+        }
+
+        public void actionPerformed (ActionEvent e)
+        {
+            if (e.getActionCommand().equals("default")) {
+                setValue(_default);
+                return;
+            }
+
+            // else
+            File f = new File(_value);
+            JFileChooser chooser = f.exists() ? new JFileChooser(f)
+                                              : new JFileChooser();
+            // set it up like we like
+            if (_directories) {
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            }
+            chooser.setSelectedFile(f);
+            int result = chooser.showDialog(_editor, "Select");
+            if (JFileChooser.APPROVE_OPTION == result) {
+                f = chooser.getSelectedFile();
+                setValue(f.getPath());
+            }
+        }
+
+        public void propertyChange (PropertyChangeEvent evt)
+        {
+            _value = (String)evt.getNewValue();
+            adjusted(_value, (String)evt.getOldValue());
+            redisplay();
+        }
+
+        protected void redisplay ()
+        {
+            if (_display != null) {
+                _display.setText(StringUtil.blank(_value) ? "(unset)" : _value);
+            }
+        }
+
+        protected void adjusted (String newValue, String oldValue)
+        {
+//             Log.info(_name + " => " + newValue);
+        }
+
+        protected String _value, _default;
+        protected boolean _directories;
+        protected JLabel _display;
     }
 
     /** Provides the ability to click a button and fire an action. */

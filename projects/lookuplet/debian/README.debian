@@ -1,0 +1,14 @@
+lookuplet
+---------
+
+This utility provides a unified interface for looking things up.
+
+When invoked, the lookuplet grabs the current selection and sticks it into
+a text field for potential editing. You then press a key combination that
+you have previously configured and the text is sent either as an argument
+to an application or URL encoded and substituted into a URL which is then
+opened with your preferred web browser.
+
+ -- Michael Bayne <mdb@samskivert.com>
+
+$Id: README.debian,v 1.1 2001/08/17 20:33:53 mdb Exp $

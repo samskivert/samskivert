@@ -1,0 +1,2 @@
+?package(lookuplet):needs=X11 section=Apps/Net\
+  title="lookuplet" command="/usr/bin/lookuplet"

@@ -1,0 +1,12 @@
+Source: lookuplet
+Section: net
+Priority: optional
+Maintainer: Michael Bayne <mdb@samskivert.com>
+Standards-Version: 3.5.6.0
+
+Package: lookuplet
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Keystroke conscious query launching utility
+ lookuplet is a graphical utility that allows you to enter query terms and
+ press predefined key-combinations to launch web queries or applications.

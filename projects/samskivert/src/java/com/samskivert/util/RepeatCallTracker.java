@@ -3,6 +3,7 @@
 
 package com.samskivert.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.samskivert.Log;
@@ -31,7 +32,7 @@ public class RepeatCallTracker
     {
         if (_firstCall == null) {
             _firstCall = new Exception(
-                "---- First call (at " + new Date() + ") ----");
+                "---- First call (at " + _format.format(new Date()) + ") ----");
             return false;
         }
 
@@ -50,4 +51,8 @@ public class RepeatCallTracker
 
     /** Used to keep the stack trace around from the first call. */
     protected Exception _firstCall;
+
+    /** Used to report the first call time with a detailed time stamp. */
+    protected SimpleDateFormat _format =
+        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
 }

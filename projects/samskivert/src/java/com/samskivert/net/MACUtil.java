@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.7 2004/02/09 18:36:48 eric Exp $
+// $Id: MACUtil.java,v 1.8 2004/02/09 19:59:47 eric Exp $
 
 package com.samskivert.net;
 
@@ -45,7 +45,7 @@ public class MACUtil
 
         ArrayList list = new ArrayList();
         while (m.find()) {
-            String mac = m.group(1);
+            String mac = m.group(1).toUpperCase();
 
             // What fun, we have to explicitly skip PPP adaptor addresses
             // since they all start with 444553 and tend to not be unique.

@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.1 2001/08/15 04:02:42 mdb Exp $
+// $Id: ListUtil.java,v 1.2 2001/08/15 04:11:10 mdb Exp $
 
 package com.samskivert.util;
 
@@ -103,6 +103,47 @@ public class ListUtil
         list[index] = element;
 
         return list;
+    }
+
+    /**
+     * Looks for an object that is referentially equal to the supplied
+     * element (<code>list[idx] == element</code>). Passing a null
+     * <code>element</code> to this function will cleverly tell you
+     * whether or not there are any null elements in the array which is
+     * probably not very useful.
+     *
+     * @return true if a matching element was found, false otherwise.
+     */
+    public static boolean contains (Object[] list, Object element)
+    {
+        int llength = list.length; // no optimizing bastards
+        for (int i = 0; i < llength; i++) {
+            if (list[i] == element) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Looks for an element that is functionally equal to the supplied
+     * element (<code>list[idx].equals(element)</code>). Passing a null
+     * <code>element</code> to this function will call
+     * <code>equals(null)</code> on all objects in the list which may
+     * cause them to choke, so don't do that unless you mean it.
+     *
+     * @return true if a matching element was found, false otherwise.
+     */
+    public static boolean containsEqual (Object[] list, Object element)
+    {
+        int llength = list.length; // no optimizing bastards
+        for (int i = 0; i < llength; i++) {
+            Object elem = list[i];
+            if (elem != null && elem.equals(element)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -247,31 +288,38 @@ public class ListUtil
         String bar = "bar";
 
         list = ListUtil.add(list, foo);
-        System.out.println("Added foo: " + StringUtil.toString(list));
+        System.out.println("add(foo): " + StringUtil.toString(list));
 
         list = ListUtil.add(list, bar);
-        System.out.println("Added bar: " + StringUtil.toString(list));
+        System.out.println("add(bar): " + StringUtil.toString(list));
 
         ListUtil.clear(list, foo);
-        System.out.println("Cleared foo: " + StringUtil.toString(list));
+        System.out.println("clear(foo): " + StringUtil.toString(list));
 
-        String newBar = "bar";
+        String newBar = new String("bar"); // prevent java from cleverly
+                                           // referencing the same string
+                                           // from the constant pool
+        System.out.println("contains(newBar): " +
+                           ListUtil.contains(list, newBar));
+        System.out.println("containsEqual(newBar): " +
+                           ListUtil.containsEqual(list, newBar));
+
         ListUtil.clearEqual(list, newBar);
-        System.out.println("Cleared newBar: " + StringUtil.toString(list));
+        System.out.println("clearEqual(newBar): " + StringUtil.toString(list));
 
         list = ListUtil.add(list, 0, foo);
         list = ListUtil.add(list, 1, bar);
         System.out.println("Added foo+bar: " + StringUtil.toString(list));
 
         ListUtil.remove(list, foo);
-        System.out.println("Removed foo: " + StringUtil.toString(list));
+        System.out.println("remove(foo): " + StringUtil.toString(list));
 
         list = ListUtil.add(list, 0, foo);
         list = ListUtil.add(list, 1, bar);
         System.out.println("Added foo+bar: " + StringUtil.toString(list));
 
         ListUtil.remove(list, 0);
-        System.out.println("Removed 0: " + StringUtil.toString(list));
+        System.out.println("remove(0): " + StringUtil.toString(list));
     }
 
     /**

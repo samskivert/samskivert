@@ -6,7 +6,6 @@
   <property name="doc.packages"     value="com.threerings.atlanti.*"/>
   <property name="doc.overview"     value="com/threerings/atlanti/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
-  <property name="build.compiler"   value="jikes"/>
   <property name="narya.home"       value="../../work/narya"/>
 
   <!-- things you probably don't want to change -->
@@ -52,7 +51,7 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
-           debug="on" optimize="off" deprecation="off">
+           debug="on" optimize="off" deprecation="on">
       <classpath refid="classpath"/>
     </javac>
   </target>

@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.9 2002/02/22 07:06:34 mdb Exp $
+// $Id: Repository.java,v 1.10 2002/02/22 07:28:29 mdb Exp $
 
 package robodj.repository;
 
@@ -144,8 +144,6 @@ public class Repository extends JORARepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
-                System.out.println("looking up '" + match + "'.");
-
                 PreparedStatement stmt = null;
                 String query;
 

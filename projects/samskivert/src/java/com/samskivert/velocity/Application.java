@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.5 2001/11/06 04:49:32 mdb Exp $
+// $Id: Application.java,v 1.6 2001/11/06 20:16:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,11 +20,14 @@
 
 package com.samskivert.velocity;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
+import com.samskivert.Log;
 import com.samskivert.servlet.IndiscriminateSiteIdentifier;
 import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.SiteIdentifier;
+import com.samskivert.servlet.SiteResourceLoader;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -47,18 +50,21 @@ public class Application
      * application to entities that might turn around and request a
      * reference to our site identifier).
      *
+     * @param config the servlet config from which the application will
+     * load configuration information.
      * @param context the servlet context in which this application is
      * operating.
      * @param logicPkg the base package for all of the logic
      * implementations for this application.
      */
-    public void init (ServletContext context, String logicPkg)
+    public void init (ServletConfig config, ServletContext context,
+                      String logicPkg)
     {
         // keep this around for later
         _context = context;
 
         // let the derived application do pre-init stuff
-        willInit();
+        willInit(config);
 
         // remove any trailing dot
         if (logicPkg.endsWith(".")) {
@@ -67,17 +73,48 @@ public class Application
             _logicPkg = logicPkg;
         }
 
-        // instantiate our message manager if the application wants one
-        String bpath = getMessageBundlePath();
-        if (bpath != null) {
-            _msgmgr = new MessageManager(bpath);
-        }
-
         // create our site identifier
         _siteIdent = createSiteIdentifier(_context);
 
+        // create a site resource loader if the user set up the
+        // site-specific jar file path
+        String siteJarPath = config.getInitParameter(SITE_JAR_PATH_KEY);
+        if (!StringUtil.blank(siteJarPath)) {
+            Log.info("Creating site resource loader " +
+                     "[siteJarPath=" + siteJarPath + "].");
+            _siteLoader = new SiteResourceLoader(_siteIdent, siteJarPath);
+        } else {
+            Log.info("No site resource loader");
+        }
+
+        // instantiate our message manager if the application wants one
+        String bundlePath = config.getInitParameter(MESSAGE_BUNDLE_PATH_KEY);
+        if (!StringUtil.blank(bundlePath)) {
+            Log.info("Creating message manager " +
+                     "[bundlePath=" + bundlePath + "].");
+            _msgmgr = new MessageManager(bundlePath);
+        }
+
+        // if we have a site-specific resource loader, configure the
+        // message manager with it, so that it can load site-specific
+        // message resources
+        if (_msgmgr != null && _siteLoader != null) {
+            String siteBundlePath =
+                config.getInitParameter(SITE_MESSAGE_BUNDLE_PATH_KEY);
+            if (!StringUtil.blank(siteBundlePath)) {
+                _msgmgr.activateSiteSpecificMessages(
+                    siteBundlePath, _siteLoader, _siteIdent);
+
+            } else {
+                Log.info("No '" + SITE_MESSAGE_BUNDLE_PATH_KEY + "' " +
+                         "specified in servlet configuration. This is " +
+                         "required to allow the message manager to load " +
+                         "site-specific translation resources.");
+            }
+        }
+
         // let the derived application do post-init stuff
-        didInit();
+        didInit(config);
     }
 
     /**
@@ -85,7 +122,7 @@ public class Application
      * invoke any necessary pre-initialization code. They should be sure
      * to call <code>super.willInit()</code>.
      */
-    protected void willInit ()
+    protected void willInit (ServletConfig config)
     {
     }
 
@@ -94,7 +131,7 @@ public class Application
      * invoke any necessary post-initialization code. They should be sure
      * to call <code>super.didInit()</code>.
      */
-    protected void didInit ()
+    protected void didInit (ServletConfig config)
     {
     }
 
@@ -134,16 +171,15 @@ public class Application
     }
 
     /**
-     * If an application wishes to make use of the translation facilities
-     * provided by the message manager, it need only provide the path to
-     * its message resource bundle via this member function. Using a
-     * message manager allows framework components like the
-     * <code>MsgTool</code> to make use of the application's message
-     * bundles.
+     * Returns a reference to the loader used to obtain site-specific
+     * resources. This is only valid if the user specified the
+     * site-specific jar file path in the servlet configuration.
+     *
+     * @see #SITE_JAR_PATH_KEY
      */
-    protected String getMessageBundlePath ()
+    public SiteResourceLoader getSiteResourceLoader ()
     {
-        return null;
+        return _siteLoader;
     }
 
     /**
@@ -237,4 +273,20 @@ public class Application
 
     /** A reference to our site identifier. */
     protected SiteIdentifier _siteIdent;
+
+    /** Provides access to site-specific resources. */
+    protected SiteResourceLoader _siteLoader;
+
+    /** The servlet parameter key specifying the path to the application's
+     * translated message resources. */
+    protected static final String MESSAGE_BUNDLE_PATH_KEY = "messages_path";
+
+    /** The servlet parameter key specifying the path to the site-specific
+     * jar files. */
+    protected static final String SITE_JAR_PATH_KEY = "site_jar_path";
+
+    /** The servlet parameter key specifying the path to the site-specific
+     * translated message resources. */
+    protected static final String SITE_MESSAGE_BUNDLE_PATH_KEY =
+        "site_messages_path";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.3 2001/11/06 05:35:54 mdb Exp $
+// $Id: MessageManager.java,v 1.4 2001/11/06 20:16:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,11 +20,14 @@
 
 package com.samskivert.servlet;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.Log;
+import com.samskivert.util.StringUtil;
 
 /**
  * The message manager handles the translation messages for a web
@@ -49,28 +52,55 @@ public class MessageManager
     }
 
     /**
+     * If the message manager is to be used in a multi-site environment,
+     * it can be configured to load site-specific message resources in
+     * addition to the default application message resources. It must be
+     * configured with the facilities to load site-specific resources by a
+     * call to this function.
+     *
+     * @param siteBundlePath the path to the site-specific message
+     * resources.
+     * @param siteLoader a site-specific resource loader, properly
+     * configured with a site identifier.
+     * @param siteIdent a site identifier that can be used to identify the
+     * site via which an http request was made.
+     */
+    public void activateSiteSpecificMessages (String siteBundlePath,
+                                              SiteResourceLoader siteLoader,
+                                              SiteIdentifier siteIdent)
+    {
+        _siteBundlePath = siteBundlePath;
+        _siteLoader = siteLoader;
+        _siteIdent = siteIdent;
+    }
+
+    /**
      * Looks up the message with the specified path in the resource bundle
      * most appropriate for the locales described as preferred by the
      * request.
      */
     public String getMessage (HttpServletRequest req, String path)
     {
-        try {
-            // use the locale preferred by the client if possible
-            ResourceBundle bundle = resolveBundle(req);
-            if (bundle != null) {
-                return bundle.getString(path);
+        // load up the matching resource bundles (the array will contain
+        // the site-specific resources first and the application resources
+        // second); use the locale preferred by the client if possible
+        ResourceBundle[] bundles = resolveBundles(req);
+        if (bundles != null) {
+            int blength = bundles.length;
+            for (int i = 0; i < blength; i++) {
+                try {
+                    if (bundles[i] != null) {
+                        return bundles[i].getString(path);
+                    }
+                } catch (MissingResourceException mre) {
+                    // no complaints, just try the bundle in the enclosing
+                    // scope
+                }
             }
-
-            // if we couldn't find a bundle, things are way wacked out,
-            // but we've already complained about it so we just fall
-            // through and return the path back to the caller
-
-        } catch (MissingResourceException mre) {
-            // if there's no translation for this path, complain about it
-            Log.warning("Missing translation message [path=" + path + "].");
         }
 
+        // if there's no translation for this path, complain about it
+        Log.warning("Missing translation message [path=" + path + "].");
         return path;
     }
 
@@ -85,44 +115,63 @@ public class MessageManager
     public String getMessage (HttpServletRequest req, String path,
                               Object[] args)
     {
-        try {
-            // use the locale preferred by the client if possible
-            ResourceBundle bundle = resolveBundle(req);
-            if (bundle != null) {
-                String msg = bundle.getString(path);
-		// we may cache message formatters later, but for now just
-		// use the static convenience function
-		return MessageFormat.format(msg, args);
-            }
-
-            // if we couldn't find a bundle, things are way wacked out,
-            // but we've already complained about it so we just fall
-            // through and return the path back to the caller
-
-        } catch (MissingResourceException mre) {
-            // if there's no translation for this path, complain about it
-            Log.warning("Missing translation message [path=" + path + "].");
-        }
-
-        return path;
+        String msg = getMessage(req, path);
+        // we may cache message formatters later, but for now just
+        // use the static convenience function
+        return MessageFormat.format(msg, args);
     }
 
     /**
      * Finds the closest matching resource bundle for the locales
      * specified as preferred by the client in the supplied http request.
      */
-    protected ResourceBundle resolveBundle (HttpServletRequest req)
-        throws MissingResourceException
+    protected ResourceBundle[] resolveBundles (HttpServletRequest req)
     {
-        // first look to see if we've cached the bundle for this request
+        // first look to see if we've cached the bundles for this request
         // in the request object
-        ResourceBundle bundle = (ResourceBundle)
+        ResourceBundle[] bundles = (ResourceBundle[])
             req.getAttribute(BUNDLE_CACHE_NAME);
-        if (bundle != null) {
-            return bundle;
+        if (bundles != null) {
+            return bundles;
         }
 
-        // otherwise try looking up the appropriate bundle
+        int siteId = _siteIdent.identifySite(req);
+        ClassLoader siteLoader = null;
+        try {
+            siteLoader = _siteLoader.getSiteClassLoader(siteId);
+        } catch (IOException ioe) {
+            Log.warning("Unable to fetch site-specific classloader " +
+                        "[siteId=" + siteId + ", error=" + ioe + "].");
+        }
+
+        // otherwise try looking up the appropriate bundles
+        bundles = new ResourceBundle[2];
+
+        // first from the site-specific classloader (if we've got one)
+        if (siteLoader != null) {
+            bundles[0] = resolveBundle(req, _siteBundlePath, siteLoader);
+        }
+
+        // then from the default classloader
+        bundles[1] = resolveBundle(req, _bundlePath,
+                                   getClass().getClassLoader());
+
+        // if we found either or both bundles, cache 'em
+        if (bundles[0] != null || bundles[1] != null) {
+            req.setAttribute(BUNDLE_CACHE_NAME, bundles);
+        }
+
+        return bundles;
+    }
+
+    /**
+     * Resolves the default resource bundle based on the locale
+     * information provided in the supplied http request object.
+     */
+    protected ResourceBundle resolveBundle (
+        HttpServletRequest req, String bundlePath, ClassLoader loader)
+    {
+        ResourceBundle bundle = null;
         Enumeration locales = req.getLocales();
 
         while (locales.hasMoreElements()) {
@@ -137,7 +186,8 @@ public class MessageManager
                 // matches on any of the preferred locales specified by
                 // the client. if we don't, then we can rely on java's
                 // fallback mechanisms
-                bundle = ResourceBundle.getBundle(_bundlePath, locale);
+                bundle = ResourceBundle.getBundle(
+                    bundlePath, locale, loader);
 
                 // if it's an exact match, off we go
                 if (bundle.getLocale().equals(locale)) {
@@ -156,20 +206,16 @@ public class MessageManager
         if (bundle == null) {
             try {
                 bundle = ResourceBundle.getBundle(
-                    _bundlePath, req.getLocale());
+                    bundlePath, req.getLocale(), loader);
 
             } catch (MissingResourceException mre) {
                 // if we were unable even to find a default bundle, we've
                 // got real problems. time to freak out
                 Log.warning("Unable to resolve any message bundle " +
-                            "[bundlePath=" + _bundlePath +
-                            ", locale=" + req.getLocale() + "].");
+                            "[bundlePath=" + bundlePath +
+                            ", locale=" + req.getLocale() +
+                            ", loader=" + loader + "].");
             }
-        }
-
-        // if we found a bundle, cache it
-        if (bundle != null) {
-            req.setAttribute(BUNDLE_CACHE_NAME, bundle);
         }
 
         return bundle;
@@ -177,6 +223,18 @@ public class MessageManager
 
     /** The path, relative to the classpath, to our resource bundles. */
     protected String _bundlePath;
+
+    /** The path to the site-specific message bundles, fetched via the
+     * site-specific resource loader. */
+    protected String _siteBundlePath;
+
+    /** The resource loader with which to fetch our site-specific message
+     * bundles. */
+    protected SiteResourceLoader _siteLoader;
+
+    /** The site identifier we use to determine through which site a
+     * request was made. */
+    protected SiteIdentifier _siteIdent;
 
     /** The attribute name that we use for caching resource bundles in
      * request objects. */

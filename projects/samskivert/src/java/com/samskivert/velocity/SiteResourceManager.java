@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceManager.java,v 1.3 2001/11/06 05:37:57 mdb Exp $
+// $Id: SiteResourceManager.java,v 1.4 2001/11/06 20:16:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -32,14 +32,17 @@ import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
 import com.samskivert.Log;
 import com.samskivert.servlet.SiteIdentifier;
+import com.samskivert.servlet.SiteResourceLoader;
+import com.samskivert.util.StringUtil;
 
 /**
  * A resource manager implementation for Velocity that first loads site
- * specific resources (via the {@link SiteResourceLoader}), but falls back
- * to default resources if no site-specific resource loader is available.
+ * specific resources (via the {@link SiteJarResourceLoader}), but falls
+ * back to default resources if no site-specific resource loader is
+ * available.
  *
  * <p> If this resource manager is to be used, resources must be fetched
- * using {@likn SiteResourceKey} objects as keys rather than simple
+ * using {@link SiteResourceKey} objects as keys rather than simple
  * strings.
  */
 public class SiteResourceManager extends ResourceManagerImpl
@@ -48,6 +51,7 @@ public class SiteResourceManager extends ResourceManagerImpl
         throws Exception
     {
         super.initialize(rsvc);
+        rsvc.info("SiteResourceManager initializing.");
 
         // the web framework was kind enough to slip this into the runtime
         // instance when it started up
@@ -64,8 +68,16 @@ public class SiteResourceManager extends ResourceManagerImpl
         _sctx = app.getServletContext();
         _ident = app.getSiteIdentifier();
 
+        // make sure the app has a site resource loader
+        SiteResourceLoader loader = app.getSiteResourceLoader();
+        if (loader == null) {
+            rsvc.warn("SiteResourceManager: application must be " +
+                      "configured with a site-specific resource loader " +
+                      "that we can use to fetch site-specific resources.");
+        }
+
         // create our resource loaders
-        _siteLoader = new SiteResourceLoader(_ident, _sctx);
+        _siteLoader = new SiteJarResourceLoader(loader);
         _contextLoader = new ServletContextResourceLoader(_sctx);
 
         // for now, turn caching on with the expectation that new
@@ -73,6 +85,8 @@ public class SiteResourceManager extends ResourceManagerImpl
         // being reloaded and clearing out the cache
         _siteLoader.setCachingOn(true);
         _contextLoader.setCachingOn(true);
+
+        rsvc.info("SiteResourceManager initialization complete.");
     }
 
     protected Resource loadResource(
@@ -132,7 +146,7 @@ public class SiteResourceManager extends ResourceManagerImpl
     protected SiteIdentifier _ident;
 
     /** We use this to load site-specific resources. */
-    protected SiteResourceLoader _siteLoader;
+    protected SiteJarResourceLoader _siteLoader;
 
     /** We use this to load default resources. */
     protected ServletContextResourceLoader _contextLoader;

@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.9 2001/11/06 04:49:32 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.10 2001/11/06 20:16:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -43,6 +43,7 @@ import com.samskivert.Log;
 import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
+import com.samskivert.servlet.SiteResourceLoader;
 import com.samskivert.servlet.util.ExceptionMap;
 import com.samskivert.servlet.util.FriendlyException;
 
@@ -153,14 +154,6 @@ public class DispatcherServlet extends VelocityServlet
      * We load our velocity properties from the classpath rather than from
      * a file.
      */
-    protected Properties loadConfiguration (ServletConfig config)
-        throws IOException
-    {
-        String propsPath = config.getInitParameter(INIT_PROPS_KEY);
-        // config util loads properties files from the classpath
-        return ConfigUtil.loadProperties(propsPath);
-    }
-
     /**
      * Initialize ourselves and our application.
      */
@@ -169,9 +162,9 @@ public class DispatcherServlet extends VelocityServlet
     {
         // load up our application configuration
         try {
-            String appcl = config.getInitParameter(APP_CLASS_PROPS_KEY);
+            String appcl = config.getInitParameter(APP_CLASS_KEY);
             Log.info("Creating application [class=" + appcl + "].");
-            if (appcl == null) {
+            if (StringUtil.blank(appcl)) {
                 _app = new Application();
             } else {
                 Class appclass = Class.forName(appcl);
@@ -179,11 +172,9 @@ public class DispatcherServlet extends VelocityServlet
             }
                 
             // now initialize the applicaiton
-            String logicPkg = config.getInitParameter(LOGIC_PKG_PROPS_KEY);
-            if (StringUtil.blank(logicPkg)) {
-                logicPkg = "";
-            }
-            _app.init(getServletContext(), logicPkg);
+            String logicPkg = config.getInitParameter(LOGIC_PKG_KEY);
+            _app.init(config, getServletContext(),
+                      StringUtil.blank(logicPkg) ? "" : logicPkg);
 
         } catch (Throwable t) {
             Log.warning("Error instantiating application.");
@@ -195,6 +186,29 @@ public class DispatcherServlet extends VelocityServlet
 
         // now let velocity initialize itself
         super.initVelocity(config);
+    }
+
+    protected Properties loadConfiguration (ServletConfig config)
+        throws IOException
+    {
+        String propsPath = config.getInitParameter(INIT_PROPS_KEY);
+        // config util loads properties files from the classpath
+        Properties props = ConfigUtil.loadProperties(propsPath);
+
+        // wire up our site resource manager if a site-specific jar file
+        // path was provided
+        SiteResourceLoader siteLoader = _app.getSiteResourceLoader();
+        if (siteLoader != null) {
+            Log.info("Wiring up site resource manager.");
+            props.put(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
+                      SiteResourceManager.class.getName());
+        }
+
+        // wire up our #import directive
+        props.put("userdirective", ImportDirective.class.getName());
+
+        // now return our augmented properties
+        return props;
     }
 
     /**
@@ -394,8 +408,8 @@ public class DispatcherServlet extends VelocityServlet
     protected static final String FORMTOOL_KEY = "form";
 
     /** The servlet parameter key specifying the application class. */
-    protected static final String APP_CLASS_PROPS_KEY = "app_class";
+    protected static final String APP_CLASS_KEY = "app_class";
 
     /** The servlet parameter key specifying the base logic package. */
-    protected static final String LOGIC_PKG_PROPS_KEY = "logic_package";
+    protected static final String LOGIC_PKG_KEY = "logic_package";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoader.java,v 1.5 2001/11/06 05:37:57 mdb Exp $
+// $Id: SiteResourceLoader.java,v 1.6 2001/11/06 20:16:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.Log;
@@ -39,9 +38,7 @@ import com.samskivert.util.HashIntMap;
  * on which they are running is allowed to override a resource with a
  * site-specific version (a header, footer or navigation template for
  * example). The site resource loader provides this capability by loading
- * resources, first from a site-specific jar file and if that doesn't
- * contain an overriding resource, it loads the resource via the servlet
- * context.
+ * resources from a site-specific jar file.
  *
  * <p> The site resource loader must be configured with the path to the
  * site-specific jar files, the names of which are dictated by the string
@@ -52,12 +49,6 @@ import com.samskivert.util.HashIntMap;
  * returns <code>samskivert</code> as the site identifier for a particular
  * request, site-specific resources will be loaded from
  * <code>/usr/share/java/webapps/site-data/samskivert.jar</code>.
- *
- * <p> Also note that if the site identifier returns {@link
- * SiteIdentifier#DEFAULT_SITE_ID} as the site for a particular request,
- * no site-specific jar file will be searched and the default version of
- * the resource will assumed to have been provided by the webapp itself
- * and be available via the servlet context.
  */
 public class SiteResourceLoader
 {
@@ -66,37 +57,20 @@ public class SiteResourceLoader
      *
      * @param siteIdent the site identifier to be used to identify which
      * site through which a request was made when loading resources.
-     * @param context the servlet context from which site-agnostic
-     * resources will be loaded and from which configuration information
-     * will be obtained.
+     * @param siteJarPath the path to the site-specific jar files.
      */
     public SiteResourceLoader (
-        SiteIdentifier siteIdent, ServletContext context)
+        SiteIdentifier siteIdent, String siteJarPath)
     {
         // keep this stuff around
         _siteIdent = siteIdent;
-        _context = context;
-
-        // obtain the path to the site-specific jar files
-        _jarPath = context.getInitParameter(SITE_JAR_PATH);
-        if (_jarPath == null) {
-            // use the default
-            _jarPath = DEFAULT_SITE_JAR_PATH;
-            // and complain about it
-            Log.warning("Site resource loader not configured with a " +
-                        "site-specific jar path. Will use default " +
-                        "[path=" + _jarPath + "], but you should provide " +
-                        "a proper value via a servlet context init " +
-                        "parameter named '" + SITE_JAR_PATH + "' to " +
-                        "quiet this warning message.");
-        }
+        _jarPath = siteJarPath;
     }
 
     /**
      * Loads the specific resource, from the site-specific jar file if one
-     * exists and contains the specified resource, or via the servlet
-     * context. If no resource exists with that path in either location,
-     * null will be returned.
+     * exists and contains the specified resource. If no resource exists
+     * with that path, null will be returned.
      *
      * @param req the http request for which we are loading a resource
      * (this will be used to determine for which site the resource will be
@@ -118,9 +92,8 @@ public class SiteResourceLoader
 
     /**
      * Loads the specific resource, from the site-specific jar file if one
-     * exists and contains the specified resource, or via the servlet
-     * context. If no resource exists with that path in either location,
-     * null will be returned.
+     * exists and contains the specified resource. If no resource exists
+     * with that path, null will be returned.
      *
      * @param siteId the unique identifer for the site for which we are
      * loading the resource.
@@ -135,51 +108,22 @@ public class SiteResourceLoader
     public InputStream getResourceAsStream (int siteId, String path)
         throws IOException
     {
-        return getResourceAsStream(siteId, path, true);
-    }
+//          Log.info("Loading site resource [siteId=" + siteId +
+//                   ", path=" + path + "].");
 
-    /**
-     * Loads the specific resource, from the site-specific jar file if one
-     * exists and contains the specified resource, or via the servlet
-     * context (if <code>fallbackToServletContext</code> is true). If no
-     * resource exists with that path in either location, null will be
-     * returned.
-     *
-     * @param siteId the unique identifer for the site for which we are
-     * loading the resource.
-     * @param path the path to the desired resource.
-     * @param fallbackToServletContext if true, the servlet context will
-     * be searched for the resource if there is no site-specific
-     * resource. If false, it will not.
-     *
-     * @return an input stream via which the resource can be read or null
-     * if no resource could be located with the specified path.
-     *
-     * @exception IOException thrown if an I/O error occurs while loading
-     * a resource.
-     */
-    public InputStream getResourceAsStream (int siteId, String path,
-                                            boolean fallbackToServletContext)
-        throws IOException
-    {
-        InputStream stream = null;
+        // synchronize on the lock to ensure that only one thread per site
+        // is concurrently executing
+        synchronized (getLock(siteId)) {
+            SiteResourceBundle bundle = getBundle(siteId);
 
-        // if we identified a non-default site, we first look for a
-        // site-specific resource
-        if (siteId != SiteIdentifier.DEFAULT_SITE_ID) {
-            // and fetch the site specific resource
-            stream = getSiteResourceAsStream(siteId, path);
+            // make sure the path has no leading slash
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+
+            // obtain our resource from the bundle
+            return bundle.getResourceAsStream(path);
         }
-
-        // if we didn't find a site-specific resource (or didn't look for
-        // one because we're loading for the default site), we need to
-        // attempt to load the resource from the servlet context
-        if (stream == null && fallbackToServletContext) {
-            stream = _context.getResourceAsStream(path);
-        }
-
-        // that's all she wrote
-        return stream;
     }
 
     /**
@@ -200,27 +144,32 @@ public class SiteResourceLoader
     }
 
     /**
-     * Fetches the resource with the specified path from the site-specific
-     * jar file associated with the specified site.
+     * Returns a class loader that loads resources from the site-specific
+     * jar file for the specified site. If no site-specific jar file
+     * exists for the specified site, null will be returned.
      */
-    protected InputStream getSiteResourceAsStream (int siteId, String path)
+    public ClassLoader getSiteClassLoader (int siteId)
         throws IOException
     {
-//          Log.info("Loading site resource [siteId=" + siteId +
-//                   ", path=" + path + "].");
-
         // synchronize on the lock to ensure that only one thread per site
         // is concurrently executing
         synchronized (getLock(siteId)) {
-            SiteResourceBundle bundle = getBundle(siteId);
+            // see if we've already got one
+            ClassLoader loader = (ClassLoader)_loaders.get(siteId);
 
-            // make sure the path has no leading slash
-            if (path.startsWith("/")) {
-                path = path.substring(1);
+            // create one if we've not
+            if (loader == null) {
+                SiteResourceBundle bundle = getBundle(siteId);
+                if (bundle == null) {
+                    // no bundle... no classloader.
+                    return null;
+                }
+
+                loader = new JarFileClassLoader(bundle.jarFile);
+                _loaders.put(siteId, loader);
             }
 
-            // obtain our resource from the bundle
-            return bundle.getResourceAsStream(path);
+            return loader;
         }
     }
 
@@ -313,7 +262,7 @@ public class SiteResourceLoader
 
             // now load up the resource
             JarEntry entry = jarFile.getJarEntry(path);
-            return entry == null ? null : jarFile.getInputStream(entry);
+            return (entry == null) ? null : jarFile.getInputStream(entry);
         }
 
         /**
@@ -353,8 +302,7 @@ public class SiteResourceLoader
                     jarFile.close();
                 }
 
-//                  Log.info("Opening site-specific jar file " +
-//                           "[path=" + file + "].");
+                Log.info("Opened site bundle [path=" + file.getPath() + "].");
 
                 // and open a new one
                 jarFile = new JarFile(file);
@@ -366,11 +314,33 @@ public class SiteResourceLoader
         protected long _lastModified;
     }
 
+    protected static class JarFileClassLoader extends ClassLoader
+    {
+        public JarFileClassLoader (JarFile jarFile)
+        {
+            _jarFile = jarFile;
+        }
+
+        public InputStream getResourceAsStream (String path)
+        {
+//              Log.info("Seeking resource [jarFile=" + _jarFile +
+//                       ", path=" + path + "].");
+            try {
+                JarEntry entry = _jarFile.getJarEntry(path);
+                return (entry == null) ? null :
+                    _jarFile.getInputStream(entry);
+            } catch (IOException ioe) {
+                Log.warning("Error loading resource from jarfile " +
+                            "[jar=" + _jarFile + ", error=" + ioe + "].");
+                return null;
+            }
+        }
+
+        protected JarFile _jarFile;
+    }
+
     /** The site identifier we use to identify requests. */
     protected SiteIdentifier _siteIdent;
-
-    /** The servlet context via which we load resources. */
-    protected ServletContext _context;
 
     /** The path to our site-specific jar files. */
     protected String _jarPath;
@@ -381,9 +351,8 @@ public class SiteResourceLoader
     /** The table of site-specific jar file information. */
     protected HashIntMap _bundles = new HashIntMap();
 
-    /** The servlet context init parameter name that is used to load our
-     * site-specific jar path configuration parameter. */
-    protected static final String SITE_JAR_PATH = "siteJarPath";
+    /** The table of site-specific class loaders. */
+    protected HashIntMap _loaders = new HashIntMap();
 
     /** The default path to the site-specific jar files. This won't be
      * used without logging a complaint first. */

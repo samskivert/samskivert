@@ -1,5 +1,5 @@
 //
-// $Id: JDBCUtil.java,v 1.7 2004/04/30 02:38:10 mdb Exp $
+// $Id: JDBCUtil.java,v 1.8 2004/05/17 15:58:45 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -163,5 +163,45 @@ public class JDBCUtil
             Log.logStackTrace(uee);
             return text;
         }
+    }
+
+    /**
+     * Returns true if the table with the specified name exists, false if
+     * it does not. <em>Note:</em> the table name is case sensitive.
+     */
+    public static boolean tableExists (Connection conn, String name)
+        throws SQLException
+    {
+        boolean matched = false;
+        ResultSet rs = conn.getMetaData().getTables("", "", name, null);
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            if (name.equals(tname)) {
+                matched = true;
+            }
+        }
+        return matched;
+    }
+
+    /**
+     * Returns true if the table with the specified name exists and
+     * contains a column with the specified name, false if either
+     * condition does not hold true. <em>Note:</em> the names are case
+     * sensitive.
+     */
+    public static boolean tableContainsColumn (
+        Connection conn, String table, String column)
+        throws SQLException
+    {
+        boolean matched = false;
+        ResultSet rs = conn.getMetaData().getColumns("", "", table, column);
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            String cname = rs.getString("COLUMN_NAME");
+            if (tname.equals(table) && cname.equals(column)) {
+                matched = true;
+            }
+        }
+        return matched;
     }
 }

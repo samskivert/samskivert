@@ -18,8 +18,8 @@ efficient a manner as possible.
 Using lookuplet
 ---------------
 
-When invoked, the lookuplet grabs the current selection and sticks it into
-a text field for potential editing. You then press a key combination that
+When invoked, lookuplet grabs the current selection and sticks it into a
+text field for potential editing. You then press a key combination that
 you have previously configured and the text is sent either as an argument
 to an application or URL encoded and substituted into a URL which is then
 opened with your preferred web browser.
@@ -38,6 +38,11 @@ combination and then press the key combination of your desired service.
 With such a configuration, the process of looking up information becomes
 extremely efficient in terms of key presses and mouse clicks.
 
+lookuplet can also be loaded into the GNOME toolbar as an applet instead
+of being run standalone. In that configuration it doesn't grab the
+selection when it starts up, but instead assumes you'll be pasting text
+into it's text field before pressing a key combination.
+
 The key combinations used by lookuplet and the associated launch
 configuration are maintained via a simple graphical user interface.
 
@@ -45,22 +50,6 @@ Building lookuplet
 ------------------
 
 Look at the INSTALL file for build instructions.
-
-
-GNOME Note
-----------
-
-Originally this program was a GNOME applet that lived in the GNOME
-toolbar. Then I decided that sitting around consuming large amounts of
-memory waiting while doing nothing wasn't such a good idea. So I modified
-the code to operate as a standalone program (and added the selection
-grabbing which turned out to be way more useful anyway).
-
-However, the code difference is extremely small and there are some
-vestiges in the build framework that support building and installing
-lookuplet as an applet. If someone were keen enough on having applet
-support, it would be pretty easy to make that a compile-time configuration
-option.
 
 Distribution
 ------------
@@ -80,4 +69,4 @@ Enjoy,
 
     Michael Bayne <mdb@samskivert.com>
 
-$Id: README,v 1.3 2001/08/16 20:41:10 mdb Exp $
+$Id: README,v 1.4 2001/08/18 02:39:36 mdb Exp $

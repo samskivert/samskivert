@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.5 2001/08/11 22:43:29 mdb Exp $
+// $Id: Config.java,v 1.6 2001/08/29 18:40:26 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -118,7 +118,7 @@ public class Config
             return defval;
         }
 
-        // otherwise parse  it into an integer
+        // otherwise parse it into an integer
         try {
             return Integer.parseInt(val);
         } catch (NumberFormatException nfe) {
@@ -146,6 +146,31 @@ public class Config
         String val = resolveProperty(name);
         // if it's not specified, we return the default
         return (val == null) ? defval : val;
+    }
+
+    /**
+     * Fetches and returns the value for the specified configuration
+     * property. If the value is not specified in the associated
+     * properties file, the supplied default value is returned
+     * instead.  The returned value will be <code>false</code> if the
+     * config value is <code>"false"</code> (case-insensitive), else
+     * the return value will be true.
+     *
+     * @param the fully qualified name of the property (fully qualified
+     * meaning that it contains the namespace identifier as well), for
+     * example: <code>foo.bar.baz</code>.
+     * @param defval the value to return if the property is not specified
+     * in the config file.
+     *
+     * @return the value of the requested property.
+     */
+    public boolean getValue (String name, boolean defval)
+    {
+	String val = resolveProperty(name);
+
+	// if it's not specified, we return the default
+	val = val.toLowerCase();
+	return (val == null) ? defval : (!val.equals("false"));
     }
 
     /**

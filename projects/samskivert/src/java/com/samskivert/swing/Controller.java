@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.6 2001/10/03 02:20:05 mdb Exp $
+// $Id: Controller.java,v 1.7 2001/12/20 00:40:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -128,13 +128,26 @@ public abstract class Controller
     /**
      * Like {@link #postAction(ActionEvent)} except that it constructs the
      * action event for you with the supplied source component and string
-     * comment. The <code>id</code> of the event will always be set to
+     * command. The <code>id</code> of the event will always be set to
      * zero.
      */
     public static void postAction (Component source, String command)
     {
         // slip things onto the event queue for later
         ActionEvent event = new ActionEvent(source, 0, command);
+        EventQueue.invokeLater(new ActionInvoker(event));
+    }
+
+    /**
+     * Like {@link #postAction(ActionEvent)} except that it constructs a
+     * {@link CommandEvent} with the supplied source component, string
+     * command and argument.
+     */
+    public static void postAction (
+        Component source, String command, Object argument)
+    {
+        // slip things onto the event queue for later
+        CommandEvent event = new CommandEvent(source, command, argument);
         EventQueue.invokeLater(new ActionInvoker(event));
     }
 

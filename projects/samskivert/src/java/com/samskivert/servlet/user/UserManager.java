@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.10 2001/09/21 03:01:46 mdb Exp $
+// $Id: UserManager.java,v 1.11 2002/05/01 01:50:05 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -39,9 +39,8 @@ import com.samskivert.util.*;
 public class UserManager
 {
     /**
-     * A user manager creates a user repository through which to load and
-     * save user records. A connection provider must be supplied via which
-     * the user repository can obtain its database connection.
+     * A user manager must be supplied with a {@link UserRepository}
+     * through which it loads and saves user records.
      *
      * <p> Presently the user manager requires the following configuration
      * information:
@@ -61,16 +60,14 @@ public class UserManager
      * </ul>
      *
      * @param config the user manager configuration properties.
-     * @param provider a database connection provider that will be used by
-     * the user repository to obtain it's database connection.
-     *
-     * @see UserRepository#UserRepository
+     * @param repository the user repository through which user records
+     * are loaded and saved.
      */
-    public UserManager (Properties config, ConnectionProvider provider)
+    public UserManager (Properties config, UserRepository repository)
 	throws PersistenceException
     {
-	// open up the user repository
-	_repository = new UserRepository(provider);
+	// save off the user repository
+	_repository = repository;
 
 	// fetch the login URL from the properties
 	_loginURL = config.getProperty("login_url");

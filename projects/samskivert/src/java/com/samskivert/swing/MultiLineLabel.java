@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.9 2002/11/22 21:21:32 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.10 2003/01/15 00:17:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -334,5 +334,5 @@ public class MultiLineLabel extends JComponent
     protected boolean _antialiased;
 
     /** Whether this label is dirty and should be re-layed out. */
-    protected boolean _dirty;
+    protected boolean _dirty = true;
 }

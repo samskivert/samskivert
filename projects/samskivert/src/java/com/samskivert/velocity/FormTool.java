@@ -287,9 +287,19 @@ public class FormTool
     public String option (
         String name, String value, String item, Object defaultValue)
     {
+        String selectedValue = getValue(name, defaultValue);
+        return fixedOption(name, value, item, selectedValue);
+    }
+
+    /**
+     * Constructs an option entry for a select menu with the specified
+     * name, value, item, and selected value.
+     */
+    public String fixedOption (
+        String name, String value, String item, Object selectedValue)
+    {
         StringBuffer buf = new StringBuffer();
         buf.append("<option value=\"").append(value).append("\"");
-        String selectedValue = getValue(name, defaultValue);
         if (selectedValue.equals(value)) {
             buf.append(" selected");
         }

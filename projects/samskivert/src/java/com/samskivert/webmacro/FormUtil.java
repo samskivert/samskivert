@@ -1,5 +1,5 @@
 //
-// $Id: FormUtil.java,v 1.4 2001/03/04 08:18:28 mdb Exp $
+// $Id: FormUtil.java,v 1.5 2001/03/15 19:33:37 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -63,6 +63,22 @@ public class FormUtil
 	throws DataValidationException
     {
         return parseDateParameter(context.getForm(name), invalidDataMessage);
+    }
+
+    /**
+     * Fetches the supplied parameter from the request. If the parameter
+     * does not exist, either null or the empty string will be returned
+     * depending on the value of the <code>returnNull</code> parameter.
+     */
+    public static String getParameter (WebContext context, String name,
+                                       boolean returnNull)
+    {
+	String value = context.getForm(name);
+        if (returnNull || !StringUtil.blank(value)) {
+            return value;
+        } else {
+            return "";
+        }
     }
 
     /**

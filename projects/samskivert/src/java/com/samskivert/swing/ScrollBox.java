@@ -1,9 +1,10 @@
 //
-// $Id: ScrollBox.java,v 1.1 2003/03/26 09:27:43 ray Exp $
+// $Id: ScrollBox.java,v 1.2 2003/03/26 20:38:18 ray Exp $
 
 package com.samskivert.swing;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -52,6 +53,7 @@ public class ScrollBox extends JPanel
 
         _horz.addChangeListener(_changebob);
         _vert.addChangeListener(_changebob);
+        setActiveArea(_active);
         updateBox();
     }
 
@@ -68,33 +70,65 @@ public class ScrollBox extends JPanel
     public void setBounds (int x, int y, int w, int h)
     {
         super.setBounds(x, y, w, h);
+        setActiveArea(_active);
         updateBox();
     }
 
     // documentation inherited
     public void paintComponent (Graphics g)
     {
+        paintBackground(g);
+
+        paintBox(g, _box);
+    }
+
+    /**
+     * Paint the background.
+     */
+    protected void paintBackground (Graphics g)
+    {
+        // simply fill our background color
         g.setColor(getBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
+    }
 
+    /**
+     * Paint the box that represents the visible area of the two-dimensional
+     * scrolling area.
+     */
+    protected void paintBox (Graphics g, Rectangle box)
+    {
+        // just draw the box in our foreground color
         g.setColor(getForeground());
-        g.drawRect(_box.x, _box.y, _box.width, _box.height);
+        g.drawRect(box.x, box.y, box.width, box.height);
+    }
+
+    /**
+     * Set the bounds of the rectangle to be the active area within this
+     * component.
+     */
+    protected void setActiveArea (Rectangle active)
+    {
+        // by default we use almost the entire area of the component
+        active.setBounds(0, 0, getWidth() - 1, getHeight() - 1);
     }
 
     /**
      * Recalculate the size of the box.
+     * You shouldn't need to override this to provide custom functionality.
+     * Use the above three methods instead.
      */
     protected void updateBox ()
     {
-        _hFactor = (getWidth() - 1) /
+        _hFactor = (_active.width) /
             (float) (_horz.getMaximum() - _horz.getMinimum());
-        _vFactor = (getHeight() - 1) /
-            (float) (_vert.getMaximum() - _horz.getMinimum());
+        _vFactor = (_active.height) /
+            (float) (_vert.getMaximum() - _vert.getMinimum());
 
-        _box.x = (int) Math.round(_horz.getValue() * _hFactor);
+        _box.x = _active.x + (int) Math.round(_horz.getValue() * _hFactor);
         _box.width = (int) Math.round(_horz.getExtent() * _hFactor);
 
-        _box.y = (int) Math.round(_vert.getValue() * _vFactor);
+        _box.y = _active.y + (int) Math.round(_vert.getValue() * _vFactor);
         _box.height = (int) Math.round(_vert.getExtent() * _vFactor);
     }
 
@@ -102,7 +136,7 @@ public class ScrollBox extends JPanel
     protected BoundedRangeModel _horz, _vert;
 
     /** The box that we're spanking. */
-    protected Rectangle _box = new Rectangle();
+    protected Rectangle _box = new Rectangle(), _active = new Rectangle();
 
     /** The conversion factor from one pixel to one unit of bounded range. */
     protected float _hFactor, _vFactor;
@@ -116,9 +150,15 @@ public class ScrollBox extends JPanel
         public void mousePressed (MouseEvent e)
         {
             if (e.getButton() == MouseEvent.BUTTON1) {
+                setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
                 Point p = e.getPoint();
                 if (_box.contains(p)) {
                     _lastPoint = p;
+
+                } else if (_active.contains(p)) {
+                    _lastPoint = new Point(_box.x + (_box.width / 2),
+                                           _box.y + (_box.height / 2));
+                    mouseDragged(e);
                 }
             }
         }
@@ -140,6 +180,7 @@ public class ScrollBox extends JPanel
         public void mouseReleased (MouseEvent e)
         {
             if (e.getButton() == MouseEvent.BUTTON1) {
+                setCursor(null);
                 _lastPoint = null;
             }
         }

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.56 2003/06/02 23:48:33 mdb Exp $
+// $Id: StringUtil.java,v 1.57 2003/08/19 23:37:56 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -49,6 +49,18 @@ public class StringUtil
     public static boolean blank (String value)
     {
 	return (value == null || value.trim().length() == 0);
+    }
+
+    /**
+     * Truncate the specified String if it is longer than maxLength.
+     */
+    public static String truncate (String s, int maxLength)
+    {
+        if ((s == null) || (s.length() <= maxLength)) {
+            return s;
+        } else {
+            return s.substring(0, maxLength);
+        }
     }
 
     /**
@@ -237,12 +249,31 @@ public class StringUtil
     public static void toString (StringBuffer buf, Object val,
                                  String openBox, String closeBox)
     {
+        toString(buf, val, openBox, closeBox, ", ");
+    }
+
+    /**
+     * Converts the supplied value to a string and appends it to the
+     * supplied string buffer. The specified boxing characters are used to
+     * enclose list and array types. For example, if "[" and "]" were
+     * supplied, an int array might be formatted like so: <code>[1, 3,
+     * 5]</code>.
+     *
+     * @param buf the string buffer to which we will append the string.
+     * @param val the value from which to generate the string.
+     * @param openBox the opening box character.
+     * @param closeBox the closing box character.
+     * @param sep the separator string.
+     */
+    public static void toString (StringBuffer buf, Object val,
+                                 String openBox, String closeBox, String sep)
+    {
 	if (val instanceof byte[]) {
 	    buf.append(openBox);
 	    byte[] v = (byte[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(v[i]);
 	    }
@@ -253,7 +284,7 @@ public class StringUtil
 	    short[] v = (short[])val;
 	    for (short i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(v[i]);
 	    }
@@ -264,7 +295,7 @@ public class StringUtil
 	    int[] v = (int[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(v[i]);
 	    }
@@ -275,7 +306,7 @@ public class StringUtil
 	    long[] v = (long[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(v[i]);
 	    }
@@ -286,7 +317,7 @@ public class StringUtil
 	    float[] v = (float[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(v[i]);
 	    }
@@ -297,7 +328,7 @@ public class StringUtil
 	    double[] v = (double[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(v[i]);
 	    }
@@ -308,7 +339,7 @@ public class StringUtil
 	    Object[] v = (Object[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(toString(v[i]));
 	    }
@@ -319,7 +350,7 @@ public class StringUtil
 	    boolean[] v = (boolean[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(v[i] ? "t" : "f");
 	    }
@@ -333,7 +364,7 @@ public class StringUtil
             Enumeration enum = (Enumeration)val;
 	    for (int i = 0; enum.hasMoreElements(); i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(toString(enum.nextElement()));
 	    }
@@ -344,7 +375,7 @@ public class StringUtil
             Iterator iter = (Iterator)val;
 	    for (int i = 0; iter.hasNext(); i++) {
 		if (i > 0) {
-		    buf.append(", ");
+		    buf.append(sep);
 		}
 		buf.append(toString(iter.next()));
 	    }

@@ -1,10 +1,11 @@
 //
-// $Id: CollectionUtilTest.java,v 1.1 2002/04/11 04:11:23 mdb Exp $
+// $Id: CollectionUtilTest.java,v 1.2 2002/09/23 01:45:47 mdb Exp $
 
 package com.samskivert.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -31,6 +32,15 @@ public class CollectionUtilTest extends TestCase
             // System.out.println(StringUtil.toString(subset));
             assertTrue("length == 10", subset.size() == 10);
         }
+
+        // test sortable array list insertion
+        Random rand = new Random();
+        SortableArrayList slist = new SortableArrayList();
+        for (int ii = 0; ii < 25; ii++) {
+            Integer value = new Integer(rand.nextInt(100));
+            slist.insertSorted(value);
+        }
+        System.out.println(StringUtil.toString(slist));
     }
 
     public static Test suite ()

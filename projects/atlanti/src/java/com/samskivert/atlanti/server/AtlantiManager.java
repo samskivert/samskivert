@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.24 2002/12/12 05:51:54 mdb Exp $
+// $Id: AtlantiManager.java,v 1.26 2004/08/28 02:17:06 mdb Exp $
 
 package com.samskivert.atlanti.server;
 
@@ -21,9 +21,9 @@ import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.presents.dobj.MessageEvent;
 
-import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.chat.server.SpeakProvider;
 import com.threerings.crowd.data.PlaceObject;
+
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.server.PlaceManager;
 
@@ -536,9 +536,9 @@ public class AtlantiManager extends GameManager
 
         // if this isn't the final tally, we also clear 'em from the board
         if (!finalTally) {
-            Iterator iter = _atlobj.piecens.entries();
-            while (iter.hasNext()) {
-                Piecen p = (Piecen)iter.next();
+            Object[] pvec = _atlobj.piecens.toArray(null);
+            for (int ii = 0; ii < pvec.length; ii++) {
+                Piecen p = (Piecen)pvec[ii];
                 if (p.claimGroup == claimGroup) {
                     removePiecen(p, true);
                 }

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.19 2002/01/30 18:11:27 mdb Exp $
+// $Id: StringUtil.java,v 1.20 2002/01/30 18:21:14 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -355,7 +355,8 @@ public class StringUtil
      * Joins an array of strings into a single string, separated by
      * commas, and escaping commas that occur in the individual string
      * values such that a subsequent call to {@link #parseStringArray}
-     * would recreated the string array properly.
+     * would recreated the string array properly. Any elements in the
+     * values array that are null will be treated as an empty string.
      */
     public static String joinEscaped (String[] values)
     {
@@ -365,7 +366,8 @@ public class StringUtil
             if (i > 0) {
                 buf.append(", ");
             }
-            buf.append(replace(values[i], ",", ",,"));
+            String value = (values[i] == null) ? "" : values[i];
+            buf.append(replace(value, ",", ",,"));
         }
         return buf.toString();
     }

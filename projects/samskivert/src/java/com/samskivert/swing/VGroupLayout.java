@@ -1,5 +1,5 @@
 //
-// $Id: VGroupLayout.java,v 1.9 2001/10/17 17:01:02 mdb Exp $
+// $Id: VGroupLayout.java,v 1.10 2002/05/16 02:02:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -179,6 +179,8 @@ public class VGroupLayout extends GroupLayout
 
 	    if (_offpolicy == NONE) {
 		newwid = info.dimens[i].width;
+            } else if (_offpolicy == CONSTRAIN) {
+		newwid = Math.min(info.dimens[i].width, b.width);
 	    } else {
                 newwid = defwid;
             }

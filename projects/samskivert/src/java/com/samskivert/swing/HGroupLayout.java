@@ -1,5 +1,5 @@
 //
-// $Id: HGroupLayout.java,v 1.8 2001/10/09 19:46:31 mdb Exp $
+// $Id: HGroupLayout.java,v 1.9 2002/05/16 02:02:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -179,6 +179,8 @@ public class HGroupLayout extends GroupLayout
 
 	    if (_offpolicy == NONE) {
 		newhei = info.dimens[i].height;
+            } else if (_offpolicy == CONSTRAIN) {
+		newhei = Math.min(info.dimens[i].height, b.height);
 	    } else {
                 newhei = defhei;
             }

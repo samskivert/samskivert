@@ -1,5 +1,5 @@
 //
-// $Id: GroupLayout.java,v 1.4 2002/04/26 02:34:48 mdb Exp $
+// $Id: GroupLayout.java,v 1.5 2002/05/16 02:02:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -97,6 +97,13 @@ public abstract class GroupLayout
      * widget on this axis.
      */
     public final static int EQUALIZE = 2;
+
+    /**
+     * Only valid for off-axis policy, this leaves widgets alone unless
+     * they are larger in the off-axis direction than their container, in
+     * which case it constrains them to fit on the off-axis.
+     */
+    public final static int CONSTRAIN = 3;
 
     public void setPolicy (int policy)
     {
@@ -391,7 +398,7 @@ public abstract class GroupLayout
     }
 
     protected int _policy = NONE;
-    protected int _offpolicy = NONE;
+    protected int _offpolicy = CONSTRAIN;
     protected int _gap = DEFAULT_GAP;
     protected int _justification = CENTER;
     protected int _offjust = CENTER;

@@ -139,6 +139,13 @@ public abstract class Interval
             return;
         }
 
+        // It's possible that we've been queued up on the RunQueue, and while
+        // we've been queued up the Interval was cancelled, rescheduled, and
+        // has fired again, in which case this run method will succeed even
+        // though it probably shouldn't. It's not the end of the world,
+        // this one will run and the new one that got queued up afterwards
+        // won't. I'm not sure if there's a way around that.
+
         // increment expired and scoot everything back if we're getting too big
         _expired++;
         if (_expired > Integer.MAX_VALUE/2) {

@@ -1,15 +1,16 @@
 //
-// $Id: Collections.java,v 1.1 2001/09/15 17:22:11 mdb Exp $
+// $Id: Collections.java,v 1.2 2001/12/14 18:27:57 mdb Exp $
 
 package com.samskivert.util;
 
 import java.util.*;
 
 /**
- * Like the <code>java.util</code> class of the same name, the
- * <code>Collections</code> class provides utility functions related to
- * the collections provided by the <code>com.samskivert.util</code>
- * package.
+ * Provides functionality for the samskivert collections that the
+ * <code>java.util</code> class of the same name provides for the standard
+ * Java collections. Collections-related functionality that is different
+ * from the standard support provided for the Java collections should go
+ * into {@link CollectionUtil}.
  */
 public class Collections
 {

@@ -1,5 +1,5 @@
 //
-// $Id: ImporterFrame.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
+// $Id: ImporterFrame.java,v 1.4 2001/07/12 22:32:27 mdb Exp $
 
 package robodj.importer;
 
@@ -14,6 +14,9 @@ public class ImporterFrame extends JFrame
     public ImporterFrame ()
     {
 	super("RoboDJ CD Importer");
+
+        // quit if we're closed
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 	_top = new JPanel();
 	GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);

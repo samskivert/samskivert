@@ -15,3 +15,6 @@ RoboDJ Notes
 - Restructure ripping process so that the panel code drives the ripping of
   each track which would allow it to respond to ripping failures and
   provide the ability to retry or ignore a track that fails to rip.
+
+- Add check to see if a disc is already in the repository and offer to
+  re-rip it.

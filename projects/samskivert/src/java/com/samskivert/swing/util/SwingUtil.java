@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.1 2001/07/21 00:49:26 shaper Exp $
+// $Id: SwingUtil.java,v 1.2 2001/07/25 23:50:22 mdb Exp $
 
 package com.samskivert.swing.util;
 
@@ -11,16 +11,16 @@ import java.awt.*;
 public class SwingUtil
 {
     /**
-     * Center the given frame within the screen boundaries.
+     * Center the given window within the screen boundaries.
      *
-     * @param frame the frame to be centered.
+     * @param window the window to be centered.
      */
-    public static void centerFrame (Frame frame)
+    public static void centerWindow (Window window)
     {
-        Toolkit tk = frame.getToolkit();
+        Toolkit tk = window.getToolkit();
         Dimension ss = tk.getScreenSize();
-        int width = frame.getWidth(), height = frame.getHeight();
-        frame.setBounds((ss.width-width)/2, (ss.height-height)/2,
-                        width, height);
+        int width = window.getWidth(), height = window.getHeight();
+        window.setBounds((ss.width-width)/2, (ss.height-height)/2,
+                         width, height);
     }
 }

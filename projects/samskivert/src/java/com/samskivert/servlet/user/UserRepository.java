@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.36 2003/11/13 02:33:33 ray Exp $
+// $Id: UserRepository.java,v 1.37 2003/12/15 23:12:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -44,6 +44,7 @@ import com.samskivert.jdbc.jora.FieldMask;
 import com.samskivert.jdbc.jora.Session;
 import com.samskivert.jdbc.jora.Table;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.samskivert.servlet.SiteIdentifier;
 
@@ -192,6 +193,7 @@ public class UserRepository extends JORARepository
     public User loadUser (String username)
 	throws PersistenceException
     {
+        username = StringUtil.replace(username, "'", "\\'");
         return loadUserWhere("where username = '" + username + "'");
     }
 

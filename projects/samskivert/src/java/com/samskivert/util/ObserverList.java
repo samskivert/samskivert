@@ -1,5 +1,5 @@
 //
-// $Id: ObserverList.java,v 1.1 2002/05/16 21:45:49 mdb Exp $
+// $Id: ObserverList.java,v 1.2 2002/05/16 22:13:28 mdb Exp $
 
 package com.samskivert.util;
 
@@ -77,8 +77,11 @@ public class ObserverList extends ArrayList
     {
         /**
          * Called once for each observer in the list.
+         *
+         * @return true if the observer should remain in the list, false
+         * if it should be removed in response to this application.
          */
-        public void apply (Object observer);
+        public boolean apply (Object observer);
     }
 
     /** A notification ordering policy indicating that the observers
@@ -128,13 +131,17 @@ public class ObserverList extends ArrayList
             Object[] obs = toArray();
             int ocount = obs.length;
             for (int ii = 0; ii < ocount; ii++) {
-                checkedApply(obop, obs[ii]);
+                if (!checkedApply(obop, obs[ii])) {
+                    remove(obs[ii]);
+                }
             }
 
         } else if (_policy == FAST_UNSAFE_NOTIFY) {
             int ocount = size();
-            for (int ii = ocount-1; ii >= 0; ii++) {
-                checkedApply(obop, get(ii));
+            for (int ii = ocount-1; ii >= 0; ii--) {
+                if (!checkedApply(obop, get(ii))) {
+                    remove(ii);
+                }
             }
         }
     }
@@ -143,15 +150,18 @@ public class ObserverList extends ArrayList
      * Applies the operation to the observer, catching and logging any
      * exceptions thrown in the process.
      */
-    protected static void checkedApply (ObserverOp obop, Object obs)
+    protected static boolean checkedApply (ObserverOp obop, Object obs)
     {
         try {
-            obop.apply(obs);
+            return obop.apply(obs);
         } catch (Throwable thrown) {
             Log.warning("ObserverOp choked during notification " +
                         "[op=" + obop +
                         ", obs=" + StringUtil.safeToString(obs) + "].");
             Log.logStackTrace(thrown);
+
+            // if they booched it, definitely don't remove them
+            return true;
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.12 2001/10/18 21:50:18 mdb Exp $
+// $Id: StringUtil.java,v 1.13 2001/11/18 04:01:08 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,6 +19,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.util;
+
+import java.awt.geom.Dimension2D;
+import java.awt.geom.Point2D;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -177,6 +180,16 @@ public class StringUtil
 		buf.append(toString(iter.next()));
 	    }
 	    buf.append(")");
+
+	} else if (val instanceof Point2D) {
+            Point2D p = (Point2D)val;
+	    buf.append("[+").append(p.getX());
+            buf.append("+").append(p.getY()).append("]");
+
+	} else if (val instanceof Dimension2D) {
+            Dimension2D d = (Dimension2D)val;
+	    buf.append("[").append(d.getWidth()).append("x");
+            buf.append(d.getHeight()).append("]");
 
 	} else {
 	    buf.append(val);

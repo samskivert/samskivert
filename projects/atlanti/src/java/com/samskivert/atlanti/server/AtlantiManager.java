@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.12 2001/10/17 23:28:34 mdb Exp $
+// $Id: AtlantiManager.java,v 1.13 2001/10/18 02:19:24 mdb Exp $
 
 package com.threerings.venison;
 
@@ -597,6 +597,13 @@ public class VenisonManager
                 scoreFeatures(tile, null);
 
                 Log.info("Placed tile " + tile + ".");
+
+                // now determine if this player has any free piecens
+                int pidx = getTurnHolderIndex();
+                int pcount = TileUtil.countPiecens(_tiles, pidx);
+                if (pcount >= PIECENS_PER_PLAYER) {
+                    endTurn();
+                }
 
             } else {
                 Log.warning("Received invalid placement " + event + ".");

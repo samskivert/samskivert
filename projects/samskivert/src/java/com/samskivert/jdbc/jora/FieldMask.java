@@ -1,5 +1,5 @@
 //
-// $Id: FieldMask.java,v 1.1 2002/03/15 01:06:03 mdb Exp $
+// $Id: FieldMask.java,v 1.2 2002/05/11 20:29:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -57,6 +57,20 @@ public class FieldMask
         }
         // create our modified flags
         _modified = new boolean[dcount];
+    }
+
+    /**
+     * Returns true if any of the fields in this mask are modified.
+     */
+    public final boolean isModified ()
+    {
+        int mcount = _modified.length;
+        for (int ii = 0; ii < mcount; ii++) {
+            if (_modified[ii]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

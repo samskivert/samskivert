@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoaderTest.java,v 1.2 2001/11/05 18:08:01 mdb Exp $
+// $Id: SiteResourceLoaderTest.java,v 1.3 2001/11/08 01:57:18 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.servlet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -30,7 +31,6 @@ import java.util.Enumeration;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -53,10 +53,10 @@ public class SiteResourceLoaderTest extends TestCase
     {
         // we need to fake a couple of things to get the test to work
         TestSiteIdentifier ident = new TestSiteIdentifier();
-        ServletContext context = new TestServletContext();
 
         // now create a resource loader and load up some resources
-        SiteResourceLoader loader = new SiteResourceLoader(ident, context);
+        SiteResourceLoader loader = new SiteResourceLoader(
+            ident, TestUtil.getResourcePath("servlet/srl"));
 
         try {
             testResourceLoader(SiteIdentifier.DEFAULT_SITE_ID,
@@ -65,7 +65,8 @@ public class SiteResourceLoaderTest extends TestCase
             testResourceLoader(SITE2_ID, loader, "site2out.txt");
 
         } catch (IOException ioe) {
-            fail("Error testing resource loader: " + ioe);
+            ioe.printStackTrace();
+            fail("Caught exception while testing resource loader.");
         }
     }
 
@@ -97,9 +98,21 @@ public class SiteResourceLoaderTest extends TestCase
                                    SiteResourceLoader loader, String path)
         throws IOException
     {
-        InputStream rin = loader.getResourceAsStream(siteId, path);
+        InputStream rin = null;
+
+        // load up the site-specific resource
+        try {
+            rin = loader.getResourceAsStream(siteId, path);
+        } catch (FileNotFoundException fnfe) {
+            // fall through
+        }
+
         if (rin == null) {
-            throw new IOException("Unable to load " + path);
+            // fall back to the "default" resource if we couldn't load a
+            // site-specific version
+            String rpath = "servlet/srl/default/" + path;
+            rpath = TestUtil.getResourcePath(rpath);
+            rin = new FileInputStream(rpath);
         }
         buffer.append(StreamUtils.streamAsString(rin));
     }
@@ -107,57 +120,6 @@ public class SiteResourceLoaderTest extends TestCase
     public static Test suite ()
     {
         return new SiteResourceLoaderTest();
-    }
-
-    public static class TestServletContext implements ServletContext
-    {
-        public InputStream getResourceAsStream (String path)
-        {
-            try {
-                String rpath = "servlet/srl/default/" + path;
-                rpath = TestUtil.getResourcePath(rpath);
-                return new FileInputStream(rpath);
-
-            } catch (IOException ioe) {
-                Log.warning("Unable to access servlet resource " +
-                            "[path=" + path + ", error=" + ioe + "].");
-                return null;
-            }
-        }
-
-        public String getInitParameter (String s)
-        {
-            if (s.equals("siteJarPath")) {
-                return TestUtil.getResourcePath("servlet/srl");
-            } else {
-                return null;
-            }
-        }
-
-        public ServletContext getContext (String s) { return null; }
-        public int getMajorVersion () { return 1; }
-        public int getMinorVersion () { return 1; }
-        public String getMimeType (String s) { return null; }
-        public URL getResource (String s)
-            throws MalformedURLException { return null; }
-        public RequestDispatcher getRequestDispatcher (String s)
-        { return null; }
-        public RequestDispatcher getNamedDispatcher (String s)
-        { return null; }
-        public Servlet getServlet (String s)
-            throws ServletException { return null; }
-        public Enumeration getServlets () { return null; }
-        public Enumeration getServletNames () { return null; }
-        public void log (String s) { }
-        public void log (Exception e, String s) { }
-        public void log (String s, Throwable t) { }
-        public String getRealPath (String s) { return null; }
-        public String getServerInfo () { return null; }
-        public Enumeration getInitParameterNames () { return null; }
-        public Object getAttribute (String s) { return null; }
-        public Enumeration getAttributeNames () { return null; }
-        public void setAttribute (String s, Object o) { }
-        public void removeAttribute (String s) { }
     }
 
     public static class TestSiteIdentifier implements SiteIdentifier

@@ -1,9 +1,9 @@
 //
-// $Id: JDBCUtil.java,v 1.9 2004/05/27 02:04:34 eric Exp $
+// $Id: JDBCUtil.java,v 1.10 2004/05/28 01:54:47 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -183,7 +183,28 @@ public class JDBCUtil
         return matched;
     }
 
-    
+    /**
+     * Returns true if the table with the specified name exists and
+     * contains a column with the specified name, false if either
+     * condition does not hold true. <em>Note:</em> the names are case
+     * sensitive.
+     */
+    public static boolean tableContainsColumn (
+        Connection conn, String table, String column)
+        throws SQLException
+    {
+        boolean matched = false;
+        ResultSet rs = conn.getMetaData().getColumns("", "", table, column);
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            String cname = rs.getString("COLUMN_NAME");
+            if (tname.equals(table) && cname.equals(column)) {
+                matched = true;
+            }
+        }
+        return matched;
+    }
+
     /**
      * Returns true if the index on the specified column exists for the
      * specified table. false if it does not. <em>Note:</em> the names are
@@ -207,24 +228,60 @@ public class JDBCUtil
     }
 
     /**
-     * Returns true if the table with the specified name exists and
-     * contains a column with the specified name, false if either
-     * condition does not hold true. <em>Note:</em> the names are case
-     * sensitive.
+     * Adds a column (with name 'cname' and definition 'cdef') to the
+     * specified table.
      */
-    public static boolean tableContainsColumn (
-        Connection conn, String table, String column)
+    public static void addColumnToTable (Connection conn, String table,
+                                         String cname, String cdef)
         throws SQLException
     {
-        boolean matched = false;
-        ResultSet rs = conn.getMetaData().getColumns("", "", table, column);
-        while (rs.next()) {
-            String tname = rs.getString("TABLE_NAME");
-            String cname = rs.getString("COLUMN_NAME");
-            if (tname.equals(table) && cname.equals(column)) {
-                matched = true;
-            }
+        if (JDBCUtil.tableContainsColumn(conn, table, cname)) {
+            Log.info("Database table '" + table + "' already has column '" +
+                     cname + "'.");
+            return;
         }
-        return matched;
+
+        String update = "ALTER TABLE " + table + " ADD COLUMN " + cname + " " +
+            cdef;
+
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(update);
+            stmt.executeUpdate();
+        } finally {
+            close(stmt);
+        }
+
+        Log.info("Database column '" + cname + "' added to table '" + table +
+                 "'.");
+    }
+
+    /**
+     * Adds an index on the specified column (cname) to the specified
+     * table.  The index is named after the column.
+     */
+    public static void addIndexToTable (Connection conn, String table,
+                                        String cname)
+        throws SQLException
+    {
+        if (JDBCUtil.tableContainsIndex(conn, table, cname)) {
+            Log.info("Database table '" + table + "' already has an index on " +
+                     "column '" + cname + "'.");
+            return;
+        }
+
+        String update = "CREATE INDEX " + cname + " on " + table + "(" + cname +
+            ")";
+
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(update);
+            stmt.executeUpdate();
+        } finally {
+            close(stmt);
+        }
+
+        Log.info("Database index '" + cname + "' added to table '" + table +
+                 "'");
     }
 }

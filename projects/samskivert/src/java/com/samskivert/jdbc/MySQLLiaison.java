@@ -1,5 +1,5 @@
 //
-// $Id: MySQLLiaison.java,v 1.4 2001/09/28 22:41:40 mdb Exp $
+// $Id: MySQLLiaison.java,v 1.5 2002/08/19 21:18:58 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -46,6 +46,7 @@ public class MySQLLiaison implements DatabaseLiaison
 	String msg = sqe.getMessage();
 	return (msg != null &&
                 (msg.indexOf("Lost connection") != -1 ||
+                 msg.indexOf("Communication link failure") != -1 ||
                  msg.indexOf("Broken pipe") != -1));
     }
 

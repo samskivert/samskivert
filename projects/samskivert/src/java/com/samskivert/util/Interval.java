@@ -1,5 +1,5 @@
 //
-// $Id: Interval.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: Interval.java,v 1.4 2002/05/23 23:43:17 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,13 +25,9 @@ import java.util.*;
 /**
  * An interface for doing operations after some delay. Normally,
  * <code>intervalExpired()</code> should not do anything that will take
- * very long. If you want to use the thread to do some serious stuff, look
- * at <code>incrementHelperThreads</code> and
- * <code>setMaxHelperThreads</code> in <code>IntervalManager</code>.
+ * very long.
  *
  * @see IntervalManager
- * @see IntervalManager#incrementHelperThreads
- * @see IntervalManager#setMaxHelperThreads
  */
 public interface Interval
 {

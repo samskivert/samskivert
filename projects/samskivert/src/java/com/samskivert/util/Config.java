@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.12 2002/04/07 23:44:31 mdb Exp $
+// $Id: Config.java,v 1.13 2002/04/07 23:45:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -38,7 +38,8 @@ import com.samskivert.Log;
  * configuration information. It takes care of loading properties files
  * (done via the classpath) and merging configuration data from multiple
  * configuration files with the same path (so that users of packages can
- * override configuration settings for the packages that they use).
+ * override configuration settings for the packages that they use; see
+ * {@ConfigUtil#loadInheritedProperties}).
  *
  * <p> The primary pattern is to create, for each package that shares
  * configuration information, a singleton class containing a config object

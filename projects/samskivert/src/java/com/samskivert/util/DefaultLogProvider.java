@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.22 2004/02/25 13:20:44 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.23 2004/06/15 16:25:02 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -43,9 +43,6 @@ public class DefaultLogProvider implements LogProvider
      */
     public DefaultLogProvider ()
     {
-        // obtain our terminal size, if possible
-        obtainTermSize();
-
         try {
             // enable vt100 escape codes if requested
             String pstr = System.getProperty("log_vt100");
@@ -59,6 +56,11 @@ public class DefaultLogProvider implements LogProvider
 
         } catch (SecurityException se) {
             // nothing to worry about
+        }
+
+        // obtain our terminal size, if possible and necessary
+        if (_wrapLog) {
+            obtainTermSize();
         }
     }
 

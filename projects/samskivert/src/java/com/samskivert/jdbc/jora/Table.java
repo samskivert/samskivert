@@ -14,6 +14,8 @@ import java.util.*;
 import java.sql.*;
 import java.lang.reflect.*;
 
+import com.samskivert.util.StringUtil;
+
 /** Table class is used to establish mapping between corteges of database
  *  tables and Java classes. This class is responsible for constructing
  *  SQL statements for extracting, updating and deleting records of the
@@ -521,6 +523,16 @@ public class Table {
 	    deleteStmt.clearParameters();
 //	} catch(SQLException ex) { session.handleSQLException(ex); }
 	return nDeleted;
+    }
+
+    /**
+     * Generates a string representation of this table.
+     */
+    public String toString ()
+    {
+        return "[isAbstract=" + isAbstract + ", derived=" + derived +
+            ", nDerived=" + nDerived + ", name=" + name +
+            ", primaryKeys=" + StringUtil.toString(primaryKeys) + "]";
     }
 
     /** Spearator of name components of compound field. For example, if Java

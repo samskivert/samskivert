@@ -11,6 +11,11 @@
 Tasks matching '$query':
 #else
 Outstanding tasks:
+#if ($expand == "all")
+<a href="index.wm">[trim]</a>
+#else
+<a href="index.wm?expand=all">[show all]</a>
+#end
 #end
 </b></td></tr>
 
@@ -40,7 +45,7 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 #end
 </td>
 <td>$task.summary</td>
-<td valign="top">$task.category</td>
+<td valign="top">$task.getDisplayCategory()</td>
 <td valign="top"><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0"></a></td></tr>
 </form>
@@ -67,15 +72,15 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 #end
 </td></tr>
 
-#set ($priority = "")
+#set ($complexity = "")
 
 #foreach ($task in $xtask.tasks)
 <form action="index.wm">
 $form.fixedHidden("task", "$task.taskId")
 
-#if ($task.getPriorityName() != $priority)
-#set ($priority = $task.getPriorityName())
-<tr><td colspan="4" class="small">$task.getPriorityName()</td></tr>
+#if ($task.complexity != $complexity)
+#set ($complexity = $task.complexity)
+<tr><td colspan="4" class="small">$task.complexity</td></tr>
 #end
 
 #if ($vidx%2 == 0)
@@ -91,7 +96,7 @@ $form.fixedHidden("task", "$task.taskId")
 &nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
 #end
 </td>
-<td valign="top">$task.category</td>
+<td valign="top">$task.getDisplayCategory()</td>
 <td valign="top"><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0"></a></td>
 </tr>
@@ -130,7 +135,7 @@ Filter on single word:<br>
 <tr bgcolor="$rowcolor">
 <td valign="top" align="center">$task.completion<br>[$task.completor]</td>
 <td>$task.summary</td>
-<td valign="top">$task.category</td>
+<td valign="top">$task.getDisplayCategory()</td>
 <td valign="top"><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0"></a></td></tr>
 #end
@@ -155,11 +160,11 @@ $form.text("category", "size='10'", "")
 
 <td>Complexity:<br>
 <select name="complexity">
-  $form.option("complexity", "1 - Simple hack", "Simple hack", "1 - Simple hack")
-  $form.option("complexity", "2 - Minor feature", "Minor feature", "1 - Simple hack")
-  $form.option("complexity", "3 - Major feature", "Major feature", "1 - Simple hack")
-  $form.option("complexity", "4 - Subsystem", "Subsystem", "1 - Simple hack")
-  $form.option("complexity", "5 - Major refactor", "Major refactor", "1 - Simple hack")
+  $form.option("complexity", "Simple hack", "Simple hack", "Simple hack")
+  $form.option("complexity", "Minor feature", "Minor feature", "Simple hack")
+  $form.option("complexity", "Major feature", "Major feature", "Simple hack")
+  $form.option("complexity", "Subsystem", "Subsystem", "Simple hack")
+  $form.option("complexity", "Major refactor", "Major refactor", "Simple hack")
 </select>
 </td>
 

@@ -1,16 +1,27 @@
 //
-// $Id: Task.java,v 1.4 2002/11/09 02:11:22 mdb Exp $
+// $Id: Task.java,v 1.5 2002/11/12 22:32:02 mdb Exp $
 
 package com.samskivert.twodue.data;
 
-import java.util.ArrayList;
 import java.sql.Date;
+import java.util.ArrayList;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * Contains the basic data associated with a task.
  */
 public class Task
 {
+    public static final String[] COMPLEXITIES = {
+        "Simple hack", "Minor feature", "Major feature",
+        "Subsystem", "Major refactor",
+    };
+
+    public static final int[] COMPLEXITY_VALUES = {
+        5, 10, 15, 20, 25,
+    };
+
     public int taskId;
 
     public String summary;
@@ -33,16 +44,42 @@ public class Task
 
     public String notes;
 
+    /**
+     * Converts numerical priority to a string.
+     */
     public String getPriorityName ()
     {
-        switch (priority) {
-        case 50: return "Urgent";
-        case 25: return "Next release";
-        case 15: return "Soon";
-        case 10: return "Before launch";
-        case 5: return "Post launch";
-        case 1: return "On the list";
-        default: return "Unknown";
+        if (priority > 25) {
+            return "Urgent";
+        } else if (priority > 15) {
+            return "Next release";
+        } else if (priority > 10) {
+            return "Soon";
+        } else if (priority > 5) {
+            return "Before launch";
+        } else if (priority > 1) {
+            return "Post launch";
+        } else {
+            return "On the list";
         }
+    }
+
+    /**
+     * Converts string complexity to a value, lower meaning less complex,
+     * higher meaning more complex.
+     */
+    public int getComplexityValue ()
+    {
+        for (int ii = 0; ii < COMPLEXITIES.length; ii++) {
+            if (COMPLEXITIES[ii].equals(complexity)) {
+                return COMPLEXITY_VALUES[ii];
+            }
+        }
+        return 50;
+    }
+
+    public String getDisplayCategory ()
+    {
+        return StringUtil.replace(category, ",", "<br>");
     }
 }

@@ -1,14 +1,15 @@
 //
-// $Id: index.java,v 1.3 2002/11/09 01:40:01 mdb Exp $
+// $Id: index.java,v 1.4 2002/11/12 22:32:02 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 
-import com.samskivert.util.QuickSort;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.servlet.RedirectException;
@@ -89,6 +90,8 @@ public class index extends UserLogic
 
         // load up outstanding tasks and break them down by complexity
         String expand = ParameterUtil.getParameter(req, "expand", false);
+        ctx.put("expand", expand);
+
         ArrayList tasks = null;
         String query = ParameterUtil.getParameter(req, "query", false);
         if (StringUtil.blank(query)) {
@@ -98,9 +101,12 @@ public class index extends UserLogic
             tasks = app.getRepository().findTasks(query);
         }
 
+        // sort the tasks by priority, then complexity
+        Collections.sort(tasks, PLEX_PARATOR);
+
         CatList[] xtasks = categorize(tasks, expand, new Categorizer() {
             public String category (Task task) {
-                return task.complexity;
+                return task.getPriorityName();
             }
         });
         ctx.put("xtasks", xtasks);
@@ -111,6 +117,7 @@ public class index extends UserLogic
 
         // load up owned tasks and break them down by owner
         tasks = app.getRepository().loadOwnedTasks();
+        Collections.sort(tasks, PLEX_PARATOR);
         CatList[] otasks = categorize(tasks, null, new Categorizer() {
             public String category (Task task) {
                 return task.owner;
@@ -147,6 +154,7 @@ public class index extends UserLogic
             return new CatList[0];
         }
 
+        ArrayList cats = new ArrayList();
         HashMap cmap = new HashMap();
         int tcount = tasks.size();
         for (int ii = 0; ii < tcount; ii++) {
@@ -157,23 +165,34 @@ public class index extends UserLogic
                 clist = new CatList();
                 clist.name = category;
                 clist.tasks = new ArrayList();
+                cats.add(clist);
                 cmap.put(category, clist);
             }
             if (expand == null || clist.tasks.size() < 2 ||
-                expand.equals("all") || expand.equals(category)) {
+                expand.equals("all") ||
+                (task.priority > 15) || expand.equals(category)) {
                 clist.tasks.add(task);
             } else {
                 clist.pruned++;
             }
         }
 
-        CatList[] ctasks = new CatList[cmap.size()];
-        Iterator iter = cmap.values().iterator();
-        for (int ii = 0; iter.hasNext(); ii++) {
-            ctasks[ii] = (CatList)iter.next();
-        }
-        QuickSort.sort(ctasks);
+        CatList[] ctasks = new CatList[cats.size()];
+        cats.toArray(ctasks);
 
         return ctasks;
     }
+
+    // sorts tasks by relative complexity, simplest to most complex
+    protected static final Comparator PLEX_PARATOR = new Comparator() {
+        public int compare (Object o1, Object o2) {
+            Task t1 = (Task)o1, t2 = (Task)o2;
+            // sort first by reverse priority, then by complexity
+            if (t1.priority == t2.priority) {
+                return t1.getComplexityValue() - t2.getComplexityValue();
+            } else {
+                return t2.priority - t1.priority;
+            }
+        }
+    };
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TaskRepository.java,v 1.3 2002/11/09 01:40:01 mdb Exp $
+// $Id: TaskRepository.java,v 1.4 2002/11/12 22:32:02 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -126,27 +126,24 @@ public class TaskRepository extends JORARepository
     }
 
     /**
-     * Loads up and returns all unowned, uncompleted tasks, ordered by
-     * priority.
+     * Loads up and returns all unowned, uncompleted tasks.
      */
     public ArrayList loadTasks ()
         throws PersistenceException
     {
-        return loadTasks("where COMPLETOR IS NULL AND OWNER IS NULL " +
-                         "ORDER BY PRIORITY DESC");
+        return loadTasks("where COMPLETOR IS NULL AND OWNER IS NULL");
     }
 
     /**
      * Loads up and returns all unowned, uncompleted tasks, whose summary
-     * or category contain the specified string, ordered by priority.
+     * or category contain the specified string.
      */
     public ArrayList findTasks (String query)
         throws PersistenceException
     {
         return loadTasks("where COMPLETOR IS NULL AND OWNER IS NULL " +
                          " AND (SUMMARY LIKE '%" + query +
-                         "%' OR CATEGORY LIKE '%" + query + "%') " +
-                         "ORDER BY PRIORITY DESC");
+                         "%' OR CATEGORY LIKE '%" + query + "%')");
     }
 
     /**

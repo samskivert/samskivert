@@ -3,10 +3,6 @@
 
 package com.samskivert.swing;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.lang.reflect.Field;
@@ -120,7 +116,7 @@ public class ObjectEditorTable extends JTable
      *
      * @param protoClass the Class of the data that will be displayed.
      * @param editableFields the names of the fields that are editable.
-     * @param interp The {@link #FieldInterpreter} to use.
+     * @param interp The {@link FieldInterpreter} to use.
      */
     public ObjectEditorTable (Class protoClass, String[] editableFields,
                               FieldInterpreter interp)

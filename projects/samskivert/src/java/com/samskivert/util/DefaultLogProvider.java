@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.6 2002/05/31 21:06:26 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.7 2002/05/31 21:15:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -96,11 +96,11 @@ public class DefaultLogProvider implements LogProvider
         // then it will be turned off when underlining is turned off
 
         // if we wrap, we include the module name in the wrapped text
-        int wrapwid = LOG_LINE_LENGTH - buf.length();
         buf.append(_useVT100 ? UNDERLINE : "").append(moduleName);
         buf.append(_useVT100 ? PLAIN : "").append(": ");
 
         // we'll be wrapping the log lines
+        int wrapwid = LOG_LINE_LENGTH - GAP.length();
         int remain = message.length(), offset = 0;
         int linewid = Math.min(LOG_LINE_LENGTH - buf.length(), remain);
 
@@ -132,13 +132,13 @@ public class DefaultLogProvider implements LogProvider
 
     /** Used to accompany log messages with time stamps. */
     protected SimpleDateFormat _format =
-        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSSS");
+        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
 
     /** Used to tag log messages with their log level. */
     protected static final String[] LEVEL_CHARS = { ".", "?", "!" };
 
     /** Used to align wrapped log lines. */
-    protected static final String GAP = "                           ";
+    protected static final String GAP = "                          ";
 
     /** VT100 formatting code to enabled bold text. */
     protected static final String BOLD = "\033[1m";

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.34 2003/11/15 03:05:15 mdb Exp $
+// $Id: Label.java,v 1.35 2003/12/09 04:07:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -362,10 +362,15 @@ public class Label implements SwingConstants, LabelStyleConstants
         int lcount = layouts.size();
         _layouts = new TextLayout[lcount];
         _lbounds = new Rectangle2D[lcount];
+        _leaders = new float[lcount];
         for (int ii = 0; ii < lcount; ii++) {
             Tuple tup = (Tuple)layouts.get(ii);
             _layouts[ii] = (TextLayout)tup.left;
             _lbounds[ii] = (Rectangle2D)tup.right;
+            // account for potential leaders
+            if (_lbounds[ii].getX() < 0) {
+                _leaders[ii] = (float)-_lbounds[ii].getX();
+            }
         }
     }
 
@@ -449,16 +454,22 @@ public class Label implements SwingConstants, LabelStyleConstants
             y += layout.getAscent();
 
             float extra = (float)Math.floor(_size.width - getWidth(lbounds));
-            float rx = x;
+            float rx;
             switch (_align) {
             case -1: rx = x + (layout.isLeftToRight() ? 0 : extra); break;
-            case LEFT: break;
+            default:
+            case LEFT: rx = x; break;
             case RIGHT: rx = x + extra; break;
             case CENTER: rx = x + extra/2; break;
             }
 
+            // shift over any lines that start with a font that extends
+            // into negative x-land
+            rx += _leaders[i];
+
 //             System.out.println("line " + i + " x: " + x + " y: " + y +
 //                                " rx: " + rx + " width: " + _size.width +
+//                                " lx: " + lbounds.getX() +
 //                                " lwidth: " + getWidth(lbounds) +
 //                                " extra: " + extra);
 
@@ -524,7 +535,7 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     protected double getWidth (Rectangle2D laybounds)
     {
-        double width = laybounds.getX() + laybounds.getWidth();
+        double width = Math.max(laybounds.getX(), 0) + laybounds.getWidth();
         if ((_style & OUTLINE) != 0) {
             width += 2;
         } else if ((_style & SHADOW) != 0) {
@@ -566,6 +577,15 @@ public class Label implements SwingConstants, LabelStyleConstants
 
     /** Our calculated size. */
     protected Dimension _size = new Dimension();
+
+    /** Some fonts (God bless 'em) extend to the left of the position at
+     * which you request that they be rendered. We opt to push such lines
+     * to the right sufficiently that they line up with the rest of the
+     * lines (perhaps not the typographically ideal thing to do, but we're
+     * in computer land and when we say our bounds are (0, 0, width,
+     * height) we damned well better not render outside those bounds,
+     * which these wonderful fonts are choosing to do). */
+    protected float[] _leaders;
 
     /** The font we use when laying out and rendering out text, or null if
      * we're to use the default font. */

@@ -6,6 +6,10 @@ that people can build just what they want and not have to track down
 support libraries for, say, WebMacro if they don't want the WebMacro
 stuff.
 
+Fix message.properties single quote handling. In messages that have
+translation substitutions ({0}, {1}, etc.), one has to use '' but in plain
+strings they have to use \'. It should be one or the other.
+
 * Minimal database services
 ** Requirements
 - Connection management (configuration file mapping database identifiers

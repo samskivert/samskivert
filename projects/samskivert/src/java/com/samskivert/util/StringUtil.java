@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.36 2002/09/24 01:00:03 mdb Exp $
+// $Id: StringUtil.java,v 1.37 2002/09/24 07:43:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -426,6 +426,15 @@ public class StringUtil
      */
     public static String fieldsToString (Object object)
     {
+        return fieldsToString(object, ", ");
+    }
+
+    /**
+     * Like {@link #fieldsToString(Object)} except that the supplied
+     * separator string will be used between fields.
+     */
+    public static String fieldsToString (Object object, String sep)
+    {
         StringBuffer buf = new StringBuffer("[");
         fieldsToString(buf, object);
         return buf.append("]").toString();
@@ -444,6 +453,16 @@ public class StringUtil
      */
     public static void fieldsToString (StringBuffer buf, Object object)
     {
+        fieldsToString(buf, object, ", ");
+    }
+
+    /**
+     * Like {@link #fieldsToString(StringBuffer,Object)} except that the
+     * supplied separator will be used between fields.
+     */
+    public static void fieldsToString (
+        StringBuffer buf, Object object, String sep)
+    {
         Class clazz = object.getClass();
         Field[] fields = clazz.getFields();
         int written = 0;
@@ -457,7 +476,7 @@ public class StringUtil
             }
 
             if (written > 0) {
-                buf.append(", ");
+                buf.append(sep);
             }
 
             buf.append(fields[i].getName()).append("=");

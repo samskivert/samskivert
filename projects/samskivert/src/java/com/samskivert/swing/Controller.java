@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.9 2002/02/28 21:55:14 mdb Exp $
+// $Id: Controller.java,v 1.10 2002/03/16 20:52:07 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,7 +25,11 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JPanel;
+import javax.swing.event.AncestorEvent;
+
 import com.samskivert.Log;
+import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.swing.event.CommandEvent;
 
 /**
@@ -85,6 +89,43 @@ public abstract class Controller
             Controller.postAction(event);
         }
     };
+
+    /**
+     * Lets this controller know about the panel that it is controlling.
+     */
+    public void setControlledPanel (JPanel panel)
+    {
+        panel.addAncestorListener(new AncestorAdapter() {
+            public void ancestorAdded (AncestorEvent event) {
+                wasAdded();
+            }
+            public void ancestorRemoved (AncestorEvent event) {
+                wasRemoved();
+            }
+        });
+    }
+
+    /**
+     * Called when the panel controlled by this controller was added to
+     * the user interface hierarchy. This assumes that the controlled
+     * panel made itself known to the controller via {@link
+     * #setControlledPanel} (which is done automatically by {@link
+     * ControlledPanel} and derived classes).
+     */
+    public void wasAdded ()
+    {
+    }
+
+    /**
+     * Called when the panel controlled by this controller was removed
+     * from the user interface hierarchy. This assumes that the controlled
+     * panel made itself known to the controller via {@link
+     * #setControlledPanel} (which is done automatically by {@link
+     * ControlledPanel} and derived classes).
+     */
+    public void wasRemoved ()
+    {
+    }
 
     /**
      * Instructs this controller to process this action event. When an

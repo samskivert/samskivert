@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.10 2003/01/15 00:17:23 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.11 2003/04/02 04:04:53 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -28,6 +28,7 @@ import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import com.samskivert.Log;
 import com.samskivert.util.StringUtil;
@@ -253,6 +254,7 @@ public class MultiLineLabel extends JComponent
         // if we have been configured to relay ourselves out once we know
         // our constrained width or height, take care of that here
         int size;
+        boolean delayedRevalidate = false;
         switch (_constrain) {
         case HORIZONTAL:
             size = getWidth();
@@ -261,7 +263,7 @@ public class MultiLineLabel extends JComponent
             if (size > 0 && size != _constrainedSize) {
                 _constrainedSize = size;
                 _label.setTargetWidth(size);
-                revalidate();
+                delayedRevalidate = true;
             }
             break;
 
@@ -270,9 +272,28 @@ public class MultiLineLabel extends JComponent
             if (size > 0 && size != _constrainedSize) {
                 _constrainedSize = size;
                 _label.setTargetHeight(size);
-                revalidate();
+                delayedRevalidate = true;
             }
             break;
+        }
+
+        // we can't just call revalidate() because we're in the middle of
+        // a validation traversal; our parent will, when we return from
+        // this method, declare itself to be valid; if we call
+        // revalidate() it will mark us and all of our parents as invalid,
+        // but then those of our parents that are involved in the first
+        // validation traversal will mark themselves as valid and in the
+        // validation pass that results from our call to revalidate() we
+        // will be skipped over; dooh! instead we delay a call to
+        // revalidate so that the current validation traversal will be
+        // completed before we mark ourselves and our parents as invalid
+        if (delayedRevalidate) {
+            Runnable callRevalidate = new Runnable() {
+                public void run() {
+                    revalidate();
+                }
+            };
+            SwingUtilities.invokeLater(callRevalidate);
         }
 
         // go ahead and lay out the label in all cases so that we assume

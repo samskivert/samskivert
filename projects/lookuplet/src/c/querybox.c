@@ -1,5 +1,5 @@
 /**
- * $Id: querybox.c,v 1.8 2001/08/21 18:46:10 mdb Exp $
+ * $Id: querybox.c,v 1.9 2002/03/14 16:45:26 shaper Exp $
  * 
  * lookuplet - a utility for quickly looking up information
  * Copyright (C) 2001 Michael Bayne
@@ -27,15 +27,24 @@
 
 #include "binding.h"
 #include "launcher.h"
+#include "history.h"
 #include "keysym-util.h"
 #include "preferences.h"
 #include "lookuplet.h"
 #include "querybox.h"
 
+/* the query text entry field */
 static GtkWidget* _query;
 
 /* used by url_p */
 #define MATCH_PREFIX(text, prefix) !strncmp(text, prefix, sizeof(prefix)-1)
+
+/* key codes for navigating the entry history */
+#define NEXT_HISTORY_KEY (GDK_Up)
+#define PREVIOUS_HISTORY_KEY (GDK_Down)
+
+/* key code for auto-completion of a partial entry */
+#define AUTO_COMPLETE_KEY (GDK_Tab)
 
 /**
  * A very primitive function to try to determine if the selection is a URL
@@ -96,12 +105,52 @@ selection_received (GtkWidget* widget, GtkSelectionData* selection_data,
 }
 
 static gint
+handle_special_keys (GtkWidget* widget, GdkEventKey* ek)
+{
+    const gchar* entry = NULL;
+
+    switch (ek->keyval) {
+    case NEXT_HISTORY_KEY:
+    case PREVIOUS_HISTORY_KEY:
+        /* retrieve the sought-after historical entry */
+        entry = lk_get_history(ek->keyval == NEXT_HISTORY_KEY);
+        break;
+
+    case AUTO_COMPLETE_KEY: {
+        /* get the terms from the query box */
+        gchar* text = gtk_editable_get_chars(GTK_EDITABLE(widget), 0, -1);
+        /* seek an expanded historical entry for the current text */
+        entry = lk_get_history_expand(text);
+        }
+        break;
+    }
+
+    /* if we've an entry, fill it in and we're done */
+    if (entry != NULL) {
+        /* place the entry in the text field */
+        gtk_entry_set_text(GTK_ENTRY(widget), entry);
+
+        /* select the text in the entry so that it can be easily replaced */
+        gtk_editable_select_region(GTK_EDITABLE(_query), 0, strlen(entry));
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gint
 key_pressed (GtkWidget* widget, GdkEvent* event, gpointer callback_data)
 {
     GdkEventKey* ek = (GdkEventKey*)event;
     GPtrArray* bindings;
     gint handled = FALSE, i;
     gchar* keystr;
+
+    /* handle special keystrokes such as history and auto-complete */
+    if (handle_special_keys(widget, ek)) {
+        return TRUE;
+    }
 
     /* ignore plain or shifted keystrokes */
     if (ek->state <= 1) {
@@ -110,6 +159,9 @@ key_pressed (GtkWidget* widget, GdkEvent* event, gpointer callback_data)
 
     /* otherwise convert the key combo to a name and look it up */
     keystr = convert_keysym_state_to_string(ek->keyval, ek->state);
+    if (keystr == NULL) {
+        return FALSE;
+    }
     bindings = lk_prefs_get_bindings();
 
     for (i = 0; i < bindings->len; i++) {
@@ -118,9 +170,11 @@ key_pressed (GtkWidget* widget, GdkEvent* event, gpointer callback_data)
 	    /* get the terms from the query box */
 	    gchar* search_text =
 		gtk_editable_get_chars(GTK_EDITABLE(widget), 0, -1);
+            /* save this entry in the history */
+            lk_add_history(search_text);
 	    /* launch the appropriate thing */
 	    lk_launcher_launch(binding, search_text);
-	    g_free(search_text);
+            g_free(search_text);
             if (applet_mode) {
                 /* clear out the contents of the entry box */
                 gtk_entry_set_text(GTK_ENTRY(widget), "");
@@ -151,9 +205,11 @@ launch (GtkWidget* widget, gpointer data)
      * instead of pressing some special key combination) */
     gchar* search_text = gtk_editable_get_chars(GTK_EDITABLE(widget), 0, -1);
     lk_launcher_launch(NULL, search_text);
-    g_free(search_text);
 
     if (applet_mode) {
+        /* save this entry in the history */
+        lk_add_history(search_text);
+        g_free(search_text);
         /* clear out the contents of the entry box */
         gtk_entry_set_text(GTK_ENTRY(widget), "");
     } else {
@@ -194,6 +250,9 @@ lk_querybox_create (void)
                             GTK_SIGNAL_FUNC(prefs_clicked), NULL);
         gtk_box_pack_start(GTK_BOX(hbox), prefs, FALSE, FALSE, 0);
     }
+
+    /* create the array of history commands */
+    lk_init_history();
 
     return hbox;
 }

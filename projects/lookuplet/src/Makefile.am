@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.4 2001/08/18 02:34:06 mdb Exp $
+# $Id: Makefile.am,v 1.5 2002/03/14 16:45:26 shaper Exp $
 
 bin_PROGRAMS = lookuplet
 
@@ -9,7 +9,8 @@ lookuplet_SOURCES = \
 	querybox.c \
 	preferences.c \
 	binding.c \
-	keysym-util.c
+	keysym-util.c \
+	history.c
 
 INCLUDES = 						\
 	-I.						\

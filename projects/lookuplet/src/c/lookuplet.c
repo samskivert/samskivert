@@ -1,5 +1,5 @@
 /**
- * $Id: lookuplet.c,v 1.6 2001/08/18 02:34:06 mdb Exp $
+ * $Id: lookuplet.c,v 1.7 2002/03/14 16:45:26 shaper Exp $
  * 
  * lookuplet - a utility for quickly looking up information
  * Copyright (C) 2001 Michael Bayne
@@ -84,7 +84,7 @@ main (int argc, char** argv)
 #endif
 
     if (applet_mode) {
-        /* intialize; this will basically set up the applet, corba and
+        /* initialize; this will basically set up the applet, corba and
            call gnome_init() */
         applet_widget_init(PACKAGE, VERSION, argc, argv, NULL, 0, NULL);
 

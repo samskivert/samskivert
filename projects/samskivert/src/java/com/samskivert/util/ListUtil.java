@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.2 2001/08/15 04:11:10 mdb Exp $
+// $Id: ListUtil.java,v 1.3 2001/08/15 18:02:26 mdb Exp $
 
 package com.samskivert.util;
 
@@ -85,12 +85,61 @@ public class ListUtil
 
         // search for a spot to insert yon element; assuming we'll insert
         // it at the end of the list if we don't find one
-        int index = list.length;
-        int llength = list.length; // no optimizing bastards
+        int llength = list.length;
+        int index = llength;
         for (int i = startIdx; i < llength; i++) {
             if (list[i] == null) {
                 index = i;
                 break;
+            }
+        }
+
+        // expand the list if necessary
+        if (index >= list.length) {
+            list = accomodate(list, index);
+        }
+
+        // stick the element on in
+        list[index] = element;
+
+        return list;
+    }
+
+    /**
+     * Searches through the list checking to see if the element supplied
+     * is already in the list (using <code>equals()</code> to check for
+     * equality) and adds it if it is not.
+     *
+     * @param list the list to which to add the element. Can be null.
+     * @param element the element to test and add.
+     *
+     * @return a reference to the list with element added (might not be
+     * the list you passed in due to expansion, or allocation) or null if
+     * the element was already in the original array.
+     */
+    public static Object[] testAndAdd (Object[] list, Object element)
+    {
+        // make sure we've got a list to work with
+        if (list == null) {
+            list = new Object[DEFAULT_LIST_SIZE];
+        }
+
+        // search for a spot to insert yon element; we'll insert it at the
+        // end of the list if we don't find a spot
+        int llength = list.length;
+        int index = llength;
+        for (int i = 0; i < llength; i++) {
+            Object elem = list[i];
+            if (elem == null) {
+                // only update our target index if we haven't already
+                // found a spot to put the element
+                if (index == llength) {
+                    index = i;
+                }
+
+            } else if (elem.equals(element)) {
+                // oops, it's already in the list
+                return null;
             }
         }
 
@@ -157,6 +206,11 @@ public class ListUtil
      */
     public static Object clear (Object[] list, Object element)
     {
+        // nothing to clear from an empty list
+        if (list == null) {
+            return null;
+        }
+
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
@@ -180,6 +234,11 @@ public class ListUtil
      */
     public static Object clearEqual (Object[] list, Object element)
     {
+        // nothing to clear from an empty list
+        if (list == null) {
+            return null;
+        }
+
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
@@ -202,6 +261,11 @@ public class ListUtil
      */
     public static Object remove (Object[] list, Object element)
     {
+        // nothing to remove from an empty list
+        if (list == null) {
+            return null;
+        }
+
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
@@ -227,6 +291,11 @@ public class ListUtil
      */
     public static Object removeEqual (Object[] list, Object element)
     {
+        // nothing to remove from an empty list
+        if (list == null) {
+            return null;
+        }
+
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];
@@ -320,6 +389,30 @@ public class ListUtil
 
         ListUtil.remove(list, 0);
         System.out.println("remove(0): " + StringUtil.toString(list));
+
+        ListUtil.remove(list, 0);
+        System.out.println("remove(0): " + StringUtil.toString(list));
+
+        Object[] tl = ListUtil.testAndAdd(list, bar);
+        if (tl == null) {
+            System.out.println("testAndAdd(bar): failed: " +
+                               StringUtil.toString(list));
+        } else {
+            list = tl;
+            System.out.println("testAndAdd(bar): added: " +
+                               StringUtil.toString(list));
+        }
+
+        String biz = "biz";
+        tl = ListUtil.testAndAdd(list, biz);
+        if (tl == null) {
+            System.out.println("testAndAdd(biz): failed: " +
+                               StringUtil.toString(list));
+        } else {
+            list = tl;
+            System.out.println("testAndAdd(biz): added: " +
+                               StringUtil.toString(list));
+        }
     }
 
     /**

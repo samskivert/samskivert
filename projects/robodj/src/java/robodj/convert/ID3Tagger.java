@@ -1,12 +1,12 @@
 //
-// $Id: ID3Tagger.java,v 1.2 2002/03/03 06:04:23 mdb Exp $
+// $Id: ID3Tagger.java,v 1.3 2002/11/11 17:04:56 mdb Exp $
 
 package robodj.convert;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.util.StreamUtils;
+import org.apache.commons.io.StreamUtils;
 
 /**
  * A tagger implementation that uses 'id3v2' to do it's job.

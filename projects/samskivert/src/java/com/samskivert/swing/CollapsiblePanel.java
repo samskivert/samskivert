@@ -1,15 +1,16 @@
 //
-// $Id: CollapsiblePanel.java,v 1.6 2003/01/11 00:44:53 shaper Exp $
+// $Id: CollapsiblePanel.java,v 1.7 2003/01/15 00:17:37 mdb Exp $
 
 package com.samskivert.swing;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.Icon;
 import javax.swing.SwingConstants;
 
 import com.samskivert.swing.util.SwingUtil;
@@ -21,8 +22,8 @@ public class CollapsiblePanel extends JPanel
     implements ActionListener
 {
     /**
-     * Construct a collapsible panel with the specified button as
-     * the trigger. The text of the button will be used as the triggertext.
+     * Construct a collapsible panel with the specified button as the
+     * trigger. The text of the button will be used as the triggertext.
      */
     public CollapsiblePanel (JButton trigger)
     {
@@ -77,7 +78,8 @@ public class CollapsiblePanel extends JPanel
     /**
      * Set the trigger button.
      */
-    public void setTrigger (JButton trigger, Icon collapsed, Icon uncollapsed)
+    public void setTrigger (AbstractButton trigger,
+                            Icon collapsed, Icon uncollapsed)
     {
         _trigger = trigger;
         _trigger.setHorizontalAlignment(SwingConstants.LEFT);
@@ -138,7 +140,7 @@ public class CollapsiblePanel extends JPanel
     }
 
     /** The button that triggers collapsion. */
-    protected JButton _trigger;
+    protected AbstractButton _trigger;
 
     /** The icons for collapsed and uncollapsed. */
     protected Icon _upIcon, _downIcon;

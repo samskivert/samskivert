@@ -1,9 +1,11 @@
 //
-// $Id: RuntimeAdjust.java,v 1.9 2003/03/11 23:08:56 ray Exp $
+// $Id: RuntimeAdjust.java,v 1.10 2003/04/26 17:59:17 mdb Exp $
 
 package com.samskivert.util;
 
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -27,12 +29,12 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.Scrollable;
 
 import com.samskivert.Log;
 import com.samskivert.swing.CollapsiblePanel;
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.MultiLineLabel;
-import com.samskivert.swing.ScrollablePanel;
 import com.samskivert.swing.VGroupLayout;
 
 /**
@@ -70,12 +72,12 @@ public class RuntimeAdjust
             3, VGroupLayout.TOP);
         layout.setOffAxisJustification(VGroupLayout.LEFT);
 
-        JTabbedPane editor = new JTabbedPane();
+        JTabbedPane editor = new EditorPane();
         Font font = editor.getFont();
         Font smaller = font.deriveFont(font.getSize()-1f);
 
         String library = null;
-        ScrollablePanel lpanel = null;
+        JPanel lpanel = null;
         String pkgname = null;
         CollapsiblePanel pkgpanel = null;
 
@@ -87,8 +89,7 @@ public class RuntimeAdjust
             if (!adjust.getLibrary().equals(library)) {
                 library = adjust.getLibrary();
                 pkgname = null;
-                lpanel = new ScrollablePanel(layout);
-                lpanel.setTracksViewportWidth(true);
+                lpanel = new JPanel(layout);
                 lpanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
                 editor.addTab(library, lpanel);
             }
@@ -114,6 +115,33 @@ public class RuntimeAdjust
         }
 
         return editor;
+    }
+
+    /** Used to make our editor scroll sanely. */
+    protected static class EditorPane extends JTabbedPane
+        implements Scrollable
+    {
+        public Dimension getPreferredScrollableViewportSize () {
+            return getPreferredSize();
+        }
+
+        public int getScrollableUnitIncrement (
+            Rectangle visibleRect, int orientation, int direction) {
+            return 50;
+        }
+
+        public int getScrollableBlockIncrement (
+            Rectangle visibleRect, int orientation, int direction) {
+            return 200;
+        }  
+
+        public boolean getScrollableTracksViewportWidth () {
+            return true;
+        }
+
+        public boolean getScrollableTracksViewportHeight () {
+            return false;
+        }
     }
 
     /** Provides runtime adjustable boolean variables. */

@@ -108,7 +108,7 @@ public abstract class Interval
      */
     protected final void safelyExpire (TimerTask task)
     {
-        // skip expiring the interval if the task is no longer valid
+        // only expire the interval if the task is still valid
         if (_task == task) {
             try {
                 expired();
@@ -125,6 +125,7 @@ public abstract class Interval
     protected class IntervalTask extends TimerTask
         implements Runnable
     {
+        // inherited from both TimerTask and Runnable
         public void run () {
             if (_runQueue == null || _runQueue.isDispatchThread()) {
                 safelyExpire(this);
@@ -138,9 +139,7 @@ public abstract class Interval
      * Interval. */
     protected RunQueue _runQueue;
 
-    /** The task that actually schedules our execution with the static Timer.
-     * Also the object that we synchronize upon when dealing with those issues.
-     */
+    /** The task that actually schedules our execution with the static Timer. */
     protected volatile TimerTask _task;
 
     /** The daemon timer used to schedule all Intervals. */

@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.13 2002/04/08 17:40:31 mdb Exp $
+// $Id: Controller.java,v 1.14 2002/04/26 02:31:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 
 import java.lang.reflect.Method;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.event.AncestorEvent;
 
@@ -79,6 +80,13 @@ public abstract class Controller
      * JButton button = new JButton("Do thing");
      * button.setActionCommand("dothing");
      * button.addActionListener(Controller.DISPATCHER);
+     * </pre>
+     *
+     * or, use the provided convenience function:
+     *
+     * <pre>
+     * JButton button =
+     *     Controller.createActionButton("Do thing", "dothing");
      * </pre>
      *
      * The controllers in scope would then be requested (in order) to
@@ -294,6 +302,18 @@ public abstract class Controller
         // slip things onto the event queue for later
         CommandEvent event = new CommandEvent(source, command, argument);
         EventQueue.invokeLater(new ActionInvoker(event));
+    }
+
+    /**
+     * Creates a button and configures it with the specified label and
+     * action command and adds {@link #DISPATCHER} as an action listener.
+     */
+    public static JButton createActionButton (String label, String command)
+    {
+        JButton button = new JButton(label);
+        button.setActionCommand(command);
+        button.addActionListener(DISPATCHER);
+        return button;
     }
 
     /**

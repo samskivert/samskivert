@@ -1,5 +1,5 @@
 //
-// $Id: Histogram.java,v 1.1 2002/02/18 06:22:56 mdb Exp $
+// $Id: Histogram.java,v 1.2 2002/04/22 17:33:09 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -56,6 +56,14 @@ public class Histogram
     }
 
     /**
+     * Returns the total number of values in the histogram.
+     */
+    public int size ()
+    {
+        return _count;
+    }
+
+    /**
      * Clears the values from this histogram.
      */
     public void clear ()
@@ -93,6 +101,9 @@ public class Histogram
 
     /** The size of each histogram bucket. */
     protected int _bucketWidth;
+
+    /** The total number of values. */
+    protected int _count;
 
     /** The histogram buckets. */
     protected int[] _buckets;

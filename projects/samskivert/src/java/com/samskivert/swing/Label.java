@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.15 2002/06/26 22:04:52 ray Exp $
+// $Id: Label.java,v 1.16 2002/06/26 22:06:12 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -220,7 +220,6 @@ public class Label implements SwingConstants
             // incrementing by 10% each time; limit our attempts to 10
             // expansions to avoid infinite loops if something is fucked
             for (int i = 0; i < 10; i++) {
-                Log.info("trying width " + targetWidth);
                 LineBreakMeasurer measurer =
                     new LineBreakMeasurer(textIterator(gfx), frc);
                 layouts = computeLines(measurer, targetWidth, _size, true);

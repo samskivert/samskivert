@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.4 2002/08/21 00:15:23 ray Exp $
+// $Id: DnDManager.java,v 1.5 2002/08/21 17:54:10 mdb Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -189,7 +189,7 @@ public class DnDManager
         // since the release comes with a component of the source,
         // we use the last enter...
         if (_lastTarget != null) {
-            _lastTarget.dropCompleted(_data[0]);
+            _lastTarget.dropCompleted(_source, _data[0]);
             _source.dragCompleted(_lastTarget);
         }
         reset();

@@ -1,5 +1,5 @@
 //
-// $Id: DropTarget.java,v 1.3 2002/08/20 22:47:49 ray Exp $
+// $Id: DropTarget.java,v 1.4 2002/08/21 17:54:10 mdb Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -28,5 +28,5 @@ public interface DropTarget
     /**
      * Called when the drop is actually executed.
      */
-    public void dropCompleted (Object data);
+    public void dropCompleted (DragSource source, Object data);
 }

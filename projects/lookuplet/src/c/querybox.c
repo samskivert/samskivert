@@ -1,5 +1,5 @@
 /**
- * $Id: querybox.c,v 1.7 2001/08/18 02:34:06 mdb Exp $
+ * $Id: querybox.c,v 1.8 2001/08/21 18:46:10 mdb Exp $
  * 
  * lookuplet - a utility for quickly looking up information
  * Copyright (C) 2001 Michael Bayne
@@ -34,15 +34,32 @@
 
 static GtkWidget* _query;
 
+/* used by url_p */
+#define MATCH_PREFIX(text, prefix) !strncmp(text, prefix, sizeof(prefix)-1)
+
+/**
+ * A very primitive function to try to determine if the selection is a URL
+ * of some sort.
+ */
+static int
+url_p (const char* text)
+{
+    return (MATCH_PREFIX(text, "http://") ||
+            MATCH_PREFIX(text, "ftp://") ||
+            MATCH_PREFIX(text, "https://") ||
+            MATCH_PREFIX(text, "file:/"));
+}
+
 static void
 selection_received (GtkWidget* widget, GtkSelectionData* selection_data, 
 		    gpointer data)
 {
     int length = selection_data->length;
+    int is_url;
 
     /* make sure some selection was provided */
     if (length > 0) {
-        gchar* start, *end;
+        gchar* start, *end, *pos;
         gchar* search_text =
             gtk_editable_get_chars(GTK_EDITABLE(widget), 0, -1);
 
@@ -50,6 +67,21 @@ selection_received (GtkWidget* widget, GtkSelectionData* selection_data,
         for (start = search_text; isspace(*start); start++);
         for (end = search_text + length - 1; isspace(*end); end--);
         end++; *end = '\0';
+
+        /* check to see if we're looking at a url here */
+        is_url = url_p(start);
+
+        /* do some whitespace processing */
+        for (pos = start; *pos != '\0'; pos++) {
+            /* convert newlines to spaces */
+            if ((*pos == '\n') || (*pos == '\r')) {
+                *pos = ' ';
+            }
+            /* if this is a URL, we want to eat whitespace */
+            if (*pos == ' ' && is_url) {
+                memmove(pos, pos+1, strlen(pos));
+            }
+        }
 
         /* only set the new text if we changed anything */
         if (length != strlen(start)) {

@@ -1,5 +1,5 @@
 //
-// $Id: ImporterFrame.java,v 1.6 2001/10/12 18:21:27 mdb Exp $
+// $Id: ImporterFrame.java,v 1.7 2002/03/03 06:32:12 mdb Exp $
 
 package robodj.importer;
 
@@ -9,11 +9,13 @@ import javax.swing.*;
 
 import com.samskivert.swing.*;
 
+import robodj.Version;
+
 public class ImporterFrame extends JFrame
 {
     public ImporterFrame ()
     {
-	super("RoboDJ CD Importer");
+	super("RoboDJ CD Importer " + Version.RELEASE_VERSION);
 
         // quit if we're closed
         setDefaultCloseOperation(EXIT_ON_CLOSE);

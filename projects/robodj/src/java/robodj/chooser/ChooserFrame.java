@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.6 2002/02/22 07:06:33 mdb Exp $
+// $Id: ChooserFrame.java,v 1.7 2002/03/03 06:32:12 mdb Exp $
 
 package robodj.chooser;
 
@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import com.samskivert.swing.*;
+
+import robodj.Version;
 import robodj.repository.*;
 
 public class ChooserFrame
@@ -17,7 +19,7 @@ public class ChooserFrame
 {
     public ChooserFrame ()
     {
-	super("RoboDJ Chooser");
+	super("RoboDJ Chooser " + Version.RELEASE_VERSION);
 
         // quit if we're closed
         setDefaultCloseOperation(EXIT_ON_CLOSE);

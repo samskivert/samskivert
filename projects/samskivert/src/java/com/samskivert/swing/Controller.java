@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.14 2002/04/26 02:31:32 mdb Exp $
+// $Id: Controller.java,v 1.15 2002/06/19 23:22:40 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -225,6 +225,7 @@ public abstract class Controller
         } catch (Exception e) {
             Log.warning("Error invoking action handler [controller=" + this +
                         ", event=" + action + "].");
+            Log.logStackTrace(e);
             // even though we choked, we still "handled" the action
             return true;
         }

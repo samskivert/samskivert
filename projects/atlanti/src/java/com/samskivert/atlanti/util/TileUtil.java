@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.8 2001/10/17 04:34:13 mdb Exp $
+// $Id: TileUtil.java,v 1.9 2001/10/17 05:01:51 mdb Exp $
 
 package com.threerings.venison;
 
@@ -519,8 +519,8 @@ public class TileUtil implements TileCodes
 
         // all we need to know are how many neighbors this guy has (we
         // count ourselves as well, just for code simplicity)
-        for (int dx = -1; dx < 1; dx++) {
-            for (int dy = -1; dy < 1; dy++) {
+        for (int dx = -1; dx < 2; dx++) {
+            for (int dy = -1; dy < 2; dy++) {
                 if (findTile(tiles, tile.x + dx, tile.y + dy) != null) {
                     score++;
                 }

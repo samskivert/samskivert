@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.9 2001/10/17 04:34:14 mdb Exp $
+// $Id: AtlantiManager.java,v 1.10 2001/10/17 05:01:51 mdb Exp $
 
 package com.threerings.venison;
 
@@ -175,6 +175,69 @@ public class VenisonManager
                 Log.info("Not scoring incomplete feature " +
                          "[ttype=" + tile.type + ", feat=" + f +
                          ", score=" + score + "].");
+            }
+        }
+
+        // we also may have completed a cloister, so we check that as well
+        for (int dx = -1; dx < 2; dx++) {
+            for (int dy = -1; dy < 2; dy++) {
+                // skip ourselves
+                if (dx == 0 && dy == 0) {
+                    continue;
+                }
+
+                // find our neighbor and make sure they exist
+                VenisonTile neighbor =
+                    TileUtil.findTile(_tiles, tile.x + dx, tile.y + dy);
+                if (neighbor == null) {
+                    continue;
+                }
+
+                // scan their features arrays for claimed cloisters
+                for (int i = 0; i < neighbor.features.length; i++) {
+                    Feature f = neighbor.features[i];
+                    Piecen p = neighbor.piecen;
+
+                    // is a cloister
+                    if (f.type != TileCodes.CLOISTER) {
+                        continue;
+                    }
+
+                    // tile has a piecen
+                    if (p == null) {
+                        Log.info("Skipping non-piecen having " +
+                                 "cloister tile [tile=" + neighbor +
+                                 ", feat=" + f + "].");
+                        continue;
+                    }
+
+                    // piecen is on cloister feature
+                    if (neighbor.claims[i] != p.claimGroup) {
+                        Log.info("Skipping cloister tile with piecen on " +
+                                 "non-cloister [tile=" + neighbor +
+                                 ", feat=" + f + "].");
+                        continue;
+                    }
+
+                    // score the cloister to see if it is completed
+                    int score = TileUtil.computeFeatureScore(
+                        _tiles, neighbor, i);
+
+                    // it is, yay!
+                    if (score > 0) {
+                        // add the score to the owning player
+                        _venobj.scores[p.color] += score;
+                        _venobj.setScores(_venobj.scores);
+                        // and clear out the piecen
+                        _venobj.removeFromPiecens(p.getKey());
+                        Log.info("Scored cloister [tile=" + neighbor +
+                                 ", f=" + f + ", p=" + p + "].");
+
+                    } else {
+                        Log.info("Not scoring incomplete cloister " +
+                                 "[tile=" + neighbor + ", feat=" + f + "].");
+                    }
+                }
             }
         }
     }

@@ -1,5 +1,5 @@
 //
-// $Id: SmartPolygon.java,v 1.5 2003/10/10 17:49:25 mdb Exp $
+// $Id: SmartPolygon.java,v 1.6 2003/10/10 19:14:43 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -36,35 +36,6 @@ public class SmartPolygon extends Polygon
      */
     public Rectangle getBoundingBox ()
     {
-        if (bounds == null) {
-            // this is inlined from Polygon.getBoundingBox() and
-            // Polygon.computeBounds() because we can't call
-            // super.getBoundingBox() without the compiler bitching about
-            // deprecation, we can't just override getBounds() because a
-            // few methods in Polygon still call getBoundingBox() and we
-            // can't call computeBounds() because it's package protected
-            // (thank's Sun!)
-            if (npoints == 0) {
-                bounds = new Rectangle();
-            } else {
-                int boundsMinX = Integer.MAX_VALUE;
-                int boundsMinY = Integer.MAX_VALUE;
-                int boundsMaxX = Integer.MIN_VALUE;
-                int boundsMaxY = Integer.MIN_VALUE;
-	
-                for (int i = 0; i < npoints; i++) {
-                    int x = xpoints[i];
-                    boundsMinX = Math.min(boundsMinX, x);
-                    boundsMaxX = Math.max(boundsMaxX, x);
-                    int y = ypoints[i];
-                    boundsMinY = Math.min(boundsMinY, y);
-                    boundsMaxY = Math.max(boundsMaxY, y);
-                }
-                bounds = new Rectangle(boundsMinX, boundsMinY,
-                                       boundsMaxX - boundsMinX,
-                                       boundsMaxY - boundsMinY);
-            }
-        }
-        return bounds;
+        return (bounds == null) ? super.getBoundingBox() : bounds;
     }
 }

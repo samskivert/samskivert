@@ -1,5 +1,5 @@
 //
-// $Id: CommandEvent.java,v 1.3 2003/01/03 23:07:33 mdb Exp $
+// $Id: CommandEvent.java,v 1.4 2003/01/29 22:20:14 ray Exp $
 
 package com.samskivert.swing.event;
 
@@ -16,6 +16,14 @@ public class CommandEvent extends ActionEvent
     public CommandEvent (Object source, String command, Object argument)
     {
         super(source, ActionEvent.ACTION_PERFORMED, command);
+        _argument = argument;
+    }
+
+    public CommandEvent (
+        Object source, String command, Object argument,
+        long when, int modifiers)
+    {
+        super(source, ActionEvent.ACTION_PERFORMED, command, when, modifiers);
         _argument = argument;
     }
 

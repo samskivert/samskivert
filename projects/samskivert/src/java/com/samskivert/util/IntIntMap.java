@@ -1,5 +1,5 @@
 //
-// $Id: IntIntMap.java,v 1.4 2003/03/05 02:51:33 ray Exp $
+// $Id: IntIntMap.java,v 1.5 2003/03/10 04:59:20 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,8 @@
 
 package com.samskivert.util;
 
-import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 
 /**
@@ -43,13 +44,15 @@ public class IntIntMap
 	this(DEFAULT_BUCKETS);
     }
 
-    public synchronized int size ()
+    public int size ()
     {
 	return _size;
     }
 
-    public synchronized void put (int key, int value)
+    public void put (int key, int value)
     {
+        _modCount++;
+
 	int index = Math.abs(key)%_buckets.length;
 	Record rec = _buckets[index];
 
@@ -75,7 +78,7 @@ public class IntIntMap
 	_size++; // we're bigger
     }
 
-    public synchronized int get (int key)
+    public int get (int key)
     {
 	int index = Math.abs(key)%_buckets.length;
 	for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
@@ -97,7 +100,13 @@ public class IntIntMap
 	return false;
     }
 
-    public synchronized int remove (int key)
+    public int remove (int key)
+    {
+        _modCount++;
+        return removeImpl(key);
+    }
+
+    protected int removeImpl (int key)
     {
 	int index = Math.abs(key)%_buckets.length;
 	Record rec = _buckets[index];
@@ -127,8 +136,10 @@ public class IntIntMap
 	return -1;
     }
 
-    public synchronized void clear ()
+    public void clear ()
     {
+        _modCount++;
+
 	// abandon all of our hash chains (the joy of garbage collection)
 	for (int i = 0; i < _buckets.length; i++) {
 	    _buckets[i] = null;
@@ -137,14 +148,14 @@ public class IntIntMap
 	_size = 0;
     }
 
-    public Enumeration keys ()
+    public Iterator keys ()
     {
-	return new Enumerator(_buckets, true);
+	return new Interator(true);
     }
 
-    public Enumeration elements ()
+    public Iterator values ()
     {
-	return new Enumerator(_buckets, false);
+	return new Interator(false);
     }
 
     /**
@@ -192,26 +203,30 @@ public class IntIntMap
 	}
     }
 
-    class Enumerator implements Enumeration
+    class Interator implements Iterator
     {
-	public Enumerator (Record[] buckets, boolean returnKeys)
+	public Interator (boolean returnKeys)
 	{
-	    _buckets = buckets;
-	    _index = buckets.length;
+            this._modCount = IntIntMap.this._modCount;
+	    _index = _buckets.length;
 	    _returnKeys = returnKeys;
 	}
 
-	public boolean hasMoreElements ()
+	public boolean hasNext ()
 	{
+            if (this._modCount != IntIntMap.this._modCount) {
+                throw new ConcurrentModificationException("IntIntMapIterator");
+            }
+
 	    // if we're pointing to an entry, we've got more entries
-	    if (_record != null) {
+	    if (_next != null) {
 		return true;
 	    }
 
 	    // search backward through the buckets looking for the next
 	    // non-empty hash chain
 	    while (_index-- > 0) {
-		if ((_record = _buckets[_index]) != null) {
+		if ((_next = _buckets[_index]) != null) {
 		    return true;
 		}
 	    }
@@ -220,30 +235,35 @@ public class IntIntMap
 	    return false;
 	}
 
-	public Object nextElement ()
+	public Object next ()
 	{
 	    // if we're not pointing to an entry, search for the next
 	    // non-empty hash chain
-	    if (_record == null) {
-		while ((_index-- > 0) &&
-		       ((_record = _buckets[_index]) == null));
-	    }
+            if (hasNext()) {
+                _prev = _next;
+                _next = _next.next;
+                return new Integer(_returnKeys ? _prev.key : _prev.value);
 
-	    // if we found a record, return it's value and move our record
-	    // reference to it's successor
-	    if (_record != null) {
-		Record r = _record;
-		_record = r.next;
-		return new Integer(_returnKeys ? r.key : r.value);
-	    }
+            } else {
+                throw new NoSuchElementException("IntIntMapIterator");
+            }
+        }
 
-	    throw new NoSuchElementException("IntIntMapEnumerator");
-	}
+        public void remove ()
+        {
+            if (_prev == null) {
+                throw new IllegalStateException("IntIntMapIterator");
+            }
+
+            // otherwise remove the hard way
+            removeImpl(_prev.key);
+            _prev = null;
+        }
 
 	private int _index;
-	private Record _record;
-	private Record[] _buckets;
+	private Record _next, _prev;
 	private boolean _returnKeys;
+        private int _modCount;
     }
 
 //     public static void main (String[] args)
@@ -272,4 +292,6 @@ public class IntIntMap
 
     private Record[] _buckets;
     private int _size;
+
+    protected int _modCount = 0;
 }

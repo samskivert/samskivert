@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.33 2003/11/15 02:14:01 mdb Exp $
+// $Id: Label.java,v 1.34 2003/11/15 03:05:15 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -234,6 +234,15 @@ public class Label implements SwingConstants, LabelStyleConstants
         }
         _constraints.width = 0;
         _constraints.height = targetHeight;
+    }
+
+    /**
+     * Clears out previously configured target dimensions for this label.
+     */
+    public void clearTargetDimens ()
+    {
+        _constraints.width = 0;
+        _constraints.height = 0;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.10 2001/06/01 07:27:59 mdb Exp $
+// $Id: UserRepository.java,v 1.11 2001/06/07 08:38:47 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -332,7 +332,7 @@ public class UserRepository extends MySQLRepository
                     return null;
 
                 } finally {
-                    stmt.close();
+                    JDBCUtil.close(stmt);
                 }
             }
         });

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.26 2003/11/20 22:27:23 ray Exp $
+// $Id: SwingUtil.java,v 1.27 2003/12/13 01:18:25 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,7 @@
 
 package com.samskivert.swing.util;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -43,8 +44,12 @@ import java.awt.geom.Area;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Random;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTable;
 
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -53,10 +58,10 @@ import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
 
-import com.samskivert.util.SortableArrayList;
-import javax.swing.JTable;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+
+import com.samskivert.util.SortableArrayList;
 
 /**
  * Miscellaneous useful Swing-related utility functions.
@@ -559,4 +564,26 @@ public class SwingUtil
         // and create the cursor
         return tk.createCustomCursor(img, hotspot, "samskivertDnDCursor");
     }
+
+    /**
+     * Adds a one pixel border of random color to this and all panels
+     * contained in this panel's child hierarchy.
+     */
+    public static void addDebugBorders (JPanel panel)
+    {
+        Color bcolor = new Color(_rando.nextInt() % 256,
+                                 _rando.nextInt() % 256,
+                                 _rando.nextInt() % 256);
+        panel.setBorder(BorderFactory.createLineBorder(bcolor));
+
+        for (int ii = 0; ii < panel.getComponentCount(); ii++) {
+            Object child = panel.getComponent(ii);
+            if (child instanceof JPanel) {
+                addDebugBorders((JPanel)child);
+            }
+        }
+    }
+
+    /** Used by {@link #addDebugBorders}. */
+    protected static Random _rando = new Random();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.17 2004/01/28 02:36:23 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.18 2004/02/24 12:40:24 mdb Exp $
 
 package robodj.chooser;
 
@@ -48,6 +48,8 @@ public class PlaylistPanel extends ControlledPanel
 
     public static final String REMOVE_ALL = "remove_all";
 
+    public static final String SHUFFLE = "shuffle";
+
     public ArrayList plist = new ArrayList();
 
     public PlaylistPanel ()
@@ -76,10 +78,12 @@ public class PlaylistPanel extends ControlledPanel
 
         // add our control buttons
         _clearbut = ButtonUtil.createControlButton(
-            CLEAR_TIP, "clear", CLEAR_ICON_PATH);
+            CLEAR_TIP, CLEAR, CLEAR_ICON_PATH);
         cbar.add(_clearbut);
         cbar.add(ButtonUtil.createControlButton(
-                     REFRESH_TIP, "refresh", REFRESH_ICON_PATH));
+                     REFRESH_TIP, REFRESH, REFRESH_ICON_PATH));
+        cbar.add(ButtonUtil.createControlButton(
+                     SHUFFLE_TIP, SHUFFLE, SHUFFLE_ICON_PATH));
         add(cbar, GroupLayout.FIXED);
 
         // use a special font for our name buttons
@@ -227,6 +231,7 @@ public class PlaylistPanel extends ControlledPanel
     protected static final String ICON_ROOT = "/robodj/chooser/images/";
     protected static final String REFRESH_ICON_PATH = ICON_ROOT + "refresh.png";
     protected static final String CLEAR_ICON_PATH = ICON_ROOT + "clear.png";
+    protected static final String SHUFFLE_ICON_PATH = ICON_ROOT + "shuffle.png";
     protected static final String SKIPTO_ICON_PATH = ICON_ROOT + "skip.png";
     protected static final String REMOVE_ENTRY_ICON_PATH =
         ICON_ROOT + "remove_entry.png";
@@ -237,6 +242,8 @@ public class PlaylistPanel extends ControlledPanel
     protected static final String REFRESH_TIP = "Refresh the playlist";
     protected static final String CLEAR_TIP =
         "Clear all songs from the playlist";
+    protected static final String SHUFFLE_TIP =
+        "Shuffle the songs in the playlist";
     protected static final String SKIPTO_TIP = "Skip to this song";
     protected static final String REMOVE_ENTRY_TIP =
         "Remove all songs in this entry from the playlist";

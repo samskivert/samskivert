@@ -1,10 +1,11 @@
 //
-// $Id: PlaylistController.java,v 1.2 2004/01/28 02:36:44 mdb Exp $
+// $Id: PlaylistController.java,v 1.3 2004/02/24 12:40:24 mdb Exp $
 
 package robodj.chooser;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JButton;
@@ -12,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.swing.util.SwingUtil;
@@ -131,6 +133,31 @@ public class PlaylistController extends ItemController
             TaskMaster.invokeTask("noop", new TaskAdapter() {
                 public Object invoke () throws Exception {
                     Chooser.scontrol.removeGroup(songid, fcount);
+                    return null;
+                }
+            }, this);
+
+        } else if (cmd.equals(PlaylistPanel.SHUFFLE)) {
+            // put all of the songs in the playlist into a list and
+            // shuffle them
+            ArrayList slist = new ArrayList();
+            for (Iterator iter = _panel.plist.iterator(); iter.hasNext(); ) {
+                slist.add(((PlaylistEntry)iter.next()).song);
+            }
+            final Song[] songs = (Song[])slist.toArray(new Song[slist.size()]);
+            ArrayUtil.shuffle(songs);
+
+            // now clear and reload the playlist entirely
+            TaskMaster.invokeTask("noop", new TaskAdapter() {
+                public Object invoke () throws Exception {
+                    Chooser.scontrol.clear();
+                    for (int ii = 0; ii < songs.length; ii++) {
+                        Chooser.scontrol.append(
+                            songs[ii].entryid, songs[ii].songid,
+                            songs[ii].location);
+                    }
+                    // finally queue up a UI refresh
+                    postAction(_panel, PlaylistPanel.REFRESH);
                     return null;
                 }
             }, this);

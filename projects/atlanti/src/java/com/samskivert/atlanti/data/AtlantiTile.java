@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.11 2001/11/08 08:00:22 mdb Exp $
+// $Id: AtlantiTile.java,v 1.12 2001/11/24 04:29:04 mdb Exp $
 
 package com.threerings.venison;
 
@@ -17,9 +17,9 @@ import java.util.List;
 import com.samskivert.util.IntTuple;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.ImageManager;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.UniformTileSet;
 
 import com.threerings.presents.dobj.DSet;
@@ -423,9 +423,9 @@ public class VenisonTile
      * Someone needs to configure this so that we can display tiles on
      * screen.
      */
-    public static void setImageManager (ImageManager imgr)
+    public static void setTileManager (TileManager tmgr)
     {
-        _imgr = imgr;
+        _tmgr = tmgr;
     }
 
     /**
@@ -435,15 +435,19 @@ public class VenisonTile
     {
         // load up the tile set if we haven't already
         if (_tset == null) {
-            _tset = new UniformTileSet(
-                _imgr, TILES_IMG_PATH, TILE_TYPES, TILE_WIDTH, TILE_HEIGHT);
+            _tset = new UniformTileSet();
+            _tset.setTileCount(TILE_TYPES);
+            _tset.setWidth(TILE_WIDTH);
+            _tset.setHeight(TILE_HEIGHT);
+            _tset.setImagePath(TILES_IMG_PATH);
+            _tset.setImageProvider(_tmgr);
         }
 
         // fetch the tile
         try {
             Tile tile = _tset.getTile(type-1);
             if (tile != null) {
-                return tile.img;
+                return tile.getImage();
             }
 
         } catch (NoSuchTileException nste) {
@@ -457,8 +461,8 @@ public class VenisonTile
     /** The tile image that we use to render this tile. */
     protected Image _tileImage;
 
-    /** Our image manager. */
-    protected static ImageManager _imgr;
+    /** Our tile manager. */
+    protected static TileManager _tmgr;
 
     /** Our tileset. */
     protected static UniformTileSet _tset;

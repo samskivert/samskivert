@@ -18,7 +18,7 @@ import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.resource.ResourceManager;
-import com.threerings.media.ImageManager;
+import com.threerings.media.tile.TileManager;
 
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.client.PlaceView;
@@ -107,8 +107,8 @@ public class VenisonPanel
             public void ancestorAdded (AncestorEvent event) {
                 // create our image manager
                 JRootPane rpane = getRootPane();
-                VenisonTile.setImageManager(
-                    new ImageManager(_rmgr, (Frame)rpane.getParent()));
+                TileManager tmgr = new TileManager(_rmgr);
+                VenisonTile.setTileManager(tmgr);
             }
             public void ancestorMoved (AncestorEvent event) {
             }
@@ -142,10 +142,9 @@ public class VenisonPanel
     // this stuff is all a bit of a hack right now. by all rights, the
     // venison app should set up the resource manager, because it knows
     // about that sort of stuff, and make it available via the venison
-    // context and we may have some better place for the image manager to
-    // live and the tile set would be fetched through the tile
-    // manager. but it's late and i want to get this working, so fooey.
+    // context and we may have some better place for the tile manager to
+    // live. but it's late and i want to get this working, so fooey.
 
     /** Our resource manager. */
-    protected static ResourceManager _rmgr = new ResourceManager("rsrc");
+    protected static ResourceManager _rmgr = new ResourceManager(null, "rsrc");
 }

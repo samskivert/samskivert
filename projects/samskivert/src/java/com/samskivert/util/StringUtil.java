@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.33 2002/03/15 18:05:36 shaper Exp $
+// $Id: StringUtil.java,v 1.34 2002/04/16 17:47:04 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -281,20 +281,22 @@ public class StringUtil
 
 	} else if (val instanceof Point2D) {
             Point2D p = (Point2D)val;
-	    buf.append(openBox).append("+").append(p.getX());
-            buf.append("+").append(p.getY()).append(closeBox);
+	    buf.append(openBox);
+            coordsToString(buf, (int)p.getX(), (int)p.getY());
+            buf.append(closeBox);
 
 	} else if (val instanceof Dimension2D) {
             Dimension2D d = (Dimension2D)val;
-	    buf.append(openBox).append(d.getWidth()).append("x");
-            buf.append(d.getHeight()).append(closeBox);
+	    buf.append(openBox);
+            buf.append(d.getWidth()).append("x").append(d.getHeight());
+            buf.append(closeBox);
 
 	} else if (val instanceof Rectangle2D) {
             Rectangle2D r = (Rectangle2D)val;
-            buf.append(openBox).append(r.getX()).append(", ");
-            buf.append(r.getY()).append(", ");
-            buf.append(r.getWidth()).append(", ");
-            buf.append(r.getHeight()).append(closeBox);
+            buf.append(openBox);
+            buf.append(r.getWidth()).append("x").append(r.getHeight());
+            coordsToString(buf, (int)r.getX(), (int)r.getY());
+            buf.append(closeBox);
 
 	} else {
 	    buf.append(val);
@@ -352,6 +354,37 @@ public class StringUtil
             }
             written++;
         }
+    }
+
+    /**
+     * Formats a pair of coordinates such that positive values are
+     * rendered with a plus prefix and negative values with a minus
+     * prefix.  Examples would look like: <code>+3+4</code>
+     * <code>-5+7</code>, etc.
+     */
+    public static String coordsToString (int x, int y)
+    {
+        StringBuffer buf = new StringBuffer();
+        coordsToString(buf, x, y);
+        return buf.toString();
+    }
+
+    /**
+     * Formats a pair of coordinates such that positive values are
+     * rendered with a plus prefix and negative values with a minus
+     * prefix.  Examples would look like: <code>+3+4</code>
+     * <code>-5+7</code>, etc.
+     */
+    public static void coordsToString (StringBuffer buf, int x, int y)
+    {
+        if (x >= 0) {
+            buf.append("+");
+        }
+        buf.append(x);
+        if (y >= 0) {
+            buf.append("+");
+        }
+        buf.append(y);
     }
 
     /**

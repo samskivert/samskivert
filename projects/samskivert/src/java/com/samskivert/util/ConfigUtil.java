@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.4 2001/08/11 22:43:29 mdb Exp $
+// $Id: ConfigUtil.java,v 1.5 2001/09/20 20:39:49 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,12 +20,9 @@
 
 package com.samskivert.util;
 
-import java.io.InputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.*;
 
 import com.samskivert.Log;
 
@@ -70,12 +67,13 @@ public class ConfigUtil
 	throws IOException
     {
 	InputStream in = getStream(path, loader);
-	Properties props = null;
+        if (in == null) {
+            throw new FileNotFoundException(path);
+        }
 
-	if (in != null) {
-	    props = new Properties();
-	    props.load(in);
-	}
+	Properties props = null;
+        props = new Properties();
+        props.load(in);
 
 	return props;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.9 2002/08/19 22:59:01 mdb Exp $
+// $Id: HashIntMap.java,v 1.10 2003/01/08 19:44:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -465,7 +465,7 @@ public class HashIntMap
 
         public String toString ()
         {
-            return key + "=" + value;
+            return key + "=" + StringUtil.toString(value);
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: GroupLayout.java,v 1.5 2002/05/16 02:02:38 mdb Exp $
+// $Id: GroupLayout.java,v 1.6 2002/09/25 07:26:19 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -326,6 +326,16 @@ public abstract class GroupLayout
 
     /**
      * Creates a {@link JPanel} that is configured with an {@link
+     * HGroupLayout} with a configuration that stretches in both
+     * directions, with the specified gap.
+     */
+    public static JPanel makeHStretchBox (int gap)
+    {
+        return new JPanel(new HGroupLayout(STRETCH, STRETCH, gap, CENTER));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
      * HGroupLayout} with the specified on-axis policy (default
      * configuration otherwise).
      */
@@ -395,6 +405,16 @@ public abstract class GroupLayout
     {
         return new JPanel(new VGroupLayout(policy, offAxisPolicy,
                                            DEFAULT_GAP, justification));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * VGroupLayout} with a configuration that stretches in both
+     * directions, with the specified gap.
+     */
+    public static JPanel makeVStretchBox (int gap)
+    {
+        return new JPanel(new VGroupLayout(STRETCH, STRETCH, gap, CENTER));
     }
 
     protected int _policy = NONE;

@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.3 2002/02/16 01:14:56 shaper Exp $
+// $Id: ParameterUtil.java,v 1.4 2002/02/19 19:00:18 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -189,7 +189,22 @@ public class ParameterUtil
      */
     public static boolean isSet (HttpServletRequest req, String name)
     {
-	return !StringUtil.blank(req.getParameter(name));
+        return isSet(req, name, false);
+    }
+
+    /**
+     * Returns true if the specified parameter is set in the request,
+     * <code>defaultValue</code> otherwise.
+     *
+     * @return true if the specified parameter is set in the request
+     * context, <code>defaultValue</code> otherwise.
+     */
+    public static boolean isSet (
+        HttpServletRequest req, String name, boolean defaultValue)
+    {
+        String value = getParameter(req, name, true);
+        return (value == null) ? defaultValue :
+            !StringUtil.blank(req.getParameter(name));
     }
 
     /**

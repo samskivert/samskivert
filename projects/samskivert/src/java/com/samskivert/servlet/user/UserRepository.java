@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.33 2003/10/07 02:13:27 ray Exp $
+// $Id: UserRepository.java,v 1.34 2003/10/29 19:41:52 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -368,7 +368,7 @@ public class UserRepository extends JORARepository
 
         return (site == null) ? -1 : site.siteId;
     }
-    
+
     /**
      * Get the "Site Name" (stringId) for the give siteId
      */
@@ -386,7 +386,7 @@ public class UserRepository extends JORARepository
     {
         return _siteIdToSite.elements();
     }
-    
+
     /**
      * 'Delete' the users account such that they can no longer access it,
      * however we do not delete the record from the db.  The name is
@@ -394,7 +394,13 @@ public class UserRepository extends JORARepository
      * originally.  If we have to lop off any of the name to get our
      * prefix to fit we use a minus sign instead of a equals side.  The
      * password field is set to be the empty string so that no one can log
-     * in (since nothing hashes to the empty string.
+     * in (since nothing hashes to the empty string.  We also make sure
+     * their email address no longer works, so in case we don't ignore
+     * 'deleted' users when we do the sql to get emailaddresses for the mass
+     * mailings we still won't spam delete folk.  We leave the emailaddress
+     * intact exect for the @ sign which gets turned to a #, so that we can
+     * see what their email was incase it was an accidently deletion and we
+     * have to verify through email.
      */
     public void deleteUser (final User user)
 	throws PersistenceException
@@ -407,6 +413,7 @@ public class UserRepository extends JORARepository
                 FieldMask mask = _utable.getFieldMask();
                 mask.setModified("username");
                 mask.setModified("password");
+                mask.setModified("email");
 
                 // set the password to unusable
                 user.password = "";
@@ -417,6 +424,10 @@ public class UserRepository extends JORARepository
                     newName = newName.substring(0,21);
                     join = "-";
                 }
+
+                // 'disable' their email address
+                String newEmail = user.email.replace('@','#');
+                user.email = newEmail;
 
                 for (int ii = 0; ii < 100; ii++) {
                     try {
@@ -651,10 +662,10 @@ public class UserRepository extends JORARepository
 
     /** Map that contains siteName -> Site mapping. */
     protected HashMap _siteNameToSite = new HashMap();
-    
+
     /** Map that contains siteId -> Site mapping. */
     protected HashIntMap _siteIdToSite = new HashIntMap();
-    
+
     /** A wrapper that provides access to the userstable. */
     protected Table _utable;
 

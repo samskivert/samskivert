@@ -1,5 +1,5 @@
 //
-// $Id: CollectionUtil.java,v 1.2 2001/08/11 22:43:29 mdb Exp $
+// $Id: CollectionUtil.java,v 1.3 2001/09/27 23:13:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -46,5 +46,28 @@ public class CollectionUtil
         while (iter.hasNext()) {
             col.add(iter.next());
         }
+    }
+
+    /**
+     * If a collection contains only <code>Integer</code> objects, it can
+     * be passed to this function and converted into an int array.
+     *
+     * @param col the collection to be converted.
+     *
+     * @return an int array containing the contents of the collection (in
+     * the order returned by the collection's iterator). The size of the
+     * array will be equal to the size of the collection.
+     *
+     * @exception ClassCastException thrown if the collection contains
+     * elements that are not instances of <code>Integer</code>.
+     */
+    public static int[] toIntArray (Collection col)
+    {
+        Iterator iter = col.iterator();
+        int[] array = new int[col.size()];
+        for (int i = 0; iter.hasNext(); i++) {
+            array[i] = ((Integer)iter.next()).intValue();
+        }
+        return array;
     }
 }

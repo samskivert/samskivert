@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.13 2002/09/23 20:33:04 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.14 2002/09/24 07:57:40 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -109,36 +109,43 @@ public class DefaultLogProvider implements LogProvider
         // let the formatting continue to influence the module name and
         // then it will be turned off when underlining is turned off
 
-        // if we wrap, we include the module name in the wrapped text
+        // we include the module name on the first line
         buf.append(_useVT100 ? TermUtil.UNDERLINE : "").append(moduleName);
         buf.append(_useVT100 ? TermUtil.PLAIN : "").append(": ");
 
-        // we'll be wrapping the log lines
-        int wrapwid = _tdimens.width - GAP.length();
-        int remain = message.length(), offset = 0;
-
-        // if the text contains newlines, don't wrap it
+        // if the text contains newlines, use those instead of wrapping
         if (message.indexOf("\n") != -1) {
-            wrapwid = Integer.MAX_VALUE;
-        }
+            String[] lines = StringUtil.split(message, "\n");
+            for (int ii = 0; ii < lines.length; ii++) {
+                if (ii > 0) {
+                    buf.append("\n").append(GAP);
+                }
+                buf.append(lines[ii]);
+            }
 
-        // our first line contains additionally, the module name (and a
-        // colon and space) which must be accountded for when wrapping
-        int linewid = Math.min(wrapwid - moduleName.length() - 2, remain);
-        // int linewid = Math.min(wrapwid - moduleName.length() - 6, remain);
+        } else {
+            // we'll be wrapping the log lines
+            int wrapwid = _tdimens.width - GAP.length();
+            int remain = message.length(), offset = 0;
 
-        // append the first line
-        buf.append(message.substring(offset, offset+linewid));
-        remain -= linewid;
-        offset += linewid;
+            // our first line contains the module name (and a colon and
+            // space) which must be accountded for when wrapping
+            int lwid = Math.min(wrapwid - moduleName.length() - 2, remain);
+            // int lwid = Math.min(wrapwid - moduleName.length() - 6, remain);
 
-        // now append the wrapped lines (if there are any)
-        while (remain > 0) {
-            buf.append("\n").append(GAP);
-            linewid = Math.min(wrapwid, remain);
-            buf.append(message.substring(offset, offset+linewid));
-            remain -= linewid;
-            offset += linewid;
+            // append the first line
+            buf.append(message.substring(offset, offset+lwid));
+            remain -= lwid;
+            offset += lwid;
+
+            // now append the wrapped lines (if there are any)
+            while (remain > 0) {
+                buf.append("\n").append(GAP);
+                lwid = Math.min(wrapwid, remain);
+                buf.append(message.substring(offset, offset+lwid));
+                remain -= lwid;
+                offset += lwid;
+            }
         }
 
         return buf.toString();

@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.5 2001/06/05 16:52:55 mdb Exp $
+# $Id: musicd,v 1.6 2001/07/12 22:32:56 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
-# filesystem. The playlsits can be manipulated by connecting to the server
+# filesystem. The playlists can be manipulated by connecting to the server
 # on a port and issuing simple text commands.
 
 use strict;
@@ -94,14 +94,16 @@ sub handle_client
     }
 
     # parse and process the command
-    if ($input =~ m/^APPEND (.*)/) {
+    if ($input =~ m/^APPEND (\d+) (\d+) (.*)/) {
         # append this song to the playlist
-        my $path = $1;
+        my $eid = $1;
+        my $sid = $2;
+        my $path = $3;
 
         # make sure the file they provided exists and is readable
         if (-r $path) {
-            push @playlist, $path;
-            print $cfh "200 Appended '$path' to playlist.\n";
+            push @playlist, [ $eid, $sid, $path ];
+            print $cfh "200 Appended '$eid:$sid:$path' to playlist.\n";
         } else {
             print $cfh "404 Unable to read playlist candidate: '$path'\n";
         }
@@ -112,6 +114,26 @@ sub handle_client
             play_next_tune();
         }
 
+    } elsif ($input =~ m/^REMOVE (\d+)/) {
+        # remove this songid from the playlist
+        my $sid = $1;
+        my $sidx = -1;
+        my $i;
+
+        for ($i = 0; $i < @playlist; $i++) {
+            if ($playlist[$i]->[1] == $sid) {
+                $sidx = $i;
+                splice(@playlist, $i, 1);
+                last;
+            }
+        }
+
+        if ($sidx >= 0) {
+            print $cfh "200 Removed $sid from position $i.\n";
+        } else {
+            print $cfh "404 Unable to locate $sid in playlist.\n";
+        }
+
     } elsif ($input =~ m/^CLEAR/) {
         # clear out the current playlist and reset the playing index
         @playlist = ();
@@ -120,15 +142,15 @@ sub handle_client
 
     } elsif ($input =~ m/^PLAYLIST/) {
         print $cfh "200 Playlist songs: " . @playlist . " current: " .
-            (defined $playing ? $playing : "<none>") . "\n";
-        my $path;
-        foreach $path (@playlist) {
-            print $cfh "$path\n";
+            (defined $playing ? $playing->[1] : "<none>") . "\n";
+        my $entry;
+        foreach $entry (@playlist) {
+            print $cfh join(":", @{$entry}) . "\n";
         }
 
     } elsif ($input =~ m/^PLAYING/) {
         print $cfh "200 Currently playing: " .
-            (defined $playing ? $playing : "<none>") . "\n";
+            (defined $playing ? $playing->[1] : "<none>") . "\n";
 
     } elsif ($input =~ m/^STOP/) {
         $mp3->stop();
@@ -164,6 +186,10 @@ sub handle_client
         print $cfh "200 Bye bye.\n";
         return 0;
 
+    } elsif ($input =~ m/^EXIT/) {
+        print $cfh "200 Bye bye.\n";
+        exit(0);
+
     } else {
         print $cfh "500 Unknown command: '$input'\n";
     }
@@ -186,7 +212,7 @@ sub play_next_tune
     $playing = $playlist[$index];
 
     # open it
-    $mp3->open($playing);
+    $mp3->open($playing->[2]);
 
     # and play it
     $mp3->play();

@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.8 2002/11/25 22:25:20 mdb Exp $
+// $Id: ConfigUtil.java,v 1.9 2002/11/26 01:57:22 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -58,8 +58,6 @@ public class ConfigUtil
      * Like {@link #loadProperties(String)} but this method uses the
      * supplied class loader rather than the class loader used to load the
      * <code>ConfigUtil</code> class.
-     *
-     * @see #loadProperties(String)
      */
     public static Properties loadProperties (String path, ClassLoader loader)
 	throws IOException
@@ -224,11 +222,20 @@ public class ConfigUtil
     }
 
     /**
+     * Like {@link #loadInheritedProperties(String)} but loads the
+     * properties into the supplied target object.
+     */
+    public static void loadInheritedProperties (String path, Properties target)
+	throws IOException
+    {
+        loadInheritedProperties(
+            path, ConfigUtil.class.getClassLoader(), target);
+    }
+
+    /**
      * Like {@link #loadInheritedProperties(String)} but this method uses
      * the supplied class loader rather than the class loader used to load
      * the <code>ConfigUtil</code> class.
-     *
-     * @see #loadInheritedProperties(String)
      */
     public static Properties loadInheritedProperties (
         String path, ClassLoader loader)

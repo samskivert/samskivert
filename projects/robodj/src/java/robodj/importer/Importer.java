@@ -1,5 +1,5 @@
 //
-// $Id: Importer.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
+// $Id: Importer.java,v 1.4 2001/06/05 17:40:18 mdb Exp $
 
 package robodj.importer;
 
@@ -61,7 +61,7 @@ public class Importer
         // center the frame in the screen and show it
         Toolkit tk = frame.getToolkit();
         Dimension ss = tk.getScreenSize();
-        int width = 550, height = 300;
+        int width = 640, height = 480;
         frame.setBounds((ss.width-width)/2, (ss.height-height)/2,
                         width, height);
 	frame.setVisible(true);

@@ -1,12 +1,14 @@
 //
-// $Id: LameEncoder.java,v 1.2 2003/10/10 19:33:16 mdb Exp $
+// $Id: LameEncoder.java,v 1.3 2003/10/10 21:30:42 mdb Exp $
 
 package robodj.convert;
 
 import java.io.*;
 import java.util.ArrayList;
 
-import gnu.regexp.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * An encoder implementation that uses LAME to do it's job.
@@ -24,13 +26,13 @@ public class LameEncoder implements Encoder
 	cmd.append(" ").append(dest); // add output file name
 
 	// we'll need this for later
-	RE regex;
+	Pattern regex;
 	try {
             // a line of input looks like this
             //     0/1273   ( 0%)|    0:00/    0:00...
-	    regex = new RE("^\\s*(\\d+)/(\\d+)\\s*\\(.*");
-	} catch (REException ree) {
-	    throw new ConvertException("Can't compile regexp?! " + ree);
+	    regex = Pattern.compile("^\\s*(\\d+)/(\\d+)\\s*\\(.*");
+	} catch (PatternSyntaxException pse) {
+	    throw new ConvertException("Can't compile regexp?! " + pse);
 	}
 
 	try {
@@ -53,12 +55,14 @@ public class LameEncoder implements Encoder
 		}
 
 		// parse the output
-		REMatch match = regex.getMatch(out);
-		if (match != null) {
+                Matcher match = regex.matcher(out);
+		if (match.matches()) {
 		    int offset = -1, total = -1;
 		    try {
-			offset = Integer.parseInt(match.toString(1));
-			total = Integer.parseInt(match.toString(2));
+			offset = Integer.parseInt(
+                            out.substring(match.start(0), match.end(0)));
+			total = Integer.parseInt(
+                            out.substring(match.start(1), match.end(1)));
 		    } catch (NumberFormatException nfe) {
 			System.err.println("Malformed position info: " + out);
 			continue;

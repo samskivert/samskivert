@@ -1,5 +1,5 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.7 2003/10/10 21:25:46 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.8 2003/10/10 21:30:42 mdb Exp $
 
 package robodj.convert;
 
@@ -24,7 +24,8 @@ public class CDParanoiaRipper implements Ripper
 	//   1.    17980 [03:59.55]        0 [00:00.00]    no   no  2
 	Pattern regex;
 	try {
-	    regex = Pattern.compile("^\\s*\\d+\\.\\s+(\\d+)\\s\\[\\S*\\]\\s+(\\d+)");
+	    regex = Pattern.compile(
+                "^\\s*\\d+\\.\\s+(\\d+)\\s\\[\\S*\\]\\s+(\\d+)");
 	} catch (PatternSyntaxException pse) {
 	    throw new ConvertException("Can't compile regexp?! " + pse);
 	}
@@ -56,7 +57,7 @@ public class CDParanoiaRipper implements Ripper
 		input.append(inline).append("\n");
 
 		// see if we match our regular expression
-		Matcher match = regex.match(inline);
+		Matcher match = regex.matcher(inline);
 		if (match.matches()) {
 		    flist.add(inline.substring(match.start(0), match.end(0)));
 		    flist.add(inline.substring(match.start(1), match.end(1)));
@@ -150,15 +151,15 @@ public class CDParanoiaRipper implements Ripper
 		}
 
 		// parse the output
-		Matcher match = regex.match(out);
+		Matcher match = regex.matcher(out);
 		if (match.matches()) {
 		    String action = out.substring(match.start(0), match.end(0));
 		    long offset = -1L;
 		    try {
-			String ostr = out.substring(match.start(1), match.end(1));
-			offset = Long.parseLong(ostr);
+			offset = Long.parseLong(
+                            out.substring(match.start(1), match.end(1)));
 		    } catch (NumberFormatException nfe) {
-			// System.err.println("Malformed position info: " + out);
+			// System.err.println("Malformed pos. info: " + out);
 			continue;
 		    }
 

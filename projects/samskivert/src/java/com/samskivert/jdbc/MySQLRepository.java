@@ -1,5 +1,5 @@
 //
-// $Id: MySQLRepository.java,v 1.3 2001/03/19 22:59:08 mdb Exp $
+// $Id: MySQLRepository.java,v 1.4 2001/05/26 03:22:24 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -29,6 +29,9 @@ public abstract class MySQLRepository extends Repository
     protected int lastInsertedId ()
 	throws SQLException
     {
+        // make sure we've got a connection
+        ensureConnection();
+
 	// we have to do this by hand. alas all is not roses.
 	Statement stmt = _session.connection.createStatement();
 	ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");

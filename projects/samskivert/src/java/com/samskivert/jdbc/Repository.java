@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.4 2001/03/19 22:59:08 mdb Exp $
+// $Id: Repository.java,v 1.5 2001/05/26 03:22:25 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -22,8 +22,8 @@ import com.samskivert.jdbc.jora.*;
 public abstract class Repository
 {
     /**
-     * Creates the repository and opens music database. A properties
-     * object should be supplied with the following fields:
+     * Creates and initializes the repository. A properties object should
+     * be supplied with the following fields:
      *
      * <pre>
      * driver=[jdbc driver class]
@@ -31,6 +31,15 @@ public abstract class Repository
      * username=[jdbc username]
      * password=[jdbc password]
      * </pre>
+     *
+     * <p> The connection to the database will not be established until
+     * the first operation is executed. It is important that database
+     * operations be invoked via <code>execute()</code> rather than
+     * directly so that the repository can manage the database session
+     * properly (reestablishing the session on transient failures and so
+     * on). If a derived class wishes to perform operations directly, it
+     * should call <code>ensureConnection()</code> before performing any
+     * database activity.
      *
      * @param props a properties object containing the configuration
      * parameters for the repository.
@@ -48,17 +57,27 @@ public abstract class Repository
 	_password =
 	    requireProp(props, "password", "No driver password specified.");
 
-        // establish a connection to the database
-        establishConnection();
+        // we attempt to reestablish the connection if there's a transient
+        // failure (like the database is down or our old connection gets
+        // closed by the database), but we don't want to get too crazy
+        // about connecting to the database automatically, so we limit our
+        // attempts to twice every thirty seconds
+        _throttle = new Throttle(2, 30);
     }
 
     /** Establishes a connection to the database. */
-    protected void establishConnection ()
+    protected void ensureConnection ()
         throws SQLException
     {
-        // bail out if we've already got a connection
+        // nothing doing if we've already got a connection
         if (_session != null) {
             return;
+        }
+
+        // make sure we don't try to reestablish the connection
+        // overzealously in times of lengthy database outage
+        if (_throttle.throttleOp()) {
+            throw new SQLException("Connection attempt throttled.");
         }
 
         try {
@@ -105,15 +124,15 @@ public abstract class Repository
         // first close the old connection
         shutdown();
         // then open a new one
-        establishConnection();
+        ensureConnection();
     }
 
     /**
      * After the database session is begun, this function will be called
      * to give the repository implementation the opportunity to create its
-     * table objects. As this is done during the initialization of the
-     * repository, the implementation has a chance to fail the entire
-     * repository creation process if the necessary tables do not exist.
+     * table objects. If the database session fails, a new session will be
+     * established and this function will be called again for the new
+     * session.
      */
     protected abstract void createTables () throws SQLException;
 
@@ -153,8 +172,9 @@ public abstract class Repository
     }
 
     /**
-     * Executes the supplied operation without attempting to reestablish
-     * the database connection in the event of a transient failure.
+     * Executes the supplied operation. In the event of a transient
+     * failure, the repository will attempt to reestablish the database
+     * connection and try the operation again.
      */
     protected void execute (Operation op)
 	throws SQLException
@@ -168,7 +188,7 @@ public abstract class Repository
      * which case a call to rollback() is executed on the session.
      *
      * @param retryOnTransientFailure if true and the operation fails due
-     * to an transient failure (like losing the connection to the database
+     * to a transient failure (like losing the connection to the database
      * or deadlock detection), the connection to the database will be
      * reestablished and the operation attempted once more.
      */
@@ -176,7 +196,7 @@ public abstract class Repository
 	throws SQLException
     {
         // make sure our connection is established
-        establishConnection();
+        ensureConnection();
 
 	try {
 	    // invoke the operation
@@ -260,4 +280,7 @@ public abstract class Repository
     protected String _url;
     protected String _username;
     protected String _password;
+
+    // we use this to prevent too many database connection attempts
+    protected Throttle _throttle;
 }

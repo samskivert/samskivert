@@ -1,5 +1,5 @@
 //
-// $Id: EntryController.java,v 1.1 2003/05/04 18:16:06 mdb Exp $
+// $Id: EntryController.java,v 1.2 2003/05/19 02:53:25 mdb Exp $
 
 package robodj.chooser;
 
@@ -103,12 +103,12 @@ public abstract class EntryController extends ItemController
             // start up the task that reads this CDs songs from the database
             TaskMaster.invokeMethodTask("readSongs", this, this);
 
-	} else if (cmd.equals("playall")) {
+	} else if (cmd.equals(EntryItem.PLAY)) {
             _entry = EntryItem.getEntry(e.getSource());
             // start up the task that reads this CDs songs from the database
             TaskMaster.invokeMethodTask("readAndPlay", this, this);
 
-        } else if (cmd.equals("play")) {
+        } else if (cmd.equals(SongItem.PLAY)) {
             Song song = SongItem.getSong(e.getSource());
             Chooser.scontrol.append(song.entryid, song.songid, song.location);
 

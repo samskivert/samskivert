@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.5 2001/05/26 04:37:35 mdb Exp $
+// $Id: UserManager.java,v 1.6 2001/05/26 23:18:11 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -10,6 +10,7 @@ import javax.servlet.http.*;
 
 import com.samskivert.Log;
 import com.samskivert.servlet.RedirectException;
+import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.*;
 
 /**
@@ -128,12 +129,7 @@ public class UserManager
 	// the login page
 	if (user == null) {
 	    // first construct the redirect URL
-	    StringBuffer rurl = HttpUtils.getRequestURL(req);
-	    String qs = req.getQueryString();
-	    if (qs != null) {
-		rurl.append("?").append(qs);
-	    }
-	    String eurl = URLEncoder.encode(rurl.toString());
+            String eurl = RequestUtils.getEncodedLocation(req);
 	    String target = StringUtil.replace(_loginURL, "%R", eurl);
 	    throw new RedirectException(target);
 	}

@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.11 2003/06/05 18:19:11 mdb Exp $
+// $Id: HashIntMap.java,v 1.12 2003/10/24 22:10:16 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -41,6 +41,11 @@ import java.util.Set;
 public class HashIntMap
     extends AbstractMap implements IntMap, Serializable
 {
+    public interface Entry extends AbstractMap.Entry
+    {
+        public int getIntKey ();
+    }
+
     /**
      * The default number of buckets to use for the hash table.
      */
@@ -439,6 +444,11 @@ public class HashIntMap
         public Object getKey ()
         {
             return new Integer(key);
+        }
+
+        public int getIntKey ()
+        {
+            return key;
         }
 
         public Object getValue ()

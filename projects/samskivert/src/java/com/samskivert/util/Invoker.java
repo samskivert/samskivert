@@ -179,14 +179,17 @@ public class Invoker extends LoopingThread
     /** Used to track profile information on invoked units. */
     protected static class UnitProfile
     {
-        public void record (long duration)
-        {
+        public void record (long duration) {
             _totalElapsed += duration;
             _histo.addValue((int)duration);
         }
 
-        public String toString ()
-        {
+        public void clear () {
+            _totalElapsed = 0L;
+            _histo.clear();
+        }
+
+        public String toString () {
             int count = _histo.size();
             return _totalElapsed + "ms/" + count + " = " +
                 (_totalElapsed/count) + "ms avg " +

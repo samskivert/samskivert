@@ -1,0 +1,24 @@
+2001-08-16  Michael Bayne  <mdb@samskivert.com>
+
+	* projects/lookuplet/src/lookuplet.c:
+	Now that we're not an applet, we need to call gnome_init() rather than
+	gtk_init(). Also slipped in some conditionals for the NLS stuff.
+
+	* projects/lookuplet/acconfig.h, projects/lookuplet/configure.in:
+	Minor configuration to make things work. I dislike the cargo cult nature
+	of my approach toward autoconf, but I can't be bothered to dive deeply
+	enough into the whole business to sort out all the jockeying that GNOME
+	and the various other layers are doing with it.
+
+	* projects/lookuplet/.cvsignore, projects/lookuplet/Makefile.am, projects/lookuplet/acconfig.h, projects/lookuplet/configure.in, projects/lookuplet/src/Makefile.am:
+	Modifications to build lookuplet like a GNOME app rather than an applet.
+
+2001-03-10  Michael Bayne  <mdb@samskivert.com>
+
+	* projects/lookuplet/src/querybox.c:
+	Exit after launching unless we're being compiled in applet mode (which
+	isn't fully reinstated yet anyway).
+
+	* projects/lookuplet/src/querybox.c:
+	Prune whitespace from the end of the selection before inserting it into
+	the lookuplet text widget.

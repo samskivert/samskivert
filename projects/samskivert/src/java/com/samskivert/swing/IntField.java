@@ -1,5 +1,5 @@
 //
-// $Id: IntField.java,v 1.3 2003/11/25 16:47:11 mdb Exp $
+// $Id: IntField.java,v 1.4 2003/11/25 17:54:50 eric Exp $
 
 package com.samskivert.swing;
 
@@ -7,6 +7,7 @@ import javax.swing.JTextField;
 
 import com.samskivert.Log;
 import com.samskivert.swing.util.SwingUtil.DocumentValidator;
+import com.samskivert.swing.util.SwingUtil.DocumentTransformer;
 import com.samskivert.swing.util.SwingUtil;
 
 /**
@@ -14,7 +15,7 @@ import com.samskivert.swing.util.SwingUtil;
  * specified range.
  */
 public class IntField extends JTextField
-    implements SwingUtil.DocumentValidator
+    implements SwingUtil.DocumentValidator, SwingUtil.DocumentTransformer
 {
     public IntField ()
     {
@@ -56,7 +57,7 @@ public class IntField extends JTextField
     {
         setText(Integer.toString(value));
     }
-    
+
     /**
      * Change the current min value.
      */
@@ -75,6 +76,13 @@ public class IntField extends JTextField
         setText(getText()); // jiggle the text
     }
 
+    // from interface SwingUtil.DocumentTransformer
+    public String transform (String s)
+    {
+        int val = Integer.parseInt(s);
+        return Integer.toString(Math.min(_maxValue, Math.max(_minValue, val)));
+    }
+
     // from interface SwingUtil.DocumentValidator
     public boolean isValid (String text)
     {
@@ -84,10 +92,6 @@ public class IntField extends JTextField
 
         try {
             int value = Integer.parseInt(text);
-
-            if (value > _maxValue) {
-                setText("" + _maxValue);
-            }
 
             return ((value >= _minValue) && (value <= _maxValue));
         } catch (NumberFormatException nfe) {

@@ -17,9 +17,9 @@
 
   <!-- declare our classpath -->
   <path id="classpath">
-    <fileset dir="${java.libraries}" includes="**/*.jar"/>
-    <fileset dir="lib" includes="**/*.jar"/>
     <pathelement location="${deploy.dir}/classes"/>
+    <fileset dir="lib" includes="**/*.jar"/>
+    <fileset dir="${java.libraries}" includes="**/*.jar"/>
   </path>
 
   <!-- prepares the application directories -->

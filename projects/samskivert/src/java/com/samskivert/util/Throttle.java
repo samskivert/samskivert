@@ -1,5 +1,5 @@
 //
-// $Id: Throttle.java,v 1.3 2002/12/04 02:54:58 mdb Exp $
+// $Id: Throttle.java,v 1.4 2002/12/04 03:20:36 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -52,19 +52,20 @@ public class Throttle
     /**
      * Constructs a new throttle instance that will allow the specified
      * number of operations to proceed within the specified period (the
-     * period is measured in seconds).
+     * period is measured in milliseconds).
      *
      * <p> As operations and period define a ratio, use the smallest value
-     * possible for operations as an array is created to track the time at
-     * which each operation was performed (e.g. use 6 ops per 10 seconds
-     * rather than 60 ops per 100 seconds if possible). However, note that
-     * you may not always want to reduce the ratio as much as possible if
-     * you wish to allow bursts of operations up to some large value.
+     * possible for <code>operations</code> as an array is created to
+     * track the time at which each operation was performed (e.g. use 6
+     * ops per 10 seconds rather than 60 ops per 100 seconds if
+     * possible). However, note that you may not always want to reduce the
+     * ratio as much as possible if you wish to allow bursts of operations
+     * up to some large value.
      */
-    public Throttle (int operations, int period)
+    public Throttle (int operations, long period)
     {
         _ops = new long[operations];
-        _period = 1000L * (long)period;
+        _period = period;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SearchPanel.java,v 1.1 2002/02/22 07:06:33 mdb Exp $
+// $Id: SearchPanel.java,v 1.2 2002/02/22 07:55:49 mdb Exp $
 
 package robodj.chooser;
 
@@ -21,6 +21,9 @@ public class SearchPanel extends JPanel
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
         gl.setJustification(GroupLayout.TOP);
 	setLayout(gl);
+
+	// give ourselves a wee bit of a border
+	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         add(new JLabel("Enter a word to be matched against the " +
                        "artists, titles and songs:"), GroupLayout.FIXED);

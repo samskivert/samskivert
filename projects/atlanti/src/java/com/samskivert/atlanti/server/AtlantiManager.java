@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.17 2001/11/07 10:42:24 mdb Exp $
+// $Id: AtlantiManager.java,v 1.18 2001/11/24 08:26:52 shaper Exp $
 
 package com.threerings.venison;
 
@@ -692,9 +692,16 @@ public class VenisonManager
     {
         public void handleEvent (MessageEvent event)
         {
-            // player doesn't want to place anything, so we just end the
-            // turn
-            endTurn();
+            if (_playerOids[pidx] != event.getSourceOid()) {
+                Log.warning("Requested to place nothing by non-turn holder " +
+                            "[event=" + event +
+                            ", turnHolder=" + _venobj.turnHolder + "].");
+
+            } else {
+                // player doesn't want to place anything, so we just end
+                // the turn
+                endTurn();
+            }
         }
     }
 

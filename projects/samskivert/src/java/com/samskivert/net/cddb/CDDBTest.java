@@ -1,5 +1,5 @@
 //
-// $Id: CDDBTest.java,v 1.1 2000/10/23 07:32:12 mdb Exp $
+// $Id: CDDBTest.java,v 1.2 2000/12/06 00:27:00 mdb Exp $
 
 package com.samskivert.net.cddb;
 
@@ -9,7 +9,7 @@ package com.samskivert.net.cddb;
  */
 public class CDDBTest
 {
-    public static void test (String hostname)
+    public static void test (String hostname, String cdid)
 	throws Exception
     {
 	CDDB cddb = new CDDB();
@@ -21,7 +21,6 @@ public class CDDBTest
 	    cddb.setTimeout(30*1000);
 
 	    // try a test query
-	    String cdid = "1b037b03";
 	    int[] offsets = { 150, 18130, 48615 };
 	    int length = 893;
 	    CDDB.Entry[] entries = cddb.query(cdid, offsets, length);
@@ -67,7 +66,7 @@ public class CDDBTest
 	}
 
 	try {
-	    test(args[0]);
+	    test(args[0], "1b037b03");
 
 	} catch (CDDBException ce) {
 	    System.err.println("Protocol exception: " + ce.getCode() +

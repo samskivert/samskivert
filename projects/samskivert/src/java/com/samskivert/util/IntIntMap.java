@@ -109,31 +109,23 @@ public class IntIntMap
     protected int removeImpl (int key)
     {
 	int index = Math.abs(key)%_buckets.length;
-	Record rec = _buckets[index];
+        Record prev = null;
 
-	// if there's no chain, there's no object
-	if (rec == null) {
-	    return -1;
-	}
+        // go through the chain looking for a match
+        for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
+            if (rec.key == key) {
+                if (prev == null) {
+                    _buckets[index] = rec.next;
+                } else {
+                    prev.next = rec.next;
+                }
+                _size--;
+                return rec.value;
+            }
+            prev = rec;
+        }
 
-	// maybe it's the first one in this chain
-	if (rec.key == key) {
-	    _buckets[index] = rec.next;
-	    _size--;
-	    return rec.value;
-	}
-
-	// or maybe it's an element further down the chain
-	for (Record prev = rec; rec != null; rec = rec.next) {
-	    if (rec.key == key) {
-		prev.next = rec.next;
-		_size--;
-		return rec.value;
-	    }
-	    prev = rec;
-	}
-
-	return -1;
+        return -1; // not found
     }
 
     public void clear ()

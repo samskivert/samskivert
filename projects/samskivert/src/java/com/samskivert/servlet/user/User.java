@@ -1,5 +1,5 @@
 //
-// $Id: User.java,v 1.5 2002/04/30 00:52:31 mdb Exp $
+// $Id: User.java,v 1.6 2002/04/30 01:11:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -118,5 +118,5 @@ public class User
     }
 
     /** Our dirty field mask. */
-    protected FieldMask _dirty;
+    protected transient FieldMask _dirty;
 }

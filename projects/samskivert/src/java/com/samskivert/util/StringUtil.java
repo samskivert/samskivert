@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.41 2002/10/31 01:44:25 shaper Exp $
+// $Id: StringUtil.java,v 1.42 2002/11/05 02:24:22 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -810,6 +810,41 @@ public class StringUtil
                 buf.append("\n");
             }
         }
+
+        return buf.toString();
+    }
+
+    /**
+     * Used to convert a time interval to a more easily human readable
+     * string of the form: <code>1d 15h 4m 15s 987m</code>.
+     */
+    public static String intervalToString (long millis)
+    {
+        StringBuffer buf = new StringBuffer();
+        boolean started = false;
+
+        long days = millis / (24 * 60 * 60 * 1000);
+        if (days != 0) {
+            buf.append(days).append("d ");
+            started = true;
+        }
+
+        long hours = (millis / (60 * 60 * 1000)) % 24;
+        if (started || hours != 0) {
+            buf.append(hours).append("h ");
+        }
+
+        long minutes = (millis / (60 * 1000)) % 60;
+        if (started || minutes != 0) {
+            buf.append(minutes).append("m ");
+        }
+
+        long seconds = (millis / (1000)) % 60;
+        if (started || seconds != 0) {
+            buf.append(seconds).append("s ");
+        }
+
+        buf.append(millis % 1000).append("m");
 
         return buf.toString();
     }

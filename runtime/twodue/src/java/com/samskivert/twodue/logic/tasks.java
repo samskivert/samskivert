@@ -1,5 +1,5 @@
 //
-// $Id: tasks.java,v 1.1 2003/11/15 22:55:32 mdb Exp $
+// $Id: tasks.java,v 1.2 2003/12/10 19:39:26 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -51,7 +51,7 @@ public class tasks extends UserLogic
         }
 
         // sort the tasks by priority, then complexity
-        Collections.sort(tasks, OPEN_PARATOR);
+        Collections.sort(tasks, TASK_PARATOR);
 
         CatList[] xtasks = categorize(tasks, new Categorizer() {
             public String category (Task task) {
@@ -111,23 +111,19 @@ public class tasks extends UserLogic
         return ctasks;
     }
 
-    protected static final Comparator OPEN_PARATOR = new Comparator() {
+    protected static final Comparator TASK_PARATOR = new Comparator() {
         public int compare (Object o1, Object o2) {
             Task t1 = (Task)o1, t2 = (Task)o2;
-            // sort first by reverse priority, then by complexity
+            // sort first by reverse priority, then by category, then complexity
             if (t1.priority == t2.priority) {
-                return t1.getComplexityValue() - t2.getComplexityValue();
+                if (t1.category.equals(t2.category)) {
+                    return t1.getComplexityValue() - t2.getComplexityValue();
+                } else {
+                    return t1.category.compareTo(t2.category);
+                }
             } else {
                 return t2.priority - t1.priority;
             }
-        }
-    };
-
-    protected static final Comparator OWNED_PARATOR = new Comparator() {
-        public int compare (Object o1, Object o2) {
-            Task t1 = (Task)o1, t2 = (Task)o2;
-            // sort by complexity
-            return t1.getComplexityValue() - t2.getComplexityValue();
         }
     };
 

@@ -1,5 +1,5 @@
 //
-// $Id: GroupLayout.java,v 1.6 2002/09/25 07:26:19 mdb Exp $
+// $Id: GroupLayout.java,v 1.7 2003/04/10 21:43:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -31,7 +31,7 @@ import java.util.HashMap;
  * Group layout managers lay out widgets in horizontal or vertical groups.
  */
 public abstract class GroupLayout
-    implements LayoutManager2, SwingConstants
+    implements LayoutManager2
 {
     /**
      * The group layout managers supports two constraints: fixedness
@@ -74,6 +74,28 @@ public abstract class GroupLayout
 	}
     }
 
+    /** A class used to make our policy constants type-safe. */
+    public static class Policy
+    {
+        int code;
+
+        public Policy (int code)
+        {
+            this.code = code;
+        }
+    }
+
+    /** A class used to make our policy constants type-safe. */
+    public static class Justification
+    {
+        int code;
+
+        public Justification (int code)
+        {
+            this.code = code;
+        }
+    }
+
     /**
      * A constraints object that indicates that the component should be
      * fixed and have the default weight of one. This is so commonly used
@@ -84,43 +106,58 @@ public abstract class GroupLayout
     /**
      * Do not adjust the widgets on this axis.
      */
-    public final static int NONE = 0;
+    public final static Policy NONE = new Policy(0);
 
     /**
      * Stretch all the widgets to their maximum possible size on this
      * axis.
      */
-    public final static int STRETCH = 1;
+    public final static Policy STRETCH = new Policy(1);
 
     /**
      * Stretch all the widgets to be equal to the size of the largest
      * widget on this axis.
      */
-    public final static int EQUALIZE = 2;
+    public final static Policy EQUALIZE = new Policy(2);
 
     /**
      * Only valid for off-axis policy, this leaves widgets alone unless
      * they are larger in the off-axis direction than their container, in
      * which case it constrains them to fit on the off-axis.
      */
-    public final static int CONSTRAIN = 3;
+    public final static Policy CONSTRAIN = new Policy(3);
 
-    public void setPolicy (int policy)
+    /** A justification constant. */
+    public final static Justification CENTER = new Justification(0);
+
+    /** A justification constant. */
+    public final static Justification LEFT = new Justification(1);
+
+    /** A justification constant. */
+    public final static Justification RIGHT = new Justification(2);
+
+    /** A justification constant. */
+    public final static Justification TOP = new Justification(3);
+
+    /** A justification constant. */
+    public final static Justification BOTTOM = new Justification(4);
+
+    public void setPolicy (Policy policy)
     {
 	_policy = policy;
     }
 
-    public int getPolicy ()
+    public Policy getPolicy ()
     {
 	return _policy;
     }
 
-    public void setOffAxisPolicy (int offpolicy)
+    public void setOffAxisPolicy (Policy offpolicy)
     {
 	_offpolicy = offpolicy;
     }
 
-    public int getOffAxisPolicy ()
+    public Policy getOffAxisPolicy ()
     {
 	return _offpolicy;
     }
@@ -135,22 +172,22 @@ public abstract class GroupLayout
 	return _gap;
     }
 
-    public void setJustification (int justification)
+    public void setJustification (Justification justification)
     {
 	_justification = justification;
     }
 
-    public int getJustification ()
+    public Justification getJustification ()
     {
 	return _justification;
     }
 
-    public void setOffAxisJustification (int justification)
+    public void setOffAxisJustification (Justification justification)
     {
 	_offjust = justification;
     }
 
-    public int getOffAxisJustification ()
+    public Justification getOffAxisJustification ()
     {
 	return _offjust;
     }
@@ -310,7 +347,7 @@ public abstract class GroupLayout
      * HGroupLayout} with a configuration conducive to containing a row of
      * buttons.
      */
-    public static JPanel makeButtonBox (int justification)
+    public static JPanel makeButtonBox (Justification justification)
     {
         return new JPanel(new HGroupLayout(NONE, justification));
     }
@@ -339,7 +376,7 @@ public abstract class GroupLayout
      * HGroupLayout} with the specified on-axis policy (default
      * configuration otherwise).
      */
-    public static JPanel makeHBox (int policy)
+    public static JPanel makeHBox (Policy policy)
     {
         return new JPanel(new HGroupLayout(policy));
     }
@@ -349,7 +386,7 @@ public abstract class GroupLayout
      * HGroupLayout} with the specified on-axis policy and justification
      * (default configuration otherwise).
      */
-    public static JPanel makeHBox (int policy, int justification)
+    public static JPanel makeHBox (Policy policy, Justification justification)
     {
         return new JPanel(new HGroupLayout(policy, justification));
     }
@@ -359,8 +396,8 @@ public abstract class GroupLayout
      * HGroupLayout} with the specified on-axis policy, justification and
      * off-axis policy (default configuration otherwise).
      */
-    public static JPanel makeHBox (int policy, int justification,
-                                   int offAxisPolicy)
+    public static JPanel makeHBox (Policy policy, Justification justification,
+                                   Policy offAxisPolicy)
     {
         return new JPanel(new HGroupLayout(policy, offAxisPolicy,
                                            DEFAULT_GAP, justification));
@@ -380,7 +417,7 @@ public abstract class GroupLayout
      * VGroupLayout} with the specified on-axis policy (default
      * configuration otherwise).
      */
-    public static JPanel makeVBox (int policy)
+    public static JPanel makeVBox (Policy policy)
     {
         return new JPanel(new VGroupLayout(policy));
     }
@@ -390,7 +427,7 @@ public abstract class GroupLayout
      * VGroupLayout} with the specified on-axis policy and justification
      * (default configuration otherwise).
      */
-    public static JPanel makeVBox (int policy, int justification)
+    public static JPanel makeVBox (Policy policy, Justification justification)
     {
         return new JPanel(new VGroupLayout(policy, justification));
     }
@@ -400,8 +437,8 @@ public abstract class GroupLayout
      * VGroupLayout} with the specified on-axis policy, justification and
      * off-axis policy (default configuration otherwise).
      */
-    public static JPanel makeVBox (int policy, int justification,
-                                   int offAxisPolicy)
+    public static JPanel makeVBox (Policy policy, Justification justification,
+                                   Policy offAxisPolicy)
     {
         return new JPanel(new VGroupLayout(policy, offAxisPolicy,
                                            DEFAULT_GAP, justification));
@@ -417,11 +454,11 @@ public abstract class GroupLayout
         return new JPanel(new VGroupLayout(STRETCH, STRETCH, gap, CENTER));
     }
 
-    protected int _policy = NONE;
-    protected int _offpolicy = CONSTRAIN;
+    protected Policy _policy = NONE;
+    protected Policy _offpolicy = CONSTRAIN;
     protected int _gap = DEFAULT_GAP;
-    protected int _justification = CENTER;
-    protected int _offjust = CENTER;
+    protected Justification _justification = CENTER;
+    protected Justification _offjust = CENTER;
 
     protected HashMap _constraints;
 

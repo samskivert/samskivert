@@ -1,5 +1,5 @@
 //
-// $Id: HGroupLayout.java,v 1.9 2002/05/16 02:02:38 mdb Exp $
+// $Id: HGroupLayout.java,v 1.10 2003/04/10 21:43:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,8 +24,8 @@ import java.awt.*;
 
 public class HGroupLayout extends GroupLayout
 {
-    public HGroupLayout (int policy, int offpolicy, int gap,
-			 int justification)
+    public HGroupLayout (Policy policy, Policy offpolicy, int gap,
+			 Justification justification)
     {
 	_policy = policy;
 	_offpolicy = offpolicy;
@@ -33,20 +33,20 @@ public class HGroupLayout extends GroupLayout
 	_justification = justification;
     }
 
-    public HGroupLayout (int policy, int gap, int justification)
+    public HGroupLayout (Policy policy, int gap, Justification justification)
     {
 	_policy = policy;
 	_gap = gap;
 	_justification = justification;
     }
 
-    public HGroupLayout (int policy, int justification)
+    public HGroupLayout (Policy policy, Justification justification)
     {
 	_policy = policy;
 	_justification = justification;
     }
 
-    public HGroupLayout (int policy)
+    public HGroupLayout (Policy policy)
     {
 	_policy = policy;
     }
@@ -60,17 +60,11 @@ public class HGroupLayout extends GroupLayout
 	DimenInfo info = computeDimens(parent, type);
 	Dimension dims = new Dimension();
 
-	switch (_policy) {
-	case STRETCH:
-	case EQUALIZE:
+        if (_policy == STRETCH || _policy == EQUALIZE) {
 	    dims.width = info.maxwid * (info.count - info.numfix) +
 		info.fixwid + _gap * info.count;
-	    break;
-
-	case NONE:
-	default:
+        } else { // NONE or CONSTRAIN
 	    dims.width = info.totwid + _gap * info.count;
-	    break;
 	}
 
 	dims.width -= _gap;
@@ -106,8 +100,7 @@ public class HGroupLayout extends GroupLayout
 
 	// do the on-axis policy calculations
 	int defwid = 0;
-	switch (_policy) {
-	case STRETCH:
+        if (_policy == STRETCH) {
 	    if (freecount > 0) {
                 int freewid = b.width - info.fixwid - totgap;
                 defwid = freewid / freecount;
@@ -116,47 +109,30 @@ public class HGroupLayout extends GroupLayout
 	    } else {
 		totwid = info.fixwid + totgap;
 	    }
-	    break;
 
-	case EQUALIZE:
+        } else if (_policy == EQUALIZE) {
 	    defwid = info.maxwid;
 	    totwid = info.fixwid + defwid * freecount + totgap;
-	    break;
 
-	default:
-	case NONE:
+        } else { // NONE or CONSTRAIN
 	    totwid = info.totwid + totgap;
-	    break;
 	}
 
 	// do the off-axis policy calculations
 	int defhei = 0;
-	switch (_offpolicy) {
-	case STRETCH:
+	if (_offpolicy == STRETCH) {
 	    defhei = b.height;
-	    break;
-	case EQUALIZE:
+        } else if (_offpolicy == EQUALIZE) {
 	    defhei = info.maxhei;
-	    break;
-	default:
-	case NONE:
-	    break;
 	}
 
 	// do the justification-related calculations
-	switch (_justification) {
-        default:
-        case LEFT:
-        case TOP:
+	if (_justification == LEFT || _justification == TOP) {
             sx = insets.left;
-            break;
-	case CENTER:
+        } else if (_justification == CENTER) {
 	    sx = insets.left + (b.width - totwid)/2;
-	    break;
-	case RIGHT:
-	case BOTTOM:
+        } else { // RIGHT or BOTTOM
 	    sx = insets.left + b.width - totwid;
-	    break;
 	}
 
 	// do the layout
@@ -186,19 +162,12 @@ public class HGroupLayout extends GroupLayout
             }
 
             // determine our off-axis position
-            switch (_offjust) {
-            case LEFT:
-            case TOP:
+            if (_offjust == LEFT || _offjust == TOP) {
 		sy = insets.top;
-                break;
-            case RIGHT:
-            case BOTTOM:
+            } else if (_offjust == RIGHT || _offjust == BOTTOM) {
 		sy = insets.top + b.height - newhei;
-                break;
-            default:
-            case CENTER:
+            } else { // CENTER
 		sy = insets.top + (b.height - newhei)/2;
-                break;
             }
 
 	    child.setBounds(sx, sy, newwid, newhei);

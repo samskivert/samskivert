@@ -1,0 +1,7 @@
+<object>
+  <intField>5</intField>
+  <stringField>howdy partner!</stringField>
+  <integerField>15</integerField>
+  <intArrayField>1, 2, 3, 4, 5</intArrayField>
+  <stringArrayField>one, two, three, four, five</stringArrayField>
+</object>

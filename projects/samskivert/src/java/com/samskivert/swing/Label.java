@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.21 2002/10/17 00:32:47 shaper Exp $
+// $Id: Label.java,v 1.22 2002/11/05 03:00:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -358,7 +358,7 @@ public class Label implements SwingConstants, LabelStyleConstants
 
             // fill in the computed size; for some reason JDK1.3 on Linux
             // chokes on setSize(double,double)
-            size.setSize(Math.round(width), Math.round(height));
+            size.setSize(Math.ceil(width), Math.ceil(height));
 
             // this can only happen if keepWordsWhole is true
             if (measurer.getPosition() < lastposition) {

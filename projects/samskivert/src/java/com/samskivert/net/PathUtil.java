@@ -1,5 +1,5 @@
 //
-// $Id: PathUtil.java,v 1.2 2001/08/11 22:43:29 mdb Exp $
+// $Id: PathUtil.java,v 1.3 2001/08/13 23:24:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -18,7 +18,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.util;
+package com.samskivert.net;
 
 /**
  * Path related utility functions.
@@ -30,7 +30,10 @@ public class PathUtil
      * specified new component. For example, if <code>/foo/bar/baz</code>
      * was provided as the source path, <code>baz</code> would be replaced
      * with the supplied new path component. If no slashes occur in the
-     * path, the entire path will be replaced.
+     * path, the entire path will be replaced. Note that this function is
+     * intended for use on URLs rather than filesystem paths and thus
+     * always uses forward slash rather than the platform defined path
+     * separator.
      */
     public static String replaceFinalComponent (String source,
                                                 String newComponent)

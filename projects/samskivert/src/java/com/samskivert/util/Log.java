@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.5 2001/08/12 01:34:31 mdb Exp $
+// $Id: Log.java,v 1.6 2002/04/09 05:13:28 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,14 @@ package com.samskivert.util;
  * is expected that the {@link LogProvider} interface will be used to
  * map these log services onto whatever more general purpose logging
  * framework is in use by the user of the samskivert codebase.
+ *
+ * <p> The log provider can be set via a system property to ensure that it
+ * is in effect as soon as the log services are used. When invoking your
+ * JVM, specify <code>-Dlog_provider=classname</code> and it will
+ * automatically be instantiated and put into effect by the log services.
+ * If your log provider needs more sophisticated configuration, you'll
+ * have to instantiate it yourself and set it using {@link
+ * #setLogProvider}.
  */
 public final class Log
 {
@@ -34,10 +42,10 @@ public final class Log
     public static final int DEBUG = 0;
 
     /** Log level constant for info entries. */
-    public static final int INFO = 0;
+    public static final int INFO = 1;
 
     /** Log level constant for warning entries. */
-    public static final int WARNING = 0;
+    public static final int WARNING = 2;
 
     /**
      * Constructs a new log object with the supplied module name.
@@ -119,9 +127,64 @@ public final class Log
 	_provider = provider;
     }
 
+    /**
+     * Checks the <code>log_provider</code> system property to see if a
+     * log provider has been specified. Installs it if so. Checks the
+     * <code>log_level</code> system property to see if a default log
+     * level has been specified. Sets it if so.
+     */
+    protected static void inferConfiguration ()
+    {
+        // first set up our provider
+        String provider = null;
+        try {
+            provider = System.getProperty("log_provider");
+            if (provider != null) {
+                Class lpclass = Class.forName(provider);
+                _provider = (LogProvider)lpclass.newInstance();
+            }
+
+        } catch (SecurityException se) {
+            // ignore security exceptions; we're just running in a JVM
+            // that won't let us read system properties
+
+        } catch (Exception e) {
+            _provider.log(WARNING, "samskivert",
+                          "Error instantating log provider " +
+                          "[class=" + provider + ", error=" + e + "].");
+        }
+
+        // now set our log level
+        try {
+            String level = System.getProperty("log_level");
+            if (level != null) {
+                if (level.equalsIgnoreCase("debug")) {
+                    _provider.setLevel(DEBUG);
+                } else if (level.equalsIgnoreCase("info")) {
+                    _provider.setLevel(INFO);
+                } else if (level.equalsIgnoreCase("warning")) {
+                    _provider.setLevel(WARNING);
+                } else {
+                    _provider.log(WARNING, "samskivert",
+                                  "Unknown log level requested " +
+                                  "[level=" + level + "].");
+                }
+            }
+
+        } catch (SecurityException se) {
+            // ignore security exceptions; we're just running in a JVM
+            // that won't let us read system properties
+        }
+    }
+
     /** The name of the module to which this log instance is associated. */
     protected String _moduleName;
 
     /** The log provider currently in use by the log services. */
     protected static LogProvider _provider = new DefaultLogProvider();
+
+    // read our configuration when the class is loaded
+    static {
+        inferConfiguration();
+    }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MenuUtil.java,v 1.4 2001/12/07 01:48:35 mdb Exp $
+// $Id: MenuUtil.java,v 1.5 2002/02/04 17:30:50 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -20,15 +20,20 @@
 
 package com.samskivert.swing.util;
 
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import java.lang.reflect.Method;
 
-import javax.swing.*;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 
 import com.samskivert.Log;
 
 /**
- * The MenuUtil class provides miscellaneous useful utility routines for
+ * The menu util class provides miscellaneous useful utility routines for
  * working with menus. Adding a menu item with both a mnemonic and an
  * accelerator to a menu in a frame that listens to its own menus (a
  * common case) can be simplified like so:
@@ -54,8 +59,9 @@ public class MenuUtil
                                     String name, Integer mnem,
                                     KeyStroke accel)
     {
-        JMenuItem item = createAndAddItem(menu, name, mnem, accel);
+        JMenuItem item = createItem(name, mnem, accel);
 	item.addActionListener(l);
+        menu.add(item);
     }
 
     /**
@@ -120,8 +126,9 @@ public class MenuUtil
         JMenu menu, String name, int mnem, KeyStroke accel,
         Object target, String callbackName)
     {
-	JMenuItem item = createAndAddItem(menu, name, new Integer(mnem), accel);
+	JMenuItem item = createItem(name, new Integer(mnem), accel);
 	item.addActionListener(new ReflectedAction(target, callbackName));
+        menu.add(item);
     }
 
     /**
@@ -140,16 +147,42 @@ public class MenuUtil
     public static void addMenuItem (
         JMenu menu, String name, Object target, String callbackName)
     {
-	JMenuItem item = createAndAddItem(menu, name, null, null);
+	JMenuItem item = createItem(name, null, null);
 	item.addActionListener(new ReflectedAction(target, callbackName));
+        menu.add(item);
     }
 
     /**
-     * Creates and configures a menu item and adds it to the specified
-     * menu.
+     * Add a new menu item to the popup menu with the specified name and
+     * attributes. The supplied method name will be called (it must have
+     * the same signature as {@link ActionListener#actionPerformed} but
+     * can be named whatever you like) when the menu item is selected.
+     *
+     * <p> Note that this <code>JPopupMenu</code>-specific implementation
+     * exists solely because <code>JPopupMenu</code> doesn't extend
+     * <code>JMenu</code> and so we have to explicitly call {@link
+     * JPopupMenu#add} rather than {@link JMenu#add}.
+     *
+     * @param menu the menu to add the item to.
+     * @param name the item name.
+     * @param target the object on which to invoke a method when the menu
+     * is selected.
+     * @param callbackName the name of the method to invoke when the menu
+     * is selected.
      */
-    protected static JMenuItem createAndAddItem (
-        JMenu menu, String name, Integer mnem, KeyStroke accel)
+    public static void addMenuItem (
+        JPopupMenu menu, String name, Object target, String callbackName)
+    {
+	JMenuItem item = createItem(name, null, null);
+        item.addActionListener(new ReflectedAction(target, callbackName));
+        menu.add(item);
+    }
+
+    /**
+     * Creates and configures a menu item.
+     */
+    protected static JMenuItem createItem (
+        String name, Integer mnem, KeyStroke accel)
     {
 	JMenuItem item = new JMenuItem(name);
         if (mnem != null) {
@@ -158,7 +191,6 @@ public class MenuUtil
         if (accel != null) {
             item.setAccelerator(accel);
         }
-	menu.add(item);
         return item;
     }
 
@@ -170,7 +202,7 @@ public class MenuUtil
         public ReflectedAction (Object target, String methodName)
         {
             try {
-                // lookp the method we'll be calling
+                // look up the method we'll be calling
                 _method = target.getClass().getMethod(methodName, METHOD_ARGS);
                 _target = target;
 

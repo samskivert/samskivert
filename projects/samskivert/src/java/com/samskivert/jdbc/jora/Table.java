@@ -646,6 +646,31 @@ public class Table {
             ", primaryKeys=" + StringUtil.toString(primaryKeys) + "]";
     }
 
+    /**
+     * Converts a name like <code>weAreSoCool</code> to a column name of
+     * the form <code>we_are_so_cool</code>.
+     */
+    public static String unStudlyName (String name)
+    {
+        boolean seenLower = false;
+        StringBuffer nname = new StringBuffer();
+        int nlen = name.length();
+        for (int i = 0; i < nlen; i++) {
+            char c = name.charAt(i);
+            // if we see an upper case character and we've seen a lower
+            // case character since the last time we did so, slip in an _
+            if (Character.isUpperCase(c)) {
+                nname.append("_");
+                seenLower = false;
+                nname.append(c);
+            } else {
+                seenLower = true;
+                nname.append(Character.toUpperCase(c));
+            }
+        }
+        return nname.toString();
+    }
+
     /** Spearator of name components of compound field. For example, if Java
      *  class constains component "location" of Point class, which
      *  has two components "x" and "y", then database table should
@@ -829,24 +854,7 @@ public class Table {
     private final String convertName (String name)
     {
         if (mixedCaseConvert) {
-            boolean seenLower = false;
-            StringBuffer nname = new StringBuffer();
-            int nlen = name.length();
-            for (int i = 0; i < nlen; i++) {
-                char c = name.charAt(i);
-                // if we see an upper case character and we've seen a lower
-                // case character since the last time we did so, slip in an _
-                if (Character.isUpperCase(c)) {
-                    nname.append("_");
-                    seenLower = false;
-                    nname.append(c);
-                } else {
-                    seenLower = true;
-                    nname.append(Character.toUpperCase(c));
-                }
-            }
-            return nname.toString();
-
+            return unStudlyName(name);
         } else {
             return name;
         }

@@ -64,7 +64,7 @@ public class VenisonPanel
         JPanel sidePanel = new JPanel(sgl);
 
         // add a big fat label because we love it!
-        JLabel vlabel = new JLabel("Venissonne!");
+        JLabel vlabel = new JLabel("Venison!");
         vlabel.setFont(new Font("Helvetica", Font.BOLD, 24));
         vlabel.setForeground(Color.black);
         sidePanel.add(vlabel, VGroupLayout.FIXED);

@@ -34,9 +34,31 @@ public class AttachableURLFactory implements URLStreamHandlerFactory
         if (_handlers == null) {
             _handlers = new HashMap();
 
-            // this could throw an Error if another factory is already
-            // registered. We let that error bubble on back.
+            // There are two ways to do this.
+
+            // Method 1, which is the only one that seems to work under
+            // Java Web Start, is to register a factory. This can throw an
+            // Error if another factory is already registered. We let that
+            // error bubble on back.
             URL.setURLStreamHandlerFactory(new AttachableURLFactory());
+
+            // Method 2 seems like a better idea but doesn't work under
+            // Java Web Start. We add on a property that registers this
+            // very class as the handler for the resource property. It
+            // would be instantiated with Class.forName().
+            // (And I did check, it's not dasho that is preventing this
+            // from working under JWS, it's something else.)
+            /*
+            // dug up from java.net.URL
+            String HANDLER_PROP = "java.protocol.handler.pkgs";
+
+            String prop = System.getProperty(HANDLER_PROP, "");
+            if (!"".equals(prop)) {
+            prop += "|";
+            }
+            prop += "com.threerings";
+            System.setProperty(HANDLER_PROP, prop);
+            */
         }
 
         _handlers.put(protocol.toLowerCase(), handlerClass);

@@ -904,6 +904,34 @@ public class StringUtil
     }
 
     /**
+     * Parses an array of longs from it's string representation. The
+     * array should be represented as a bare list of numbers separated by
+     * commas, for example:
+     *
+     * <pre>
+     * 25, 17125141422, 21, 99
+     * </pre>
+     *
+     * Any inability to parse the long array will result in the function
+     * returning null.
+     */
+    public static long[] parseLongArray (String source)
+    {
+        StringTokenizer tok = new StringTokenizer(source, ",");
+        long[] vals = new long[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            try {
+                // trim the whitespace from the token
+                String token = tok.nextToken().trim();
+                vals[i] = Long.parseLong(token);
+            } catch (NumberFormatException nfe) {
+                return null;
+            }
+        }
+        return vals;
+    }
+
+    /**
      * Parses an array of floats from it's string representation. The
      * array should be represented as a bare list of numbers separated by
      * commas, for example:

@@ -1,5 +1,5 @@
 //
-// $Id: SystemInfo.java,v 1.1 2003/01/14 22:07:05 shaper Exp $
+// $Id: SystemInfo.java,v 1.2 2003/01/14 22:31:27 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2003 Walter Korman
@@ -116,35 +116,57 @@ public class SystemInfo
     }
 
     /**
+     * Returns a terse readable string representation of the operating
+     * system name, version and architecture.
+     */
+    public String osToString ()
+    {
+        return osName + " (" + osVersion + "-" + osArch + ")";
+    }
+
+    /**
+     * Returns a terse readable string representation of the java virtual
+     * machine version and vendor.
+     */
+    public String jvmToString ()
+    {
+        return javaVersion + ", " + javaVendor;
+    }
+
+    /**
+     * Returns a terse readable string representation of memory usage.
+     */
+    public String memoryToString ()
+    {
+        return freeMemory + "k free, " + usedMemory + "k used, " +
+            totalMemory + "k total, " + maxMemory + "k max";
+    }
+
+    /**
+     * Returns a terse readable string representation of the video display
+     * settings.
+     */
+    public String videoToString ()
+    {
+        String sdepth = (bitDepth == -1) ? "unknown bit depth" :
+            bitDepth + "-bit";
+        String srate = (refreshRate == DisplayMode.REFRESH_RATE_UNKNOWN) ?
+            "unknown refresh rate" : (refreshRate + "kHz");
+        String sfull = (isFullScreen) ? "full-screen" : "windowed";
+        return displayWidth + "x" + displayHeight + ", " + sdepth + ", " +
+            srate + ", " + sfull;
+    }
+
+    /**
      * Returns a string representation of this instance.
      */
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-
-        // hardware and platform information
-        buf.append("OS: ").append(osName).append(" (").
-            append(osVersion).append("-").append(osArch).append(")\n");
-        buf.append("JVM: ").append(javaVersion).
-            append(", ").append(javaVendor).append("\n");
-
-        // memory information
-        buf.append("Memory: ").append(freeMemory).append("k free, ").
-            append(usedMemory).append("k used, ").
-            append(totalMemory).append("k total, ").
-            append(maxMemory).append("k max\n");
-
-        // video information
-        String sbitDepth = (bitDepth == -1) ? "unknown bit depth" :
-            bitDepth + "-bit";
-        String srefreshRate =
-            (refreshRate == DisplayMode.REFRESH_RATE_UNKNOWN) ?
-            "unknown refresh rate" : (refreshRate + "kHz");
-        String sfullScreen = (isFullScreen) ? "full-screen" : "windowed";
-        buf.append("Display: ").append(displayWidth).append("x").
-            append(displayHeight).append(", ").append(sbitDepth).
-            append(", ").append(srefreshRate).append(", ").append(sfullScreen);
-
+        buf.append("OS: ").append(osToString()).append("\n");
+        buf.append("JVM: ").append(jvmToString()).append("\n");
+        buf.append("Memory: ").append(memoryToString()).append("\n");
+        buf.append("Video: ").append(videoToString());
         return buf.toString();
     }
 }

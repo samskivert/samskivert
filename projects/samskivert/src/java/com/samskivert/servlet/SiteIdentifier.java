@@ -1,5 +1,5 @@
 //
-// $Id: SiteIdentifier.java,v 1.1 2001/10/31 23:38:37 mdb Exp $
+// $Id: SiteIdentifier.java,v 1.2 2001/11/06 04:48:35 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,10 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * Responsible for determining the unique site identifier based on
- * information available in the HTTP request. Because the site identifier
- * implementation is likely to have access to the site classification
- * metadata, this interface is also used to map integer site identifiers
- * to string site identifiers.
+ * information available in the HTTP request. Site identifiers are
+ * integers ranging from 1 to {@link Integer#MAX_VALUE}. Because the site
+ * identifier implementation is likely to have access to the site
+ * classification metadata, this interface is also used to map integer
+ * site identifiers to string site identifiers.
  */
 public interface SiteIdentifier
 {
@@ -49,7 +50,8 @@ public interface SiteIdentifier
      * trying to identify.
      *
      * @return the unique site identifier requestsed or {@link
-     * #DEFAULT_SITE_ID} if the site could not be identified.
+     * #DEFAULT_SITE_ID} if the site could not be identified. No site
+     * should ever have a site id value of 0.
      */
     public int identifySite (HttpServletRequest req);
 

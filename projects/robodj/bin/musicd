@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.9 2001/07/13 00:21:32 mdb Exp $
+# $Id: musicd,v 1.10 2001/07/13 00:39:32 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
 # filesystem. The playlists can be manipulated by connecting to the server
@@ -219,6 +219,7 @@ sub play_next_tune
     if (@playlist == 0) {
         $index = -1;
         undef $playing;
+	print "Empty playlist, twiddling.\n";
         return;
     }
 
@@ -249,7 +250,7 @@ sub play_this_tune
     # advance the playlist pointer (wrapping around at the end because we
     # always loop)
     for ($i = 0; $i < @playlist; $i++) {
-        $index = ($index + $i) % @playlist;
+        $index = ($index + 1) % @playlist;
         $playing = $playlist[$index];
         if ($playing->[1] == $sid) {
             last;

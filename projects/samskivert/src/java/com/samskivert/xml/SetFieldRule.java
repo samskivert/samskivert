@@ -1,5 +1,5 @@
 //
-// $Id: SetFieldRule.java,v 1.3 2001/11/29 19:21:49 mdb Exp $
+// $Id: SetFieldRule.java,v 1.4 2003/02/10 22:01:06 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -20,6 +20,7 @@
 
 package com.samskivert.xml;
 
+import java.lang.NoSuchFieldException;
 import java.lang.reflect.Field;
 
 import org.xml.sax.Attributes;
@@ -62,9 +63,14 @@ public class SetFieldRule extends Rule
         }
 
         // convert the source string into an object and set the field
-        Field field = top.getClass().getField(_fieldName);
-        Object value = ValueMarshaller.unmarshal(field.getType(), _bodyText);
-        field.set(top, value);
+        try {
+            Field field = top.getClass().getField(_fieldName);
+            Object value = ValueMarshaller.unmarshal(
+                field.getType(), _bodyText);
+            field.set(top, value);
+        } catch (NoSuchFieldException nsfe) {
+            digester.log("No such field: " + top.getClass() + "." + _fieldName);
+        }
     }
 
     protected String _fieldName;

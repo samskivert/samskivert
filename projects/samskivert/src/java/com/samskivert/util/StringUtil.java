@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.25 2002/02/04 01:14:49 mdb Exp $
+// $Id: StringUtil.java,v 1.26 2002/02/05 22:30:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -291,6 +291,7 @@ public class StringUtil
     {
         Class clazz = object.getClass();
         Field[] fields = clazz.getFields();
+        int written = 0;
 
         // we only want non-static, non-final, non-transient fields
         for (int i = 0; i < fields.length; i++) {
@@ -300,7 +301,7 @@ public class StringUtil
                 continue;
             }
 
-            if (buf.length() > 1) {
+            if (written > 1) {
                 buf.append(", ");
             }
 
@@ -310,6 +311,7 @@ public class StringUtil
             } catch (Exception e) {
                 buf.append("<error: " + e + ">");
             }
+            written++;
         }
     }
 

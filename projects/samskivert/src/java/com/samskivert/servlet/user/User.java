@@ -1,5 +1,5 @@
 //
-// $Id: User.java,v 1.4 2001/11/01 00:07:18 mdb Exp $
+// $Id: User.java,v 1.5 2002/04/30 00:52:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,7 @@
 package com.samskivert.servlet.user;
 
 import java.sql.Date;
+import com.samskivert.jdbc.jora.FieldMask;
 
 /**
  * A user object contains information about a registered user in our web
@@ -29,7 +30,7 @@ import java.sql.Date;
  * information provided with the request headers.
  *
  * <p><b>Note:</b> Do not modify any of the fields of this object
- * diretly. Use the <code>set</code> methods to make updates. If no set
+ * directly. Use the <code>set</code> methods to make updates. If no set
  * methods exist, you shouldn't be modifying that field.
  */
 public class User
@@ -63,6 +64,7 @@ public class User
     public void setRealName (String realname)
     {
 	this.realname = realname;
+        _dirty.setModified("realname");
     }
 
     /**
@@ -73,6 +75,7 @@ public class User
     public void setPassword (String password)
     {
 	this.password = UserUtil.encryptPassword(username, password);
+        _dirty.setModified("password");
     }
 
     /**
@@ -81,6 +84,7 @@ public class User
     public void setEmail (String email)
     {
 	this.email = email;
+        _dirty.setModified("email");
     }
 
     /**
@@ -94,4 +98,25 @@ public class User
 	String epasswd = UserUtil.encryptPassword(username, password);
 	return this.password.equals(epasswd);
     }
+
+    /**
+     * Called by the repository to find out which fields have been
+     * modified since the object was loaded.
+     */
+    protected FieldMask getDirtyMask ()
+    {
+        return _dirty;
+    }
+
+    /**
+     * Called by the repository to configure this user record with a field
+     * mask that it can use to track modified fields.
+     */
+    protected void setDirtyMask (FieldMask dirty)
+    {
+        _dirty = dirty;
+    }
+
+    /** Our dirty field mask. */
+    protected FieldMask _dirty;
 }

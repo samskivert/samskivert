@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.19 2001/11/01 00:07:18 mdb Exp $
+// $Id: UserRepository.java,v 1.20 2002/04/30 00:52:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -61,11 +61,22 @@ public class UserRepository extends JORARepository
 	super(provider, USER_REPOSITORY_IDENT);
     }
 
+    /**
+     * Derived classes that extend the user record with their own
+     * additional information will want to override this method and return
+     * their desired {@link User} derivation.
+     */
+    protected Class getUserClass ()
+    {
+        return User.class;
+    }
+
+    // documentation inherited
     protected void createTables (Session session)
     {
 	// create our table object
-	_utable = new Table(User.class.getName(), "users", session,
-			    "userId");
+	_utable = new Table(
+            getUserClass().getName(), "users", session, "userId");
     }
 
     /**
@@ -91,6 +102,23 @@ public class UserRepository extends JORARepository
 	throws InvalidUsernameException, UserExistsException,
         PersistenceException
     {
+	// create a new user object...
+        User user = new User();
+        // ...configure it...
+        populateUser(user, username, password, realname, email, siteId);
+        // ...and stick it into the database
+        return insertUser(user);
+    }
+
+    /**
+     * Configures the supplied user record with the provided information
+     * in preparation for inserting the record into the database for the
+     * first time.
+     */
+    protected void populateUser (User user, String username, String password,
+                                 String realname, String email, int siteId)
+        throws InvalidUsernameException
+    {
 	// check minimum length
 	if (username.length() < MINIMUM_USERNAME_LENGTH) {
 	    throw new InvalidUsernameException("error.username_too_short");
@@ -101,15 +129,21 @@ public class UserRepository extends JORARepository
 	    throw new InvalidUsernameException("error.invalid_username");
 	}
 
-	// create a new user object and stick it into the database
-	final User user = new User();
 	user.username = username;
 	user.password = UserUtil.encryptPassword(username, password);
 	user.realname = realname;
 	user.email = email;
 	user.created = new Date(System.currentTimeMillis());
         user.siteId = siteId;
+    }
 
+    /**
+     * Inserts the supplied user record into the user database, assigning
+     * it a userid in the process, which is returned.
+     */
+    protected int insertUser (final User user)
+	throws UserExistsException, PersistenceException
+    {
         execute(new Operation () {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
@@ -140,27 +174,10 @@ public class UserRepository extends JORARepository
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public User loadUser (final String username)
+    public User loadUser (String username)
 	throws PersistenceException
     {
-        return (User)execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
-                throws PersistenceException, SQLException
-            {
-                // look up the user
-                String query = "where username = '" + username + "'";
-                Cursor ec = _utable.select(query);
-
-                // fetch the user from the cursor
-                User user = (User)ec.next();
-                if (user != null) {
-                    // call next() again to cause the cursor to close itself
-                    ec.next();
-                }
-
-                return user;
-            }
-        });
+        return loadUserWhere("where username = '" + username + "'");
     }
 
     /**
@@ -169,26 +186,10 @@ public class UserRepository extends JORARepository
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public User loadUser (final int userId)
+    public User loadUser (int userId)
 	throws PersistenceException
     {
-        return (User)execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
-                throws PersistenceException, SQLException
-            {
-                // look up the user
-                Cursor ec = _utable.select("where userId = " + userId);
-
-                // fetch the user from the cursor
-                User user = (User)ec.next();
-                if (user != null) {
-                    // call next() again to cause the cursor to close itself
-                    ec.next();
-                }
-
-                return user;
-            }
-        });
+        return loadUserWhere("where userId = " + userId);
     }
 
     /**
@@ -214,6 +215,36 @@ public class UserRepository extends JORARepository
                 if (user != null) {
                     // call next() again to cause the cursor to close itself
                     ec.next();
+                    // configure the user record with its field mask
+                    user.setDirtyMask(_utable.getFieldMask());
+                }
+
+                return user;
+            }
+        });
+    }
+
+    /**
+     * Loads up a user record that matches the specified where clause.
+     * Returns null if no record matches.
+     */
+    protected User loadUserWhere (final String whereClause)
+	throws PersistenceException
+    {
+        return (User)execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                // look up the user
+                Cursor ec = _utable.select(whereClause);
+
+                // fetch the user from the cursor
+                User user = (User)ec.next();
+                if (user != null) {
+                    // call next() again to cause the cursor to close itself
+                    ec.next();
+                    // configure the user record with its field mask
+                    user.setDirtyMask(_utable.getFieldMask());
                 }
 
                 return user;
@@ -223,6 +254,9 @@ public class UserRepository extends JORARepository
 
     /**
      * Updates a user that was previously fetched from the repository.
+     * Only fields that have been modified since it was loaded will be
+     * written to the database and those fields will subsequently be
+     * marked clean once again.
      */
     public void updateUser (final User user)
 	throws PersistenceException
@@ -231,7 +265,7 @@ public class UserRepository extends JORARepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
-		_utable.update(user);
+		_utable.update(user, user.getDirtyMask());
                 // nothing to return
                 return null;
 	    }

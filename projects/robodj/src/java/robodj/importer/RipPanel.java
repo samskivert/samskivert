@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.9 2003/05/04 18:16:07 mdb Exp $
+// $Id: RipPanel.java,v 1.10 2003/05/07 17:27:40 mdb Exp $
 
 package robodj.importer;
 
@@ -20,6 +20,7 @@ import com.samskivert.util.StringUtil;
 import robodj.Log;
 import robodj.convert.*;
 import robodj.repository.*;
+import robodj.util.RDJPrefs;
 
 public class RipPanel
     extends ImporterPanel
@@ -98,7 +99,7 @@ public class RipPanel
 
     protected static String createTempPath (int trackno, String ext)
     {
-        String rbase = Importer.config.getProperty("repository.tmpdir");
+        String rbase = RDJPrefs.getRepositoryTemp();
         return rbase + "/track" + trackno + "." + ext;
     }
 
@@ -214,8 +215,7 @@ public class RipPanel
 
             try {
                 // determine the target directory for the mp3 files
-                String rbase =
-                    Importer.config.getProperty("repository.basedir");
+                String rbase = RDJPrefs.getRepositoryDirectory();
                 if (StringUtil.blank(rbase)) {
                     throw new Exception("No mp3 repository directory " +
                                         "specified.");

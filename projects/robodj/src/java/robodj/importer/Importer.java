@@ -1,5 +1,5 @@
 //
-// $Id: Importer.java,v 1.10 2002/03/03 21:17:03 mdb Exp $
+// $Id: Importer.java,v 1.11 2003/05/07 17:27:39 mdb Exp $
 
 package robodj.importer;
 
@@ -8,17 +8,19 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.swing.JOptionPane;
-
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.StaticConnectionProvider;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.PropertiesUtil;
+import com.samskivert.util.StringUtil;
 
 import robodj.Log;
 import robodj.repository.Repository;
+import robodj.util.RDJPrefs;
+import robodj.util.RDJPrefsPanel;
+import robodj.util.ErrorUtil;
 
 /**
  * The importer is the GUI-based application for ripping, encoding and
@@ -32,37 +34,35 @@ public class Importer
      */
     public static final String ENTRY_SOURCE = "CD";
 
-    public static Properties config;
-
     public static Repository repository;
 
     public static void main (String[] args)
     {
-        // load our main configuration
-        String cpath = "conf/importer.properties";
-        try {
-            config = ConfigUtil.loadProperties(cpath);
-        } catch (IOException ioe) {
-            String err = "Unable to load configuration " +
-                "[path=" + cpath + "]: " + ioe;
-            reportError(err);
-            System.exit(-1);
-        }
+        // loop until the user provides us with a configuration that works
+        // or requests to exit
+        for (int ii = 0; ii < 100; ii++) {
+            String repodir = RDJPrefs.getRepositoryDirectory();
+            if (StringUtil.blank(repodir) || ii > 0) {
+                // display the initial configuration wizard if we are not
+                // yet properly configured
+                RDJPrefsPanel.display(true);
+            }
 
-        // create an interface to the database repository
-        try {
-            StaticConnectionProvider scp =
-                new StaticConnectionProvider("conf/repository.properties");
-            repository = new Repository(scp);
+            // create an interface to the database repository
+            try {
+                StaticConnectionProvider scp =
+                    new StaticConnectionProvider(RDJPrefs.getJDBCConfig());
+                repository = new Repository(scp);
 
-        } catch (IOException ioe) {
-            reportError("Error loading repository config: " + ioe);
-            System.exit(-1);
+            } catch (PersistenceException pe) {
+                String errmsg = "Unable to communicate with database:";
+                if (ErrorUtil.reportError(errmsg, pe)) {
+                    System.exit(-1);
+                }
+                continue;
+            }
 
-        } catch (PersistenceException pe) {
-            reportError("Unable to establish communication " +
-                        "with music database: " + pe);
-            System.exit(-1);
+            break;
         }
 
         // create our frame and first panel
@@ -76,12 +76,4 @@ public class Importer
 	frame.setVisible(true);
     }
             
-    protected static void reportError (String error)
-    {
-        Object[] options = { "OK" };
-        JOptionPane.showOptionDialog(null, error, "Error",
-                                     JOptionPane.DEFAULT_OPTION,
-                                     JOptionPane.ERROR_MESSAGE,
-                                     null, options, options[0]);
-    }
 }

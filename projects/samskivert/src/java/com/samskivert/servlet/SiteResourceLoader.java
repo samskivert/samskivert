@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoader.java,v 1.6 2001/11/06 20:16:46 mdb Exp $
+// $Id: SiteResourceLoader.java,v 1.7 2004/05/11 03:14:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -174,6 +174,14 @@ public class SiteResourceLoader
     }
 
     /**
+     * Returns a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return "[jarPath=" + _jarPath + "]";
+    }
+
+    /**
      * We synchronize on a per-site basis, but we use a separate lock
      * object for each site so that the process of loading a bundle for
      * the first time does not require blocking access to resources from
@@ -334,6 +342,15 @@ public class SiteResourceLoader
                             "[jar=" + _jarFile + ", error=" + ioe + "].");
                 return null;
             }
+        }
+
+        /**
+         * Returns a string representation of this instance.
+         */
+        public String toString ()
+        {
+            return "[jarFile=" + (_jarFile == null ? "<none>" :
+                                  _jarFile.getName()) + "]";
         }
 
         protected JarFile _jarFile;

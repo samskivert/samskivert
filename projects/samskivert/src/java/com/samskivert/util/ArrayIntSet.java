@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.4 2002/04/18 00:09:17 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.5 2002/05/16 20:50:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -236,7 +236,32 @@ public class ArrayIntSet extends AbstractSet
     // documentation inherited from interface
     public boolean retainAll (Collection c)
     {
-        throw new UnsupportedOperationException();
+        if (c instanceof ArrayIntSet) {
+            ArrayIntSet other = (ArrayIntSet)c;
+            // make a new array that will hold the union of our two arrays
+            // (this is preferable to the complicated process of repeated
+            // shrinking or swapping)
+            int[] combined = new int[Math.min(_values.length,
+                                              other._values.length)];
+            int nsize = 0;
+            for (int ii = 0; ii < _size; ii++) {
+                if (other.contains(_values[ii])) {
+                    combined[nsize++] = _values[ii];
+                }
+            }
+
+            // keep track of whether or not things changed
+            boolean changed = (_size != nsize);
+
+            // stuff the new values into the right place
+            _values = combined;
+            _size = nsize;
+
+            return changed;
+
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     // documentation inherited from interface
@@ -252,7 +277,12 @@ public class ArrayIntSet extends AbstractSet
         if (o instanceof ArrayIntSet) {
             ArrayIntSet other = (ArrayIntSet)o;
             if (other._size == _size) {
-                return Arrays.equals(_values, other._values);
+                for (int ii = 0; ii < _size; ii++) {
+                    if (_values[ii] != other._values[ii]) {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
 
@@ -267,6 +297,14 @@ public class ArrayIntSet extends AbstractSet
             hashCode ^= _values[i];
         }
         return hashCode;
+    }
+
+    /**
+     * Returns a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return StringUtil.toString(iterator());
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSetTest.java,v 1.2 2002/04/11 04:07:42 mdb Exp $
+// $Id: ArrayIntSetTest.java,v 1.3 2002/05/16 20:50:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -49,6 +49,25 @@ public class ArrayIntSetTest extends TestCase
         int[] setvals = set.toIntArray();
 
         assertTrue("values equal", Arrays.equals(values, setvals));
+
+        ArrayIntSet set1 = new ArrayIntSet();
+        set1.add(new int[] { 1, 2, 3, 5, 7, 12, 19, 35 });
+        ArrayIntSet set2 = new ArrayIntSet();
+        set2.add(new int[] { 3, 4, 5, 11, 13, 17, 19, 25 });
+
+        ArrayIntSet set3 = new ArrayIntSet();
+        set3.add(new int[] { 3, 5, 19 });
+
+        // intersect sets 1 and 2; making sure that retainAll() returns
+        // true to indicate that set 1 was modified
+        assertTrue("retain modifies", set1.retainAll(set2));
+
+        // make sure the intersections were correct
+        assertTrue("intersection", set1.equals(set3));
+
+        // make sure that retainAll returns false if we do something that
+        // doesn't modify the set
+        assertTrue("retain didn't modify", !set1.retainAll(set3));
     }
 
     public static Test suite ()

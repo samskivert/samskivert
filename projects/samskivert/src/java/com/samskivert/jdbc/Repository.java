@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.5 2001/05/26 03:22:25 mdb Exp $
+// $Id: Repository.java,v 1.6 2001/05/26 04:49:31 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -66,7 +66,7 @@ public abstract class Repository
     }
 
     /** Establishes a connection to the database. */
-    protected void ensureConnection ()
+    protected synchronized void ensureConnection ()
         throws SQLException
     {
         // nothing doing if we've already got a connection
@@ -152,7 +152,7 @@ public abstract class Repository
      * it. This allows the repository to cleanly terminate the underlying
      * database services.
      */
-    public void shutdown ()
+    public synchronized void shutdown ()
 	throws SQLException
     {
         if (_session != null) {

@@ -29,6 +29,10 @@
     <copy todir="${deploy.dir}/classes">
       <fileset dir="${src.dir}" includes="**/*.properties"/>
     </copy>
+    <mkdir dir="${deploy.dir}/classes/rsrc"/>
+    <copy todir="${deploy.dir}/classes/rsrc">
+      <fileset dir="rsrc" includes="**/*"/>
+    </copy>
   </target>
 
   <!-- cleans out the installed application -->

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.25 2003/10/09 21:15:14 ray Exp $
+// $Id: SwingUtil.java,v 1.26 2003/11/20 22:27:23 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -119,28 +119,13 @@ public class SwingUtil
     public static Point fitRectInRect (
         Rectangle rect, Rectangle bounds)
     {
-	// make sure left edge is within bounds
-	Rectangle erect = new Rectangle(rect);
-	if (erect.x < bounds.x) {
-	    erect.x = bounds.x;
-	}
-
-	// make sure top edge is within bounds
-	if (erect.y < bounds.y) {
-	    erect.y = bounds.y;
-	}
-
-	// do our best to fit entire rectangle into bounds horizontally
-	if ((erect.x + erect.width) > (bounds.x + bounds.width)) {
-	    erect.x = (bounds.x + bounds.width) - erect.width;
-	}
-
-	// do our best to fit entire rect into bounds vertically
-	if ((erect.y + erect.height) > (bounds.y + bounds.height)) {
-	    erect.y = (bounds.y + bounds.height) - erect.height;
-	}
-
-	return new Point(erect.x, erect.y);
+        // Guarantee that the right and bottom edges will be contained
+        // and do our best for the top and left edges.
+        return new Point(
+            Math.min(bounds.x + bounds.width - rect.width,
+                Math.max(rect.x, bounds.x)),
+            Math.min(bounds.y + bounds.height - rect.height,
+                Math.max(rect.y, bounds.y)));
     }
 
     /**

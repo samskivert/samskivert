@@ -69,4 +69,23 @@
          basedir="${deploy.dir}/classes"/>
   </target>
 
+  <!-- invoke the visualizer on itself for testing -->
+  <target name="sumtest" depends="prepare,compile">
+    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
+    <viztool visualizer="com.samskivert.viztool.summary.SummaryVisualizer"
+      pkgroot="com.samskivert.viztool"
+      classes="com.samskivert.viztool.*">
+      <classpath refid="classpath"/>
+    </viztool>
+  </target>
+
+  <target name="hiertest" depends="prepare,compile">
+    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
+    <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
+      pkgroot="com.samskivert.viztool"
+      classes="com.samskivert.viztool.*">
+      <classpath refid="classpath"/>
+    </viztool>
+  </target>
+
 </project>

@@ -26,13 +26,15 @@ import java.util.TimerTask;
 import com.samskivert.Log;
 
 /**
- * An interface for doing operations after some delay.
+ * An interface for doing operations after some delay. Allows expiration
+ * to occur on a specific thread, and guarantees that any queued expiration
+ * will not run if the Interval has since been cancelled or rescheduled.
  */
 public abstract class Interval
 {
     /**
      * Create a simple interval that does not use a RunQueue to run
-     * the expire() method.
+     * the expired() method.
      */
     public Interval ()
     {
@@ -40,7 +42,7 @@ public abstract class Interval
 
     /**
      * Create an Interval that uses the specified RunQueue to run
-     * the expire() method.
+     * the expired() method.
      */
     public Interval (RunQueue runQueue)
     {
@@ -60,6 +62,7 @@ public abstract class Interval
 
     /**
      * Schedule the interval to execute once, after the specified delay.
+     * Supersedes any previous schedule that this Interval may have had.
      */
     public final void schedule (long delay)
     {
@@ -68,6 +71,7 @@ public abstract class Interval
 
     /**
      * Schedule the interval to execute repeatedly, with the same delay.
+     * Supersedes any previous schedule that this Interval may have had.
      */
     public final void schedule (long delay, boolean repeat)
     {
@@ -77,6 +81,7 @@ public abstract class Interval
     /**
      * Schedule the interval to execute repeatedly with the specified
      * initial delay and repeat delay.
+     * Supersedes any previous schedule that this Interval may have had.
      */
     public final void schedule (long initialDelay, long repeatDelay)
     {
@@ -91,8 +96,8 @@ public abstract class Interval
     }
 
     /**
-     * Cancel the Interval, and ensure that any expirations that are queued
-     * up but have not yet run do not run.
+     * Cancel the current schedule, and ensure that any expirations that
+     * are queued up but have not yet run do not run.
      */
     public final void cancel ()
     {

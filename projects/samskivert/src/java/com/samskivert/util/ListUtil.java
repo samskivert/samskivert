@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.11 2002/12/12 00:29:39 mdb Exp $
+// $Id: ListUtil.java,v 1.12 2003/07/15 00:31:54 ray Exp $
 
 package com.samskivert.util;
 
@@ -308,11 +308,13 @@ public class ListUtil
     protected static int indexOf (
         EqualityComparator eqc, Object[] list, Object element)
     {
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            Object elem = list[i];
-            if (eqc.equals(elem, element)) {
-                return i;
+        if (list != null) {
+            int llength = list.length; // no optimizing bastards
+            for (int i = 0; i < llength; i++) {
+                Object elem = list[i];
+                if (eqc.equals(elem, element)) {
+                    return i;
+                }
             }
         }
         return -1;

@@ -1,9 +1,13 @@
 //
-// $Id: Controller.java,v 1.1 2001/08/09 01:08:50 mdb Exp $
+// $Id: Controller.java,v 1.2 2001/08/09 01:31:27 mdb Exp $
 
 package com.threerings.yohoho.client;
 
+import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+
+import com.threerings.yohoho.Log;
 
 /**
  * The controller class provides a basis for the separation of user
@@ -45,4 +49,88 @@ public abstract class Controller
      * propagated up to the next controller in scope.
      */
     public abstract boolean handleAction (ActionEvent action);
+
+    /**
+     * Posts the specified action to the nearest controller in scope. The
+     * controller search begins with the source component of the action
+     * and traverses up the component tree looking for a controller to
+     * handle the action. The controller location and action event
+     * processing is guaranteed to take place on the AWT thread regardless
+     * of what thread calls <code>postAction</code> and that processing
+     * will not occur immediately but is instead appended to the AWT event
+     * dispatch queue for processing.
+     */
+    public static void postAction (ActionEvent action)
+    {
+        // slip things onto the event queue for later
+        EventQueue.invokeLater(new ActionInvoker(action));
+    }
+
+    /**
+     * Like {@link #postAction(ActionEvent)} except that it constructs the
+     * action event for you with the supplied source component and string
+     * comment. The <code>id</code> of the event will always be set to
+     * zero.
+     */
+    public static void postAction (Component source, String command)
+    {
+        // slip things onto the event queue for later
+        ActionEvent event = new ActionEvent(source, 0, command);
+        EventQueue.invokeLater(new ActionInvoker(event));
+    }
+
+    /**
+     * This class is used to dispatch action events to controllers within
+     * the context of the AWT event dispatch mechanism.
+     */
+    protected static class ActionInvoker implements Runnable
+    {
+        public ActionInvoker (ActionEvent action)
+        {
+            _action = action;
+        }
+
+        public void run ()
+        {
+            // do some sanity checking on the source
+            Object src = _action.getSource();
+            if (src == null || !(src instanceof Component)) {
+                Log.warning("Requested to dispatch action on " +
+                            "non-component source [source=" + src +
+                            ", action=" + _action + "].");
+                return;
+            }
+
+            // scan up the component hierarchy looking for a controller on
+            // which to dispatch this action
+            Component source = (Component)src;
+            do {
+                if (source instanceof ControllerProvider) {
+                    Controller ctrl =
+                        ((ControllerProvider)source).getController();
+                    try {
+                        // if the controller returns true, it handled the
+                        // action and we can call this business done
+                        if (ctrl.handleAction(_action)) {
+                            return;
+                        }
+                    } catch (Exception e) {
+                        Log.warning("Controller choked on action " +
+                                    "[ctrl=" + ctrl + "].");
+                        Log.logStackTrace(e);
+                    }
+                }
+
+                // move up the hierarchy
+                source = source.getParent();
+
+            } while (source != null);
+
+            // if we got here, we didn't find a controller
+            Log.warning("Unable to find a controller to process action " +
+                        "[action=" + _action + "].");
+        }
+
+        protected ActionEvent _action;
+    }
 }

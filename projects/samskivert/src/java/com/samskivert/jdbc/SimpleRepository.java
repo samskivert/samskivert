@@ -1,5 +1,5 @@
 //
-// $Id: SimpleRepository.java,v 1.6 2002/01/24 06:31:51 mdb Exp $
+// $Id: SimpleRepository.java,v 1.7 2002/05/16 03:55:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -121,8 +121,8 @@ public class SimpleRepository extends Repository
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
-                    Log.warning("Unable to roll back operation.");
-                    Log.logStackTrace(rbe);
+                    Log.warning("Unable to roll back operation " +
+                                "[origerr=" + sqe + ", rberr=" + rbe + "].");
                 }
             }
 
@@ -153,8 +153,8 @@ public class SimpleRepository extends Repository
                     conn.rollback();
                 }
             } catch (SQLException rbe) {
-                Log.warning("Unable to roll back operation.");
-                Log.logStackTrace(rbe);
+                Log.warning("Unable to roll back operation " +
+                            "[origerr=" + pe + ", rberr=" + rbe + "].");
             }
             throw pe;
 
@@ -165,8 +165,8 @@ public class SimpleRepository extends Repository
                     conn.rollback();
                 }
             } catch (SQLException rbe) {
-                Log.warning("Unable to roll back operation.");
-                Log.logStackTrace(rbe);
+                Log.warning("Unable to roll back operation " +
+                            "[origerr=" + rte + ", rberr=" + rbe + "].");
             }
 	    throw rte;
 

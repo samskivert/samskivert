@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.6 2002/09/20 21:28:08 mdb Exp $
+// $Id: SortableArrayList.java,v 1.7 2002/11/24 04:50:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,7 +23,6 @@ package com.samskivert.util;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.RandomAccess;
@@ -36,10 +35,9 @@ import java.lang.reflect.Array;
  * instance variables private) and provides a mechanism ({@link #sort})
  * for sorting the contents of the list that doesn't involve creating two
  * object arrays. Two copies of the elements array are made if you called
- * {@link Collections#sort}</code> (the first is when the {@link
- * Collections} class calls {@link #toArray} on the collection and the
- * second is when {@link Arrays#sort} clones the supplied array so that it
- * can do a merge sort).
+ * {@link java.util.Collections#sort}</code> (the first is when {@link
+ * #toArray} is called on the collection and the second is when {@link
+ * Arrays#sort} clones the supplied array so that it can do a merge sort).
  */
 public class SortableArrayList extends AbstractList
     implements List, RandomAccess, Cloneable

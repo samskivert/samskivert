@@ -1,5 +1,5 @@
 //
-// $Id: CollectionUtil.java,v 1.6 2002/12/05 22:10:28 shaper Exp $
+// $Id: CollectionUtil.java,v 1.7 2004/06/12 23:17:02 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -35,10 +35,10 @@ public class CollectionUtil
      * Adds all items returned by the enumeration to the supplied
      * collection and returns the supplied collection.
      */
-    public static Collection addAll (Collection col, Enumeration enum)
+    public static Collection addAll (Collection col, Enumeration enm)
     {
-        while (enum.hasMoreElements()) {
-            col.add(enum.nextElement());
+        while (enm.hasMoreElements()) {
+            col.add(enm.nextElement());
         }
         return col;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.12 2004/01/24 06:02:11 mdb Exp $
+// $Id: ConfigUtil.java,v 1.13 2004/06/12 23:17:02 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -283,15 +283,15 @@ public class ConfigUtil
 	throws IOException
     {
         // first look for the files in the supplied class loader
-        Enumeration enum = getResources(path, loader);
-        if (!enum.hasMoreElements()) {
+        Enumeration enm = getResources(path, loader);
+        if (!enm.hasMoreElements()) {
             // if we couldn't find anything there, try the system class
             // loader (but only if that's not where we were already
             // looking)
             try {
                 ClassLoader sysloader = ClassLoader.getSystemClassLoader();
                 if (sysloader != loader) {
-                    enum = getResources(path, sysloader);
+                    enm = getResources(path, sysloader);
                 }
             } catch (AccessControlException ace) {
                 // can't get the system loader, no problem!
@@ -300,8 +300,8 @@ public class ConfigUtil
 
         // stick the matches into an array list so that we can count them
         ArrayList rsrcs = new ArrayList();
-        while (enum.hasMoreElements()) {
-            rsrcs.add(enum.nextElement());
+        while (enm.hasMoreElements()) {
+            rsrcs.add(enm.nextElement());
         }
 
         // if we found no resources in our enumerations, try loading the
@@ -609,9 +609,9 @@ public class ConfigUtil
             return null;
         }
         // try the path as is
-	Enumeration enum = loader.getResources(path);
-	if (enum.hasMoreElements()) {
-	    return enum;
+	Enumeration enm = loader.getResources(path);
+	if (enm.hasMoreElements()) {
+	    return enm;
 	}
 	// try toggling the leading slash
 	return loader.getResources(togglePath(path));

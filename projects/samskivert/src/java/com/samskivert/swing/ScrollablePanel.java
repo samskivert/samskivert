@@ -1,5 +1,5 @@
 //
-// $Id: ScrollablePanel.java,v 1.3 2002/11/12 05:52:03 mdb Exp $
+// $Id: ScrollablePanel.java,v 1.4 2003/11/05 03:22:28 ray Exp $
 
 package com.samskivert.swing;
 
@@ -74,6 +74,14 @@ public class ScrollablePanel extends JPanel
         _tracksHeight = tracksHeight;
     }
 
+    /**
+     * Set the unit scroll increment.
+     */
+    public void setUnitScrollIncrement (int inc)
+    {
+        _unitScroll = inc;
+    }
+
     // documentation inherited from interface
     public Dimension getPreferredScrollableViewportSize ()
     {
@@ -84,6 +92,10 @@ public class ScrollablePanel extends JPanel
     public int getScrollableUnitIncrement (
         Rectangle visibleRect, int orientation, int direction)
     {
+        if (_unitScroll != -1) {
+            return _unitScroll;
+        }
+
         Insets insets = getInsets();
 
         if (orientation == SwingConstants.HORIZONTAL) {
@@ -148,6 +160,8 @@ public class ScrollablePanel extends JPanel
 
     protected boolean _tracksWidth = false;
     protected boolean _tracksHeight = false;
+
+    protected int _unitScroll = -1;
 
     /** The number of pixels to scroll if we can't find a component to
      * scroll into view or if we're scrolling horizontally. */

@@ -1,5 +1,5 @@
 //
-// $Id: CompoundIterator.java,v 1.1 2001/11/20 03:35:53 mdb Exp $
+// $Id: CompoundIterator.java,v 1.2 2001/11/26 19:21:33 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -57,12 +57,9 @@ public class CompoundIterator implements Iterator
     {
         // keep trying iterators until we run out or find an element
         while (_iter != null) {
-            try {
-                if (_iter.hasNext()) {
-                    return true;
-                }
-            } catch (NoSuchElementException nsee) {
-                // have to catch this and move to the next iterator
+            if (_iter.hasNext()) {
+                return true;
+            } else {
                 _iter = _provider.nextIterator();
             }
         }

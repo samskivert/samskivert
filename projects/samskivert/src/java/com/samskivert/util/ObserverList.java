@@ -1,5 +1,5 @@
 //
-// $Id: ObserverList.java,v 1.4 2002/12/12 23:55:56 shaper Exp $
+// $Id: ObserverList.java,v 1.5 2002/12/13 00:48:19 shaper Exp $
 
 package com.samskivert.util;
 
@@ -146,13 +146,15 @@ public class ObserverList extends ArrayList
     {
         // make sure we're not violating the list constraints
         if (!_allowDups && contains(o)) {
-            throw new RuntimeException(
-                "Observer attempted to observe list it's already observing! " +
-                "[obs=" + o + "].");
-        }
+            Log.warning("Observer attempted to observe list it's already " +
+                        "observing! [obs=" + o + "].");
+            Thread.dumpStack();
+            return false;
 
-        // go ahead and add the observer
-        return super.add(o);
+        } else {
+            // go ahead and add the observer
+            return super.add(o);
+        }
     }
 
     // documentation inherited

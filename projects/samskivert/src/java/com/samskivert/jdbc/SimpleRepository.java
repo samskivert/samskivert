@@ -1,5 +1,5 @@
 //
-// $Id: SimpleRepository.java,v 1.5 2002/01/18 18:35:46 mdb Exp $
+// $Id: SimpleRepository.java,v 1.6 2002/01/24 06:31:51 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -79,23 +79,34 @@ public class SimpleRepository extends Repository
 	throws PersistenceException
     {
         Connection conn = null;
-        DatabaseMetaData dmd = null;
         DatabaseLiaison liaison = null;
         Object rv = null;
+        boolean supportsTransactions = false;
+        boolean attemptedOperation = false;
 
         try {
             // obtain our database connection and associated goodies
             conn = _provider.getConnection(_dbident);
-            conn.setAutoCommit(false);
-            dmd = conn.getMetaData();
             liaison = LiaisonRegistry.getLiaison(conn);
+
+            // find out if we support transactions
+            DatabaseMetaData dmd = conn.getMetaData();
+            if (dmd != null) {
+                supportsTransactions = dmd.supportsTransactions();
+            }
+
+            // turn off auto-commit
+            conn.setAutoCommit(false);
+
+            // let derived classes do any got-connection processing
             gotConnection(conn);
 
 	    // invoke the operation
+            attemptedOperation = true;
 	    rv = op.invoke(conn, liaison);
 
 	    // commit the transaction
-            if (dmd.supportsTransactions()) {
+            if (supportsTransactions) {
                 conn.commit();
             }
 
@@ -103,17 +114,19 @@ public class SimpleRepository extends Repository
             return rv;
 
 	} catch (SQLException sqe) {
-            if (conn != null) {
+            if (attemptedOperation) {
                 // back out our changes if something got hosed
                 try {
-                    if (dmd.supportsTransactions()) {
+                    if (supportsTransactions) {
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
                     Log.warning("Unable to roll back operation.");
                     Log.logStackTrace(rbe);
                 }
+            }
 
+            if (conn != null) {
                 // let the connection provider know that the connection failed
                 _provider.connectionFailed(_dbident, conn, sqe);
 
@@ -124,7 +137,7 @@ public class SimpleRepository extends Repository
             // if this is a transient failure and we've been requested to
             // retry such failures, try one more time
             if (retryOnTransientFailure &&
-                liaison.isTransientException(sqe)) {
+                liaison != null && liaison.isTransientException(sqe)) {
                 Log.info("Transient failure executing operation, " +
                          "retrying [error=" + sqe + "].");
                 return execute(op, false);
@@ -136,7 +149,7 @@ public class SimpleRepository extends Repository
 	} catch (PersistenceException pe) {
 	    // back out our changes if something got hosed
             try {
-                if (dmd.supportsTransactions()) {
+                if (supportsTransactions) {
                     conn.rollback();
                 }
             } catch (SQLException rbe) {
@@ -148,7 +161,7 @@ public class SimpleRepository extends Repository
 	} catch (RuntimeException rte) {
 	    // back out our changes if something got hosed
             try {
-                if (conn != null && dmd.supportsTransactions()) {
+                if (conn != null && supportsTransactions) {
                     conn.rollback();
                 }
             } catch (SQLException rbe) {

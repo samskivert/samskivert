@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.4 2002/11/12 22:32:02 mdb Exp $
+// $Id: index.java,v 1.5 2002/11/12 22:35:33 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -99,6 +99,8 @@ public class index extends UserLogic
         } else {
             ctx.put("query", query);
             tasks = app.getRepository().findTasks(query);
+            // force expand to all
+            expand = "all";
         }
 
         // sort the tasks by priority, then complexity

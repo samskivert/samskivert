@@ -1,5 +1,5 @@
 //
-// $Id: CheapIntMap.java,v 1.2 2003/02/06 20:00:05 mdb Exp $
+// $Id: CheapIntMap.java,v 1.3 2003/02/06 20:02:14 mdb Exp $
 
 package com.samskivert.util;
 
@@ -93,6 +93,20 @@ public class CheapIntMap
     {
         Arrays.fill(_keys, -1);
         Arrays.fill(_values, null);
+    }
+
+    /**
+     * Returns the number of mappings in this table.
+     */
+    public int size ()
+    {
+        int size = 0;
+        for (int ii = 0, ll = _keys.length; ii < ll; ii++) {
+            if (_keys[ii] != -1) {
+                size++;
+            }
+        }
+        return size;
     }
 
     /**

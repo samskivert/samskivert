@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: append,v 1.1 2001/03/22 02:41:36 mdb Exp $
+# $Id: append,v 1.2 2001/03/22 03:00:25 mdb Exp $
 #
 # Appends the supplied song or songs to the playlist of a running MP3
 # daemon.
@@ -11,10 +11,23 @@ use IO::Socket;
 my $usage = "Usage: $0 mp3_file [mp3_file ...]\n";
 my $path = shift or die $usage;
 
+# determine our music daemon host and port
+my $host = "localhost";
+if (defined $ENV{"MUSICD_HOST"}) {
+    $host = $ENV{"MUSICD_HOST"};
+}
 my $port = 2500;
-my $sock = new IO::Socket::INET(PeerAddr => "localhost",
+if (defined $ENV{"MUSICD_PORT"}) {
+    $port = $ENV{"MUSICD_PORT"};
+}
+
+# establish a socket connection with the server
+my $sock = new IO::Socket::INET(PeerAddr => $host,
                                 PeerPort => $port,
                                 Proto => "tcp");
+if (!defined $sock) {
+    die "Unable to connect to music server on $host:$port.\n";
+}
 
 do {
     # send the command

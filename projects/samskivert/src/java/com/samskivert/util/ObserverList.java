@@ -1,11 +1,13 @@
 //
-// $Id: ObserverList.java,v 1.3 2002/05/20 20:41:47 mdb Exp $
+// $Id: ObserverList.java,v 1.4 2002/12/12 23:55:56 shaper Exp $
 
 package com.samskivert.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.samskivert.Log;
+import com.samskivert.util.StringUtil;
 
 /**
  * Provides a simplified mechanism for maintaining a list of observers (or
@@ -101,12 +103,26 @@ public class ObserverList extends ArrayList
 
     /**
      * Creates an empty observer list with the supplied notification
-     * policy.
+     * policy and that only allows observers to observe the list once.
      *
      * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link
      * #FAST_UNSAFE_NOTIFY}.
      */
     public ObserverList (int notifyPolicy)
+    {
+        this(notifyPolicy, false);
+    }
+
+    /**
+     * Creates an empty observer list with the supplied notification and
+     * duplicate observer policy.
+     *
+     * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link
+     * #FAST_UNSAFE_NOTIFY}.
+     * @param allowDups whether to allow observers to be added to the list
+     * more than once.
+     */
+    public ObserverList (int notifyPolicy, boolean allowDups)
     {
         // make sure the policy is valid
         if (notifyPolicy != SAFE_IN_ORDER_NOTIFY &&
@@ -116,6 +132,39 @@ public class ObserverList extends ArrayList
         }
 
         _policy = notifyPolicy ;
+        _allowDups = allowDups;
+    }
+
+    // documentation inherited
+    public void add (int index, Object element)
+    {
+        throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
+    }
+
+    // documentation inherited
+    public boolean add (Object o)
+    {
+        // make sure we're not violating the list constraints
+        if (!_allowDups && contains(o)) {
+            throw new RuntimeException(
+                "Observer attempted to observe list it's already observing! " +
+                "[obs=" + o + "].");
+        }
+
+        // go ahead and add the observer
+        return super.add(o);
+    }
+
+    // documentation inherited
+    public boolean addAll (Collection c)
+    {
+        throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
+    }
+
+    // documentation inherited
+    public boolean addAll (int index, Collection c)
+    {
+        throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
     }
 
     /**
@@ -169,4 +218,11 @@ public class ObserverList extends ArrayList
 
     /** The notification policy. */
     protected int _policy;
+
+    /** Whether to allow observers to observe more than once simultaneously. */
+    protected boolean _allowDups;
+
+    /** Message reported for unsupported <code>add()</code> variants. */
+    protected static final String UNSUPPORTED_ADD_MESSAGE =
+        "Observers may only be added via ObserverList.add(Object).";
 }

@@ -89,6 +89,20 @@ public class IntIntMap
 	return -1;
     }
 
+    /**
+     * Increments the value associated with the specified key by the
+     * specified amount. If the key has no previously assigned value, it
+     * will be set to the amount specified (as if incrementing from zero).
+     */
+    public void increment (int key, int amount)
+    {
+        if (contains(key)) {
+            put(key, get(key) + amount);
+        } else {
+            put(key, amount);
+        }
+    }
+
     public boolean contains (int key)
     {
 	int index = Math.abs(key)%_buckets.length;

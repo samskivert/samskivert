@@ -1,9 +1,10 @@
 #
-# $Id: Makefile,v 1.6 2001/03/01 18:47:01 mdb Exp $
+# $Id: Makefile,v 1.7 2001/03/01 22:44:42 mdb Exp $
 
 ROOT = ../../..
 
 SRCS = \
+	Crypt.java \
 	ConfigUtil.java \
 	DefaultLogProvider.java \
 	IntMap.java \

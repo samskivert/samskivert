@@ -100,7 +100,9 @@ public class Session {
 	        ((PreparedStatement)items.nextElement()).close();
 	    }
 	    preparedStmtHash.clear();
-	    connection.close();
+            if (connection != null) {
+                connection.close();
+            }
 //  	} 
 //  	catch (SQLException ex) { handleSQLException(ex); }
     }

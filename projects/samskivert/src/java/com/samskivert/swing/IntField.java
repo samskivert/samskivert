@@ -1,10 +1,14 @@
 //
-// $Id: IntField.java,v 1.7 2004/05/27 22:57:47 ray Exp $
+// $Id: IntField.java,v 1.8 2004/06/08 21:15:18 ray Exp $
 
 package com.samskivert.swing;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
+
 import javax.swing.JTextField;
 
 import com.samskivert.Log;
@@ -33,8 +37,8 @@ public class IntField extends JTextField
         setHorizontalAlignment(JTextField.RIGHT);
         setColumns(5);
 
-        // register ourselves as the validator and focus listener
-        SwingUtil.setDocumentHelpers(this, this, null);
+        // register ourselves as the validator
+        SwingUtil.setDocumentHelpers(this, this, this);
         addFocusListener(this);
     }
 
@@ -44,16 +48,15 @@ public class IntField extends JTextField
     public int getValue ()
     {
         String s = getText();
-        if ("".equals(s)) {
-            return 0;
-        }
-        try {
-            return Integer.parseInt(s);
-        } catch (NumberFormatException nfe) {
-            Log.warning("This should never, ever, happen");
+        if (!"".equals(s)) {
+            try {
+                return _formatter.parse(s).intValue();
+            } catch (ParseException pe) {
+                Log.warning("This shouldn't happen.");
+            }
         }
 
-        return -1;
+        return 0;
     }
 
     /**
@@ -61,7 +64,7 @@ public class IntField extends JTextField
      */
     public void setValue (int value)
     {
-        setText(Integer.toString(value));
+        setText(_formatter.format(value));
     }
 
     /**
@@ -70,7 +73,7 @@ public class IntField extends JTextField
     public void setMinValue (int minValue)
     {
         _minValue = minValue;
-        setText(getText()); // jiggle the text
+        validateText();
     }
 
     /**
@@ -79,18 +82,9 @@ public class IntField extends JTextField
     public void setMaxValue (int maxValue)
     {
         _maxValue = maxValue;
-        setText(getText()); // jiggle the text
+        validateText();
     }
 
-    // from interface SwingUtil.DocumentTransformer
-    public String transform (String s)
-    {
-        if ("".equals(s)) {
-            return s;
-        }
-        int val = Integer.parseInt(s);
-        return Integer.toString(Math.min(_maxValue, Math.max(_minValue, val)));
-    }
 
     // from interface SwingUtil.DocumentValidator
     public boolean isValid (String text)
@@ -100,25 +94,59 @@ public class IntField extends JTextField
         }
 
         try {
-            int value = Integer.parseInt(text);
+            int value = _formatter.parse(text).intValue();
             return (value <= _maxValue);
-        } catch (NumberFormatException nfe) {
+        } catch (ParseException nfe) {
             return false;
+        }
+    }
+
+    // from interface SwingUtil.DocumentTransformer
+    public String transform (String text)
+    {
+        try {
+            return _formatter.format(_formatter.parse(text));
+        } catch (ParseException nfe) {
+            return text;
         }
     }
 
     // documentation inherited from interface
     public void focusGained (FocusEvent e)
     {
+        // nada
     }
 
     // documentation inherited from interface
     public void focusLost (FocusEvent e)
     {
-        // here we ensure that we're not below our minimum
-        setText(transform(getText()));
+        validateText();
     }
 
-    protected int _minValue;
-    protected int _maxValue;
+    /**
+     * Ensure that the value we're displaying is between the minimum and
+     * the maximum.
+     */
+    protected void validateText ()
+    {
+        String text = getText();
+        int val;
+        try {
+            val = _formatter.parse(text).intValue();
+        } catch (ParseException pe) {
+            val = 0;
+        }
+        // bound it in
+        String validated = _formatter.format(
+            Math.min(_maxValue, Math.max(_minValue, val)));
+        if (!text.equals(validated)) {
+            // only do it if it changes the text- otherwise
+            // we booch the focus when this is called from focusLost
+            setText(validated);
+        }
+    }
+
+    protected int _minValue, _maxValue;
+
+    protected NumberFormat _formatter = NumberFormat.getIntegerInstance();
 }

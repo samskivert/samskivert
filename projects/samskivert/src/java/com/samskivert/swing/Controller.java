@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.11 2002/03/21 00:53:38 mdb Exp $
+// $Id: Controller.java,v 1.12 2002/04/07 21:59:25 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -325,6 +325,12 @@ public abstract class Controller
                 if (source instanceof ControllerProvider) {
                     Controller ctrl =
                         ((ControllerProvider)source).getController();
+                    if (ctrl == null) {
+                        Log.warning("Provider returned null controller " +
+                                    "[provider=" + source + "].");
+                        continue;
+                    }
+
                     try {
                         // if the controller returns true, it handled the
                         // action and we can call this business done

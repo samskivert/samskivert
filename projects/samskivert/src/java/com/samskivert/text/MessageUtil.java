@@ -1,5 +1,5 @@
 //
-// $Id: MessageUtil.java,v 1.2 2003/12/11 06:34:08 mdb Exp $
+// $Id: MessageUtil.java,v 1.3 2004/03/03 11:44:09 mdb Exp $
 
 package com.samskivert.text;
 
@@ -27,7 +27,7 @@ public class MessageUtil
      * attempt to translate this string when doing recursive translations
      * (see {@link #xlate}).
      */
-    public static String taint (String text)
+    public static String taint (Object text)
     {
         return TAINT_CHAR + text;
     }
@@ -36,7 +36,7 @@ public class MessageUtil
      * Composes a message key with an array of arguments. The message can
      * subsequently be translated in a single call using {@link #xlate}.
      */
-    public static String compose (String key, String[] args)
+    public static String compose (String key, Object[] args)
     {
         StringBuffer buf = new StringBuffer();
         buf.append(key);
@@ -46,7 +46,7 @@ public class MessageUtil
                 buf.append('|');
             }
             // escape the string while adding to the buffer
-            String arg = (args[i] == null) ? "" : args[i];
+            String arg = (args[i] == null) ? "" : String.valueOf(args[i]);
             int alength = arg.length();
             for (int p = 0; p < alength; p++) {
                 char ch = arg.charAt(p);
@@ -104,71 +104,71 @@ public class MessageUtil
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
+     * A convenience method for calling {@link #compose(String,Object[])}
      * with a single argument.
      */
-    public static String compose (String key, String arg)
+    public static String compose (String key, Object arg)
     {
-        return compose(key, new String[] { arg });
+        return compose(key, new Object[] { arg });
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
+     * A convenience method for calling {@link #compose(String,Object[])}
      * with two arguments.
      */
-    public static String compose (String key, String arg1, String arg2)
+    public static String compose (String key, Object arg1, Object arg2)
     {
-        return compose(key, new String[] { arg1, arg2 });
+        return compose(key, new Object[] { arg1, arg2 });
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
+     * A convenience method for calling {@link #compose(String,Object[])}
      * with three arguments.
      */
     public static String compose (
-        String key, String arg1, String arg2, String arg3)
+        String key, Object arg1, Object arg2, Object arg3)
     {
-        return compose(key, new String[] { arg1, arg2, arg3 });
+        return compose(key, new Object[] { arg1, arg2, arg3 });
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
+     * A convenience method for calling {@link #compose(String,Object[])}
      * with a single argument that will be automatically tainted (see
      * {@link #taint}).
      */
-    public static String tcompose (String key, String arg)
+    public static String tcompose (String key, Object arg)
     {
-        return compose(key, new String[] { taint(arg) });
+        return compose(key, new Object[] { taint(arg) });
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
+     * A convenience method for calling {@link #compose(String,Object[])}
      * with two arguments that will be automatically tainted (see {@link
      * #taint}).
      */
-    public static String tcompose (String key, String arg1, String arg2)
+    public static String tcompose (String key, Object arg1, Object arg2)
     {
-        return compose(key, new String[] { taint(arg1), taint(arg2) });
+        return compose(key, new Object[] { taint(arg1), taint(arg2) });
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
+     * A convenience method for calling {@link #compose(String,Object[])}
      * with three arguments that will be automatically tainted (see {@link
      * #taint}).
      */
     public static String tcompose (
-        String key, String arg1, String arg2, String arg3)
+        String key, Object arg1, Object arg2, Object arg3)
     {
-        return compose(key, new String[] {
+        return compose(key, new Object[] {
             taint(arg1), taint(arg2), taint(arg3) });
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
+     * A convenience method for calling {@link #compose(String,Object[])}
      * with an array of arguments that will be automatically tainted (see
      * {@link #taint}).
      */
-    public static String tcompose (String key, String[] args)
+    public static String tcompose (String key, Object[] args)
     {
         int acount = args.length;
         String[] targs = new String[acount];

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.30 2002/02/17 23:35:15 mdb Exp $
+// $Id: StringUtil.java,v 1.31 2002/02/23 18:24:02 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -68,6 +68,30 @@ public class StringUtil
 	sb.append(source.substring(start));
 
 	return sb.toString();
+    }
+
+    /**
+     * Pads the supplied string to the requested string width by appending
+     * spaces to the end of the returned string. If the original string is
+     * wider than the requested width, it is returned unmodified.
+     */
+    public static String pad (String value, int width)
+    {
+        // sanity check
+        if (width <= 0) {
+            String errmsg = "Pad width must be greater than zero.";
+            throw new IllegalArgumentException(errmsg);
+
+        } else if (value.length() >= width) {
+            return value;
+
+        } else {
+            StringBuffer buf = new StringBuffer(value);
+            while (buf.length() < width) {
+                buf.append(" ");
+            }
+            return buf.toString();
+        }
     }
 
     /**

@@ -21,7 +21,7 @@ following principles:
 * Code included in SL will freely depend on JDK packages available in the
   Java 2 platform and beyond. SL is initially a repository of software
   useful for server-side or stand alone applications and therefore need
-  not compromise because it needs to function in the JVMs of commonly
+  not make compromises to function in the jungle of JVMs in commonly
   available web browsers.
 
 * We are not here to reinvent the wheel, nor to provide a uniform
@@ -46,10 +46,10 @@ Contribution
 ------------
 
 Contributions to SL are welcome. Control of the CVS repository is
-presently in the hands of mdb@samskivert.com and submissions will be
-reviewed prior to inclusion. Facilities for management of major
-contributions by external parties (ie. publicly accessible CVS server)
-will be provided if circumstances dictate.
+presently in the hands of mdb@samskivert.com, who should be emailed about
+submissions. Facilities for management of major contributions by external
+parties (ie. publicly accessible CVS server) will be provided if
+circumstances dictate.
 
 Contact Information
 -------------------
@@ -57,4 +57,4 @@ Contact Information
 The person primarily responsible for SL is Michael Bayne and can be
 contacted at <mdb@samskivert.com>.
 
-$Id: README,v 1.5 2001/08/11 22:15:53 mdb Exp $
+$Id: README,v 1.6 2001/08/11 22:34:46 mdb Exp $

@@ -1,9 +1,9 @@
 //
-// $Id: FormTool.java,v 1.9 2003/08/12 18:31:21 eric Exp $
+// $Id: FormTool.java,v 1.10 2003/10/15 00:16:17 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -175,6 +175,15 @@ public class FormTool
     {
         return fixedInput("image", name, value, "src=\"" + imagePath + "\" " +
                           "alt=\"" + altText + "\"");
+    }
+
+    /**
+     * Constructs a button input element with the specified parameter name,
+     * the specified button text, and the specified extra text.
+     */
+    public String button (String name, String text, String extra)
+    {
+        return fixedInput("button", name, text, extra);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: MethodFinder.java,v 1.2 2001/10/03 02:20:05 mdb Exp $
+// $Id: MethodFinder.java,v 1.3 2001/10/03 02:22:58 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -39,15 +39,9 @@ import java.util.*;
  * Java Language Specification, variously in sections 5.1.2, 5.1.4, 5.3,
  * and 15.12.2.
  *
- * <p> This code was adapted from code provided by Paul Hosler in an
- * article for Java Report Online
- * (http://www.javareport.com/html/from_pages/article.asp?id=4276). His
- * code was adapted from:
- *
- * <cite>
- * Kaplan, Lowell. "More programming with generic interfaces." Java
- * Report, Vol. 5, No. 2, Feb. 2000, pp. 70-74.
- * </cite>
+ * <p> This code was adapted from code provided by Paul Hosler in <a
+ * href="http://www.javareport.com/html/from_pages/article.asp?id=4276">an
+ * article</a> for Java Report Online.
  */
 public class MethodFinder
 {

@@ -265,7 +265,7 @@ public class RuntimeAdjust
 
         public void setValue (String value)
         {
-            if (!ListUtil.containsEqual(_values, value)) {
+            if (!ListUtil.contains(_values, value)) {
                 Log.warning("Refusing invalid adjustment [name=" + _name +
                             ", values=" + StringUtil.toString(_values) +
                             ", value=" + value + "].");

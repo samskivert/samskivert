@@ -119,7 +119,7 @@ public class ListUtil
      * expanded if necessary.
      *
      * @param list the list in which to insert the element. Can be null.
-     * @param startIdx the index at which to insert the element.
+     * @param index the index at which to insert the element.
      * @param element the element to insert.
      *
      * @return a reference to the list with element inserted (might not be
@@ -250,7 +250,7 @@ public class ListUtil
      *
      * @return true if a matching element was found, false otherwise.
      */
-    public static boolean containsEqual (Object[] list, Object element)
+    public static boolean contains (Object[] list, Object element)
     {
         return contains(EQUALS_COMP, list, element);
     }
@@ -497,10 +497,10 @@ public class ListUtil
         String newBar = new String("bar"); // prevent java from cleverly
                                            // referencing the same string
                                            // from the constant pool
-        System.out.println("contains(newBar): " +
+        System.out.println("containsRef(newBar): " +
                            ListUtil.containsRef(list, newBar));
-        System.out.println("containsEqual(newBar): " +
-                           ListUtil.containsEqual(list, newBar));
+        System.out.println("contains(newBar): " +
+                           ListUtil.contains(list, newBar));
 
         ListUtil.clearEqual(list, newBar);
         System.out.println("clearEqual(newBar): " + StringUtil.toString(list));

@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.26 2003/11/15 20:14:32 mdb Exp $
+// $Id: UserManager.java,v 1.27 2003/11/15 20:15:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -124,7 +124,7 @@ public class UserManager
 	}
 
         // look up any override to our user auth cookie
-        String authCook = config.getProperty("userauth_cookie");
+        String authCook = config.getProperty("auth_cookie.name");
         if (!StringUtil.blank(authCook)) {
             _userAuthCookie = authCook;
         }

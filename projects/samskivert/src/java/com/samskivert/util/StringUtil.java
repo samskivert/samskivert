@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.70 2004/03/04 18:41:39 ray Exp $
+// $Id: StringUtil.java,v 1.71 2004/03/06 04:37:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -996,9 +996,10 @@ public class StringUtil
     }
 
     /**
-     * Joins an array of strings into a single string separated by commas.
+     * Joins an array of strings (or objects which will be converted to
+     * strings) into a single string separated by commas.
      */
-    public static String join (String[] values)
+    public static String join (Object[] values)
     {
         return join(values, false);
     }
@@ -1011,7 +1012,7 @@ public class StringUtil
      * elements in the values array that are null will be treated as an
      * empty string.
      */
-    public static String join (String[] values, boolean escape)
+    public static String join (Object[] values, boolean escape)
     {
         return join(values, ", ", escape);
     }
@@ -1020,7 +1021,7 @@ public class StringUtil
      * Joins the supplied array of strings into a single string separated
      * by the supplied separator.
      */
-    public static String join (String[] values, String separator)
+    public static String join (Object[] values, String separator)
     {
         return join(values, separator, false);
     }
@@ -1029,7 +1030,7 @@ public class StringUtil
      * Helper function for the various <code>join</code> methods.
      */
     protected static String join (
-        String[] values, String separator, boolean escape)
+        Object[] values, String separator, boolean escape)
     {
         StringBuffer buf = new StringBuffer();
         int vlength = values.length;
@@ -1037,7 +1038,7 @@ public class StringUtil
             if (i > 0) {
                 buf.append(separator);
             }
-            String value = (values[i] == null) ? "" : values[i];
+            String value = (values[i] == null) ? "" : String.valueOf(values[i]);
             buf.append((escape) ? replace(value, ",", ",,") : value);
         }
         return buf.toString();

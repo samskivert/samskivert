@@ -1,5 +1,5 @@
 //
-// $Id: CascadingChainVisualizer.java,v 1.1 2001/07/13 23:25:13 mdb Exp $
+// $Id: CascadingChainVisualizer.java,v 1.2 2001/07/14 00:55:21 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -40,7 +40,7 @@ public class CascadingChainLayout
 
         // the children will be below the name of this chain and inset by
         // four points to make space for the connecty lines
-        int x = GAP, y = hhei;
+        int x = 2*GAP, y = hhei;
         ArrayList kids = chain.getChildren();
 
         for (int i = 0; i < kids.size(); i++) {

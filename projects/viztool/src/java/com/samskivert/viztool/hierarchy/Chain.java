@@ -1,5 +1,5 @@
 //
-// $Id: Chain.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
+// $Id: Chain.java,v 1.3 2001/07/14 00:55:21 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -16,14 +16,10 @@ public class Chain implements Element
     /**
      * Constructs a chain with the specified class as its root.
      */
-    public Chain (String pkgroot, Class root)
+    public Chain (String name, Class root)
     {
-        _pkgroot = pkgroot;
+        _name = name;
         _root = root;
-        _name = _root.getName();
-        if (_name.startsWith(pkgroot)) {
-            _name = _name.substring(_pkgroot.length()+1);
-        }
     }
 
     /**
@@ -135,9 +131,9 @@ public class Chain implements Element
      * Adds a child to this chain. The specified class is assumed to
      * directly inherit from the class that is the root of this chain.
      */
-    public void addClass (Class child)
+    public void addClass (String name, Class child)
     {
-        Chain chain = new Chain(_pkgroot, child);
+        Chain chain = new Chain(name, child);
         if (!_children.contains(chain)) {
             _children.add(chain);
         }
@@ -192,9 +188,8 @@ public class Chain implements Element
         }
     }
 
-    protected String _pkgroot;
-    protected Class _root;
     protected String _name;
+    protected Class _root;
 
     protected ArrayList _children = new ArrayList();
     protected Dimension _size = new Dimension(0, 0);

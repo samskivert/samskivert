@@ -1,5 +1,5 @@
 //
-// $Id: PackedColumnElementLayout.java,v 1.1 2001/07/13 23:25:13 mdb Exp $
+// $Id: PackedColumnElementLayout.java,v 1.2 2001/07/14 00:55:21 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -68,6 +68,11 @@ public class PackedColumnElementLayout implements ElementLayout
 
             // advance in the x direction
             x += (size.width + GAP);
+        }
+
+        // take a final stab at our maxwidth
+        if (x > maxwidth) {
+            maxwidth = x;
         }
 
         // make a note of how big the final page is

@@ -1,5 +1,5 @@
 //
-// $Id: ChainUtil.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
+// $Id: ChainUtil.java,v 1.3 2001/07/14 00:55:21 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -71,7 +71,7 @@ public class ChainUtil
         void computeRoots (String pkgroot, Iterator iter, ArrayList roots)
     {
         while (iter.hasNext()) {
-            insertClass(roots, pkgroot, (String)iter.next());
+            insertClass(roots, pkgroot, (String)iter.next(), false);
         }
     }
 
@@ -79,8 +79,8 @@ public class ChainUtil
      * Loads the supplied class and inserts it into the appropriate
      * position in the hierarchy based on its inheritance properties.
      */
-    protected static
-        void insertClass (ArrayList roots, String pkgroot, String clazz)
+    protected static void insertClass (
+        ArrayList roots, String pkgroot, String clazz, boolean outpkg)
     {
         try {
             // sanity check
@@ -92,7 +92,7 @@ public class ChainUtil
             }
 
             // load and insert the class
-            insertClass(roots, pkgroot, Class.forName(clazz));
+            insertClass(roots, pkgroot, Class.forName(clazz), outpkg);
 
         } catch (Exception e) {
             Log.warning("Unable to process class [class=" + clazz +
@@ -105,22 +105,27 @@ public class ChainUtil
      * Inserts the specified class into the appropriate position in the
      * hierarchy based on its inheritance properties.
      */
-    protected static
-        void insertClass (ArrayList roots, String pkgroot, Class target)
+    protected static void insertClass (
+        ArrayList roots, String pkgroot, Class target, boolean outpkg)
     {
         // insert the parent of this class into the hierarchy
         Class parent = target.getSuperclass();
+        String name = generateName(target, pkgroot, outpkg);
 
         // if we have no parent, we want to insert ourselves as a root
         // class
         if (parent == null || parent.equals(Object.class)) {
-            insertRoot(roots, pkgroot, target);
+            insertRoot(roots, name, target);
 
         } else {
+            String tpkg = pkgFromClass(target.getName());
+            String ppkg = pkgFromClass(parent.getName());
+
             // if our parent is not in this package, we want to insert it
             // into the hierarchy as a root class
-            if (!parent.getName().startsWith(pkgroot)) {
-                insertRoot(roots, pkgroot, parent);
+            if (!tpkg.equals(ppkg)) {
+                String pname = generateName(parent, pkgroot, true);
+                insertRoot(roots, pname, parent);
             }
 
             // and now hang ourselves off of our parent class
@@ -128,7 +133,9 @@ public class ChainUtil
             if (chain == null) {
                 // if there's no chain for our parent class, we'll need to
                 // insert it into the hierarchy
-                insertClass(roots, pkgroot, parent);
+                boolean samepkg = pkgFromClass(parent.getName()).equals(
+                    pkgFromClass(target.getName()));
+                insertClass(roots, pkgroot, parent, !samepkg);
                 // and refetch our chain
                 chain = getChain(roots, parent);
                 // sanity check
@@ -140,16 +147,58 @@ public class ChainUtil
                     return;
                 }
             }
+
             // add class will ignore our request if this class was already
             // added due to some previous operation
-            chain.addClass(target);
+            chain.addClass(name, target);
         }
     }
 
-    protected static boolean insertRoot (ArrayList roots, String pkgroot,
+    protected static String generateName (Class target, String pkgroot,
+                                          boolean outpkg)
+    {
+        String name;
+
+        if (outpkg) {
+            // start with the fully qualified class name
+            name = target.getName();
+            // if we're in the package root, we want to strip off the
+            // package root and prefix ...
+            if (name.startsWith(pkgroot)) {
+                name = ".." + name.substring(pkgroot.length());
+            }
+
+        } else {
+            name = nameFromClass(target.getName());
+        }
+
+        return name;
+    }
+
+    /**
+     * Returns just the package qualifier given a fully qualified class
+     * name.
+     */
+    public static String pkgFromClass (String fqn)
+    {
+        int didx = fqn.lastIndexOf(".");
+        return (didx == -1) ? fqn : fqn.substring(0, didx);
+    }
+
+    /**
+     * Returns the unqualified class name given a fully qualified class
+     * name.
+     */
+    public static String nameFromClass (String fqn)
+    {
+        int didx = fqn.lastIndexOf(".");
+        return (didx == -1) ? fqn : fqn.substring(didx+1);
+    }
+
+    protected static boolean insertRoot (ArrayList roots, String name,
                                          Class root)
     {
-        Chain chroot = new Chain(pkgroot, root);
+        Chain chroot = new Chain(name, root);
         // make sure no chain already exists for this root
         if (!roots.contains(chroot)) {
             roots.add(chroot);

@@ -1,13 +1,16 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.3 2001/07/14 00:55:21 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.PrintStream;
 import java.util.*;
 
 import com.samskivert.viztool.Log;
+import com.samskivert.viztool.enum.PackageEnumerator;
+import com.samskivert.util.Comparators;
 
 /**
  * The hierarchy visualizer displays inheritance hierarchies in a compact
@@ -33,64 +36,80 @@ public class HierarchyVisualizer
 
         // dump all the classes into an array list so that we can
         // repeatedly scan through the list
-        _classes = new ArrayList();
         while (iter.hasNext()) {
             _classes.add(iter.next());
         }
 
-        // process the classes provided by our enumerator
-        _roots = ChainUtil.buildChains(pkgroot, _classes.iterator());
+        // compile a list of all packages in our collection
+        HashSet pkgset = new HashSet();
+        iter = _classes.iterator();
+        while (iter.hasNext()) {
+            pkgset.add(ChainUtil.pkgFromClass((String)iter.next()));
+        }
 
-        // now we need to sort out 
+        // sort our package names
+        _packages = new String[pkgset.size()];
+        iter = pkgset.iterator();
+        for (int i = 0; iter.hasNext(); i++) {
+            _packages[i] = (String)iter.next();
+        }
+        Arrays.sort(_packages, Comparators.STRING);
+
+        // now create chain groups for each package
+        _groups = new ChainGroup[_packages.length];
+        for (int i = 0; i < _groups.length; i++) {
+            PackageEnumerator penum = new PackageEnumerator(
+                _packages[i], _classes.iterator(), false);
+            _groups[i] = new ChainGroup(pkgroot, _packages[i], penum);
+        }
     }
 
     /**
-     * Processes the hierarchy of class chains assigning coordinates to
-     * all of the chains and subchains so that they can be used to
-     * generate a visualization.
+     * Lays out and renders each of the chain groups that make up this
+     * package hierarchy visualization.
      */
-    public void layoutChains (int pointSize)
+    public void render (int pointSize, PrintStream out)
     {
-        // lay out the internal structure of our chains
-        ChainLayout clay = new CascadingChainLayout();
-        for (int i = 0; i < _roots.size(); i++) {
-            Chain chain = (Chain)_roots.get(i);
-            chain.layout(pointSize, clay);
-        }
+        int x = X_MARGIN, y = Y_MARGIN;
 
-        // arrange them on the page
-        ElementLayout elay = new PackedColumnElementLayout();
-        Dimension[] pdims = elay.layout(_roots, PAGE_WIDTH, PAGE_HEIGHT);
+        // print the preamble for the first page
+        out.println("0 setlinewidth");
 
-        // render them
-        for (int p = 0; p < pdims.length; p++) {
-            ChainRenderer renderer = new CascadingChainRenderer();
-            for (int i = 0; i < _roots.size(); i++) {
-                Chain chain = (Chain)_roots.get(i);
-                // skip chains not on this page
-                if (chain.getPage() != p) {
-                    continue;
-                }
-                Point loc = chain.getLocation();
-                renderer.renderChain(chain, System.out, pointSize,
-                                     X_MARGIN, Y_MARGIN);
+        for (int i = 0; i < _groups.length; i++) {
+            // lay out the group in question
+            Dimension dims = _groups[i].layout(pointSize);
+
+            // determine if we need to skip to the next page or not
+            if ((y > 0) && (y + dims.height > PAGE_HEIGHT)) {
+                // print the postamble for this page and preamble for the
+                // new page
+                out.println("showpage");
+                out.println("0 setlinewidth");
+                y = Y_MARGIN;
             }
-            System.out.println("showpage");
-        }
-    }
 
-    public void dumpClasses ()
-    {
-        ChainUtil.dumpClasses(System.err, _roots);
+            // render the group at the requested location
+            _groups[i].render(pointSize, out, x, y);
+
+            // increment our y location
+            y += (dims.height + GAP);
+        }
+
+        // print the postamble for the final page
+        out.println("showpage");
     }
 
     protected String _pkgroot;
-    protected ArrayList _roots;
-    protected ArrayList _classes;
+    protected ArrayList _classes = new ArrayList();
+
+    protected String[] _packages;
+    protected ChainGroup[] _groups;
 
     protected static final int PAGE_WIDTH = (int)(72 * 7.5);
     protected static final int PAGE_HEIGHT = (int)(72 * 10);
 
     protected static final int X_MARGIN = 72/2;
     protected static final int Y_MARGIN = 72/2;
+
+    protected static final int GAP = 72/4;
 }

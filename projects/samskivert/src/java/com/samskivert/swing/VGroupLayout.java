@@ -1,5 +1,5 @@
 //
-// $Id: VGroupLayout.java,v 1.6 2001/08/11 22:43:29 mdb Exp $
+// $Id: VGroupLayout.java,v 1.7 2001/10/09 19:21:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -99,12 +99,19 @@ public class VGroupLayout extends GroupLayout
 	int tothei, totgap = _gap * (info.count-1);
 	int freecount = info.count - info.numfix;
 
-	// do the on-axis policy calculations
+        // when stretching, there is the possibility that a pixel or more
+        // will be lost to rounding error. we account for that here and
+        // assign the extra space to the first free component
+        int freefrac = 0;
+
+        // do the on-axis policy calculations
 	int defhei = 0;
 	switch (_policy) {
 	case STRETCH:
 	    if (freecount > 0) {
-		defhei = (b.height - info.fixhei - totgap) / freecount;
+                int freehei = b.height - info.fixhei - totgap;
+                defhei = freehei / freecount;
+                freefrac = freehei % freecount;
 		tothei = b.height;
 	    } else {
 		tothei = info.fixhei + totgap;
@@ -157,16 +164,21 @@ public class VGroupLayout extends GroupLayout
 	    }
 
 	    Component child = parent.getComponent(i);
-	    int newhei = defhei;
-	    int newwid = defwid;
+	    int newwid, newhei;
 
 	    if (_policy == NONE || isFixed(child)) {
 		newhei = info.dimens[i].height;
-	    }
+	    } else {
+                newhei = defhei + freefrac;
+                // clear out the extra pixels the first time they're used
+                freefrac = 0;
+            }
 
 	    if (_offpolicy == NONE) {
 		newwid = info.dimens[i].width;
-	    }
+	    } else {
+                newwid = defwid;
+            }
 
             // determine our off-axis position
             switch (_offjust) {

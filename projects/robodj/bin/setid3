@@ -1,0 +1,66 @@
+#!/usr/bin/perl -w
+#
+# $Id: setid3,v 1.1 2002/03/03 05:02:57 mdb Exp $
+#
+# A script for setting the id3 tags of the MP3 files in the RoboDJ
+# repository. The data from the database must be dumped into two files:
+# entries.txt and songs.txt using the following SQL:
+#
+# select * from ENTRIES into outfile 'entries.txt';
+# select * from SONGS into outfile 'songs.txt';
+#
+# and this script will operate on those files.
+
+my $usage = "Usage: $0 repository_dir entries.txt songs.txt\n";
+my $repodir = shift or die $usage;
+my $entfile = shift or die $usage;
+my $songfile = shift or die $usage;
+
+# unbuffered output
+$| = 1;
+
+if (! -d $repodir) {
+    die "'$repodir' not a valid repository directory.\n";
+}
+
+my %entries;
+
+open(ENTRIES, "$entfile") or die "Can't open '$entfile' for reading: $!\n";
+while (<ENTRIES>) {
+    chomp;
+    my ($entid, $title, $artist, $source) = split("\t");
+    $entries{$entid} = [ $title, $artist ];
+}
+close(ENTRIES);
+
+my $counter = 0;
+
+open(SONGS, "$songfile") or die "Can't open '$songfile' for reading: $!\n";
+while (<SONGS>) {
+    chomp;
+    my ($songid, $entryid, $position, $title, $location, $duration) =
+	split("\t");
+
+    # escape our arguments
+    $album = escape($entries{$entryid}->[0]);
+    $artist = escape($entries{$entryid}->[1]);
+    $title = escape($title);
+
+    # invoke the command
+    my $cmd = "id3 -t $title -a $artist -A $album " .
+	"-T $position $location > /dev/null";
+    warn "\nFailed to set tag on $songid\n" unless (system($cmd) == 0);
+
+    if ($counter++ % 100 == 99) {
+	print ".";
+    }
+}
+close(SONGS);
+
+print "\nSet ID3 tags on $counter songs.\n";
+
+sub escape {
+    my ($text) = @_;
+    $text =~ s:([^A-Za-z0-9]):\\$1:g;
+    return $text;
+}

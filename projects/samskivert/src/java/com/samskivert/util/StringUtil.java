@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.52 2003/01/31 02:27:01 mdb Exp $
+// $Id: StringUtil.java,v 1.53 2003/02/03 18:26:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -625,6 +625,34 @@ public class StringUtil
 	} catch (NoSuchAlgorithmException nsae) {
             throw new RuntimeException("MD5 codec not available");
 	}
+    }
+
+    /**
+     * Parses an array of short integers from their string representation.
+     * The array should be represented as a bare list of numbers separated
+     * by commas, for example:
+     *
+     * <pre>
+     * 25, 17, 21, 99
+     * </pre>
+     *
+     * Any inability to parse the short array will result in the function
+     * returning null.
+     */
+    public static short[] parseShortArray (String source)
+    {
+        StringTokenizer tok = new StringTokenizer(source, ",");
+        short[] vals = new short[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            try {
+                // trim the whitespace from the token
+                String token = tok.nextToken().trim();
+                vals[i] = Short.parseShort(token);
+            } catch (NumberFormatException nfe) {
+                return null;
+            }
+        }
+        return vals;
     }
 
     /**

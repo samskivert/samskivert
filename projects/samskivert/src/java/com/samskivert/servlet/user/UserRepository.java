@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.15 2001/08/12 01:34:31 mdb Exp $
+// $Id: UserRepository.java,v 1.16 2001/09/15 17:22:11 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -31,7 +31,7 @@ import com.samskivert.Log;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.MySQLRepository;
 import com.samskivert.jdbc.jora.*;
-import com.samskivert.util.IntMap;
+import com.samskivert.util.HashIntMap;
 
 /**
  * Interfaces with the RDBMS in which the user information is stored. The
@@ -334,7 +334,7 @@ public class UserRepository extends MySQLRepository
 	    ids.append(userids[i]);
 	}
 
-	final IntMap map = new IntMap();
+	final HashIntMap map = new HashIntMap();
 
 	// do the query
         execute(new Operation () {

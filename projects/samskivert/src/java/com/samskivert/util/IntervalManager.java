@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: IntervalManager.java,v 1.4 2001/09/15 17:22:11 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import java.util.*;
+import java.util.Collections;
 import com.samskivert.Log;
 
 /**
@@ -245,7 +246,7 @@ public class IntervalManager extends Thread
     // to rewrite this such that we can add and remove intervaleds much
     // faster.
     protected static ArrayList _schedule = new ArrayList();
-    protected static IntMap _hash = new IntMap();
+    protected static HashIntMap _hash = new HashIntMap();
     protected static long _nextwake = Long.MAX_VALUE;
 
     protected static int _helpers = 0;       // # of created helpers

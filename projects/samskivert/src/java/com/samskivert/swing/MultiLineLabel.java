@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.4 2002/09/24 01:31:39 shaper Exp $
+// $Id: MultiLineLabel.java,v 1.5 2002/09/24 06:47:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -52,7 +52,7 @@ public class MultiLineLabel extends JComponent
      */
     public MultiLineLabel (String text)
     {
-        this(text, -1, CENTER);
+        this(text, HORIZONTAL, CENTER);
     }
 
     /**
@@ -62,7 +62,7 @@ public class MultiLineLabel extends JComponent
      */
     public MultiLineLabel (String text, int align)
     {
-        this(text, -1, align);
+        this(text, HORIZONTAL, align);
     }
 
     /**
@@ -97,6 +97,14 @@ public class MultiLineLabel extends JComponent
         _label.setText(text);
         _dirty = true;
         repaint();
+    }
+
+    /**
+     * Returns the text displayed by this label.
+     */
+    public String getText ()
+    {
+        return _label.getText();
     }
 
     /**
@@ -227,7 +235,7 @@ public class MultiLineLabel extends JComponent
     protected Label _label;
 
     /** The constraints we apply to the label text. */
-    protected int _constrain;
+    protected int _constrain = HORIZONTAL;
 
     /** The off-axis alignment with which the label is positioned. */
     protected int _offalign;

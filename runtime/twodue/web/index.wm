@@ -28,6 +28,7 @@ Outstanding tasks:
 #end
 <tr><td colspan="4" align="left" bgcolor="$scolor">$otask.name</td></tr>
 
+$ocats.clear()
 #foreach ($task in $otask.tasks)
 <form action="index.wm">
 $form.fixedHidden("action", "complete")
@@ -59,7 +60,7 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 </table>
 
 <p>
-<center class="small">Click the check box to mark a task as completed.</center>
+<center class="small">Check the box to mark a task as completed.</center>
 
 </td><td valign="top">
 
@@ -77,6 +78,7 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 #end
 </td></tr>
 
+$xcats.clear()
 #foreach ($task in $xtask.tasks)
 <form action="index.wm">
 $form.fixedHidden("task", "$task.taskId")
@@ -135,6 +137,7 @@ Filter on single word:<br>
 #set ($rowcolor = "#FFFFFF")
 #end
 <tr bgcolor="$rowcolor">
+<td valign="top"><img src="images/completed.png"></td>
 <td valign="top" align="center">$task.completion<br>[$task.completor]</td>
 <td>$task.summary</td>
 <td valign="top">$task.getDisplayCategory()</td>

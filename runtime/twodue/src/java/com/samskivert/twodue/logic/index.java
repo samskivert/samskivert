@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.6 2002/11/12 22:50:54 mdb Exp $
+// $Id: index.java,v 1.7 2002/11/12 23:00:14 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -212,6 +212,12 @@ public class index extends UserLogic
                 return true;
             }
         }
+
+        public void clear ()
+        {
+            _category = null;
+        }
+
         protected String _category;
     }
 }

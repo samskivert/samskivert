@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.2 2001/11/01 01:02:20 mdb Exp $
+// $Id: Application.java,v 1.3 2001/11/01 21:34:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -89,6 +89,8 @@ public class Application
      * this application. This will be an instance of {@link
      * IndiscriminateSiteIdentifier} unless the derived application class
      * overrides this method and creates something more to its liking.
+     * This will be called after the application's {@link #init} method
+     * has been called.
      */
     protected SiteIdentifier createSiteIdentifer (ServletContext ctx)
     {
@@ -144,13 +146,14 @@ public class Application
 
     /**
      * Performs initializations common to all applications. We could put
-     * this in init() and require application derived classes to call
-     * super.init() but people might forget to do so and be confused.
+     * this in {@link #init} and require application derived classes to
+     * call <code>super.init()</code> but we want it to happen after the
+     * application initializes itself.
      *
      * @param logicPkg the base package for all of the logic
      * implementations for this application.
      */
-    public void preInit (ServletContext ctx, String logicPkg)
+    protected void postInit (ServletContext ctx, String logicPkg)
     {
         // remove any trailing dot
         if (logicPkg.endsWith(".")) {
@@ -174,7 +177,7 @@ public class Application
      * this generates the classname of the logic class that should handle
      * the request.
      */
-    public String generateClass (String path)
+    protected String generateClass (String path)
     {
         // remove the trailing file extension
         int ldidx = path.lastIndexOf(".");

@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.4 2001/11/01 01:02:20 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.5 2001/11/01 21:34:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -182,8 +182,8 @@ public class DispatcherServlet extends VelocityServlet
             if (StringUtil.blank(logicPkg)) {
                 logicPkg = "";
             }
-            _app.preInit(getServletContext(), logicPkg);
             _app.init(getServletContext());
+            _app.postInit(getServletContext(), logicPkg);
 
         } catch (Throwable t) {
             Log.warning("Error instantiating application.");

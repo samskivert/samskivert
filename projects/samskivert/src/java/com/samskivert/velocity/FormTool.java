@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.13 2003/11/04 03:12:39 eric Exp $
+// $Id: FormTool.java,v 1.14 2003/11/04 23:06:59 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -260,10 +260,20 @@ public class FormTool
      */
     public String checkbox (String name, boolean defaultValue)
     {
+        return
+            fixedCheckbox(name, ParameterUtil.isSet(_req, name, defaultValue));
+    }
+
+    /**
+     * Constructs a checkbox input field with the specified name and
+     * value.
+     */
+    public String fixedCheckbox (String name, boolean value)
+    {
         StringBuffer buf = new StringBuffer();
         buf.append("<input type=\"checkbox\"");
         buf.append(" name=\"").append(name).append("\"");
-        if (ParameterUtil.isSet(_req, name, defaultValue)) {
+        if (value) {
             buf.append(" checked");
         }
         buf.append(">");

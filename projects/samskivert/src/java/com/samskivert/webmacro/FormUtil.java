@@ -1,5 +1,5 @@
 //
-// $Id: FormUtil.java,v 1.2 2001/03/01 21:06:22 mdb Exp $
+// $Id: FormUtil.java,v 1.3 2001/03/02 01:22:07 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.samskivert.Log;
 import com.samskivert.util.StringUtil;
 import org.webmacro.servlet.WebContext;
 

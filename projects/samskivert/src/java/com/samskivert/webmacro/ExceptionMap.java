@@ -1,11 +1,12 @@
 //
-// $Id: ExceptionMap.java,v 1.3 2001/02/16 03:27:54 mdb Exp $
+// $Id: ExceptionMap.java,v 1.4 2001/03/02 01:22:07 mdb Exp $
 
 package com.samskivert.webmacro;
 
 import java.io.*;
 import java.util.*;
 
+import com.samskivert.Log;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;
 

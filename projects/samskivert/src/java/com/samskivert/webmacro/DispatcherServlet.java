@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.4 2001/03/01 21:09:54 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.5 2001/03/02 01:22:07 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -16,6 +16,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import com.samskivert.Log;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;
 import org.webmacro.*;

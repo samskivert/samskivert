@@ -1,16 +1,16 @@
 //
-// $Id: Log.java,v 1.3 2001/03/01 21:06:22 mdb Exp $
+// $Id: Log.java,v 1.1 2001/03/02 01:22:07 mdb Exp $
 
-package com.samskivert.webmacro;
+package com.samskivert;
 
 /**
  * A placeholder class that contains a reference to the log object used by
- * the webmacro package.
+ * the samskivert package.
  */
 public class Log
 {
     public static com.samskivert.util.Log log =
-	new com.samskivert.util.Log("com.samskivert.webmacro");
+	new com.samskivert.util.Log("samskivert");
 
     /** Convenience function. */
     public static void debug (String message)

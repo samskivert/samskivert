@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.7 2001/10/04 00:24:16 mdb Exp $
+// $Id: Config.java,v 1.8 2002/02/17 08:28:34 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -167,10 +167,8 @@ public class Config
     public boolean getValue (String name, boolean defval)
     {
 	String val = resolveProperty(name);
-
 	// if it's not specified, we return the default
-	val = val.toLowerCase();
-	return (val == null) ? defval : (!val.equals("false"));
+	return (val == null) ? defval : !val.equalsIgnoreCase("false");
     }
 
     /**

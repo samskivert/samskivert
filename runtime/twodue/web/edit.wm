@@ -39,11 +39,11 @@ $form.text("category", "size='10'", $task.category)
 
 <td>Complexity:<br>
 <select name="complexity">
-  $form.option("complexity", "1 - Simple hack", "Simple hack", $task.complexity)
-  $form.option("complexity", "2 - Minor feature", "Minor feature", $task.complexity)
-  $form.option("complexity", "3 - Major feature", "Major feature", $task.complexity)
-  $form.option("complexity", "4 - Subsystem", "Subsystem", $task.complexity)
-  $form.option("complexity", "5 - Major refactor", "Major refactor", $task.complexity)
+  $form.option("complexity", "Simple hack", "Simple hack", $task.complexity)
+  $form.option("complexity", "Minor feature", "Minor feature", $task.complexity)
+  $form.option("complexity", "Major feature", "Major feature", $task.complexity)
+  $form.option("complexity", "Subsystem", "Subsystem", $task.complexity)
+  $form.option("complexity", "Major refactor", "Major refactor", $task.complexity)
 </select>
 </td>
 

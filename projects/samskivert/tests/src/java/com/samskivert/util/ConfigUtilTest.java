@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtilTest.java,v 1.1 2002/01/29 23:19:13 mdb Exp $
+// $Id: ConfigUtilTest.java,v 1.2 2002/04/01 01:56:21 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,5 +53,6 @@ public class ConfigUtilTest extends TestCase
 
     protected static final String DUMP =
         "{prop4=one, two, three,, and a half, four, " +
-        "prop3=9, 8, 7, 6, prop2=twenty five, prop1=25}";
+        "prop3=9, 8, 7, 6, prop2=twenty five, prop1=25, " +
+        "sub.sub2=whee!, sub.sub1=5}";
 }

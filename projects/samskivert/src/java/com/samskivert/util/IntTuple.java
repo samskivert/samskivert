@@ -1,5 +1,5 @@
 //
-// $Id: IntTuple.java,v 1.3 2003/02/18 18:22:50 mdb Exp $
+// $Id: IntTuple.java,v 1.4 2003/02/18 18:30:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -59,7 +59,7 @@ public class IntTuple
             IntTuple ot = (IntTuple)o;
             return (left == ot.left) ? (right - ot.right) : (left - ot.left);
         } else {
-            return -1;
+            return hashCode() - o.hashCode();
         }
     }
 

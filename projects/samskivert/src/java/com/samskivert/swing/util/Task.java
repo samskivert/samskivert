@@ -1,5 +1,5 @@
 //
-// $Id: Task.java,v 1.1 2000/12/06 03:25:19 mdb Exp $
+// $Id: Task.java,v 1.2 2000/12/07 05:41:30 mdb Exp $
 
 package com.samskivert.swing.util;
 
@@ -18,7 +18,7 @@ public interface Task
      * This method is called by the task master to invoke the task. The
      * task should run to completion and return some value.
      */
-    public Object invoke ();
+    public Object invoke () throws Exception;
 
     /**
      * This method is called by the task master when it has received a

@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.24 2004/04/26 08:47:59 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.25 2004/04/30 01:50:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -153,6 +153,31 @@ public class DispatcherServlet extends VelocityServlet
     implements MethodExceptionEventHandler
 {
     /**
+     * Performs various initialization.
+     */
+    public void init (ServletConfig config)
+        throws ServletException
+    {
+        super.init(config);
+
+        // determine the character set we'll use
+        _charset = config.getInitParameter(CHARSET_KEY);
+        if (_charset == null) {
+            _charset = "UTF-8";
+        }
+    }
+
+    /**
+     * Clean up after ourselves and our application.
+     */
+    public void destroy ()
+    {
+        super.destroy();
+	// shutdown our application
+        _app.shutdown();
+    }
+
+    /**
      * Initialize ourselves and our application.
      */
     protected void initVelocity (ServletConfig config)
@@ -223,16 +248,6 @@ public class DispatcherServlet extends VelocityServlet
     }
 
     /**
-     * Clean up after ourselves and our application.
-     */
-    public void destroy ()
-    {
-        super.destroy();
-	// shutdown our application
-        _app.shutdown();
-    }
-
-    /**
      * Loads up the template appropriate for this request, locates and
      * invokes any associated logic class and finally returns the prepared
      * template which will be merged with the prepared context.
@@ -262,15 +277,15 @@ public class DispatcherServlet extends VelocityServlet
 	// then select the template
 	Template tmpl = selectTemplate(siteId, ictx);
 
-        // assume the request is in UTF-8 format unless it has actually
-        // been sensibly parsed by the browser
+        // assume the request is in the default character set unless it
+        // has actually been sensibly supplied by the browser
         if (req.getCharacterEncoding() == null) {
-            req.setCharacterEncoding("UTF-8");
+            req.setCharacterEncoding(_charset);
         }
 
-        // assume an HTML response in the UTF-8 character set unless
+        // assume an HTML response in the default character set unless
         // otherwise massaged by the logic
-        rsp.setContentType("text/html; charset=UTF-8");
+        rsp.setContentType("text/html; charset=" + _charset);
 
 	try {
             // insert the application into the context in case the
@@ -439,6 +454,9 @@ public class DispatcherServlet extends VelocityServlet
     /** A table of resolved logic instances. */
     protected HashMap _logic = new HashMap();
 
+    /** The character set in which serve our responses. */
+    protected String _charset;
+
     /** This is the key used in the context for error messages. */
     protected static final String ERROR_KEY = "error";
 
@@ -468,4 +486,7 @@ public class DispatcherServlet extends VelocityServlet
 
     /** The servlet parameter key specifying the base logic package. */
     protected static final String LOGIC_PKG_KEY = "logic_package";
+
+    /** The servlet parameter key specifying the default character set. */
+    protected static final String CHARSET_KEY = "charset";
 }

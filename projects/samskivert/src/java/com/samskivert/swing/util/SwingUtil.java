@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.14 2002/09/24 09:47:14 shaper Exp $
+// $Id: SwingUtil.java,v 1.15 2002/10/18 21:45:10 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,12 +22,20 @@ package com.samskivert.swing.util;
 
 import java.awt.*;
 
+import java.awt.geom.Area;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
+
+import com.samskivert.util.SortableArrayList;
 
 /**
  * Miscellaneous useful Swing-related utility functions.
@@ -112,6 +120,108 @@ public class SwingUtil
 	}
 
 	return new Point(erect.x, erect.y);
+    }
+
+    /**
+     * Position the specified rectangle as closely as possible to
+     * its current position, but make sure it is within the specified
+     * bounds and that it does not overlap any of the Shapes contained
+     * in the avoid list.
+     *
+     * @param r the rectangle to attempt to position.
+     * @param bounds the bounding box within which the rectangle must be
+     *        positioned.
+     * @param avoidShapes a collection of Shapes that must not be overlapped.
+     *
+     * @return true if the rectangle was successfully placed, given the
+     * constraints, or false if the positioning failed (the rectangle will
+     * be left at it's original location.
+     */
+    public static boolean positionRect (
+        Rectangle r, Rectangle bounds, Collection avoidShapes)
+    {
+        Point origPos = r.getLocation();
+        Comparator comp = createPointComparator(origPos);
+        SortableArrayList possibles = new SortableArrayList();
+        // we start things off with the passed-in point (adjusted to
+        // be inside the bounds, if needed)
+        possibles.add(fitRectInRect(r, bounds));
+
+        // keep track of area that doesn't generate new possibles
+        Area dead = new Area();
+
+      CHECKPOSSIBLES:
+        while (!possibles.isEmpty()) {
+            r.setLocation((Point) possibles.remove(0));
+
+            // make sure the rectangle is in the view and not over a dead area
+            if ((!bounds.contains(r)) || dead.intersects(r)) {
+                continue;
+            }
+
+            // see if it hits any shapes we're trying to avoid
+            for (Iterator iter=avoidShapes.iterator(); iter.hasNext(); ) {
+                Shape shape = (Shape) iter.next();
+
+                if (shape.intersects(r)) {
+                    // remove that shape from our avoid list
+                    iter.remove();
+                    // but add it to our dead area
+                    dead.add(new Area(shape));
+
+                    // add 4 new possible points, each pushed in one direction
+                    Rectangle pusher = shape.getBounds();
+
+                    possibles.add(new Point(pusher.x - r.width, r.y));
+                    possibles.add(new Point(r.x, pusher.y - r.height));
+                    possibles.add(new Point(pusher.x + pusher.width, r.y));
+                    possibles.add(new Point(r.x, pusher.y + pusher.height));
+
+                    // re-sort the list
+                    possibles.sort(comp);
+                    continue CHECKPOSSIBLES;
+                }
+            }
+
+            // hey! if we got here, then it worked!
+            return true;
+        }
+
+        // we never found a match, move the rectangle back
+        r.setLocation(origPos);
+        return false;
+    }
+
+    /**
+     * Create a comparator that compares against the distance from 
+     * the specified point.
+     *
+     * Used by positionRect().
+     */
+    public static Comparator createPointComparator (Point origin)
+    {
+        final int xo = origin.x;
+        final int yo = origin.y;
+
+        return new Comparator() {
+            public int compare (Object o1, Object o2)
+            {
+                Point p1 = (Point) o1;
+                Point p2 = (Point) o2;
+
+                int x1 = xo - p1.x;
+                int y1 = yo - p1.y;
+                int x2 = xo - p2.x;
+                int y2 = yo - p2.y;
+
+                // since we are dealing with positive integers, we can
+                // omit the Math.sqrt() step for optimization
+                int dist1 = (x1 * x1) + (y1 * y1);
+                int dist2 = (x2 * x2) + (y2 * y2);
+
+                return dist1 - dist2;
+            }
+        };
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: FeatureUtil.java,v 1.3 2001/10/17 23:27:52 mdb Exp $
+// $Id: FeatureUtil.java,v 1.4 2001/10/18 21:52:01 mdb Exp $
 
 package com.threerings.venison;
 
@@ -270,10 +270,17 @@ public class FeatureUtil implements TileCodes
           { GRASS, NORTH_F, 2,-1, 0,0, 1,1, 3,1, 4,0 }, 
           { S_GRASS } },
 
+//          { { GRASS, WEST_F|SOUTH_F, // TWO_CITY_TWO
+//              2,2, 0,0, 1,1, 3,1, 3,3, 4,4, 0,4 },
+//            { N_CITY },
+//            { E_CITY } },
+
         { { GRASS, WEST_F|SOUTH_F, // TWO_CITY_TWO
-            2,2, 0,0, 1,1, 3,1, 3,3, 4,4, 0,4 },
-          { N_CITY },
-          { E_CITY } },
+            2,2, 0,0, 4,0, 4,4, 0,4 },
+          { CITY, NORTH_F,
+            2,-1, 0,0, 2,1, 4,0 },
+          { CITY, EAST_F,
+            -4,2, 4,0, 3,2, 4,4 } },
 
         { { GRASS, NORTH_F|SOUTH_F, // TWO_CITY_TWO_ACROSS
             2,2, 0,0, 4,0, 3,1, 3,3, 4,4, 0,4, 1,3, 1,1 },

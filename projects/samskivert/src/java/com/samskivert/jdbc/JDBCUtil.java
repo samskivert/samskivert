@@ -207,16 +207,44 @@ public class JDBCUtil
 
     /**
      * Returns true if the index on the specified column exists for the
-     * specified table. false if it does not. <em>Note:</em> the names are
-     * case sensitive.
+     * specified table, false if it does not. Optionally you can specifiy
+     * a non null index name, and the table will be checked to see if it
+     * contains that specifically named index. <em>Note:</em> the names
+     * are case sensitive.
      */
     public static boolean tableContainsIndex (Connection conn, String table,
-                                              String column)
+                                              String column, String index)
         throws SQLException
     {
         boolean matched = false;
         ResultSet rs = conn.getMetaData().getIndexInfo("", "", table, false,
                                                        true);
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            String cname = rs.getString("COLUMN_NAME");
+            String iname = rs.getString("INDEX_NAME");
+
+            if (iname == null) {
+                if (tname.equals(table) && cname.equals(column)) {
+                    matched = true;
+                }
+            } else if (iname.equals(index)) {
+                matched = true;
+            }
+        }
+        return matched;
+    }
+
+    /**
+     * Returns true if the specified table contains a primary key on the
+     * specified column.
+     */
+    public static boolean tableContainsPrimaryKey (Connection conn,
+                                                   String table, String column)
+        throws SQLException
+    {
+        boolean matched = false;
+        ResultSet rs = conn.getMetaData().getPrimaryKeys("", "", table);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             String cname = rs.getString("COLUMN_NAME");
@@ -300,6 +328,25 @@ public class JDBCUtil
     }
 
     /**
+     * Removes the primary key from the specified table.
+     */
+    public static void dropPrimaryKey (Connection conn, String table)
+        throws SQLException
+    {
+        String update = "ALTER TABLE " + table + " DROP PRIMARY KEY";
+
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(update);
+            stmt.executeUpdate();
+        } finally {
+            close(stmt);
+        }
+
+        Log.info("Database primary key removed from table '" + table + "'.");
+    }
+
+    /**
      * Adds an index on the specified column (cname) to the specified
      * table.  Optionally supply an index name, otherwise the index is
      * named after the column.
@@ -308,9 +355,10 @@ public class JDBCUtil
                                         String cname, String iname)
         throws SQLException
     {
-        if (JDBCUtil.tableContainsIndex(conn, table, cname)) {
+        if (JDBCUtil.tableContainsIndex(conn, table, cname, iname)) {
             Log.info("Database table '" + table + "' already has an index on " +
-                     "column '" + cname + "'.");
+                     "column '" + cname + "'" +
+                     (iname != null ? " named '" + iname + "'." : "."));
             return;
         }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.19 2002/12/13 22:12:28 mdb Exp $
+// $Id: Config.java,v 1.20 2003/01/15 00:45:22 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,6 +23,7 @@ package com.samskivert.util;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import java.util.Enumeration;
@@ -115,6 +116,10 @@ public class Config
 
             // load the properties file
             ConfigUtil.loadInheritedProperties(ppath, _props);
+
+        } catch (FileNotFoundException fnfe) {
+            Log.debug("No properties file found to back config " +
+                      "[path=" + path + "].");
 
         } catch (IOException ioe) {
             Log.warning("Unable to load configuration [path=" + path +

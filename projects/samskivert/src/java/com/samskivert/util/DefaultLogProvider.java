@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.19 2002/12/22 06:40:02 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.20 2003/07/11 21:00:30 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -64,8 +64,7 @@ public class DefaultLogProvider implements LogProvider
         int level, String moduleName, String message)
     {
 	Integer tlevel = (Integer)_levels.get(moduleName);
-	if ((tlevel != null && level >= tlevel.intValue()) ||
-	    (level >= _level)) {
+	if (level >= getLevel(moduleName)) {
 	    System.err.println(formatEntry(moduleName, level, message));
 	}
     }
@@ -74,8 +73,7 @@ public class DefaultLogProvider implements LogProvider
         int level, String moduleName, Throwable t)
     {
 	Integer tlevel = (Integer)_levels.get(moduleName);
-	if ((tlevel != null && level >= tlevel.intValue()) ||
-	    (level >= _level)) {
+	if (level >= getLevel(moduleName)) {
 	    System.err.println(formatEntry(moduleName, level, t.getMessage()));
 	    t.printStackTrace(System.err);
 	}

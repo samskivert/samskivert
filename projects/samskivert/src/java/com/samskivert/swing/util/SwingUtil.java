@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.8 2002/06/05 22:54:53 ray Exp $
+// $Id: SwingUtil.java,v 1.9 2002/06/05 23:15:26 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
+import javax.swing.text.JTextComponent;
 
 /**
  * Miscellaneous useful Swing-related utility functions.

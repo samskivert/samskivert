@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.11 2003/10/20 16:59:07 eric Exp $
+// $Id: FormTool.java,v 1.12 2003/10/21 21:05:44 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -136,7 +136,7 @@ public class FormTool
      */
     public String submit (String text)
     {
-        return fixedInput("submit", "submit", text, "");
+        return fixedInput("submit", "submitBtn", text, "");
     }
 
     /**
@@ -145,7 +145,7 @@ public class FormTool
      */
     public String submitExtra (String text, String extra)
     {
-        return fixedInput("submit", "submit", text, extra);
+        return fixedInput("submit", "submitBtn", text, extra);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.30 2002/12/06 21:52:35 mdb Exp $
+// $Id: Label.java,v 1.31 2002/12/06 22:17:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -432,36 +432,13 @@ public class Label implements SwingConstants, LabelStyleConstants
             gfx.setColor(_textColor);
         }
 
-        switch (_style) {
-        case OUTLINE:
-            // shift everything over and down by one pixel if we're outlining
-            x += 1;
-            y += 1;
-            break;
-
-        case SHADOW:
-            // shift everything over and up by one pixel if we're drawing
-            // with a shadow
-            x += 1;
-            y -= 1;
-            break;
-
-        case BOLD:
-            // shift everything over one pixel if we're drawing in bold
-            x -= 1;
-            break;
-
-        default:
-            break;
-        }
-
         // render our text
         for (int i = 0; i < _layouts.length; i++) {
             TextLayout layout = _layouts[i];
             Rectangle2D lbounds = _lbounds[i];
             y += layout.getAscent();
 
-            float extra = (float)(_size.width - getWidth(lbounds));
+            float extra = (float)Math.floor(_size.width - getWidth(lbounds));
             float rx = x;
             switch (_align) {
             case -1: rx = x + (layout.isLeftToRight() ? 0 : extra); break;
@@ -470,40 +447,46 @@ public class Label implements SwingConstants, LabelStyleConstants
             case CENTER: rx = x + extra/2; break;
             }
 
+//             System.out.println("line " + i + " x: " + x + " y: " + y +
+//                                " rx: " + rx + " width: " + _size.width +
+//                                " lwidth: " + getWidth(lbounds) +
+//                                " extra: " + extra);
+
             switch (_style) {
             case OUTLINE:
                 // render the outline using the hacky, but much nicer than
                 // using "real" outlines (via TextLayout.getOutline), method
                 Color textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
-                layout.draw(gfx, rx - 1, y - 1);
-                layout.draw(gfx, rx - 1, y);
-                layout.draw(gfx, rx - 1, y + 1);
-                layout.draw(gfx, rx, y - 1);
+                layout.draw(gfx, rx, y);
                 layout.draw(gfx, rx, y + 1);
-                layout.draw(gfx, rx + 1, y - 1);
+                layout.draw(gfx, rx, y + 2);
                 layout.draw(gfx, rx + 1, y);
-                layout.draw(gfx, rx + 1, y + 1);
+                layout.draw(gfx, rx + 1, y + 2);
+                layout.draw(gfx, rx + 2, y);
+                layout.draw(gfx, rx + 2, y + 1);
+                layout.draw(gfx, rx + 2, y + 2);
                 gfx.setColor(textColor);
+                layout.draw(gfx, rx + 1, y + 1);
                 break;
 
             case SHADOW:
                 textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
-                layout.draw(gfx, rx - 1, y + 1);
+                layout.draw(gfx, rx, y + 1);
                 gfx.setColor(textColor);
+                layout.draw(gfx, rx + 1, y);
                 break;
 
             case BOLD:
+                layout.draw(gfx, rx, y);
                 layout.draw(gfx, rx + 1, y);
                 break;
 
             default:
+                layout.draw(gfx, rx, y);
                 break;
             }
-
-            // and draw the text itself
-            layout.draw(gfx, rx, y);
 
             y += layout.getDescent() + layout.getLeading();
         }

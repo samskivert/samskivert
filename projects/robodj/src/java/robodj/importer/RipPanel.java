@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.7 2002/03/03 21:17:03 mdb Exp $
+// $Id: RipPanel.java,v 1.8 2002/11/11 17:05:37 mdb Exp $
 
 package robodj.importer;
 
@@ -98,7 +98,8 @@ public class RipPanel
 
     protected static String createTempPath (int trackno, String ext)
     {
-        return "/tmp/track" + trackno + "." + ext;
+        String rbase = Importer.config.getProperty("repository.tmpdir");
+        return rbase + "/track" + trackno + "." + ext;
     }
 
     /** Handles the ripping and encoding of the tracks. */

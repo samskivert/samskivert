@@ -1,0 +1,35 @@
+Robo DJ Design
+--------------
+
+* Components
+
+  - Music database
+    Schema
+    OM classes
+
+  - Ripper and encoder
+    Interface with tools (cdparanoia, etc.)
+    Interface with CDDB
+    Metadata entry/editing
+
+  - Music server
+    Streams MP3 audio data to player (xmcd?)
+    ...
+
+* Music database:
+
+  EID (int) - entry id
+  PID (int) - parent id
+  NAME (string) - entry name
+  LOCATOR (string) - path to data (URL, maybe file: maybe other...)
+
+  Album
+    Name
+    Artist
+    Record label
+    Release date
+    Genre
+    Tracks
+      Name
+      Index
+    Import date (date imported into Robo DJ system)

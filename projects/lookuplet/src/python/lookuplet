@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# $Id: lookuplet,v 1.1 2002/03/17 09:32:23 mdb Exp $
+# $Id: lookuplet,v 1.2 2002/03/17 10:13:36 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -25,18 +25,28 @@ import libglade
 import string
 import sys
 import re
-
-import bindings
-import lookuplet
-import properties
+import os
 
 # figure out where we were run from
 basedir = sys.argv[0];
 basedir = re.sub("/lookuplet$", "", basedir);
 basedir = re.sub("/bin$", "", basedir);
+libdir = basedir + "/share/lookuplet";
+
+# add our library directory to the system path
+sys.path.append(libdir);
+
+import bindings
+import lookuplet
+import properties
 
 # load up our glade UI definition
-xmlui = libglade.GladeXML("lookuplet.glade");
+try:
+    os.stat(basedir + "/lookuplet.glade");
+    xmlui = libglade.GladeXML(basedir + "/lookuplet.glade");
+except OSError:
+    os.stat(libdir + "/lookuplet.glade");
+    xmlui = libglade.GladeXML(libdir + "/lookuplet.glade");
 
 # load up our bindings
 bindings = bindings.BindingSet();

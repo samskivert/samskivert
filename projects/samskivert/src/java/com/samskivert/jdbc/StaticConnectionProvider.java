@@ -1,5 +1,5 @@
 //
-// $Id: StaticConnectionProvider.java,v 1.3 2001/10/25 01:25:06 mdb Exp $
+// $Id: StaticConnectionProvider.java,v 1.4 2002/03/03 03:14:15 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -54,6 +54,23 @@ import com.samskivert.util.StringUtil;
  * database connection. When a particular database identifier is
  * requested, the configuration information will be fetched from the
  * properties.
+ *
+ * <p> Additionally, a default set of properties can be provided using the
+ * identifier <code>default</code>. Values not provided for a specific
+ * identifier will be sought from the defaults. For example:
+ *
+ * <pre>
+ * default.driver=[jdbc driver class]
+ * default.url=[jdbc driver class]
+ *
+ * IDENT1.username=[jdbc username]
+ * IDENT1.password=[jdbc password]
+ *
+ * IDENT2.username=[jdbc username]
+ * IDENT2.password=[jdbc password]
+ *
+ * [...]
+ * </pre>
  */
 public class StaticConnectionProvider implements ConnectionProvider
 {
@@ -117,7 +134,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         // open the connection if we haven't already
         if (conn == null) {
             Properties props =
-                PropertiesUtil.getSubProperties(_props, ident);
+                PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
 
             // get the JDBC configuration info
             String err = "No driver class specified [ident=" + ident + "].";
@@ -189,6 +206,12 @@ public class StaticConnectionProvider implements ConnectionProvider
 	return value;
     }
 
+    /** Our configuration in the form of a properties object. */
     protected Properties _props;
+
+    /** Open database connections. */
     protected HashMap _conns = new HashMap();
+
+    /** The key used as defaults for the database definitions. */
+    protected static final String DEFAULTS_KEY = "default";
 }

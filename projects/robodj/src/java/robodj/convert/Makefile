@@ -1,11 +1,14 @@
 #
-# $Id: Makefile,v 1.1 2000/10/30 21:08:53 mdb Exp $
+# $Id: Makefile,v 1.2 2000/10/30 22:21:11 mdb Exp $
 
 ROOT = ../..
 
 SRCS = \
 	CDParanoiaRipper.java \
-	RipException.java \
+	ConversionProgressListener.java \
+	ConvertException.java \
+	Encoder.java \
+	L3Encoder.java \
 	RipTest.java \
 	RipUtil.java \
 	Ripper.java \

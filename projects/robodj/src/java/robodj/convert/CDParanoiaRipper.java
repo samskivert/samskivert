@@ -1,7 +1,7 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.1 2000/10/30 21:08:53 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.2 2000/10/30 22:21:11 mdb Exp $
 
-package robodj.rip;
+package robodj.convert;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,8 +13,20 @@ import gnu.regexp.*;
  */
 public class CDParanoiaRipper implements Ripper
 {
-    public TrackInfo[] getTrackInfo () throws RipException
+    public TrackInfo[] getTrackInfo ()
+	throws ConvertException
     {
+	// an input line that we're interested in looks something like
+	// this:
+	//
+	//   1.    17980 [03:59.55]        0 [00:00.00]    no   no  2
+	RE regex;
+	try {
+	    regex = new RE("^\\s*\\d+\\.\\s+(\\d+)\\s\\[\\S*\\]\\s+(\\d+)");
+	} catch (REException ree) {
+	    throw new ConvertException("Can't compile regexp?! " + ree);
+	}
+
 	try {
 	    // fork off a cdparanoia process to read the TOC
 	    Runtime rt = Runtime.getRuntime();
@@ -28,13 +40,6 @@ public class CDParanoiaRipper implements Ripper
 	    StringBuffer input = new StringBuffer();
 	    ArrayList flist = new ArrayList();
 
-	    // an input line that we're interested in looks something like
-	    // this:
-	    //
-	    //   1.    17980 [03:59.55]        0 [00:00.00]    no   no  2
-	    RE regex =
-		new RE("^\\s*\\d+\\.\\s+(\\d+)\\s\\[\\S*\\]\\s+(\\d+)");
-
 	    while ((inline = din.readLine()) != null) {
 		// skip blank lines and lines that are in the header
 		if (inline.trim().length() == 0 ||
@@ -42,8 +47,6 @@ public class CDParanoiaRipper implements Ripper
 		    inline.indexOf("cdparanoia") == 0) {
 		    continue;
 		}
-
-		// System.out.println("Matching: " + inline);
 
 		// keep track of all of the input in case we need to
 		// report an error later
@@ -62,14 +65,14 @@ public class CDParanoiaRipper implements Ripper
 		int retval = tocproc.waitFor();
 		if (retval != 0) {
 		    // ship off the error output from cdparanoia
-		    throw new RipException(input.toString());
+		    throw new ConvertException(input.toString());
 		}
 
 	    } catch (InterruptedException ie) {
 		// why we were interrupted I can only speculate, but we'll
 		// go ahead and freak out anyway
-		throw new RipException("Interrupted while waiting for " +
-				       "cdparanoia process to exit.");
+		throw new ConvertException("Interrupted while waiting for " +
+					   "cdparanoia process to exit.");
 	    }
 
 	    // parse the frame offsets and stick them in an array
@@ -88,20 +91,63 @@ public class CDParanoiaRipper implements Ripper
 		    frames[i].offset += 2 * RipUtil.FRAMES_PER_SECOND;
 
 		} catch (NumberFormatException nfe) {
-		    throw new RipException("Bogus frame value for track " +
-					   (i+1) + ": " + nfe.getMessage() +
-					   "\n\n" + input);
+		    throw new ConvertException(
+			"Bogus frame value for track " + (i+1) + ": " +
+			nfe.getMessage() + "\n\n" + input);
 		}
 	    }
 
 	    return frames;
 
-	} catch (REException ree) {
-	    throw new RipException("Can't compile regular expression?! " +
-				   ree);
+	} catch (IOException ioe) {
+	    throw new ConvertException(
+		"Error communicating with ripper:\n" + ioe);
+	}
+    }
+
+    public void ripTrack (int index, String target,
+			  RipProgressListener listener)
+	throws ConvertException
+    {
+	StringBuffer cmd = new StringBuffer("cdparanoia");
+	cmd.append(" -w"); // request output in WAV format
+	cmd.append(" -e"); // request progress information to stderr
+	cmd.append(" ").append(index); // add track number
+	cmd.append(" ").append(target); // add output file name
+
+	try {
+	    // fork off a cdparanoia process to read the TOC
+	    Runtime rt = Runtime.getRuntime();
+	    Process ripproc = rt.exec(cmd.toString());
+
+	    InputStream in = ripproc.getErrorStream();
+	    BufferedInputStream bin = new BufferedInputStream(in);
+	    DataInputStream din = new DataInputStream(bin);
+
+	    // read output from the subprocess and chuck it for now
+	    while (din.readLine() != null) {
+		// la la la
+	    }
+
+	    // check the return value of the process
+	    try {
+		int retval = ripproc.waitFor();
+		if (retval != 0) {
+		    // ship off the error output from cdparanoia
+		    throw new ConvertException(
+			"Ripper failed: " + retval);
+		}
+
+	    } catch (InterruptedException ie) {
+		// why we were interrupted I can only speculate, but we'll
+		// go ahead and freak out anyway
+		throw new ConvertException("Interrupted while waiting for " +
+					   "ripper process to exit.");
+	    }
 
 	} catch (IOException ioe) {
-	    throw new RipException("Error talking to rip process: " + ioe);
+	    throw new ConvertException(
+		"Error communicating with ripper:\n" + ioe);
 	}
     }
 }

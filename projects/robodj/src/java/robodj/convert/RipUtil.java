@@ -1,7 +1,7 @@
 //
-// $Id: RipUtil.java,v 1.1 2000/10/30 21:08:53 mdb Exp $
+// $Id: RipUtil.java,v 1.2 2000/10/30 22:21:11 mdb Exp $
 
-package robodj.rip;
+package robodj.convert;
 
 /**
  * This class contains utility functions related to ripping.

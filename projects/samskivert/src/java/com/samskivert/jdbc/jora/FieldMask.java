@@ -1,5 +1,5 @@
 //
-// $Id: FieldMask.java,v 1.4 2003/09/02 17:37:34 eric Exp $
+// $Id: FieldMask.java,v 1.5 2003/09/19 00:49:54 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -97,15 +97,15 @@ public class FieldMask
     }
 
     /**
-     * Takes a subset of the fields represented by this field mask.
-     * Returns true only if the modified fields intersect the subsetFields.
+     * Returns true only if the set of modified fields is a subset of the
+     * fields specified.
      */
-    public final boolean onlySubSetModified (Set subsetFields)
+    public final boolean onlySubsetModified (Set fieldSet)
     {
         Iterator itr = _descripMap.keySet().iterator();
         while (itr.hasNext()) {
             String field = (String)itr.next();
-            if (isModified(field) && (!subsetFields.contains(field))) {
+            if (isModified(field) && (!fieldSet.contains(field))) {
                 return false;
             }
         }

@@ -1,5 +1,5 @@
 //
-// $Id: ClassSummary.java,v 1.1 2001/12/01 06:22:18 mdb Exp $
+// $Id: ClassSummary.java,v 1.2 2001/12/03 06:14:03 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -29,10 +29,13 @@ import java.awt.geom.Rectangle2D;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import com.samskivert.viztool.Log;
 import com.samskivert.viztool.layout.Element;
@@ -45,7 +48,8 @@ import com.samskivert.viztool.util.RenderUtil;
  * (specifically, the interfaces it implements, the class it extends, its
  * public instances, member functions, and inner class definitions).
  */
-public class ClassSummary implements Element
+public class ClassSummary
+    implements Element
 {
     /**
      * Constructs a class summary for the specified class.
@@ -70,8 +74,35 @@ public class ClassSummary implements Element
             _interfaces[i] = _viz.name(interfaces[i]);
         }
 
+        // create a comparator that we can use to sort the fields and
+        // methods alphabetically and by staticness
+        Comparator comp = new Comparator() {
+            public int compare (Object o1, Object o2) {
+                Member m1 = (Member)o1;
+                Member m2 = (Member)o2;
+
+                int s1 = m1.getModifiers() & Modifier.STATIC;
+                int s2 = m2.getModifiers() & Modifier.STATIC;
+
+                // if one's static and one isn't...
+                if (s1 + s2 == Modifier.STATIC) {
+                    // put the statics after the non-statics
+                    return s1 - s2;
+
+                } else {
+                    // otherwise compare names
+                    return m1.getName().compareTo(m2.getName());
+                }
+            }
+
+            public boolean equals (Object other) {
+                return (other == this);
+            }
+        };
+
         // get the public fields
         Field[] fields = _subject.getDeclaredFields();
+        Arrays.sort(fields, comp);
         ArrayList fsigtypes = new ArrayList();
         ArrayList fsigs = new ArrayList();
         for (int i = 0; i < fields.length; i++) {
@@ -92,12 +123,17 @@ public class ClassSummary implements Element
         Constructor[] ctors = _subject.getConstructors();
         for (int i = 0; i < ctors.length; i++) {
             Constructor c = ctors[i];
-            if ((c.getModifiers() & Modifier.PUBLIC) != 0) {
+            // make sure it's public
+            if ((c.getModifiers() & Modifier.PUBLIC) != 0 &&
+                // skip the zero argument constructor because it's
+                // uninteresting
+                c.getParameterTypes().length > 0) {
                 sigrets.add(" ");
                 sigs.add(genConstructorSig(c));
             }
         }
         Method[] methods = _subject.getDeclaredMethods();
+        Arrays.sort(methods, comp);
         for (int i = 0; i < methods.length; i++) {
             Method m = methods[i];
             if ((m.getModifiers() & Modifier.PUBLIC) != 0) {
@@ -250,7 +286,7 @@ public class ClassSummary implements Element
     // documentation inherited
     public String getName ()
     {
-        return _name;
+        return _subject.getName();
     }
 
     // documentation inherited
@@ -284,7 +320,7 @@ public class ClassSummary implements Element
     public String genConstructorSig (Constructor ctor)
     {
         StringBuffer buf = new StringBuffer();
-        buf.append(_viz.name(ctor.getDeclaringClass())).append("(");
+        buf.append(_viz.name(ctor.getDeclaringClass())).append(" (");
         Class[] ptypes = ctor.getParameterTypes();
         for (int i = 0; i < ptypes.length; i++) {
             if (i > 0) {
@@ -325,7 +361,7 @@ public class ClassSummary implements Element
     public String genMethodSig (Method method)
     {
         StringBuffer buf = new StringBuffer();
-        buf.append(method.getName()).append("(");
+        buf.append(method.getName()).append(" (");
         Class[] ptypes = method.getParameterTypes();
         for (int i = 0; i < ptypes.length; i++) {
             if (i > 0) {
@@ -345,6 +381,11 @@ public class ClassSummary implements Element
             }
         }
         return buf.toString();
+    }
+
+    public String toString ()
+    {
+        return "[subject=" + _subject.getName() + "]";
     }
 
     /** The package we're visualizing, which we'll strip from the front of

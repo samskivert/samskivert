@@ -1,5 +1,5 @@
 //
-// $Id: SummaryVisualizer.java,v 1.1 2001/12/01 06:22:18 mdb Exp $
+// $Id: SummaryVisualizer.java,v 1.2 2001/12/03 06:14:03 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -31,9 +31,10 @@ import java.awt.print.PrinterException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.samskivert.util.StringUtil;
+
 import com.samskivert.viztool.Log;
 import com.samskivert.viztool.Visualizer;
-import com.samskivert.viztool.layout.ElementLayout;
 import com.samskivert.viztool.layout.PackedColumnElementLayout;
 
 /**
@@ -72,9 +73,9 @@ public class SummaryVisualizer implements Visualizer
             try {
                 Class subject = Class.forName(name);
                 _summaries.add(new ClassSummary(subject, this));
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 Log.warning("Unable to introspect class [class=" + name +
-                            ", error=" + e + "].");
+                            ", error=" + t + "].");
             }
         }
     }
@@ -106,12 +107,11 @@ public class SummaryVisualizer implements Visualizer
         _pages = new ArrayList();
         ArrayList list = new ArrayList(_summaries);
         ArrayList next = new ArrayList();
-        ElementLayout elay = new PackedColumnElementLayout();
+        PackedColumnElementLayout elay = new PackedColumnElementLayout();
+        elay.setSortByHeight(false);
 
         while (list.size() > 0) {
             // lay out the elements that fit on this page
-            Log.info("Laying out " + list.size() + " summaries in " +
-                     width + "x" + height + "+" + x + "+" + y + ".");
             elay.layout(list, width, height, next);
 
             // remove the overflowed elements from the list for this page

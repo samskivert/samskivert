@@ -1,5 +1,5 @@
 //
-// $Id: StringUtilTest.java,v 1.2 2002/01/30 18:21:15 mdb Exp $
+// $Id: StringUtilTest.java,v 1.3 2002/04/11 04:07:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -38,16 +38,17 @@ public class StringUtilTest extends TestCase
 
         // split the source string into tokens
         String[] tokens = StringUtil.parseStringArray(source);
-        assert("tokens.length == 7", tokens.length == 7);
+        assertTrue("tokens.length == 7", tokens.length == 7);
 
         // now join them back together
         String joined = StringUtil.joinEscaped(tokens);
-        assert("joined.equals(source)", joined.equals(source));
+        assertTrue("joined.equals(source)", joined.equals(source));
 
         // make sure null to empty string works
         tokens = new String[] { "this", null, "is", null, "a", null, "test" };
         joined = StringUtil.joinEscaped(tokens);
-        assert("null elements work", joined.equals("this, , is, , a, , test"));
+        assertTrue("null elements work",
+                   joined.equals("this, , is, , a, , test"));
     }
 
     public static Test suite ()

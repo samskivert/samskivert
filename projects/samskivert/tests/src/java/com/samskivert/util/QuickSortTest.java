@@ -1,5 +1,5 @@
 //
-// $Id: QuickSortTest.java,v 1.1 2002/02/19 03:37:32 mdb Exp $
+// $Id: QuickSortTest.java,v 1.2 2002/04/11 04:07:42 mdb Exp $
 
 package com.samskivert.util;
 
@@ -33,8 +33,8 @@ public class QuickSortTest extends TestCase
                 a[n] = new Integer(n / d);
                 QuickSort.csort (a, 0, n, comp);
                 for (int i = 0; i <= n; i++) {
-                    assert("Failure for up " + n + "/" + d,
-                           a[i].intValue() == i / d);
+                    assertTrue("Failure for up " + n + "/" + d,
+                               a[i].intValue() == i / d);
                 }
             }
         }
@@ -47,8 +47,8 @@ public class QuickSortTest extends TestCase
                 }
                 QuickSort.csort (a, 0, n, comp);
                 for (int i = 0; i <= n; i++) {
-                    assert("Failure for down " + n + "/" + d,
-                           a[i].intValue() == i / d);
+                    assertTrue("Failure for down " + n + "/" + d,
+                               a[i].intValue() == i / d);
                 }
             }
         }
@@ -63,21 +63,21 @@ public class QuickSortTest extends TestCase
 
             QuickSort.csort (a, 0, n, comp);
             for (int i = 0; i < n; i++) {
-                assert("Failure for random " + n,
-                       a[i].intValue() <= a[i+1].intValue());
+                assertTrue("Failure for random " + n,
+                           a[i].intValue() <= a[i+1].intValue());
             }
 
             QuickSort.csort (a, 0, n, comp);
             for (int i = 0; i < n; i++) {
-                assert("Failure for random " + n + " (resort)",
-                       a[i].intValue() <= a[i+1].intValue());
+                assertTrue("Failure for random " + n + " (resort)",
+                           a[i].intValue() <= a[i+1].intValue());
             }
 
             a[rand(n+1)] = new Integer(rand(30000));
             QuickSort.csort (a, 0, n, comp);
             for (int i = 0; i < n; i++) {
-                assert("Failure for random " + n + " (resort 2)",
-                       a[i].intValue() <= a[i+1].intValue());
+                assertTrue("Failure for random " + n + " (resort 2)",
+                           a[i].intValue() <= a[i+1].intValue());
             }
         }
         // System.out.println("successfully sorted " + tests +

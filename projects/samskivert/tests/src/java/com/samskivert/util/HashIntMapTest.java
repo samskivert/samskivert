@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMapTest.java,v 1.2 2001/12/13 01:31:23 mdb Exp $
+// $Id: HashIntMapTest.java,v 1.3 2002/04/11 04:07:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -42,14 +42,14 @@ public class HashIntMapTest extends TestCase
         // check the table contents
         for (int i = 10; i < 20; i++) {
             Integer val = (Integer)table.get(i);
-            assert("get(" + i + ") == " + i, val.intValue() == i);
+            assertTrue("get(" + i + ") == " + i, val.intValue() == i);
         }
 
         String keys = StringUtil.toString(table.keys());
-        assert("keys valid", keys.equals(TEST1));
+        assertTrue("keys valid", keys.equals(TEST1));
 
         String elems = StringUtil.toString(table.elements());
-        assert("elems valid", elems.equals(TEST1));
+        assertTrue("elems valid", elems.equals(TEST1));
 
         // remove some entries and attempt to remove some non-entries
         for (int i = 12; i < 22; i++) {
@@ -57,10 +57,10 @@ public class HashIntMapTest extends TestCase
         }
 
         keys = StringUtil.toString(table.keys());
-        assert("keys valid", keys.equals(TEST2));
+        assertTrue("keys valid", keys.equals(TEST2));
 
         elems = StringUtil.toString(table.elements());
-        assert("elems valid", elems.equals(TEST2));
+        assertTrue("elems valid", elems.equals(TEST2));
 
         // now try some serialization
         populateTable(table);
@@ -80,7 +80,7 @@ public class HashIntMapTest extends TestCase
             // check the table contents
             for (int i = 10; i < 20; i++) {
                 Integer val = (Integer)table.get(i);
-                assert("get(" + i + ") == " + i, val.intValue() == i);
+                assertTrue("get(" + i + ") == " + i, val.intValue() == i);
             }
 
             tmpfile.delete();

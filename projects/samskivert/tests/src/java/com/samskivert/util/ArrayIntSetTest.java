@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSetTest.java,v 1.1 2002/02/03 07:10:16 mdb Exp $
+// $Id: ArrayIntSetTest.java,v 1.2 2002/04/11 04:07:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -48,7 +48,7 @@ public class ArrayIntSetTest extends TestCase
         int[] values = { 1, 3, 5, 7, 9 };
         int[] setvals = set.toIntArray();
 
-        assert("values equal", Arrays.equals(values, setvals));
+        assertTrue("values equal", Arrays.equals(values, setvals));
     }
 
     public static Test suite ()

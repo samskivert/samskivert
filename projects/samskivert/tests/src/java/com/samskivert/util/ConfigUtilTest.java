@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtilTest.java,v 1.2 2002/04/01 01:56:21 mdb Exp $
+// $Id: ConfigUtilTest.java,v 1.3 2002/04/11 04:07:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -39,7 +39,7 @@ public class ConfigUtilTest extends TestCase
         try {
             String path = "/rsrc/util/test.properties";
             Properties props = ConfigUtil.loadInheritedProperties(path);
-            assert("props valid", props.toString().equals(DUMP));
+            assertTrue("props valid", props.toString().equals(DUMP));
 
         } catch (Exception e) {
             e.printStackTrace(System.err);

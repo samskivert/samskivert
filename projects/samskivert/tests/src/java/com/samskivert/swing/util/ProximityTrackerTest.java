@@ -1,5 +1,5 @@
 //
-// $Id: ProximityTrackerTest.java,v 1.1 2001/12/15 03:19:03 mdb Exp $
+// $Id: ProximityTrackerTest.java,v 1.2 2002/04/11 04:07:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -83,8 +83,9 @@ public class ProximityTrackerTest extends TestCase
             String tps = tp.x + "," + tp.y;
             String cps = cp.x + "," + cp.y;
             String ps = x + "," + y;
-            assert(ps + " => " + cps + " (" + cdist + ") ! " +
-                   tps + " (" + tdist + ")", tp.equals(cp) || (tdist == cdist));
+            assertTrue(ps + " => " + cps + " (" + cdist + ") ! " +
+                       tps + " (" + tdist + ")",
+                       tp.equals(cp) || (tdist == cdist));
         }
     }
 

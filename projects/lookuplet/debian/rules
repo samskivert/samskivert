@@ -6,33 +6,17 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-build: build-stamp
-build-stamp:
-	dh_testdir
-
-	./configure --prefix=/usr --sysconfdir=/etc
-	# Add here commands to compile the package.
-	make CFLAGS="-O2 -g -Wall"
-
-	touch build-stamp
-
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) distclean
-	rm -f */.deps/* config.cache config.log config.status
+	-$(MAKE) clean
 
 	dh_clean
 
 # Build architecture-independent files here.
-binary-indep: build
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build
+binary-indep:
 #	dh_testversion
 	dh_testdir
 	dh_testroot
@@ -50,7 +34,7 @@ binary-arch: build
 #	dh_installmanpages
 	dh_undocumented lookuplet.1
 	dh_installchangelogs
-	dh_strip
+#	dh_strip
 	dh_compress
 	dh_fixperms
 	dh_installdeb
@@ -60,8 +44,6 @@ binary-arch: build
 	dh_md5sums
 	dh_builddeb
 
-source diff:                                                                  
-	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+binary: binary-indep
 
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary
+.PHONY: clean binary-indep binary

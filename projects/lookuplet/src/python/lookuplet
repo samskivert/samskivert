@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+#
+# $Id: lookuplet,v 1.1 2002/03/17 09:32:23 mdb Exp $
+# 
+# lookuplet - a utility for quickly looking up information
+# Copyright (C) 2001 Michael Bayne
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2.1 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+import gnome.applet
+import gtk
+import libglade
+import string
+import sys
+import re
+
+import bindings
+import lookuplet
+import properties
+
+# figure out where we were run from
+basedir = sys.argv[0];
+basedir = re.sub("/lookuplet$", "", basedir);
+basedir = re.sub("/bin$", "", basedir);
+
+# load up our glade UI definition
+xmlui = libglade.GladeXML("lookuplet.glade");
+
+# load up our bindings
+bindings = bindings.BindingSet();
+
+# figure out if we're an applet or not
+appletMode = 0;
+for arg in sys.argv:
+    if (arg.find("activate-goad-server") != -1):
+        appletMode = 1
+
+# create our properties manager
+props = properties.Properties(xmlui, bindings);
+
+# create our primary user interface
+lookuplet = lookuplet.Lookuplet(xmlui, bindings, props, appletMode);
+
+# let GTK do its business
+gtk.mainloop();

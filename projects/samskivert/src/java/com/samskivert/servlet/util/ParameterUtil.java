@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.5 2002/02/19 19:07:13 shaper Exp $
+// $Id: ParameterUtil.java,v 1.6 2003/04/04 04:19:44 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -35,6 +35,15 @@ import com.samskivert.util.StringUtil;
  */
 public class ParameterUtil
 {
+    /**
+     * An interface for validating form parameters.
+     */
+    public static interface ParameterValidator
+    {
+        public void validateParameter (String name, String value)
+            throws DataValidationException;
+    }
+
     /**
      * Fetches the supplied parameter from the request. If the parameter
      * does not exist, either null or the empty string will be returned
@@ -90,6 +99,37 @@ public class ParameterUtil
 	return parseIntParameter(
             getParameter(req, name, false), invalidDataMessage);
         
+    }
+
+    /**
+     * Fetches the supplied parameter from the request and converts it to
+     * an integer. If the parameter does not exist or is not a well-formed
+     * integer, a data validation exception is thrown with the supplied
+     * message.
+     */
+    public static int requireIntParameter (
+        HttpServletRequest req, String name, String invalidDataMessage,
+        ParameterValidator validator)
+	throws DataValidationException
+    {
+        String value = getParameter(req, name, false);
+        validator.validateParameter(name, value);
+	return parseIntParameter(value, invalidDataMessage);
+    }
+
+    /**
+     * Fetches the supplied parameter from the request and converts it to
+     * an integer. If the parameter does not exist or is not a well-formed
+     * integer, a data validation exception is thrown with the supplied
+     * message.
+     */
+    public static int requireIntParameter (
+        HttpServletRequest req, String name, int low, int high,
+        String invalidDataMessage)
+	throws DataValidationException
+    {
+        return requireIntParameter(req, name, invalidDataMessage,
+            new IntRangeValidator(low, high, invalidDataMessage));
     }
 
     /**
@@ -226,6 +266,40 @@ public class ParameterUtil
         HttpServletRequest req, String name, String value)
     {
 	return value.equals(getParameter(req, name, false));
+    }
+
+    /**
+     * Make sure integers are within a range.
+     */
+    protected static class IntRangeValidator implements ParameterValidator
+    {
+        /**
+         */
+        public IntRangeValidator (int low, int high, String outOfRangeError)
+        {
+            _low = low;
+            _high = high;
+            _err = outOfRangeError;
+        }
+
+        // documentation inherited
+        public void validateParameter (String name, String value)
+            throws DataValidationException
+        {
+            try {
+                int ivalue = Integer.parseInt(value);
+                if ((ivalue >= _low) && (ivalue <= _high)) {
+                    return;
+                }
+            } catch (Exception e) {
+                // fall through
+            }
+
+            throw new DataValidationException(_err);
+        }
+
+        protected int _low, _high;
+        protected String _err;
     }
 
     /** We use this to parse dates in requireDateParameter(). */

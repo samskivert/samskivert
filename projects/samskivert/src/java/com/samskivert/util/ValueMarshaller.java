@@ -1,8 +1,9 @@
 //
-// $Id: ValueMarshaller.java,v 1.2 2001/12/11 01:38:08 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.3 2002/03/08 02:07:58 mdb Exp $
 
 package com.samskivert.util;
 
+import java.awt.Color;
 import java.util.HashMap;
 
 /**
@@ -85,6 +86,17 @@ public class ValueMarshaller
         _parsers.put(STRING_ARRAY_PROTOTYPE.getClass(), new Parser() {
             public Object parse (String source) throws Exception {
                 return StringUtil.parseStringArray(source);
+            }
+        });
+
+        // and Color objects
+        _parsers.put(Color.class, new Parser() {
+            public Object parse (String source) throws Exception {
+                if (source.length() == 0 || source.charAt(0) != '#') {
+                    return new Color(Integer.parseInt(source, 16));
+                } else {
+                    return new Color(Integer.parseInt(source.substring(1), 16));
+                }
             }
         });
     }

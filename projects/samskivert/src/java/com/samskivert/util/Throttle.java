@@ -1,5 +1,5 @@
 //
-// $Id: Throttle.java,v 1.4 2002/12/04 03:20:36 mdb Exp $
+// $Id: Throttle.java,v 1.5 2004/01/05 22:09:19 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -34,7 +34,7 @@ package com.samskivert.util;
  * <p> For example:
  *
  * <pre>
- * protected Throttle _throttle = new Throttle(5, 60);
+ * protected Throttle _throttle = new Throttle(5, 60000L);
  *
  * public void performOp ()
  *     throws UnavailableException
@@ -101,23 +101,49 @@ public class Throttle
      */
     public boolean throttleOp (long timeStamp)
     {
-        // if the oldest operation was performed less than _period ago, we
-        // need to throttle
-        if ((timeStamp - _ops[_lastOp]) < _period) {
+        if (wouldThrottle(timeStamp)) {
             return true;
         }
 
-        // otherwise overwrite the oldest operation with the current time
+        noteOp(timeStamp);
+        return false;
+    }
+
+    /**
+     * Check to see if we would throttle an operation occuring at the specified
+     * timestamp. Typically used in conjunction with {@link #noteOp}.
+     */
+    public boolean wouldThrottle (long timeStamp)
+    {
+        // if the oldest operation was performed less than _period ago, we
+        // need to throttle
+        return (timeStamp - _ops[_lastOp]) < _period;
+    }
+
+    /**
+     * Note that an operation occurred at the specified timestamp. This
+     * method should be used with {@link #wouldThrottle} to note an operation
+     * that has already been cleared to occur. Typically this is used if
+     * there is another limiting factor besides the throttle that determines
+     * whether the operation can occur. You are responsible for calling this
+     * method in a safe and timely manner after using wouldThrottle.
+     */
+    public void noteOp (long timeStamp)
+    {
+        // overwrite the oldest operation with the current time
         // and move the oldest operation pointer to the second oldest
         // operation (which is now the oldest as we overwrote the oldest)
         _ops[_lastOp] = timeStamp;
         _lastOp = (_lastOp + 1) % _ops.length;
-        return false;
     }
 
+    /**
+     * Used for testing.
+     */
     public static void main (String[] args)
     {
-        Throttle throttle = new Throttle(5, 10);
+        // set up a throttle for 5 ops per 10 seconds
+        Throttle throttle = new Throttle(5, 10000);
 
         // try doing one operation per second and we should hit the
         // throttle on the sixth operation and then kick in again on the

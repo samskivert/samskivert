@@ -1,10 +1,11 @@
+lookuplet (1.1-1) unstable; urgency=low
+
+  * New upstream version; supports operation as GNOME applet.
+
+ -- Michael Bayne <mdb@samskivert.com>  Fri, 17 Aug 2001 19:48:08 -0700
+
 lookuplet (1.0-1) unstable; urgency=low
 
   * Initial Release.
 
  -- Michael Bayne <mdb@samskivert.com>  Fri, 17 Aug 2001 13:00:58 -0800
-
-Local variables:
-mode: debian-changelog
-add-log-mailing-address: "mdb@samskivert.com"
-End:

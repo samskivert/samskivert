@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.4 2003/01/15 02:29:23 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.5 2003/01/15 03:24:53 mdb Exp $
 
 package com.samskivert.util;
 
@@ -14,9 +14,11 @@ import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import com.samskivert.Log;
@@ -54,20 +56,19 @@ public class RuntimeAdjust
      * Creates a Swing user interface that can be used to adjust all
      * registered runtime adjustments.
      */
-    public static JPanel createAdjustEditor ()
+    public static JComponent createAdjustEditor ()
     {
         VGroupLayout layout = new VGroupLayout(
             VGroupLayout.NONE, VGroupLayout.STRETCH,
             3, VGroupLayout.TOP);
         layout.setOffAxisJustification(VGroupLayout.LEFT);
-        ScrollablePanel panel = new ScrollablePanel(layout);
-        panel.setTracksViewportWidth(true);
 
-        Font font = panel.getFont();
+        JTabbedPane editor = new JTabbedPane();
+        Font font = editor.getFont();
         Font smaller = font.deriveFont(font.getSize()-1f);
-        Font bigger = font.deriveFont(Font.BOLD, font.getSize()+2f);
 
         String library = null;
+        ScrollablePanel lpanel = null;
         String pkgname = null;
         CollapsiblePanel pkgpanel = null;
 
@@ -79,9 +80,9 @@ public class RuntimeAdjust
             if (!adjust.getLibrary().equals(library)) {
                 library = adjust.getLibrary();
                 pkgname = null;
-                JLabel label = new JLabel(library, JLabel.CENTER);
-                label.setFont(bigger);
-                panel.add(label);
+                lpanel = new ScrollablePanel(layout);
+                lpanel.setTracksViewportWidth(true);
+                editor.addTab(library, lpanel);
             }
 
             // create a new package panel if necessary
@@ -94,17 +95,17 @@ public class RuntimeAdjust
                 pkgpanel.setTriggerContainer(pkgcheck);
                 pkgpanel.getContent().setLayout(layout);
                 pkgpanel.setCollapsed(false);
-                panel.add(pkgpanel);
+                lpanel.add(pkgpanel);
             }
 
             // add an entry for this adjustment
             pkgpanel.getContent().add(new JSeparator());
-            JPanel editor = adjust.getEditor();
-            editor.setFont(smaller);
-            pkgpanel.getContent().add(editor);
+            JPanel aeditor = adjust.getEditor();
+            aeditor.setFont(smaller);
+            pkgpanel.getContent().add(aeditor);
         }
 
-        return panel;
+        return editor;
     }
 
     /** Provides runtime adjustable boolean variables. */

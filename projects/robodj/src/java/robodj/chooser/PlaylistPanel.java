@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.8 2001/09/21 03:09:01 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.9 2001/10/12 18:21:27 mdb Exp $
 
 package robodj.chooser;
 
@@ -108,9 +108,9 @@ public class PlaylistPanel
         // what's up
         _bpanel.removeAll();
         _bpanel.add(new JLabel("Loading..."));
-        // we've removed and added components and swing won't properly
-        // repaint automatically
-        _bpanel.repaint();
+        // swing doesn't automatically validate after adding/removing
+        // children
+        _bpanel.revalidate();
 
         // start up the task that reads the CD info from the database
         TaskMaster.invokeMethodTask("readPlaylist", this, this);
@@ -265,9 +265,9 @@ public class PlaylistPanel
             _bpanel.add(new JLabel("Nothing playing."));
         }
 
-        // we've removed and added components and swing won't properly
-        // repaint automatically
-        _bpanel.repaint();
+        // swing doesn't automatically validate after adding/removing
+        // children
+        _bpanel.revalidate();
     }
 
     protected void highlightPlaying ()

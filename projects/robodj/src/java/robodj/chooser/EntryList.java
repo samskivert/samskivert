@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.8 2001/09/21 03:09:01 mdb Exp $
+// $Id: EntryList.java,v 1.9 2001/10/12 18:21:27 mdb Exp $
 
 package robodj.chooser;
 
@@ -203,9 +203,8 @@ public class EntryList
         // where we were... oh the complication.
         clearScrollPosition();
 
-        // we've removed and added components and swing won't properly
-        // repaint automatically
-        _bpanel.repaint();
+        // we've removed and added components so we need to revalidate
+        revalidate();
     }
 
     protected void populateSong (Entry entry)
@@ -275,9 +274,8 @@ public class EntryList
         // the song list
         clearScrollPosition();
 
-        // we've removed and added components and swing won't properly
-        // repaint automatically
-        _bpanel.repaint();
+        // we've removed and added components so we need to revalidate
+        revalidate();
     }
 
     protected void clearScrollPosition ()
@@ -335,6 +333,9 @@ public class EntryList
         // stick a "loading" label in the list to let the user know
         // what's up
         _bpanel.add(new JLabel("Loading..."));
+
+        // we need to revalidate the component because we added a child
+        revalidate();
 
         // start up the task that reads the CD info from the database
         TaskMaster.invokeMethodTask("readEntries", this, this);

@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.3 2001/03/02 02:45:48 mdb Exp $
+// $Id: UserManager.java,v 1.4 2001/03/02 07:35:39 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -82,6 +82,14 @@ public class UserManager
 
 	// cancel our session table pruning thread
 	IntervalManager.remove(_prunerid);
+    }
+
+    /**
+     * Returns a reference to the repository in use by this user manager.
+     */
+    public UserRepository getRepository ()
+    {
+	return _repository;
     }
 
     /**

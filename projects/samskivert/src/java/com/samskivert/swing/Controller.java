@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.17 2004/01/16 15:25:29 mdb Exp $
+// $Id: Controller.java,v 1.18 2004/05/21 20:53:08 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -29,10 +29,11 @@ import java.lang.reflect.Method;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.event.AncestorEvent;
+
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 
 import com.samskivert.Log;
-import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.swing.event.CommandEvent;
 
 /**
@@ -103,15 +104,25 @@ public abstract class Controller
     /**
      * Lets this controller know about the panel that it is controlling.
      */
-    public void setControlledPanel (JComponent panel)
+    public void setControlledPanel (final JComponent panel)
     {
-        panel.addAncestorListener(new AncestorAdapter() {
-            public void ancestorAdded (AncestorEvent event) {
-                wasAdded();
+        panel.addHierarchyListener(new HierarchyListener() {
+            public void hierarchyChanged (HierarchyEvent e) {
+                boolean nowShowing = panel.isDisplayable();
+                //System.err.println("Controller." + Controller.this +
+                //    "  nowShowing=" + nowShowing +
+                //    ", wasShowing=" + _showing);
+                if (_showing != nowShowing) {
+                    _showing = nowShowing;
+                    if (_showing) {
+                        wasAdded();
+                    } else {
+                        wasRemoved();
+                    }
+                }
             }
-            public void ancestorRemoved (AncestorEvent event) {
-                wasRemoved();
-            }
+
+            boolean _showing = false;
         });
     }
 

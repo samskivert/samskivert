@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.9 2002/09/06 17:41:41 ray Exp $
+// $Id: DnDManager.java,v 1.10 2002/09/06 17:46:29 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -80,7 +80,10 @@ public class DnDManager
                   ", bestSize=" + d.width + "x" + d.height +
                   ", maxcolors=" + colors + "].");
 
-        if ((w < d.width) && (h < d.height)) {
+        // if the passed-in image is smaller, pad it with transparent pixels
+        // and use it anyway.
+        if (((w < d.width) && (h <= d.height)) ||
+            ((w <= d.width) && (h < d.height))) {
             Image padder = GraphicsEnvironment.getLocalGraphicsEnvironment().
                 getDefaultScreenDevice().getDefaultConfiguration().
                 createCompatibleImage(d.width, d.height, Transparency.BITMASK);

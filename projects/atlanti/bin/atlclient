@@ -4,13 +4,13 @@ BINDIR=`dirname $0`
 JAVA_ARGS=""
 
 # grab the -Dinviter if it's specified
-if [ ! -z "$1" ] ; then
+while [ ! -z "$1" ] ; do
     case $1 in
-    -Dinvitee=*)
-        JAVA_ARGS=$1
+    -D*)
+        JAVA_ARGS="$JAVA_ARGS $1"
         shift
         ;;
     esac
-fi
+done
 
 $BINDIR/runjava $JAVA_ARGS com.threerings.micasa.client.MiCasaApp $*

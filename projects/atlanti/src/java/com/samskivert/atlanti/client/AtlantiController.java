@@ -67,7 +67,7 @@ public class VenisonController
         _panel.board.setPiecens(_venobj.piecens);
 
         // if it's our turn, set the tile to be placed
-        if (_venobj.turnHolder.equals(_self.username)) {
+        if (isOurTurn()) {
             _panel.board.setTileToBePlaced(_venobj.currentTile);
         }
     }
@@ -142,20 +142,23 @@ public class VenisonController
     public boolean handleAction (ActionEvent action)
     {
         if (action.getActionCommand().equals(TILE_PLACED)) {
+            VenisonTile tile = _panel.board.getPlacedTile();
+
             // the user placed the tile into a valid location. grab the
             // placed tile from the board and submit it to the server
-            Object[] args = new Object[] { _panel.board.getPlacedTile() };
+            Object[] args = new Object[] { tile };
             MessageEvent mevt = new MessageEvent(
                 _venobj.getOid(), PLACE_TILE_REQUEST, args);
             _ctx.getDObjectManager().postEvent(mevt);
 
-            // if we have no piecens to place, we immediately disable
-            // piecen placement in the board and expect that the server
-            // will end our turn (however, it may determine that our
-            // placement freed up one of our pieces which we will react to
-            // and reenable piecen placement)
+            // if we have no piecens to place or if there are no unclaimed
+            // features on the placed tile, we immediately disable piecen
+            // placement in the board and expect that the server will end
+            // our turn (however, it may determine that our placement
+            // freed up one of our pieces which we will react to and
+            // reenable piecen placement)
             int pcount = TileUtil.countPiecens(_venobj.piecens, _selfIndex);
-            if (pcount >= PIECENS_PER_PLAYER) {
+            if (pcount >= PIECENS_PER_PLAYER || !tile.hasUnclaimedFeature()) {
                 _panel.board.cancelPiecenPlacement();
 
             } else {

@@ -1,5 +1,5 @@
 //
-// $Id: CDDB.java,v 1.4 2000/12/06 00:26:23 mdb Exp $
+// $Id: CDDB.java,v 1.5 2001/03/03 21:19:05 mdb Exp $
 
 package com.samskivert.net.cddb;
 
@@ -131,8 +131,8 @@ public class CDDB
 	// establish our socket connection and IO streams
 	InetAddress addr = InetAddress.getByName(hostname);
 	_sock = new Socket(addr, port);
-	_in = new DataInputStream(
-	    new BufferedInputStream(_sock.getInputStream()));
+	_in = new BufferedReader(
+	    new InputStreamReader(_sock.getInputStream()));
 	_out = new PrintStream(
 	    new BufferedOutputStream(_sock.getOutputStream()));
 
@@ -479,12 +479,12 @@ public class CDDB
      */
     static
     {
-	StringTokenizer tok = new StringTokenizer("$Revision: 1.4 $");
+	StringTokenizer tok = new StringTokenizer("$Revision: 1.5 $");
 	tok.nextToken();
 	CLIENT_VERSION = tok.nextToken();
     }
 
     protected Socket _sock;
-    protected DataInputStream _in;
+    protected BufferedReader _in;
     protected PrintStream _out;
 }

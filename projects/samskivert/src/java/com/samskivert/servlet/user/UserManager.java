@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.14 2002/05/08 00:25:54 shaper Exp $
+// $Id: UserManager.java,v 1.15 2002/05/11 19:20:15 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -85,11 +85,9 @@ public class UserManager
     }
 
     /**
-     * A user manager must be supplied with a {@link UserRepository}
-     * through which it loads and saves user records.
+     * Constructs a user manager and prepares it for operation. Presently
+     * the user manager requires the following configuration information:
      *
-     * <p> Presently the user manager requires the following configuration
-     * information:
      * <ul>
      * <li><code>login_url</code>: Should be set to the URL to which to
      * redirect a requester if they are required to login before accessing
@@ -106,14 +104,14 @@ public class UserManager
      * </ul>
      *
      * @param config the user manager configuration properties.
-     * @param repository the user repository through which user records
-     * are loaded and saved.
+     * @param conprov the database connection provider that will be used
+     * to obtain a connection to the user database.
      */
-    public UserManager (Properties config, UserRepository repository)
+    public UserManager (Properties config, ConnectionProvider conprov)
 	throws PersistenceException
     {
-	// save off the user repository
-	_repository = repository;
+	// create the user repository
+	_repository = createRepository(conprov);
 
 	// fetch the login URL from the properties
 	_loginURL = config.getProperty("login_url");
@@ -135,6 +133,16 @@ public class UserManager
 	};
 	_prunerid = IntervalManager.register(pruner, SESSION_PRUNE_INTERVAL,
 					     null, true);
+    }
+
+    /**
+     * Called by the user manager to create the user repository. Derived
+     * classes can override this and create a specialized repository if
+     * they so desire.
+     */
+    protected UserRepository createRepository (ConnectionProvider conprov)
+    {
+        return new UserRepository(conprov);
     }
 
     public void shutdown ()

@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.2 2001/07/12 18:13:19 mdb Exp $
+// $Id: Config.java,v 1.3 2001/07/21 00:50:28 shaper Exp $
 
 package com.samskivert.util;
 
@@ -160,7 +160,7 @@ public class Config
      * integer, not in proper array specification), a warning message will
      * be logged and the default value will be returned.
      *
-     * @param the fully qualified name of the property (fully qualified
+     * @param key the fully qualified name of the property (fully qualified
      * meaning that it contains the namespace identifier as well), for
      * example: <code>foo.bar.baz</code>.
      * @param defval the value to return if the property is not specified
@@ -186,6 +186,26 @@ public class Config
         }
 
         return result;
+    }
+
+    /**
+     * Looks up the specified string-valued configuration entry,
+     * loads the class with that name and instantiates a new instance
+     * of that class, which is returned.
+     *
+     * @param key the fully qualified name of the property (fully qualified
+     * meaning that it contains the namespace identifier as well), for
+     * example: <code>foo.bar.baz</code>.
+     * @param defcname the class name to use if the property is not
+     * specified in the config file.
+     *
+     * @exception Exception thrown if any error occurs while loading
+     * or instantiating the class.
+     */
+    public Object instantiateValue (String name, String defcname)
+	throws Exception
+    {
+	return Class.forName(getValue(name, defcname)).newInstance();
     }
 
     /**

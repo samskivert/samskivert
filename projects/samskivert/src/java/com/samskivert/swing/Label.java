@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.25 2002/11/12 00:37:22 mdb Exp $
+// $Id: Label.java,v 1.26 2002/11/12 01:09:26 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -407,7 +407,6 @@ public class Label implements SwingConstants, LabelStyleConstants
                     break;
                 }
                 Rectangle2D bounds = layout.getBounds();
-                System.out.println(bounds);
                 width = Math.max(width, bounds.getX() + bounds.getWidth());
                 height += getHeight(layout);
                 layouts.add(new Tuple(layout, bounds));

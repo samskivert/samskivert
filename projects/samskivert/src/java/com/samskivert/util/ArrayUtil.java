@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.15 2002/09/06 02:12:25 shaper Exp $
+// $Id: ArrayUtil.java,v 1.16 2002/09/06 02:36:12 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -325,7 +325,8 @@ public class ArrayUtil
      */
     public static byte[] splice (byte[] values, int offset)
     {
-        return splice(values, offset, values.length - offset);
+        int length = (values == null) ? 0 : values.length - offset;
+        return splice(values, offset, length);
     }
 
     /**
@@ -377,7 +378,8 @@ public class ArrayUtil
      */
     public static int[] splice (int[] values, int offset)
     {
-        return splice(values, offset, values.length - offset);
+        int length = (values == null) ? 0 : values.length - offset;
+        return splice(values, offset, length);
     }
 
     /**
@@ -429,7 +431,8 @@ public class ArrayUtil
      */
     public static String[] splice (String[] values, int offset)
     {
-        return splice(values, offset, values.length - offset);
+        int length = (values == null) ? 0 : values.length - offset;
+        return splice(values, offset, length);
     }
 
     /**
@@ -481,7 +484,8 @@ public class ArrayUtil
      */
     public static Object[] splice (Object[] values, int offset)
     {
-        return splice(values, offset, values.length - offset);
+        int length = (values == null) ? 0 : values.length - offset;
+        return splice(values, offset, length);
     }
 
     /**

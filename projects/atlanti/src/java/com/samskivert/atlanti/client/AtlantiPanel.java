@@ -4,6 +4,8 @@
 package com.threerings.venison;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import javax.swing.*;
 
 import com.samskivert.swing.Controller;
@@ -15,6 +17,7 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.client.PlaceView;
 
 import com.threerings.parlor.util.ParlorContext;
+import com.threerings.micasa.client.ChatPanel;
 
 /**
  * The top-level user interface component for the Venison game display.
@@ -53,6 +56,12 @@ public class VenisonPanel
         sgl.setJustification(VGroupLayout.TOP);
         JPanel sidePanel = new JPanel(sgl);
 
+        // add a big fat label because we love it!
+        JLabel vlabel = new JLabel("Venissonne!");
+        vlabel.setFont(new Font("Helvetica", Font.BOLD, 24));
+        vlabel.setForeground(Color.black);
+        sidePanel.add(vlabel, VGroupLayout.FIXED);
+
         // add a player info view to the side panel
         sidePanel.add(new JLabel("Scores:"), VGroupLayout.FIXED);
         sidePanel.add(new PlayerInfoView(), VGroupLayout.FIXED);
@@ -67,6 +76,11 @@ public class VenisonPanel
         noplace.setActionCommand(PLACE_NOTHING);
         noplace.addActionListener(Controller.DISPATCHER);
         sidePanel.add(noplace, VGroupLayout.FIXED);
+
+        // add a chat box
+        ChatPanel chat = new ChatPanel(ctx);
+        chat.removeSendButton();
+        sidePanel.add(chat);
 
         // add our side panel to the main display
         add(sidePanel, HGroupLayout.FIXED);

@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.7 2002/08/09 23:33:49 shaper Exp $
+// $Id: ArrayUtil.java,v 1.8 2002/08/10 01:39:44 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -36,25 +36,33 @@ public class ArrayUtil
      */
     public static int[] getMaxIndexes (int[] values)
     {
-        // get the indices with the maximum values
-        ArrayList list = new ArrayList();
-        int max = 0;
-        for (int ii = 0; ii < values.length; ii++) {
-            if (values[ii] == max) {
-                list.add(new Integer(ii));
+        int max = Integer.MIN_VALUE;
+        int num = 0;
+
+        for (int ii=0; ii < values.length; ii++) {
+            if (values[ii] < max) {
+                // common case- stop checking things..
+                continue;
+
             } else if (values[ii] > max) {
-                list.clear();
+                // new max
                 max = values[ii];
-                list.add(new Integer(ii));
+                num = 1;
+
+            } else {
+                // another sighting of max
+                num++;
             }
         }
-        
-        // convert the list to an array
-        int size = list.size();
-        int[] maxes = new int[size];
-        for (int ii = 0; ii < size; ii++) {
-            maxes[ii] = ((Integer)list.get(ii)).intValue();
+
+        // now find the indexes that have max
+        int[] maxes = new int[num];
+        for (int ii=0, pos=0; (ii < values.length) && (pos < num); ii++) {
+            if (values[ii] == max) {
+                maxes[pos++] = ii;
+            }
         }
+
         return maxes;
     }
 

@@ -19,6 +19,8 @@ import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.RunAnywhere;
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.dobj.DObject;
@@ -98,7 +100,8 @@ public class Chooser
                         "No music server host specified in configuration.");
                 }
                 // establish a connection with the music server
-                client = new Client(new UsernamePasswordCreds(), this);
+		Name name = new Name(RDJPrefs.getUser());
+                client = new Client(new UsernamePasswordCreds(name, ""), this);
                 client.addClientObserver(this);
                 client.setServer(host, Client.DEFAULT_SERVER_PORT);
                 client.logon();

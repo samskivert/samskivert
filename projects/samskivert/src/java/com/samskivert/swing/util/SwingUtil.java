@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.5 2001/09/14 20:00:08 shaper Exp $
+// $Id: SwingUtil.java,v 1.6 2002/03/26 19:32:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -80,5 +80,29 @@ public class SwingUtil
 	poly.addPoint(x, y + d.height);
 	poly.addPoint(x, y);
 	return poly; 
+    }
+
+    /**
+     * Enables (or disables) the specified component, <em>and all of its
+     * children.</cite> A simple call to {@link Container#setEnabled}
+     * does not propagate the enabled state to the children of a
+     * component, which is senseless in our opinion, but was surely done
+     * for some arguably good reason.
+     */
+    public static void setEnabled (Container comp, boolean enabled)
+    {
+        // set the state of our children
+        int ccount = comp.getComponentCount();
+        for (int i = 0; i < ccount; i++) {
+            Component child = comp.getComponent(i);
+            if (child instanceof Container) {
+                setEnabled((Container)child, enabled);
+            } else {
+                child.setEnabled(enabled);
+            }
+        }
+
+        // set our state
+        comp.setEnabled(enabled);
     }
 }

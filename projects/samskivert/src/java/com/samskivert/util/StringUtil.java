@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.40 2002/10/31 01:24:10 shaper Exp $
+// $Id: StringUtil.java,v 1.41 2002/10/31 01:44:25 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -703,19 +703,7 @@ public class StringUtil
      */
     public static String join (String[] values)
     {
-        return joinEscaped(values, false);
-    }
-
-    /**
-     * Joins an array of strings into a single string, separated by
-     * commas, and escaping commas that occur in the individual string
-     * values such that a subsequent call to {@link #parseStringArray}
-     * would recreate the string array properly. Any elements in the
-     * values array that are null will be treated as an empty string.
-     */
-    public static String joinEscaped (String[] values)
-    {
-        return joinEscaped(values, true);
+        return join(values, false);
     }
 
     /**
@@ -726,7 +714,7 @@ public class StringUtil
      * elements in the values array that are null will be treated as an
      * empty string.
      */
-    public static String joinEscaped (String[] values, boolean escape)
+    public static String join (String[] values, boolean escape)
     {
         StringBuffer buf = new StringBuffer();
         int vlength = values.length;
@@ -738,6 +726,18 @@ public class StringUtil
             buf.append((escape) ? replace(value, ",", ",,") : value);
         }
         return buf.toString();
+    }
+
+    /**
+     * Joins an array of strings into a single string, separated by
+     * commas, and escaping commas that occur in the individual string
+     * values such that a subsequent call to {@link #parseStringArray}
+     * would recreate the string array properly. Any elements in the
+     * values array that are null will be treated as an empty string.
+     */
+    public static String joinEscaped (String[] values)
+    {
+        return join(values, true);
     }
 
     /**

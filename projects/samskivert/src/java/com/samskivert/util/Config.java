@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.8 2002/02/17 08:28:34 mdb Exp $
+// $Id: Config.java,v 1.9 2002/03/28 18:57:34 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,7 +21,11 @@
 package com.samskivert.util;
 
 import java.io.IOException;
-import java.util.*;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Properties;
 
 import com.samskivert.Log;
 
@@ -380,48 +384,6 @@ public class Config
         }
 
         return props.getProperty(key);
-    }
-
-    public static void main (String[] args)
-    {
-        Config config = new Config();
-        try {
-            config.bindProperties("test", "com/samskivert/util/test");
-
-            System.out.println("test.prop1: " +
-                               config.getValue("test.prop1", 1));
-            System.out.println("test.prop2: " +
-                               config.getValue("test.prop2", "two"));
-
-            int[] ival = new int[] { 1, 2, 3 };
-            ival = config.getValue("test.prop3", ival);
-            System.out.println("test.prop3: " + StringUtil.toString(ival));
-
-            String[] sval = new String[] { "one", "two", "three" };
-            sval = config.getValue("test.prop4", sval);
-            System.out.println("test.prop4: " + StringUtil.toString(sval));
-
-            System.out.println("test.prop5: " +
-                               config.getValue("test.prop5", "undefined"));
-
-            Iterator iter = config.keys("test.prop2");
-            while (iter.hasNext()) {
-                System.out.println(iter.next());
-            }
-
-            iter = config.keys("test.prop");
-            while (iter.hasNext()) {
-                System.out.println(iter.next());
-            }
-
-            iter = config.keys("test");
-            while (iter.hasNext()) {
-                System.out.println(iter.next());
-            }
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
-        }
     }
 
     protected Hashtable _props = new Hashtable();

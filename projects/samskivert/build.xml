@@ -3,12 +3,14 @@
 
   <!-- things you may want to change -->
   <property name="app.name"         value="samskivert"/>
+  <property name="doc.packages"     value="com.samskivert.*"/>
+  <property name="doc.overview"     value="com/samskivert/overview.html"/>
+  <property name="copyright.holder" value="Michael Bayne"/>
   <property name="build.compiler"   value="jikes"/>
   <property name="java.libraries"   value="/usr/share/java"/>
-  <property name="doc.packages"     value="com.samskivert.*"/>
-  <property name="copyright.holder" value="Michael Bayne"/>
 
   <!-- things you probably don't want to change -->
+  <property name="src.dir"     value="src/java"/>
   <property name="deploy.dir"  value="dist"/>
   <property name="dist.jar"    value="${app.name}.jar"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
@@ -26,7 +28,7 @@
     <mkdir dir="${deploy.dir}/classes"/>
     <mkdir dir="${javadoc.dir}"/>
     <copy todir="${deploy.dir}/classes">
-      <fileset dir="src/java" includes="**/*.properties"/>
+      <fileset dir="${src.dir}" includes="**/*.properties"/>
     </copy>
   </target>
 
@@ -37,7 +39,7 @@
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
-    <javac srcdir="src/java" destdir="${deploy.dir}/classes"
+    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
            debug="on" optimize="off" deprecation="off">
       <classpath refid="classpath"/>
     </javac>
@@ -45,11 +47,11 @@
 
   <!-- build the javadoc documentation -->
   <target name="javadoc" depends="prepare">
-    <javadoc sourcepath="src/java"
+    <javadoc sourcepath="${src.dir}"
              packagenames="${doc.packages}"
              windowtitle="${app.name} API"
              doctitle="${app.name} API"
-             overview="src/java/com/samskivert/overview.html"
+             overview="${src.dir}/${doc.overview}"
              bottom="Copyright &#169; 2001 ${copyright.holder}. All Rights Reserved."
              destdir="${javadoc.dir}">
       <classpath refid="classpath"/>

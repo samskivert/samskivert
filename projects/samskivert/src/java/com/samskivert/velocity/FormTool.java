@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.5 2002/02/19 19:01:21 shaper Exp $
+// $Id: FormTool.java,v 1.6 2002/03/05 18:33:16 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -202,6 +202,40 @@ public class FormTool
             buf.append(" checked");
         }
         buf.append(">");
+        return buf.toString();
+    }
+
+    /**
+     * Constructs an option entry for a select menu with the specified
+     * name, value, item, and default selected value.
+     */
+    public String option (
+        String name, String value, String item, Object defaultValue)
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("<option value=\"").append(value).append("\"");
+        String selectedValue = getValue(name, defaultValue);
+        if (selectedValue.equals(value)) {
+            buf.append(" selected");
+        }
+        buf.append(">").append(item).append("</option>");
+        return buf.toString();
+    }
+
+    /**
+     * Constructs a text area with the specified name, optional extra
+     * parameters, and default text.
+     */
+    public String textarea (String name, String extra, Object defaultValue)
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("<textarea name=\"").append(name).append("\"");
+        if (!StringUtil.blank(extra)) {
+            buf.append(" ").append(extra);
+        }
+        buf.append(">");
+        buf.append(getValue(name, defaultValue));
+        buf.append("</textarea>");
         return buf.toString();
     }
 

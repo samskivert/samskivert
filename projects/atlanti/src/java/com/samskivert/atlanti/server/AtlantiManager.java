@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.6 2001/10/16 01:41:55 mdb Exp $
+// $Id: AtlantiManager.java,v 1.7 2001/10/16 09:31:46 mdb Exp $
 
 package com.threerings.venison;
 
@@ -57,7 +57,7 @@ public class VenisonManager
 
         // clear out the tile set
         _venobj.setTiles(new DSet(VenisonTile.class));
-        _venobj.addToTiles(TileUtil.STARTING_TILE);
+        _venobj.addToTiles(VenisonTile.STARTING_TILE);
     }
 
     protected void turnWillStart ()
@@ -101,8 +101,16 @@ public class VenisonManager
         public void handleEvent (MessageEvent event)
         {
             VenisonTile tile = (VenisonTile)event.getArgs()[0];
-            // don't do no checking at present
-            _venobj.addToTiles(tile);
+
+            // make sure this is a valid placement
+            if (TileUtil.isValidPlacement(_venobj.tiles.elements(), tile)) {
+                // add the tile to the tiles set
+                _venobj.addToTiles(tile);
+
+            } else {
+                Log.warning("Received invalid placement " + event + ".");
+            }
+
             // end the turn
             endTurn();
         }

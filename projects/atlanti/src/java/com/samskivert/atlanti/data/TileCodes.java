@@ -1,5 +1,5 @@
 //
-// $Id: TileCodes.java,v 1.3 2001/10/16 01:41:55 mdb Exp $
+// $Id: TileCodes.java,v 1.4 2001/10/16 09:31:46 mdb Exp $
 
 package com.threerings.venison;
 
@@ -58,7 +58,7 @@ public interface TileCodes
     public static final int CITY_ONE_ROAD_STRAIGHT = 13;
 
     /** A cloister tile. */
-    public static final int CLOISTER = 14;
+    public static final int CLOISTER_PLAIN = 14;
 
     /** A cloister tile with a road extending from the cloister. */
     public static final int CLOISTER_ROAD = 15;
@@ -77,6 +77,7 @@ public interface TileCodes
 
     /** The number of different tile types. */
     public static final int TILE_TYPES = 19;
+
 
     /** A tile orientation constant indicating the tile is in its default
      * orientation. */
@@ -98,6 +99,7 @@ public interface TileCodes
     public static final String[] ORIENT_NAMES =
         new String[] { "N", "E", "S", "W" };
 
+
     /** The tile image width in pixels. */
     public static int TILE_WIDTH = 90;
 
@@ -113,4 +115,44 @@ public interface TileCodes
 
     /** A tile edge constant indicating a road edge. */
     public static final int ROAD = 2;
+
+    /** A constant indicating a cloister. */
+    public static final int CLOISTER = 3;
+
+
+    /** Bit mask for a north connecting feature. */
+    public static final int NORTH_F = 0x1 << 0;
+
+    /** Bit mask for an east connecting feature. */
+    public static final int EAST_F = 0x1 << 1;
+
+    /** Bit mask for a south connecting feature. */
+    public static final int SOUTH_F = 0x1 << 2;
+
+    /** Bit mask for a west connecting feature. */
+    public static final int WEST_F = 0x1 << 3;
+
+    /** Bit mask for a north by northeast connecting feature. */
+    public static final int NNE_F = 0x1 << 4;
+
+    /** Bit mask for an east by northeast connecting feature. */
+    public static final int ENE_F = 0x1 << 5;
+
+    /** Bit mask for an east by southeast connecting feature. */
+    public static final int ESE_F = 0x1 << 6;
+
+    /** Bit mask for a south by southeast connecting feature. */
+    public static final int SSE_F = 0x1 << 7;
+
+    /** Bit mask for a south by southwest connecting feature. */
+    public static final int SSW_F = 0x1 << 8;
+
+    /** Bit mask for a west by southwest connecting feature. */
+    public static final int WSW_F = 0x1 << 9;
+
+    /** Bit mask for a west by northwest connecting feature. */
+    public static final int WNW_F = 0x1 << 10;
+
+    /** Bit mask for a north by northwest connecting feature. */
+    public static final int NNW_F = 0x1 << 11;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.5 2001/10/16 01:41:55 mdb Exp $
+// $Id: AtlantiTile.java,v 1.6 2001/10/16 09:31:46 mdb Exp $
 
 package com.threerings.venison;
 
@@ -24,8 +24,12 @@ import com.threerings.presents.dobj.DSet;
  * Represents a single tile in play on the Venison game board.
  */
 public class VenisonTile
-    implements DSet.Element, TileCodes, Cloneable
+    implements DSet.Element, TileCodes, Cloneable, Comparable
 {
+    /** The starting tile. */
+    public static final VenisonTile STARTING_TILE =
+        new VenisonTile(CITY_ONE_ROAD_STRAIGHT, false, NORTH, 0, 0);
+
     /** The tile type. */
     public int type;
 
@@ -38,6 +42,20 @@ public class VenisonTile
     /** The tile's x and y coordinates. */
     public int x,  y;
 
+    /** An array of claim group values that correspond to the features of
+     * this tile. If a piecen has claimed a feature on this tile or that
+     * connects to this tile, it will be represented here by a non-zero
+     * claim group in the array slot that corresponds to the claimed
+     * feature. */
+    public int[] claims;
+
+    /** A reference to our static feature descriptions. */
+    public int[] features;
+
+    /** A reference to the piecen on this tile or null if no piecen has
+     * been placed on this tile. */
+    // public Piecen piecen;
+
     /**
      * Constructs a tile with all of the supplied tile information.
      */
@@ -49,6 +67,12 @@ public class VenisonTile
         this.orientation = orientation;
         this.x = x;
         this.y = y;
+
+        // grab a reference to our feature information
+        features = TileUtil.TILE_FEATURES[type-1];
+
+        // create our claims array
+        claims = new int[features.length/2];
     }
 
     /**
@@ -66,6 +90,62 @@ public class VenisonTile
     public VenisonTile ()
     {
         // nothing doing
+    }
+
+    /**
+     * Looks for a feature in this tile that matches the supplied feature
+     * edge mask and returns the index of that feature in this tile's
+     * {@link #claims} array.
+     *
+     * @return the index of the matching feature or -1 if no feature
+     * matched.
+     */
+    public int getFeatureIndex (int featureMask)
+    {
+        // translate the feature mask into our orientation
+        featureMask = TileUtil.translateMask(featureMask, -orientation);
+
+        for (int i = 0; i < features.length; i += 2) {
+            int fmask = features[i+1];
+            if ((fmask & featureMask) != 0) {
+                return i/2;
+            }
+        }
+
+        // no match
+        return -1;
+    }
+
+    /**
+     * Looks for a feature in this tile that matches the supplied feature
+     * edge mask and returns the claim group to which that feature belongs
+     * (which may be zero).
+     *
+     * @return the claim group to which the feature that matches the
+     * supplied mask belongs, or zero if no feature matched the supplied
+     * mask.
+     */
+    public int getFeatureGroup (int featureMask)
+    {
+        int fidx = getFeatureIndex(featureMask);
+        return fidx < 0 ? 0 : claims[fidx];
+    }
+
+    /**
+     * Sets the claim group for the feature with the specified index. This
+     * also updates the claim group for any piecen that was placed on that
+     * feature as well.
+     *
+     * @param featureIndex the index of the feature to update.
+     * @param claimGroup the claim group to associate with the feature.
+     */
+    public void setFeatureGroup (int featureIndex, int claimGroup)
+    {
+        Log.info("Setting feature group [tile=" + this +
+                 ", fidx=" + featureIndex + ", cgroup=" + claimGroup + "].");
+        claims[featureIndex] = claimGroup;
+
+        // TBD: update the piecen
     }
 
     /**
@@ -97,8 +177,13 @@ public class VenisonTile
 
         // draw our shapes using the proper orientation
         GeneralPath[] paths = _shapes[tidx][orientation];
+        IntTuple[] types = _types[tidx];
         for (int i = 0; i < paths.length; i++) {
-            g.setColor(COLOR_MAP[_types[tidx][i].left]);
+            if (claims[types[i].right] != 0) {
+                g.setColor(CLAIMED_COLOR_MAP[types[i].left]);
+            } else {
+                g.setColor(COLOR_MAP[types[i].left]);
+            }
             g.fill(paths[i]);
         }
 
@@ -116,6 +201,27 @@ public class VenisonTile
     public Object clone ()
     {
         return new VenisonTile(type, hasShield, orientation, x, y);
+    }
+
+    /**
+     * Used to order tiles (which is done by board position).
+     */
+    public int compareTo (Object other)
+    {
+        // we will either be compared to another tile or to a coordinate
+        // object
+        if (other instanceof VenisonTile) {
+            VenisonTile tile = (VenisonTile)other;
+            return (tile.x == x) ? y - tile.y : x - tile.x;
+
+        } else if (other instanceof IntTuple) {
+            IntTuple coord = (IntTuple)other;
+            return (coord.left == x) ? y - coord.right : x - coord.left;
+
+        } else {
+            // who knows...
+            return -1;
+        }
     }
 
     // documentation inherited
@@ -153,14 +259,12 @@ public class VenisonTile
      */
     protected void createShapes ()
     {
-        System.out.println("Creating shapes " + this + ".");
-
         int tidx = type-1;
         ArrayList polys = new ArrayList();
         ArrayList types = new ArrayList();
 
         // the first feature is the background color
-        Object[] features = (Object[])TileUtil.TILE_FEATURES[tidx];
+        Object[] features = (Object[])TileUtil.TILE_FEATURE_GEOMS[tidx];
         IntTuple base = (IntTuple)features[0];
 
         // add a polygon containing the whole tile
@@ -253,6 +357,15 @@ public class VenisonTile
     protected static Color[] COLOR_MAP = {
         Color.red, // CITY
         Color.green, // GRASS
-        Color.black // ROAD
+        Color.black, // ROAD
+        Color.yellow // CLOISTER
+    };
+
+    /** Maps feature types to colors for claimed features. */
+    protected static Color[] CLAIMED_COLOR_MAP = {
+        Color.red.darker(), // CITY
+        Color.green.darker(), // GRASS
+        Color.black.brighter(), // ROAD
+        Color.yellow.darker(), // CLOISTER
     };
 }

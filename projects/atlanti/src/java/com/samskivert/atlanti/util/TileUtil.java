@@ -1,10 +1,11 @@
 //
-// $Id: TileUtil.java,v 1.4 2001/10/16 01:41:55 mdb Exp $
+// $Id: TileUtil.java,v 1.5 2001/10/16 09:31:46 mdb Exp $
 
 package com.threerings.venison;
 
 import java.awt.Polygon;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -16,10 +17,6 @@ import com.samskivert.util.IntTuple;
  */
 public class TileUtil implements TileCodes
 {
-    /** The starting tile. */
-    public static final VenisonTile STARTING_TILE =
-        new VenisonTile(CITY_ONE_ROAD_STRAIGHT, false, NORTH, 0, 0);
-
     /**
      * Returns a list containing the standard tile set for the Venison
      * game. The list is a clone, so it can be bent, folded and modified
@@ -166,6 +163,212 @@ public class TileUtil implements TileCodes
     }
 
     /**
+     * When a tile is placed on the board, this method should be called on
+     * it to propagate existing claims to the appropriate features on this
+     * tile.  It will determine if any city features are connected to
+     * cities that are already claimed, and if any road features are
+     * connected to roads that are already claimed and if any grassland is
+     * connected to grassland that is claimed.
+     *
+     * <p> If, in the process of initializing the claims for this tile, we
+     * discover that this tile connects two previously disconnected
+     * claims, those claims will be joined. The affected tiles and piecens
+     * will have their claim groups updated.
+     *
+     * @param tiles a sorted array of the tiles on the board (which need
+     * not include the tile whose features are being configured).
+     * @param tile the tile whose features should be configured.
+     */
+    public static void initClaims (VenisonTile[] tiles, VenisonTile tile)
+    {
+        // obtain our neighboring tiles
+        VenisonTile[] neighbors = new VenisonTile[4];
+        neighbors[NORTH] = findTile(tiles, tile.x, tile.y-1);
+        neighbors[EAST] = findTile(tiles, tile.x+1, tile.y);
+        neighbors[SOUTH] = findTile(tiles, tile.x, tile.y+1);
+        neighbors[WEST] = findTile(tiles, tile.x-1, tile.y);
+
+        // for each feature in the tile, determine whether or not the
+        // neighboring tile's matching feature is claimed
+        for (int i = 0; i < tile.features.length; i += 2) {
+            int ftype = tile.features[i];
+            int fmask = tile.features[i+1];
+            int cgroup = 0;
+
+            // iterate over all of the possible adjacency possibilities
+            for (int c = 0; c < ADJADCENCY_MAP.length; c += 3) {
+                int mask = ADJADCENCY_MAP[c];
+                int dir = ADJADCENCY_MAP[c+1];
+                int opp_mask = ADJADCENCY_MAP[c+2];
+
+                // if this feature doesn't have this edge, skip it
+                if ((fmask & mask) == 0) {
+                    continue;
+                }
+
+                // translate the target direction accordingly
+                dir = (dir + tile.orientation) % 4;
+
+                // make sure we have a neighbor in the appropriate
+                // direction
+                if (neighbors[dir] == null) {
+                    continue;
+                }
+
+                // it looks like we have a match, so translate the target
+                // stuff into our orientation
+                mask = translateMask(mask, tile.orientation);
+                opp_mask = translateMask(opp_mask, tile.orientation);
+
+                if (cgroup != 0) {
+                    // if we've already been assigned to a group, we
+                    // propagate our group to the opposing feature
+                    int fidx = neighbors[dir].getFeatureIndex(opp_mask);
+                    if (fidx >= 0) {
+                        setFeatureGroup(tiles, neighbors[dir],
+                                        fidx, cgroup, mask);
+                    } else {
+                        Log.warning("Can't join-propagate feature " +
+                                    "[self=" + tile +
+                                    ", target=" + neighbors[dir] +
+                                    ", fidx=" + fidx + ", cgroup=" + cgroup +
+                                    ", destEdge=" + opp_mask + 
+                                    ", srcEdge=" + mask + "].");
+                    }
+
+                } else {
+                    // otherwise, we inherit the group of the opposing
+                    // feature
+                    cgroup = neighbors[dir].getFeatureGroup(opp_mask);
+                }
+            }
+
+            // finally initialize the feature's claim group
+            tile.claims[i/2] = cgroup;
+        }
+    }
+
+    /**
+     * Sets the claim group for the specified feature in this tile and
+     * propagates that claim group to all connected features.
+     *
+     * @param tiles a sorted array of the tiles on the board.
+     * @param tile the tile that contains the feature whose claim group is
+     * being set.
+     * @param featureIndex the index of the feature.
+     * @param claimGroup the claim group value to set.
+     * @param entryEdgeMask the edge from which we are propagating this
+     * claim group (to avoid traversing back over that edge when
+     * propagating the group further).
+     */
+    public static void setFeatureGroup (
+        VenisonTile[] tiles, VenisonTile tile, int featureIndex,
+        int claimGroup, int entryEdgeMask)
+    {
+        // set the claim group for this feature on this tile
+        tile.setFeatureGroup(featureIndex, claimGroup);
+
+        // now propagate this feature to connected features
+        int ftype = tile.features[featureIndex*2];
+        int fmask = tile.features[featureIndex*2+1];
+
+        // iterate over all of the possible adjacency possibilities
+        for (int c = 0; c < ADJADCENCY_MAP.length; c += 3) {
+            int mask = ADJADCENCY_MAP[c];
+            int dir = ADJADCENCY_MAP[c+1];
+            int opp_mask = ADJADCENCY_MAP[c+2];
+            VenisonTile neighbor = null;
+
+            // if this feature doesn't have this edge, skip it
+            if ((fmask & mask) == 0) {
+                continue;
+            }
+
+            // figure out if this would be the tile from which we
+            // propagated into our current tile and skip it if so
+            opp_mask = translateMask(opp_mask, tile.orientation);
+            if ((opp_mask & entryEdgeMask) != 0) {
+                continue;
+            }
+
+            // make sure we have a neighbor in this direction
+            dir = (dir + tile.orientation) % 4;
+            switch (dir) {
+            case NORTH: neighbor = findTile(tiles, tile.x, tile.y-1); break;
+            case EAST: neighbor = findTile(tiles, tile.x+1, tile.y); break;
+            case SOUTH: neighbor = findTile(tiles, tile.x, tile.y+1); break;
+            case WEST: neighbor = findTile(tiles, tile.x-1, tile.y); break;
+            }
+            if (neighbor == null) {
+                continue;
+            }
+
+            // it looks like we have a match, so translate the target mask
+            // into our orientation
+            mask = translateMask(mask, tile.orientation);
+
+            // propagate, propagate, propagate
+            int fidx = neighbor.getFeatureIndex(opp_mask);
+            if (fidx >= 0) {
+                setFeatureGroup(tiles, neighbor, fidx, claimGroup, mask);
+
+            } else {
+                Log.warning("Can't propagate feature [self=" + tile +
+                            ", target=" + neighbor + ", fidx=" + fidx +
+                            ", cgroup=" + claimGroup + ", srcEdge=" + mask +
+                            ", destEdge=" + opp_mask + "].");
+            }
+        }
+    }
+
+    /**
+     * Translates the feature edge mask into the orientation specified.
+     * For a forward translation, provide a positive valued orientation
+     * constant. For a backward translation, provide a negative valued
+     * orientation constant.
+     *
+     * @return the translated feature mask.
+     */
+    public static int translateMask (int featureMask, int orientation)
+    {
+        int[] map = FEATURE_ORIENT_MAP[0];
+        if ((featureMask & (NNE_F|ESE_F|SSW_F|WNW_F)) != 0) {
+            map = FEATURE_ORIENT_MAP[1];
+        } else if ((featureMask & (ENE_F|SSE_F|WSW_F|NNW_F)) != 0) {
+            map = FEATURE_ORIENT_MAP[2];
+        }
+        return xlateMask(map, featureMask, orientation);
+    }
+
+    /** {@link #translateMask} helper function. */
+    protected static int xlateMask (
+        int[] map, int featureMask, int orientation)
+    {
+        int index = 0;
+        for (int i = 0; i < map.length; i++) {
+            if (map[i] == featureMask) {
+                return map[(i + 4 + orientation) % 4];
+            }
+        }
+        return featureMask;
+    }
+
+    /**
+     * Locates and returns the tile with the specified coordinates.
+     *
+     * @param tiles a sorted tiles array.
+     *
+     * @return the tile with the requested coordinates or null if no tile
+     * exists at those coordinates.
+     */
+    protected static VenisonTile findTile (VenisonTile[] tiles, int x, int y)
+    {
+        IntTuple coord = new IntTuple(x, y);
+        int tidx = Arrays.binarySearch(tiles, coord);
+        return (tidx >= 0) ? tiles[tidx] : null;
+    }
+
+    /**
      * Returns the edge type for specified edge of the specified tile
      * type.
      *
@@ -250,6 +453,304 @@ public class TileUtil implements TileCodes
         list.add(tile);
     }
 
+    /** Used to figure out which edges match up to which when comparing
+     * adjacent tiles. */
+    protected static final int[] EDGE_MAP = new int[] {
+        -1, NORTH, -1,
+        WEST, -1, EAST,
+        -1, SOUTH, -1
+    };
+
+    /** A mapping from feature edge masks to tile directions and
+     * corresponding feature edge masks. */
+    protected static final int[] ADJADCENCY_MAP = new int[] {
+        NORTH_F, NORTH, SOUTH_F,
+        EAST_F, EAST, WEST_F,
+        SOUTH_F, SOUTH, NORTH_F,
+        WEST_F, WEST, EAST_F,
+        NNW_F, NORTH, SSW_F,
+        NNE_F, NORTH, SSE_F,
+        ENE_F, EAST, WNW_F,
+        ESE_F, EAST, WSW_F,
+        SSE_F, SOUTH, NNE_F,
+        SSW_F, SOUTH, NNW_F,
+        WSW_F, WEST, ESE_F,
+        WNW_F, WEST, ENE_F,
+    };
+
+    /** Mapping table used to rotate feature facements. */
+    public static final int[][] FEATURE_ORIENT_MAP = new int[][] {
+        // orientations rotate through one of three four-cycles
+        { NORTH_F, EAST_F, SOUTH_F, WEST_F },
+        { NNE_F, ESE_F, SSW_F, WNW_F },
+        { ENE_F, SSE_F, WSW_F, NNW_F },
+    };
+
+    /** A table indicating which tiles have which edges. */
+    protected static final int[] TILE_EDGES = new int[] {
+        -1, -1, -1, -1, // null tile
+        CITY, CITY, CITY, CITY, // CITY_FOUR
+        CITY, CITY, GRASS, CITY, // CITY_THREE
+        CITY, CITY, ROAD, CITY, // CITY_THREE_ROAD
+        CITY, GRASS, GRASS, CITY, // CITY_TWO
+        CITY, ROAD, ROAD, CITY, // CITY_TWO_ROAD
+        GRASS, CITY, GRASS, CITY, // CITY_TWO_ACROSS
+        CITY, CITY, GRASS, GRASS, // DISCONNECTED_CITY_TWO
+        GRASS, CITY, GRASS, CITY, // DISCONNECTED_CITY_TWO_ACROSS
+        CITY, GRASS, GRASS, GRASS, // CITY_ONE
+        CITY, ROAD, ROAD, GRASS, // CITY_ONE_ROAD_RIGHT
+        CITY, GRASS, ROAD, ROAD, // CITY_ONE_ROAD_LEFT
+        CITY, ROAD, ROAD, ROAD, // CITY_ONE_ROAD_TEE
+        CITY, ROAD, GRASS, ROAD, // CITY_ONE_ROAD_STRAIGHT
+        GRASS, GRASS, GRASS, GRASS, // CLOISTER_PLAIN
+        GRASS, GRASS, ROAD, GRASS, // CLOISTER_ROAD
+        ROAD, ROAD, ROAD, ROAD, // FOUR_WAY_ROAD
+        GRASS, ROAD, ROAD, ROAD, // THREE_WAY_ROAD
+        ROAD, GRASS, ROAD, GRASS, // STRAIGHT_ROAD
+        GRASS, GRASS, ROAD, ROAD, // CURVED_ROAD
+    };
+
+    /** A table describing the features of each tile and their edge
+     * connectedness. */
+    protected static final int[][] TILE_FEATURES = new int[][] {
+        // one must offset tile type by one when indexing into this array
+
+        { CITY, NORTH_F|EAST_F|SOUTH_F|WEST_F }, // CITY_FOUR
+
+        { CITY, NORTH_F|EAST_F|WEST_F, // CITY_THREE
+          GRASS, SOUTH_F },
+
+        { CITY, NORTH_F|EAST_F|WEST_F, // CITY_THREE_ROAD
+          GRASS, SSW_F,
+          GRASS, SSE_F,
+          ROAD, SOUTH_F },
+
+        { CITY, NORTH_F|WEST_F, // CITY_TWO
+          GRASS, EAST_F|SOUTH_F },
+
+        { CITY, NORTH_F|WEST_F, // CITY_TWO_ROAD
+          GRASS, ENE_F|SSW_F,
+          GRASS, ESE_F|SSE_F,
+          ROAD, EAST_F|SOUTH_F },
+
+        { CITY, WEST_F|EAST_F, // CITY_TWO_ACROSS
+          GRASS, NORTH_F,
+          GRASS, SOUTH_F },
+
+        { GRASS, WEST_F|SOUTH_F, // DISCONNECTED_CITY_TWO
+          CITY, NORTH_F,
+          CITY, EAST_F },
+
+        { GRASS, NORTH_F|SOUTH_F, // DISCONNECTED_CITY_TWO_ACROSS
+          CITY, WEST_F,
+          CITY, EAST_F },
+
+        { GRASS, EAST_F|SOUTH_F|WEST_F, // CITY_ONE
+          CITY, NORTH_F },
+
+        { GRASS, ENE_F|SSW_F|WEST_F, // CITY_ONE_ROAD_RIGHT
+          GRASS, ESE_F|SSE_F,
+          ROAD, EAST_F|SOUTH_F,
+          CITY, NORTH_F },
+
+        { GRASS, EAST_F|SSE_F, WNW_F, // CITY_ONE_ROAD_LEFT
+          GRASS, SSW_F|WSW_F,
+          ROAD, SOUTH_F|WEST_F,
+          CITY, NORTH_F },
+
+        { GRASS, ENE_F|WNW_F, // CITY_ONE_ROAD_TEE
+          GRASS, ESE_F|SSE_F,
+          GRASS, SSW_F|WSW_F,
+          ROAD, EAST_F,
+          ROAD, SOUTH_F,
+          ROAD, WEST_F,
+          CITY, NORTH_F },
+
+        { GRASS, ENE_F|WNW_F, // CITY_ONE_ROAD_STRAIGHT
+          GRASS, ESE_F, SOUTH_F, WSW_F,
+          ROAD, EAST_F|WEST_F,
+          CITY, NORTH_F },
+
+        { GRASS, NORTH_F|EAST_F|SOUTH_F|WEST_F, // CLOISTER_PLAIN
+          CLOISTER, 0},
+
+        { GRASS, NORTH_F|EAST_F|WEST_F, // CLOISTER_ROAD
+          CLOISTER, 0,
+          ROAD, SOUTH_F },
+
+        { GRASS, WNW_F|NNW_F, // FOUR_WAY_ROAD
+          GRASS, NNE_F|ENE_F,
+          GRASS, ESE_F|SSE_F,
+          GRASS, SSW_F|WSW_F,
+          ROAD, NORTH_F,
+          ROAD, EAST_F,
+          ROAD, SOUTH_F,
+          ROAD, WEST_F },
+
+        { GRASS, WNW_F|NORTH_F|ENE_F, // THREE_WAY_ROAD
+          GRASS, ESE_F|SSE_F,
+          GRASS, SSW_F|WSW_F,
+          ROAD, EAST_F,
+          ROAD, SOUTH_F,
+          ROAD, WEST_F },
+
+        { GRASS, NNE_F|EAST_F|SSE_F, // STRAIGHT_ROAD
+          GRASS, SSW_F|WEST_F|NNW_F,
+          ROAD, NORTH_F|SOUTH_F },
+
+        { GRASS, WNW_F|NORTH_F|EAST_F|SSE_F, // CURVED_ROAD
+          GRASS, SSW_F|WSW_F,
+          ROAD, SOUTH_F|WEST_F },
+    };
+
+    /** A table describing the geometry of the features (cities, roads,
+     * etc.) of each tile. */
+    protected static final Object[] TILE_FEATURE_GEOMS = new Object[] {
+        // one must offset tile type by one when indexing into this array
+
+        new Object[] { new IntTuple(CITY, 0), }, // CITY_FOUR
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_THREE
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 4, 1, 3, 3, 3, 4, 4 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_THREE_ROAD
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 4, 1, 3, 2, 3, 2, 4 },
+                       new IntTuple(GRASS, 2),
+                       new int[] { 2, 4, 2, 3, 3, 3, 4, 4 },
+                       new IntTuple(ROAD, 3),
+                       new int[] { 2, 3, 2, 4 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_TWO
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 4, 4, 0, 4, 4 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ROAD
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 4, 4, 0, 4, 2, 2, 4 },
+                       new IntTuple(GRASS, 2),
+                       new int[] { 2, 4, 4, 2, 4, 4 },
+                       new IntTuple(ROAD, 3),
+                       new int[] { 2, 4, 4, 2 }},
+
+        new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ACROSS
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
+                       new IntTuple(GRASS, 2),
+                       new int[] { 0, 4, 1, 3, 3, 3, 4, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // DISCONNECTED_CITY_TWO
+                       new IntTuple(CITY, 1),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
+                       new IntTuple(CITY, 2),
+                       new int[] { 4, 0, 3, 1, 3, 3, 4, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // DISCONNECTED_CITY_TWO_ACROSS
+                       new IntTuple(CITY, 1),
+                       new int[] { 0, 0, 1, 1, 1, 3, 0, 4 },
+                       new IntTuple(CITY, 2),
+                       new int[] { 4, 0, 3, 1, 3, 3, 4, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE
+                       new IntTuple(CITY, 1),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_RIGHT
+                       new IntTuple(GRASS, 1),
+                       new int[] { 2, 2, 4, 2, 4, 4, 2, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 2, 4, 2 },
+                       new IntTuple(CITY, 3),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_LEFT
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 2, 2, 2, 2, 4, 0, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 0, 2, 2, 2 },
+                       new IntTuple(CITY, 3),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_TEE
+                       new IntTuple(GRASS, 1),
+                       new int[] { 2, 2, 4, 2, 4, 4, 2, 4 },
+                       new IntTuple(GRASS, 2),
+                       new int[] { 0, 2, 2, 2, 2, 4, 0, 4 },
+                       new IntTuple(ROAD, 3),
+                       new int[] { 0, 2, 2, 2 },
+                       new IntTuple(ROAD, 4),
+                       new int[] { 2, 2, 4, 2 },
+                       new IntTuple(ROAD, 5),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(CITY, 6),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_STRAIGHT
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 2, 4, 2, 4, 4, 0, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 0, 2, 4, 2 },
+                       new IntTuple(CITY, 3),
+                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CLOISTER_PLAIN
+                       new IntTuple(CLOISTER, 1),
+                       new int[] { 1, 1, 3, 1, 3, 3, 1, 3 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CLOISTER_ROAD
+                       new IntTuple(CLOISTER, 1),
+                       new int[] { 1, 1, 3, 1, 3, 3, 1, 3 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 3, 2, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // FOUR_WAY_ROAD
+                       new IntTuple(GRASS, 1),
+                       new int[] { 2, 0, 4, 0, 4, 2, 2, 2 },
+                       new IntTuple(GRASS, 2),
+                       new int[] { 2, 2, 4, 2, 4, 4, 2, 4 },
+                       new IntTuple(GRASS, 3),
+                       new int[] { 0, 2, 2, 2, 2, 4, 0, 4 },
+                       new IntTuple(ROAD, 4),
+                       new int[] { 2, 0, 2, 2 },
+                       new IntTuple(ROAD, 5),
+                       new int[] { 2, 2, 4, 2 },
+                       new IntTuple(ROAD, 6),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 7),
+                       new int[] { 0, 2, 2, 2 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // THREE_WAY_ROAD
+                       new IntTuple(GRASS, 1),
+                       new int[] { 2, 2, 4, 2, 4, 4, 2, 4 },
+                       new IntTuple(GRASS, 2),
+                       new int[] { 0, 2, 2, 2, 2, 4, 0, 4 },
+                       new IntTuple(ROAD, 3),
+                       new int[] { 2, 2, 4, 2 },
+                       new IntTuple(ROAD, 4),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 5),
+                       new int[] { 0, 2, 2, 2 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // STRAIGHT_ROAD
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 2, 4, 2, 4, 4, 0, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 0, 2, 4 }},
+
+        new Object[] { new IntTuple(GRASS, 0), // CURVED_ROAD
+                       new IntTuple(GRASS, 1),
+                       new int[] { 0, 2, 2, 2, 2, 4, 0, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 2, 2, 2, 4 },
+                       new IntTuple(ROAD, 2),
+                       new int[] { 0, 2, 2, 2 }},
+    };
+
     /** The standard tile set for a game of Venison. */
     protected static ArrayList TILE_SET = new ArrayList();
 
@@ -279,7 +780,7 @@ public class TileUtil implements TileCodes
         addTiles(3, TILE_SET, new VenisonTile(CITY_ONE_ROAD_TEE, false));
         addTiles(3, TILE_SET, new VenisonTile(CITY_ONE_ROAD_STRAIGHT, false));
 
-        addTiles(4, TILE_SET, new VenisonTile(CLOISTER, false));
+        addTiles(4, TILE_SET, new VenisonTile(CLOISTER_PLAIN, false));
         addTiles(2, TILE_SET, new VenisonTile(CLOISTER_ROAD, false));
 
         addTiles(1, TILE_SET, new VenisonTile(FOUR_WAY_ROAD, false));
@@ -287,160 +788,4 @@ public class TileUtil implements TileCodes
         addTiles(8, TILE_SET, new VenisonTile(STRAIGHT_ROAD, false));
         addTiles(9, TILE_SET, new VenisonTile(CURVED_ROAD, false));
     }
-
-    /** Used to figure out which edges match up to which when comparing
-     * adjacent tiles. */
-    protected static final int[] EDGE_MAP = new int[] {
-        -1, NORTH, -1,
-        WEST, -1, EAST,
-        -1, SOUTH, -1
-    };
-
-    /** A table indicating which tiles have which edges. */
-    protected static final int[] TILE_EDGES = new int[] {
-        -1, -1, -1, -1, // null tile
-        CITY, CITY, CITY, CITY, // CITY_FOUR
-        CITY, CITY, GRASS, CITY, // CITY_THREE
-        CITY, CITY, ROAD, CITY, // CITY_THREE_ROAD
-        CITY, GRASS, GRASS, CITY, // CITY_TWO
-        CITY, ROAD, ROAD, CITY, // CITY_TWO_ROAD
-        GRASS, CITY, GRASS, CITY, // CITY_TWO_ACROSS
-        CITY, CITY, GRASS, GRASS, // DISCONNECTED_CITY_TWO
-        GRASS, CITY, GRASS, CITY, // DISCONNECTED_CITY_TWO_ACROSS
-        CITY, GRASS, GRASS, GRASS, // CITY_ONE
-        CITY, ROAD, ROAD, GRASS, // CITY_ONE_ROAD_RIGHT
-        CITY, GRASS, ROAD, ROAD, // CITY_ONE_ROAD_LEFT
-        CITY, ROAD, ROAD, ROAD, // CITY_ONE_ROAD_TEE
-        CITY, ROAD, GRASS, ROAD, // CITY_ONE_ROAD_STRAIGHT
-        GRASS, GRASS, GRASS, GRASS, // CLOISTER
-        GRASS, GRASS, ROAD, GRASS, // CLOISTER_ROAD
-        ROAD, ROAD, ROAD, ROAD, // FOUR_WAY_ROAD
-        GRASS, ROAD, ROAD, ROAD, // THREE_WAY_ROAD
-        ROAD, GRASS, ROAD, GRASS, // STRAIGHT_ROAD
-        GRASS, GRASS, ROAD, ROAD, // CURVED_ROAD
-    };
-
-    /** A table describing the geometry of the features (cities, roads,
-     * etc.) of each tile. */
-    protected static final Object[] TILE_FEATURES = new Object[] {
-        // one must offset tile type by one when indexing into this array
-
-        new Object[] { new IntTuple(CITY, 0), }, // CITY_FOUR
-
-        new Object[] { new IntTuple(CITY, 0), // CITY_THREE
-                       new IntTuple(GRASS, 0),
-                       new int[] { 0, 4, 1, 3, 3, 3, 4, 4 }},
-
-        new Object[] { new IntTuple(CITY, 0), // CITY_THREE_ROAD
-                       new IntTuple(GRASS, 0),
-                       new int[] { 0, 4, 1, 3, 2, 3, 2, 4 },
-                       new IntTuple(GRASS, 1),
-                       new int[] { 2, 4, 2, 3, 3, 3, 4, 4 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 3, 2, 4 }},
-
-        new Object[] { new IntTuple(CITY, 0), // CITY_TWO
-                       new IntTuple(GRASS, 0),
-                       new int[] { 0, 4, 4, 0, 4, 4 }},
-
-        new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ROAD
-                       new IntTuple(GRASS, 0),
-                       new int[] { 0, 4, 4, 0, 4, 2, 2, 4 },
-                       new IntTuple(GRASS, 0),
-                       new int[] { 2, 4, 4, 2, 4, 4 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 4, 4, 2 }},
-
-        new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ACROSS
-                       new IntTuple(GRASS, 0),
-                       new int[] { 0, 4, 1, 3, 3, 3, 4, 4 },
-                       new IntTuple(GRASS, 1),
-                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // DISCONNECTED_CITY_TWO
-                       new IntTuple(CITY, 0),
-                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
-                       new IntTuple(CITY, 1),
-                       new int[] { 4, 0, 3, 1, 3, 3, 4, 4 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // DISCONNECTED_CITY_TWO_ACROSS
-                       new IntTuple(CITY, 0),
-                       new int[] { 0, 0, 1, 1, 1, 3, 0, 4 },
-                       new IntTuple(CITY, 1),
-                       new int[] { 4, 0, 3, 1, 3, 3, 4, 4 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE
-                       new IntTuple(CITY, 0),
-                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_RIGHT
-                       new IntTuple(CITY, 0),
-                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 2, 2, 4 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 2, 4, 2 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_LEFT
-                       new IntTuple(CITY, 0),
-                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 2, 2, 4 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 0, 2, 2, 2 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_TEE
-                       new IntTuple(CITY, 0),
-                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 0, 2, 2, 2 },
-                       new IntTuple(ROAD, 1),
-                       new int[] { 2, 2, 4, 2 },
-                       new IntTuple(ROAD, 2),
-                       new int[] { 2, 2, 2, 4 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CITY_ONE_ROAD_STRAIGHT
-                       new IntTuple(CITY, 0),
-                       new int[] { 0, 0, 1, 1, 3, 1, 4, 0 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 0, 2, 4, 2 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CLOISTER
-                       new IntTuple(CITY, 0),
-                       new int[] { 1, 1, 3, 1, 3, 3, 1, 3 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CLOISTER_ROAD
-                       new IntTuple(CITY, 0),
-                       new int[] { 1, 1, 3, 1, 3, 3, 1, 3 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 3, 2, 4 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // FOUR_WAY_ROAD
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 0, 2, 2 },
-                       new IntTuple(ROAD, 1),
-                       new int[] { 2, 2, 4, 2 },
-                       new IntTuple(ROAD, 2),
-                       new int[] { 2, 2, 2, 4 },
-                       new IntTuple(ROAD, 3),
-                       new int[] { 0, 2, 2, 2 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // THREE_WAY_ROAD
-                       new IntTuple(ROAD, 0),
-                       new int[] { 0, 2, 2, 2 },
-                       new IntTuple(ROAD, 1),
-                       new int[] { 2, 2, 4, 2 },
-                       new IntTuple(ROAD, 2),
-                       new int[] { 2, 2, 2, 4 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // STRAIGHT_ROAD
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 0, 2, 4 }},
-
-        new Object[] { new IntTuple(GRASS, 0), // CURVED_ROAD
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 2, 2, 4 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 0, 2, 2, 2 }},
-    };
 }

@@ -1,11 +1,13 @@
 //
-// $Id: AtlantiBoard.java,v 1.6 2001/10/16 01:41:55 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.7 2001/10/16 09:31:46 mdb Exp $
 
 package com.threerings.venison;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
+import java.util.Arrays;
 import java.util.Iterator;
 
 import com.samskivert.swing.Controller;
@@ -343,7 +345,12 @@ public class VenisonBoard
 
         TestDSet set = new TestDSet();
         set.addTile(new VenisonTile(CITY_TWO, false, WEST, 0, 0));
-        set.addTile(new VenisonTile(CITY_FOUR, false, NORTH, 0, 1));
+        set.addTile(new VenisonTile(CITY_TWO, false, WEST, -1, 1));
+        set.addTile(new VenisonTile(CITY_TWO, false, WEST, -1, -1));
+        set.addTile(new VenisonTile(CURVED_ROAD, false, WEST, 0, 2));
+        VenisonTile target =
+            new VenisonTile(DISCONNECTED_CITY_TWO, false, NORTH, 0, 1);
+        set.addTile(target);
         set.addTile(new VenisonTile(CITY_THREE, false, WEST, 1, 1));
         set.addTile(new VenisonTile(CITY_THREE_ROAD, false, EAST, 1, 2));
         set.addTile(new VenisonTile(CITY_THREE, false, NORTH, -1, 0));
@@ -352,6 +359,15 @@ public class VenisonBoard
 
         VenisonTile placing = new VenisonTile(CITY_TWO, false, NORTH, 0, 0);
         board.setTileToBePlaced(placing);
+
+        // set a feature group to test propagation
+        VenisonTile[] tiles = new VenisonTile[set.size()];
+        Iterator iter = set.elements();
+        for (int i = 0; iter.hasNext(); i++) {
+            tiles[i] = (VenisonTile)iter.next();
+        }
+        Arrays.sort(tiles);
+        TileUtil.setFeatureGroup(tiles, target, 0, 1, 0);
 
         frame.getContentPane().add(board, BorderLayout.CENTER);
         frame.pack();

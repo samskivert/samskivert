@@ -1,5 +1,5 @@
 //
-// $Id: SimpleSlider.java,v 1.2 2002/09/04 01:28:09 shaper Exp $
+// $Id: SimpleSlider.java,v 1.3 2002/10/16 14:55:58 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -34,6 +34,14 @@ public class SimpleSlider extends JPanel
         add(_slider = new JSlider(min, max, value));
         _slider.addChangeListener(this);
         add(_value = new JLabel(Integer.toString(min)), HGroupLayout.FIXED);
+    }
+
+    /**
+     * Returns the slider component.
+     */
+    public JSlider getSlider ()
+    {
+        return _slider;
     }
 
     // documentation inherited

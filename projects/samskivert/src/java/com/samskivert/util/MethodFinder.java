@@ -1,5 +1,5 @@
 //
-// $Id: MethodFinder.java,v 1.4 2001/10/03 03:05:09 mdb Exp $
+// $Id: MethodFinder.java,v 1.5 2002/02/10 02:13:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -80,7 +80,7 @@ public class MethodFinder
         else if (o == null || getClass() != o.getClass())
             return false;
         else {
-            MethodFinder other = (MethodFinder) o;
+            MethodFinder other = (MethodFinder)o;
             return clazz.equals(other.clazz);
         }
     }
@@ -114,7 +114,7 @@ public class MethodFinder
             parameterTypes = new Class[0];
         }
 
-        return (Constructor) findMemberIn(ctorList, parameterTypes);
+        return (Constructor)findMemberIn(ctorList, parameterTypes);
     }
 
     /**
@@ -143,7 +143,7 @@ public class MethodFinder
         // make sure the constructor list is loaded
         maybeLoadMethods();
 
-        List methodList = (List) methodMap.get(methodName);
+        List methodList = (List)methodMap.get(methodName);
         if (methodList == null) {
             throw new NoSuchMethodException(
                 "No method named " + clazz.getName() + "." + methodName);
@@ -153,7 +153,7 @@ public class MethodFinder
             parameterTypes = new Class[0];
         }
 
-        return (Method) findMemberIn(methodList, parameterTypes);
+        return (Method)findMemberIn(methodList, parameterTypes);
     }
 
     /**
@@ -179,8 +179,8 @@ public class MethodFinder
         List matchingMembers = new ArrayList();
 
         for (Iterator it = memberList.iterator(); it.hasNext();) {
-            Member member = (Member) it.next();
-            Class[] methodParamTypes = (Class[]) paramMap.get(member);
+            Member member = (Member)it.next();
+            Class[] methodParamTypes = (Class[])paramMap.get(member);
 
             // check for exactly equal method signature
             if (Arrays.equals(methodParamTypes, parameterTypes)) {
@@ -198,7 +198,7 @@ public class MethodFinder
                 "No member in " + clazz.getName() + " matching given args");
         }
         if (matchingMembers.size() == 1) {
-            return (Member) matchingMembers.get(0);
+            return (Member)matchingMembers.get(0);
         }
 
         return findMostSpecificMemberIn(matchingMembers);
@@ -220,7 +220,7 @@ public class MethodFinder
 
         for (Iterator memberIt = memberList.iterator();
              memberIt.hasNext();) {
-            Member member = (Member) memberIt.next();
+            Member member = (Member)memberIt.next();
 
             if (mostSpecificMembers.isEmpty()) {
                 // First guy in is the most specific so far.
@@ -234,9 +234,9 @@ public class MethodFinder
                 // most-specific set?
                 for (Iterator specificIt = mostSpecificMembers.iterator();
                      specificIt.hasNext();) {
-                    Member moreSpecificMember = (Member) specificIt.next();
+                    Member moreSpecificMember = (Member)specificIt.next();
 
-                    if (! memberIsMoreSpecific(member, moreSpecificMember)) {
+                    if (!memberIsMoreSpecific(member, moreSpecificMember)) {
                         // if the candidate member is not more specific
                         // than this member, then it's not more specific
                         // than the entire set, but it may still be
@@ -260,7 +260,7 @@ public class MethodFinder
                     mostSpecificMembers.clear();
                     mostSpecificMembers.add(member);
 
-                } else if (! lessSpecific) {
+                } else if (!lessSpecific) {
                     // Add to ambiguity set if mutually unspecific.
                     mostSpecificMembers.add(member);
                 }
@@ -274,7 +274,7 @@ public class MethodFinder
                 + " matching given args" ); 
         }
 
-        return (Member) mostSpecificMembers.get(0);
+        return (Member)mostSpecificMembers.get(0);
     }
 
     public int hashCode ()
@@ -311,14 +311,14 @@ public class MethodFinder
                 String methodName = m.getName();
                 Class[] paramTypes = m.getParameterTypes();
 
-                List list = (List) methodMap.get(methodName);
+                List list = (List)methodMap.get(methodName);
 
                 if (list == null) {
                     list = new ArrayList();
                     methodMap.put(methodName, list);
                 }
 
-                if (! ClassUtil.classIsAccessible(clazz)) {
+                if (!ClassUtil.classIsAccessible(clazz)) {
                     m = ClassUtil.getAccessibleMethodFrom(
                         clazz, methodName, paramTypes );
                 }
@@ -341,8 +341,8 @@ public class MethodFinder
      */
     private boolean memberIsMoreSpecific (Member first, Member second)
     {
-        Class[] firstParamTypes = (Class[]) paramMap.get(first);
-        Class[] secondParamTypes = (Class[]) paramMap.get(second);
+        Class[] firstParamTypes = (Class[])paramMap.get(first);
+        Class[] secondParamTypes = (Class[])paramMap.get(second);
         return ClassUtil.compatibleClasses(
             secondParamTypes, firstParamTypes);
     }

@@ -1,5 +1,5 @@
 #
-# $Id: lookuplet.py,v 1.3 2002/03/17 21:25:20 mdb Exp $
+# $Id: lookuplet.py,v 1.4 2003/11/28 21:34:59 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -18,13 +18,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-import gnome.applet
-import gtk
-import GDK
-import gnome.ui
-import gnome.uiconsts
 import string
 import re
+
+import gnome.applet
+import gtk
+import gtk.keysyms
+import gnome.ui
 
 import bindings
 import history
@@ -34,14 +34,10 @@ import properties
 class Lookuplet:
     "Handles the primary setup and operation of the lookuplet application."
 
-    # in theory these should be defined by GDK but seem not to be
-    SELECTION_PRIMARY = 1;
-    CURRENT_TIME = 0;
-
     # our special key definitions
-    PREV_HISTORY_KEY = GDK.Up
-    NEXT_HISTORY_KEY = GDK.Down
-    AUTO_COMPLETE_KEY = GDK.Tab
+    PREV_HISTORY_KEY = gtk.keysyms.Up
+    NEXT_HISTORY_KEY = gtk.keysyms.Down
+    AUTO_COMPLETE_KEY = gtk.keysyms.Tab
 
     # a reference to our key bindings
     bindings = None;
@@ -67,16 +63,15 @@ class Lookuplet:
     def __init__ (self, xmlui, bindings, props, appletMode):
         window = xmlui.get_widget("lookuplet");
         self.about = xmlui.get_widget("about");
-        self.string_atom = None;
         self.bindings = bindings;
         self.props = props;
         self.appletMode = appletMode;
 
         # wire up our handlers
-        nameFuncMap = {};
-        for key in dir(self.__class__):
-            nameFuncMap[key] = getattr(self, key);
-        xmlui.signal_autoconnect(nameFuncMap);
+        xmlui.signal_connect("on_query_key_press_event",
+                             self.on_query_key_press_event);
+        xmlui.signal_connect("on_prefs_clicked", self.on_prefs_clicked);
+        xmlui.signal_connect("exit_lookuplet", self.exit_lookuplet);
 
         # create our query history
         self.history = history.History();
@@ -97,23 +92,22 @@ class Lookuplet:
             applet.add(mainbox);
             # register our menu items
             applet.register_stock_callback(
-                "properties", gnome.uiconsts.STOCK_MENU_PROP,
+                "properties", gnome.ui.STOCK_MENU_PROP,
                 "Properties...", self.on_props_selected, None);
             applet.register_stock_callback(
-                "about", gnome.uiconsts.STOCK_MENU_ABOUT,
+                "about", gnome.ui.STOCK_MENU_ABOUT,
                 "About...", self.on_about_selected, None);
             applet.show();
 
         else:
             window.show();
 
-        # request the selection
-        if (self.string_atom == None):
-            self.string_atom = gtk.atom_intern("STRING", gtk.FALSE);
+        # obtain the primary selection and stuff that into our entry box
+        # clip = gtk.clipboard_get(gtk.GDK_SELECTION_PRIMARY);
+        # selection = gtk.clipboard_wait_for_text(clip);
         query = xmlui.get_widget("query");
-        query.selection_convert(self.SELECTION_PRIMARY, 
-                                self.string_atom,
-                                self.CURRENT_TIME);
+        # self.display_selection(self, query, selection);
+        # query.paste_clipboard();
 
         # put the focus in the query box
         query.grab_focus();
@@ -201,7 +195,7 @@ class Lookuplet:
         self.hisidx = -1;
 
         # if they pressed return, map that to a special binding
-        if (event.keyval == GDK.Return):
+        if (event.keyval == gtk.keysyms.Return):
             binding = bindings.Binding("", bindings.Binding.URL, "", "%T");
 
         else:
@@ -242,14 +236,17 @@ class Lookuplet:
             # print "Selection retrieval failed.";
             return;
 
-        if (selection_data.type != GDK.SELECTION_TYPE_STRING):
+        if (selection_data.type != gtk.keysyms.SELECTION_TYPE_STRING):
             print "Selection target not returned as a string.";
             return;
 
-        # print "Got selection '%s'." % selection_data.data;
+        print "Got selection '%s'." % selection_data.data;
+        display_selection(self, query, selection_data.data);
+        return;
 
+    def display_selection (self, query, text):
         # prune spaces from the end of the text
-        text = string.strip(selection_data.data);
+        text = string.strip(text);
         # compress whitespace (and convert newlines to spaces)
         text = re.sub("[ \r\n]+", " ", text);
 
@@ -268,6 +265,8 @@ class Lookuplet:
 
             query.select_region(0, len(text));
             # print "Selected from %d to %d." % (0, len(text));
+
+        return;
 
     def exit_lookuplet (self, button):
         gtk.mainquit();

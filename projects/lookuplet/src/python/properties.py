@@ -1,5 +1,5 @@
 #
-# $Id: properties.py,v 1.2 2002/03/18 00:30:24 mdb Exp $
+# $Id: properties.py,v 1.3 2003/11/28 21:34:59 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001-2002 Michael Bayne
@@ -18,12 +18,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-import gtk
-import GDK
-import gnome.ui
-import libglade
 import string
 import re
+
+import gobject
+import gtk
+import gtk.gdk
+import gnome.ui
 
 import edit_binding
 
@@ -37,8 +38,8 @@ class Properties:
     # our binding editor
     bindEditor = None;
 
-    # the bindings list
-    bindList = None;
+    # the bindings model
+    bindModel = None;
 
     # the edit button
     editButton = None;
@@ -47,43 +48,61 @@ class Properties:
     deleteButton = None;
 
     # the selected binding index
-    selection = -1;
+    selection = None;
 
     def __init__ (self, xmlui, bindings):
         # keep a handle on our bindings
         self.bindings = bindings;
 
         # create our binding editor
-        self.bindEditor = edit_binding.BindingEditor(xmlui, self, bindings);
+        self.bindEditor = edit_binding.BindingEditor(xmlui, self);
 
         # get a reference to some widgets
         self.propsPanel = xmlui.get_widget("properties");
         self.editButton = xmlui.get_widget("edit");
         self.deleteButton = xmlui.get_widget("delete");
-        self.bindList = xmlui.get_widget("bindings");
 
         # make our props panel not destroy itself on close
         self.propsPanel.close_hides(gtk.TRUE);
 
         # wire up our handlers
-        nameFuncMap = {};
-        for key in dir(self.__class__):
-            nameFuncMap[key] = getattr(self, key);
-        xmlui.signal_autoconnect(nameFuncMap);
+        xmlui.signal_connect("on_properties_apply", self.on_properties_apply);
+        xmlui.signal_connect("on_add_clicked", self.on_add_clicked);
+        xmlui.signal_connect("on_edit_clicked", self.on_edit_clicked);
+        xmlui.signal_connect("on_delete_clicked", self.on_delete_clicked);
+
+        # set up our tree view
+        bindList = xmlui.get_widget("bindings");
+        renderer = gtk.CellRendererText();
+        bindList.append_column(gtk.TreeViewColumn("Key", renderer, text=0));
+        bindList.append_column(gtk.TreeViewColumn("Name", renderer, text=1));
+
+        # create a data model for our bindings list view
+        self.bindModel = gtk.ListStore(gobject.TYPE_STRING,
+                                       gobject.TYPE_STRING,
+                                       gobject.TYPE_PYOBJECT);
 
         # configure our properties panel with the loaded bindings
         for binding in bindings.bindings:
-            self.bindList.append([binding.key, binding.name]);
+            iter = self.bindModel.append()
+            self.bindModel.set_value(iter, 0, binding.key);
+            self.bindModel.set_value(iter, 1, binding.name);
+            self.bindModel.set_value(iter, 2, binding);
+
+        bindList.set_model(self.bindModel);
+
+        # wire up our selection monitor
+        selection = bindList.get_selection();
+        selection.connect("changed", self.on_bindings_selection_changed);
 
     def editProperties (self):
         self.propsPanel.show();
         return;
 
-    def updated (self, index):
-        binding = self.bindings.bindings[index];
+    def updated (self, iter, binding):
         # refresh the display for the specified index
-        self.bindList.set_text(index, 0, binding.key);
-        self.bindList.set_text(index, 1, binding.name);
+        self.bindModel.set_value(iter, 0, binding.key);
+        self.bindModel.set_value(iter, 1, binding.name);
         # and make a note that we've updated ourselves
         self.propsPanel.changed();
 
@@ -91,30 +110,34 @@ class Properties:
         # add the new binding to our list
         self.bindings.bindings.append(binding);
         # add it to the display
-        self.bindList.append([binding.key, binding.name]);
+        iter = self.bindModel.append()
+        self.bindModel.set_value(iter, 0, binding.key);
+        self.bindModel.set_value(iter, 1, binding.name);
+        self.bindModel.set_value(iter, 2, binding);
         # and make a note that we've updated ourselves
         self.propsPanel.changed();
+
+    def on_bindings_selection_changed (self, selection):
+        # make a note of the iterator for the selected binding
+        model, self.selection = selection.get_selected();
+
+        # no ?: notation? egads!
+        if (self.selection == None):
+            sensitive = gtk.FALSE;
+        else:
+            sensitive = gtk.TRUE;
+
+        # enable our buttons
+        self.editButton.set_sensitive(sensitive);
+        self.deleteButton.set_sensitive(sensitive);
+
+        # make like they pressed the edit button on a double click
+        # if (event.type == gtk.gdk._2BUTTON_PRESS):
+        #    self.on_edit_clicked(None);
 
     def on_properties_apply (self, panel, page):
         if (page == 0):
             self.bindings.flush();
-
-    def on_bindings_select_row (self, clist, row, column, event):
-        # enable our buttons
-        self.editButton.set_sensitive(gtk.TRUE);
-        self.deleteButton.set_sensitive(gtk.TRUE);
-
-        # make a note of the selected binding index
-        self.selection = row;
-
-        # make like they pressed the edit button on a double click
-        if (event.type == GDK._2BUTTON_PRESS):
-            self.on_edit_clicked(None);
-
-    def on_bindings_unselect_row (self, clist, row, column, event):
-        # disable our buttons
-        self.editButton.set_sensitive(gtk.FALSE);
-        self.deleteButton.set_sensitive(gtk.FALSE);
 
     def on_add_clicked (self, button):
         # show the binding creation dialog
@@ -123,14 +146,15 @@ class Properties:
 
     def on_edit_clicked (self, button):
         # tell the binding editor to edit this binding
-        self.bindEditor.editBinding(self.selection);
+        binding = self.bindModel.get_value(self.selection, 2);
+        self.bindEditor.editBinding(self.selection, binding);
         return;
 
     def on_delete_clicked (self, button):
         # remove the binding from the display and our bindings list
-        binding = self.bindings.bindings[self.selection];
-        self.bindList.remove(self.selection)
+        binding = self.bindModel.get_value(self.selection, 2);
+        self.bindModel.remove(self.selection)
         self.bindings.bindings.remove(binding);
-        self.selection = -1;
+        self.selection = None;
         self.propsPanel.changed();
         return;

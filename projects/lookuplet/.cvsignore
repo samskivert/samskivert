@@ -17,3 +17,6 @@ libtool
 ltmain.sh
 po
 *.tar.gz
+*_new
+*.gladep
+autom4te.cache

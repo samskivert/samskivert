@@ -1,5 +1,5 @@
 #
-# $Id: bindings.py,v 1.2 2002/03/18 00:03:41 mdb Exp $
+# $Id: bindings.py,v 1.3 2003/11/28 21:34:59 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -23,8 +23,8 @@ import re
 import string
 import urllib
 
-import gnome.config
-import gnome.url
+import gnome
+import gconf
 
 class Binding:
     "Contains the configuration for a particular key binding and its \
@@ -61,7 +61,8 @@ class Binding:
         if (self.type == self.EXEC):
             posix.system(command)
         else:
-            gnome.url.show(command)
+            # gnome.url_show(command)
+            posix.system("gnome-mozilla '%s'" % command)
 
     def update (self, key, type, name, argument):
         modified = 0;
@@ -90,22 +91,31 @@ class Binding:
 class BindingSet:
     "Maintains the set of bindings loading into the program."
 
+    # our gconf client instance
+    gclient = None;
+
     # the list of Binding objects
     bindings = [];
 
     #
-    # The default constructor.
+    # The default constructor. Loads up our bindings from GConf.
     #
     def __init__ (self):
-        gnome.config.push_prefix("/lookuplet/");
-        count = gnome.config.get_int("lookuplet/bindings/count");
-        for b in range(0, count):
-            key = gnome.config.get_string("lookuplet/bindings/key_%.2u" % b);
-            type = gnome.config.get_int("lookuplet/bindings/type_%.2u" % b);
-            name = gnome.config.get_string("lookuplet/bindings/name_%.2u" % b);
-            arg = gnome.config.get_string("lookuplet/bindings/arg_%.2u" % b);
-            self.bindings.append(Binding(key, type, name, arg));
-        gnome.config.pop_prefix();
+        # connect to the gconf server
+        gclient = gconf.client_get_default();
+        gclient.add_dir("/apps/lookuplet", gconf.CLIENT_PRELOAD_NONE);
+
+        count = 0;
+
+#         gnome.config.push_prefix("/lookuplet/");
+#         count = gnome.config.get_int("lookuplet/bindings/count");
+#         for b in range(0, count):
+#             key = gnome.config.get_string("lookuplet/bindings/key_%.2u" % b);
+#             type = gnome.config.get_int("lookuplet/bindings/type_%.2u" % b);
+#             name = gnome.config.get_string("lookuplet/bindings/name_%.2u" % b);
+#             arg = gnome.config.get_string("lookuplet/bindings/arg_%.2u" % b);
+#             self.bindings.append(Binding(key, type, name, arg));
+#         gnome.config.pop_prefix();
 
         # if we loaded no bindings, use the defaults
         if (count == 0):
@@ -126,6 +136,11 @@ class BindingSet:
             self.bindings.append(Binding(
                 "Control-i", Binding.URL, "IMDB Title search",
                 "http://www.imdb.com/Tsearch?title=%U&restrict=Movies+only"));
+
+            # temporary hacked defaults
+            self.bindings.append(Binding(
+                "Control-j", Binding.EXEC, "Java doc lookup",
+                "/home/mdb/bin/quickdoc.pl \"%T\""));
         return;
 
     #
@@ -142,20 +157,20 @@ class BindingSet:
     # Stores our updated bindings to our GConf preferences.
     #
     def flush (self):
-        gnome.config.push_prefix("/lookuplet/");
-        gnome.config.set_int("lookuplet/bindings/count", len(self.bindings));
-        b = 0
-        for binding in self.bindings:
-            gnome.config.set_string(
-                "lookuplet/bindings/key_%.2u" % b, binding.key);
-            gnome.config.set_int(
-                "lookuplet/bindings/type_%.2u" % b, binding.type);
-            gnome.config.set_string(
-                "lookuplet/bindings/name_%.2u" % b, binding.name);
-            gnome.config.set_string(
-                "lookuplet/bindings/arg_%.2u" % b, binding.argument);
-            b += 1;
-        gnome.config.sync();
-        gnome.config.drop_all();
-        gnome.config.pop_prefix();
+#         gnome.config.push_prefix("/lookuplet/");
+#         gnome.config.set_int("lookuplet/bindings/count", len(self.bindings));
+#         b = 0
+#         for binding in self.bindings:
+#             gnome.config.set_string(
+#                 "lookuplet/bindings/key_%.2u" % b, binding.key);
+#             gnome.config.set_int(
+#                 "lookuplet/bindings/type_%.2u" % b, binding.type);
+#             gnome.config.set_string(
+#                 "lookuplet/bindings/name_%.2u" % b, binding.name);
+#             gnome.config.set_string(
+#                 "lookuplet/bindings/arg_%.2u" % b, binding.argument);
+#             b += 1;
+#         gnome.config.sync();
+#         gnome.config.drop_all();
+#         gnome.config.pop_prefix();
         return;

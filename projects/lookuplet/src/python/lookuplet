@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# $Id: lookuplet,v 1.2 2002/03/17 10:13:36 mdb Exp $
+# $Id: lookuplet,v 1.3 2003/11/28 21:34:59 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -19,13 +19,17 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-import gnome.applet
-import gtk
-import libglade
 import string
 import sys
 import re
 import os
+
+import pygtk
+pygtk.require('2.0')
+
+import gnome.applet
+import gtk
+import gtk.glade
 
 # figure out where we were run from
 basedir = sys.argv[0];
@@ -43,10 +47,10 @@ import properties
 # load up our glade UI definition
 try:
     os.stat(basedir + "/lookuplet.glade");
-    xmlui = libglade.GladeXML(basedir + "/lookuplet.glade");
+    xmlui = gtk.glade.XML(basedir + "/lookuplet.glade");
 except OSError:
     os.stat(libdir + "/lookuplet.glade");
-    xmlui = libglade.GladeXML(libdir + "/lookuplet.glade");
+    xmlui = gtk.glade.XML(libdir + "/lookuplet.glade");
 
 # load up our bindings
 bindings = bindings.BindingSet();

@@ -1,5 +1,5 @@
 #
-# $Id: edit_binding.py,v 1.1 2002/03/17 09:03:06 mdb Exp $
+# $Id: edit_binding.py,v 1.2 2003/11/28 21:34:59 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -18,12 +18,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-import gtk
-import GDK
-import gnome.ui
-import libglade
 import string
 import re
+
+import gtk
+import gnome.ui
 
 import bindings
 import keyval_util
@@ -41,8 +40,8 @@ class BindingEditor:
     # the grab window
     grabWindow = None;
 
-    # the index of the binding we're editing
-    index = -1;
+    # the iterator for the binding we're editing
+    iterator = None;
 
     # the binding we're editing
     binding = None;
@@ -62,10 +61,9 @@ class BindingEditor:
     # the argument entry field
     argField = None;
 
-    def __init__ (self, xmlui, props, bindings):
+    def __init__ (self, xmlui, props):
         # keep these around for later
         self.props = props;
-        self.bindings = bindings;
 
         # get a reference to some widgets
         self.bindPanel = xmlui.get_widget("binding");
@@ -77,19 +75,18 @@ class BindingEditor:
         self.argField = xmlui.get_widget("argument");
 
         # wire up our handlers
-        nameFuncMap = {};
-        for key in dir(self.__class__):
-            nameFuncMap[key] = getattr(self, key);
-        xmlui.signal_autoconnect(nameFuncMap);
+        xmlui.signal_connect("on_ok_clicked", self.on_ok_clicked);
+        xmlui.signal_connect("on_cancel_clicked", self.on_cancel_clicked);
+        xmlui.signal_connect("on_key_key_press_event",
+                             self.on_key_key_press_event);
 
     #
     # Instructs the binding panel to display itself, configured for
     # editing the supplied binding.
     #
-    def editBinding (self, index):
-        # keep a reference to the binding
-        self.index = index;
-        self.binding = self.bindings.bindings[index];
+    def editBinding (self, iterator, binding):
+        self.iterator = iterator;
+        self.binding = binding;
         self.populateAndShow(self.binding);
 
     #
@@ -97,8 +94,8 @@ class BindingEditor:
     # available for editing by the user.
     #
     def createBinding (self):
+        self.iterator = None;
         # create a blank binding and edit it
-        self.index = -1;
         self.binding = bindings.Binding("", bindings.Binding.URL, "", "");
         self.populateAndShow(self.binding);
 
@@ -106,7 +103,6 @@ class BindingEditor:
     # A helper function used to populate our widgets and show the dialog.
     #
     def populateAndShow (self, binding):
-        print "populating from binding " + binding.to_string();
         # populate our widgets with the binding values
         self.keyField.set_text(binding.key);
         self.nameField.set_text(binding.name);
@@ -134,10 +130,10 @@ class BindingEditor:
 
         # let the props panel know if there were any modifications
         if (modified):
-            if (self.index >= 0):
-                self.props.updated(self.index);
-            else:
+            if (self.iterator == None):
                 self.props.created(self.binding);
+            else:
+                self.props.updated(self.iterator, self.binding);
 
         # hide the binding panel
         self.bindPanel.hide();
@@ -156,4 +152,5 @@ class BindingEditor:
             keystr = keyval_util.convert_keyval_state_to_string(
                 event.keyval, event.state);
             textfield.set_text(keystr);
-        return gtk.TRUE;
+            return gtk.TRUE;
+        return gtk.FALSE;

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.22 2002/11/05 03:00:47 mdb Exp $
+// $Id: Label.java,v 1.23 2002/11/06 04:29:56 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -287,8 +287,8 @@ public class Label implements SwingConstants, LabelStyleConstants
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)
-            _size.setSize(Math.round(bounds.getWidth()),
-                          Math.round(getHeight(layout)));
+            _size.setSize(Math.ceil(bounds.getWidth()),
+                          Math.ceil(getHeight(layout)));
             layouts = new ArrayList();
             layouts.add(new Tuple(layout, bounds));
         }

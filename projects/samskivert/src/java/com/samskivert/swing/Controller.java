@@ -1,21 +1,21 @@
 //
-// $Id: Controller.java,v 1.3 2001/08/09 01:37:26 mdb Exp $
+// $Id: Controller.java,v 1.4 2001/08/14 00:18:01 mdb Exp $
 
-package com.threerings.yohoho.client;
+package com.samskivert.swing;
 
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.threerings.yohoho.Log;
+import com.samskivert.Log;
 
 /**
  * The controller class provides a basis for the separation of user
  * interface code into display code and control code. The display code
- * lives in a panel class and the control code lives in the controller
- * class. All of the primary user interfaces in the Yohoho client are
- * separated thus.
+ * lives in a panel class ({@link javax.swing.JPanel} or something
+ * conceptually similar) and the control code lives in an associated
+ * controller class.
  *
  * <p> The controller philosophy is thus: The panel class (and its UI
  * components) convert basic user interface actions into higher level
@@ -24,6 +24,22 @@ import com.threerings.yohoho.Log;
  * performs abstract processing based on the users desires and the
  * changing state of the application and calls back to the panel to affect
  * changes to the display.
+ *
+ * <p> Controllers also support the notion of scope. When a panel wishes
+ * to post an action, it doesn't do it directly to the controller. Instead
+ * it does it using a controller utility function called {@link
+ * #postAction}, which searches up the user interface hierarchy looking
+ * for a component that implements {@link
+ * com.samskivert.swing.ControllerProvider} which it will use to obtain
+ * the controller "in scope" for that component. That controller is
+ * requested to handle the action, but if it cannot handle the action, the
+ * next controller up the chain is located and requested to process the
+ * action. In this manner, a hierarchy of controllers (often just two: one
+ * application wide and one for whatever particular mode the application
+ * is in at the moment) can provide a set of services that are available
+ * to all user interface elements in the entire application and in a way
+ * that doesn't require tight connectedness between the UI elements and
+ * the controllers.
  */
 public abstract class Controller
 {
@@ -31,6 +47,19 @@ public abstract class Controller
      * This action listener can be wired up to any action event generator
      * and it will take care of forwarding that event on to the controller
      * in scope for the component that generated the action event.
+     *
+     * <p> For example, wiring a button up to a dispatcher would look like
+     * so:
+     *
+     * <pre>
+     * JButton button = new JButton("Do thing");
+     * button.setActionCommand("dothing");
+     * button.addActionListener(Controller.DISPATCHER);
+     * </pre>
+     *
+     * The controllers in scope would then be requested (in order) to
+     * process the <code>dothing</code> action whenever the button was
+     * clicked.
      */
     public static final ActionListener DISPATCHER = new ActionListener() {
         public void actionPerformed (ActionEvent event)

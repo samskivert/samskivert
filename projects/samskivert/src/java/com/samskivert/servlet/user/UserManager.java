@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.16 2003/08/07 17:16:56 mdb Exp $
+// $Id: UserManager.java,v 1.17 2003/09/19 02:51:25 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -142,6 +142,7 @@ public class UserManager
      * they so desire.
      */
     protected UserRepository createRepository (ConnectionProvider conprov)
+        throws PersistenceException
     {
         return new UserRepository(conprov);
     }

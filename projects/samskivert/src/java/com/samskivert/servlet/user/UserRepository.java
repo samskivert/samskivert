@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.28 2003/09/19 02:14:42 eric Exp $
+// $Id: UserRepository.java,v 1.29 2003/09/19 02:51:25 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,6 +28,8 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Properties;
 
 import com.samskivert.Log;
@@ -67,8 +69,12 @@ public class UserRepository extends JORARepository
      * @param provider the database connection provider.
      */
     public UserRepository (ConnectionProvider provider)
+        throws PersistenceException
     {
 	super(provider, USER_REPOSITORY_IDENT);
+
+        /** Load all our site data into mem. */
+        loadAllSites();
     }
 
     /**
@@ -332,18 +338,25 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Load all the site records
+     * Load all the site records into memory.
      */
-    public ArrayList loadAllSites ()
+    protected void loadAllSites ()
 	throws PersistenceException
     {
-	return (ArrayList)execute(new Operation () {
+	execute(new Operation () {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
 		Cursor c =_stable.selectAll("");
 
-                return c.toArrayList();
+                Iterator itr = c.toArrayList().iterator();
+                while(itr.hasNext()) {
+                    Site site = (Site)itr.next();
+                    _siteIdToSite.put(site.siteId, site);
+                    _siteNameToSite.put(site.stringId, site);
+                }
+
+                return null;
 	    }
 	});
     }
@@ -352,44 +365,28 @@ public class UserRepository extends JORARepository
      * Load the site id for the passed in SiteName (stringId)
      */
     public int loadSiteId (final String stringId)
-	throws PersistenceException
     {
-        FieldMask mask = _stable.getFieldMask();
-        mask.setModified("stringId");
-        Site site = new Site(stringId);
+        Site site = (Site)_siteNameToSite.get(stringId);
 
-        return loadSiteByExample(site, mask).siteId;
+        return (site == null) ? -1 : site.siteId;
     }
     
     /**
      * Load the "Site Name" (stringId) for the give siteId
      */
     public String loadSiteName (int siteId)
-	throws PersistenceException
     {
-        FieldMask mask = _stable.getFieldMask();
-        mask.setModified("siteId");
-        Site site = new Site(siteId);
+        Site site = (Site)_siteIdToSite.get(siteId);
 
-        return loadSiteByExample(site, mask).stringId;
+        return (site == null) ? null : site.stringId;
     }
 
-    protected Site loadSiteByExample (final Site site, final FieldMask mask)
-        throws PersistenceException
+    /**
+     * Returns an iterator over all of our Site records.
+     */
+    public Iterator enumerateSites ()
     {
-	return (Site)execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
-                throws PersistenceException, SQLException
-	    {
-                Cursor c = _stable.queryByExample(site, mask);
-
-                try {
-                    return c.next();
-                } finally {
-                    c.next(); // clean things up after ourselves
-                }
-	    }
-	});
+        return _siteIdToSite.elements();
     }
     
     /**
@@ -654,6 +651,13 @@ public class UserRepository extends JORARepository
 	}
     }
 
+    /** Map that contains siteName -> Site mapping. */
+    protected HashMap _siteNameToSite = new HashMap();
+    
+    /** Map that contains siteId -> Site mapping. */
+    protected HashIntMap _siteIdToSite = new HashIntMap();
+    
+    /** A wrapper that provides access to the userstable. */
     protected Table _utable;
 
     /** A wrapper that provides access to the sites table. */

@@ -1,5 +1,5 @@
 //
-// $Id: CDDBLookupPanel.java,v 1.5 2002/03/03 21:17:03 mdb Exp $
+// $Id: CDDBLookupPanel.java,v 1.6 2002/11/11 17:05:20 mdb Exp $
 
 package robodj.importer;
 
@@ -90,7 +90,7 @@ public class CDDBLookupPanel
 		public Object invoke ()
 		    throws Exception
 		{
-		    return CDDBUtil.doCDDBLookup("us.freedb.org", info);
+		    return CDDBUtil.doCDDBLookup("freedb.freedb.org", info);
 		}
 
 		public boolean abort ()

@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.7 2002/04/13 01:39:17 mdb Exp $
+// $Id: ListUtil.java,v 1.8 2002/09/06 02:09:05 shaper Exp $
 
 package com.samskivert.util;
 
@@ -418,6 +418,20 @@ public class ListUtil
         System.arraycopy(list, index+1, list, index, llength-(index+1));
         list[llength-1] = null;
         return elem;
+    }
+
+    /**
+     * Returns the number of elements in the supplied list.
+     */
+    public static int size (Object[] list)
+    {
+        int llength = list.length;
+        for (int ii = 0; ii < llength; ii++) {
+            if (list[ii] == null) {
+                return ii;
+            }
+        }
+        return llength;
     }
 
     /**

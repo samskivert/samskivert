@@ -1,5 +1,5 @@
 /**
- * $Id: launcher.h,v 1.3 2001/08/16 20:25:09 mdb Exp $
+ * $Id: launcher.h,v 1.4 2001/08/16 20:52:40 mdb Exp $
  * 
  * lookuplet - a utility for quickly looking up information
  * Copyright (C) 2001 Michael Bayne
@@ -26,7 +26,7 @@
 
 #include "binding.h"
 
-extern gboolean
+extern void
 lk_launcher_launch (const LkBinding* binding, const gchar* terms);
 
 #endif /* _LAUNCHER_H_ */

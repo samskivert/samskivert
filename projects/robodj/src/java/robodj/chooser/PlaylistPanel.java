@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.12 2002/03/03 17:21:46 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.13 2002/03/03 20:56:12 mdb Exp $
 
 package robodj.chooser;
 
@@ -18,6 +18,7 @@ import com.samskivert.util.StringUtil;
 
 import robodj.Log;
 import robodj.repository.*;
+import robodj.util.ButtonUtil;
 import robodj.util.ServerControl.PlayingListener;
 
 public class PlaylistPanel extends JPanel
@@ -32,6 +33,7 @@ public class PlaylistPanel extends JPanel
         // create the pane that will hold the buttons
         gl = new VGroupLayout(GroupLayout.NONE);
         gl.setJustification(GroupLayout.TOP);
+        gl.setGap(2);
         _bpanel = new SmartPanel();
         _bpanel.setLayout(gl);
 
@@ -47,26 +49,26 @@ public class PlaylistPanel extends JPanel
         JPanel cbar = new JPanel(bgl);
 
         // add our control buttons
-        cbar.add(_clearbut = createControlButton("Clear", "clear"));
-        cbar.add(createControlButton("Refresh", "refresh"));
+        _clearbut = ButtonUtil.createControlButton(
+            CLEAR_TIP, "clear", CLEAR_ICON_PATH, this);
+        cbar.add(_clearbut);
+        cbar.add(ButtonUtil.createControlButton(
+                     REFRESH_TIP, "refresh", REFRESH_ICON_PATH, this));
         add(cbar, GroupLayout.FIXED);
 
         // use a special font for our name buttons
-        _nameFont = new Font("Helvetica", Font.PLAIN, 10);
+        _nameFont = new Font("Helvetica", Font.PLAIN, 12);
+
+        // create our icons
+        _skiptoIcon = ButtonUtil.getIcon(SKIPTO_ICON_PATH);
+        _removeSongIcon = ButtonUtil.getIcon(REMOVE_SONG_ICON_PATH);
+        _removeEntryIcon = ButtonUtil.getIcon(REMOVE_ENTRY_ICON_PATH);
 
         // add ourselves as a playing listener
         Chooser.scontrol.addPlayingListener(this);
 
         // load up the playlist
         refreshPlaylist();
-    }
-
-    protected JButton createControlButton (String label, String action)
-    {
-        JButton cbut = new JButton(label);
-        cbut.setActionCommand(action);
-        cbut.addActionListener(this);
-        return cbut;
     }
 
     public void actionPerformed (ActionEvent e)
@@ -264,7 +266,8 @@ public class PlaylistPanel extends JPanel
                 JLabel label = new JLabel(entry.entry.title + " - " +
                                           entry.entry.artist);
                 tpanel.add(label);
-                tpanel.add(newButton("Remove", "remove_all", entry));
+                tpanel.add(newButton(REMOVE_ENTRY_TIP, "remove_all",
+                                     _removeEntryIcon, entry));
 
                 _bpanel.add(tpanel);
             }
@@ -276,14 +279,16 @@ public class PlaylistPanel extends JPanel
             gl.setJustification(GroupLayout.LEFT);
             hpanel.setLayout(gl);
 
+            hpanel.add(newButton(SKIPTO_TIP, "skipto", _skiptoIcon, entry));
+            hpanel.add(newButton(REMOVE_SONG_TIP, "remove",
+                                 _removeSongIcon, entry));
+
             entry.label = new JLabel(entry.song.title);
             entry.label.setForeground((entry.song.songid == _playid) ?
                                       Color.red : Color.black);
             entry.label.setFont(_nameFont);
+            entry.label.setToolTipText(entry.song.title);
             hpanel.add(entry.label);
-
-            hpanel.add(newButton("Skip to", "skipto", entry));
-            hpanel.add(newButton("Remove", "remove", entry));
 
             // let the bpanel know that we want to scroll the active track
             // label into place once we're all laid out
@@ -304,13 +309,11 @@ public class PlaylistPanel extends JPanel
         _bpanel.revalidate();
     }
 
-    protected JButton newButton (String label, String command,
-                                 Object clientProperty)
+    protected JButton newButton (String tooltip, String command,
+                                 ImageIcon icon, Object clientProperty)
     {
-        JButton button = new JButton(label);
-        button.setFont(_nameFont);
-        button.setActionCommand(command);
-        button.addActionListener(this);
+        JButton button = ButtonUtil.createControlButton(
+            tooltip, command, icon, this, true);
         button.putClientProperty("entry", clientProperty);
         return button;
     }
@@ -387,6 +390,12 @@ public class PlaylistPanel extends JPanel
             }
         }
 
+        // make the playlist fit the width of the scrolling viewport
+        public boolean getScrollableTracksViewportWidth ()
+        {
+            return true;
+        }
+
         protected JComponent _target;
     }
 
@@ -398,4 +407,28 @@ public class PlaylistPanel extends JPanel
     protected int _oldid = -1;
 
     protected Font _nameFont;
+
+    protected ImageIcon _skiptoIcon;
+    protected ImageIcon _removeSongIcon;
+    protected ImageIcon _removeEntryIcon;
+
+    // icon paths
+    protected static final String ICON_ROOT = "/robodj/chooser/images/";
+    protected static final String REFRESH_ICON_PATH = ICON_ROOT + "refresh.png";
+    protected static final String CLEAR_ICON_PATH = ICON_ROOT + "clear.png";
+    protected static final String SKIPTO_ICON_PATH = ICON_ROOT + "skip.png";
+    protected static final String REMOVE_ENTRY_ICON_PATH =
+        ICON_ROOT + "remove_entry.png";
+    protected static final String REMOVE_SONG_ICON_PATH =
+        ICON_ROOT + "remove_song.png";
+
+    // button tips
+    protected static final String REFRESH_TIP = "Refresh the playlist";
+    protected static final String CLEAR_TIP =
+        "Clear all songs from the playlist";
+    protected static final String SKIPTO_TIP = "Skip to this song";
+    protected static final String REMOVE_ENTRY_TIP =
+        "Remove all songs in this entry from the playlist";
+    protected static final String REMOVE_SONG_TIP =
+        "Remove this song from the playlist";
 }

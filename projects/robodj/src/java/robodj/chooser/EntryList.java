@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.11 2002/02/28 16:32:45 mdb Exp $
+// $Id: EntryList.java,v 1.12 2002/03/03 20:56:12 mdb Exp $
 
 package robodj.chooser;
 
@@ -18,37 +18,39 @@ import com.samskivert.swing.util.*;
 
 import robodj.Log;
 import robodj.repository.*;
+import robodj.util.ButtonUtil;
 
-public abstract class EntryList extends JPanel
+public abstract class EntryList extends JScrollPane
     implements TaskObserver, ActionListener, AncestorListener
 {
     public EntryList ()
     {
-	GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);
-        gl.setOffAxisPolicy(GroupLayout.STRETCH);
-	setLayout(gl);
-
         // create the pane that will hold the buttons
-        gl = new VGroupLayout(GroupLayout.NONE);
+        GroupLayout gl = new VGroupLayout(GroupLayout.NONE);
+        gl.setOffAxisPolicy(GroupLayout.STRETCH);
         gl.setJustification(GroupLayout.TOP);
-        _bpanel = new ScrollablePanel();
+        gl.setGap(2);
+        _bpanel = new ScrollablePanel() {
+            // make the playlist fit the width of the scrolling viewport
+            public boolean getScrollableTracksViewportWidth () {
+                return true;
+            }
+        };
         _bpanel.setLayout(gl);
 
 	// give ourselves a wee bit of a border
 	_bpanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // put it into a scrolling pane
-	_scroller = new JScrollPane(_bpanel);
-        add(_scroller);
-
-        // add our navigation button
-        _upbut = new JButton("Up");
-        _upbut.setActionCommand("up");
-        _upbut.addActionListener(this);
-        add(_upbut, GroupLayout.FIXED);
+        // set our viewport view
+        setViewportView(_bpanel);
 
         // use a special font for our name buttons
-        _nameFont = new Font("Helvetica", Font.PLAIN, 10);
+        _titleFont = new Font("Helvetica", Font.BOLD, 14);
+        _nameFont = new Font("Helvetica", Font.PLAIN, 12);
+
+        // create our icons
+        _browseIcon = ButtonUtil.getIcon(BROWSE_ICON_PATH);
+        _playIcon = ButtonUtil.getIcon(PLAY_ICON_PATH);
 
         // listen to ancestor events
         addAncestorListener(this);
@@ -131,16 +133,8 @@ public abstract class EntryList extends JPanel
      */
     protected void populateEntries (Entry[] entries)
     {
-        // disable the up button because we're at the top level
-        _upbut.setEnabled(false);
-
         // clear out any existing children
         _bpanel.removeAll();
-
-        // adjust our layout policy
-        GroupLayout gl = (GroupLayout)_bpanel.getLayout();
-        gl.setOffAxisPolicy(GroupLayout.EQUALIZE);
-        gl.setOffAxisJustification(GroupLayout.LEFT);
 
         // sort our entries
         Comparator ecomp = new Comparator() {
@@ -165,26 +159,30 @@ public abstract class EntryList extends JPanel
             }
 
             // create a browse and a play button
-            JPanel hpanel = new JPanel();
-            gl = new HGroupLayout(GroupLayout.NONE);
+            GroupLayout gl = new HGroupLayout(GroupLayout.NONE);
             gl.setOffAxisPolicy(GroupLayout.STRETCH);
             gl.setJustification(GroupLayout.LEFT);
-            hpanel.setLayout(gl);
-
+            JPanel hpanel = new JPanel(gl);
             JButton button;
-            button = new JButton(entries[i].title);
-            button.setFont(_nameFont);
-            button.setActionCommand("browse");
-            button.addActionListener(this);
-            button.putClientProperty("entry", entries[i]);
-            button.setToolTipText("Entry ID: " + entries[i].entryid);
-            hpanel.add(button);
 
-            button = new JButton("Play");
-            button.setActionCommand("playall");
-            button.addActionListener(this);
+            // add a browse button
+            button = ButtonUtil.createControlButton(
+                BROWSE_ENTRY_TIP, "browse", _browseIcon, this, true);
             button.putClientProperty("entry", entries[i]);
-            hpanel.add(button);
+            hpanel.add(button, GroupLayout.FIXED);
+
+            // add a play all button
+            button = ButtonUtil.createControlButton(
+                PLAY_ENTRY_TIP, "playall", _playIcon, this, true);
+            button.putClientProperty("entry", entries[i]);
+            hpanel.add(button, GroupLayout.FIXED);
+
+            // add the entry title
+            JLabel entryLabel = new JLabel(entries[i].title);
+            entryLabel.setFont(_nameFont);
+            entryLabel.setToolTipText(entries[i].title +
+                                      " (" + entries[i].entryid + ")");
+            hpanel.add(entryLabel);
 
             _bpanel.add(hpanel);
         }
@@ -211,21 +209,33 @@ public abstract class EntryList extends JPanel
 
     protected void populateSong (Entry entry)
     {
-        // enable the up button because we're looking at a song
-        _upbut.setEnabled(true);
-
         // clear out any existing children
         _bpanel.removeAll();
 
-        // adjust our layout policy
-        ((GroupLayout)_bpanel.getLayout()).setOffAxisPolicy(
-            GroupLayout.NONE);
+        GroupLayout gl = new HGroupLayout(HGroupLayout.STRETCH);
+        gl.setJustification(GroupLayout.LEFT);
+	JPanel header = new JPanel(gl);
 
-        // create a combo box and accoutrements for selecting the category
-	JPanel catPanel = new JPanel(new HGroupLayout(GroupLayout.STRETCH));
-	JLabel catLabel = new JLabel("Set category");
+        // add the album title
+        JLabel label = new JLabel(entry.title);
+        label.setToolTipText(entry.title);
+        label.setFont(_titleFont);
+        header.add(label);
+
+        // add a button for getting the heck out of here
+        JButton upbtn = ButtonUtil.createControlButton(
+            UP_TIP, "up", ButtonUtil.getIcon(UP_ICON_PATH), this, true);
+        header.add(upbtn, GroupLayout.FIXED);
+
+        // create an edit button
+        JButton ebtn = ButtonUtil.createControlButton(
+            EDIT_TIP, "edit", ButtonUtil.getIcon(EDIT_ICON_PATH), this, true);
+        header.add(ebtn, GroupLayout.FIXED);
+
+        // add a combo box for categorizing
         JComboBox catcombo =
             new JComboBox(ModelUtil.catBoxNames(Chooser.model));
+	header.add(catcombo, GroupLayout.FIXED);
 
         // configure the combo box
         catcombo.addActionListener(this);
@@ -234,20 +244,7 @@ public abstract class EntryList extends JPanel
         int catidx = ModelUtil.getCategoryIndex(Chooser.model, catid);
         catcombo.setSelectedIndex(catidx+1);
 
-        // create an edit button
-        JButton ebtn = new JButton("Edit entry");
-        ebtn.setActionCommand("edit");
-        ebtn.addActionListener(this);
-
-        // wire it all up
-	catPanel.add(catLabel, GroupLayout.FIXED);
-	catPanel.add(catcombo);
-        catPanel.add(ebtn, GroupLayout.FIXED);
-	_bpanel.add(catPanel, GroupLayout.FIXED);
-
-        // add a label for the title
-        JLabel label = new JLabel(entry.title);
-        _bpanel.add(label);
+	_bpanel.add(header, GroupLayout.FIXED);
 
         // sort the songs by position
         Comparator scomp = new Comparator() {
@@ -263,13 +260,23 @@ public abstract class EntryList extends JPanel
 
         // and add buttons for every song
         for (int i = 0; i < entry.songs.length; i++) {
-            JButton button = new JButton(entry.songs[i].title);
-            button.setFont(_nameFont);
-            button.setActionCommand("play");
-            button.addActionListener(this);
-            button.setHorizontalAlignment(JButton.LEFT);
+            gl = new HGroupLayout(GroupLayout.NONE);
+            gl.setJustification(GroupLayout.LEFT);
+            JPanel hpanel = new JPanel(gl);
+
+            // add a button for playing the song
+            JButton button = ButtonUtil.createControlButton(
+                PLAY_SONG_TIP, "play", _playIcon, this, true);
             button.putClientProperty("song", entry.songs[i]);
-            _bpanel.add(button);
+            hpanel.add(button, GroupLayout.FIXED);
+
+            // add the song title
+            JLabel trackLabel = new JLabel(entry.songs[i].title);
+            trackLabel.setFont(_nameFont);
+            trackLabel.setToolTipText(entry.songs[i].title);
+            hpanel.add(trackLabel);
+
+            _bpanel.add(hpanel);
         }
 
         // reset our scroll position so that we're displaying the top of
@@ -278,12 +285,12 @@ public abstract class EntryList extends JPanel
 
         // we've removed and added components so we need to revalidate
         revalidate();
+        repaint();
     }
 
     protected void clearScrollPosition ()
     {
-        BoundedRangeModel model =
-            _scroller.getVerticalScrollBar().getModel();
+        BoundedRangeModel model = getVerticalScrollBar().getModel();
         model.setValue(model.getMinimum());
     }
 
@@ -326,7 +333,7 @@ public abstract class EntryList extends JPanel
             TaskMaster.invokeMethodTask("recategorizeEntry", this, this);
 
 	} else {
-	    System.out.println("Unknown action event: " + cmd);
+	    Log.warning("Unknown action event: " + cmd);
 	}
     }
 
@@ -338,6 +345,7 @@ public abstract class EntryList extends JPanel
 
         // we need to revalidate the component because we added a child
         revalidate();
+        repaint();
 
         // start up the task that reads the CD info from the database
         TaskMaster.invokeMethodTask("readEntries", this, this);
@@ -354,14 +362,31 @@ public abstract class EntryList extends JPanel
         // nothing doing
     }
 
-    protected JScrollPane _scroller;
     protected JPanel _bpanel;
-    protected JButton _upbut;
 
     protected Entry[] _entries;
-
     protected Entry _entry;
     protected int _newcatid;
 
+    protected Font _titleFont;
     protected Font _nameFont;
+    protected ImageIcon _playIcon;
+    protected ImageIcon _browseIcon;
+
+    protected static final String PLAY_ENTRY_TIP =
+        "Append this album to the playlist";
+    protected static final String PLAY_SONG_TIP =
+        "Append this song to the playlist";
+    protected static final String BROWSE_ENTRY_TIP =
+        "Browse the songs in this album";
+    protected static final String UP_TIP =
+        "Back up to albums listing";
+    protected static final String EDIT_TIP =
+        "Edit the album information";
+
+    protected static final String ICON_ROOT = "/robodj/chooser/images/";
+    protected static final String PLAY_ICON_PATH = ICON_ROOT + "play.png";
+    protected static final String BROWSE_ICON_PATH = ICON_ROOT + "browse.png";
+    protected static final String UP_ICON_PATH = ICON_ROOT + "up.png";
+    protected static final String EDIT_ICON_PATH = ICON_ROOT + "edit.png";
 }

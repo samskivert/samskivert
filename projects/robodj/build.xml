@@ -29,8 +29,8 @@
     <mkdir dir="${javadoc.dir}"/>
     <!-- copy media into the target directory -->
     <copy todir="${deploy.dir}/classes">
-      <fileset dir="${src.dir}" includes="**/*.gif"/>
       <fileset dir="${src.dir}" includes="**/*.jpg"/>
+      <fileset dir="${src.dir}" includes="**/*.png"/>
     </copy>
     <copy todir="${deploy.dir}/classes/conf">
       <fileset dir="conf"/>

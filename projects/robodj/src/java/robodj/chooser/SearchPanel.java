@@ -1,5 +1,5 @@
 //
-// $Id: SearchPanel.java,v 1.2 2002/02/22 07:55:49 mdb Exp $
+// $Id: SearchPanel.java,v 1.3 2002/03/03 20:56:12 mdb Exp $
 
 package robodj.chooser;
 
@@ -63,6 +63,11 @@ public class SearchPanel extends JPanel
             // create and add a query entry list for the query
             _qlist = new QueryEntryList(_query);
             add(_qlist);
+
+            // we need to revalidate ourselves and repaint because we've
+            // added a component
+            revalidate();
+            repaint();
         }
     }
 

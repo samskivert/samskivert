@@ -1,11 +1,12 @@
 //
-// $Id: ChooserFrame.java,v 1.8 2002/03/03 17:21:46 mdb Exp $
+// $Id: ChooserFrame.java,v 1.9 2002/03/03 20:56:12 mdb Exp $
 
 package robodj.chooser;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.*;
 
 import com.samskivert.swing.*;
@@ -16,6 +17,7 @@ import com.samskivert.swing.util.TaskMaster;
 import robodj.Log;
 import robodj.Version;
 import robodj.repository.*;
+import robodj.util.ButtonUtil;
 import robodj.util.ServerControl.PlayingListener;
 
 public class ChooserFrame extends JFrame
@@ -58,11 +60,20 @@ public class ChooserFrame extends JFrame
         JPanel cbar = new JPanel(bgl);
 
         // add some fake control buttons for now
-        cbar.add(createControlButton("Back", "back"));
-        cbar.add(_stop = createControlButton("Stop", "stop"));
-        cbar.add(_pause = createControlButton("Pause", "pause"));
-        cbar.add(createControlButton("Skip", "skip"));
-        cbar.add(createControlButton("Exit", "exit"));
+        cbar.add(ButtonUtil.createControlButton(
+                     BACK_TIP, "back", BACK_ICON_PATH, this, true));
+        _stop = ButtonUtil.createControlButton(
+            STOP_TIP, "stop", STOP_ICON_PATH, this, true);
+        cbar.add(_stop);
+        _pauseIcon = ButtonUtil.getIcon(PAUSE_ICON_PATH);
+        _playIcon = ButtonUtil.getIcon(PLAY_ICON_PATH);
+        _pause = ButtonUtil.createControlButton(
+            "", "pause", _pauseIcon, this, true);
+        cbar.add(_pause);
+        cbar.add(ButtonUtil.createControlButton(
+                     SKIP_TIP, "skip", SKIP_ICON_PATH, this, true));
+        cbar.add(ButtonUtil.createControlButton(
+                     EXIT_TIP, "exit", EXIT_ICON_PATH, this, true));
 
 	// stick it into the frame
 	top.add(cbar, GroupLayout.FIXED);
@@ -76,14 +87,6 @@ public class ChooserFrame extends JFrame
 
         // read our playing state
         TaskMaster.invokeMethodTask("refreshPlaying", Chooser.scontrol, this);
-    }
-
-    protected JButton createControlButton (String label, String action)
-    {
-        JButton cbut = new JButton(label);
-        cbut.setActionCommand(action);
-        cbut.addActionListener(this);
-        return cbut;
     }
 
     public void actionPerformed (ActionEvent e)
@@ -133,12 +136,14 @@ public class ChooserFrame extends JFrame
     public void playingUpdated (int songid, boolean paused)
     {
         if (songid == -1 || paused) {
-            _pause.setLabel("Play");
+            _pause.setToolTipText(PLAY_TIP);
             _pause.setActionCommand("play");
+            _pause.setIcon(_playIcon);
 
         } else {
-            _pause.setLabel("Pause");
+            _pause.setToolTipText(PAUSE_TIP);
             _pause.setActionCommand("pause");
+            _pause.setIcon(_pauseIcon);
         }
 
         _stop.setEnabled(songid != -1);
@@ -149,4 +154,26 @@ public class ChooserFrame extends JFrame
 
     /** A reference to the stop button. */
     protected JButton _stop;
+
+    // used when toggling between play and pause
+    protected ImageIcon _playIcon;
+    protected ImageIcon _pauseIcon;
+
+    // icon paths
+    protected static final String ICON_ROOT = "/robodj/chooser/images/";
+    protected static final String PLAY_ICON_PATH = ICON_ROOT + "play.png";
+    protected static final String PAUSE_ICON_PATH = ICON_ROOT + "pause.png";
+    protected static final String STOP_ICON_PATH = ICON_ROOT + "stop.png";
+    protected static final String SKIP_ICON_PATH = ICON_ROOT + "skip.png";
+    protected static final String BACK_ICON_PATH = ICON_ROOT + "back.png";
+    protected static final String EXIT_ICON_PATH = ICON_ROOT + "exit.png";
+
+    // button tips
+    protected static final String PLAY_TIP = "Play";
+    protected static final String PAUSE_TIP =
+        "Pause the currently playing song";
+    protected static final String STOP_TIP = "Stop the currently playing song";
+    protected static final String SKIP_TIP = "Skip to the next song";
+    protected static final String BACK_TIP = "Skip to the previous song";
+    protected static final String EXIT_TIP = "Exit";
 }

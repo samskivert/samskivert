@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.5 2003/08/13 18:40:32 eric Exp $
+// $Id: MACUtil.java,v 1.6 2003/09/05 18:07:17 eric Exp $
 
 package com.samskivert.net;
 
@@ -49,9 +49,16 @@ public class MACUtil
 
             // What fun, we have to explicitly skip PPP adaptor addresses
             // since they all start with 444553 and tend to not be unique.
-            // Why do I have a feeling we will find more of this?
+            // Why do I have a feeling we will find more of this? And hey
+            // we did find another one.  Different versions of windows
+            // seem to magic up different magic MAC addresses that don't
+            // mean anything.  Great.  Adding 005345 to the list to
+            // ignore.
             if (mac.startsWith("44-45-53") ||
                 mac.startsWith("44:45:53")) {
+                continue;
+            } else if (mac.startsWith("00-53-45-00") ||
+                mac.startsWith("00:53:45:00")) {
                 continue;
             }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ToolTipObserver.java,v 1.2 2001/08/23 00:16:21 shaper Exp $
+// $Id: ToolTipObserver.java,v 1.3 2001/08/28 23:51:48 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -13,12 +13,14 @@ import javax.swing.JComponent;
 public interface ToolTipObserver
 {
     /**
-     * Called when the tool tip associated with the given target
+     * Called when the tool tip associated with the given provider
      * should be displayed.
      *
-     * @param target the object whose tool tip should be shown.
+     * @param tipper the tool tip provider.
+     * @param x the last mouse x-position.
+     * @param y the last mouse y-position.
      */
-    public void showToolTip (Object target);
+    public void showToolTip (ToolTipProvider tipper, int x, int y);
 
     /**
      * Called when any visible tool tip should be hidden and so the

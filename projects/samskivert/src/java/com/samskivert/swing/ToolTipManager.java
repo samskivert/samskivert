@@ -1,5 +1,5 @@
 //
-// $Id: ToolTipManager.java,v 1.2 2001/08/23 00:16:21 shaper Exp $
+// $Id: ToolTipManager.java,v 1.3 2001/08/28 23:51:48 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -40,6 +40,7 @@ public class ToolTipManager implements Interval, AncestorListener
 
 	// set up our starting state
 	_lastmove = System.currentTimeMillis();
+	_lastx = _lasty = -1;
 	_fastshow = false;
 	_tipdelay = TIP_INTERVAL;
 
@@ -111,7 +112,7 @@ public class ToolTipManager implements Interval, AncestorListener
 	return (_fastshow || (now - _lastmove >= _tipdelay));
     }
 
-    protected void updateObject (Object target)
+    protected void updateObject (ToolTipProvider target)
     {
 	_curobj = target;
 	_lastmove = System.currentTimeMillis();
@@ -126,21 +127,23 @@ public class ToolTipManager implements Interval, AncestorListener
      * manages is entered.
      *
      * @param target the object entered.
+     * @param x the mouse x-position.
+     * @param y the mouse y-position.
      */
-    public void handleMouseEntered (Object target)
+    public void handleMouseEntered (ToolTipProvider target, int x, int y)
     {
 	_action = A_SHOW;
 	updateObject(target);
+	_lastx = x;
+	_lasty = y;
     }
 
     /**
      * Handle mouse exited events for a given object.  The {@link
      * ToolTipObserver} should call this method whenever an object it
      * manages is exited.
-     *
-     * @param target the object exited.
      */
-    public void handleMouseExited (Object target)
+    public void handleMouseExited ()
     {
 	_action = A_HIDE;
 	updateObject(null);
@@ -153,7 +156,7 @@ public class ToolTipManager implements Interval, AncestorListener
      *
      * @param target the object clicked on.
      */
-    public void handleMouseClicked (Object target)
+    public void handleMouseClicked (ToolTipProvider target)
     {
 	_action = A_HIDE;
 	updateObject(target);
@@ -166,12 +169,19 @@ public class ToolTipManager implements Interval, AncestorListener
      * Handle mouse moved events.  The {@link ToolTipObserver} should
      * call this method whenever the mouse is moved within its
      * container bounds.
+     *
+     * @param x the mouse x-position.
+     * @param y the mouse y-position.
      */
-    public void handleMouseMoved ()
+    public void handleMouseMoved (int x, int y)
     {
 	// just update the last moved time since we don't perform any
 	// tip antics purely as a result of mouse movement
 	_lastmove = System.currentTimeMillis();
+
+	// and save the mouse position
+	_lastx = x;
+	_lasty = y;
     }
 
     /**
@@ -195,7 +205,7 @@ public class ToolTipManager implements Interval, AncestorListener
      */
     class TipTask implements Runnable
     {
-	public TipTask (Object obj, int action)
+	public TipTask (ToolTipProvider obj, int action)
 	{
 	    _obj = obj;
 	    _action = action;
@@ -204,12 +214,12 @@ public class ToolTipManager implements Interval, AncestorListener
 	public void run ()
 	{
 	    switch (_action) {
-	    case A_SHOW: _obs.showToolTip(_obj); break;
+	    case A_SHOW: _obs.showToolTip(_obj, _lastx, _lasty); break;
 	    case A_HIDE: _obs.hideToolTip(); break;
 	    }
 	}
 
-	protected Object _obj;
+	protected ToolTipProvider _obj;
 	protected int _action;
     }
 
@@ -247,7 +257,10 @@ public class ToolTipManager implements Interval, AncestorListener
     protected long _lastmove;
 
     /** The current object the mouse is within. */
-    protected Object _curobj;
+    protected ToolTipProvider _curobj;
+
+    /** The last known mouse position. */
+    protected int _lastx, _lasty;
 
     /** The next tool tip action to perform. */
     protected int _action;

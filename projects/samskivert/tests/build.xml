@@ -4,7 +4,10 @@
   <!-- things you may want to change -->
   <property name="build.compiler" value="jikes"/>
   <property name="java.libraries" value="/usr/share/java"/>
-  <property name="junit.fork"     value="false"/>
+
+  <!-- we need to do this to avoid conflicts with the XML jar files loaded
+       to run ant versus the XML jar files we load for our tests -->
+  <property name="junit.fork"     value="true"/>
 
   <!-- things you probably don't want to change -->
   <property name="test.dir"   value="."/>

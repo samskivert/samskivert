@@ -29,7 +29,7 @@ import java.io.Serializable;
  */
 public class Tuple implements Serializable
 {
-    /** The left objecto. */
+    /** The left object. */
     public Object left;
 
     /** The right object. */

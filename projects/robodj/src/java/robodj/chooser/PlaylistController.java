@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistController.java,v 1.1 2003/05/04 18:16:06 mdb Exp $
+// $Id: PlaylistController.java,v 1.2 2004/01/28 02:36:44 mdb Exp $
 
 package robodj.chooser;
 
@@ -165,7 +165,12 @@ public class PlaylistController extends ItemController
             Entry entry = Chooser.model.getEntry(eid);
             if (entry != null) {
                 Song song = entry.getSong(sid);
-                _panel.plist.add(new PlaylistEntry(entry, song));
+                if (song != null) {
+                    _panel.plist.add(new PlaylistEntry(entry, song));
+                } else {
+                    Log.warning("No song for entry? [sid=" + sid +
+                                ", entry=" + entry + "].");
+                }
             } else {
                 Log.warning("Unable to load entry [eid=" + eid + "].");
             }

@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.10 2002/02/22 07:28:29 mdb Exp $
+// $Id: Repository.java,v 1.11 2002/03/03 16:03:14 mdb Exp $
 
 package robodj.repository;
 
@@ -47,6 +47,10 @@ public class Repository extends JORARepository
 	throws PersistenceException
     {
 	super(provider, REPOSITORY_DB_IDENT);
+
+        // make sure we can get our database connection
+        Connection conn = provider.getConnection(REPOSITORY_DB_IDENT);
+        provider.releaseConnection(REPOSITORY_DB_IDENT, conn);
     }
 
     protected void createTables (Session session)

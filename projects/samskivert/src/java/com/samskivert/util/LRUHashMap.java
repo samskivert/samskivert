@@ -1,5 +1,5 @@
 //
-// $Id: LRUHashMap.java,v 1.2 2003/01/17 00:40:45 mdb Exp $
+// $Id: LRUHashMap.java,v 1.3 2003/01/17 02:01:05 mdb Exp $
 
 package com.samskivert.util;
 
@@ -51,6 +51,23 @@ public class LRUHashMap implements Map
             Math.min(1024, Math.max(16, maxSize)), .75f, true);
         _maxSize = maxSize;
         _sizer = (sizer == null) ? _unitSizer : sizer;
+    }
+
+    /**
+     * Updates the cache's maximum size, flushing elements from the cache
+     * if necessary.
+     */
+    public void setMaxSize (int maxSize)
+    {
+        // configure our new maximum size
+        _maxSize = maxSize;
+
+        // boot enough people to get below said size
+        while (_size > _maxSize && size() > 1) {
+            Object key = keySet().iterator().next();
+            remove(key);
+//             System.out.println("Flushed " + key + ": " + _size);
+        }
     }
 
     /**

@@ -24,13 +24,16 @@ public class IntField extends JTextField
 {
     public IntField ()
     {
-        this(0, 0, Integer.MAX_VALUE);
+        this(Integer.MAX_VALUE);
     }
 
-    public IntField (int initial, int minValue, int maxValue)
+    public IntField (int maxValue)
     {
-        setValue(initial);
+        this(0, maxValue);
+    }
 
+    public IntField (int minValue, int maxValue)
+    {
         _minValue = minValue;
         _maxValue = maxValue;
 
@@ -40,6 +43,12 @@ public class IntField extends JTextField
         // register ourselves as the validator
         SwingUtil.setDocumentHelpers(this, this, this);
         addFocusListener(this);
+    }
+
+    public IntField (int initial, int minValue, int maxValue)
+    {
+        this(minValue, maxValue);
+        setValue(initial);
     }
 
     /**

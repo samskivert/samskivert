@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.19 2002/11/29 20:39:21 shaper Exp $
+// $Id: ArrayUtil.java,v 1.20 2002/12/03 23:55:52 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -63,6 +63,28 @@ public class ArrayUtil
             }
         }
         return min;
+    }
+
+    /**
+     * Returns the index of the maximum value in the given array of
+     * values, or <code>-1</code> if the array is <code>null</code> or
+     * zero-length.
+     */
+    public static int getMaxValueIndex (int[] values)
+    {
+        if (values == null || values.length == 0) {
+            return -1;
+        }
+
+        int idx = 0;
+        int max = values[idx];
+        for (int ii = 1; ii < values.length; ii++) {
+            if (values[ii] > max) {
+                max = values[ii];
+                idx = ii;
+            }
+        }
+        return idx;
     }
 
     /**

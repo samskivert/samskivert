@@ -1,17 +1,23 @@
 body { 
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
+}
+
+i, em {
+  font-style: italic;
 }
 
 th, td, center, div { /* ns 4 */
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 12pt;
 }
 
-pre {
+pre, code {
   font-family: Courier;
-  font-size: 12pt
 }
 
-.big { font-size: 16pt }
-.small { font-size: 10pt }
+.big {
+  font-size: x-large;
+}
+
+.small {
+  font-size: small;
+}

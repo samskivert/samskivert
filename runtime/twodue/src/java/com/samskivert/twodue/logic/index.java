@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.5 2002/11/12 22:35:33 mdb Exp $
+// $Id: index.java,v 1.6 2002/11/12 22:50:54 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -112,6 +112,7 @@ public class index extends UserLogic
             }
         });
         ctx.put("xtasks", xtasks);
+        ctx.put("xcats", new CategoryTool());
 
         if (!StringUtil.blank(query) && xtasks.length == 0) {
             ctx.put("error", "index.error.no_matching_tasks");
@@ -126,6 +127,7 @@ public class index extends UserLogic
             }
         });
         ctx.put("otasks", otasks);
+        ctx.put("ocats", new CategoryTool());
 
         // load up recently completed tasks
         tasks = app.getRepository().loadCompletedTasks(0, 6);
@@ -197,4 +199,19 @@ public class index extends UserLogic
             }
         }
     };
+
+    // used to easy category generation in UI
+    public static class CategoryTool
+    {
+        public boolean checkCategory (String category)
+        {
+            if (category.equals(_category)) {
+                return false;
+            } else {
+                _category = category;
+                return true;
+            }
+        }
+        protected String _category;
+    }
 }

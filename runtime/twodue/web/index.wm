@@ -37,6 +37,11 @@ $form.fixedHidden("task", "$task.taskId")
 #else
 #set ($rowcolor = "#EEEEEE")
 #end
+
+#if ($ocats.checkCategory($task.complexity))
+<tr><td colspan="4" class="small">$task.complexity</td></tr>
+#end
+
 <tr bgcolor="$rowcolor"><td>
 #if ($username == $task.owner)
 $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
@@ -72,14 +77,11 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 #end
 </td></tr>
 
-#set ($complexity = "")
-
 #foreach ($task in $xtask.tasks)
 <form action="index.wm">
 $form.fixedHidden("task", "$task.taskId")
 
-#if ($task.complexity != $complexity)
-#set ($complexity = $task.complexity)
+#if ($xcats.checkCategory($task.complexity))
 <tr><td colspan="4" class="small">$task.complexity</td></tr>
 #end
 

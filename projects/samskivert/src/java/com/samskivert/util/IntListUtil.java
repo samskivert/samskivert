@@ -444,7 +444,7 @@ public class IntListUtil
         int size = list.length;
         // expand size by powers of two until we're big enough
         while (size <= index) {
-            size *= 2;
+            size = Math.max(size * 2, DEFAULT_LIST_SIZE);
         }
 
         // create a new list and copy the contents

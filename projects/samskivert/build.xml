@@ -83,14 +83,6 @@
     <available property="jakarta.velocity.present"
      classname="org.apache.velocity.Template" classpathref="classpath"/>
     <echo message="Velocity: ${jakarta.velocity.present}"/>
-
-    <echo message=""/>
-    <echo message="-----------------------------------"/>
-    <echo message="WebMacro - http://www.webmacro.org/"/>
-    <echo message="-----------------------------------"/>
-    <available property="webmacro.present"
-     classname="org.webmacro.Template" classpathref="classpath"/>
-    <echo message="WebMacro: ${webmacro.present}"/>
   </target>
 
   <!-- combines package availability into build controls -->
@@ -153,16 +145,6 @@
     </condition>
     <echo message="com.samskivert.velocity: ${build.velocity}"/>
 
-    <condition property="build.webmacro">
-      <and>
-        <isset property="build.servlet"/>
-        <isset property="build.util"/>
-        <isset property="servlet2.2.present"/>
-        <isset property="webmacro.present"/>
-      </and>
-    </condition>
-    <echo message="com.samskivert.webmacro: ${build.webmacro}"/>
-
     <condition property="build.xml">
       <and>
         <isset property="build.io"/>
@@ -205,7 +187,6 @@
       <exclude name="com/samskivert/test/**" unless="build.test"/>
       <exclude name="com/samskivert/util/**" unless="build.util"/>
       <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
-      <exclude name="com/samskivert/webmacro/**" unless="build.webmacro"/>
       <exclude name="com/samskivert/xml/**" unless="build.xml"/>
     </javac>
   </target>
@@ -227,7 +208,6 @@
         <exclude name="com/samskivert/test/**" unless="build.test"/>
         <exclude name="com/samskivert/util/**" unless="build.util"/>
         <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
-        <exclude name="com/samskivert/webmacro/**" unless="build.webmacro"/>
         <exclude name="com/samskivert/xml/**" unless="build.xml"/>
       </packageset>
       <bottom>Copyright &#169; 2000-${year} ${copyright.holder}.

@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.18 2003/07/29 23:50:07 ray Exp $
+// $Id: SortableArrayList.java,v 1.19 2003/07/29 23:51:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -238,7 +238,7 @@ public class SortableArrayList extends AbstractList
      *
      * @param insert if true, an index equal to our size is valid.
      */
-    protected void rangeCheck (int index, boolean insert)
+    protected final void rangeCheck (int index, boolean insert)
     {
         if ((index < 0) || (insert ? (index > _size) : (index >= _size))) {
             throw new IndexOutOfBoundsException(

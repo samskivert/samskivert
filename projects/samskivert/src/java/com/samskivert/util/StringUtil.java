@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.55 2003/02/05 00:20:35 mdb Exp $
+// $Id: StringUtil.java,v 1.56 2003/06/02 23:48:33 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,8 @@ import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import java.text.NumberFormat;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -140,6 +142,28 @@ public class StringUtil
             // fall through
         }
         return false;
+    }
+
+    /**
+     * Formats a floating point value with useful default rules;
+     * ie. always display a digit to the left of the decimal and display
+     * only two digits to the right of the decimal (rounding as
+     * necessary).
+     */
+    public static String format (float value)
+    {
+        return _ffmt.format(value);
+    }
+
+    /**
+     * Formats a floating point value with useful default rules;
+     * ie. always display a digit to the left of the decimal and display
+     * only two digits to the right of the decimal (rounding as
+     * necessary).
+     */
+    public static String format (double value)
+    {
+        return _ffmt.format(value);
     }
 
     /**
@@ -1010,4 +1034,12 @@ public class StringUtil
     }
 
     private final static String XLATE = "0123456789abcdef";
+
+    /** Used to easily format floats with sensible defaults. */
+    protected static final NumberFormat _ffmt = NumberFormat.getInstance();
+    static {
+        _ffmt.setMinimumIntegerDigits(1);
+        _ffmt.setMinimumFractionDigits(1);
+        _ffmt.setMaximumFractionDigits(2);
+    }
 }

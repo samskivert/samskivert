@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.9 2003/07/27 17:29:26 ray Exp $
+// $Id: IntervalManager.java,v 1.10 2003/08/13 21:04:12 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -103,6 +103,28 @@ public class IntervalManager
         _logging = log;
     }
 
+    /**
+     * Returns the total number of intervals registered.
+     */
+    public static int registeredIntervalCount ()
+    {
+        return _hash.size();
+    }
+
+    /**
+     * Returns the number of intervals fired since the last call to this
+     * method.
+     */
+    public static int getAndClearFiredIntervals ()
+    {
+        int fired;
+        synchronized (_hash) {
+            fired = _firedIntervals;
+            _firedIntervals = 0;
+        }
+        return fired;
+    }
+
     /** The timer we use to schedule everything. */
     protected static Timer _timer = new Timer(true);
 
@@ -112,6 +134,9 @@ public class IntervalManager
 
     /** Whether or not we're logging interval fires. */
     protected static boolean _logging = false;
+
+    /** Used by {@link #getAndClearFiredIntervals}. */
+    protected static int _firedIntervals;
 
     /**
      * A class to adapt {@link TimerTask} to the smooth action of {@link
@@ -147,6 +172,11 @@ public class IntervalManager
         {
             if (_logging) {
                 System.err.println("Interval fired [source=" + _source + "]");
+            }
+
+            // note that we fired another interval
+            synchronized (_hash) {
+                _firedIntervals++;
             }
 
             // protect our ass.

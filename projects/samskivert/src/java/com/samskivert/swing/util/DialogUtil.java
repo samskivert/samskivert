@@ -1,5 +1,5 @@
 //
-// $Id: DialogUtil.java,v 1.1 2002/07/09 17:48:13 ray Exp $
+// $Id: DialogUtil.java,v 1.2 2002/07/10 01:53:59 ray Exp $
 
 package com.samskivert.swing.util;
 
@@ -60,23 +60,13 @@ public class DialogUtil
     public static void invalidateDialog (Component any)
     {
         JInternalDialog dialog = getInternalDialog(any);
-        invalidateChildren(dialog);
+        SwingUtil.applyToHierarchy(dialog, new SwingUtil.ComponentOp() {
+            public void apply (Component comp)
+            {
+                comp.invalidate();
+            }
+        });
 
         dialog.resize(dialog.getPreferredSize());
-    }
-
-    /**
-     * Invalidate all the children of the specified container.
-     */
-    protected static void invalidateChildren (Container c)
-    {
-        int numkids = c.getComponentCount();
-        for (int ii=0; ii < numkids; ii++) {
-            Component child = c.getComponent(ii);
-            if (child instanceof Container) {
-                invalidateChildren((Container) child);
-            }
-            child.invalidate();
-        }
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.10 2002/06/14 07:55:11 shaper Exp $
+// $Id: SwingUtil.java,v 1.11 2002/07/10 01:53:59 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -142,21 +142,41 @@ public class SwingUtil
      * component, which is senseless in our opinion, but was surely done
      * for some arguably good reason.
      */
-    public static void setEnabled (Container comp, boolean enabled)
+    public static void setEnabled (Container comp, final boolean enabled)
     {
-        // set the state of our children
-        int ccount = comp.getComponentCount();
-        for (int i = 0; i < ccount; i++) {
-            Component child = comp.getComponent(i);
-            if (child instanceof Container) {
-                setEnabled((Container)child, enabled);
-            } else {
-                child.setEnabled(enabled);
+        applyToHierarchy(comp, new ComponentOp() {
+            public void apply (Component comp)
+            {
+                comp.setEnabled(enabled);
+            }
+        });
+    }
+
+    /**
+     * Apply the specified ComponentOp to the supplied component
+     * and then all its descendants.
+     */
+    public static void applyToHierarchy (Component comp, ComponentOp op)
+    {
+        op.apply(comp);
+        if (comp instanceof Container) {
+            Container c = (Container) comp;
+            int ccount = c.getComponentCount();
+            for (int ii=0; ii < ccount; ii++) {
+                applyToHierarchy(c.getComponent(ii), op);
             }
         }
+    }
 
-        // set our state
-        comp.setEnabled(enabled);
+    /**
+     * An operation that may be applied to a component.
+     */
+    public static interface ComponentOp
+    {
+        /**
+         * Apply an operation to the given component.
+         */
+        public void apply (Component comp);
     }
 
     /**

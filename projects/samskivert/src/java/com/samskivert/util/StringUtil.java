@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.72 2004/03/06 20:05:41 ray Exp $
+// $Id: StringUtil.java,v 1.73 2004/06/12 01:00:51 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -55,7 +55,7 @@ public class StringUtil
      */
     public static boolean blank (String value)
     {
-	return (value == null || value.trim().length() == 0);
+        return (value == null || value.trim().length() == 0);
     }
 
     /**
@@ -144,24 +144,24 @@ public class StringUtil
      */
     public static String replace (String source, String before, String after)
     {
-	int pos = source.indexOf(before);
-	if (pos == -1) {
-	    return source;
-	}
+        int pos = source.indexOf(before);
+        if (pos == -1) {
+            return source;
+        }
 
-	StringBuffer sb = new StringBuffer(source.length() + 32);
+        StringBuffer sb = new StringBuffer(source.length() + 32);
 
-	int blength = before.length();
-	int start = 0;
-	while (pos != -1) {
-	    sb.append(source.substring(start, pos));
-	    sb.append(after);
-	    start = pos + blength;
-	    pos = source.indexOf(before, start);
-	}
-	sb.append(source.substring(start));
+        int blength = before.length();
+        int start = 0;
+        while (pos != -1) {
+            sb.append(source.substring(start, pos));
+            sb.append(after);
+            start = pos + blength;
+            pos = source.indexOf(before, start);
+        }
+        sb.append(source.substring(start));
 
-	return sb.toString();
+        return sb.toString();
     }
 
     /**
@@ -285,9 +285,9 @@ public class StringUtil
      */
     public static String toString (Object val)
     {
-	StringBuffer buf = new StringBuffer();
+        StringBuffer buf = new StringBuffer();
         toString(buf, val);
-	return buf.toString();
+        return buf.toString();
     }
 
     /**
@@ -300,9 +300,9 @@ public class StringUtil
     public static String toString (
         Object val, String openBox, String closeBox)
     {
-	StringBuffer buf = new StringBuffer();
+        StringBuffer buf = new StringBuffer();
         toString(buf, val, openBox, closeBox);
-	return buf.toString();
+        return buf.toString();
     }
 
     /**
@@ -352,141 +352,141 @@ public class StringUtil
     public static void toString (StringBuffer buf, Object val,
                                  String openBox, String closeBox, String sep)
     {
-	if (val instanceof byte[]) {
-	    buf.append(openBox);
-	    byte[] v = (byte[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(v[i]);
-	    }
-	    buf.append(closeBox);
+        if (val instanceof byte[]) {
+            buf.append(openBox);
+            byte[] v = (byte[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
 
         } else if (val instanceof short[]) {
-	    buf.append(openBox);
-	    short[] v = (short[])val;
-	    for (short i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(v[i]);
-	    }
-	    buf.append(closeBox);
+            buf.append(openBox);
+            short[] v = (short[])val;
+            for (short i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
 
         } else if (val instanceof int[]) {
-	    buf.append(openBox);
-	    int[] v = (int[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(v[i]);
-	    }
-	    buf.append(closeBox);
+            buf.append(openBox);
+            int[] v = (int[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof long[]) {
-	    buf.append(openBox);
-	    long[] v = (long[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(v[i]);
-	    }
-	    buf.append(closeBox);
+        } else if (val instanceof long[]) {
+            buf.append(openBox);
+            long[] v = (long[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof float[]) {
-	    buf.append(openBox);
-	    float[] v = (float[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(v[i]);
-	    }
-	    buf.append(closeBox);
+        } else if (val instanceof float[]) {
+            buf.append(openBox);
+            float[] v = (float[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof double[]) {
-	    buf.append(openBox);
-	    double[] v = (double[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(v[i]);
-	    }
-	    buf.append(closeBox);
+        } else if (val instanceof double[]) {
+            buf.append(openBox);
+            double[] v = (double[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof Object[]) {
-	    buf.append(openBox);
-	    Object[] v = (Object[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(toString(v[i]));
-	    }
-	    buf.append(closeBox);
+        } else if (val instanceof Object[]) {
+            buf.append(openBox);
+            Object[] v = (Object[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(toString(v[i]));
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof boolean[]) {
-	    buf.append(openBox);
-	    boolean[] v = (boolean[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(v[i] ? "t" : "f");
-	    }
-	    buf.append(closeBox);
+        } else if (val instanceof boolean[]) {
+            buf.append(openBox);
+            boolean[] v = (boolean[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i] ? "t" : "f");
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof Collection) {
+        } else if (val instanceof Collection) {
             toString(buf, ((Collection)val).iterator(), openBox, closeBox);
 
-	} else if (val instanceof Enumeration) {
-	    buf.append(openBox);
-            Enumeration enum = (Enumeration)val;
-	    for (int i = 0; enum.hasMoreElements(); i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(toString(enum.nextElement()));
-	    }
-	    buf.append(closeBox);
-
-	} else if (val instanceof Iterator) {
-	    buf.append(openBox);
+        } else if (val instanceof Iterator) {
+            buf.append(openBox);
             Iterator iter = (Iterator)val;
-	    for (int i = 0; iter.hasNext(); i++) {
-		if (i > 0) {
-		    buf.append(sep);
-		}
-		buf.append(toString(iter.next()));
-	    }
-	    buf.append(closeBox);
+            for (int i = 0; iter.hasNext(); i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(toString(iter.next()));
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof Point2D) {
+        } else if (val instanceof Enumeration) {
+            buf.append(openBox);
+            Enumeration enm = (Enumeration)val;
+            for (int i = 0; enm.hasMoreElements(); i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(toString(enm.nextElement()));
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof Point2D) {
             Point2D p = (Point2D)val;
-	    buf.append(openBox);
+            buf.append(openBox);
             coordsToString(buf, (int)p.getX(), (int)p.getY());
             buf.append(closeBox);
 
-	} else if (val instanceof Dimension2D) {
+        } else if (val instanceof Dimension2D) {
             Dimension2D d = (Dimension2D)val;
-	    buf.append(openBox);
+            buf.append(openBox);
             buf.append(d.getWidth()).append("x").append(d.getHeight());
             buf.append(closeBox);
 
-	} else if (val instanceof Rectangle2D) {
+        } else if (val instanceof Rectangle2D) {
             Rectangle2D r = (Rectangle2D)val;
             buf.append(openBox);
             buf.append(r.getWidth()).append("x").append(r.getHeight());
             coordsToString(buf, (int)r.getX(), (int)r.getY());
             buf.append(closeBox);
 
-	} else {
-	    buf.append(val);
-	}
+        } else {
+            buf.append(val);
+        }
     }
 
     /**
@@ -551,41 +551,38 @@ public class StringUtil
         String openBox = formatter.getOpenBox();
         String closeBox = formatter.getCloseBox();
 
-	if (val instanceof Object[]) {
-	    buf.append(openBox);
-	    Object[] v = (Object[])val;
-	    for (int i = 0; i < v.length; i++) {
-		if (i > 0) {
-		    buf.append(", ");
-		}
-		buf.append(formatter.toString(v[i]));
-	    }
-	    buf.append(closeBox);
+        if (val instanceof Object[]) {
+            buf.append(openBox);
+            Object[] v = (Object[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(", ");
+                }
+                buf.append(formatter.toString(v[i]));
+            }
+            buf.append(closeBox);
 
-	} else if (val instanceof Collection) {
-            listToString(buf, ((Collection)val).iterator(), formatter);
-
-	} else if (val instanceof Enumeration) {
-	    buf.append(openBox);
-            Enumeration enum = (Enumeration)val;
-	    for (int i = 0; enum.hasMoreElements(); i++) {
-		if (i > 0) {
-		    buf.append(", ");
-		}
-		buf.append(formatter.toString(enum.nextElement()));
-	    }
-	    buf.append(closeBox);
-
-	} else if (val instanceof Iterator) {
-	    buf.append(openBox);
+        } else if (val instanceof Iterator) {
+            buf.append(openBox);
             Iterator iter = (Iterator)val;
-	    for (int i = 0; iter.hasNext(); i++) {
-		if (i > 0) {
-		    buf.append(", ");
-		}
-		buf.append(formatter.toString(iter.next()));
-	    }
-	    buf.append(closeBox);
+            for (int i = 0; iter.hasNext(); i++) {
+                if (i > 0) {
+                    buf.append(", ");
+                }
+                buf.append(formatter.toString(iter.next()));
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof Enumeration) {
+            buf.append(openBox);
+            Enumeration enm = (Enumeration)val;
+            for (int i = 0; enm.hasMoreElements(); i++) {
+                if (i > 0) {
+                    buf.append(", ");
+                }
+                buf.append(formatter.toString(enm.nextElement()));
+            }
+            buf.append(closeBox);
 
         } else {
             // fall back on the general purpose
@@ -764,8 +761,8 @@ public class StringUtil
         for (int i = 0; i < count; i++) {
             int val = (int)bytes[i];
             if (val < 0) {
-		val += 256;
-	    }
+                val += 256;
+            }
             chars[2*i] = XLATE.charAt(val/16);
             chars[2*i+1] = XLATE.charAt(val%16);
         }
@@ -814,12 +811,12 @@ public class StringUtil
      */
     public static String md5hex (String source)
     {
-	try {
-	    MessageDigest digest = MessageDigest.getInstance("MD5");
-	    return hexlate(digest.digest(source.getBytes()));
-	} catch (NoSuchAlgorithmException nsae) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            return hexlate(digest.digest(source.getBytes()));
+        } catch (NoSuchAlgorithmException nsae) {
             throw new RuntimeException("MD5 codec not available");
-	}
+        }
     }
 
     /**

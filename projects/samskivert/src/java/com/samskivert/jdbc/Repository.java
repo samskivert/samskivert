@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.6 2001/05/26 04:49:31 mdb Exp $
+// $Id: Repository.java,v 1.7 2001/06/01 07:27:59 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -168,18 +168,20 @@ public abstract class Repository
      */
     protected interface Operation
     {
-	public void invoke () throws SQLException;
+	public Object invoke () throws SQLException;
     }
 
     /**
      * Executes the supplied operation. In the event of a transient
      * failure, the repository will attempt to reestablish the database
      * connection and try the operation again.
+     *
+     * @return whatever value is returned by the invoked operation.
      */
-    protected void execute (Operation op)
+    protected Object execute (Operation op)
 	throws SQLException
     {
-        execute(op, true);
+        return execute(op, true);
     }
 
     /**
@@ -191,21 +193,28 @@ public abstract class Repository
      * to a transient failure (like losing the connection to the database
      * or deadlock detection), the connection to the database will be
      * reestablished and the operation attempted once more.
+     *
+     * @return whatever value is returned by the invoked operation.
      */
-    protected void execute (Operation op, boolean retryOnTransientFailure)
+    protected Object execute (Operation op, boolean retryOnTransientFailure)
 	throws SQLException
     {
+        Object rv = null;
+
         // make sure our connection is established
         ensureConnection();
 
 	try {
 	    // invoke the operation
-	    op.invoke();
+	    rv = op.invoke();
 
 	    // commit the session
             if (supportsTransactions()) {
                 _session.commit();
             }
+
+            // return the operation result
+            return rv;
 
 	} catch (SQLException sqe) {
 	    // back out our changes if something got hosed
@@ -227,7 +236,7 @@ public abstract class Repository
                 // to reset the connection, we simply close it. it will be
                 // reopened on our subsequent call to execute()
                 shutdown();
-                execute(op, false);
+                return execute(op, false);
 
             } else {
                 throw sqe;

@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.9 2001/05/26 07:09:38 mdb Exp $
+// $Id: UserRepository.java,v 1.10 2001/06/01 07:27:59 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -81,11 +81,13 @@ public class UserRepository extends MySQLRepository
 
 	try {
 	    execute(new Operation () {
-		public void invoke () throws SQLException
+		public Object invoke () throws SQLException
 		{
 		    _utable.insert(user);
 		    // update the userid now that it's known
 		    user.userid = lastInsertedId();
+                    // nothing to return
+                    return null;
 		}
 	    });
 
@@ -106,23 +108,26 @@ public class UserRepository extends MySQLRepository
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public User loadUser (String username)
+    public User loadUser (final String username)
 	throws SQLException
     {
-        // make sure our session is established
-        ensureConnection();
+        return (User)execute(new Operation () {
+            public Object invoke () throws SQLException
+            {
+                // look up the user
+                String query = "where username = '" + username + "'";
+                Cursor ec = _utable.select(query);
 
-	// look up the user
-	Cursor ec = _utable.select("where username = '" + username + "'");
+                // fetch the user from the cursor
+                User user = (User)ec.next();
+                if (user != null) {
+                    // call next() again to cause the cursor to close itself
+                    ec.next();
+                }
 
-	// fetch the user from the cursor
-	User user = (User)ec.next();
-	if (user != null) {
-	    // call next() again to cause the cursor to close itself
-	    ec.next();
-	}
-
-	return user;
+                return user;
+            }
+        });
     }
 
     /**
@@ -131,23 +136,25 @@ public class UserRepository extends MySQLRepository
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public User loadUser (int userid)
+    public User loadUser (final int userid)
 	throws SQLException
     {
-        // make sure our session is established
-        ensureConnection();
+        return (User)execute(new Operation () {
+            public Object invoke () throws SQLException
+            {
+                // look up the user
+                Cursor ec = _utable.select("where userid = " + userid);
 
-	// look up the user
-	Cursor ec = _utable.select("where userid = " + userid);
+                // fetch the user from the cursor
+                User user = (User)ec.next();
+                if (user != null) {
+                    // call next() again to cause the cursor to close itself
+                    ec.next();
+                }
 
-	// fetch the user from the cursor
-	User user = (User)ec.next();
-	if (user != null) {
-	    // call next() again to cause the cursor to close itself
-	    ec.next();
-	}
-
-	return user;
+                return user;
+            }
+        });
     }
 
     /**
@@ -156,25 +163,27 @@ public class UserRepository extends MySQLRepository
      * @return the user associated with the specified session or null of
      * no session exists with the supplied identifier.
      */
-    public User loadUserBySession (String sessionKey)
+    public User loadUserBySession (final String sessionKey)
 	throws SQLException
     {
-        // make sure our session is established
-        ensureConnection();
+        return (User)execute(new Operation () {
+            public Object invoke () throws SQLException
+            {
+                String query = "where authcode = '" + sessionKey +
+                    "' AND sessions.userid = users.userid";
+                // look up the user
+                Cursor ec = _utable.select("sessions", query);
 
-	// look up the user
-	Cursor ec = _utable.select("sessions",
-				   "where authcode = '" + sessionKey +
-				   "' AND sessions.userid = users.userid");
+                // fetch the user from the cursor
+                User user = (User)ec.next();
+                if (user != null) {
+                    // call next() again to cause the cursor to close itself
+                    ec.next();
+                }
 
-	// fetch the user from the cursor
-	User user = (User)ec.next();
-	if (user != null) {
-	    // call next() again to cause the cursor to close itself
-	    ec.next();
-	}
-
-	return user;
+                return user;
+            }
+        });
     }
 
     /**
@@ -184,9 +193,11 @@ public class UserRepository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
 		_utable.update(user);
+                // nothing to return
+                return null;
 	    }
 	});
     }
@@ -198,9 +209,11 @@ public class UserRepository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
 		_utable.delete(user);
+                // nothing to return
+                return null;
 	    }
 	});
     }
@@ -226,12 +239,14 @@ public class UserRepository extends MySQLRepository
 
 	// insert the session into the database
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
 		_session.execute("insert into sessions " +
 				 "(authcode, userid, expires) values('" +
 				 authcode + "', " + user.userid + ", '" +
 				 expires + "')");
+                // nothing to return
+                return null;
 	    }
 	});
 
@@ -246,10 +261,12 @@ public class UserRepository extends MySQLRepository
 	throws SQLException
     {
 	execute(new Operation () {
-	    public void invoke () throws SQLException
+	    public Object invoke () throws SQLException
 	    {
 		_session.execute("delete from sessions where " +
 				 "expires <= CURRENT_DATE()");
+                // nothing to return
+                return null;
 	    }
 	});
     }
@@ -276,19 +293,16 @@ public class UserRepository extends MySQLRepository
 	return loadNames(userids, "realname");
     }
 
-    protected String[] loadNames (int[] userids, String column)
+    protected String[] loadNames (int[] userids, final String column)
 	throws SQLException
     {
-        // make sure our session is established
-        ensureConnection();
-
         // if userids is zero length, we've got no work to do
         if (userids.length == 0) {
             return new String[0];
         }
 
 	// build up the string we need for the query
-	StringBuffer ids = new StringBuffer();
+	final StringBuffer ids = new StringBuffer();
 	for (int i = 0; i < userids.length; i++) {
 	    if (ids.length() > 0) {
 		ids.append(", ");
@@ -296,23 +310,32 @@ public class UserRepository extends MySQLRepository
 	    ids.append(userids[i]);
 	}
 
-	// do the query
-	IntMap map = new IntMap();
-	Statement stmt = _session.connection.createStatement();
-        try {
-            String query = "select userid, " + column +
-                " from users " +
-                "where userid in (" + ids + ")";
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()) {
-                int userid = rs.getInt(1);
-                String name = rs.getString(2);
-                map.put(userid, name);
-            }
+	final IntMap map = new IntMap();
 
-        } finally {
-            stmt.close();
-        }
+	// do the query
+        execute(new Operation () {
+            public Object invoke () throws SQLException
+            {
+                Statement stmt = _session.connection.createStatement();
+                try {
+                    String query = "select userid, " + column +
+                        " from users " +
+                        "where userid in (" + ids + ")";
+                    ResultSet rs = stmt.executeQuery(query);
+                    while (rs.next()) {
+                        int userid = rs.getInt(1);
+                        String name = rs.getString(2);
+                        map.put(userid, name);
+                    }
+
+                    // nothing to return
+                    return null;
+
+                } finally {
+                    stmt.close();
+                }
+            }
+        });
 
 	// finally construct our result
 	String[] result = new String[userids.length];

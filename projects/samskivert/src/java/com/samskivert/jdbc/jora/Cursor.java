@@ -192,7 +192,7 @@ public class Cursor {
          ArrayList al = new ArrayList(maxElements < 100 ? maxElements : 100);
          Object o;
          while (--maxElements >= 0 && (o = next()) != null) {
-            al.add(o);
+             al.add(o);
          }
          return al;
     }
@@ -221,16 +221,17 @@ public class Cursor {
     }
 
     protected Cursor(Table table, Session session, int nTables,
-                     Object obj, FieldMask mask) { 
+                     Object obj, FieldMask mask, boolean like) { 
 	if (session == null) { 
 	    session = ((SessionThread)Thread.currentThread()).session;
 	}	    
         this.table = table;
 	this.session = session;
 	this.nTables = nTables;
+        this.like = like;
 	qbeObject = obj;
         qbeMask = mask;
-	query = table.buildQueryList(obj, mask);
+	query = table.buildQueryList(obj, mask, like);
 	stmt = null;
     }
   
@@ -243,5 +244,6 @@ public class Cursor {
     private Object    currObject;
     private Object    qbeObject;
     private FieldMask qbeMask;
+    private boolean   like;
 }
 

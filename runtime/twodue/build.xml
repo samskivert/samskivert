@@ -1,15 +1,17 @@
 <!-- build configuration for 'Two Due' project -->
 <project name="Two Due" default="compile" basedir=".">
 
+  <!-- the base directory from which we get our bundles and jar files -->
+  <property name="base.dir" value="../.."/>
+
   <!-- import properties -->
   <property file="build.properties"/>
 
   <!-- configuration parameters -->
   <property name="app.name"       value="twodue"/>
-  <property name="web.home"       value="/export/wayward/pages"/>
-  <property name="deploy.dir"     value="${web.home}/${app.name}"/>
+  <property name="install.dir"    value="${base.dir}/webapps"/>
+  <property name="deploy.dir"     value="${base.dir}/${app.name}"/>
   <property name="dist.war"       value="${app.name}.war"/>
-  <property name="build.compiler" value="jikes"/>
 
   <!-- we want to access the environment -->
   <property environment="env"/>
@@ -59,5 +61,10 @@
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
     <jar file="${dist.war}" basedir="${deploy.dir}"/>
+  </target>
+
+  <!-- builds the .war file and installs it into the webapp directory -->
+  <target name="install" depends="dist">
+    <copy file="${dist.war}" todir="${install.dir}"/>
   </target>
 </project>

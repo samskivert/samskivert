@@ -3,8 +3,6 @@
 
 package com.samskivert.velocity;
 
-import java.util.Properties;
-
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeServices;
@@ -30,16 +28,14 @@ public class VelocityUtil
         throws Exception
     {
         // initialize velocity which we'll use for templating
-        Properties props = new Properties();
-        props.put(VelocityEngine.VM_LIBRARY, "");
-        props.put(VelocityEngine.RESOURCE_LOADER, "classpath");
-        props.put("classpath." + VelocityEngine.RESOURCE_LOADER + ".class",
-                  ClasspathResourceLoader.class.getName());
-        VelocityEngine velocity = new VelocityEngine();
-        velocity.init(props);
-        velocity.setProperty(
-            VelocityEngine.RUNTIME_LOG_LOGSYSTEM, _logger);
-        return velocity;
+        VelocityEngine ve = new VelocityEngine();
+        ve.setProperty(VelocityEngine.VM_LIBRARY, "");
+        ve.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
+        ve.setProperty("classpath." + VelocityEngine.RESOURCE_LOADER + ".class",
+                       ClasspathResourceLoader.class.getName());
+        ve.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, _logger);
+        ve.init();
+        return ve;
     }
 
     /** Handles logging for Velocity. */

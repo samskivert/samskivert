@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.35 2003/12/09 04:07:16 mdb Exp $
+// $Id: Label.java,v 1.36 2003/12/19 04:08:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -467,8 +467,8 @@ public class Label implements SwingConstants, LabelStyleConstants
             // into negative x-land
             rx += _leaders[i];
 
-//             System.out.println("line " + i + " x: " + x + " y: " + y +
-//                                " rx: " + rx + " width: " + _size.width +
+//             System.out.println(i + " x: " + x + " y: " + y + " rx: " + rx +
+//                                " a: " + _align + " width: " + _size.width +
 //                                " lx: " + lbounds.getX() +
 //                                " lwidth: " + getWidth(lbounds) +
 //                                " extra: " + extra);

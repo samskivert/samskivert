@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.29 2002/02/08 09:35:45 mdb Exp $
+// $Id: StringUtil.java,v 1.30 2002/02/17 23:35:15 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -495,6 +495,50 @@ public class StringUtil
         tokens[tcount] = replace(tokens[tcount].trim(), "%COMMA%", ",");
 
         return tokens;
+    }
+
+    /**
+     * Returns an array containing the values in the supplied array
+     * converted into a table of values wrapped at the specified column
+     * count and fit into the specified field width. For example, a call
+     * like <code>toWrappedString(values, 5, 3)</code> might result in
+     * output like so:
+     *
+     * <pre>
+     *  12  1  9 10  3
+     *   1  5  7  9 11
+     *  39 15 12 80 16
+     * </pre>
+     */
+    public static String toMatrixString (
+        int[] values, int colCount, int fieldWidth)
+    {
+        StringBuffer buf = new StringBuffer();
+        StringBuffer valbuf = new StringBuffer();
+
+        for (int i = 0; i < values.length; i++) {
+            // format the integer value
+            valbuf.setLength(0);
+            valbuf.append(values[i]);
+
+            // pad with the necessary spaces
+            int spaces = fieldWidth - valbuf.length();
+            for (int s = 0; s < spaces; s++) {
+                buf.append(" ");
+            }
+
+            // append the value itself
+            buf.append(valbuf);
+
+            // if we're at the end of a row but not the end of the whole
+            // integer list, append a newline
+            if (i % colCount == (colCount-1) &&
+                i != values.length-1) {
+                buf.append("\n");
+            }
+        }
+
+        return buf.toString();
     }
 
     private final static String XLATE = "0123456789abcdef";

@@ -1,7 +1,9 @@
 //
-// $Id: StringUtil.java,v 1.5 2001/03/02 02:34:37 mdb Exp $
+// $Id: StringUtil.java,v 1.6 2001/07/12 02:43:43 mdb Exp $
 
 package com.samskivert.util;
+
+import java.util.StringTokenizer;
 
 /**
  * String related utility functions.
@@ -140,6 +142,64 @@ public class StringUtil
         }
 
         return new String(chars);
+    }
+
+    /**
+     * Parses an array of integers from it's string representation. The
+     * array should be represented as a bare list of numbers separated by
+     * commas, for example:
+     *
+     * <pre>
+     * 25, 17, 21, 99
+     * </pre>
+     *
+     * Any inability to parse the int array will result in the function
+     * returning null.
+     */
+    public static int[] parseIntArray (String source)
+    {
+        StringTokenizer tok = new StringTokenizer(source, ",");
+        int[] vals = new int[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            try {
+                // trim the whitespace from the token
+                String token = tok.nextToken().trim();
+                vals[i] = Integer.parseInt(token);
+            } catch (NumberFormatException nfe) {
+                return null;
+            }
+        }
+        return vals;
+    }
+
+    /**
+     * Parses an array of strings from a single string. The array should
+     * be represented as a bare list of strings separated by commas, for
+     * example:
+     *
+     * <pre>
+     * mary, had, a, little, lamb, and, an, escaped, comma,,
+     * </pre>
+     *
+     * If a comma is desired in one of the strings, it should be escaped
+     * by putting two commas in a row. Any inability to parse the string
+     * array will result in the function returning null.
+     */
+    public static String[] parseStringArray (String source)
+    {
+        // sort out escaped commas
+        source = replace(source, ",,", "%COMMA%");
+        // now tokenize the string
+        StringTokenizer tok = new StringTokenizer(source, ",");
+        String[] vals = new String[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            // trim the whitespace from the token
+            String token = tok.nextToken().trim();
+            // undo the comma escaping
+            token = replace(token, "%COMMA%", ",");
+            vals[i] = token;
+        }
+        return vals;
     }
 
     private final static String XLATE = "0123456789abcdef";

@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.1 2002/02/19 03:38:58 mdb Exp $
+// $Id: SortableArrayList.java,v 1.2 2002/02/19 03:53:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -62,7 +62,9 @@ public class SortableArrayList extends AbstractList
      */
     public void sort (Comparator comp)
     {
-        QuickSort.csort(_elements, 0, _size, comp);
+        if (_size > 1) {
+            QuickSort.csort(_elements, 0, _size-1, comp);
+        }
     }
 
     // documentation inherited from interface
@@ -156,7 +158,11 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public Object remove (int index)
     {
-        return ListUtil.remove(_elements, index);
+        Object removed = ListUtil.remove(_elements, index);
+        if (removed != null) {
+            _size--;
+        }
+        return removed;
     }
 
     // documentation inherited from interface

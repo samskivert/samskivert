@@ -1,9 +1,9 @@
 //
-// $Id: AtlantiConfig.java,v 1.1 2001/10/09 20:27:35 mdb Exp $
+// $Id: AtlantiConfig.java,v 1.2 2001/10/12 20:34:13 mdb Exp $
 
 package com.threerings.venison;
 
-import com.threerings.parlor.data.GameConfig;
+import com.threerings.parlor.game.GameConfig;
 
 public class VenisonConfig extends GameConfig
 {

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.3 2001/10/11 04:08:22 mdb Exp $
+// $Id: AtlantiTile.java,v 1.4 2001/10/12 20:34:13 mdb Exp $
 
 package com.threerings.venison;
 
@@ -153,5 +153,12 @@ public class VenisonTile
         orientation = in.readInt();
         x = in.readInt();
         y = in.readInt();
+    }
+
+    public String toString ()
+    {
+        return "[type=" + type + ", shield=" + hasShield +
+            ", orient=" + ORIENT_NAMES[orientation] +
+            ", pos=" + x + "/" + y + "]";
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.3 2001/10/11 04:08:22 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.4 2001/10/12 20:34:13 mdb Exp $
 
 package com.threerings.venison;
 
@@ -8,15 +8,18 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.Iterator;
 
+import com.samskivert.swing.Controller;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.presents.dobj.DSet;
+
+import com.threerings.venison.Log;
 
 /**
  * Displays the tiles that make up the Venison board.
  */
 public class VenisonBoard
-    extends JPanel implements TileCodes
+    extends JPanel implements TileCodes, VenisonCodes
 {
     /** The command posted when a tile is placed by the user on the
      * board. */
@@ -50,12 +53,32 @@ public class VenisonBoard
      */
     public void setTiles (DSet tiles)
     {
+        // grab the new tiles
         _tiles = tiles;
 
-        // we need to recompute our desired dimensions and then have our
-        // parent adjust to our changed size
-        computeDimensions();
+        // update our display
+        refreshTiles();
+    }
+
+    /**
+     * Instructs the board to refresh its display in case changes have
+     * occurred in the tiles set.
+     */
+    public void refreshTiles ()
+    {
+        Log.info("Refreshing tiles " + _tiles + ".");
+
+        // recompute our desired dimensions and then have our parent
+        // adjust to our changed size
+        if (_tiles != null) {
+            computeDimensions();
+        }
+
+        // we may need to revalidate if our dimensions changed
         revalidate();
+
+        // we also have to repaint in case our dimensions didn't change
+        repaint();
     }
 
     /**
@@ -67,12 +90,18 @@ public class VenisonBoard
      * <code>TILE_PLACED</code> command will be dispatched to the
      * controller in scope. The coordinates and orientation of the tile
      * will have been set to the values specified by the user.
+     *
+     * @param tile the new tile to be placed or null if no tile is to
+     * currently be placed.
      */
     public void setTileToBePlaced (VenisonTile tile)
     {
         _placingTile = tile;
         // update our internal state based on this new placing tile
-        updatePlacingInfo(true);
+        if (_placingTile != null) {
+            updatePlacingInfo(true);
+        }
+        // and repaint
         repaint();
     }
 
@@ -95,10 +124,12 @@ public class VenisonBoard
         g.translate(_tx, _ty);
 
         // iterate over our tiles, painting each of them
-        Iterator iter = _tiles.elements();
-        while (iter.hasNext()) {
-            VenisonTile tile = (VenisonTile)iter.next();
-            tile.paint(g, _origX, _origY);
+        if (_tiles != null) {
+            Iterator iter = _tiles.elements();
+            while (iter.hasNext()) {
+                VenisonTile tile = (VenisonTile)iter.next();
+                tile.paint(g, _origX, _origY);
+            }
         }
 
         // if we have a placing tile, draw that one as well
@@ -135,9 +166,18 @@ public class VenisonBoard
     /** Called by our adapter when the mouse is clicked. */
     protected void mouseClicked (MouseEvent evt)
     {
-        // if we have a placing tile, we want to dispatch a command
-        // letting the controller know that the user placed it
-        if (_placingTile != null) {
+        // if we have a placing tile and it's in a valid position, we want
+        // to dispatch an action letting the controller know that the user
+        // placed it
+        if (_placingTile != null && _validPlacement) {
+            // clear out the placing tile
+            _placingTile = null;
+
+            // post the action
+            Controller.postAction(this, TILE_PLACED);
+
+            // and repaint
+            repaint();
         }
     }
 
@@ -256,18 +296,20 @@ public class VenisonBoard
         int minX = 0, minY = 0;
 
         // figure out what our boundaries are
-        Iterator iter = _tiles.elements();
-        while (iter.hasNext()) {
-            VenisonTile tile = (VenisonTile)iter.next();
-            if (tile.x > maxX) {
-                maxX = tile.x;
-            } else if (tile.x < minX) {
-                minX = tile.x;
-            }
-            if (tile.y > maxY) {
-                maxY = tile.y;
-            } else if (tile.y < minY) {
-                minY = tile.y;
+        if (_tiles != null) {
+            Iterator iter = _tiles.elements();
+            while (iter.hasNext()) {
+                VenisonTile tile = (VenisonTile)iter.next();
+                if (tile.x > maxX) {
+                    maxX = tile.x;
+                } else if (tile.x < minX) {
+                    minX = tile.x;
+                }
+                if (tile.y > maxY) {
+                    maxY = tile.y;
+                } else if (tile.y < minY) {
+                    minY = tile.y;
+                }
             }
         }
 

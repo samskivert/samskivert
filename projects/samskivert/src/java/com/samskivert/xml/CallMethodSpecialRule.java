@@ -1,5 +1,5 @@
 //
-// $Id: CallMethodSpecialRule.java,v 1.2 2001/11/26 22:17:56 mdb Exp $
+// $Id: CallMethodSpecialRule.java,v 1.3 2002/02/23 18:24:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -30,11 +30,6 @@ import org.apache.commons.digester.Rule;
  */
 public abstract class CallMethodSpecialRule extends Rule
 {
-    public static interface Helper
-    {
-        public void parseAndSet (String bodyText, Object target);
-    }
-
     public CallMethodSpecialRule (Digester digester)
     {
         super(digester);

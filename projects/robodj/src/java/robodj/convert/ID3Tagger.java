@@ -1,5 +1,5 @@
 //
-// $Id: ID3Tagger.java,v 1.1 2002/03/03 05:25:09 mdb Exp $
+// $Id: ID3Tagger.java,v 1.2 2002/03/03 06:04:23 mdb Exp $
 
 package robodj.convert;
 
@@ -9,9 +9,9 @@ import java.io.InputStream;
 import org.apache.commons.util.StreamUtils;
 
 /**
- * A tagger implementation that uses 'id3' to do it's job.
+ * A tagger implementation that uses 'id3v2' to do it's job.
  */
-public class ID3Tagger
+public class ID3Tagger implements Tagger
 {
     // documentation inherited
     public void idTrack (String target, String artist, String album,
@@ -19,8 +19,8 @@ public class ID3Tagger
 	throws ConvertException
     {
         String[] cmdarray = new String[] {
-            "id3", "-t", title, "-a", artist, "-A", album,
-            "-T", Integer.toString(trackNo), target };
+            "id3v2", "--song", title, "--artist", artist, "--album", album,
+            "--track", Integer.toString(trackNo), target };
 
         try {
             Runtime rt = Runtime.getRuntime();
@@ -35,7 +35,7 @@ public class ID3Tagger
                 if (retval != 0) {
                     // ship off the error output from id3
                     throw new ConvertException(
-                        "id3 failed: " + output);
+                        "id3v2 failed: " + output);
                 }
 
             } catch (InterruptedException ie) {

@@ -1,5 +1,5 @@
 //
-// $Id: IntIntMap.java,v 1.5 2003/03/10 04:59:20 ray Exp $
+// $Id: IntIntMap.java,v 1.6 2003/03/18 19:50:49 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -212,11 +212,19 @@ public class IntIntMap
 	    _returnKeys = returnKeys;
 	}
 
-	public boolean hasNext ()
-	{
+        /**
+         * Check for concurrent modifications.
+         */
+        protected void checkMods ()
+        {
             if (this._modCount != IntIntMap.this._modCount) {
                 throw new ConcurrentModificationException("IntIntMapIterator");
             }
+        }
+
+	public boolean hasNext ()
+	{
+            checkMods();
 
 	    // if we're pointing to an entry, we've got more entries
 	    if (_next != null) {
@@ -251,6 +259,8 @@ public class IntIntMap
 
         public void remove ()
         {
+            checkMods();
+
             if (_prev == null) {
                 throw new IllegalStateException("IntIntMapIterator");
             }

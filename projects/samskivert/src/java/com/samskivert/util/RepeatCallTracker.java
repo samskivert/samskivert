@@ -29,7 +29,6 @@ public class RepeatCallTracker
     {
         if (_firstCall == null) {
             _firstCall = new Exception("---- First call ----");
-            _firstCall.fillInStackTrace();
             return false;
         }
 

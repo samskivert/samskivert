@@ -1,5 +1,5 @@
 //
-// $Id: LRUHashMap.java,v 1.3 2003/01/17 02:01:05 mdb Exp $
+// $Id: LRUHashMap.java,v 1.4 2003/01/17 02:02:28 mdb Exp $
 
 package com.samskivert.util;
 
@@ -68,6 +68,14 @@ public class LRUHashMap implements Map
             remove(key);
 //             System.out.println("Flushed " + key + ": " + _size);
         }
+    }
+
+    /**
+     * Returns this cache's maximum size.
+     */
+    public int getMaxSize ()
+    {
+        return _maxSize;
     }
 
     /**

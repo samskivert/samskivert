@@ -1,5 +1,5 @@
 //
-// $Id: PropertiesUtil.java,v 1.1 2000/10/31 00:48:13 mdb Exp $
+// $Id: PropertiesUtil.java,v 1.2 2000/10/31 00:51:00 mdb Exp $
 
 package com.samskivert.util;
 
@@ -43,7 +43,8 @@ public class PropertiesUtil
      * password=is your uncle
      * </pre>
      */
-    public Properties getSubProperties (Properties source, String prefix)
+    public static
+	Properties getSubProperties (Properties source, String prefix)
     {
 	Properties dest = new Properties();
 

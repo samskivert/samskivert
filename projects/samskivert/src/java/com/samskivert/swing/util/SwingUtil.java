@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.18 2002/12/09 04:44:36 shaper Exp $
+// $Id: SwingUtil.java,v 1.19 2003/01/11 00:40:39 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -39,6 +39,8 @@ import java.awt.geom.Area;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+
+import javax.swing.JPanel;
 
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -473,5 +475,17 @@ public class SwingUtil
     public static void restoreAntiAliasing (Graphics2D gfx, Object rock)
     {
         gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, rock);
+    }
+
+    /**
+     * Refreshes the supplied panel display.  This should be called after
+     * adding components to or removing components from the panel since
+     * Swing doesn't automatically properly invalidate things for
+     * subsequent re-rendering.
+     */
+    public static void refresh (JPanel panel)
+    {
+        panel.revalidate();
+        panel.repaint();
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: IntListUtil.java,v 1.5 2003/02/06 18:51:50 mdb Exp $
+// $Id: IntListUtil.java,v 1.6 2004/05/06 22:01:25 ray Exp $
 
 package com.samskivert.util;
 
@@ -393,6 +393,46 @@ public class IntListUtil
         }
 
         return maxes;
+    }
+
+    /**
+     * Returns an array of the indexes in the given array of values that
+     * have the minimum value in the array, or a zero-length array if the
+     * supplied array of values is <code>null</code> or zero-length.
+     */
+    public static int[] getMinIndexes (int[] values)
+    {
+        int min = Integer.MAX_VALUE;
+        int num = 0;
+        int vcount = (values == null) ? 0 : values.length;
+
+        for (int ii=0; ii < vcount; ii++) {
+            int value = values[ii];
+
+            if (value > min) {
+                // common case- stop checking things..
+                continue;
+
+            } else if (value < min) {
+                // new min
+                min = value;
+                num = 1;
+
+            } else {
+                // another sighting of min
+                num++;
+            }
+        }
+
+        // now find the indexes that have min
+        int[] mins = new int[num];
+        for (int ii=0, pos=0; pos < num; ii++) {
+            if (values[ii] == min) {
+                mins[pos++] = ii;
+            }
+        }
+
+        return mins;
     }
 
     /**

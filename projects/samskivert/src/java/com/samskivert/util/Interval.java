@@ -118,6 +118,7 @@ public abstract class Interval
         // only expire the interval if the task is still valid
         if (_task == task) {
             try {
+                System.err.println("Expiring Interval");
                 expired();
             } catch (Throwable t) {
                 Log.warning("Interval broken in expired(): " + t);
@@ -131,14 +132,27 @@ public abstract class Interval
      */
     protected class IntervalTask extends TimerTask
     {
-        // documentation inherited
-        public void run () {
-            if (_runQueue == null || _runQueue.isDispatchThread()) {
-                safelyExpire(this);
-            } else {
-                _runQueue.postRunnable(this);
+        { // initializer
+            if (_runQueue != null) {
+                _runner = new Runnable() {
+                    public void run () {
+                        safelyExpire(IntervalTask.this);
+                    }
+                };
             }
         }
+
+        // documentation inherited
+        public void run () {
+            if (_runQueue == null) {
+                safelyExpire(this);
+            } else {
+                _runQueue.postRunnable(_runner);
+            }
+        }
+
+        /** If we are using a RunQueue, the Runnable we post to it. */
+        protected Runnable _runner;
     }
 
     /** If non-null, the RunQueue used to run the expired() method for each

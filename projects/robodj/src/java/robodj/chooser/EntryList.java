@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.4 2001/07/26 00:24:22 mdb Exp $
+// $Id: EntryList.java,v 1.5 2001/07/26 01:18:21 mdb Exp $
 
 package robodj.chooser;
 
@@ -36,10 +36,8 @@ public class EntryList
 	_bpanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // put it into a scrolling pane
-	JScrollPane bscroll = new JScrollPane(_bpanel);
-        bscroll.setVerticalScrollBarPolicy(
-            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        add(bscroll);
+	_scroller = new JScrollPane(_bpanel);
+        add(_scroller);
 
         // add our navigation button
         _upbut = new JButton("Up");
@@ -194,6 +192,16 @@ public class EntryList
             _bpanel.add(new JLabel("No entries in this category."));
         }
 
+        // reset our scroll position so that we're displaying the top of
+        // the entry list. we'd like to save our scroll position and
+        // restore it when the user clicks "up", but as we're rebuilding
+        // the entry display the scroll bar is still configured for the
+        // old contents and we're not around when it gets configured with
+        // the new contents, so we can't ensure that the scrollbar has
+        // been properly configured before we adjust its position back to
+        // where we were... oh the complication.
+        clearScrollPosition();
+
         // we've removed and added components and swing won't properly
         // repaint automatically
         _bpanel.repaint();
@@ -262,9 +270,20 @@ public class EntryList
             _bpanel.add(button);
         }
 
+        // reset our scroll position so that we're displaying the top of
+        // the song list
+        clearScrollPosition();
+
         // we've removed and added components and swing won't properly
         // repaint automatically
         _bpanel.repaint();
+    }
+
+    protected void clearScrollPosition ()
+    {
+        BoundedRangeModel model =
+            _scroller.getVerticalScrollBar().getModel();
+        model.setValue(model.getMinimum());
     }
 
     public void actionPerformed (ActionEvent e)
@@ -331,6 +350,7 @@ public class EntryList
         // nothing doing
     }
 
+    protected JScrollPane _scroller;
     protected JPanel _bpanel;
     protected JButton _upbut;
 

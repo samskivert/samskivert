@@ -1,0 +1,36 @@
+Lookuplet
+---------
+
+This GNOME applet provides a unified interface for looking things up.
+There are many applications (desktop and web-based) in which you enter
+some text and they return some information based on that text. Examples
+include:
+
+  * Looking a word up in a dictionary
+  * Performing a web search
+  * Performing a more specific search (searching Debian packages or on
+    freshmeat.net, etc.)
+
+The lookuplet aims to make all of those services readily accessible in as
+efficient a manner as possible.
+
+A text entry box is provided on the GNOME panel and you simply enter text
+into that box and then press whatever action key combination you have
+defined for a particular service to initiate the lookup. This interface is
+based on the emacs principle of typing as few characters as possible to
+perform tasks that are done frequently. I find myself looking things up in
+various applications all of the time and the overhead of creating a new
+browser window, selecting a bookmark, clicking into the text entry field
+and then pressing submit struck me as tremendously inefficient.
+
+Feedback on the program is welcome. Additional information and the latest
+release is available at <http://www.samskivert.com/???URL???>.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version.
+
+Enjoy,
+
+    Michael Bayne <mdb@samskivert.com>

@@ -1,0 +1,44 @@
+dnl $Id: configure.in,v 1.1 2000/12/10 23:38:39 mdb Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(configure.in)
+AM_INIT_AUTOMAKE(lookuplet, 0.1)
+AM_CONFIG_HEADER(config.h)
+
+dnl Pick up the Gnome macros.
+AM_ACLOCAL_INCLUDE(macros)
+
+GNOME_INIT
+AC_ISC_POSIX
+
+dnl Checks for programs.
+AC_PROG_CC
+AM_PROG_CC_STDC
+dnl AC_PROG_MAKE_SET
+dnl AC_PROG_INSTALL
+
+GNOME_COMPILE_WARNINGS
+GNOME_X_CHECKS
+
+dnl Checks for libraries.
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_SIZE_T
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(strcspn strstr)
+
+dnl main thing goes here
+AC_PATH_PROG(sedpath, sed)
+
+if test "_$sedpath" = _; then
+  AC_MSG_ERROR("Cannot find sed: I need it\!")
+fi
+
+AC_OUTPUT(Makefile src/Makefile)

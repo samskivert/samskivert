@@ -1,5 +1,5 @@
 //
-// $Id: LabelStyleConstants.java,v 1.3 2003/11/15 02:14:01 mdb Exp $
+// $Id: LabelStyleConstants.java,v 1.4 2003/11/15 03:17:28 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -30,14 +30,14 @@ public interface LabelStyleConstants
     public static final int NORMAL = 0;
 
     /** Constant denoting bold text style. */
-    public static final int BOLD = 0x1 << 1;
+    public static final int BOLD = 1 << 0;
 
     /** Constant denoting outline text style. */
-    public static final int OUTLINE = 0x1 << 2;
+    public static final int OUTLINE = 1 << 1;
 
     /** Constant denoting shadow text style. */
-    public static final int SHADOW = 0x1 << 3;
+    public static final int SHADOW = 1 << 2;
 
     /** Constant denoting underline text style. */
-    public static final int UNDERLINE = 0x1 << 4;
+    public static final int UNDERLINE = 1 << 3;
 }

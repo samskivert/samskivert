@@ -1,8 +1,9 @@
 //
-// $Id: TaskMaster.java,v 1.3 2001/03/15 19:34:06 mdb Exp $
+// $Id: TaskMaster.java,v 1.4 2001/05/25 18:44:01 mdb Exp $
 
 package com.samskivert.swing.util;
 
+import java.lang.reflect.Method;
 import java.util.Hashtable;
 import javax.swing.SwingUtilities;
 
@@ -37,6 +38,22 @@ public class TaskMaster
 	_tasks.put(name, runner);
 	// then start the runner up
 	runner.start();
+    }
+
+    /**
+     * Invokes the method with the specified name on the supplied source
+     * object as if it were a task. The observer is notified when the
+     * method has completed and returned its result or if it fails. The
+     * named method must have a signature the same as the
+     * <code>invoke</code> method of the <code>Task</code> interface.
+     * Aborting tasks run in this way is not supported.
+     */
+    public static void invokeMethodTask (String name, Object source,
+                                         TaskObserver observer)
+    {
+        // create a method task instance to invoke the named method and
+        // then run that through the normal task invocation mechanism
+        invokeTask(name, new MethodTask(name, source), observer);
     }
 
     /**
@@ -124,6 +141,31 @@ public class TaskMaster
         protected static final int INVOKE = 0;
         protected static final int COMPLETED = 1;
         protected static final int FAILED = 2;
+    }
+
+    protected static class MethodTask implements Task
+    {
+        public MethodTask (String name, Object source)
+        {
+            _name = name;
+            _source = source;
+        }
+
+        public Object invoke () throws Exception
+        {
+            // look up the named method on the source object and invoke it
+            Method meth = _source.getClass().getMethod(_name, null);
+            return meth.invoke(_source, null);
+        }
+
+        public boolean abort ()
+        {
+            // aborting not supported
+            return false;
+        }
+
+        protected String _name;
+        protected Object _source;
     }
 
     protected static Hashtable _tasks = new Hashtable();

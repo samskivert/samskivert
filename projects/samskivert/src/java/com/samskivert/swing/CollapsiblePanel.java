@@ -1,10 +1,15 @@
 //
-// $Id: CollapsiblePanel.java,v 1.7 2003/01/15 00:17:37 mdb Exp $
+// $Id: CollapsiblePanel.java,v 1.8 2003/06/26 05:55:47 ray Exp $
 
 package com.samskivert.swing;
 
+import java.awt.EventQueue;
+import java.awt.Rectangle;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
@@ -70,6 +75,24 @@ public class CollapsiblePanel extends JPanel
         // these are our only two components.
         add(comp);
         add(_content = content);
+
+        // When the content is shown, make sure it's scrolled visible
+        _content.addComponentListener(new ComponentAdapter() {
+            public void componentShown (ComponentEvent event)
+            {
+                // we can't do it just yet, the content doesn't know its size
+                EventQueue.invokeLater(new Runnable() {
+                    public void run () {
+                        // The content is offset a bit from the trigger
+                        // but we want the trigger to show up, so we add
+                        // in point 0,0
+                        Rectangle r = _content.getBounds();
+                        r.add(0, 0);
+                        scrollRectToVisible(r);
+                    }
+                });
+            }
+        });
 
         // and start us out not showing
         setCollapsed(true);

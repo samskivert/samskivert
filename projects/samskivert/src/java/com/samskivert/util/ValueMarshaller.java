@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.3 2002/03/08 02:07:58 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.4 2002/03/08 02:40:02 mdb Exp $
 
 package com.samskivert.util;
 
@@ -42,6 +42,7 @@ public class ValueMarshaller
     protected static HashMap _parsers;
 
     protected static final int[] INT_ARRAY_PROTOTYPE = new int[0];
+    protected static final float[] FLOAT_ARRAY_PROTOTYPE = new float[0];
     protected static final String[] STRING_ARRAY_PROTOTYPE = new String[0];
 
     static {
@@ -79,6 +80,13 @@ public class ValueMarshaller
         _parsers.put(INT_ARRAY_PROTOTYPE.getClass(), new Parser() {
             public Object parse (String source) throws Exception {
                 return StringUtil.parseIntArray(source);
+            }
+        });
+
+        // and float arrays
+        _parsers.put(FLOAT_ARRAY_PROTOTYPE.getClass(), new Parser() {
+            public Object parse (String source) throws Exception {
+                return StringUtil.parseFloatArray(source);
             }
         });
 

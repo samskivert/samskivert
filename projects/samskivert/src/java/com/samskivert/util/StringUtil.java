@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.31 2002/02/23 18:24:02 mdb Exp $
+// $Id: StringUtil.java,v 1.32 2002/03/08 02:40:02 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -415,6 +415,34 @@ public class StringUtil
                 // trim the whitespace from the token
                 String token = tok.nextToken().trim();
                 vals[i] = Integer.parseInt(token);
+            } catch (NumberFormatException nfe) {
+                return null;
+            }
+        }
+        return vals;
+    }
+
+    /**
+     * Parses an array of floats from it's string representation. The
+     * array should be represented as a bare list of numbers separated by
+     * commas, for example:
+     *
+     * <pre>
+     * 25.0, .5, 1, 0.99
+     * </pre>
+     *
+     * Any inability to parse the array will result in the function
+     * returning null.
+     */
+    public static float[] parseFloatArray (String source)
+    {
+        StringTokenizer tok = new StringTokenizer(source, ",");
+        float[] vals = new float[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            try {
+                // trim the whitespace from the token
+                String token = tok.nextToken().trim();
+                vals[i] = Float.parseFloat(token);
             } catch (NumberFormatException nfe) {
                 return null;
             }

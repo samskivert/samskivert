@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.12 2002/06/20 23:44:32 mdb Exp $
+// $Id: Label.java,v 1.13 2002/06/21 03:05:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -45,6 +45,7 @@ import javax.swing.SwingConstants;
 
 import com.samskivert.Log;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 
 /**
  * The label is a multipurpose text display mechanism that can display
@@ -177,6 +178,14 @@ public class Label implements SwingConstants
     }
 
     /**
+     * Returns the number of lines used by this label.
+     */
+    public int getLineCount ()
+    {
+        return _layouts.length;
+    }
+
+    /**
      * Returns our computed dimensions. Only valid after a call to {@link
      * #layout}.
      */
@@ -234,7 +243,7 @@ public class Label implements SwingConstants
             _size.setSize(Math.round(bounds.getWidth()),
                           Math.round(getHeight(layout)));
             layouts = new ArrayList();
-            layouts.add(layout);
+            layouts.add(new Tuple(layout, bounds));
         }
 
         // if we have an outline color, we need to be two pixels bigger in
@@ -245,8 +254,14 @@ public class Label implements SwingConstants
         }
 
         // create our layouts array
-        _layouts = new TextLayout[layouts.size()];
-        layouts.toArray(_layouts);
+        int lcount = layouts.size();
+        _layouts = new TextLayout[lcount];
+        _lbounds = new Rectangle2D[lcount];
+        for (int ii = 0; ii < lcount; ii++) {
+            Tuple tup = (Tuple)layouts.get(ii);
+            _layouts[ii] = (TextLayout)tup.left;
+            _lbounds[ii] = (Rectangle2D)tup.right;
+        }
     }
 
     /**
@@ -268,7 +283,7 @@ public class Label implements SwingConstants
             Rectangle2D bounds = layout.getBounds();
             width = Math.max(width, bounds.getWidth());
             height += getHeight(layout);
-            layouts.add(layout);
+            layouts.add(new Tuple(layout, bounds));
 	}
 
         // fill in the computed size; for some reason JDK1.3 on Linux
@@ -305,10 +320,10 @@ public class Label implements SwingConstants
         // render our text
         for (int i = 0; i < _layouts.length; i++) {
             TextLayout layout = _layouts[i];
+            Rectangle2D lbounds = _lbounds[i];
             y += layout.getAscent();
 
-            float dx = 0, extra = (float)
-                (_size.width - layout.getBounds().getWidth());
+            float dx = 0, extra = (float)(_size.width - lbounds.getWidth());
             // if we're outlining, we really have two pixels less space
             // than we think we do
             if (_outlineColor != null) {
@@ -322,24 +337,31 @@ public class Label implements SwingConstants
             case CENTER: dx = extra/2; break;
             }
 
+            // we need to account both for our justification and for the
+            // fiddly business that TextLayouts do wherein they don't
+            // render where you ask them to render, but instead they
+            // render some number of pixels away, which is reported in the
+            // "position" part of their bounds
+            float rx = (float)(x + dx - lbounds.getX());
+
             // render the outline using the hacky, but much nicer than
             // using "real" outlines (via TextLayout.getOutline), method
             if (_outlineColor != null) {
                 Color textColor = gfx.getColor();
                 gfx.setColor(_outlineColor);
-                layout.draw(gfx, x + dx - 1, y - 1);
-                layout.draw(gfx, x + dx - 1, y);
-                layout.draw(gfx, x + dx - 1, y + 1);
-                layout.draw(gfx, x + dx, y - 1);
-                layout.draw(gfx, x + dx, y + 1);
-                layout.draw(gfx, x + dx + 1, y - 1);
-                layout.draw(gfx, x + dx + 1, y);
-                layout.draw(gfx, x + dx + 1, y + 1);
+                layout.draw(gfx, rx - 1, y - 1);
+                layout.draw(gfx, rx - 1, y);
+                layout.draw(gfx, rx - 1, y + 1);
+                layout.draw(gfx, rx, y - 1);
+                layout.draw(gfx, rx, y + 1);
+                layout.draw(gfx, rx + 1, y - 1);
+                layout.draw(gfx, rx + 1, y);
+                layout.draw(gfx, rx + 1, y + 1);
                 gfx.setColor(textColor);
             }
 
             // and draw the text itself
-            layout.draw(gfx, x + dx, y);
+            layout.draw(gfx, rx, y);
 
             y += layout.getDescent() + layout.getLeading();
         }
@@ -388,6 +410,9 @@ public class Label implements SwingConstants
 
     /** Formatted text layout instances that contain each line of text. */
     protected TextLayout[] _layouts;
+
+    /** Formatted text layout instances that contain each line of text. */
+    protected Rectangle2D[] _lbounds;
 
     /** The color in which to outline the text when rendering or null if
      * the text should not be outlined. */

@@ -10,7 +10,7 @@
   <!-- configuration parameters -->
   <property name="app.name"       value="twodue"/>
   <property name="install.dir"    value="${base.dir}/webapps"/>
-  <property name="deploy.dir"     value="${base.dir}/${app.name}"/>
+  <property name="deploy.dir"     value="${base.dir}/pages/${app.name}"/>
   <property name="dist.war"       value="${app.name}.war"/>
 
   <!-- we want to access the environment -->

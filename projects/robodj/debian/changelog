@@ -1,6 +1,12 @@
+robodj (1.2-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Michael Bayne <mdb@samskivert.com>  Sat,  2 Mar 2002 22:11:34 -0800
+
 robodj (1.1-1) unstable; urgency=low
 
-  * Added support for removing a whole CD at a time.
+  * New upstream release.
   * Added script for running importer.
   * Added defaults file for specifying music daemon host and other
     parameters.

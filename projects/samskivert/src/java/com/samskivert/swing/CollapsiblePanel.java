@@ -1,13 +1,14 @@
 //
-// $Id: CollapsiblePanel.java,v 1.1 2002/07/04 04:42:11 ray Exp $
+// $Id: CollapsiblePanel.java,v 1.2 2002/07/09 21:52:02 ray Exp $
 
 package com.samskivert.swing;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 /**
  * A panel that contains a button which will collapse the rest of the content.
@@ -21,24 +22,8 @@ public class CollapsiblePanel extends JPanel
      */
     public CollapsiblePanel (JButton trigger)
     {
-        _trigger = trigger;
-        _text = trigger.getText();
-
-        VGroupLayout gl = new VGroupLayout(VGroupLayout.NONE);
-        gl.setOffAxisPolicy(VGroupLayout.STRETCH);
-        gl.setGap(0);
-        gl.setJustification(VGroupLayout.TOP);
-        gl.setOffAxisJustification(VGroupLayout.LEFT);
-        setLayout(gl);
-
-        _trigger.addActionListener(this);
-
-        // these are our only two components.
-        add(_trigger);
-        add(_content);
-
-        // and start us out showing
-        setCollapsed(false);
+        setTriggerContainer(trigger);
+        setTrigger(trigger);
     }
 
     /**
@@ -47,6 +32,54 @@ public class CollapsiblePanel extends JPanel
     public CollapsiblePanel (String triggertext)
     {
         this(new JButton(triggertext));
+    }
+
+    /**
+     * Create a collapsible panel to which the trigger button will be
+     * added later.
+     */
+    public CollapsiblePanel ()
+    {
+        _gl = new VGroupLayout(VGroupLayout.NONE);
+        _gl.setOffAxisPolicy(VGroupLayout.STRETCH);
+        _gl.setGap(0);
+        _gl.setJustification(VGroupLayout.TOP);
+        _gl.setOffAxisJustification(VGroupLayout.LEFT);
+        setLayout(_gl);
+    }
+
+    /**
+     * Set a component which contains the trigger button.
+     * The simple case is to just set the trigger button as this component.
+     */
+    public void setTriggerContainer (JComponent comp)
+    {
+        // these are our only two components.
+        add(comp);
+        add(_content);
+
+        // and start us out not showing
+        setCollapsed(true);
+    }
+
+    /**
+     * Set the trigger button.
+     */
+    public void setTrigger (JButton trigger)
+    {
+        _trigger = trigger;
+        _text = trigger.getText();
+        _trigger.addActionListener(this);
+    }
+
+    /**
+     * Set the gap between the trigger button and the rest of the content.
+     * Can be negative for an overlapping effect.
+     */
+    public void setGap (int gap)
+    {
+        _gl.setGap(gap);
+        invalidate();
     }
 
     /**
@@ -86,6 +119,9 @@ public class CollapsiblePanel extends JPanel
             _trigger.setText("- " + _text);
         }
     }
+
+    /** Our layout. */
+    protected VGroupLayout _gl;
 
     /** The button that triggers collapsion. */
     protected JButton _trigger;

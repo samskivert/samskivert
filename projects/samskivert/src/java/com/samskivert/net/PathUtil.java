@@ -45,4 +45,27 @@ public class PathUtil
             return newComponent;
         }
     }
+
+    /**
+     * Appends the supplied affix to the specified source path, ensuring
+     * that exactly one path separator (<code>/</code> as we are dealing
+     * with URLs here not platform specific file-system paths) is used
+     * between the two. <em>Note:</em> this means that the affix will be
+     * made into a relative path regardless of whether or not it starts
+     * with a <code>/</code>.
+     */
+    public static String appendPath (String source, String affix)
+    {
+        if (source.endsWith("/")) {
+            if (affix.startsWith("/")) {
+                return source + affix.substring(1);
+            } else {
+                return source + affix;
+            }
+        } else if (affix.startsWith("/")) {
+            return source + affix;
+        } else {
+            return source + "/" + affix;
+        }
+    }
 }

@@ -1,10 +1,10 @@
 //
-// $Id: DnDManager.java,v 1.16 2003/05/08 21:46:28 ray Exp $
+// $Id: DnDManager.java,v 1.17 2003/05/09 21:32:11 ray Exp $
 
 package com.samskivert.swing.dnd;
 
-import java.awt.AWTEvent;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -18,21 +18,19 @@ import java.awt.Transparency;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AWTEventListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Stack;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.MouseInputAdapter;
 
 import com.samskivert.swing.event.AncestorAdapter;
-import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.Log;
 
 /**
@@ -40,7 +38,6 @@ import com.samskivert.Log;
  * need it to do and no more.
  */
 public class DnDManager
-    implements MouseMotionListener, AWTEventListener
 {
     /**
      * Add the specified component as a source of drags, with the DragSource
@@ -173,7 +170,8 @@ public class DnDManager
         DragSource source, JComponent comp, boolean autoremove)
     {
         _draggers.put(comp, source);
-        comp.addMouseMotionListener(this);
+        comp.addMouseListener(_sourceListener);
+        comp.addMouseMotionListener(_sourceListener);
         if (autoremove) {
             comp.addAncestorListener(_remover);
         }
@@ -185,7 +183,8 @@ public class DnDManager
     protected void removeSource (JComponent comp)
     {
         _draggers.remove(comp);
-        comp.removeMouseMotionListener(this);
+        comp.removeMouseListener(_sourceListener);
+        comp.removeMouseMotionListener(_sourceListener);
     }
 
     /**
@@ -195,6 +194,7 @@ public class DnDManager
         DropTarget target, JComponent comp, boolean autoremove)
     {
         _droppers.put(comp, target);
+        addTargetListeners(comp);
         if (autoremove) {
             comp.addAncestorListener(_remover);
         }
@@ -206,60 +206,41 @@ public class DnDManager
     protected void removeTarget (JComponent comp)
     {
         _droppers.remove(comp);
+        removeTargetListeners(comp);
     }
 
-    // documentation inherited from interface MouseMotionListener
-    public void mouseMoved (MouseEvent me)
+    /**
+     * Add the appropriate target listeners to this component
+     * and all its children.
+     */
+    protected void addTargetListeners (Component comp)
     {
-        // who cares.
-    }
-
-    // documentation inherited from interface MouseMotionListener
-    public void mouseDragged (MouseEvent me)
-    {
-        // make sure a drag hasn't already started.
-        if (_sourceComp != null) {
-            return;
-        }
-
-        _sourceComp = me.getComponent();
-        _source = (DragSource) _draggers.get(_sourceComp);
-
-        // make sure the source wants to start a drag.
-        if ((_source == null) || (!_sourceComp.isEnabled()) ||
-            (!_source.startDrag(_cursors, _data))) {
-            // if not, reset our start conditions and bail
-            reset();
-            return;
-        }
-
-        // use standard cursors if custom ones not specified
-        if (_cursors[0] == null) {
-            _cursors[0] = java.awt.dnd.DragSource.DefaultMoveDrop;
-        }
-        if (_cursors[1] == null) {
-            _cursors[1] = java.awt.dnd.DragSource.DefaultMoveNoDrop;
-        }
-
-        // start out with the no-drop cursor.
-        _curCursor = _cursors[1];
-
-        // install a listener so we know everywhere that the mouse enters
-        Toolkit.getDefaultToolkit().addAWTEventListener(this, 
-                AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
-
-        // find the top-level window and set the cursor there.
-        for (_topComp = _sourceComp; true; ) {
-            Component c = _topComp.getParent();
-            if (c == null) {
-                break;
+        comp.addMouseListener(_targetListener);
+        comp.addMouseMotionListener(_targetListener);
+        if (comp instanceof Container) { // hm, always true for JComp..
+            Container cont = (Container) comp;
+            cont.addContainerListener(_childListener);
+            for (int ii=0, nn=cont.getComponentCount(); ii < nn; ii++) {
+                addTargetListeners(cont.getComponent(ii));
             }
-            _topComp = c;
         }
-        _topCursor = _topComp.getCursor();
-        _topComp.setCursor(_curCursor);
+    }
 
-        setComponentCursor(_sourceComp);
+    /**
+     * Remove the appropriate target listeners to this component
+     * and all its children.
+     */
+    protected void removeTargetListeners (Component comp)
+    {
+        comp.removeMouseListener(_targetListener);
+        comp.removeMouseMotionListener(_targetListener);
+        if (comp instanceof Container) { // again, always true for JComp...
+            Container cont = (Container) comp;
+            cont.removeContainerListener(_childListener);
+            for (int ii=0, nn=cont.getComponentCount(); ii < nn; ii++) {
+                removeTargetListeners(cont.getComponent(ii));
+            }
+        }
     }
 
     /**
@@ -287,115 +268,12 @@ public class DnDManager
         }
     }
 
-    // documentation inherited from interface AWTEventListener
-    public void eventDispatched (AWTEvent event)
-    {
-        switch (event.getID()) {
-        case MouseEvent.MOUSE_ENTERED:
-            globalMouseEntered((MouseEvent) event);
-            break;
-
-        case MouseEvent.MOUSE_EXITED:
-            globalMouseExited((MouseEvent) event);
-            break;
-
-        case MouseEvent.MOUSE_RELEASED:
-            globalMouseReleased((MouseEvent) event);
-            break;
-
-        case MouseEvent.MOUSE_DRAGGED:
-            globalMouseDragged((MouseEvent) event);
-            break;
-        }
-    }
-
     /**
-     * Handle the mouse entering a new component.
+     * Are we currently involved in a drag?
      */
-    protected void globalMouseEntered (MouseEvent event)
+    protected boolean isDragging ()
     {
-        Component newcomp = ((MouseEvent) event).getComponent();
-        _lastTarget = findAppropriateTarget(newcomp);
-        Cursor newcursor = _cursors[(_lastTarget == null) ? 1 : 0];
-
-        // see if the current cursor changed.
-        if (newcursor != _curCursor) {
-            _topComp.setCursor(_curCursor = newcursor);
-        }
-
-        // and check the cursor at the component level
-        setComponentCursor(newcomp);
-    }
-
-    /**
-     * Handle the mouse leaving a component.
-     */
-    protected void globalMouseExited (MouseEvent event)
-    {
-        clearComponentCursor();
-
-        // and if we were over a target, let the target know that we left
-        if (_lastTarget != null) {
-            _lastTarget.noDrop();
-            _lastTarget = null;
-        }
-
-        checkAutoscroll(event);
-    }
-
-    /**
-     * Handle the mouse button being released.
-     */
-    protected void globalMouseReleased (MouseEvent event)
-    {
-        // stop listening to every little event
-        Toolkit.getDefaultToolkit().removeAWTEventListener(this);
-
-        // reset cursors
-        clearComponentCursor();
-        _topComp.setCursor(_topCursor);
-
-        // the event.getComponent() will be the source component here (huh..)
-        // so we instead use the last component seen in mouseEnter
-        if (_lastTarget != null) {
-            _lastTarget.dropCompleted(_source, _data[0]);
-            _source.dragCompleted(_lastTarget);
-        }
-        reset();
-    }
-
-    /**
-     * Track global drags for autoscrolling support.
-     */
-    protected void globalMouseDragged (MouseEvent event)
-    {
-        if (_scrollComp == null) {
-            return;
-        }
-
-        int x = event.getX();
-        int y = event.getY();
-
-        try {
-            Point p = event.getComponent().getLocationOnScreen();
-            p.translate(x, y);
-
-            Rectangle r = getRectOnScreen(_scrollComp);
-            if (!r.contains(p)) {
-                r.grow(_scrollDim.width, _scrollDim.height);
-                if (r.contains(p)) {
-                    _scrollPoint = p;
-                    return;  // still autoscrolling
-                }
-            }
-        } catch (IllegalComponentStateException icse) {
-            // the component could no longer be on screen
-            // don't complain, just stop autoscroll
-        }
-
-        // stop autoscrolling
-        _scrollComp = null;
-        _scrollTimer.stop();
+        return (_source != null);
     }
 
     /**
@@ -525,6 +403,170 @@ public class DnDManager
                 _scrollPoint.x - p.x, _scrollPoint.y - p.y, 1, 1));
         }
     });
+
+    /** Listens to registered drag source components. */
+    protected MouseInputAdapter _sourceListener = new MouseInputAdapter() {
+        public void mouseDragged (MouseEvent me)
+        {
+            // make sure a drag hasn't already started.
+            if (isDragging()) {
+                return;
+            }
+
+            _sourceComp = me.getComponent();
+            _source = (DragSource) _draggers.get(_sourceComp);
+
+            // make sure the source wants to start a drag.
+            if ((_source == null) || (!_sourceComp.isEnabled()) ||
+                (!_source.startDrag(_cursors, _data))) {
+                // if not, reset our start conditions and bail
+                reset();
+                return;
+            }
+
+            // use standard cursors if custom ones not specified
+            if (_cursors[0] == null) {
+                _cursors[0] = java.awt.dnd.DragSource.DefaultMoveDrop;
+            }
+            if (_cursors[1] == null) {
+                _cursors[1] = java.awt.dnd.DragSource.DefaultMoveNoDrop;
+            }
+
+            // start out with the no-drop cursor.
+            _curCursor = _cursors[1];
+
+            // find the top-level window and set the cursor there.
+            for (_topComp = _sourceComp; true; ) {
+                Component c = _topComp.getParent();
+                if (c == null) {
+                    break;
+                }
+                _topComp = c;
+            }
+            _topCursor = _topComp.getCursor();
+            _topComp.setCursor(_curCursor);
+
+            setComponentCursor(_sourceComp);
+        }
+
+        public void mouseReleased (MouseEvent event)
+        {
+            if (!isDragging()) {
+                return;
+            }
+
+            // reset cursors
+            clearComponentCursor();
+            _topComp.setCursor(_topCursor);
+
+            // get the last target seen...
+            if (_lastTarget != null) {
+                _lastTarget.dropCompleted(_source, _data[0]);
+                _source.dragCompleted(_lastTarget);
+            }
+            reset();
+        }
+
+        public void mouseExited (MouseEvent event)
+        {
+            if (isDragging()) {
+                clearComponentCursor();
+            }
+        }
+
+        public void mouseEntered (MouseEvent event)
+        {
+            if (isDragging()) {
+                setComponentCursor(event.getComponent());
+            }
+        }
+    };
+
+    /** Listens to registered drop targets and their children. */
+    protected MouseInputAdapter _targetListener = new MouseInputAdapter() {
+        public void mouseEntered (MouseEvent event)
+        {
+            if (!isDragging()) {
+                return;
+            }
+
+            Component newcomp = event.getComponent();
+            _lastTarget = findAppropriateTarget(newcomp);
+            Cursor newcursor = _cursors[(_lastTarget == null) ? 1 : 0];
+
+            // see if the current cursor changed.
+            if (newcursor != _curCursor) {
+                _topComp.setCursor(_curCursor = newcursor);
+            }
+
+            // and check the cursor at the component level
+            setComponentCursor(newcomp);
+        }
+
+        public void mouseExited (MouseEvent event)
+        {
+            if (!isDragging()) {
+                return;
+            }
+
+            clearComponentCursor();
+
+            // and if we were over a target, let the target know that we left
+            if (_lastTarget != null) {
+                _lastTarget.noDrop();
+                _lastTarget = null;
+            }
+
+            checkAutoscroll(event);
+        }
+
+        public void mouseDragged (MouseEvent event)
+        {
+            if (!isDragging()) {
+                return;
+            }
+            if (_scrollComp == null) {
+                return;
+            }
+
+            int x = event.getX();
+            int y = event.getY();
+
+            try {
+                Point p = event.getComponent().getLocationOnScreen();
+                p.translate(x, y);
+
+                Rectangle r = getRectOnScreen(_scrollComp);
+                if (!r.contains(p)) {
+                    r.grow(_scrollDim.width, _scrollDim.height);
+                    if (r.contains(p)) {
+                        _scrollPoint = p;
+                        return;  // still autoscrolling
+                    }
+                }
+            } catch (IllegalComponentStateException icse) {
+                // the component could no longer be on screen
+                // don't complain, just stop autoscroll
+            }
+
+            // stop autoscrolling
+            _scrollComp = null;
+            _scrollTimer.stop();
+        }
+    };
+
+    /** Listens to the drop target components and all their children. */
+    protected ContainerListener _childListener = new ContainerListener() {
+        public void componentAdded (ContainerEvent e)
+        {
+            addTargetListeners(e.getChild());
+        }
+
+        public void componentRemoved (ContainerEvent e)
+        {
+            removeTargetListeners(e.getChild());
+        }
+    };
 
     /** Our DropTargets, indexed by associated Component. */
     protected HashMap _droppers = new HashMap();

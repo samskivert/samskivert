@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.63 2003/11/07 22:28:43 ray Exp $
+// $Id: StringUtil.java,v 1.64 2003/11/13 01:20:40 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -577,7 +577,7 @@ public class StringUtil
     public static String fieldsToString (Object object, String sep)
     {
         StringBuffer buf = new StringBuffer("[");
-        fieldsToString(buf, object);
+        fieldsToString(buf, object, sep);
         return buf.append("]").toString();
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMapTest.java,v 1.3 2002/04/11 04:07:42 mdb Exp $
+// $Id: HashIntMapTest.java,v 1.4 2002/05/23 23:29:38 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -88,6 +88,33 @@ public class HashIntMapTest extends TestCase
         } catch (Exception e) {
             e.printStackTrace();
             fail("serialization failure");
+        }
+
+        table.clear();
+        // now try putting lots and lots of values in the table
+        // so that it grows a bunch
+        for (int ii=1; ii < 12345; ii += 3) {
+            table.put(ii, new Integer(ii));
+        }
+
+        // now check by removing most and seeing if everything's equal
+        for (int ii=1; ii < 12345; ii += 3) {
+            Integer val;
+            // let's keep the ones that are a multiple of 16
+            if ((ii & 15) == 0) {
+                val = (Integer) table.get(ii);
+            } else {
+                val = (Integer) table.remove(ii);
+            }
+            assertTrue("get(" + ii + ") == " + val, val.intValue() == ii);
+        }
+
+        // and then let's also remove the multiples of 16
+        for (int ii=1; ii < 12345; ii += 3) {
+            if ((ii & 15) == 0) {
+                Integer val = (Integer) table.remove(ii);
+                assertTrue("get(" + ii + ") == " + val, val.intValue() == ii);
+            }
         }
     }
 

@@ -3,7 +3,6 @@
 
 package robodj.chooser;
 
-import java.io.IOException;
 import java.util.Properties;
 
 import javax.swing.JOptionPane;
@@ -19,39 +18,22 @@ import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.RunAnywhere;
 
-import com.threerings.util.Name;
-
-import com.threerings.presents.client.Client;
-import com.threerings.presents.client.ClientObserver;
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.Subscriber;
-import com.threerings.presents.net.UsernamePasswordCreds;
-
 import robodj.Log;
-import robodj.client.DJService;
-import robodj.data.DJObject;
 import robodj.repository.Model;
 import robodj.repository.Repository;
 import robodj.util.ErrorUtil;
 import robodj.util.RDJPrefs;
 import robodj.util.RDJPrefsPanel;
-import robodj.util.ServerControl;
 
 /**
  * The chooser is the GUI-based application for browsing the music
  * collection and managing the playlist.
  */
-public class Chooser
-    implements Client.Invoker, ClientObserver, Subscriber
+public class Chooser extends DJClient
 {
     public static Repository repository;
 
     public static Model model;
-
-    public static Client client;
-
-    public static DJObject djobj;
 
     public static ChooserFrame frame;
 
@@ -93,25 +75,7 @@ public class Chooser
                 continue;
             }
 
-            try {
-                String host = RDJPrefs.getMusicDaemonHost();
-                if (StringUtil.blank(host)) {
-                    throw new IOException(
-                        "No music server host specified in configuration.");
-                }
-                // establish a connection with the music server
-		Name name = new Name(RDJPrefs.getUser());
-                client = new Client(new UsernamePasswordCreds(name, ""), this);
-                client.addClientObserver(this);
-                client.setServer(host, Client.DEFAULT_SERVER_PORT);
-                client.logon();
-
-            } catch (IOException ioe) {
-                String errmsg = "Unable to communicate with music " +
-                    "server on host '" + RDJPrefs.getMusicDaemonHost() + "' ";
-                if (ErrorUtil.reportError(errmsg, ioe)) {
-                    System.exit(-1);
-                }
+            if (!connectToServer()) {
                 continue;
             }
 
@@ -120,83 +84,15 @@ public class Chooser
     }
 
     // documentation inherited from interface
-    public void clientDidLogon (Client lclient)
-    {
-        // subscribe to our DJObject
-        DJService djsvc = (DJService)client.requireService(DJService.class);
-        djsvc.getDJOid(client, new DJService.ResultListener() {
-            public void requestProcessed (Object result) {
-                int djoid = ((Integer)result).intValue();
-                client.getDObjectManager().subscribeToObject(
-                    djoid, Chooser.this);
-            }
-            public void requestFailed (String cause) {
-                ErrorUtil.reportError("Failed to fetch DJ oid: " + cause, null);
-                System.exit(-1);
-            }
-        });
-    }
-
-    // documentation inherited from interface
-    public void clientObjectDidChange (Client client)
-    {
-    }
-
-    // documentation inherited from interface
-    public void clientDidLogoff (Client client)
-    {
-        System.exit(-1);
-    }
-
-    // documentation inherited from interface
-    public void clientFailedToLogon (Client lclient, Exception cause)
-    {
-        if (ErrorUtil.reportError("Failed to connect to server", cause)) {
-            System.exit(-1);
-        } else {
-            Thread t = new Thread() {
-                public void run () {
-                    RDJPrefsPanel.display(true);
-                    client.setServer(RDJPrefs.getMusicDaemonHost(),
-                                     Client.DEFAULT_SERVER_PORT);
-                    client.logon();
-                }
-            };
-            t.start();
-        }
-    }
-
-    // documentation inherited from interface
-    public void clientConnectionFailed (Client client, Exception cause)
-    {
-        ErrorUtil.reportError("Lost connection to server", cause);
-        System.exit(-1);
-    }
-
-    // documentation inherited from interface
-    public boolean clientWillLogoff (Client client)
-    {
-        return true;
-    }
-
-    // documentation inherited from interface
     public void invokeLater (Runnable run)
     {
         SwingUtilities.invokeLater(run);
     }
 
-    // documentation inherited from interface
-    public void objectAvailable (DObject object)
+    protected void didInit ()
     {
-        djobj = (DJObject)object;
+        super.didInit();
         displayInterface();
-    }
-
-    // documentation inherited from interface
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        ErrorUtil.reportError("Failed to fetch DJ object", cause);
-        System.exit(-1);
     }
 
     protected void displayInterface ()
@@ -212,11 +108,6 @@ public class Chooser
             frame.toFront();
         }
     }        
-
-    public static void exit ()
-    {
-        client.logoff(false);
-    }
 
     public static void main (String[] args)
     {

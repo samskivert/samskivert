@@ -192,7 +192,7 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public boolean remove (Object o)
     {
-        if (ListUtil.removeEqual(_elements, o) != null) {
+        if (ListUtil.remove(_elements, o) != null) {
             _size--;
             return true;
         }
@@ -235,7 +235,7 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public int indexOf (Object o)
     {
-        return ListUtil.indexOfEqual(_elements, o);
+        return ListUtil.indexOf(_elements, o);
     }
 
 //     // documentation inherited from interface

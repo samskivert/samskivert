@@ -29,7 +29,7 @@ package com.samskivert.util;
  * // use the version of remove that calls equals() rather than just
  * // checking for equality of references
  * String anotherBar = "bar";
- * ListUtil.clearEqual(list, anotherBar);
+ * ListUtil.clear(list, anotherBar);
  *
  * // append our objects to the end of the list letting list util know
  * // that we're tracking the list size
@@ -166,7 +166,7 @@ public class ListUtil
      * the list you passed in due to expansion, or allocation) or null if
      * the element was already in the original array.
      */
-    public static Object[] testAndAdd (Object[] list, Object element)
+    public static Object[] testAndAddRef (Object[] list, Object element)
     {
         return testAndAdd(REFERENCE_COMP, list, element);
     }
@@ -183,12 +183,12 @@ public class ListUtil
      * the list you passed in due to expansion, or allocation) or null if
      * the element was already in the original array.
      */
-    public static Object[] testAndAddEqual (Object[] list, Object element)
+    public static Object[] testAndAdd (Object[] list, Object element)
     {
         return testAndAdd(EQUALS_COMP, list, element);
     }
 
-    /** Helper function for {@link #testAndAdd}, etc. */
+    /** Helper function for {@link #testAndAddRef}, etc. */
     protected static Object[] testAndAdd (
         EqualityComparator eqc, Object[] list, Object element)
     {
@@ -284,7 +284,7 @@ public class ListUtil
      * @return the index of the first matching element if one was found,
      * -1 otherwise.
      */
-    public static int indexOf (Object[] list, Object element)
+    public static int indexOfRef (Object[] list, Object element)
     {
         return indexOf(REFERENCE_COMP, list, element);
     }
@@ -299,12 +299,12 @@ public class ListUtil
      * @return the index of the matching element if one was found, -1
      * otherwise.
      */
-    public static int indexOfEqual (Object[] list, Object element)
+    public static int indexOf (Object[] list, Object element)
     {
         return indexOf(EQUALS_COMP, list, element);
     }
 
-    /** Helper function for {@link #indexOf}, etc. */
+    /** Helper function for {@link #indexOfRef}, etc. */
     protected static int indexOf (
         EqualityComparator eqc, Object[] list, Object element)
     {
@@ -329,7 +329,7 @@ public class ListUtil
      *
      * @return the element that was removed or null if it was not found.
      */
-    public static Object clear (Object[] list, Object element)
+    public static Object clearRef (Object[] list, Object element)
     {
         return clear(REFERENCE_COMP, list, element);
     }
@@ -344,12 +344,12 @@ public class ListUtil
      * @return the object that was cleared from the array or null if no
      * matching object was found.
      */
-    public static Object clearEqual (Object[] list, Object element)
+    public static Object clear (Object[] list, Object element)
     {
         return clear(EQUALS_COMP, list, element);
     }
 
-    /** Helper function for {@link #clear}, etc. */
+    /** Helper function for {@link #clearRef}, etc. */
     protected static Object clear (
         EqualityComparator eqc, Object[] list, Object element)
     {
@@ -378,7 +378,7 @@ public class ListUtil
      * @return the object that was removed from the array or null if no
      * matching object was found.
      */
-    public static Object remove (Object[] list, Object element)
+    public static Object removeRef (Object[] list, Object element)
     {
         return remove(REFERENCE_COMP, list, element);
     }
@@ -395,12 +395,12 @@ public class ListUtil
      * @return the object that was removed from the array or null if no
      * matching object was found.
      */
-    public static Object removeEqual (Object[] list, Object element)
+    public static Object remove (Object[] list, Object element)
     {
         return remove(EQUALS_COMP, list, element);
     }
 
-    /** Helper function for {@link #remove}, etc. */
+    /** Helper function for {@link #removeRef}, etc. */
     protected static Object remove (
         EqualityComparator eqc, Object[] list, Object element)
     {
@@ -491,7 +491,7 @@ public class ListUtil
         list = ListUtil.add(list, bar);
         System.out.println("add(bar): " + StringUtil.toString(list));
 
-        ListUtil.clear(list, foo);
+        ListUtil.clearRef(list, foo);
         System.out.println("clear(foo): " + StringUtil.toString(list));
 
         String newBar = new String("bar"); // prevent java from cleverly
@@ -502,15 +502,15 @@ public class ListUtil
         System.out.println("contains(newBar): " +
                            ListUtil.contains(list, newBar));
 
-        ListUtil.clearEqual(list, newBar);
-        System.out.println("clearEqual(newBar): " + StringUtil.toString(list));
+        ListUtil.clear(list, newBar);
+        System.out.println("clear(newBar): " + StringUtil.toString(list));
 
         list = ListUtil.add(list, 0, foo);
         list = ListUtil.add(list, 1, bar);
         System.out.println("Added foo+bar: " + StringUtil.toString(list));
 
-        ListUtil.remove(list, foo);
-        System.out.println("remove(foo): " + StringUtil.toString(list));
+        ListUtil.removeRef(list, foo);
+        System.out.println("removeRef(foo): " + StringUtil.toString(list));
 
         list = ListUtil.add(list, 0, foo);
         list = ListUtil.add(list, 1, bar);
@@ -522,24 +522,24 @@ public class ListUtil
         ListUtil.remove(list, 0);
         System.out.println("remove(0): " + StringUtil.toString(list));
 
-        Object[] tl = ListUtil.testAndAdd(list, bar);
+        Object[] tl = ListUtil.testAndAddRef(list, bar);
         if (tl == null) {
-            System.out.println("testAndAdd(bar): failed: " +
+            System.out.println("testAndAddRef(bar): failed: " +
                                StringUtil.toString(list));
         } else {
             list = tl;
-            System.out.println("testAndAdd(bar): added: " +
+            System.out.println("testAndAddRef(bar): added: " +
                                StringUtil.toString(list));
         }
 
         String biz = "biz";
-        tl = ListUtil.testAndAdd(list, biz);
+        tl = ListUtil.testAndAddRef(list, biz);
         if (tl == null) {
-            System.out.println("testAndAdd(biz): failed: " +
+            System.out.println("testAndAddRef(biz): failed: " +
                                StringUtil.toString(list));
         } else {
             list = tl;
-            System.out.println("testAndAdd(biz): added: " +
+            System.out.println("testAndAddRef(biz): added: " +
                                StringUtil.toString(list));
         }
     }

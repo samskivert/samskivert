@@ -188,7 +188,7 @@
              overview="${src.dir}/${doc.overview}"
              destdir="${javadoc.dir}"
              additionalparam="-breakiterator"
-             link="http://dev.threerings.net/devel/docs/samskivert/">
+             link="http://samskivert.com/code/samskivert/samskivert/docs/api/">
       <packageset dir="${src.dir}">
         <exclude name="com/samskivert/io/**" unless="build.io"/>
         <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>

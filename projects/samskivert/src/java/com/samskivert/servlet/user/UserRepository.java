@@ -92,8 +92,19 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Like {@link #createUser(String,String,String,String,int)} except
-     * that the supplied password has already been encrypted.
+     * Requests that a new user be created in the repository.
+     *
+     * @param username the username of the new user to create.
+     * @param password the password for the new user.
+     * @param realname the user's real name.
+     * @param email the user's email address.
+     * @param siteId the unique identifier of the site through which this
+     * account is being created. The resulting user will be tracked as
+     * originating from this site for accounting purposes ({@link
+     * SiteIdentifier#DEFAULT_SITE_ID} can be used by systems that don't
+     * desire to perform site tracking.
+     *
+     * @return The userid of the newly created user.
      */
     public int createUser (Username username, Password password,
                            String realname, String email, int siteId)

@@ -20,6 +20,8 @@
 
 package com.samskivert.velocity;
 
+import com.samskivert.servlet.util.ExceptionMap;
+
 /**
  * The logic class is called upon to populate the WebMacro web context,
  * prior to invoking a particular WebMacro template upon it to generate a

@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.20 2003/07/11 21:00:30 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.21 2003/11/25 02:12:45 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,6 +53,10 @@ public class DefaultLogProvider implements LogProvider
             String pstr = System.getProperty("log_vt100");
             if (!StringUtil.blank(pstr)) {
                 _useVT100 = pstr.equalsIgnoreCase("true");
+            }
+            String wstr = System.getProperty("wrap_log");
+            if (!StringUtil.blank(wstr)) {
+                _wrapLog = wstr.equalsIgnoreCase("true");
             }
 
         } catch (SecurityException se) {
@@ -129,6 +133,12 @@ public class DefaultLogProvider implements LogProvider
         buf.append(_useVT100 ? TermUtil.UNDERLINE : "").append(moduleName);
         buf.append(_useVT100 ? TermUtil.PLAIN : "").append(": ");
 
+        // if we're not wrapping, append the message and be done with it
+        if (!_wrapLog) {
+            buf.append(message);
+            return buf.toString();
+        }
+
         // if the text contains newlines, use those instead of wrapping
         if (message.indexOf("\n") != -1) {
             String[] lines = StringUtil.split(message, "\n");
@@ -184,9 +194,6 @@ public class DefaultLogProvider implements LogProvider
         }
     }
 
-    /** Whether or not to use the vt100 escape codes. */
-    protected boolean _useVT100 = false;
-
     /** The default log level. */
     protected int _level = Log.INFO;
 
@@ -206,6 +213,12 @@ public class DefaultLogProvider implements LogProvider
      * running, if it was possible to obtain them. Otherwise, it contains
      * the default dimensions. This is used to wrap lines. */
     protected static Dimension _tdimens;
+
+    /** Whether or not to use the vt100 escape codes. */
+    protected boolean _useVT100 = false;
+
+    /** Whether or not to wrap the log lines. */
+    protected boolean _wrapLog = false;
 
     /** Used to tag log messages with their log level. */
     protected static final String[] LEVEL_CHARS = { ".", "?", "!" };

@@ -7,7 +7,6 @@
   <property name="doc.overview"     value="com/threerings/atlanti/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
   <property name="build.compiler"   value="jikes"/>
-  <property name="java.libraries"   value="/usr/share/java"/>
   <property name="narya.home"       value="../../work/narya"/>
 
   <!-- things you probably don't want to change -->
@@ -19,7 +18,6 @@
 
   <!-- declare our classpath -->
   <path id="classpath">
-    <fileset dir="${java.libraries}" includes="**/*.jar"/>
     <fileset dir="lib" includes="**/*.jar"/>
     <pathelement location="${deploy.dir}/classes"/>
   </path>

@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.9 2003/12/09 04:07:31 mdb Exp $
+// $Id: LabelDemo.java,v 1.10 2004/02/25 13:22:25 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -17,7 +17,7 @@ public class LabelDemo extends JPanel
         Font font = new Font("Courier", Font.PLAIN, 10);
 
         int idx = 0;
-        _labels[idx] = new Label("Jealous Angelfish");
+        _labels[idx] = new Label("\u307e\u305b\u3002Amores\u30d1\u30a4\u30e9");
         // _labels[idx].setStyle(Label.OUTLINE);
         _labels[idx].setAlternateColor(Color.green);
         _labels[idx].setFont(new Font("Dialog", Font.PLAIN, 10));
@@ -30,6 +30,10 @@ public class LabelDemo extends JPanel
         _labels[idx].setAlternateColor(Color.lightGray);
         _labels[idx].setStyle(Label.SHADOW);
         _labels[idx++].setFont(new Font("Dialog", Font.PLAIN, 12));
+
+        text = "\u306e\u6d77\u306b\u884c\u3063\u3089\u3057\u3083\u3044\u307e" +
+            "\u305b\u3002Periwinkle\u30d1\u30a4\u30e9\u30c8\u3092\u9078" +
+            "\u3073\u51fa\u3057\u3066\u4e0b\u3055\u3044\u3002";
 
         _labels[idx] = new Label(text);
         // _labels[idx].setFont(font);
@@ -62,9 +66,9 @@ public class LabelDemo extends JPanel
         }
     }
 
-    public void layout ()
+    public void doLayout ()
     {
-        super.layout();
+        super.doLayout();
 
         // layout our labels
         Graphics2D g = (Graphics2D)getGraphics();

@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.12 2002/08/12 01:10:32 mdb Exp $
+// $Id: ArrayUtil.java,v 1.13 2002/08/15 23:00:30 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -67,6 +67,36 @@ public class ArrayUtil
         }
 
         return maxes;
+    }
+
+    /**
+     * Reverses the elements in the given array.
+     *
+     * @param values the array to reverse.
+     */
+    public static void reverse (byte[] values)
+    {
+        reverse(values, 0, values.length);
+    }
+
+    /**
+     * Reverses a subset of elements within the specified array.
+     *
+     * @param values the array containing elements to reverse.
+     * @param offset the index at which to start reversing elements.
+     * @param length the number of elements to reverse.
+     */
+    public static void reverse (byte[] values, int offset, int length)
+    {
+        int aidx = offset;
+        int bidx = offset + length - 1;
+        while (bidx > aidx) {
+            byte value = values[aidx];
+            values[aidx] = values[bidx];
+            values[bidx] = value;
+            aidx++;
+            bidx--;
+        }
     }
 
     /**

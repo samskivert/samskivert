@@ -57,7 +57,7 @@
              windowtitle="${app.name} API"
              doctitle="${app.name} API"
              overview="${src.dir}/${doc.overview}"
-             bottom="Copyright &#169; 2001 ${copyright.holder}. All Rights Reserved."
+             bottom="Copyright &#169; 2002 ${copyright.holder}. All Rights Reserved."
              destdir="${javadoc.dir}">
       <classpath refid="classpath"/>
       <link href="http://www.waywardgeeks.org/code/samskivert/javadoc"/>
@@ -70,7 +70,7 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar file="${deploy.dir}/${dist.jar}"
+    <jar destfile="${deploy.dir}/${dist.jar}"
          basedir="${deploy.dir}/classes"/>
   </target>
 

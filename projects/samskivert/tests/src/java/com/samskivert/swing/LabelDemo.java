@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.8 2002/12/06 22:18:07 mdb Exp $
+// $Id: LabelDemo.java,v 1.9 2003/12/09 04:07:31 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -17,14 +17,14 @@ public class LabelDemo extends JPanel
         Font font = new Font("Courier", Font.PLAIN, 10);
 
         int idx = 0;
-        _labels[idx] = new Label("Smiling Robert");
-        _labels[idx].setStyle(Label.OUTLINE);
-        _labels[idx].setAlternateColor(Color.lightGray);
+        _labels[idx] = new Label("Jealous Angelfish");
+        // _labels[idx].setStyle(Label.OUTLINE);
+        _labels[idx].setAlternateColor(Color.green);
         _labels[idx].setFont(new Font("Dialog", Font.PLAIN, 10));
-        _labels[idx++].setAlignment(Label.CENTER);
+        _labels[idx++].setAlignment(Label.LEFT);
 
         _labels[idx] = new Label(text);
-        _labels[idx].setFont(font);
+        // _labels[idx].setFont(font);
         _labels[idx].setTargetWidth(110);
         _labels[idx].setAlignment(Label.RIGHT);
         _labels[idx].setAlternateColor(Color.lightGray);
@@ -32,7 +32,7 @@ public class LabelDemo extends JPanel
         _labels[idx++].setFont(new Font("Dialog", Font.PLAIN, 12));
 
         _labels[idx] = new Label(text);
-        _labels[idx].setFont(font);
+        // _labels[idx].setFont(font);
         _labels[idx].setTargetHeight(30);
         _labels[idx].setAlignment(Label.CENTER);
         _labels[idx].setAlternateColor(Color.lightGray);
@@ -40,7 +40,8 @@ public class LabelDemo extends JPanel
         _labels[idx++].setFont(new Font("Dialog", Font.PLAIN, 12));
 
         _labels[idx] = new Label(text);
-        _labels[idx].setFont(font);
+        // _labels[idx].setFont(font);
+        _labels[idx].setFont(new Font("Dialog", Font.PLAIN, 11));
         _labels[idx++].setGoldenLayout();
 
         try {

@@ -1,10 +1,11 @@
 //
-// $Id: ClassEnumerator.java,v 1.2 2001/07/04 18:22:26 mdb Exp $
+// $Id: ClassEnumerator.java,v 1.3 2001/07/13 23:25:13 mdb Exp $
 
 package com.samskivert.viztool.enum;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.Iterator;
 
 /**
  * The class enumerator is supplied with a classpath which it decomposes
@@ -14,7 +15,7 @@ import java.util.StringTokenizer;
  * The component enumerators are structured so that new enumerators can be
  * authored for new kinds of classpath component.
  */
-public class ClassEnumerator implements Enumerator
+public class ClassEnumerator implements Iterator
 {
     /**
      * Constructs a class enumerator with the supplied classpath. A set of
@@ -30,6 +31,7 @@ public class ClassEnumerator implements Enumerator
         // decompose the path and select enumerators for each component
         StringTokenizer tok = new StringTokenizer(classpath, ":");
         ArrayList warnings = new ArrayList();
+        ArrayList enums = new ArrayList();
 
         while (tok.hasMoreTokens()) {
             String component = tok.nextToken();
@@ -46,7 +48,7 @@ public class ClassEnumerator implements Enumerator
 //                                         ", component=" + component + "].");
                     // construct an enumerator to enumerate this component
                     // and put it on our list
-                    _enums.add(enum.enumerate(component));
+                    enums.add(enum.enumerate(component));
 
                 } catch (EnumerationException ee) {
                     // if there was a problem creating an enumerator for
@@ -55,6 +57,10 @@ public class ClassEnumerator implements Enumerator
                 }
             }
         }
+
+        // convert our list into an array
+        _enums = new ComponentEnumerator[enums.size()];
+        enums.toArray(_enums);
 
         // convert the warnings into an array
         _warnings = new Warning[warnings.size()];
@@ -94,17 +100,22 @@ public class ClassEnumerator implements Enumerator
         return _warnings;
     }
 
-    public boolean hasMoreClasses ()
+    public boolean hasNext ()
     {
         return (_nextClass != null);
     }
 
-    public String nextClass ()
+    public Object next ()
     {
         String clazz = _nextClass;
         _nextClass = null;
         scanToNextClass();
         return clazz;
+    }
+
+    public void remove ()
+    {
+        // not supported
     }
 
     /**
@@ -113,9 +124,9 @@ public class ClassEnumerator implements Enumerator
      */
     protected void scanToNextClass ()
     {
-        if (_enums.size() > 0) {
-            // grab the first enumerator in the list
-            ComponentEnumerator enum = (ComponentEnumerator)_enums.get(0);
+        if (_enumidx < _enums.length) {
+            // grab the current enumerator
+            ComponentEnumerator enum = _enums[_enumidx];
 
             // if it has more classes
             if (enum.hasMoreClasses()) {
@@ -124,14 +135,15 @@ public class ClassEnumerator implements Enumerator
                 return;
 
             } else {
-                // otherwise remove it from the list and try the next enum
-                _enums.remove(0);
+                // otherwise try the next enum
+                _enumidx++;
                 scanToNextClass();
             }
         }
     }
 
-    protected ArrayList _enums = new ArrayList();
+    protected ComponentEnumerator[] _enums;
+    protected int _enumidx;
     protected String _nextClass;
     protected Warning[] _warnings;
 
@@ -162,8 +174,8 @@ public class ClassEnumerator implements Enumerator
         }
 
         // enumerate over whatever classes we can
-        while (enum.hasMoreClasses()) {
-            System.out.println("Class: " + enum.nextClass());
+        while (enum.hasNext()) {
+            System.out.println("Class: " + enum.next());
         }
     }
 

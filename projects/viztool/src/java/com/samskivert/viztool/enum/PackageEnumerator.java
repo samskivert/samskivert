@@ -1,24 +1,31 @@
 //
-// $Id: PackageEnumerator.java,v 1.1 2001/07/04 18:22:26 mdb Exp $
+// $Id: PackageEnumerator.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
 
 package com.samskivert.viztool.enum;
 
+import java.util.Iterator;
+
 /**
  * The package enumerator filters out only classes from the specified
- * package (and subpackages) from the class enumerator provided at
- * construct time.
+ * package from the class enumerator provided at construct time.
  */
 public class PackageEnumerator extends FilterEnumerator
 {
-    public PackageEnumerator (String pkg, ClassEnumerator source)
+    public PackageEnumerator (String pkg, Iterator source, boolean subpkgs)
     {
         super(source);
         _package = pkg;
+        _subpkgs = subpkgs;
     }
 
     protected boolean filterClass (String clazz)
     {
-        return !clazz.startsWith(_package);
+        if (!clazz.startsWith(_package)) {
+            return true;
+        }
+
+        return _subpkgs ? false:
+            (clazz.substring(_package.length()+1).indexOf(".") != -1);
     }
 
     public static void main (String[] args)
@@ -27,7 +34,7 @@ public class PackageEnumerator extends FilterEnumerator
         String classpath = System.getProperty("java.class.path");
         ClassEnumerator enum = new ClassEnumerator(classpath);
         String pkg = "com.samskivert.viztool.enum";
-        PackageEnumerator penum = new PackageEnumerator(pkg, enum);
+        PackageEnumerator penum = new PackageEnumerator(pkg, enum, true);
 
         // print out the warnings
         ClassEnumerator.Warning[] warnings = enum.getWarnings();
@@ -36,10 +43,11 @@ public class PackageEnumerator extends FilterEnumerator
         }
 
         // enumerate over whatever classes match our package
-        while (penum.hasMoreClasses()) {
-            System.out.println("Class: " + penum.nextClass());
+        while (penum.hasNext()) {
+            System.out.println("Class: " + penum.next());
         }
     }
 
     protected String _package;
+    protected boolean _subpkgs;
 }

@@ -1,12 +1,13 @@
 //
-// $Id: ChainUtil.java,v 1.1 2001/07/04 18:24:07 mdb Exp $
+// $Id: ChainUtil.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.samskivert.viztool.Log;
-import com.samskivert.viztool.enum.Enumerator;
 
 /**
  * Chain related utility functions.
@@ -21,10 +22,10 @@ public class ChainUtil
      *
      * @return an array list containing all of the root chains.
      */
-    public static ArrayList buildChains (String pkgroot, Enumerator enum)
+    public static ArrayList buildChains (String pkgroot, Iterator iter)
     {
         ArrayList roots = new ArrayList();
-        computeRoots(pkgroot, enum, roots);
+        computeRoots(pkgroot, iter, roots);
         return roots;
     }
 
@@ -53,24 +54,24 @@ public class ChainUtil
      * Dumps the classes in the supplied array list of chain instances to
      * stdout.
      */
-    public static void dumpClasses (ArrayList roots)
+    public static void dumpClasses (PrintStream out, ArrayList roots)
     {
         for (int i = 0; i < roots.size(); i++) {
             Chain root = (Chain)roots.get(i);
-            System.out.print(root.toString());
+            out.print(root.toString());
         }
-        System.out.flush();
+        out.flush();
     }
 
     /**
-     * Scans the list of classes provided by the supplied enumerator and
+     * Scans the list of classes provided by the supplied iterator and
      * constructs a hierarchical representation of those classes.
      */
     protected static
-        void computeRoots (String pkgroot, Enumerator enum, ArrayList roots)
+        void computeRoots (String pkgroot, Iterator iter, ArrayList roots)
     {
-        while (enum.hasMoreClasses()) {
-            insertClass(roots, pkgroot, enum.nextClass());
+        while (iter.hasNext()) {
+            insertClass(roots, pkgroot, (String)iter.next());
         }
     }
 
@@ -96,6 +97,7 @@ public class ChainUtil
         } catch (Exception e) {
             Log.warning("Unable to process class [class=" + clazz +
                         ", error=" + e + "].");
+            Log.logStackTrace(e);
         }
     }
 
@@ -112,13 +114,13 @@ public class ChainUtil
         // if we have no parent, we want to insert ourselves as a root
         // class
         if (parent == null || parent.equals(Object.class)) {
-            insertRoot(roots, target);
+            insertRoot(roots, pkgroot, target);
 
         } else {
             // if our parent is not in this package, we want to insert it
             // into the hierarchy as a root class
             if (!parent.getName().startsWith(pkgroot)) {
-                insertRoot(roots, parent);
+                insertRoot(roots, pkgroot, parent);
             }
 
             // and now hang ourselves off of our parent class
@@ -144,9 +146,10 @@ public class ChainUtil
         }
     }
 
-    protected static boolean insertRoot (ArrayList roots, Class root)
+    protected static boolean insertRoot (ArrayList roots, String pkgroot,
+                                         Class root)
     {
-        Chain chroot = new Chain(root);
+        Chain chroot = new Chain(pkgroot, root);
         // make sure no chain already exists for this root
         if (!roots.contains(chroot)) {
             roots.add(chroot);

@@ -1,5 +1,5 @@
 //
-// $Id: Chain.java,v 1.1 2001/07/04 18:24:07 mdb Exp $
+// $Id: Chain.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -11,20 +11,50 @@ import java.awt.Point;
  * A chain is used by the hierarchy visualizer to represent inheritance
  * chains.
  */
-public class Chain
+public class Chain implements Element
 {
     /**
      * Constructs a chain with the specified class as its root.
      */
-    public Chain (Class root)
+    public Chain (String pkgroot, Class root)
     {
+        _pkgroot = pkgroot;
         _root = root;
+        _name = _root.getName();
+        if (_name.startsWith(pkgroot)) {
+            _name = _name.substring(_pkgroot.length()+1);
+        }
+    }
+
+    /**
+     * Returns the name of this chain (which should be used when
+     * displaying the chain).
+     */
+    public String getName ()
+    {
+        return _name;
+    }
+
+    /**
+     * Returns the class that forms the root of this chain.
+     */
+    public Class getRoot ()
+    {
+        return _root;
+    }
+
+    /**
+     * Returns the name of the class that forms the root of this chain.
+     */
+    public String getRootName ()
+    {
+        return _root.getName();
     }
 
     /**
      * Returns a <code>Dimension</code> instance representing the size of
-     * this chain (and all contained subchains) in whatever coordinates
-     * are being used to diagram this chain.
+     * this chain (and all contained subchains). All coordinates are in
+     * points.
      */
     public Dimension getSize ()
     {
@@ -32,8 +62,8 @@ public class Chain
     }
 
     /**
-     * Returns the location of this chain in whatever coordinate system
-     * that is being used to diagram this chain.
+     * Returns the location of this chain relative to its parent chain.
+     * All coordinates are in points.
      */
     public Point getLocation ()
     {
@@ -41,7 +71,7 @@ public class Chain
     }
 
     /**
-     * Sets the size of this chain.
+     * Sets the size of this chain. All coordinates are in points.
      *
      * @see #getSize
      */
@@ -51,7 +81,8 @@ public class Chain
     }
 
     /**
-     * Sets the location of this chain.
+     * Sets the location of this chain relative to its parent. All
+     * coordinates are in points.
      *
      * @see #getLocation
      */
@@ -60,13 +91,53 @@ public class Chain
         _location = new Point(x, y);
     }
 
+    // inherited from interface
+    public void setPage (int pageno)
+    {
+        _pageno = pageno;
+    }
+
+    // inherited from interface
+    public int getPage ()
+    {
+        return _pageno;
+    }
+
+    /**
+     * Returns an array list containing the children chains of this chain.
+     * If this chain has no children the list will be of zero length but
+     * will not be null. This list should <em>not</em> be modified. Oh,
+     * for a <code>const</code> keyword.
+     */
+    public ArrayList getChildren ()
+    {
+        return _children;
+    }
+
+    /**
+     * Lays out all of the children of this chain and then requests that
+     * the supplied layout manager arrange those children and compute the
+     * dimensions of this chain based on all of that information.
+     */
+    public void layout (int pointSize, ChainLayout clay)
+    {
+        // first layout our children
+        for (int i = 0; i < _children.size(); i++) {
+            Chain child = (Chain)_children.get(i);
+            child.layout(pointSize, clay);
+        }
+
+        // now lay ourselves out
+        clay.layoutChain(this, pointSize);
+    }
+
     /**
      * Adds a child to this chain. The specified class is assumed to
      * directly inherit from the class that is the root of this chain.
      */
     public void addClass (Class child)
     {
-        Chain chain = new Chain(child);
+        Chain chain = new Chain(_pkgroot, child);
         if (!_children.contains(chain)) {
             _children.add(chain);
         }
@@ -114,15 +185,19 @@ public class Chain
 
     protected void toString (String indent, StringBuffer out)
     {
-        out.append(indent).append(_root.getName()).append("\n");
+        out.append(indent).append(_name).append("\n");
         for (int i = 0; i < _children.size(); i++) {
             Chain child = (Chain)_children.get(i);
             child.toString(indent + "  ", out);
         }
     }
 
+    protected String _pkgroot;
     protected Class _root;
+    protected String _name;
+
     protected ArrayList _children = new ArrayList();
     protected Dimension _size = new Dimension(0, 0);
     protected Point _location = new Point(0, 0);
+    protected int _pageno;
 }

@@ -1,12 +1,13 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.1 2001/07/04 18:24:07 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
-import java.util.ArrayList;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.util.*;
 
 import com.samskivert.viztool.Log;
-import com.samskivert.viztool.enum.Enumerator;
 
 /**
  * The hierarchy visualizer displays inheritance hierarchies in a compact
@@ -25,14 +26,22 @@ public class HierarchyVisualizer
      * @param enum The enumerator that will return the names of all of the
      * classes in the specified package.
      */
-    public HierarchyVisualizer (String pkgroot, Enumerator enum)
+    public HierarchyVisualizer (String pkgroot, Iterator iter)
     {
-        // keep track of these
+        // keep track of the package root
         _pkgroot = pkgroot;
-        _enum = enum;
+
+        // dump all the classes into an array list so that we can
+        // repeatedly scan through the list
+        _classes = new ArrayList();
+        while (iter.hasNext()) {
+            _classes.add(iter.next());
+        }
 
         // process the classes provided by our enumerator
-        _roots = ChainUtil.buildChains(pkgroot, enum);
+        _roots = ChainUtil.buildChains(pkgroot, _classes.iterator());
+
+        // now we need to sort out 
     }
 
     /**
@@ -42,14 +51,46 @@ public class HierarchyVisualizer
      */
     public void layoutChains (int pointSize)
     {
+        // lay out the internal structure of our chains
+        ChainLayout clay = new CascadingChainLayout();
+        for (int i = 0; i < _roots.size(); i++) {
+            Chain chain = (Chain)_roots.get(i);
+            chain.layout(pointSize, clay);
+        }
+
+        // arrange them on the page
+        ElementLayout elay = new PackedColumnElementLayout();
+        Dimension[] pdims = elay.layout(_roots, PAGE_WIDTH, PAGE_HEIGHT);
+
+        // render them
+        for (int p = 0; p < pdims.length; p++) {
+            ChainRenderer renderer = new CascadingChainRenderer();
+            for (int i = 0; i < _roots.size(); i++) {
+                Chain chain = (Chain)_roots.get(i);
+                // skip chains not on this page
+                if (chain.getPage() != p) {
+                    continue;
+                }
+                Point loc = chain.getLocation();
+                renderer.renderChain(chain, System.out, pointSize,
+                                     X_MARGIN, Y_MARGIN);
+            }
+            System.out.println("showpage");
+        }
     }
 
     public void dumpClasses ()
     {
-        ChainUtil.dumpClasses(_roots);
+        ChainUtil.dumpClasses(System.err, _roots);
     }
 
     protected String _pkgroot;
-    protected Enumerator _enum;
     protected ArrayList _roots;
+    protected ArrayList _classes;
+
+    protected static final int PAGE_WIDTH = (int)(72 * 7.5);
+    protected static final int PAGE_HEIGHT = (int)(72 * 10);
+
+    protected static final int X_MARGIN = 72/2;
+    protected static final int Y_MARGIN = 72/2;
 }

@@ -1,7 +1,9 @@
 //
-// $Id: FilterEnumerator.java,v 1.1 2001/07/04 18:22:26 mdb Exp $
+// $Id: FilterEnumerator.java,v 1.2 2001/07/13 23:25:13 mdb Exp $
 
 package com.samskivert.viztool.enum;
+
+import java.util.Iterator;
 
 /**
  * The filter enumerator provides the framework by which a particular
@@ -10,13 +12,13 @@ package com.samskivert.viztool.enum;
  * classes in a particular package or only considering interfaces, and so
  * on.
  */
-public abstract class FilterEnumerator implements Enumerator
+public abstract class FilterEnumerator implements Iterator
 {
     /**
      * Constructs a filter enumerator with the supplied class enumerator
      * as the source of classes.
      */
-    public FilterEnumerator (ClassEnumerator source)
+    public FilterEnumerator (Iterator source)
     {
         _source = source;
         // we'd love to call scanToNextClass() here but that calls
@@ -26,7 +28,7 @@ public abstract class FilterEnumerator implements Enumerator
         // executed. sigh.
     }
 
-    public boolean hasMoreClasses ()
+    public boolean hasNext ()
     {
         if (_nextClass == null) {
             scanToNextClass();
@@ -34,7 +36,7 @@ public abstract class FilterEnumerator implements Enumerator
         return _nextClass != null;
     }
 
-    public String nextClass ()
+    public Object next ()
     {
         if (_nextClass == null) {
             scanToNextClass();
@@ -45,10 +47,15 @@ public abstract class FilterEnumerator implements Enumerator
         return clazz;
     }
 
+    public void remove ()
+    {
+        // not supported
+    }
+
     protected void scanToNextClass ()
     {
-        while (_source.hasMoreClasses()) {
-            String clazz = _source.nextClass();
+        while (_source.hasNext()) {
+            String clazz = (String)_source.next();
             if (!filterClass(clazz)) {
                 _nextClass = clazz;
                 break;
@@ -63,6 +70,6 @@ public abstract class FilterEnumerator implements Enumerator
      */
     protected abstract boolean filterClass (String clazz);
 
-    protected ClassEnumerator _source;
+    protected Iterator _source;
     protected String _nextClass;
 }

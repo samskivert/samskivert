@@ -1,5 +1,5 @@
 //
-// $Id: ChainGroup.java,v 1.2 2001/07/17 01:54:19 mdb Exp $
+// $Id: ChainGroup.java,v 1.3 2001/07/17 05:16:16 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -47,9 +47,14 @@ public class ChainGroup
         TextLayout layout = new TextLayout(_pkg, gfx.getFont(),
                                            gfx.getFontRenderContext());
 
-        // keep room for our border
+        // we let the title stick halfway up out of our rectangular
+        // bounding box
+        Rectangle2D tbounds = layout.getBounds();
+        double titleAscent = tbounds.getHeight()/2;
+
+        // keep room for our border and title
         pageWidth -= 2*BORDER;
-        pageHeight -= (2*BORDER + layout.getAscent());
+        pageHeight -= (2*BORDER + titleAscent);
 
         // arrange them on the page
         ElementLayout elay = new PackedColumnElementLayout();
@@ -58,7 +63,7 @@ public class ChainGroup
         // for now we're punting and assume that no group will exceed a
         // single page in size
         double width = dims[0].getWidth();
-        double height = dims[0].getHeight() + layout.getAscent();
+        double height = dims[0].getHeight() + titleAscent;
 
         // make sure we're wide enough for our title
         width = Math.max(width, layout.getAdvance() + 4);
@@ -83,8 +88,17 @@ public class ChainGroup
         TextLayout layout = new TextLayout(_pkg, gfx.getFont(),
                                            gfx.getFontRenderContext());
 
-        // shift everything down to the ascent of the title
-        y += layout.getAscent();
+        // we let the title stick halfway up out of our rectangular
+        // bounding box
+        Rectangle2D tbounds = layout.getBounds();
+        double titleAscent = tbounds.getHeight()/2;
+        double dy = -tbounds.getY();
+
+        // print our title
+        layout.draw(gfx, (float)(x + BORDER + 2), (float)(y + dy));
+
+        // shift everything down by the ascent of the title
+        y += titleAscent;
 
         // translate to our rendering area
         double cx = x + BORDER;
@@ -103,10 +117,8 @@ public class ChainGroup
         // undo the translation
         gfx.translate(-cx, -cy);
 
-        // print our title and a box around our border
-        layout.draw(gfx, (float)(x + BORDER + 2), (float)y);
-
-        double height = _size.getHeight() - layout.getAscent();
+        // print our border box
+        double height = _size.getHeight() - titleAscent;
         GeneralPath path = new GeneralPath();
         path.moveTo((float)(x + BORDER), (float)y);
         path.lineTo((float)x, (float)y);

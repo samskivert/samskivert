@@ -1,5 +1,5 @@
 //
-// $Id: PackedColumnElementLayout.java,v 1.3 2001/07/17 01:54:19 mdb Exp $
+// $Id: PackedColumnElementLayout.java,v 1.4 2001/07/17 05:16:16 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -21,9 +21,6 @@ public class PackedColumnElementLayout implements ElementLayout
         Element[] elems = new Element[elements.size()];
         elements.toArray(elems);
         Arrays.sort(elems, HEIGHT_COMP);
-
-        System.out.println("Laying out in " +
-                           pageWidth + "x" + pageHeight + ".");
 
         // lay out the elements across the page
         ArrayList pagedims = new ArrayList();
@@ -65,8 +62,6 @@ public class PackedColumnElementLayout implements ElementLayout
             // lay this element out at our current coordinates
             elems[i].setBounds(x, y, bounds.getWidth(), bounds.getHeight());
 //              elems[i].setPage(pageno);
-            System.out.println("Laying out " + elems[i].getName() +
-                               " at " + elems[i].getBounds() + ".");
 
             // keep track of the maximum row height
             if (bounds.getHeight() > rowheight) {

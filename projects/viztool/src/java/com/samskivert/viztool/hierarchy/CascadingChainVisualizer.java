@@ -1,11 +1,12 @@
 //
-// $Id: CascadingChainVisualizer.java,v 1.3 2001/07/17 01:54:19 mdb Exp $
+// $Id: CascadingChainVisualizer.java,v 1.4 2001/07/17 05:16:16 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.geom.*;
 import java.awt.font.TextLayout;
+import java.awt.geom.*;
 import java.util.ArrayList;
 
 /**
@@ -29,7 +30,8 @@ public class CascadingChainVisualizer
     public void layoutChain (Chain chain, Graphics2D gfx)
     {
         // create a text layout based on the current rendering conditions
-        TextLayout layout = new TextLayout(chain.getName(), gfx.getFont(),
+        Font font = chain.getRoot().isInterface() ? _ifaceFont : _classFont;
+        TextLayout layout = new TextLayout(chain.getName(), font,
                                            gfx.getFontRenderContext());
 
         // the header will be the name of this chain surrounded by N
@@ -71,18 +73,19 @@ public class CascadingChainVisualizer
 //                             " at +" + x + "+" + y + ".");
 
         // create a text layout based on the current rendering conditions
-        TextLayout layout = new TextLayout(chain.getName(), gfx.getFont(),
+        Font font = chain.getRoot().isInterface() ? _ifaceFont : _classFont;
+        TextLayout layout = new TextLayout(chain.getName(), font,
                                            gfx.getFontRenderContext());
 
         // stroke a box that will contain the name
         Rectangle2D tbounds = getTextBox(gfx, layout);
-        double tx = -bounds.getX(), ty = -bounds.getY();
+        double dx = -tbounds.getX(), dy = -tbounds.getY();
         tbounds.setRect(x, y, tbounds.getWidth(), tbounds.getHeight());
         gfx.draw(tbounds);
 
         // now draw the name
-        layout.draw(gfx, (float)(x + HEADER_BORDER),
-                    (float)(y + layout.getAscent() + HEADER_BORDER));
+        layout.draw(gfx, (float)(x + dx + HEADER_BORDER),
+                    (float)(y + dy + HEADER_BORDER));
 
         // render our connecty lines
         ArrayList kids = chain.getChildren();
@@ -95,8 +98,7 @@ public class CascadingChainVisualizer
             for (int i = 0; i < kids.size(); i++) {
                 Chain kid = (Chain)kids.get(i);
                 kbounds = kid.getBounds();
-                double ly = y + kbounds.getY() + layout.getAscent() +
-                    HEADER_BORDER;
+                double ly = y + kbounds.getY() + dy + HEADER_BORDER;
                 path.lineTo((float)(x + half), (float)ly);
                 path.lineTo((float)(x + kbounds.getX()), (float)ly);
                 path.moveTo((float)(x + half), (float)ly);
@@ -128,4 +130,7 @@ public class CascadingChainVisualizer
                        bounds.getHeight() + 2*HEADER_BORDER);
         return bounds;
     }
+
+    protected static Font _classFont = new Font("Helvetica", Font.PLAIN, 8);
+    protected static Font _ifaceFont = new Font("Helvetica", Font.ITALIC, 8);
 }

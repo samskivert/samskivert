@@ -1,4 +1,5 @@
 Source: lookuplet
+Build-Depends: debhelper, libgnome-dev, libpanel-applet-dev
 Section: net
 Priority: optional
 Maintainer: Michael Bayne <mdb@samskivert.com>

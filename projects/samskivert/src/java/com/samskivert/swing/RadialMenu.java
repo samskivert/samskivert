@@ -1,5 +1,5 @@
 //
-// $Id: RadialMenu.java,v 1.4 2003/04/22 22:04:55 mdb Exp $
+// $Id: RadialMenu.java,v 1.5 2003/05/03 00:10:01 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -28,6 +28,7 @@ import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.swing.util.MouseHijacker;
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -372,7 +373,7 @@ public class RadialMenu
 
         // see if we dragged into a new menu item
         if ((_activeItem == null) &&
-            (event.getWhen() > _poptime + DEBOUNCE_DELAY)) {
+            (RunAnywhere.getWhen(event) > _poptime + DEBOUNCE_DELAY)) {
 
             int icount = _items.size();
             for (int i = 0; i < icount; i++) {
@@ -423,7 +424,7 @@ public class RadialMenu
     public void mouseReleased (MouseEvent event)
     {
         if (_activeItem == null) {
-            long when = event.getWhen();
+            long when = RunAnywhere.getWhen(event);
             if (!_msMode &&
                 (when < _poptime + DRAGMODE_DELAY)) {
                 // if the dragmode delay time hasn't passed, then we're

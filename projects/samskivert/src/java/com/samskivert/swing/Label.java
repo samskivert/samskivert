@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.26 2002/11/12 01:09:26 mdb Exp $
+// $Id: Label.java,v 1.27 2002/11/12 06:37:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -110,17 +110,23 @@ public class Label implements SwingConstants, LabelStyleConstants
      * followed eventually by a call to {@link #layout} and ultimately
      * {@link #render} to render the text. Simply setting the text does
      * not cause any layout to occur.
+     *
+     * @return true if the text changed as a result of being set, false if
+     * the label was already displaying the requested text.
      */
-    public void setText (String text)
+    public boolean setText (String text)
     {
         // the Java text stuff freaks out in a variety of ways if it is
         // asked to deal with the empty string, so we fake blank labels by
         // just using a space
         if (StringUtil.blank(text)) {
             _text = " ";
-        } else {
+        } else if (!text.equals(_text)) {
             _text = text;
+        } else {
+            return false;
         }
+        return true;
     }
 
     /**

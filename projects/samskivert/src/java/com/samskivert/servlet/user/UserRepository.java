@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.31 2003/09/19 19:48:09 eric Exp $
+// $Id: UserRepository.java,v 1.32 2003/09/19 21:13:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -347,15 +347,13 @@ public class UserRepository extends JORARepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
-		Cursor c = _stable.queryByExample(new Site());
-
+		Cursor c = _stable.select("");
                 Iterator itr = c.toArrayList().iterator();
                 while (itr.hasNext()) {
                     Site site = (Site)itr.next();
                     _siteIdToSite.put(site.siteId, site);
                     _siteNameToSite.put(site.stringId, site);
                 }
-
                 return null;
 	    }
 	});

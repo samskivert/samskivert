@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.8 2002/01/24 06:32:38 mdb Exp $
+// $Id: Application.java,v 1.9 2004/06/01 08:34:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -92,13 +92,13 @@ public class Application
 
         // create a site resource loader if the user set up the
         // site-specific jar file path
-        String siteJarPath = config.getInitParameter(SITE_JAR_PATH_KEY);
+        String siteJarPath = getInitParameter(config, SITE_JAR_PATH_KEY);
         if (!StringUtil.blank(siteJarPath)) {
             _siteLoader = new SiteResourceLoader(_siteIdent, siteJarPath);
         }
 
         // instantiate our message manager if the application wants one
-        String bundlePath = config.getInitParameter(MESSAGE_BUNDLE_PATH_KEY);
+        String bundlePath = getInitParameter(config, MESSAGE_BUNDLE_PATH_KEY);
         if (!StringUtil.blank(bundlePath)) {
             _msgmgr = new MessageManager(bundlePath);
         }
@@ -107,8 +107,8 @@ public class Application
         // message manager with it, so that it can load site-specific
         // message resources
         if (_msgmgr != null && _siteLoader != null) {
-            String siteBundlePath =
-                config.getInitParameter(SITE_MESSAGE_BUNDLE_PATH_KEY);
+            String siteBundlePath = getInitParameter(
+                config, SITE_MESSAGE_BUNDLE_PATH_KEY);
             if (!StringUtil.blank(siteBundlePath)) {
                 _msgmgr.activateSiteSpecificMessages(
                     siteBundlePath, _siteLoader, _siteIdent);
@@ -123,6 +123,17 @@ public class Application
 
         // let the derived application do post-init stuff
         didInit(config);
+    }
+
+    /**
+     * Looks up an initialization parameter for this application. The
+     * default implementation retrieves the value from the servlet config,
+     * but derived classes may wish to get certain parameters from some
+     * other configuration source.
+     */
+    protected String getInitParameter (ServletConfig config, String key)
+    {
+        return config.getInitParameter(key);
     }
 
     /**

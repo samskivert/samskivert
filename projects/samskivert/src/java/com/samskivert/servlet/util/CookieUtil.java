@@ -1,5 +1,5 @@
 //
-// $Id: CookieUtil.java,v 1.2 2003/10/09 00:48:37 ray Exp $
+// $Id: CookieUtil.java,v 1.3 2003/10/14 02:00:45 mdb Exp $
 
 package com.samskivert.servlet.util;
 
@@ -48,5 +48,21 @@ public class CookieUtil
         c.setPath("/");
         c.setMaxAge(0);
         rsp.addCookie(c);
+    }
+
+    /**
+     * Sets the domain of the specified cookie to the server name
+     * associated with the supplied request minus the hostname
+     * (ie. <code>www.samskivert.com</code> becomes
+     * <code>.samskivert.com</code>).
+     */
+    public static void widenDomain (HttpServletRequest req, Cookie cookie)
+    {
+        String domain = req.getServerName();
+        int didx = domain.indexOf(".");
+        if (didx != -1) {
+            domain = domain.substring(didx);
+        }
+        cookie.setDomain(domain);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DialogUtil.java,v 1.5 2002/09/30 06:23:11 shaper Exp $
+// $Id: DialogUtil.java,v 1.6 2002/10/04 01:24:58 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Ray Greenwell
@@ -50,6 +50,7 @@ public class DialogUtil
         JFrame frame, String title, JPanel content)
     {
         JInternalDialog dialog = new JInternalDialog(frame);
+        dialog.setOpaque(false);
         if (title != null) {
             dialog.setTitle(title);
         }

@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.23 2003/10/14 02:00:01 mdb Exp $
+// $Id: UserManager.java,v 1.24 2003/10/14 02:37:53 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -272,6 +272,13 @@ public class UserManager
         c.setPath("/");
         c.setMaxAge(0);
         CookieUtil.widenDomain(req, c);
+        rsp.addCookie(c);
+
+        // we need an unwidened one to ensure that old-style cookies are
+        // wiped as well
+        c = new Cookie(USERAUTH_COOKIE, "x");
+        c.setPath("/");
+        c.setMaxAge(0);
         rsp.addCookie(c);
     }
 

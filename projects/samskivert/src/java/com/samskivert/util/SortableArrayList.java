@@ -53,6 +53,16 @@ public class SortableArrayList extends AbstractList
     }
 
     /**
+     * Sorts the elements in this list using the quick sort algorithm
+     * according to their reverse natural ordering. The elements must
+     * implement {@link Comparable} and all be mutually comparable.
+     */
+    public void rsort ()
+    {
+        sort(Comparators.REVERSE_COMPARABLE);
+    }
+
+    /**
      * Sorts the elements in this list with the supplied element
      * comparator using the quick sort algorithm (which does not involve
      * any object allocation). The elements must all be mutually
@@ -61,7 +71,7 @@ public class SortableArrayList extends AbstractList
     public void sort (Comparator comp)
     {
         if (_size > 1) {
-            QuickSort.csort(_elements, 0, _size-1, comp);
+            QuickSort.sort(_elements, 0, _size-1, comp);
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.5 2001/03/02 07:39:32 mdb Exp $
+// $Id: UserRepository.java,v 1.6 2001/03/04 06:14:14 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -269,6 +269,11 @@ public class UserRepository extends MySQLRepository
     protected String[] loadNames (int[] userids, String column)
 	throws SQLException
     {
+        // if userids is zero length, we've got no work to do
+        if (userids.length == 0) {
+            return new String[0];
+        }
+
 	// build up the string we need for the query
 	StringBuffer ids = new StringBuffer();
 	for (int i = 0; i < userids.length; i++) {

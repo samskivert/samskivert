@@ -1,5 +1,5 @@
 //
-// $Id: DialogUtil.java,v 1.3 2002/08/20 18:57:31 mdb Exp $
+// $Id: DialogUtil.java,v 1.4 2002/09/24 09:47:34 shaper Exp $
 
 package com.samskivert.swing.util;
 
@@ -60,6 +60,10 @@ public class DialogUtil
     public static void invalidateDialog (Component any)
     {
         JInternalDialog dialog = getInternalDialog(any);
+        if (dialog == null) {
+            return;
+        }
+
         SwingUtil.applyToHierarchy(dialog, new SwingUtil.ComponentOp() {
             public void apply (Component comp)
             {

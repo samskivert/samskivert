@@ -1,5 +1,5 @@
 //
-// $Id: ControlledPanel.java,v 1.1 2002/03/16 20:52:07 mdb Exp $
+// $Id: ControlledPanel.java,v 1.2 2002/12/18 04:19:16 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -22,7 +22,9 @@ public abstract class ControlledPanel extends JPanel
         _controller = createController();
 
         // let the controller know about this panel
-        _controller.setControlledPanel(this);
+        if (_controller != null) {
+            _controller.setControlledPanel(this);
+        }
     }
 
     // documentation inherited from interface

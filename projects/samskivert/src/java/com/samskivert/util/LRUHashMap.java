@@ -1,5 +1,5 @@
 //
-// $Id: LRUHashMap.java,v 1.4 2003/01/17 02:02:28 mdb Exp $
+// $Id: LRUHashMap.java,v 1.5 2003/04/27 07:37:32 mdb Exp $
 
 package com.samskivert.util;
 
@@ -63,11 +63,7 @@ public class LRUHashMap implements Map
         _maxSize = maxSize;
 
         // boot enough people to get below said size
-        while (_size > _maxSize && size() > 1) {
-            Object key = keySet().iterator().next();
-            remove(key);
-//             System.out.println("Flushed " + key + ": " + _size);
-        }
+        flush();
     }
 
     /**
@@ -76,6 +72,20 @@ public class LRUHashMap implements Map
     public int getMaxSize ()
     {
         return _maxSize;
+    }
+
+    /**
+     * Used to temporarily disable flushing elements from the
+     * cache. Generally this is only used to avoid undesired garbage
+     * collection until such time as it is acceptable. Beware the risks of
+     * leaving flushing disabled for too long.
+     */
+    public void setCanFlush (boolean canFlush)
+    {
+        if (_canFlush = canFlush) {
+            // if we just reenabled flushing, flush
+            flush();
+        }
     }
 
     /**
@@ -167,16 +177,34 @@ public class LRUHashMap implements Map
         }
 //         System.out.println("Added " + value + ": " + _size);
 
+        // flush if needed
+        flush();
+
+        return result;
+    }
+
+    /**
+     * Flushes entries from the cache until we're back under our desired
+     * cache size.
+     */
+    protected void flush ()
+    {
+        if (!_canFlush) {
+            return;
+        }
+
         // if we've exceeded our size, remove things until we're back
         // under the required size; but don't freak out if we have one
         // *really* big item
+//         int removed = 0;
         while (_size > _maxSize && size() > 1) {
-            key = keySet().iterator().next();
+            Object key = keySet().iterator().next();
             remove(key);
-//             System.out.println("Removed " + key + ": " + _size);
+//             removed += _sizer.computeSize(remove(key));
         }
-
-        return result;
+//         if (removed > 0) {
+//             System.out.println("Removed " + removed + ": " + _size);
+//         }
     }
 
     // documentation inherited from interface
@@ -251,6 +279,9 @@ public class LRUHashMap implements Map
 
     /** The current size of this cache. */
     protected int _size;
+
+    /** Used to temporarily disable flushing. */
+    protected boolean _canFlush = true;
 
     /** Used to compute the size of items in this cache. */
     protected ItemSizer _sizer;

@@ -149,5 +149,6 @@ public class VenisonPanel
     // live. but it's late and i want to get this working, so fooey.
 
     /** Our resource manager. */
-    protected static ResourceManager _rmgr = new ResourceManager(null, "rsrc");
+    protected static ResourceManager _rmgr =
+        new ResourceManager("rsrc", null, null);
 }

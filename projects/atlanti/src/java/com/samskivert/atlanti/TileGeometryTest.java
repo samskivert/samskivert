@@ -1,5 +1,5 @@
 //
-// $Id: TileGeometryTest.java,v 1.4 2001/12/18 11:58:53 mdb Exp $
+// $Id: TileGeometryTest.java,v 1.5 2002/01/29 23:45:56 mdb Exp $
 
 package com.threerings.venison;
 
@@ -50,7 +50,7 @@ public class TileGeometryTest
     {
         JFrame frame = new JFrame("Tile geometry test");
 
-        ResourceManager rmgr = new ResourceManager(null, "rsrc");
+        ResourceManager rmgr = new ResourceManager("rsrc", null, null);
         ImageManager imgr = new ImageManager(rmgr, frame);
         TileManager tmgr = new TileManager(imgr);
 

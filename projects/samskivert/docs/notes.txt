@@ -10,6 +10,10 @@ Fix message.properties single quote handling. In messages that have
 translation substitutions ({0}, {1}, etc.), one has to use '' but in plain
 strings they have to use \'. It should be one or the other.
 
+Make MessageManager.resolveBundle more efficient because presently it
+iterates over all locales looking for an exact match *every* time a
+message is fetched.
+
 * Minimal database services
 ** Requirements
 - Connection management (configuration file mapping database identifiers

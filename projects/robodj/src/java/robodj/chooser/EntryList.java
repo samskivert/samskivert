@@ -1,16 +1,16 @@
 //
-// $Id: EntryList.java,v 1.6 2001/08/06 23:26:42 mdb Exp $
+// $Id: EntryList.java,v 1.7 2001/09/20 20:42:48 mdb Exp $
 
 package robodj.chooser;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import com.samskivert.jdbc.PersistenceException;
 import com.samskivert.swing.*;
 import com.samskivert.swing.util.*;
 
@@ -93,7 +93,7 @@ public class EntryList
      * Reads the entries from the database.
      */
     public Entry[] readEntries ()
-        throws SQLException
+        throws PersistenceException
     {
         return Chooser.model.getEntries(_catid);
     }
@@ -102,7 +102,7 @@ public class EntryList
      * Reads the entries from the database.
      */
     public void readSongs ()
-        throws SQLException
+        throws PersistenceException
     {
         Chooser.repository.populateSongs(_entry);
     }
@@ -111,7 +111,7 @@ public class EntryList
      * Reads the entries from the database and plays them all.
      */
     public void readAndPlay ()
-        throws SQLException
+        throws PersistenceException
     {
         Chooser.repository.populateSongs(_entry);
     }
@@ -120,7 +120,7 @@ public class EntryList
      * Updates the category for the displayed entry.
      */
     public void recategorizeEntry ()
-        throws SQLException
+        throws PersistenceException
     {
         Chooser.model.recategorize(_entry, _newcatid);
     }

@@ -1,5 +1,5 @@
 //
-// $Id: DetailTableModel.java,v 1.2 2001/06/05 17:41:00 mdb Exp $
+// $Id: DetailTableModel.java,v 1.3 2001/09/20 20:42:48 mdb Exp $
 
 package robodj.importer;
 
@@ -10,8 +10,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.text.Document;
 import javax.swing.text.BadLocationException;
 
-import com.samskivert.util.Log;
 import com.samskivert.net.cddb.CDDB;
+import robodj.Log;
 
 public class DetailTableModel
     extends AbstractTableModel
@@ -99,8 +99,8 @@ public class DetailTableModel
 	    }
 
 	} catch (BadLocationException ble) {
-	    Importer.log.warning("Can't extract text from text field?!");
-	    Importer.log.logStackTrace(Log.WARNING, ble);
+	    Log.warning("Can't extract text from text field?!");
+	    Log.logStackTrace(ble);
 	}
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.6 2001/09/15 17:31:09 mdb Exp $
+// $Id: Repository.java,v 1.7 2001/09/20 20:42:48 mdb Exp $
 
 package robodj.repository;
 
@@ -8,8 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import com.samskivert.jdbc.MySQLRepository;
-import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.*;
 import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.*;
 
@@ -22,70 +21,77 @@ import com.samskivert.util.*;
  * <p> Entries are stored in the repository according to genre. An entry
  * may be associated with multiple genres.
  */
-public class Repository extends MySQLRepository
+public class Repository extends JORARepository
 {
     /**
-     * Creates the repository and opens the music database. A properties
-     * object should be supplied with the following fields:
-     *
-     * <pre>
-     * driver=[jdbc driver class]
-     * url=[jdbc driver url]
-     * username=[jdbc username]
-     * password=[jdbc password]
-     * </pre>
-     *
-     * @param props a properties object containing the configuration
-     * parameters for the repository.
+     * The database identifier that the repository will use when fetching
+     * a connection from the connection provider. The value is
+     * <code>robodj</code> which you'll probably need to know to properly
+     * configure your connection provider.
      */
-    public Repository (Properties props)
-	throws SQLException
+    public static final String REPOSITORY_DB_IDENT = "robodj";
+
+    /**
+     * Creates the repository and opens the music database. A connection
+     * provider should be supplied that will be used to obtain the
+     * necessary database connection. The database identifier used to
+     * obtain our connection is documented by {@link
+     * #REPOSITORY_DB_IDENT}.
+     *
+     * @param provider a connection provider via which the repository will
+     * get its database connection.
+     */
+    public Repository (ConnectionProvider provider)
+	throws PersistenceException
     {
-	super(props);
+	super(provider, REPOSITORY_DB_IDENT);
     }
 
-    protected void createTables ()
-	throws SQLException
+    protected void createTables (Session session)
     {
 	// create our table objects
-	_etable = new Table(Entry.class.getName(), "entries", _session,
+	_etable = new Table(Entry.class.getName(), "entries", session,
 			    "entryid");
-	_stable = new Table(Song.class.getName(), "songs", _session,
+	_stable = new Table(Song.class.getName(), "songs", session,
 			    "songid");
 	_ctable = new Table(Category.class.getName(), "category_names",
-                            _session, "categoryid");
+                            session, "categoryid");
 	_cmtable = new Table(CategoryMapping.class.getName(), "category_map",
-			     _session, new String[] {"categoryid", "entryid"});
+			     session, new String[] {"categoryid", "entryid"});
     }
 
     /**
      * @return the entry with the specified entry id or null if no entry
      * with that id exists.
      */
-    public Entry getEntry (int entryid)
-	throws SQLException
+    public Entry getEntry (final int entryid)
+	throws PersistenceException
     {
-        // make sure the connection is open
-        ensureConnection();
+        return (Entry)execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                // look up the entry
+                Cursor ec = _etable.select("where entryid = " + entryid);
 
-	// look up the entry
-	Cursor ec = _etable.select("where entryid = " + entryid);
+                // fetch the entry from the cursor
+                Entry entry = (Entry)ec.next();
 
-	// fetch the entry from the cursor
-	Entry entry = (Entry)ec.next();
+                if (entry != null) {
+                    // and call next() again to cause the cursor to close
+                    // itself
+                    ec.next();
 
-	if (entry != null) {
-	    // and call next() again to cause the cursor to close itself
-	    ec.next();
+                    // load up the songs for this entry
+                    Cursor sc = _stable.select("where entryid = " + entryid);
+                    List slist = sc.toArrayList();
+                    entry.songs = new Song[slist.size()];
+                    slist.toArray(entry.songs);
+                }
 
-	    // load up the songs for this entry
-	    Cursor sc = _stable.select("where entryid = " + entryid);
-	    List slist = sc.toArrayList();
-	    entry.songs = new Song[slist.size()];
-	    slist.toArray(entry.songs);
-	}
-
-	return entry;
+                return entry;
+            }
+        });
     }
 
     /**
@@ -98,10 +104,11 @@ public class Repository extends MySQLRepository
      * <code>populateSongs</code> on an entry by entry basis for that.
      */
     public Entry[] getEntries (final String query)
-	throws SQLException
+	throws PersistenceException
     {
 	return (Entry[])execute(new Operation() {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 // look up the entry
                 Cursor ec = _etable.select(query);
@@ -122,22 +129,25 @@ public class Repository extends MySQLRepository
      * function does nothing.
      */
     public void populateSongs (final Entry entry)
-	throws SQLException
+	throws PersistenceException
     {
-        if (entry.songs == null) {
-            execute(new Operation() {
-                public Object invoke () throws SQLException
-                {
-                    // load up the songs for this entry
-                    String query = "where entryid = " + entry.entryid;
-                    Cursor sc = _stable.select(query);
-                    List slist = sc.toArrayList();
-                    entry.songs = new Song[slist.size()];
-                    slist.toArray(entry.songs);
-                    return null;
-                }
-            });
+        if (entry.songs != null) {
+            return;
         }
+
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                // load up the songs for this entry
+                String query = "where entryid = " + entry.entryid;
+                Cursor sc = _stable.select(query);
+                List slist = sc.toArrayList();
+                entry.songs = new Song[slist.size()];
+                slist.toArray(entry.songs);
+                return null;
+            }
+        });
     }
 
     /**
@@ -149,16 +159,17 @@ public class Repository extends MySQLRepository
      * newly created entry.
      */
     public void insertEntry (final Entry entry)
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation() {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 // insert the entry into the entry table
                 _etable.insert(entry);
 
                 // update the entryid now that it's known
-                entry.entryid = lastInsertedId();
+                entry.entryid = liaison.lastInsertedId(conn);
 
                 // and insert all of it's songs into the songs table
                 if (entry.songs != null) {
@@ -167,7 +178,7 @@ public class Repository extends MySQLRepository
                         entry.songs[i].entryid = entry.entryid;
                         _stable.insert(entry.songs[i]);
                         // find out what songid was assigned
-                        entry.songs[i].songid = lastInsertedId();
+                        entry.songs[i].songid = liaison.lastInsertedId(conn);
                     }
                 }
 
@@ -187,10 +198,11 @@ public class Repository extends MySQLRepository
      * @see removeSongFromEntry
      */
     public void updateEntry (final Entry entry)
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation() {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 // update the entry
                 _etable.update(entry);
@@ -211,10 +223,11 @@ public class Repository extends MySQLRepository
      * Removes the entry (and all associated songs) from the database.
      */
     public void deleteEntry (final Entry entry)
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation() {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 // remove the entry from the entry table and the foreign
                 // key constraints will automatically remove all of the
@@ -238,10 +251,11 @@ public class Repository extends MySQLRepository
      * @see updateSong
      */
     public void addSongToEntry (final Entry entry, final Song song)
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation() {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 // fill in the appropriate entry id value
                 song.entryid = entry.entryid;
@@ -249,7 +263,7 @@ public class Repository extends MySQLRepository
                 // and stick the song into the database
                 _stable.insert(song);
                 // communicate the songid back to the caller
-                song.songid = lastInsertedId();
+                song.songid = liaison.lastInsertedId(conn);
 
                 return null;
             }
@@ -261,10 +275,11 @@ public class Repository extends MySQLRepository
      * parameters should already be set to the appropriate values.
      */
     public void updateSong (final Song song)
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation() {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 _stable.update(song);
                 return null;
@@ -277,19 +292,20 @@ public class Repository extends MySQLRepository
      * that new category.
      */
     public int createCategory (final String name)
-	throws SQLException
+	throws PersistenceException
     {
-	execute(new Operation() {
-	    public Object invoke () throws SQLException
+        Integer catid = (Integer)execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 Category cat = new Category();
                 cat.name = name;
                 _ctable.insert(cat);
-                return null;
+                return new Integer(liaison.lastInsertedId(conn));
             }
         });
 
-        return lastInsertedId();
+        return catid.intValue();
     }
 
     /**
@@ -297,10 +313,11 @@ public class Repository extends MySQLRepository
      * the category table.
      */
     public Category[] getCategories ()
-	throws SQLException
+	throws PersistenceException
     {
 	return (Category[])execute(new Operation() {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
                 Cursor ccur = _ctable.select("");
                 List clist = ccur.toArrayList();
@@ -317,10 +334,11 @@ public class Repository extends MySQLRepository
      * returns all of the entry ids that are not in any category.
      */
     public int[] getEntryIds (final int categoryid)
-        throws SQLException
+        throws PersistenceException
     {
         return (int[])execute(new Operation() {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 if (categoryid >= 0) {
                     String query = "where categoryid=" + categoryid;
@@ -374,10 +392,11 @@ public class Repository extends MySQLRepository
      * entry can be mapped into multiple categories.
      */
     public void associateEntry (final Entry entry, final int categoryid)
-	throws SQLException
+	throws PersistenceException
     {
         execute(new Operation() {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 CategoryMapping map =
                     new CategoryMapping(categoryid, entry.entryid);
@@ -391,10 +410,11 @@ public class Repository extends MySQLRepository
      * Disassociates the specified entry from the specified category.
      */
     public void disassociateEntry (final Entry entry, final int categoryid)
-	throws SQLException
+	throws PersistenceException
     {
         execute(new Operation() {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 CategoryMapping map =
                     new CategoryMapping(categoryid, entry.entryid);

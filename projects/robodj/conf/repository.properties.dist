@@ -1,0 +1,9 @@
+#
+# $Id: repository.properties.dist,v 1.1 2001/09/20 20:42:48 mdb Exp $
+#
+# RoboDJ music repository configuration
+
+robodj.driver = org.gjt.mm.mysql.Driver
+robodj.username = www
+robodj.password = Il0ve2PL@Y
+robodj.url = jdbc:mysql://depravity:3306/robodj

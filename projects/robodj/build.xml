@@ -32,6 +32,9 @@
       <fileset dir="${src.dir}" includes="**/*.gif"/>
       <fileset dir="${src.dir}" includes="**/*.jpg"/>
     </copy>
+    <copy todir="${deploy.dir}/classes/conf">
+      <fileset dir="conf"/>
+    </copy>
   </target>
 
   <!-- cleans out the installed application -->
@@ -67,7 +70,7 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar jarfile="${deploy.dir}/${dist.jar}"
+    <jar file="${deploy.dir}/${dist.jar}"
          basedir="${deploy.dir}/classes"/>
   </target>
 

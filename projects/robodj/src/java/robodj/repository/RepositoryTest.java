@@ -1,9 +1,10 @@
 //
-// $Id: RepositoryTest.java,v 1.1 2000/11/08 06:42:57 mdb Exp $
+// $Id: RepositoryTest.java,v 1.2 2001/09/20 20:42:48 mdb Exp $
 
 package robodj.repository;
 
 import java.util.Properties;
+import com.samskivert.jdbc.StaticConnectionProvider;
 
 public class RepositoryTest
 {
@@ -11,12 +12,18 @@ public class RepositoryTest
     {
 	try {
 	    Properties props = new Properties();
-	    props.put("driver", "org.gjt.mm.mysql.Driver");
-	    props.put("url", "jdbc:mysql://localhost:3306/robodj");
-	    props.put("username", "www");
-	    props.put("password", "Il0ve2PL@Y");
+	    props.put(Repository.REPOSITORY_DB_IDENT + ".driver",
+                      "org.gjt.mm.mysql.Driver");
+	    props.put(Repository.REPOSITORY_DB_IDENT + ".url",
+                      "jdbc:mysql://localhost:3306/robodj");
+	    props.put(Repository.REPOSITORY_DB_IDENT + ".username",
+                      "www");
+	    props.put(Repository.REPOSITORY_DB_IDENT + ".password",
+                      "Il0ve2PL@Y");
 
-	    Repository rep = new Repository(props);
+            StaticConnectionProvider scp =
+                new StaticConnectionProvider(props);
+	    Repository rep = new Repository(scp);
 
 	    Entry ient = new Entry();
 	    ient.title = "Test entry";
@@ -34,7 +41,7 @@ public class RepositoryTest
 	    Entry ent = rep.getEntry(ient.entryid);
 	    System.out.println("<-- " + ent);
 
-	    rep.shutdown();
+	    scp.shutdown();
 
 	} catch (Exception e) {
 	    e.printStackTrace(System.err);

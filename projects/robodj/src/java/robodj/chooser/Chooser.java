@@ -1,15 +1,20 @@
 //
-// $Id: Chooser.java,v 1.5 2001/07/26 00:24:22 mdb Exp $
+// $Id: Chooser.java,v 1.6 2001/09/20 20:42:48 mdb Exp $
 
 package robodj.chooser;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Properties;
 
+import javax.swing.JOptionPane;
+
+import com.samskivert.jdbc.PersistenceException;
+import com.samskivert.jdbc.StaticConnectionProvider;
+
 import com.samskivert.swing.util.SwingUtil;
+import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.PropertiesUtil;
 
 import robodj.Log;
@@ -33,25 +38,31 @@ public class Chooser
 
     public static void main (String[] args)
     {
-        // set up our configuration by hand for now
-        config = new Properties();
-        config.setProperty("repository.db.driver", "org.gjt.mm.mysql.Driver");
-        config.setProperty("repository.db.username", "www");
-        config.setProperty("repository.db.password", "Il0ve2PL@Y");
-        config.setProperty("repository.db.url",
-                           "jdbc:mysql://depravity:3306/robodj");
-        config.setProperty("repository.basedir", "/export/robodj/repository");
+        // load our main configuration
+        String cpath = "conf/chooser.properties";
+        try {
+            config = ConfigUtil.loadProperties(cpath);
+        } catch (IOException ioe) {
+            String err = "Unable to load configuration " +
+                "[path=" + cpath + "]: " + ioe;
+            reportError(err);
+            System.exit(-1);
+        }
 
         // create an interface to the database repository
         try {
-            Properties dbprops =
-                PropertiesUtil.getSubProperties(config, "repository.db");
-            repository = new Repository(dbprops);
+            StaticConnectionProvider scp =
+                new StaticConnectionProvider("conf/repository.properties");
+            repository = new Repository(scp);
             model = new Model(repository);
 
-        } catch (SQLException sqe) {
-            Log.warning("Unable to establish communication with music " +
-                        "database: " + sqe);
+        } catch (IOException ioe) {
+            reportError("Error loading repository config: " + ioe);
+            System.exit(-1);
+
+        } catch (PersistenceException pe) {
+            reportError("Unable to establish communication " +
+                        "with music database: " + pe);
             System.exit(-1);
         }
 
@@ -80,5 +91,14 @@ public class Chooser
 	frame.setSize(550, 500);
 	SwingUtil.centerWindow(frame);
 	frame.setVisible(true);
+    }
+
+    protected static void reportError (String error)
+    {
+        Object[] options = { "OK" };
+        JOptionPane.showOptionDialog(null, error, "Error",
+                                     JOptionPane.DEFAULT_OPTION,
+                                     JOptionPane.ERROR_MESSAGE,
+                                     null, options, options[0]);
     }
 }

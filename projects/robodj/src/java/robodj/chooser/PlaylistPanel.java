@@ -1,15 +1,15 @@
 //
-// $Id: PlaylistPanel.java,v 1.6 2001/09/14 17:45:46 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.7 2001/09/20 20:42:48 mdb Exp $
 
 package robodj.chooser;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.*;
 
+import com.samskivert.jdbc.PersistenceException;
 import com.samskivert.swing.*;
 import com.samskivert.swing.util.*;
 import com.samskivert.util.StringUtil;
@@ -129,7 +129,7 @@ public class PlaylistPanel
     }
 
     public void readPlaylist ()
-        throws SQLException
+        throws PersistenceException
     {
         // clear out any previous playlist
         _plist.clear();

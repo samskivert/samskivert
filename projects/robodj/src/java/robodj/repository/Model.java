@@ -1,13 +1,13 @@
 //
-// $Id: Model.java,v 1.3 2001/09/15 17:31:09 mdb Exp $
+// $Id: Model.java,v 1.4 2001/09/20 20:42:48 mdb Exp $
 
 package robodj.repository;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import com.samskivert.jdbc.PersistenceException;
 import com.samskivert.util.*;
 
 /**
@@ -24,7 +24,7 @@ public class Model
      * Constructs a new model instance from the supplied repository.
      */
     public Model (Repository rep)
-        throws SQLException
+        throws PersistenceException
     {
         _rep = rep;
 
@@ -74,7 +74,7 @@ public class Model
      * if database access takes place.
      */
     public Entry getEntry (int entryid)
-        throws SQLException
+        throws PersistenceException
     {
         Entry entry = (Entry)_entries.get(entryid);
         if (entry == null) {
@@ -91,7 +91,7 @@ public class Model
      * category. This call blocks if database access takes place.
      */
     public Entry[] getEntries (int categoryid)
-        throws SQLException
+        throws PersistenceException
     {
         ArrayList catlist = getCatList(categoryid);
         Entry[] ents = new Entry[catlist.size()];
@@ -105,7 +105,7 @@ public class Model
      * artist, names) may have changed.
      */
     public void updateEntry (Entry entry)
-        throws SQLException
+        throws PersistenceException
     {
         _rep.updateEntry(entry);
     }
@@ -115,7 +115,7 @@ public class Model
      * entry can be mapped into multiple categories.
      */
     public void associateEntry (Entry entry, int categoryid)
-	throws SQLException
+	throws PersistenceException
     {
         // keep our category mapping up to date
         ArrayList catlist = getCatList(categoryid);
@@ -133,7 +133,7 @@ public class Model
      * Disassociates the specified entry from the specified category.
      */
     public void disassociateEntry (Entry entry, int categoryid)
-	throws SQLException
+	throws PersistenceException
     {
         // keep our category mapping up to date
         ArrayList catlist = getCatList(categoryid);
@@ -163,7 +163,7 @@ public class Model
      * temporary until we fully implement multi-category support.
      */
     public void recategorize (Entry entry, int categoryid)
-        throws SQLException
+        throws PersistenceException
     {
         // see if we need to change categories
         int curcatid = _entmap.get(entry.entryid);
@@ -178,13 +178,13 @@ public class Model
      * if database access takes place.
      */
     public void populateSongs (Entry entry)
-        throws SQLException
+        throws PersistenceException
     {
         _rep.populateSongs(entry);
     }
 
     protected ArrayList getCatList (int categoryid)
-        throws SQLException
+        throws PersistenceException
     {
         ArrayList catlist = (ArrayList)_catmap.get(categoryid);
 

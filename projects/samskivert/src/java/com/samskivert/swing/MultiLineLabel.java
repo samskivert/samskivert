@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.3 2002/09/23 21:19:06 shaper Exp $
+// $Id: MultiLineLabel.java,v 1.4 2002/09/24 01:31:39 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -86,6 +86,7 @@ public class MultiLineLabel extends JComponent
     {
         _antialiased = antialiased;
         _dirty = true;
+        repaint();
     }
 
     /**
@@ -95,6 +96,7 @@ public class MultiLineLabel extends JComponent
     {
         _label.setText(text);
         _dirty = true;
+        repaint();
     }
 
     /**
@@ -104,6 +106,7 @@ public class MultiLineLabel extends JComponent
     {
         _label.setAlternateColor(color);
         _dirty = true;
+        repaint();
     }
 
     /**
@@ -113,6 +116,7 @@ public class MultiLineLabel extends JComponent
     {
         _label.setAlignment(align);
         _dirty = true;
+        repaint();
     }
 
     /**
@@ -122,6 +126,7 @@ public class MultiLineLabel extends JComponent
     {
         _offalign = align;
         _dirty = true;
+        repaint();
     }
 
     /**
@@ -131,6 +136,7 @@ public class MultiLineLabel extends JComponent
     {
         _label.setStyle(style);
         _dirty = true;
+        repaint();
     }
 
     // documentation inherited

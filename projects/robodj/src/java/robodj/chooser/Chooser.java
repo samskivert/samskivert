@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.11 2003/05/04 18:16:06 mdb Exp $
+// $Id: Chooser.java,v 1.12 2003/05/07 17:27:12 mdb Exp $
 
 package robodj.chooser;
 
@@ -21,6 +21,7 @@ import com.samskivert.util.PropertiesUtil;
 import robodj.Log;
 import robodj.repository.Model;
 import robodj.repository.Repository;
+import robodj.util.ErrorUtil;
 import robodj.util.RDJPrefs;
 import robodj.util.RDJPrefsPanel;
 import robodj.util.ServerControl;
@@ -61,8 +62,8 @@ public class Chooser
                 model = new Model(repository);
 
             } catch (PersistenceException pe) {
-                if (reportError("Unable to establish communication " +
-                                "with database:", pe)) {
+                String errmsg = "Unable to communicate with database:";
+                if (ErrorUtil.reportError(errmsg, pe)) {
                     System.exit(-1);
                 }
                 continue;
@@ -78,9 +79,9 @@ public class Chooser
                 scontrol = new ServerControl(
                     host, RDJPrefs.getMusicDaemonPort());
             } catch (IOException ioe) {
-                if (reportError("Unable to establish communication with " +
-                                "music server on host '" +
-                                RDJPrefs.getMusicDaemonHost() + "' ", ioe)) {
+                String errmsg = "Unable to communicate with music " +
+                    "server on host '" + RDJPrefs.getMusicDaemonHost() + "' ";
+                if (ErrorUtil.reportError(errmsg, ioe)) {
                     System.exit(-1);
                 }
                 continue;
@@ -95,22 +96,5 @@ public class Chooser
         frame.setSize(650, 665);
         SwingUtil.centerWindow(frame);
         frame.setVisible(true);
-    }
-
-    protected static boolean reportError (String error, Exception e)
-    {
-        String text = error;
-        if (e != null) {
-            text = text + "\n\n" + e.getMessage();
-            if (e.getCause() != null) {
-                text = text + "\n" + e.getCause().getMessage();
-            }
-        }
-        Object[] options = { "Edit configuration", "Exit" };
-        int choice = JOptionPane.showOptionDialog(
-            null, text, "Error", JOptionPane.DEFAULT_OPTION,
-            JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-        System.out.println("Chose " + choice + ".");
-        return (choice == 1 || choice == JOptionPane.CLOSED_OPTION);
     }
 }

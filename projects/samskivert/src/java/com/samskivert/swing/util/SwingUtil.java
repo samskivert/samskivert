@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.27 2003/12/13 01:18:25 mdb Exp $
+// $Id: SwingUtil.java,v 1.28 2003/12/19 04:07:33 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -571,9 +571,9 @@ public class SwingUtil
      */
     public static void addDebugBorders (JPanel panel)
     {
-        Color bcolor = new Color(_rando.nextInt() % 256,
-                                 _rando.nextInt() % 256,
-                                 _rando.nextInt() % 256);
+        Color bcolor = new Color(Math.abs(_rando.nextInt()) % 256,
+                                 Math.abs(_rando.nextInt()) % 256,
+                                 Math.abs(_rando.nextInt()) % 256);
         panel.setBorder(BorderFactory.createLineBorder(bcolor));
 
         for (int ii = 0; ii < panel.getComponentCount(); ii++) {

@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.6 2001/05/26 23:18:11 mdb Exp $
+// $Id: UserManager.java,v 1.7 2001/05/26 23:20:38 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -129,7 +129,7 @@ public class UserManager
 	// the login page
 	if (user == null) {
 	    // first construct the redirect URL
-            String eurl = RequestUtils.getEncodedLocation(req);
+            String eurl = RequestUtils.getLocationEncoded(req);
 	    String target = StringUtil.replace(_loginURL, "%R", eurl);
 	    throw new RedirectException(target);
 	}

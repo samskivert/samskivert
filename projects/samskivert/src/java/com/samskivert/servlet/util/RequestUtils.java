@@ -1,5 +1,5 @@
 //
-// $Id: RequestUtils.java,v 1.1 2001/05/26 23:18:11 mdb Exp $
+// $Id: RequestUtils.java,v 1.2 2001/05/26 23:20:38 mdb Exp $
 
 package com.samskivert.servlet.util;
 
@@ -20,7 +20,7 @@ public class RequestUtils
      *
      * @return The URL encoded URL that represents our current location.
      */
-    public static String getEncodedLocation (HttpServletRequest req)
+    public static String getLocationEncoded (HttpServletRequest req)
     {
         return URLEncoder.encode(getLocation(req));
     }

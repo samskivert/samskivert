@@ -1,8 +1,10 @@
 //
-// $Id: IntField.java,v 1.4 2003/11/25 17:54:50 eric Exp $
+// $Id: IntField.java,v 1.5 2003/12/15 18:56:27 mdb Exp $
 
 package com.samskivert.swing;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import javax.swing.JTextField;
 
 import com.samskivert.Log;
@@ -15,7 +17,8 @@ import com.samskivert.swing.util.SwingUtil;
  * specified range.
  */
 public class IntField extends JTextField
-    implements SwingUtil.DocumentValidator, SwingUtil.DocumentTransformer
+    implements SwingUtil.DocumentValidator, SwingUtil.DocumentTransformer,
+               FocusListener
 {
     public IntField ()
     {
@@ -32,8 +35,9 @@ public class IntField extends JTextField
         setHorizontalAlignment(JTextField.RIGHT);
         setColumns(5);
 
-        // register ourselves as the validator
+        // register ourselves as the validator and focus listener
         SwingUtil.setDocumentHelpers(this, this, null);
+        addFocusListener(this);
     }
 
     /**
@@ -92,11 +96,22 @@ public class IntField extends JTextField
 
         try {
             int value = Integer.parseInt(text);
-
-            return ((value >= _minValue) && (value <= _maxValue));
+            return (value <= _maxValue);
         } catch (NumberFormatException nfe) {
             return false;
         }
+    }
+
+    // documentation inherited from interface
+    public void focusGained (FocusEvent e)
+    {
+    }
+
+    // documentation inherited from interface
+    public void focusLost (FocusEvent e)
+    {
+        // here we ensure that we're not below our minimum
+        setText(transform(getText()));
     }
 
     protected int _minValue;

@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.9 2002/11/26 01:57:22 mdb Exp $
+// $Id: ConfigUtil.java,v 1.10 2003/01/12 00:49:22 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,10 +28,35 @@ import com.samskivert.Log;
 
 /**
  * The config util class provides routines for loading configuration
- * information out of a file that lives somewhere in the classpath.
+ * information.
+ *
+ * @see #loadProperties
+ * @see #getSystemProperty
  */
 public class ConfigUtil
 {
+    /**
+     * Obtains the specified system property via {@link
+     * System#getProperty}, parses it into an integer and returns the
+     * value. If the property is not set, the default value will be
+     * returned. If the property is not a properly formatted integer, an
+     * error will be logged and the default value will be returned.
+     */
+    public static int getSystemProperty (String key, int defval)
+    {
+        String valstr = System.getProperty(key);
+        int value = defval;
+        if (valstr != null) {
+            try {
+                value = Integer.parseInt(valstr);
+            } catch (NumberFormatException nfe) {
+                Log.warning("'" + key + "' must be a numeric value " +
+                            "[value=" + valstr + ", error=" + nfe + "].");
+            }
+        }
+        return value;
+    }
+
     /**
      * Loads a properties file from the named file that exists somewhere
      * in the classpath.

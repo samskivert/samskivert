@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.7 2002/10/16 01:52:37 mdb Exp $
+// $Id: ConfigUtil.java,v 1.8 2002/11/25 22:25:20 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -34,9 +34,7 @@ public class ConfigUtil
 {
     /**
      * Loads a properties file from the named file that exists somewhere
-     * in the classpath. A full path should be supplied, but variations
-     * including and not including a leading slash will be used because
-     * JVMs differ on their opinion of whether this is necessary.
+     * in the classpath.
      *
      * <p> The classloader that loaded the <code>ConfigUtil</code> class
      * is searched first, followed by the system classpath. If you wish to
@@ -45,7 +43,7 @@ public class ConfigUtil
      *
      * @param path The path to the properties file, relative to the root
      * of the classpath entry from which it will be loaded
-     * (e.g. <code>/conf/foo.properties</code>).
+     * (e.g. <code>com/foo/config.properties</code>).
      *
      * @return A properties object loaded with the contents of the
      * specified file if the file could be found, null otherwise.
@@ -57,59 +55,163 @@ public class ConfigUtil
     }
 
     /**
-     * Like the other version of {@link #loadProperties(String)}
-     * but this one uses the supplied class loader rather than the class
-     * loader used to load the <code>ConfigUtil</code> class.
+     * Like {@link #loadProperties(String)} but this method uses the
+     * supplied class loader rather than the class loader used to load the
+     * <code>ConfigUtil</code> class.
      *
      * @see #loadProperties(String)
      */
     public static Properties loadProperties (String path, ClassLoader loader)
 	throws IOException
     {
-	InputStream in = getStream(path, loader);
-        if (in == null) {
-            throw new FileNotFoundException(path);
-        }
-
-	Properties props = null;
-        props = new Properties();
-        props.load(in);
-
+	Properties props = new Properties();
+        loadProperties(path, loader, props);
 	return props;
     }
 
     /**
+     * Like {@link #loadProperties(String,ClassLoader)} but the properties
+     * are loaded into the supplied {@link Properties} object.
+     */
+    public static void loadProperties (
+        String path, ClassLoader loader, Properties target)
+	throws IOException
+    {
+	InputStream in = getStream(path, loader);
+        if (in == null) {
+            throw new FileNotFoundException(path);
+        }
+        target.load(in);
+        in.close();
+    }
+
+    /**
      * Creates a properties instance by combining properties files loaded
-     * using the specified classpath-relative property file path. A
-     * leading slash should be supplied, but variations including and not
-     * including a leading slash will be used because JVMs differ on their
-     * opinion of whether this is necessary.
+     * using the specified classpath-relative property file
+     * path.
      *
-     * <p> The inheritance works like so: the file will be searched for in
-     * the classpath from farthest to nearest. Near and far in the
-     * classpath are defined by the class loading search order. Normal
-     * class loading searches from nearest to farthest. Beginning with the
-     * farthest copy of the properties file, sucessively nearer copies
-     * will be overlaid onto those properties to achieve a sort of
-     * inheritance.  Properties specified in nearer versions of the file
-     * will override those in farther versions of the file, but properties
-     * not specified in nearer versions will be "inherited" from the
-     * farther versions.  Using this mechanism, a standard set of defaults
-     * can be provided and users need only place a properties file with
-     * their preferred overrides somewhere nearer in the classpath to have
-     * those overrides properly combined with the original
-     * defaults. Because the entire classpath is searched, this process
-     * can cascade up through a set of properties files and provide a
-     * powerful mechanism for inheriting configuration information.
+     * <p> The inheritance works in two ways:
      *
-     * <p> The classloader that loaded the <code>ConfigUtil</code> class
-     * is searched first, followed by the system classpath. If you wish to
-     * provide an additional classloader, use the version of this function
-     * that takes a classloader as an argument.
+     * <ul><li><b>Overrides</b>
+     *
+     * <p> All properties files with the specified name are located
+     * in the classpath and merged into a single set of properties
+     * according to an explicit inheritance hierarchy defined by a couple
+     * of custom properties. This is best explained with an example:
+     *
+     * <p><code>com/samskivert/foolib/config.properties</code> contains:
+     *
+     * <pre>
+     * _package = foolib
+     *
+     * config1 = value1
+     * config2 = value2
+     * ...
+     * </pre>
+     *
+     * and this is packaged into <code>foolib.jar</code>. Happy Corp
+     * writes an application that uses foolib and wants to override some
+     * properties in foolib's configuration. They create a properties file
+     * in <code>happyapp.jar</code> with the path
+     * <code>com/samskivert/foolib/config.properties</code>. It contains:
+     *
+     * <pre>
+     * _package = happyapp
+     * _overrides = foolib
+     *
+     * config2 = happyvalue
+     * </pre>
+     *
+     * When foolib loads its <code>config.properties</code> the overrides
+     * from <code>happyapp.jar</code> will be applied to the properties
+     * defined in <code>foolib.jar</code> and foolib will see Happy Corp's
+     * overridden properties.
+     *
+     * <p> Note that conflicting overrides must be resolved "by hand" so
+     * to speak. For example, if Happy Corp used some other library that
+     * also overrode foolib's configuration, say barlib, whose
+     * <code>barlib.jar</code> contained:
+     *
+     * <pre>
+     * _package = barlib
+     * _overrides = foolib
+     *
+     * config1 = barvalue
+     * </pre>
+     *
+     * Happy Corp's <code>config.properties</code> would not be able to
+     * override foolib's configuration directly because the config system
+     * would not know which overrides to use. It instead must override
+     * barlib's configuration, like so:
+     *
+     * <pre>
+     * _package = happyapp
+     * _overrides = barlib
+     * ...
+     * </pre>
+     *
+     * Moreover, if there were yet a third library that also overrode
+     * foolib, Happy Corp would have to resolve the conflict between
+     * barlib and bazlib explicitly:
+     *
+     * <pre>
+     * _package = happyapp
+     * _overrides = barlib, bazlib
+     * ...
+     * </pre>
+     *
+     * This would force bazlib's overrides to take precedence over
+     * barlib's overrides, resolving the inheritance ambiguity created
+     * when both barlib and bazlib claimed to override foolib.
+     *
+     * <p> This all certainly seems a bit complicated, but in most cases
+     * there is only one user of a library and overriding is very
+     * straightforward. The additional functionality is provided to
+     * resolve cases where conflicts do arise.
+     *
+     * <li><b>Extends</b>
+     *
+     * <p> The second type of inheritance, extension, is more
+     * straightforward. In this case, a properties file explicitly extends
+     * another properties file. For example,
+     * <code>com/foocorp/puzzle/config.properties</code> contains:
+     *
+     * <pre>
+     * # Standard configuration options
+     * score = 25
+     * multiplier = 2
+     * </pre>
+     *
+     * <code>com/foocorp/puzzle/footris/config.properties</code> contains:
+     *
+     * <pre>
+     * _extends = com/foocorp/puzzle/config.properties
+     *
+     * # Footris configuration options
+     * score = 15 # override the default score
+     * bonus = 55
+     * </pre>
+     *
+     * The Footris configuration will inherit default values from the
+     * general puzzle configuration, overriding any that are specified
+     * explicitly.
+     *
+     * <p> When resolving a properties file that extends another
+     * properties file, first the extended properties are loaded and all
+     * <code>_overrides</code> are applied to that properties file. Then
+     * all <code>_overrides</code> are applied to the extending properties
+     * file and then the extending properties are merged with the extended
+     * properties.
+     * </ul>
+     *
+     * <em>A final note:</em> All of the inheritance directives must be
+     * grouped together in an uninterrupted sequence of lines. One the
+     * parsing code finds the first directive, it stops parsing when it
+     * sees a line that does not contain a directive.
      *
      * @param path The path to the properties file, relative to the root
      * of the classpath entries from which it will be loaded
-     * (e.g. <code>/conf/foo.properties</code>).
+     * (e.g. <code>com/foo/config.properties</code>).
      *
      * @return A properties object loaded with the contents of the
      * specified file if the file could be found, null otherwise.
@@ -122,14 +224,29 @@ public class ConfigUtil
     }
 
     /**
-     * Like the other version of {@link #loadInheritedProperties(String)}
-     * but this one uses the supplied class loader rather than the class
-     * loader used to load the <code>ConfigUtil</code> class.
+     * Like {@link #loadInheritedProperties(String)} but this method uses
+     * the supplied class loader rather than the class loader used to load
+     * the <code>ConfigUtil</code> class.
      *
      * @see #loadInheritedProperties(String)
      */
     public static Properties loadInheritedProperties (
         String path, ClassLoader loader)
+	throws IOException
+    {
+        Properties props = new Properties();
+        loadInheritedProperties(path, loader, props);
+        return props;
+    }
+
+    /**
+     * Like {@link #loadInheritedProperties(String,ClassLoader)} but the
+     * properties are loaded into the supplied properties object.
+     * Properties that already exist in the supplied object will be
+     * overwritten by the loaded properties where they have the same key.
+     */
+    public static void loadInheritedProperties (
+        String path, ClassLoader loader, Properties target)
 	throws IOException
     {
         // first look for the files in the supplied class loader
@@ -144,8 +261,7 @@ public class ConfigUtil
             }
         }
 
-        // we need to process the resources in reverse order, so we put
-        // them all into an array first
+        // stick the matches into an array list so that we can count them
         ArrayList rsrcs = new ArrayList();
         while (enum.hasMoreElements()) {
             rsrcs.add(enum.nextElement());
@@ -156,36 +272,223 @@ public class ConfigUtil
         // works around a bug in Tomcat 3.3's classloader wherein it
         // simply returns nothing to all calls to getResources()
         if (rsrcs.size() == 0) {
-            // if getResourceAsStream() returns something, but
-            // getResources() returned nothing, then we know there's a bug
-            // and we do our best to work around it
-            if (getResourceAsStream(path, loader) != null) {
+            // if getStream() returns something, but getResources()
+            // returned nothing, then we know there's a bug and we do our
+            // best to work around it
+            InputStream in = getStream(path, loader);
+            if (in != null) {
                 Log.warning("Buggy classloader: getResources() returned " +
                             "no resources, but getResourceAsStream() " +
                             "returned a resource [path=" + path +
-                            ", loader=" + loader.getClass().getName() +
-                            "]. Returning the one we could get our hands on.");
-                return loadProperties(path, loader);
+                            ", loader=" + StringUtil.shortClassName(loader) +
+                            "]. Using the one we could get our hands on.");
+                target.load(in);
+                in.close();
+            }
+            throw new FileNotFoundException(path);
+        }
+
+        // load up the metadata for the properties files
+        PropRecord root = null, crown = null;
+        HashMap map = null;
+
+        if (rsrcs.size() == 1) {
+            // parse the metadata for our only properties file
+            root = parseMetaData(path, (URL)rsrcs.get(0));
+
+        } else {
+            map = new HashMap();
+            for (int ii = 0; ii < rsrcs.size(); ii++) {
+                // parse the metadata for this properties file
+                PropRecord record = parseMetaData(path, (URL)rsrcs.get(ii));
+
+                // make sure the record we parseded is valid because we're
+                // going to be doing overrides
+                record.validate();
+
+                // then map it according to its package defintion
+                map.put(record._package, record);
+
+                // if this guy overrides nothing, he's the root property
+                if (record._overrides == null) {
+                    // make sure there aren't two or more roots
+                    if (root != null) {
+                        String errmsg = record + " cannot have the same " +
+                            "path as " + root + " without one overriding " +
+                            "the other.";
+                        throw new IOException(errmsg);
+                    }
+                    root = record;
+                }
+            }
+
+            // now wire up all the records according to the hierarchy
+            Iterator iter = map.values().iterator();
+            while (iter.hasNext()) {
+                PropRecord prec = (PropRecord)iter.next();
+                if (prec._overrides == null) {
+                    // sanity check
+                    if (prec != root) {
+                        String errmsg = "Internal error: found multiple " +
+                            "roots where we shouldn't have [root=" + root +
+                            ", prec=" + prec + "]";
+                        throw new IOException(errmsg);
+                    }
+                    continue;
+                }
+
+                // wire this guy up to whomever he overrides
+                for (int ii = 0; ii < prec._overrides.length; ii++) {
+                    String ppkg = prec._overrides[ii];
+                    PropRecord parent = (PropRecord)map.get(ppkg);
+                    if (parent == null) {
+                        throw new IOException("Cannot find parent '" + ppkg +
+                                              "' for " + prec);
+                    }
+                    parent.add(prec);
+                }
+            }
+
+            // verify that there is only one crown
+            ArrayList crowns = new ArrayList();
+            iter = map.values().iterator();
+            while (iter.hasNext()) {
+                PropRecord prec = (PropRecord)iter.next();
+                if (prec.size() == 0) {
+                    crowns.add(prec);
+                }
+            }
+
+            if (crowns.size() == 0) {
+                String errmsg = "No top-level property override could be " +
+                    "found, perhaps there are circular references " +
+                    StringUtil.toString(map.values());
+                throw new IOException(errmsg);
+
+            } else if (crowns.size() > 1) {
+                String errmsg = "Multiple top-level properties were found, " +
+                    "one definitive top-level file must provide an order " +
+                    "for all others " + StringUtil.toString(crowns);
+                throw new IOException(errmsg);
+            }
+
+            crown = (PropRecord)crowns.get(0);
+        }
+
+        // if the root extends another file, resolve that first
+        if (!StringUtil.blank(root._extends)) {
+            try {
+                loadInheritedProperties(root._extends, loader, target);
+            } catch (FileNotFoundException fnfe) {
+                String errmsg = "Unable to locate parent '" + root._extends +
+                    "' for '" + root.path + "'";
+                throw new IOException(errmsg);
             }
         }
 
-        // now load each file in turn into our properties object
-        Properties props = new Properties();
-        for (int i = rsrcs.size()-1; i >= 0; i--) {
-            URL rurl = (URL)rsrcs.get(i);
-            InputStream in = rurl.openStream();
-            props.load(in);
+        // now apply all of the overrides, in the appropriate order
+        if (crown != null) {
+            HashMap applied = new HashMap();
+            loadPropertiesOverrides(crown, map, applied, loader, target);
+
+        } else {
+            // we have no overrides, so load our props up straight
+            InputStream in = root.sourceURL.openStream();
+            target.load(in);
+            in.close();
         }
 
-	return props;
+        // finally remove the metadata properties
+        target.remove(PACKAGE_KEY);
+        target.remove(EXTENDS_KEY);
+        target.remove(OVERRIDES_KEY);
+    }
+
+    /** {@link #loadInheritedProperties(String,ClassLoader,Properties)}
+     * helper function. */
+    protected static void loadPropertiesOverrides (
+        PropRecord prec, HashMap records, HashMap applied,
+        ClassLoader loader, Properties target)
+        throws IOException
+    {
+        if (applied.containsKey(prec._package)) {
+            return;
+        }
+
+        // first load up properties from all of our parent nodes
+        if (prec._overrides != null) {
+            for (int ii = 0; ii < prec._overrides.length; ii++) {
+                PropRecord parent = (PropRecord)
+                    records.get(prec._overrides[ii]);
+                loadPropertiesOverrides(
+                    parent, records, applied, loader, target);
+            }
+        }
+
+        // now apply our properties values
+        InputStream in = prec.sourceURL.openStream();
+        target.load(in);
+        in.close();
+        applied.put(prec._package, prec);
+    }
+
+    /**
+     * Performs simple processing of the supplied input stream to obtain
+     * inheritance metadata from the properties file.
+     */
+    protected static PropRecord parseMetaData (String path, URL sourceURL)
+        throws IOException
+    {
+        InputStream input = sourceURL.openStream();
+        BufferedReader bin = new BufferedReader(new InputStreamReader(input));
+        PropRecord record = new PropRecord(path, sourceURL);
+        boolean started = false;
+        String line;
+
+        while ((line = bin.readLine()) != null) {
+            if (line.startsWith(PACKAGE_KEY)) {
+                record._package = parseValue(line);
+                started = true;
+            } else if (line.startsWith(EXTENDS_KEY)) {
+                record._extends = parseValue(line);
+                started = true;
+            } else if (line.startsWith(OVERRIDES_KEY)) {
+                record._overrides = parseValues(line);
+                started = true;
+            } else if (started) {
+                break;
+            }
+        }
+        input.close();
+
+        return record;
+    }
+
+    /** {@link #parseMetaData} helper function. */
+    protected static String parseValue (String line)
+    {
+        int eidx = line.indexOf("=");
+        return (eidx == -1) ? "" : line.substring(eidx+1).trim();
+    }
+
+    /** {@link #parseMetaData} helper function. */
+    protected static String[] parseValues (String line)
+    {
+        String value = parseValue(line);
+        if (StringUtil.blank(value)) {
+            return null;
+        }
+
+        String[] values = StringUtil.split(value, ",");
+        for (int ii = 0; ii < values.length; ii++) {
+            values[ii] = values[ii].trim();
+        }
+        return values;
     }
 
     /**
      * Returns an input stream referencing a file that exists somewhere in
-     * the classpath. A full path (relative to the classpath directories)
-     * should be supplied, but variations including and not including a
-     * leading slash will be used because JVMs differ on their opinion of
-     * whether this is necessary.
+     * the classpath.
      *
      * <p> The classloader that loaded the <code>ConfigUtil</code> class
      * is searched first, followed by the system classpath. If you wish to
@@ -194,8 +497,7 @@ public class ConfigUtil
      *
      * @param path The path to the file, relative to the root of the
      * classpath directory from which it will be loaded
-     * (e.g. <code>/conf/foo.gif</code> or perhaps just
-     * <code>/bar.gif</code> if the file is at the top level).
+     * (e.g. <code>com/foo/bar/foo.gif</code>).
      */
     public static InputStream getStream (String path)
     {
@@ -204,18 +506,14 @@ public class ConfigUtil
 
     /**
      * Returns an input stream referencing a file that exists somewhere in
-     * the classpath. A full path (relative to the classpath directories)
-     * should be supplied, but variations including and not including a
-     * leading slash will be used because JVMs differ on their opinion of
-     * whether this is necessary.
+     * the classpath.
      *
      * <p> The supplied classloader is searched first, followed by the
      * system classloader.
      *
      * @param path The path to the file, relative to the root of the
      * classpath directory from which it will be loaded
-     * (e.g. <code>/conf/foo.gif</code> or perhaps just
-     * <code>/bar.gif</code> if the file is at the top level).
+     * (e.g. <code>com/foo/bar/foo.gif</code>).
      */
     public static InputStream getStream (String path, ClassLoader loader)
     {
@@ -280,4 +578,53 @@ public class ConfigUtil
 	    return "/" + path;
 	}
     }
+
+    /** Used when parsing inherited properties. */
+    protected static final class PropRecord extends ArrayList
+    {
+        public String _package;
+        public String[] _overrides;
+        public String _extends;
+
+        public String path;
+        public URL sourceURL;
+
+        public PropRecord (String path, URL sourceURL)
+        {
+            this.path = path;
+            this.sourceURL = sourceURL;
+        }
+
+        public void validate ()
+            throws IOException
+        {
+            if (StringUtil.blank(_package)) {
+                throw new IOException(
+                    "Properties file missing '_package' identifier " + this);
+            }
+
+            if ((_overrides != null && _overrides.length > 0) &&
+                (!StringUtil.blank(_extends))) {
+                throw new IOException("Properties file cannot use both " +
+                                      "'_overrides' and '_extends' " + this);
+            }
+        }
+
+        public boolean equals (Object other)
+        {
+            return _package.equals(((PropRecord)other)._package);
+        }
+
+        public String toString ()
+        {
+            return "[package=" + _package +
+                ", overrides=" + StringUtil.toString(_overrides) +
+                ", extends=" + _extends + ", path=" + path +
+                ", source=" + sourceURL + "]";
+        }
+    }
+
+    protected static final String PACKAGE_KEY = "_package";
+    protected static final String OVERRIDES_KEY = "_overrides";
+    protected static final String EXTENDS_KEY = "_extends";
 }

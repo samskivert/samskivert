@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.1 2001/10/31 11:07:55 mdb Exp $
+// $Id: FormTool.java,v 1.2 2001/11/01 00:22:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -55,22 +55,22 @@ public class FormTool
      * Creates a text input field with the specified name and no extra
      * arguments or default value.
      *
-     * @see #text(String,String,String)
+     * @see #text(String,String,Object)
      */
     public String text (String name)
     {
-        return text(name, "", "");
+        return input("text", name, "", "");
     }
 
     /**
      * Creates a text input field with the specified name and the
      * specified extra arguments with no default value.
      *
-     * @see #text(String,String,String)
+     * @see #text(String,String,Object)
      */
     public String text (String name, String extra)
     {
-        return text(name, extra, "");
+        return input("text", name, extra, "");
     }
 
     /**
@@ -85,25 +85,49 @@ public class FormTool
      *
      * Assuming the <code>foo</code> parameter had no pre-existing value.
      */
-    public String text (String name, String extra, Object defaultValue)
+    public String text (String name, String extra,
+                        Object defaultValue)
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("<input type=\"text\"");
-        buf.append(" name=\"").append(name).append("\"");
+        return input("text", name, extra, defaultValue);
+    }
 
-        // fetch the form value, entify it and stick it in
-        buf.append(" value=\"").append(getValue(name, defaultValue));
-        buf.append("\"");
+    /**
+     * Creates a password input field with the specified name and no extra
+     * arguments or default value.
+     *
+     * @see #password(String,String,Object)
+     */
+    public String password (String name)
+    {
+        return input("password", name, "", "");
+    }
 
-        // append any extra arguments the user may want (maxlength=25
-        // size=10, for example)
-        if (!StringUtil.blank(extra)) {
-            buf.append(" ").append(extra);
-        }
+    /**
+     * Creates a password input field with the specified name and the
+     * specified extra arguments with no default value.
+     *
+     * @see #password(String,String,Object)
+     */
+    public String password (String name, String extra)
+    {
+        return input("password", name, extra, "");
+    }
 
-        // close the tag and be done with it
-        buf.append(">");
-        return buf.toString();
+    /**
+     * Creates a password input field with the specified name, extra arguments
+     * and default value. For example, a call to <code>password("foo",
+     * "size=\"5\"", "bar")</code> would result in an
+     * input field looking like:
+     *
+     * <pre>
+     * &lt;input type="password" name="foo" value="bar" size="5"&gt;
+     * </pre>
+     *
+     * Assuming the <code>foo</code> parameter had no pre-existing value.
+     */
+    public String password (String name, String extra, Object defaultValue)
+    {
+        return input("password", name, extra, defaultValue);
     }
 
     /**
@@ -112,12 +136,7 @@ public class FormTool
      */
     public String submit (String name, String text)
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("<input type=\"submit\"");
-        buf.append(" name=\"").append(name).append("\"");
-        buf.append(" value=\"").append(text).append("\"");
-        buf.append(">");
-        return buf.toString();
+        return fixedInput("submit", name, text, "");
     }
 
     /**
@@ -147,10 +166,34 @@ public class FormTool
      */
     public String fixedHidden (String name, String value)
     {
+        return fixedInput("hidden", name, value, "");
+    }
+
+    /**
+     * Generates an input form field with the specified type, name,
+     * defaultValue and extra attributes.
+     */
+    protected String input (String type, String name, String extra,
+                            Object defaultValue)
+    {
+        return fixedInput(type, name, getValue(name, defaultValue), extra);
+    }
+
+    /**
+     * Generates an input form field with the specified type, name, value
+     * and extra attributes. The value is not fetched from the request
+     * parameters but is always the value supplied.
+     */
+    protected String fixedInput (
+        String type, String name, String value, String extra)
+    {
         StringBuffer buf = new StringBuffer();
-        buf.append("<input type=\"hidden\"");
+        buf.append("<input type=\"").append(type).append("\"");
         buf.append(" name=\"").append(name).append("\"");
         buf.append(" value=\"").append(value).append("\"");
+        if (!StringUtil.blank(extra)) {
+            buf.append(" ").append(extra);
+        }
         buf.append(">");
         return buf.toString();
     }

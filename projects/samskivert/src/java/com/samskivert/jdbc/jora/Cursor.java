@@ -36,6 +36,12 @@ public class Cursor {
     public Object next()
 	throws SQLException
     {  
+        // if we closed everything up after the last call to next(), we'll
+        // have a null table here and should bail immediately
+        if (table == null) {
+            return null;
+        }
+
 //        try { 
             do { 
 	        if (result == null) {

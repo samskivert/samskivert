@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.54 2003/02/04 03:01:28 mdb Exp $
+// $Id: StringUtil.java,v 1.55 2003/02/05 00:20:35 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,6 +25,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import java.security.MessageDigest;
@@ -503,7 +504,7 @@ public class StringUtil
         Field[] fields = clazz.getFields();
         int written = 0;
 
-        // we only want non-static, non-final, non-transient fields
+        // we only want non-static fields
         for (int i = 0; i < fields.length; i++) {
             int mods = fields[i].getModifiers();
             if ((mods & Modifier.PUBLIC) == 0 ||
@@ -515,9 +516,16 @@ public class StringUtil
                 buf.append(sep);
             }
 
+            // look for a toString() method for this field
             buf.append(fields[i].getName()).append("=");
             try {
-                toString(buf, fields[i].get(object));
+                try {
+                    Method meth = clazz.getMethod(
+                        fields[i].getName() + "ToString", new Class[0]);
+                    buf.append(meth.invoke(object, null));
+                } catch (NoSuchMethodException nsme) {
+                    toString(buf, fields[i].get(object));
+                }
             } catch (Exception e) {
                 buf.append("<error: " + e + ">");
             }

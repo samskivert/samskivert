@@ -1,5 +1,5 @@
 //
-// $Id: User.java,v 1.6 2002/04/30 01:11:47 mdb Exp $
+// $Id: User.java,v 1.7 2002/09/18 01:18:51 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,7 +21,9 @@
 package com.samskivert.servlet.user;
 
 import java.sql.Date;
+
 import com.samskivert.jdbc.jora.FieldMask;
+import com.samskivert.util.StringUtil;
 
 /**
  * A user object contains information about a registered user in our web
@@ -115,6 +117,12 @@ public class User
     protected void setDirtyMask (FieldMask dirty)
     {
         _dirty = dirty;
+    }
+
+    /** Returns a string representation of this instance. */
+    public String toString ()
+    {
+        return StringUtil.fieldsToString(this);
     }
 
     /** Our dirty field mask. */

@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.5 2002/05/31 20:45:26 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.6 2002/05/31 21:06:26 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -34,6 +34,20 @@ import java.util.Hashtable;
  */
 public class DefaultLogProvider implements LogProvider
 {
+    public DefaultLogProvider ()
+    {
+        try {
+            // enable vt100 escape codes if requested
+            String pstr = System.getProperty("log_vt100");
+            if (!StringUtil.blank(pstr)) {
+                _useVT100 = pstr.equalsIgnoreCase("true");
+            }
+
+        } catch (SecurityException se) {
+            // nothing to worry about
+        }
+    }
+
     public synchronized void log (
         int level, String moduleName, String message)
     {
@@ -71,9 +85,9 @@ public class DefaultLogProvider implements LogProvider
     {
         StringBuffer buf = new StringBuffer();
         buf.append(_format.format(new Date())).append(" ");
-        if (level == Log.WARNING) {
+        if (level == Log.WARNING && _useVT100) {
             buf.append(BOLD);
-        } else if (level == Log.DEBUG) {
+        } else if (level == Log.DEBUG && _useVT100) {
             buf.append(REVERSE);
         }
         buf.append(LEVEL_CHARS[level]).append(" ");
@@ -83,7 +97,8 @@ public class DefaultLogProvider implements LogProvider
 
         // if we wrap, we include the module name in the wrapped text
         int wrapwid = LOG_LINE_LENGTH - buf.length();
-        buf.append(UNDERLINE).append(moduleName).append(PLAIN).append(": ");
+        buf.append(_useVT100 ? UNDERLINE : "").append(moduleName);
+        buf.append(_useVT100 ? PLAIN : "").append(": ");
 
         // we'll be wrapping the log lines
         int remain = message.length(), offset = 0;
@@ -105,6 +120,9 @@ public class DefaultLogProvider implements LogProvider
 
         return buf.toString();
     }
+
+    /** Whether or not to use the vt100 escape codes. */
+    protected boolean _useVT100 = false;
 
     /** The default log level. */
     protected int _level = Log.INFO;

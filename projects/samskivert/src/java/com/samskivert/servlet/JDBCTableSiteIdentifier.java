@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.4 2003/11/13 00:53:00 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.5 2003/11/13 01:28:25 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -36,8 +36,11 @@ import com.samskivert.io.PersistenceException;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.DatabaseLiaison;
+import com.samskivert.jdbc.JORARepository;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.SimpleRepository;
+import com.samskivert.jdbc.jora.Session;
+import com.samskivert.jdbc.jora.Table;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
@@ -116,14 +119,44 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     }
 
     /**
+     * Insert a new site into the site table and into this mapping.
+     */
+    public Site insertNewSite (String siteString)
+        throws PersistenceException
+    {
+        if (_sitesByString.containsKey(siteString)) {
+            return null;
+        }
+
+        // add it to the db
+        Site site = new Site();
+        site.siteString = siteString;
+        _repo.insertNewSite(site);
+
+        // add it to our two mapping tables
+        _sitesById.put(site.siteId, site);
+        _sitesByString.put(site.siteString, site);
+
+        return site;
+    }
+
+
+    /**
      * Used to load information from the site database.
      */
     protected class SiteIdentifierRepository
-        extends SimpleRepository implements SimpleRepository.Operation
+        extends JORARepository implements SimpleRepository.Operation
     {
         public SiteIdentifierRepository (ConnectionProvider conprov)
         {
             super(conprov, SITE_IDENTIFIER_IDENT);
+        }
+
+        // documentation inherited
+        protected void createTables (Session session)
+        {
+            _stable = new Table(
+                Site.class.getName(), "sites", session, "siteId");
         }
 
         public void refreshSiteData ()
@@ -173,6 +206,28 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 JDBCUtil.close(stmt);
             }
         }
+
+        /**
+         * Add a new site to the database.
+         */
+        public void insertNewSite (final Site site)
+            throws PersistenceException
+        {
+            execute(new Operation() {
+                public Object invoke (Connection conn, DatabaseLiaison liaison)
+                    throws PersistenceException, SQLException
+                {
+                    _stable.insert(site);
+                    // update the userid now that it's known
+                    site.siteId = liaison.lastInsertedId(conn);
+                    // nothing to return
+                    return null;
+                }
+            });
+        }
+
+        /** A wrapper that provides access to the sites table. */
+        protected Table _stable;
     }
 
     /**

@@ -9,9 +9,6 @@
   <property name="doc.overview"     value="com/samskivert/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
 
-  <!-- we want to access the environment -->
-  <property environment="env"/>
-
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/java"/>
   <property name="deploy.dir"  value="dist"/>
@@ -20,26 +17,13 @@
   <property name="savedoc.dir" value="docs"/>
 
   <!-- declare our classpath business -->
-  <path id="base.classpath">
+  <path id="classpath">
     <pathelement location="${deploy.dir}/classes"/>
     <fileset dir="lib" includes="**/*.jar"/>
   </path>
-  <path id="classpath">
-    <path refid="base.classpath"/>
-  </path>
-
-  <!-- include JAVA_LIBS jars in our classpath if it exists -->
-  <target name="check-java-libs" if="env.JAVA_LIBS">
-    <!-- overwrite the classpath with one that contains JAVA_LIBS jars -->
-    <echo message="Building using libraries from ${env.JAVA_LIBS}."/>
-    <path id="classpath">
-      <path refid="base.classpath"/>
-      <fileset dir="${env.JAVA_LIBS}" includes="**/*.jar"/>
-    </path>
-  </target>
 
   <!-- checks to see which packages are available -->
-  <target name="check-available" depends="check-java-libs">
+  <target name="check-available">
     <echo message="The packages required for building are listed below."/>
     <echo message="A package followed by 'true' indicates that the package"/>
     <echo message="is present. One followed by '${package.present}' indicates"/>
@@ -74,6 +58,11 @@
      classname="org.apache.commons.collections.CollectionUtils"
      classpathref="classpath"/>
     <echo message="Commons Collections: ${jakarta.commons-collections.present}"/>
+
+    <available property="jakarta.commons-logging.present"
+     classname="org.apache.commons.logging.Log"
+     classpathref="classpath"/>
+    <echo message="Commons Logging: ${jakarta.commons-logging.present}"/>
 
     <available property="jakarta.commons-digester.present"
      classname="org.apache.commons.digester.Digester"
@@ -149,6 +138,7 @@
       <and>
         <isset property="build.io"/>
         <isset property="build.util"/>
+        <isset property="jakarta.commons-logging.present"/>
         <isset property="jakarta.commons-digester.present"/>
         <isset property="jaxp.present"/>
         <isset property="sax.present"/>

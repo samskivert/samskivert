@@ -1,5 +1,5 @@
 //
-// $Id: LoopingThread.java,v 1.1 2001/05/29 03:29:44 mdb Exp $
+// $Id: LoopingThread.java,v 1.2 2001/05/30 00:25:53 mdb Exp $
 
 package com.samskivert.util;
 
@@ -34,11 +34,16 @@ public class LoopingThread extends Thread
      */
     public void run ()
     {
-        willStart();
-        while (isRunning()) {
-            iterate();
+        try {
+            willStart();
+
+            while (isRunning()) {
+                iterate();
+            }
+
+        } finally {
+            didShutdown();
         }
-        didShutdown();
     }
 
     /**

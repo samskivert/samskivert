@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.11 2003/11/15 22:55:32 mdb Exp $
+// $Id: index.java,v 1.12 2003/12/10 20:33:42 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -36,10 +36,6 @@ public class index extends UserLogic
         if (!StringUtil.blank(msg)) {
             ctx.put("error", msg);
         }
-
-        // we use this to determine whether to show "complete" buttons for
-        // tasks
-        ctx.put("username", user.username);
 
 	// if they've submitted the form, we create a new task and stick
 	// it into the dataabse

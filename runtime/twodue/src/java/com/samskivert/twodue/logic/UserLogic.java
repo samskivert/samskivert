@@ -1,5 +1,5 @@
 //
-// $Id: UserLogic.java,v 1.1 2002/11/08 09:14:21 mdb Exp $
+// $Id: UserLogic.java,v 1.2 2003/12/10 20:33:42 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -33,6 +33,7 @@ public abstract class UserLogic implements Logic
     {
         TwoDueApp tdapp = (TwoDueApp)app;
 	User user = tdapp.getUserManager().requireUser(ctx.getRequest());
+        ctx.put("username", user.username);
         invoke(ctx, tdapp, user);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: tasks.java,v 1.2 2003/12/10 19:39:26 mdb Exp $
+// $Id: tasks.java,v 1.3 2003/12/10 20:33:42 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -36,10 +36,6 @@ public class tasks extends UserLogic
         if (!StringUtil.blank(msg)) {
             ctx.put("error", msg);
         }
-
-        // we use this to determine whether to show "complete" buttons for
-        // tasks
-        ctx.put("username", user.username);
 
         ArrayList tasks = null;
         String query = ParameterUtil.getParameter(req, "query", false);

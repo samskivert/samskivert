@@ -1,5 +1,5 @@
 //
-// $Id: detail.java,v 1.2 2003/01/23 21:22:56 mdb Exp $
+// $Id: detail.java,v 1.3 2003/12/10 20:33:42 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -27,10 +27,6 @@ public class detail extends UserLogic
 
         int taskId = ParameterUtil.requireIntParameter(
             ctx.getRequest(), "task", "task.error.missing_taskid");
-
-        // we use this to determine whether to show "complete" buttons for
-        // tasks
-        ctx.put("username", user.username);
 
         // load up the task in question
         Task task = app.getRepository().loadTask(taskId);

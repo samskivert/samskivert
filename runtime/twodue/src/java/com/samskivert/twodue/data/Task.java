@@ -1,5 +1,5 @@
 //
-// $Id: Task.java,v 1.6 2003/12/10 19:12:31 mdb Exp $
+// $Id: Task.java,v 1.7 2003/12/10 20:33:42 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -81,5 +81,13 @@ public class Task
     public String getDisplayCategory ()
     {
         return StringUtil.replace(category, ",", "<br>");
+    }
+
+    /**
+     * Returns a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return StringUtil.fieldsToString(this);
     }
 }

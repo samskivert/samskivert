@@ -1,5 +1,5 @@
 //
-// $Id: bycategory.java,v 1.1 2003/11/15 22:55:32 mdb Exp $
+// $Id: bycategory.java,v 1.2 2003/12/10 20:33:42 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -36,10 +36,6 @@ public class bycategory extends UserLogic
         if (!StringUtil.blank(msg)) {
             ctx.put("error", msg);
         }
-
-        // we use this to determine whether to show "complete" buttons for
-        // tasks
-        ctx.put("username", user.username);
 
         ArrayList tasks = null;
         String query = ParameterUtil.getParameter(req, "query", false);

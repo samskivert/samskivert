@@ -18,6 +18,7 @@ import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.resource.ResourceManager;
+import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.crowd.data.PlaceObject;
@@ -107,7 +108,8 @@ public class VenisonPanel
             public void ancestorAdded (AncestorEvent event) {
                 // create our image manager
                 JRootPane rpane = getRootPane();
-                TileManager tmgr = new TileManager(_rmgr);
+                ImageManager imgr = new ImageManager(_rmgr, rpane);
+                TileManager tmgr = new TileManager(imgr);
                 VenisonTile.setTileManager(tmgr);
             }
             public void ancestorMoved (AncestorEvent event) {

@@ -8,6 +8,8 @@ import javax.swing.*;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
+import com.samskivert.swing.HGroupLayout;
+import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.client.PlaceView;
@@ -28,9 +30,27 @@ public class VenisonPanel
      */
     public VenisonPanel (ParlorContext ctx, VenisonController controller)
     {
-        // add the board
+	HGroupLayout gl = new HGroupLayout(HGroupLayout.STRETCH);
+	gl.setOffAxisPolicy(HGroupLayout.STRETCH);
+	setLayout(gl);
+
+        // create the board
         board = new VenisonBoard();
-        add(board, BorderLayout.CENTER);
+
+        // create a scroll area to contain the board
+        JScrollPane scrolly = new JScrollPane(board);
+        add(scrolly);
+
+        // create our side panel
+        VGroupLayout sgl = new VGroupLayout(VGroupLayout.STRETCH);
+        sgl.setOffAxisPolicy(VGroupLayout.STRETCH);
+        JPanel sidePanel = new JPanel(sgl);
+
+        // add a turn indicator to the side panel
+        sidePanel.add(new TurnIndicatorView(), VGroupLayout.FIXED);
+
+        // add our side panel to the main display
+        add(sidePanel, HGroupLayout.FIXED);
 
         // we'll need this later to provide it
         _controller = controller;

@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.3 2001/10/15 19:55:15 mdb Exp $
+// $Id: TileUtil.java,v 1.4 2001/10/16 01:41:55 mdb Exp $
 
 package com.threerings.venison;
 
@@ -230,6 +230,8 @@ public class TileUtil implements TileCodes
             poly.addPoint(x2 + dx, y2 - dy);
 
         } else { // diagonal
+            dx = 6; // widen these a bit so that the diagonal line appears
+            dy = 6; // to have the same weight as the straight ones
             poly.addPoint(x1 - dx, y1);
             poly.addPoint(x1 + dx, y1);
             poly.addPoint(x2, y2 + dy);
@@ -321,7 +323,7 @@ public class TileUtil implements TileCodes
     /** A table describing the geometry of the features (cities, roads,
      * etc.) of each tile. */
     protected static final Object[] TILE_FEATURES = new Object[] {
-        new Object[0], // null tile
+        // one must offset tile type by one when indexing into this array
 
         new Object[] { new IntTuple(CITY, 0), }, // CITY_FOUR
 
@@ -344,10 +346,10 @@ public class TileUtil implements TileCodes
         new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ROAD
                        new IntTuple(GRASS, 0),
                        new int[] { 0, 4, 4, 0, 4, 2, 2, 4 },
-                       new IntTuple(ROAD, 0),
-                       new int[] { 2, 4, 4, 2 },
                        new IntTuple(GRASS, 0),
-                       new int[] { 2, 4, 4, 2, 4, 4 }},
+                       new int[] { 2, 4, 4, 2, 4, 4 },
+                       new IntTuple(ROAD, 0),
+                       new int[] { 2, 4, 4, 2 }},
 
         new Object[] { new IntTuple(CITY, 0), // CITY_TWO_ACROSS
                        new IntTuple(GRASS, 0),

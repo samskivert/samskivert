@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.5 2001/10/15 19:54:53 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.6 2001/10/16 01:41:55 mdb Exp $
 
 package com.threerings.venison;
 
@@ -85,20 +85,32 @@ public class VenisonBoard
      * the mouse while the tile is in a placeable position, a
      * <code>TILE_PLACED</code> command will be dispatched to the
      * controller in scope. The coordinates and orientation of the tile
-     * will have been set to the values specified by the user.
+     * will be available by fetching the tile back via {@link
+     * #getPlacedTile}. The tile provided to this method will not be
+     * modified.
      *
      * @param tile the new tile to be placed or null if no tile is to
      * currently be placed.
      */
     public void setTileToBePlaced (VenisonTile tile)
     {
-        _placingTile = tile;
+        // make a copy of this tile so that we can play with it
+        _placingTile = (VenisonTile)tile.clone();;
+
         // update our internal state based on this new placing tile
         if (_placingTile != null) {
             updatePlacingInfo(true);
         }
         // and repaint
         repaint();
+    }
+
+    /**
+     * Returns the last tile placed by the user.
+     */
+    public VenisonTile getPlacedTile ()
+    {
+        return _placedTile;
     }
 
     // documentation inherited
@@ -115,6 +127,7 @@ public class VenisonBoard
     public void paintComponent (Graphics g)
     {
         super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D)g;
 
         // center the tile display if we are bigger than we need to be
         g.translate(_tx, _ty);
@@ -124,17 +137,17 @@ public class VenisonBoard
             Iterator iter = _tiles.elements();
             while (iter.hasNext()) {
                 VenisonTile tile = (VenisonTile)iter.next();
-                tile.paint(g, _origX, _origY);
+                tile.paint(g2, _origX, _origY);
             }
         }
 
         // if we have a placing tile, draw that one as well
         if (_placingTile != null && _validPlacement) {
             // if the current position is valid, draw the placing tile
-            _placingTile.paint(g, _origX, _origY);
+            _placingTile.paint(g2, _origX, _origY);
 
             // draw a green rectangle around the placing tile
-            g.setColor(Color.green);
+            g.setColor(Color.blue);
             int sx = (_placingTile.x + _origX) * TILE_WIDTH;
             int sy = (_placingTile.y + _origY) * TILE_HEIGHT;
             g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
@@ -166,7 +179,8 @@ public class VenisonBoard
         // to dispatch an action letting the controller know that the user
         // placed it
         if (_placingTile != null && _validPlacement) {
-            // clear out the placing tile
+            // move the placing tile to the placed tile
+            _placedTile = _placingTile;
             _placingTile = null;
 
             // post the action
@@ -330,8 +344,8 @@ public class VenisonBoard
         TestDSet set = new TestDSet();
         set.addTile(new VenisonTile(CITY_TWO, false, WEST, 0, 0));
         set.addTile(new VenisonTile(CITY_FOUR, false, NORTH, 0, 1));
-        set.addTile(new VenisonTile(CITY_THREE, false, NORTH, 1, 1));
-        set.addTile(new VenisonTile(CITY_THREE_ROAD, false, NORTH, 1, 2));
+        set.addTile(new VenisonTile(CITY_THREE, false, WEST, 1, 1));
+        set.addTile(new VenisonTile(CITY_THREE_ROAD, false, EAST, 1, 2));
         set.addTile(new VenisonTile(CITY_THREE, false, NORTH, -1, 0));
         set.addTile(new VenisonTile(CITY_FOUR, false, NORTH, -2, 0));
         board.setTiles(set);
@@ -363,6 +377,9 @@ public class VenisonBoard
 
     /** The tile currently being placed by the user. */
     protected VenisonTile _placingTile;
+
+    /** The last tile being placed by the user. */
+    protected VenisonTile _placedTile;
 
     /** Whether or not the current position and orientation of the placing
      * tile is valid. */

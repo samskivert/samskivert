@@ -1,5 +1,5 @@
 //
-// $Id: TileCodes.java,v 1.2 2001/10/10 06:14:57 mdb Exp $
+// $Id: TileCodes.java,v 1.3 2001/10/16 01:41:55 mdb Exp $
 
 package com.threerings.venison;
 
@@ -75,6 +75,8 @@ public interface TileCodes
     /** A curved road segment. */
     public static final int CURVED_ROAD = 19;
 
+    /** The number of different tile types. */
+    public static final int TILE_TYPES = 19;
 
     /** A tile orientation constant indicating the tile is in its default
      * orientation. */

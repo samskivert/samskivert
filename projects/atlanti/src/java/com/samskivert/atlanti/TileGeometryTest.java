@@ -1,5 +1,5 @@
 //
-// $Id: TileGeometryTest.java,v 1.1 2001/10/15 19:55:15 mdb Exp $
+// $Id: TileGeometryTest.java,v 1.2 2001/10/16 01:41:55 mdb Exp $
 
 package com.threerings.venison;
 
@@ -23,7 +23,7 @@ public class TileGeometryTest
         ArrayList colors = new ArrayList();
 
         // create polygons from the various tile features
-        for (int i = 1; i < TileUtil.TILE_FEATURES.length; i++) {
+        for (int i = 0; i < TileUtil.TILE_FEATURES.length; i++) {
             // convert tile index into x and y coordinates (in tile
             // feature coords which will be converted to screen coords)
             int x = 4 * (i % 5), y = 4 * (i / 5);

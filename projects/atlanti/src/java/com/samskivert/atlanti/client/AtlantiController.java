@@ -81,11 +81,10 @@ public class VenisonController
     public boolean handleAction (ActionEvent action)
     {
         if (action.getActionCommand().equals(TILE_PLACED)) {
-            // the user placed the tile into a valid location. the board
-            // will have updated the position and orientation information
-            // in the tile object accordingly, so we simply submit our
-            // move to the server
-            Object[] args = new Object[] { _venobj.currentTile };
+            // the user placed the tile into a valid location. grab the
+            // placed tile from the board and submit it to the server as
+            // our move
+            Object[] args = new Object[] { _panel.board.getPlacedTile() };
             MessageEvent mevt = new MessageEvent(
                 _venobj.getOid(), PLACE_TILE_REQUEST, args);
             _ctx.getDObjectManager().postEvent(mevt);

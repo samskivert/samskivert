@@ -1,14 +1,22 @@
 //
-// $Id: AtlantiTile.java,v 1.4 2001/10/12 20:34:13 mdb Exp $
+// $Id: AtlantiTile.java,v 1.5 2001/10/16 01:41:55 mdb Exp $
 
 package com.threerings.venison;
 
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+
+import java.util.ArrayList;
+
+import com.samskivert.util.IntTuple;
 
 import com.threerings.presents.dobj.DSet;
 
@@ -71,51 +79,35 @@ public class VenisonTile
      * @param yoff the offset (in tile units) of the origin in the y
      * direction.
      */
-    public void paint (Graphics g, int xoff, int yoff)
+    public void paint (Graphics2D g, int xoff, int yoff)
     {
+        int tidx = type-1;
+
+        // create our shapes if we haven't already
+        if (_shapes[tidx][orientation] == null) {
+            createShapes();
+        }
+
         // compute our screen coordinates
         int sx = (x + xoff) * TILE_WIDTH;
         int sy = (y + yoff) * TILE_HEIGHT;
 
-        // draw a rectangle
-        g.setColor(Color.black);
-        g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
+        // translate to our screen coordinates
+        g.translate(sx, sy);
 
-        // and draw our tile id in the middle for now (we'll eventually
-        // draw tile images)
-        String txt = type + "/" + x + "/" + y + "/" +
-            ORIENT_NAMES[orientation];
-        g.drawString(txt, sx + 20, sy + 20);
-
-        // draw little dots indicating the color of our sides
-        for (int i = 0; i < 4; i++) {
-            // adjust for our orientation
-            switch (TileUtil.getEdge(type, (i+(4-orientation))%4)) {
-            case GRASS:
-                g.setColor(Color.green);
-                break;
-            case ROAD:
-                g.setColor(Color.white);
-                break;
-            case CITY:
-                g.setColor(Color.red);
-                break;
-            }
-            switch (i) {
-            case NORTH:
-                g.fillOval(sx + TILE_WIDTH/2 - 2, sy + 2, 4, 4);
-                break;
-            case EAST:
-                g.fillOval(sx + TILE_WIDTH - 6, sy + TILE_HEIGHT/2 - 2, 4, 4);
-                break;
-            case SOUTH:
-                g.fillOval(sx + TILE_WIDTH/2 - 2, sy + TILE_HEIGHT - 6, 4, 4);
-                break;
-            case WEST:
-                g.fillOval(sx + 2, sy + TILE_HEIGHT/2 - 2, 4, 4);
-                break;
-            }
+        // draw our shapes using the proper orientation
+        GeneralPath[] paths = _shapes[tidx][orientation];
+        for (int i = 0; i < paths.length; i++) {
+            g.setColor(COLOR_MAP[_types[tidx][i].left]);
+            g.fill(paths[i]);
         }
+
+        // draw a rectangular outline
+        g.setColor(Color.black);
+        g.drawRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
+
+        // translate back out
+        g.translate(-sx, -sy);
     }
 
     /**
@@ -155,10 +147,112 @@ public class VenisonTile
         y = in.readInt();
     }
 
+    /**
+     * Creates the path objects that describe the shapes that make up this
+     * tile and sticks it into the appropriate slot in the shapes array.
+     */
+    protected void createShapes ()
+    {
+        System.out.println("Creating shapes " + this + ".");
+
+        int tidx = type-1;
+        ArrayList polys = new ArrayList();
+        ArrayList types = new ArrayList();
+
+        // the first feature is the background color
+        Object[] features = (Object[])TileUtil.TILE_FEATURES[tidx];
+        IntTuple base = (IntTuple)features[0];
+
+        // add a polygon containing the whole tile
+        types.add(base);
+        Polygon poly = new Polygon();
+        poly.addPoint(0, 0);
+        poly.addPoint(TILE_WIDTH, 0);
+        poly.addPoint(TILE_WIDTH, TILE_HEIGHT);
+        poly.addPoint(0, TILE_HEIGHT);
+        polys.add(poly);
+
+        // the remainder are tuple/coordinate pairs
+        for (int f = 1; f < features.length; f += 2) {
+            IntTuple ftype = (IntTuple)features[f];
+            int[] coords = (int[])features[f+1];
+
+            // keep track of this shape's type
+            types.add(ftype);
+
+            // if this is a road segment, we need to create a special
+            // polygon
+            if (ftype.left == ROAD) {
+                poly = TileUtil.roadSegmentToPolygon(
+                    coords[0], coords[1], coords[2], coords[3]);
+
+            } else {
+                // otherwise create the polygon directly from the coords
+                poly = new Polygon();
+                for (int c = 0; c < coords.length; c += 2) {
+                    // scale the coords accordingly
+                    int fx = (coords[c] * TILE_WIDTH) / 4;
+                    int fy = (coords[c+1] * TILE_HEIGHT) / 4;
+                    poly.addPoint(fx, fy);
+                }
+            }
+
+            polys.add(poly);
+        }
+
+        // now create general paths from our polygons and convert
+        // everything into the appropriate arrays
+        GeneralPath[] paths = new GeneralPath[polys.size()];
+        for (int i = 0; i < polys.size(); i++) {
+            GeneralPath path = new GeneralPath();
+            path.append(((Polygon)polys.get(i)).getPathIterator(null), false);
+            path.closePath();
+            paths[i] = path;
+        }
+
+        // keep the first one around
+        _shapes[tidx][NORTH] = paths;
+
+        // and rotate it three times to get the other orientations
+        AffineTransform xform = new AffineTransform();
+        for (int o = 1; o < 4; o++) {
+            xform.translate(TILE_WIDTH, 0);
+            xform.rotate(Math.PI/2);
+            GeneralPath[] rpaths = new GeneralPath[paths.length];
+            for (int i = 0; i < paths.length; i++) {
+                rpaths[i] = (GeneralPath)paths[i].clone();
+                rpaths[i].transform(xform);
+            }
+            _shapes[tidx][o] = rpaths;
+        }
+
+        // also fill in the feature type info
+        _types[tidx] = new IntTuple[types.size()];
+        types.toArray(_types[tidx]);
+    }
+
+    /**
+     * Generates a string representation of this tile instance.
+     */
     public String toString ()
     {
         return "[type=" + type + ", shield=" + hasShield +
             ", orient=" + ORIENT_NAMES[orientation] +
             ", pos=" + x + "/" + y + "]";
     }
+
+    /** Path objects that describe closed shapes which be used to render
+     * the tiles (one for each orientation of each tile type). */
+    protected static GeneralPath[][][] _shapes =
+        new GeneralPath[TILE_TYPES][4][];
+
+    /** The feature type of each shape in shapes array. */
+    protected static IntTuple[][] _types = new IntTuple[TILE_TYPES][];
+
+    /** Maps feature types to colors. */
+    protected static Color[] COLOR_MAP = {
+        Color.red, // CITY
+        Color.green, // GRASS
+        Color.black // ROAD
+    };
 }

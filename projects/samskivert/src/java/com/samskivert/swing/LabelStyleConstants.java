@@ -1,5 +1,5 @@
 //
-// $Id: LabelStyleConstants.java,v 1.1 2002/09/23 21:19:06 shaper Exp $
+// $Id: LabelStyleConstants.java,v 1.2 2003/11/15 02:06:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -37,4 +37,7 @@ public interface LabelStyleConstants
 
     /** Constant denoting shadow text style. */
     public static final int SHADOW = 3;
+
+    /** Constant denoting underlined text style. */
+    public static final int UNDERLINE = 4;
 }

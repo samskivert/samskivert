@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.31 2002/12/06 22:17:50 mdb Exp $
+// $Id: Label.java,v 1.32 2003/11/15 02:06:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -503,6 +503,10 @@ public class Label implements SwingConstants, LabelStyleConstants
         Font font = (_font == null) ? gfx.getFont() : _font;
         HashMap map = new HashMap();
         map.put(TextAttribute.FONT, font);
+        if (_style == UNDERLINE) {
+            map.put(TextAttribute.UNDERLINE,
+                    TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
+        }
         AttributedString text = new AttributedString(_text, map);
         return text.getIterator();
     }

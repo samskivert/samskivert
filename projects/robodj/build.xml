@@ -35,13 +35,11 @@
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/classes"/>
     <mkdir dir="${javadoc.dir}"/>
-    <!-- copy media into the target directory -->
+    <!-- copy media and properties into the target directory -->
     <copy todir="${deploy.dir}/classes">
       <fileset dir="${src.dir}" includes="**/*.jpg"/>
       <fileset dir="${src.dir}" includes="**/*.png"/>
-    </copy>
-    <copy todir="${deploy.dir}/classes/conf">
-      <fileset dir="conf" includes="**/*.properties"/>
+      <fileset dir="${src.dir}" includes="**/*.properties"/>
     </copy>
   </target>
 

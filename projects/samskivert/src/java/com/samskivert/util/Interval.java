@@ -29,7 +29,6 @@ import com.samskivert.Log;
  * An interface for doing operations after some delay.
  */
 public abstract class Interval
-    implements Runnable
 {
     /**
      * Create a simple interval that does not use a RunQueue to run
@@ -79,40 +78,16 @@ public abstract class Interval
      * Schedule the interval to execute repeatedly with the specified
      * initial delay and repeat delay.
      */
-    public final void schedule (long initialDelay, long repeatDelay)
+    public final synchronized void schedule (
+            long initialDelay, long repeatDelay)
     {
         cancel();
-        _task = new TimerTask() {
-            public void run () {
-                if (this != _task) {
-                    return;
-                }
+        _task = new IntervalTask();
 
-                // if the Interval is operating in simple mode,
-                // just expire here
-                if (_runQueue == null) {
-                    safelyExpire();
-                    return;
-                }
-
-                // else we need to make sure we want to run
-                // and post the Runnable
-                synchronized (this) {
-                    if (_fired != -1) {
-                        _fired++;
-                        _runQueue.postRunnable(Interval.this);
-                    }
-                }
-            }
-        };
-
-        synchronized (_task) {
-            _fired = _expired = 0;
-            if (repeatDelay == 0L) {
-                _timer.schedule(_task, initialDelay);
-            } else {
-                _timer.scheduleAtFixedRate(_task, initialDelay, repeatDelay);
-            }
+        if (repeatDelay == 0L) {
+            _timer.schedule(_task, initialDelay);
+        } else {
+            _timer.scheduleAtFixedRate(_task, initialDelay, repeatDelay);
         }
     }
 
@@ -120,59 +95,44 @@ public abstract class Interval
      * Cancel the Interval, and ensure that any expirations that are queued
      * up but have not yet run do not run.
      */
-    public final void cancel ()
+    public final synchronized void cancel ()
     {
         if (_task != null) { // task can only be null if we were never scheduled
-            synchronized (_task) {
-                _task.cancel();
-                _fired = -1;
-            }
+            _task.cancel();
+            _task = null;
         }
-    }
-
-    // documentation inherited from interface Runnable
-    public final void run ()
-    {
-        if (_expired >= _fired) {
-            // we are a dead interval. We were queued up prior to cancel()
-            // being called, but we are now running after cancel()
-            return;
-        }
-
-        // It's possible that we've been queued up on the RunQueue, and while
-        // we've been queued up the Interval was cancelled, rescheduled, and
-        // has fired again, in which case this run method will succeed even
-        // though it probably shouldn't. It's not the end of the world,
-        // this one will run and the new one that got queued up afterwards
-        // won't. I'm not sure if there's a way around that.
-
-        // increment expired and scoot everything back if we're getting too big
-        _expired++;
-        if (_expired > Integer.MAX_VALUE/2) {
-            synchronized (_task) {
-                _expired -= Integer.MAX_VALUE/2;
-                _fired -= Integer.MAX_VALUE/2;
-            }
-        }
-
-        safelyExpire();
     }
 
     /**
      * Safely expire the interval.
      */
-    protected final void safelyExpire ()
+    protected final void safelyExpire (TimerTask task)
     {
-        try {
-            expired();
-        } catch (Throwable t) {
-            Log.warning("Interval broken in expired(): " + t);
-            Log.logStackTrace(t);
+        // skip expiring the interval if the task is no longer valid
+        if (_task == task) {
+            try {
+                expired();
+            } catch (Throwable t) {
+                Log.warning("Interval broken in expired(): " + t);
+                Log.logStackTrace(t);
+            }
         }
     }
 
-    /** Counters used to guarantee that we don't fuck up. */
-    protected int _fired = -1, _expired = 0;
+    /**
+     * The task that schedules actually runs the interval.
+     */
+    protected class IntervalTask extends TimerTask
+        implements Runnable
+    {
+        public void run () {
+            if (_runQueue == null || _runQueue.isDispatchThread()) {
+                safelyExpire(this);
+            } else {
+                _runQueue.postRunnable(this);
+            }
+        }
+    }
 
     /** If non-null, the RunQueue used to run the expired() method for each
      * Interval. */
@@ -181,7 +141,7 @@ public abstract class Interval
     /** The task that actually schedules our execution with the static Timer.
      * Also the object that we synchronize upon when dealing with those issues.
      */
-    protected TimerTask _task;
+    protected volatile TimerTask _task;
 
     /** The daemon timer used to schedule all Intervals. */
     protected static final Timer _timer =

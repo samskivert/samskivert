@@ -1,9 +1,10 @@
 //
-// $Id: UserRepository.java,v 1.12 2001/06/07 08:40:30 mdb Exp $
+// $Id: UserRepository.java,v 1.13 2001/07/08 19:34:39 mdb Exp $
 
 package com.samskivert.servlet.user;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Properties;
 
@@ -344,6 +345,44 @@ public class UserRepository extends MySQLRepository
 	    result[i] = (String)map.get(userids[i]);
 	}
 
+	return result;
+    }
+
+    /**
+     * Returns an array with the real names of every user in the system.
+     * This is for Paul who whined about not knowing who was using Who,
+     * Where, When because he didn't feel like emailing anyone that wasn't
+     * already using it to link up.
+     */
+    public String[] loadAllRealNames ()
+	throws SQLException
+    {
+        final ArrayList names = new ArrayList();
+
+	// do the query
+        execute(new Operation () {
+            public Object invoke () throws SQLException
+            {
+                Statement stmt = _session.connection.createStatement();
+                try {
+                    String query = "select realname from users";
+                    ResultSet rs = stmt.executeQuery(query);
+                    while (rs.next()) {
+                        names.add(rs.getString(1));
+                    }
+
+                    // nothing to return
+                    return null;
+
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+            }
+        });
+
+	// finally construct our result
+	String[] result = new String[names.size()];
+        names.toArray(result);
 	return result;
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.5 2002/02/19 03:39:41 mdb Exp $
+// $Id: IntervalManager.java,v 1.6 2002/05/23 23:37:50 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,58 +20,22 @@
 
 package com.samskivert.util;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.samskivert.Log;
 
 /**
  * Interval: can be used to register an object that is to be called once
  * or repeatedly after an interval has expired.
  *
- * <p> A caveat: be careful about deadlocks kids. The number of helper
- * threads should exceed the number of times you nest calls to Interval
- * stuff from inside the intervalExpired method of an Interval.  Normally,
- * if all you're using this for is interrupting other threads or calling
- * repaint you can get by with 0 helpers. If you want to do some more
- * complicated stuff in intervalExpired() then you probably want a few
- * threads in the pool. If you're doing extensive processing and setting
- * up other timeouts on that thread then you want to make sure you've got
- * plenty of threads.
+ * This now uses java.util.Timer to do all the actual scheduling, but we
+ * keep this front end because it is static (accessable anywhere)
+ * and because Interval is an interface, unlike TimerTask, which is an
+ * abstract class.
  */
-public class IntervalManager extends Thread
+public class IntervalManager
 {
-    /**
-     * Sets the maximum number of helper threads to run methods in
-     * Intervals.  Defaults to 0, meaning that the main thread does all
-     * the work.  Setting this to a nonzero value makes it such that a
-     * pool of helper threads is created to do all the actual work.
-     */
-    public static synchronized void setMaxHelperThreads (int newmax)
-    {
-	newmax = Math.max(newmax, 0);
-
-	// if we are moving down, we need to kill some threads.
-	if (_helpers > newmax) {
-	    for (int ii=0; ii < _helpers - newmax; ii++) {
-		_queue.append(KILLHELPER);
-	    }
-	    _helpers = newmax;
-	}
-
-	// finally, set the new maximum thread pool size.
-	_maxhelpers = newmax;
-    }
-
-    /**
-     * Increment the number of maximum helper threads.  This is useful if
-     * you may have many packages which use the IntervalMgr as a
-     * threadpool to do work, each package can statically initialize the
-     * number of threads they want to be available by calling this method
-     * and they'll all be added together.
-     */
-    public static synchronized void incrementHelperThreads (int amt)
-    {
-	setMaxHelperThreads(_maxhelpers + amt);
-    }
-
     /**
      * Schedule the intervaled object to get called after an interval.
      *
@@ -87,16 +51,33 @@ public class IntervalManager extends Thread
     public static int register (Interval i, long delay, Object arg,
 				boolean recur)
     {
-	synchronized (_mgr) {
-	    IntervalItem item = new IntervalItem(i, delay, arg, recur);
-	    _hash.put(item.id, item);
-	    _schedule.add(item);
-            _schedule.sort();
-	    if (item.endtime < _nextwake) {
-		_mgr.notify();
-	    }
-	    return item.id;
-	}
+        IntervalTask task = new IntervalTask(i, arg, recur);
+        _hash.put(task.id, task);
+
+        if (recur) {
+            _timer.scheduleAtFixedRate(task, delay, delay);
+        } else {
+            _timer.schedule(task, delay);
+        }
+
+        return task.id;
+    }
+
+    /**
+     * Schedule the interval to be called repeatedly, but at a fixed delay
+     * instead of fixed rate.
+     * This means that the delay between executions will be the
+     * delay specified below plus the actual execution time it takes
+     * to run the interval's expire method.
+     */
+    public static int registerAtFixedDelay (Interval i, long delay, Object arg)
+    {
+        IntervalTask task = new IntervalTask(i, arg, true);
+        _hash.put(task.id, task);
+
+        _timer.schedule(task, delay, delay);
+
+        return task.id;
     }
 
     /**
@@ -107,256 +88,67 @@ public class IntervalManager extends Thread
      */
     public static void remove (int id)
     {
-	synchronized (_mgr) {
-	    IntervalItem item = (IntervalItem) _hash.remove(id);
-	    if (item != null) {
-		_schedule.remove(item);
-		return;
-	    }
-	}
-
-	Log.warning("remove() called on non-registered " +
-		    "interval [id=" + id + "].");
-	Thread.dumpStack();
+        IntervalTask task = (IntervalTask) _hash.remove(id);
+        if (task != null) {
+            task.cancel();
+        } else {
+            Log.warning("remove() called on non-registered " +
+                        "interval [id=" + id + "].");
+        }
     }
 
-    /**
-     * Do our interval thing.
-     */
-    public void run ()
-    {
-	while (_mgr == Thread.currentThread()) {
+    /** The timer we use to schedule everything. */
+    protected static Timer _timer = new Timer(true);
 
-	    // check to see if an interval has expired, if so call
-	    // expired from an unsynchronized position.
-//  	    TrackedThread.setState("Checking intervals");
-	    IntervalItem item = checkInterval();
-	    if (item != null) {
-		if (_maxhelpers > 0) {
-		    helperHandle(item);
-		} else {
-		    item.expired();  // we have no helpers, do it ourselves.
-		}
-	    }
-
-	    // now attempt to sleep
-//  	    TrackedThread.setState("Waiting for Interval event...");
-	    doWait();
-	}
-    }
-
-    /**
-     * Have a helper thread handle the expiration of this interval.
-     */
-    protected static synchronized void helperHandle (IntervalItem item)
-    {
-	// put the item on the queue...
-	_busyhelpers++;
-	_queue.append(item);
-
-	// possibly create a new thread in the pool to do this work.
-	if ((_busyhelpers > _helpers) && (_helpers < _maxhelpers)) {
-	    IntervalExpirer helper = new IntervalExpirer(_queue);
-	    _helpers++;
-	    helper.start();
-	}
-    }
-
-    /**
-     * A helper thread lets us know when it has finished its work.
-     */
-    protected static synchronized void helperFinished ()
-    {
-	_busyhelpers--;
-    }
-
-    /**
-     * Check to see if anything needs calling.
-     */
-    private synchronized IntervalItem checkInterval ()
-    {
-//  	TrackedThread.setState("Checking intervals");
-	if (_schedule.size() > 0) {
-	    IntervalItem item = (IntervalItem) _schedule.get(0);
-
-	    // it's totally valid for us to wake up early..
-	    // so make sure we really want to run the first item on the queue.
-	    if (item.endtime <= System.currentTimeMillis()) {
-		// we gotta deal with this monster!
-		// first, remove it.
-		_schedule.remove(0);
-		if (item.checkRecur()) {
-		    // since we're definitionally not sleeping, we can just
-		    // insert into the queue without checking wait times..
-		    _schedule.add(item);
-                    _schedule.sort();
-
-		} else {
-		    // otherwise, get rid of this interval altogether
-		    _hash.remove(item.id);
-		}
-
-		return item;
-	    }
-	}
-
-	return null;
-    }
-
-    /**
-     * Sleep until the next Interval needs to be attended to.
-     */
-    private synchronized void doWait ()
-    {
-//  	TrackedThread.setState("Waiting for Interval event...");
-	if (_schedule.size() == 0) {
-	    _nextwake = Long.MAX_VALUE;
-	} else {
-	    IntervalItem item = (IntervalItem) _schedule.get(0);
-	    _nextwake = item.endtime;
-	}
-
-	long waittime = _nextwake - System.currentTimeMillis();
-	if (waittime > 0L) {
-	    try {
-		wait(waittime);
-	    } catch (InterruptedException e) {
-	    }
-	}
-    }
-
-    private IntervalManager ()
-    {
-	super("IntervalManager");
-	setDaemon(true);
-	start();
-    }
-
-    // there can be only one!
-    protected static IntervalManager _mgr = new IntervalManager();
-
-    // We just use a sorted list for now since we aren't likely to have
-    // too many monitorables at any time. Insertions are O(log n),
-    // removals are O(n) since we search then entire queue to find the
-    // intervaleds to remove.
-    // 
-    // If we someday find that we have a lot of intervaleds, we may want
-    // to rewrite this such that we can add and remove intervaleds much
-    // faster.
-    protected static SortableArrayList _schedule = new SortableArrayList();
-
+    /** Our registered intervals, indexed by id. */
     protected static HashIntMap _hash = new HashIntMap();
-    protected static long _nextwake = Long.MAX_VALUE;
-
-    protected static int _helpers = 0;       // # of created helpers
-    protected static int _maxhelpers = 0;    // max # of helpers we can create
-    protected static int _busyhelpers = 0;   // # of outstanding requests
-    protected static Queue _queue = new Queue();
-
-    protected static final Object KILLHELPER = new Object();
-}
-
-class IntervalItem implements Comparable
-{
-    public long endtime;
-    public int id;
-
-    protected long _timeout;
-    protected boolean _recur;
-    protected Interval _i;
-    protected Object _arg;
-
-    public IntervalItem (Interval i, long timeout, Object arg, boolean recur)
-    {
-	_i = i;
-	_timeout = Math.max(timeout, 0);
-	_arg = arg;
-	_recur = recur;
-
-	id = nextID();
-	endtime = System.currentTimeMillis() + timeout;
-    }
-
-    public int compareTo (Object other)
-    {
-	return (int) (endtime - ((IntervalItem) other).endtime);
-    }
 
     /**
-     * Test-n-set recurring stuff. If we do recur, increment the time we
-     * are to next wake.
+     * A class to adapt TimerTask to the smooth action of Interval.
      */
-    public boolean checkRecur ()
+    static class IntervalTask extends TimerTask
     {
-	if (_recur) {
-	    endtime += _timeout;
-	}
-	return _recur;
+        public int id;
+        protected Interval _i;
+        protected Object _arg;
+        protected boolean _onetime;
+
+        public IntervalTask (Interval i, Object arg, boolean recur)
+        {
+            _i = i;
+            _arg = arg;
+            _onetime = !recur;
+            id = nextID();
+        }
+
+        /**
+         * Run the interval. It's synchronized so that if we someday have
+         * multiple threads, the same interval won't be called multiple times.
+         */
+        public void run ()
+        {
+            // protect our ass.
+            try {
+                _i.intervalExpired(id, _arg);
+            } catch (Exception e) {
+                Log.warning("Exception while expiring interval: " + e);
+                Log.logStackTrace(e);
+            }
+
+            // if we're not recurring, be sure to remove from the mgr's hash 
+            if (_onetime) {
+                _hash.remove(id);
+            }
+        }
+
+        /**
+         * Unique ids for each interval item.
+         */
+        private static synchronized int nextID ()
+        {
+            return _idseq++;
+        }
+
+        private static int _idseq = 0;
     }
-
-    /**
-     * Run the interval. It's synchronized so that if we someday have
-     * multiple threads, the same interval won't be called multiple times.
-     */
-    public synchronized void expired ()
-    {
-	// protect our ass.
-	try {
-	    _i.intervalExpired(id, _arg);
-	} catch (Exception e) {
-	    Log.warning("Exception while expiring interval: " + e);
-	    Log.logStackTrace(e);
-	}
-    }
-
-    /**
-     * For debugging.
-     */
-    public String toString()
-    {
-	return "Interval: " + _i + " (wakes in " +
-		(endtime - System.currentTimeMillis()) + "ms)" +
-		(_recur ? (" [recurring every " + _timeout + "ms]") : "");
-    }
-
-    /**
-     * Unique ids for each interval item.
-     */
-    private static synchronized int nextID ()
-    {
-	return _idseq++;
-    }
-
-    private static int _idseq = 0;
-}
-
-/**
- * These are the helper threads for the IntervalManager.
- */
-class IntervalExpirer extends Thread
-{
-    public IntervalExpirer (Queue queue)
-    {
-	super("IntervalExpirer");
-	setDaemon(true);
-	_queue = queue;
-    }
-
-    public void run ()
-    {
-	while (true) {
-//  	    TrackedThread.setState("Waiting for Interval to run...");
-	    Object o = _queue.get();
-	    if (o == IntervalManager.KILLHELPER) {
-		break; //exit
-	    }
-
-	    // otherwise run the bashtard!
-	    ((IntervalItem) o).expired();
-
-	    IntervalManager.helperFinished();
-	}
-    }
-
-    protected Queue _queue;
 }

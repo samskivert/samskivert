@@ -1,5 +1,5 @@
 #
-# $Id: lookuplet.py,v 1.1 2002/03/17 09:03:06 mdb Exp $
+# $Id: lookuplet.py,v 1.2 2002/03/17 10:13:25 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -146,7 +146,7 @@ class Lookuplet:
             print "Selection target not returned as a string.";
             return;
 
-        print "Got selection '%s'." % selection_data.data;
+        # print "Got selection '%s'." % selection_data.data;
 
         # prune spaces from the end of the text
         text = string.strip(selection_data.data);

@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.8 2002/09/06 02:09:05 shaper Exp $
+// $Id: ListUtil.java,v 1.9 2002/09/20 21:27:54 mdb Exp $
 
 package com.samskivert.util;
 
@@ -131,6 +131,10 @@ public class ListUtil
         // value)
         if (list[size-1] != null) {
             list = accomodate(list, size);
+        } else {
+            // otherwise, pretend the list is one element shorter and
+            // we'll overwrite the last null
+            size--;
         }
 
         // shift everything down

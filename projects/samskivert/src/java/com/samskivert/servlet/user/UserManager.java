@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.12 2002/05/02 01:15:09 shaper Exp $
+// $Id: UserManager.java,v 1.13 2002/05/02 19:10:34 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -38,6 +38,48 @@ import com.samskivert.util.*;
  */
 public class UserManager
 {
+    /** An instance of the insecure authenticator for general-purpose use. */
+    public static final Authenticator AUTH_INSECURE =
+        new InsecureAuthenticator();
+
+    /** An instance of the password authenticator for general-purpose use. */
+    public static final Authenticator AUTH_PASSWORD =
+        new PasswordAuthenticator();
+
+    /**
+     * A totally insecure authenticator that authenticates any user.
+     * <em>Note:</em> Applications that make use of this authenticator
+     * should make sure the user has already been authenticated through
+     * some other means.
+     */
+    public static class InsecureAuthenticator implements Authenticator
+    {
+        // documentation inherited
+        public void authenticateUser (
+            User user, String username, String password, boolean persist)
+            throws InvalidPasswordException
+        {
+            // don't care
+        }
+    }
+
+    /**
+     * An authenticator that requires that the user-supplied password
+     * match the actual user password.
+     */
+    public static class PasswordAuthenticator implements Authenticator
+    {
+        // documentation inherited
+        public void authenticateUser (
+            User user, String username, String password, boolean persist)
+            throws AuthenticationFailedException
+        {
+            if (!user.passwordsMatch(password)) {
+                throw new InvalidPasswordException("error.invalid_password");
+            }
+        }
+    }
+
     /**
      * A user manager must be supplied with a {@link UserRepository}
      * through which it loads and saves user records.
@@ -149,40 +191,6 @@ public class UserManager
     }
 
     /**
-     * Authenticates the requester and initiates an authenticated session
-     * for them. <em>Note:</em> The caller should make sure the user has
-     * been authenticated through some other means before calling this
-     * method.  An authenticated session involves their receiving a cookie
-     * that proves them to be authenticated and an entry in the session
-     * database being created that maps their information to their
-     * userid. If this call completes, the session was established and the
-     * proper cookies were set in the supplied response object. If some
-     * other error occurs, an exception will be thrown.
-     *
-     * @param username The username supplied by the user.
-     * @param persist If true, the cookie will expire in one month, if
-     * false, the cookie will expire in 24 hours.
-     * @param rsp the response in which the cookie is to be set.
-     *
-     * @return the user object of the authenticated user.
-     */
-    public User login (String username, boolean persist,
-                       HttpServletResponse rsp)
-	throws PersistenceException, NoSuchUserException
-    {
-	// load up the requested user
-	User user = _repository.loadUser(username);
-	if (user == null) {
-	    throw new NoSuchUserException("error.no_such_user");
-	}
-
-        // generate a session and set the user's auth cookie
-        generateSession(user, persist, rsp);
-
-	return user;
-    }
-
-    /**
      * Attempts to authenticate the requester and initiate an
      * authenticated session for them. An authenticated session involves
      * their receiving a cookie that proves them to be authenticated and
@@ -196,44 +204,25 @@ public class UserManager
      * @param password The plaintext password supplied by the user.
      * @param persist If true, the cookie will expire in one month, if
      * false, the cookie will expire in 24 hours.
-     * @param rsp the response in which the cookie is to be set.
+     * @param rsp The response in which the cookie is to be set.
+     * @param auth The authenticator used to check whether the user should
+     * be authenticated.
      *
      * @return the user object of the authenticated user.
      */
     public User login (String username, String password, boolean persist,
-		       HttpServletResponse rsp)
-	throws PersistenceException, NoSuchUserException,
-        InvalidPasswordException
+		       HttpServletResponse rsp, Authenticator auth)
+	throws PersistenceException, AuthenticationFailedException
     {
 	// load up the requested user
 	User user = _repository.loadUser(username);
 	if (user == null) {
 	    throw new NoSuchUserException("error.no_such_user");
 	}
-	if (!user.passwordsMatch(password)) {
-	    throw new InvalidPasswordException("error.invalid_password");
-	}
 
-	// generate a session and set the user's auth cookie
-        generateSession(user, persist, rsp);
+        // run the user through the authentication gamut
+        auth.authenticateUser(user, username, password, persist);
 
-	return user;
-    }
-
-    /**
-     * Creates a new session for the specified user in the session
-     * database table and sets an authentication cookie in the supplied
-     * servlet response.
-     *
-     * @param user the user for whom a session is to be generated.
-     * @param persist If true, the cookie will expire in one month, if
-     * false, the cookie will expire in 24 hours.
-     * @param rsp the response in which the cookie is to be set.
-     */
-    protected void generateSession (User user, boolean persist,
-                                    HttpServletResponse rsp)
-        throws PersistenceException
-    {
 	// generate a new session for this user
 	String authcode = _repository.createNewSession(user, persist);
 	// stick it into a cookie for their browsing convenience
@@ -245,6 +234,8 @@ public class UserManager
             acookie.setMaxAge(24*60*60); // expire in 24 hours
         }
 	rsp.addCookie(acookie);
+
+	return user;
     }
 
     public void logout (HttpServletRequest req, HttpServletResponse rsp)
@@ -277,11 +268,16 @@ public class UserManager
 	return null;
     }
 
+    /** The user repository. */
     protected UserRepository _repository;
+
+    /** The interval id for the user session pruning interval. */
     protected int _prunerid = -1;
 
+    /** The URL for the user login page. */
     protected String _loginURL;
 
+    /** The user authentication cookie name. */
     protected static final String USERAUTH_COOKIE = "id_";
 
     /** Prune the session table every hour. */

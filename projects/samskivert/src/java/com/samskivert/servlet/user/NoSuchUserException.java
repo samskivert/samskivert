@@ -1,5 +1,5 @@
 //
-// $Id: NoSuchUserException.java,v 1.3 2001/08/12 01:34:31 mdb Exp $
+// $Id: NoSuchUserException.java,v 1.4 2002/05/02 19:10:34 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,7 +23,7 @@ package com.samskivert.servlet.user;
 /**
  * Thrown when a user cannot be located in the user database.
  */
-public class NoSuchUserException extends Exception
+public class NoSuchUserException extends AuthenticationFailedException
 {
     public NoSuchUserException (String message)
     {

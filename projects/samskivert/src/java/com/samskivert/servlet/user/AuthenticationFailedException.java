@@ -1,8 +1,8 @@
 //
-// $Id: InvalidPasswordException.java,v 1.4 2002/05/02 19:10:34 shaper Exp $
+// $Id: AuthenticationFailedException.java,v 1.1 2002/05/02 19:10:34 shaper Exp $
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001 Michael Bayne
+// Copyright (C) 2002 Walter Korman
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -21,11 +21,11 @@
 package com.samskivert.servlet.user;
 
 /**
- * Thrown during authentication when an invalid password is supplied.
+ * Thrown when a user authentication attempt failed.
  */
-public class InvalidPasswordException extends AuthenticationFailedException
+public class AuthenticationFailedException extends Exception
 {
-    public InvalidPasswordException (String message)
+    public AuthenticationFailedException (String message)
     {
 	super(message);
     }

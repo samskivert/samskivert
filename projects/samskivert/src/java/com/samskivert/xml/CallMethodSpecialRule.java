@@ -30,21 +30,21 @@ import com.samskivert.util.StringUtil;
  */
 public abstract class CallMethodSpecialRule extends Rule
 {
-    public void body (String bodyText)
+    public void body (String namespace, String name, String bodyText)
         throws Exception
     {
         _bodyText = bodyText.trim();
     }
 
-    public void end ()
+    public void end (String namespace, String name)
         throws Exception
     {
 	Object top = digester.peek();
 
-	if (digester.getDebug() >= 1) {
-	    digester.log("CallSpecial " + StringUtil.shortClassName(this) +
-                         ".parseAndSet(" +
-                         StringUtil.shortClassName(top) + ")");
+	if (digester.getLogger().isDebugEnabled()) {
+	    digester.getLogger().debug(
+            "CallSpecial " + StringUtil.shortClassName(this) +
+            ".parseAndSet(" + StringUtil.shortClassName(top) + ")");
         }
 
         parseAndSet(_bodyText, top);

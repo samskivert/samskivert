@@ -47,7 +47,7 @@ public class CheckVersionRule extends Rule
         _parserIdentifier = parserIdentifier;
     }
 
-    public void body (String bodyText)
+    public void body (String namespace, String name, String bodyText)
         throws Exception
     {
         int version = Integer.parseInt(bodyText.trim());

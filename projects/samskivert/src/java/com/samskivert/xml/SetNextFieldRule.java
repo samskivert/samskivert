@@ -39,7 +39,7 @@ public class SetNextFieldRule extends Rule
         _fieldName = fieldName;
     }
 
-    public void end ()
+    public void end (String namespace, String name)
         throws Exception
     {
 	// identify the objects to be used
@@ -47,9 +47,9 @@ public class SetNextFieldRule extends Rule
 	Object parent = digester.peek(1);
         Class pclass = parent.getClass();
 
-	if (digester.getDebug() >= 1) {
-	    digester.log("Set " + pclass.getName() + "." + _fieldName +
-                         " = " + child);
+	if (digester.getLogger().isDebugEnabled()) {
+        digester.getLogger().debug("Set " + pclass.getName() + "." + _fieldName +
+                                   " = " + child);
         }
 
         // stuff the child object into the field of the parent

@@ -42,19 +42,20 @@ public class SetFieldRule extends Rule
         _fieldName = fieldName;
     }
 
-    public void body (String bodyText)
+    public void body (String namespace, String name, String bodyText)
         throws Exception
     {
         _bodyText = bodyText.trim();
     }
 
-    public void end ()
+    public void end (String namespace, String name)
         throws Exception
     {
-	Object top = digester.peek();
-	if (digester.getDebug() >= 1) {
-            digester.log("  Setting '" + _fieldName + "' to '" +
-                         _bodyText + "' on '" + top + "'.");
+        Object top = digester.peek();
+        if (digester.getLogger().isDebugEnabled()) {
+            digester.getLogger().debug(
+                "  Setting '" + _fieldName + "' to '" +
+                _bodyText + "' on '" + top + "'.");
         }
 
         // convert the source string into an object and set the field
@@ -64,7 +65,8 @@ public class SetFieldRule extends Rule
                 field.getType(), _bodyText);
             field.set(top, value);
         } catch (NoSuchFieldException nsfe) {
-            digester.log("No such field: " + top.getClass() + "." + _fieldName);
+            digester.getLogger().warn(
+                "No such field: " + top.getClass() + "." + _fieldName);
         }
     }
 

@@ -69,12 +69,12 @@ public class ValidatedSetNextRule extends Rule
         _validator = validator;
     }
 
-    public void end ()
+    public void end (String namespace, String name)
         throws Exception
     {
-	// identify the objects to be used
-	Object child = digester.peek(0);
-	Object parent = digester.peek(1);
+        // identify the objects to be used
+        Object child = digester.peek(0);
+        Object parent = digester.peek(1);
 
         // make sure the object in question is valid
         if (!_validator.isValid(child)) {
@@ -82,16 +82,16 @@ public class ValidatedSetNextRule extends Rule
         }
 
         Class pclass = parent.getClass();
-	if (digester.getDebug() >= 1) {
-	    digester.log("Call " + pclass.getName() + "." + _methodName +
-                         " (" + child + ")");
+        if (digester.getLogger().isDebugEnabled()) {
+            digester.getLogger().debug("Call " + pclass.getName() + "." +
+                                       _methodName + " (" + child + ")");
         }
 
-	// call the specified method
-	Class[] paramTypes = new Class[1];
+        // call the specified method
+        Class[] paramTypes = new Class[1];
         paramTypes[0] = (_paramType == null) ? child.getClass() : _paramType;
-	Method method = parent.getClass().getMethod(_methodName, paramTypes);
-	method.invoke(parent, new Object[] { child });
+        Method method = parent.getClass().getMethod(_methodName, paramTypes);
+        method.invoke(parent, new Object[] { child });
     }
 
     /**

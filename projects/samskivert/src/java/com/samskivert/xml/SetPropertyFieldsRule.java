@@ -81,7 +81,7 @@ public class SetPropertyFieldsRule extends Rule
         _warnNonFields = warnNonFields;
     }
 
-    public void begin (Attributes attrs)
+    public void begin (String namespace, String name, Attributes attrs)
         throws Exception
     {
         Object top = digester.peek();
@@ -90,19 +90,20 @@ public class SetPropertyFieldsRule extends Rule
         // iterate over the attributes, setting public fields where
         // applicable
 	for (int i = 0; i < attrs.getLength(); i++) {
-	    String name = attrs.getLocalName(i);
-            if (StringUtil.blank(name)) {
-                name = attrs.getQName(i);
+	    String lname = attrs.getLocalName(i);
+            if (StringUtil.blank(lname)) {
+                lname = attrs.getQName(i);
             }
 
-            // look for a public field with this name
+            // look for a public field with this lname
             Field field = null;
             try {
-                field = topclass.getField(name);
+                field = topclass.getField(lname);
             } catch (NoSuchFieldException nsfe) {
                 if (_warnNonFields) {
-                    digester.log("Skipping property '" + name +
-                                 "' for which there is no field.");
+                    digester.getLogger().warn(
+                        "Skipping property '" + lname +
+                        "' for which there is no field.");
                 }
                 continue;
             } 
@@ -114,7 +115,7 @@ public class SetPropertyFieldsRule extends Rule
 
             // look for a custom field parser
             if ((_parsers != null) &&
-                ((parser = (FieldParser)_parsers.get(name)) != null)) {
+                ((parser = (FieldParser)_parsers.get(lname)) != null)) {
                 value = parser.parse(valstr);
             } else {
                 // otherwise use the value marshaller to parse the
@@ -122,14 +123,14 @@ public class SetPropertyFieldsRule extends Rule
                 value = ValueMarshaller.unmarshal(field.getType(), valstr);
             }
 
-            if (digester.getDebug() >= 9) {
-                digester.log("  Setting property '" + name + "' to '" +
-                             valstr + "'");
+            if (digester.getLogger().isDebugEnabled()) {
+                digester.getLogger().debug("  Setting property '" + lname +
+                                           "' to '" + valstr + "'");
             }
 
             // and finally set the field
             field.set(top, value);
-	}
+    }
     }
 
     protected HashMap _parsers;

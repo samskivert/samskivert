@@ -1,5 +1,5 @@
 //
-// $Id: MailUtil.java,v 1.4 2001/08/11 22:43:28 mdb Exp $
+// $Id: MailUtil.java,v 1.5 2002/05/02 01:13:35 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,7 +23,9 @@ package com.samskivert.net;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.apache.regexp.*;
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
+
 import com.samskivert.Log;
 
 /**
@@ -37,34 +39,43 @@ import com.samskivert.Log;
 public class MailUtil
 {
     /**
-     * Delivers the supplied mail message. The message should already
-     * contain the mail headers and sendmail will figure everything out
-     * from those. At a minimum, these headers should be included:
+     * Delivers the supplied mail message and returns whether the mail
+     * delivery attempt was successful. The message should already contain
+     * the mail headers and sendmail will figure everything out from
+     * those. At a minimum, these headers should be included:
      *
      * <pre>
      * From: (sender)
      * To: (recipient)
      * Subject: (subject)
      * </pre>
+     *
+     * Note that this method will block until the sendmail process has
+     * completed all of its business.
+     *
+     * @return true if the mail was delivered successfully, false if not.
      */
-    public static void deliverMail (String message)
+    public static boolean deliverMail (String message)
         throws IOException
     {
-        Process p = Runtime.getRuntime().exec("sendmail -t");
+        Process p = Runtime.getRuntime().exec(SENDMAIL_COMMAND);
         PrintWriter writer = new PrintWriter(p.getOutputStream());
         writer.print(message);
         writer.flush();
         writer.close();
 
-        // some day we should read the response from the mailer to check
-        // for errors and also check the Process object for a valid return
-        // code. for now we're flying blind!
+        // make sure sendmail and the process both exit cleanly
+        try {
+            return (p.waitFor() == 0);
+        } catch (InterruptedException ie) {
+            return false;
+        }
     }
 
     /**
      * Checks the supplied address against a regular expression that (for
      * the most part) matches only valid email addresses. It's not
-     * perfect, but the ommissions and inclusions are so obscure that we
+     * perfect, but the omissions and inclusions are so obscure that we
      * can't be bothered to worry about them.
      */
     public static boolean isValidAddress (String address)
@@ -77,6 +88,9 @@ public class MailUtil
         String address = "mdb@samskivert.com";
         System.out.println(address + ": " + isValidAddress(address));
     }
+
+    /** Command used to execute the program with which mail is sent. */
+    protected static final String SENDMAIL_COMMAND = "sendmail -t";
 
     /** Originally formulated by lambert@nas.nasa.gov. */
     protected static final String EMAIL_REGEX = "^([-A-Za-z0-9_.!%+]+@" +

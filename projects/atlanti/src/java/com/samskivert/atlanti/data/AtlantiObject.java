@@ -1,9 +1,9 @@
 //
-// $Id: AtlantiObject.java,v 1.2 2001/10/10 03:35:02 mdb Exp $
+// $Id: AtlantiObject.java,v 1.3 2001/10/11 04:08:22 mdb Exp $
 
 package com.threerings.venison;
 
-import com.threerings.cocktail.cher.dobj.DSet;
+import com.threerings.presents.dobj.DSet;
 
 import com.threerings.parlor.data.GameObject;
 

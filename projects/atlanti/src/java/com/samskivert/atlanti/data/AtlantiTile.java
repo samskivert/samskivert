@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.2 2001/10/10 06:14:57 mdb Exp $
+// $Id: AtlantiTile.java,v 1.3 2001/10/11 04:08:22 mdb Exp $
 
 package com.threerings.venison;
 
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.DSet;
+import com.threerings.presents.dobj.DSet;
 
 /**
  * Represents a single tile in play on the Venison game board.

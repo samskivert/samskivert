@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.2 2001/10/10 06:14:57 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.3 2001/10/11 04:08:22 mdb Exp $
 
 package com.threerings.venison;
 
@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.cocktail.cher.dobj.DSet;
+import com.threerings.presents.dobj.DSet;
 
 /**
  * Displays the tiles that make up the Venison board.

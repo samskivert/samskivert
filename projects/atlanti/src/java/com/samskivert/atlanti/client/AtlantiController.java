@@ -3,7 +3,7 @@
 
 package com.threerings.venison;
 
-import com.threerings.cocktail.party.client.PlaceView;
+import com.threerings.crowd.client.PlaceView;
 import com.threerings.parlor.client.GameController;
 import com.threerings.parlor.util.ParlorContext;
 

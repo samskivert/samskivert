@@ -3,8 +3,8 @@
 
   <!-- things you may want to change -->
   <property name="app.name"         value="venison"/>
-  <property name="doc.packages"     value="org.waywardgeeks.venison.*"/>
-  <property name="doc.overview"     value="org/waywardgeeks/venison/overview.html"/>
+  <property name="doc.packages"     value="com.threerings.venison.*"/>
+  <property name="doc.overview"     value="com/threerings/venison/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
   <property name="build.compiler"   value="jikes"/>
   <property name="java.libraries"   value="/usr/share/java"/>

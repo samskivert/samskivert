@@ -6,8 +6,8 @@ package com.threerings.venison;
 import java.awt.BorderLayout;
 import javax.swing.*;
 
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.client.PlaceView;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.client.PlaceView;
 
 import com.threerings.parlor.util.ParlorContext;
 

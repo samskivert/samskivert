@@ -1,5 +1,5 @@
 //
-// $Id: ScrollBox.java,v 1.2 2003/03/26 20:38:18 ray Exp $
+// $Id: ScrollBox.java,v 1.3 2003/04/20 01:06:12 ray Exp $
 
 package com.samskivert.swing;
 
@@ -120,15 +120,17 @@ public class ScrollBox extends JPanel
      */
     protected void updateBox ()
     {
-        _hFactor = (_active.width) /
-            (float) (_horz.getMaximum() - _horz.getMinimum());
-        _vFactor = (_active.height) /
-            (float) (_vert.getMaximum() - _vert.getMinimum());
+        int hmin = _horz.getMinimum();
+        int vmin = _vert.getMinimum();
+        _hFactor = (_active.width) / (float) (_horz.getMaximum() - hmin);
+        _vFactor = (_active.height) / (float) (_vert.getMaximum() - vmin);
 
-        _box.x = _active.x + (int) Math.round(_horz.getValue() * _hFactor);
+        _box.x = _active.x + (int) Math.round((_horz.getValue() - hmin) *
+            _hFactor);
         _box.width = (int) Math.round(_horz.getExtent() * _hFactor);
 
-        _box.y = _active.y + (int) Math.round(_vert.getValue() * _vFactor);
+        _box.y = _active.y + (int) Math.round((_vert.getValue() - vmin) *
+            _vFactor);
         _box.height = (int) Math.round(_vert.getExtent() * _vFactor);
     }
 

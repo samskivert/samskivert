@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.51 2003/01/24 00:31:50 mdb Exp $
+// $Id: StringUtil.java,v 1.52 2003/01/31 02:27:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -216,6 +216,17 @@ public class StringUtil
 	    buf.append(openBox);
 	    byte[] v = (byte[])val;
 	    for (int i = 0; i < v.length; i++) {
+		if (i > 0) {
+		    buf.append(", ");
+		}
+		buf.append(v[i]);
+	    }
+	    buf.append(closeBox);
+
+        } else if (val instanceof short[]) {
+	    buf.append(openBox);
+	    short[] v = (short[])val;
+	    for (short i = 0; i < v.length; i++) {
 		if (i > 0) {
 		    buf.append(", ");
 		}

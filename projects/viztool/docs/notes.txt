@@ -24,3 +24,6 @@ in the remaining space on the current page.
 
 Provide an option to split packages up to fit them in the remaining space
 on a page rather than pushing them to the next page.
+
+* General visualization enhancements
+Add page numbers somewhere. [shaper@waywardgeeks.org]

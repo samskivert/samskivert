@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.8 2003/08/19 23:39:25 ray Exp $
+// $Id: ParameterUtil.java,v 1.9 2003/08/28 20:13:41 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,7 +53,7 @@ public class ParameterUtil
         HttpServletRequest req, String name, boolean returnNull)
     {
 	String value = req.getParameter(name);
-        if (value == null) {
+        if (StringUtil.blank(value)) {
             return returnNull ? null : "";
 
         } else {

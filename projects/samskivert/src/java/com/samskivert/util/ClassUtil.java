@@ -1,5 +1,5 @@
 //
-// $Id: ClassUtil.java,v 1.3 2001/10/03 02:22:58 mdb Exp $
+// $Id: ClassUtil.java,v 1.4 2004/06/03 15:55:52 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -42,6 +44,48 @@ public class ClassUtil
     public static boolean classIsAccessible (Class clazz)
     {
         return Modifier.isPublic(clazz.getModifiers());
+    }
+
+    /**
+     * Get the fields contained in the class and its superclasses.
+     */
+    public static Field[] getFields (Class clazz)
+    {
+        ArrayList list = new ArrayList();
+        getFields(clazz, list);
+        Field[] fields = new Field[list.size()];
+        list.toArray(fields);
+        return fields;
+    }
+
+    /**
+     * Add all the fields of the specifed class (and its ancestors) to the
+     * list.
+     */
+    public static void getFields (Class clazz, List addTo)
+    {
+        // first get the fields of the superclass
+        Class pclazz = clazz.getSuperclass();
+        if (pclazz != null && !pclazz.equals(Object.class)) {
+            getFields(pclazz, addTo);
+        }
+        // then reflect on this class's declared fields
+        Field[] fields = clazz.getDeclaredFields();
+
+        // override the default accessibility check for the fields
+        AccessibleObject.setAccessible(fields, true);
+
+        int fcount = fields.length;
+        for (int ii = 0; ii < fcount; ii++) {
+            Field field = fields[ii];
+            int mods = field.getModifiers();
+            // skip static and transient fields
+            if (((mods & Modifier.STATIC) != 0) ||
+                ((mods & Modifier.TRANSIENT) != 0)) {
+                continue;
+            }
+            addTo.add(field);
+        }
     }
 
     /**
@@ -207,6 +251,15 @@ public class ClassUtil
     }
 
     /**
+     * @return the class's object equivalent if the class is a primitive type.
+     */
+    public static Class objectEquivalentOf (Class clazz)
+    {
+        return clazz.isPrimitive() ?
+            (Class) _primitiveToObjectMap.get(clazz) : clazz;
+    }
+
+    /**
      * Tells whether an instance of the primitive class represented by
      * 'rhs' can be assigned to an instance of the primitive class
      * represented by 'lhs'.
@@ -241,16 +294,25 @@ public class ClassUtil
      * primitive Classes.
      */
     private static final Map _objectToPrimitiveMap = new HashMap(13);
+    private static final Map _primitiveToObjectMap = new HashMap(13);
 
     static {
         _objectToPrimitiveMap.put(Boolean.class, Boolean.TYPE);
+        _primitiveToObjectMap.put(Boolean.TYPE, Boolean.class);
         _objectToPrimitiveMap.put(Byte.class, Byte.TYPE);
+        _primitiveToObjectMap.put(Byte.TYPE, Byte.class);
         _objectToPrimitiveMap.put(Character.class, Character.TYPE);
+        _primitiveToObjectMap.put(Character.TYPE, Character.class);
         _objectToPrimitiveMap.put(Double.class, Double.TYPE);
+        _primitiveToObjectMap.put(Double.TYPE, Double.class);
         _objectToPrimitiveMap.put(Float.class, Float.TYPE);
+        _primitiveToObjectMap.put(Float.TYPE, Float.class);
         _objectToPrimitiveMap.put(Integer.class, Integer.TYPE);
+        _primitiveToObjectMap.put(Integer.TYPE, Integer.class);
         _objectToPrimitiveMap.put(Long.class, Long.TYPE);
+        _primitiveToObjectMap.put(Long.TYPE, Long.class);
         _objectToPrimitiveMap.put(Short.class, Short.TYPE);
+        _primitiveToObjectMap.put(Short.TYPE, Short.class);
     }
 
     /**

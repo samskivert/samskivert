@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.3 2001/08/15 18:02:26 mdb Exp $
+// $Id: ListUtil.java,v 1.4 2001/09/21 01:34:17 mdb Exp $
 
 package com.samskivert.util;
 
@@ -193,6 +193,49 @@ public class ListUtil
             }
         }
         return false;
+    }
+
+    /**
+     * Looks for an object that is referentially equal to the supplied
+     * element (<code>list[idx] == element</code>) and returns its index
+     * in the array. Passing a null <code>element</code> to this function
+     * will cleverly tell you whether or not there are any null elements
+     * in the array which is probably not very useful.
+     *
+     * @return the index of the first matching element if one was found,
+     * -1 otherwise.
+     */
+    public static int indexOf (Object[] list, Object element)
+    {
+        int llength = list.length; // no optimizing bastards
+        for (int i = 0; i < llength; i++) {
+            if (list[i] == element) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Looks for an element that is functionally equal to the supplied
+     * element (<code>list[idx].equals(element)</code>). Passing a null
+     * <code>element</code> to this function will call
+     * <code>equals(null)</code> on all objects in the list which may
+     * cause them to choke, so don't do that unless you mean it.
+     *
+     * @return the index of the matching element if one was found, -1
+     * otherwise.
+     */
+    public static int indexOfEqual (Object[] list, Object element)
+    {
+        int llength = list.length; // no optimizing bastards
+        for (int i = 0; i < llength; i++) {
+            Object elem = list[i];
+            if (elem != null && elem.equals(element)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**

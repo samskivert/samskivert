@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.13 2001/11/18 04:01:08 mdb Exp $
+// $Id: StringUtil.java,v 1.14 2001/11/29 06:32:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -95,6 +95,21 @@ public class StringUtil
     }
 
     /**
+     * Like the single argument {@link #toString(Object)} with the
+     * additional function of specifying the characters that are used to
+     * box in list and array types (for example, if "[" and "]" were
+     * supplied, an int array might be formatted like so: <code>[1, 3,
+     * 5]</code>).
+     */
+    public static String toString (
+        Object val, String openBox, String closeBox)
+    {
+	StringBuffer buf = new StringBuffer();
+        toString(buf, val, openBox, closeBox);
+	return buf.toString();
+    }
+
+    /**
      * Converts the supplied value to a string and appends it to the
      * supplied string buffer. See the single argument version for more
      * information.
@@ -104,8 +119,26 @@ public class StringUtil
      */
     public static void toString (StringBuffer buf, Object val)
     {
+        toString(buf, val, "(", ")");
+    }
+
+    /**
+     * Converts the supplied value to a string and appends it to the
+     * supplied string buffer. The specified boxing characters are used to
+     * enclose list and array types (for example, if "[" and "]" were
+     * supplied, an int array might be formatted like so: <code>[1, 3,
+     * 5]</code>).
+     *
+     * @param buf the string buffer to which we will append the string.
+     * @param val the value from which to generate the string.
+     * @param openBox the opening box character.
+     * @param closeBox the closing box character.
+     */
+    public static void toString (StringBuffer buf, Object val,
+                                 String openBox, String closeBox)
+    {
 	if (val instanceof int[]) {
-	    buf.append("(");
+	    buf.append(openBox);
 	    int[] v = (int[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
@@ -113,10 +146,10 @@ public class StringUtil
 		}
 		buf.append(v[i]);
 	    }
-	    buf.append(")");
+	    buf.append(closeBox);
 
 	} else if (val instanceof long[]) {
-	    buf.append("(");
+	    buf.append(openBox);
 	    long[] v = (long[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
@@ -124,10 +157,10 @@ public class StringUtil
 		}
 		buf.append(v[i]);
 	    }
-	    buf.append(")");
+	    buf.append(closeBox);
 
 	} else if (val instanceof float[]) {
-	    buf.append("(");
+	    buf.append(openBox);
 	    float[] v = (float[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
@@ -135,10 +168,10 @@ public class StringUtil
 		}
 		buf.append(v[i]);
 	    }
-	    buf.append(")");
+	    buf.append(closeBox);
 
 	} else if (val instanceof double[]) {
-	    buf.append("(");
+	    buf.append(openBox);
 	    double[] v = (double[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
@@ -146,10 +179,10 @@ public class StringUtil
 		}
 		buf.append(v[i]);
 	    }
-	    buf.append(")");
+	    buf.append(closeBox);
 
 	} else if (val instanceof Object[]) {
-	    buf.append("(");
+	    buf.append(openBox);
 	    Object[] v = (Object[])val;
 	    for (int i = 0; i < v.length; i++) {
 		if (i > 0) {
@@ -157,10 +190,10 @@ public class StringUtil
 		}
 		buf.append(toString(v[i]));
 	    }
-	    buf.append(")");
+	    buf.append(closeBox);
 
 	} else if (val instanceof Enumeration) {
-	    buf.append("(");
+	    buf.append(openBox);
             Enumeration enum = (Enumeration)val;
 	    for (int i = 0; enum.hasMoreElements(); i++) {
 		if (i > 0) {
@@ -168,10 +201,10 @@ public class StringUtil
 		}
 		buf.append(toString(enum.nextElement()));
 	    }
-	    buf.append(")");
+	    buf.append(closeBox);
 
 	} else if (val instanceof Iterator) {
-	    buf.append("(");
+	    buf.append(openBox);
             Iterator iter = (Iterator)val;
 	    for (int i = 0; iter.hasNext(); i++) {
 		if (i > 0) {
@@ -179,17 +212,17 @@ public class StringUtil
 		}
 		buf.append(toString(iter.next()));
 	    }
-	    buf.append(")");
+	    buf.append(closeBox);
 
 	} else if (val instanceof Point2D) {
             Point2D p = (Point2D)val;
-	    buf.append("[+").append(p.getX());
-            buf.append("+").append(p.getY()).append("]");
+	    buf.append(openBox).append("+").append(p.getX());
+            buf.append("+").append(p.getY()).append(closeBox);
 
 	} else if (val instanceof Dimension2D) {
             Dimension2D d = (Dimension2D)val;
-	    buf.append("[").append(d.getWidth()).append("x");
-            buf.append(d.getHeight()).append("]");
+	    buf.append(openBox).append(d.getWidth()).append("x");
+            buf.append(d.getHeight()).append(closeBox);
 
 	} else {
 	    buf.append(val);

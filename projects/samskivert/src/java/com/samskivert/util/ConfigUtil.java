@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.6 2002/01/29 23:19:41 mdb Exp $
+// $Id: ConfigUtil.java,v 1.7 2002/10/16 01:52:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -149,6 +149,24 @@ public class ConfigUtil
         ArrayList rsrcs = new ArrayList();
         while (enum.hasMoreElements()) {
             rsrcs.add(enum.nextElement());
+        }
+
+        // if we found no resources in our enumerations, try loading the
+        // properties using getResource() rather than getResources(); this
+        // works around a bug in Tomcat 3.3's classloader wherein it
+        // simply returns nothing to all calls to getResources()
+        if (rsrcs.size() == 0) {
+            // if getResourceAsStream() returns something, but
+            // getResources() returned nothing, then we know there's a bug
+            // and we do our best to work around it
+            if (getResourceAsStream(path, loader) != null) {
+                Log.warning("Buggy classloader: getResources() returned " +
+                            "no resources, but getResourceAsStream() " +
+                            "returned a resource [path=" + path +
+                            ", loader=" + loader.getClass().getName() +
+                            "]. Returning the one we could get our hands on.");
+                return loadProperties(path, loader);
+            }
         }
 
         // now load each file in turn into our properties object

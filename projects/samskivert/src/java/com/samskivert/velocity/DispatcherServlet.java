@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.1 2001/10/31 09:44:22 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.2 2001/10/31 09:45:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -40,6 +40,7 @@ import com.samskivert.Log;
 import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.util.ExceptionMap;
+import com.samskivert.servlet.util.FriendlyException;
 
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;

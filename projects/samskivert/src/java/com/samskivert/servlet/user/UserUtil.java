@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.9 2003/07/20 01:43:59 mdb Exp $
+// $Id: UserUtil.java,v 1.10 2004/01/15 01:33:30 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -71,7 +71,7 @@ public class UserUtil
         if (ignoreUserCase) {
             username = username.toLowerCase();
         }
-	return Crypt.crypt(username.substring(0, 2), password);
+	return Crypt.crypt(StringUtil.truncate(username, 2), password);
     }
 
     public static void main (String[] args)

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.12 2002/07/24 18:58:27 ray Exp $
+// $Id: SwingUtil.java,v 1.13 2002/07/25 20:55:44 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -190,25 +190,47 @@ public class SwingUtil
     }
 
     /**
-     * Set an active DocumentValidator on the specified text component.
-     * Changes will not and cannot be made (either via user inputs or
-     * direct method manipulation) unless the validator says that the
-     * changes are ok.
+     * An interface for transforming the text contained within a document.
      */
-    public static void setDocumentValidator (
-        JTextComponent comp, DocumentValidator validator)
+    public static interface DocumentTransformer
     {
-        setDocumentValidator(comp.getDocument(), validator);
+        /**
+         * Should transform the specified text in some way, or simply
+         * return the text untransformed.
+         */
+        public String transform (String text);
     }
 
     /**
-     * Set an active DocumentValidator on the specified Document.
+     * Set active Document helpers on the specified text component.
      * Changes will not and cannot be made (either via user inputs or
      * direct method manipulation) unless the validator says that the
      * changes are ok.
+     *
+     * @param validator if non-null, all changes are sent to this for approval.
+     * @param transformer if non-null, is queried to change the text
+     * after all changes are made.
      */
-    public static void setDocumentValidator (
-        final Document doc, final DocumentValidator validator)
+    public static void setDocumentHelpers (
+        JTextComponent comp, DocumentValidator validator,
+        DocumentTransformer transformer)
+    {
+        setDocumentHelpers(comp.getDocument(), validator, transformer);
+    }
+
+    /**
+     * Set active Document helpers on the specified Document.
+     * Changes will not and cannot be made (either via user inputs or
+     * direct method manipulation) unless the validator says that the
+     * changes are ok.
+     *
+     * @param validator if non-null, all changes are sent to this for approval.
+     * @param transformer if non-null, is queried to change the text
+     * after all changes are made.
+     */
+    public static void setDocumentHelpers (
+        final Document doc, final DocumentValidator validator,
+        final DocumentTransformer transformer)
     {
         if (!(doc instanceof AbstractDocument)) {
             throw new IllegalArgumentException(
@@ -224,6 +246,7 @@ public class SwingUtil
             {
                 if (replaceOk(offset, length, "")) {
                     fb.remove(offset, length);
+                    transform(fb);
                 }
             }
 
@@ -234,6 +257,7 @@ public class SwingUtil
             {
                 if (replaceOk(offset, 0, string)) {
                     fb.insertString(offset, string, attr);
+                    transform(fb);
                 }
             }
 
@@ -245,6 +269,7 @@ public class SwingUtil
             {
                 if (replaceOk(offset, length, text)) {
                     fb.replace(offset, length, text, attrs);
+                    transform(fb);
                 }
             }
 
@@ -255,6 +280,9 @@ public class SwingUtil
             protected boolean replaceOk (int offset, int length, String text)
                 throws BadLocationException
             {
+                if (validator == null) {
+                    return true; // everything's ok
+                }
                 try {
                     String current = doc.getText(0, doc.getLength());
                     String potential = current.substring(0, offset) +
@@ -266,6 +294,27 @@ public class SwingUtil
                 } catch (IndexOutOfBoundsException ioobe) {
                     throw new BadLocationException(
                         "Bad Location", offset + length);
+                }
+            }
+
+            /**
+             * After a remove/insert/replace has taken place, we may
+             * want to transform the text in some way.
+             */
+            protected void transform (FilterBypass fb)
+            {
+                if (transformer == null) {
+                    return;
+                }
+
+                try {
+                    String text = doc.getText(0, doc.getLength());
+                    String xform = transformer.transform(text);
+                    if (!text.equals(xform)) {
+                        fb.replace(0, text.length(), xform, null);
+                    }
+                } catch (BadLocationException ble) {
+                    // oh well.
                 }
             }
         });

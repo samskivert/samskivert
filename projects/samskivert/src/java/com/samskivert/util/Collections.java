@@ -1,5 +1,5 @@
 //
-// $Id: Collections.java,v 1.2 2001/12/14 18:27:57 mdb Exp $
+// $Id: Collections.java,v 1.3 2002/05/24 21:31:56 mdb Exp $
 
 package com.samskivert.util;
 
@@ -66,6 +66,9 @@ public class Collections
         }
 
 	SynchronizedIntMap(IntMap m, Object mutex) {
+            if (m == null) {
+                throw new NullPointerException();
+            }
             this.m = m;
             this.mutex = mutex;
         }

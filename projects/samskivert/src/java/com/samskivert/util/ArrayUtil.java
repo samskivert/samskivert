@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.2 2001/12/14 19:07:47 shaper Exp $
+// $Id: ArrayUtil.java,v 1.3 2002/05/28 22:32:14 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -32,13 +32,42 @@ public class ArrayUtil
      *
      * @param values the array to shuffle.
      */
+    public static void shuffle (byte[] values)
+    {
+        shuffle(values, 0, values.length);
+    }
+
+    /**
+     * Shuffles a subset of elements within the specified array into a
+     * random sequence.
+     *
+     * @param values the array containing elements to shuffle.
+     * @param offset the index at which to start shuffling elements.
+     * @param length the number of elements to shuffle.
+     */
+    public static void shuffle (byte[] values, int offset, int length)
+    {
+        for (int ii = (offset + length); ii > (offset + 1); ii--) {
+            byte temp = values[ii - 1];
+            int idx = _rnd.nextInt(ii);
+            values[ii - 1] = values[idx];
+            values[idx] = temp;
+        }
+    }
+
+    /**
+     * Shuffles the elements in the given array into a random sequence.
+     *
+     * @param values the array to shuffle.
+     */
     public static void shuffle (int[] values)
     {
         shuffle(values, 0, values.length);
     }
 
     /**
-     * Shuffles a subset of elements within the specified array.
+     * Shuffles a subset of elements within the specified array into a
+     * random sequence.
      *
      * @param values the array containing elements to shuffle.
      * @param offset the index at which to start shuffling elements.
@@ -48,6 +77,34 @@ public class ArrayUtil
     {
         for (int ii = (offset + length); ii > (offset + 1); ii--) {
             int temp = values[ii - 1];
+            int idx = _rnd.nextInt(ii);
+            values[ii - 1] = values[idx];
+            values[idx] = temp;
+        }
+    }
+
+    /**
+     * Shuffles the elements in the given array into a random sequence.
+     *
+     * @param values the array to shuffle.
+     */
+    public static void shuffle (long[] values)
+    {
+        shuffle(values, 0, values.length);
+    }
+
+    /**
+     * Shuffles a subset of elements within the specified array into a
+     * random sequence.
+     *
+     * @param values the array containing elements to shuffle.
+     * @param offset the index at which to start shuffling elements.
+     * @param length the number of elements to shuffle.
+     */
+    public static void shuffle (long[] values, int offset, int length)
+    {
+        for (int ii = (offset + length); ii > (offset + 1); ii--) {
+            long temp = values[ii - 1];
             int idx = _rnd.nextInt(ii);
             values[ii - 1] = values[idx];
             values[idx] = temp;

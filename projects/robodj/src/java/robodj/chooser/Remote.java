@@ -21,13 +21,13 @@ public class Remote extends DJClient
     {
         super.didInit();
 
-        if (_command.equals("play")) {
+        if (_command.equalsIgnoreCase("play")) {
             djobj.play();
 
-        } else if (_command.equals("pause")) {
+        } else if (_command.equalsIgnoreCase("pause")) {
             djobj.pause();
 
-        } else if (_command.equals("stop")) {
+        } else if (_command.equalsIgnoreCase("stop")) {
             djobj.stop();
 
         } else {

@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.12 2002/04/07 21:59:25 shaper Exp $
+// $Id: Controller.java,v 1.13 2002/04/08 17:40:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -320,35 +320,33 @@ public abstract class Controller
 
             // scan up the component hierarchy looking for a controller on
             // which to dispatch this action
-            Component source = (Component)src;
-            do {
-                if (source instanceof ControllerProvider) {
-                    Controller ctrl =
-                        ((ControllerProvider)source).getController();
-                    if (ctrl == null) {
-                        Log.warning("Provider returned null controller " +
-                                    "[provider=" + source + "].");
-                        continue;
-                    }
-
-                    try {
-                        // if the controller returns true, it handled the
-                        // action and we can call this business done
-                        if (ctrl.handleAction(_action)) {
-                            return;
-                        }
-                    } catch (Exception e) {
-                        Log.warning("Controller choked on action " +
-                                    "[ctrl=" + ctrl +
-                                    ", action=" + _action + "].");
-                        Log.logStackTrace(e);
-                    }
+            for (Component source = (Component)src; source != null;
+                 source = source.getParent()) {
+                if (!(source instanceof ControllerProvider)) {
+                    continue;
                 }
 
-                // move up the hierarchy
-                source = source.getParent();
+                Controller ctrl = ((ControllerProvider)source).getController();
+                if (ctrl == null) {
+                    Log.warning("Provider returned null controller " +
+                                "[provider=" + source + "].");
+                    continue;
+                }
 
-            } while (source != null);
+                try {
+                    // if the controller returns true, it handled the
+                    // action and we can call this business done
+                    if (ctrl.handleAction(_action)) {
+                        return;
+                    }
+
+                } catch (Exception e) {
+                    Log.warning("Controller choked on action " +
+                                "[ctrl=" + ctrl +
+                                ", action=" + _action + "].");
+                    Log.logStackTrace(e);
+                }
+            }
 
             // if we got here, we didn't find a controller
             Log.warning("Unable to find a controller to process action " +

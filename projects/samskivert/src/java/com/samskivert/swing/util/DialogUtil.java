@@ -1,5 +1,22 @@
 //
-// $Id: DialogUtil.java,v 1.4 2002/09/24 09:47:34 shaper Exp $
+// $Id: DialogUtil.java,v 1.5 2002/09/30 06:23:11 shaper Exp $
+//
+// samskivert library - useful routines for java programs
+// Copyright (C) 2002 Ray Greenwell
+// 
+// This library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published
+// by the Free Software Foundation; either version 2.1 of the License, or
+// (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.swing.util;
 
@@ -22,7 +39,20 @@ public class DialogUtil
      */
     public static JInternalDialog createDialog (JFrame frame, JPanel content)
     {
+        return createDialog(frame, null, content);
+    }
+
+    /**
+     * Creates and shows an internal dialog with the specified title and
+     * panel.
+     */
+    public static JInternalDialog createDialog (
+        JFrame frame, String title, JPanel content)
+    {
         JInternalDialog dialog = new JInternalDialog(frame);
+        if (title != null) {
+            dialog.setTitle(title);
+        }
         setContent(dialog, content);
         SwingUtil.centerComponent(frame, dialog);
         dialog.showDialog();
@@ -30,7 +60,7 @@ public class DialogUtil
     }
 
     /**
-     * Change the content of the internal dailog.
+     * Sets the content panel of the supplied internal dialog.
      */
     public static void setContent (JInternalDialog dialog, JPanel content)
     {
@@ -41,7 +71,7 @@ public class DialogUtil
     }
 
     /**
-     * Find the internal dialog that is a superparent of the specified
+     * Returns the internal dialog that is a parent of the specified
      * component.
      */
     public static JInternalDialog getInternalDialog (Component any)
@@ -55,7 +85,8 @@ public class DialogUtil
     }
 
     /**
-     * Invalidate and resize the entire dialog, given any component in it.
+     * Invalidates and resizes the entire dialog given any component
+     * within the dialog in question.
      */
     public static void invalidateDialog (Component any)
     {
@@ -65,8 +96,7 @@ public class DialogUtil
         }
 
         SwingUtil.applyToHierarchy(dialog, new SwingUtil.ComponentOp() {
-            public void apply (Component comp)
-            {
+            public void apply (Component comp) {
                 comp.invalidate();
             }
         });

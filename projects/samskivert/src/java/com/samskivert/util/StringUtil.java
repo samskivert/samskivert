@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.28 2002/02/07 08:41:59 mdb Exp $
+// $Id: StringUtil.java,v 1.29 2002/02/08 09:35:45 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -414,6 +414,11 @@ public class StringUtil
     public static String[] parseStringArray (String source)
     {
         int tcount = 0, tpos = -1, tstart = 0;
+
+        // empty strings result in zero length arrays
+        if (source.length() == 0) {
+            return new String[0];
+        }
 
         // sort out escaped commas
         source = replace(source, ",,", "%COMMA%");

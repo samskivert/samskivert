@@ -35,9 +35,9 @@
     <echo message="------------------------------------------"/>
     <echo message="Standard extensions - http://java.sun.com/"/>
     <echo message="------------------------------------------"/>
-    <available property="servlet2.2.present"
+    <available property="servlet2.3.present"
      classname="javax.servlet.Servlet" classpathref="classpath"/>
-    <echo message="Servlet 2.2: ${servlet2.2.present}"/>
+    <echo message="Servlet 2.3: ${servlet2.3.present}"/>
     <available property="mail.present"
      classname="javax.mail.Transport" classpathref="classpath"/>
     <echo message="Java Mail: ${mail.present}"/>
@@ -110,7 +110,7 @@
         <isset property="build.io"/>
         <isset property="build.jdbc"/>
         <isset property="build.util"/>
-        <isset property="servlet2.2.present"/>
+        <isset property="servlet2.3.present"/>
       </and>
     </condition>
     <echo message="com.samskivert.servlet: ${build.servlet}"/>
@@ -129,7 +129,7 @@
         <isset property="build.util"/>
         <isset property="jakarta.commons-collections.present"/>
         <isset property="jakarta.velocity.present"/>
-        <isset property="servlet2.2.present"/>
+        <isset property="servlet2.3.present"/>
       </and>
     </condition>
     <echo message="com.samskivert.velocity: ${build.velocity}"/>

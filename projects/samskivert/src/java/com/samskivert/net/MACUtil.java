@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.4 2003/07/31 00:59:56 eric Exp $
+// $Id: MACUtil.java,v 1.5 2003/08/13 18:40:32 eric Exp $
 
 package com.samskivert.net;
 
@@ -45,7 +45,17 @@ public class MACUtil
 
         ArrayList list = new ArrayList();
         while (m.find()) {
-            list.add(m.group(1));
+            String mac = m.group(1);
+
+            // What fun, we have to explicitly skip PPP adaptor addresses
+            // since they all start with 444553 and tend to not be unique.
+            // Why do I have a feeling we will find more of this?
+            if (mac.startsWith("44-45-53") ||
+                mac.startsWith("44:45:53")) {
+                continue;
+            }
+
+            list.add(mac);
         }
 
         return (String[])list.toArray(new String[0]);

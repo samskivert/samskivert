@@ -1,5 +1,5 @@
 //
-// $Id: CommandEvent.java,v 1.2 2002/02/28 21:55:15 mdb Exp $
+// $Id: CommandEvent.java,v 1.3 2003/01/03 23:07:33 mdb Exp $
 
 package com.samskivert.swing.event;
 
@@ -26,6 +26,15 @@ public class CommandEvent extends ActionEvent
     public Object getArgument ()
     {
         return _argument;
+    }
+
+    /**
+     * Generates a string representation of this command.
+     */
+    public String toString ()
+    {
+        return "[cmd=" + getActionCommand() + ", src=" + getSource() +
+            ", arg=" + _argument + "]";
     }
 
     /** The argument to this command event. */

@@ -60,14 +60,16 @@ public class VGroupLayout extends GroupLayout
 	DimenInfo info = computeDimens(parent, type);
 	Dimension dims = new Dimension();
 
-        if (_policy == STRETCH || _policy == EQUALIZE) {
-	    dims.height = info.maxhei * (info.count - info.numfix) +
-		info.fixhei + _gap * info.count;
-        } else {
-	    dims.height = info.tothei + _gap * info.count;
+        if (_policy == STRETCH) {
+	    dims.height = info.maxfreehei * (info.count - info.numfix) +
+                info.fixhei;
+        } else if (_policy == EQUALIZE) {
+	    dims.height = info.maxhei * info.count;
+        } else { // NONE or CONSTRAIN
+	    dims.height = info.tothei;
 	}
 
-	dims.height -= _gap;
+        dims.height += (info.count - 1) * _gap;
 	dims.width = info.maxwid;
 
 	// account for the insets

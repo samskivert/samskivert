@@ -333,6 +333,13 @@ public abstract class GroupLayout
 
 	    } else {
 		info.totweight += getWeight(child);
+
+                if (csize.width > info.maxfreewid) {
+                    info.maxfreewid = csize.width;
+                }
+                if (csize.height > info.maxfreehei) {
+                    info.maxfreehei = csize.height;
+                }
 	    }
 
 	    info.dimens[i] = csize;

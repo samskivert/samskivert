@@ -40,6 +40,9 @@ public class DimenInfo
     public int fixwid;
     public int fixhei;
 
+    public int maxfreewid;
+    public int maxfreehei;
+
     public int totweight;
 
     public Dimension[] dimens;
@@ -55,6 +58,8 @@ public class DimenInfo
 	buf.append(", numfix=").append(numfix);
 	buf.append(", fixwid=").append(fixwid);
 	buf.append(", fixhei=").append(fixhei);
+	buf.append(", maxfreewid=").append(maxfreewid);
+	buf.append(", maxfreehei=").append(maxfreehei);
 	buf.append(", totweight=").append(totweight);
 	return buf.append("]").toString();
     }

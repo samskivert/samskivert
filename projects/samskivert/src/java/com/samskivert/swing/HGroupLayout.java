@@ -60,14 +60,16 @@ public class HGroupLayout extends GroupLayout
 	DimenInfo info = computeDimens(parent, type);
 	Dimension dims = new Dimension();
 
-        if (_policy == STRETCH || _policy == EQUALIZE) {
-	    dims.width = info.maxwid * (info.count - info.numfix) +
-		info.fixwid + _gap * info.count;
+        if (_policy == STRETCH) {
+	    dims.width = info.maxfreewid * (info.count - info.numfix) +
+		info.fixwid;
+        } else if (_policy == EQUALIZE) {
+	    dims.width = info.maxwid * info.count;
         } else { // NONE or CONSTRAIN
-	    dims.width = info.totwid + _gap * info.count;
+	    dims.width = info.totwid;
 	}
 
-	dims.width -= _gap;
+	dims.width += (info.count - 1) * _gap;
 	dims.height = info.maxhei;
 
 	// account for the insets

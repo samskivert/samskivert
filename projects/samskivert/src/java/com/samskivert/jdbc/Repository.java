@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.11 2001/09/21 03:01:46 mdb Exp $
+// $Id: Repository.java,v 1.12 2001/11/01 02:08:17 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -87,7 +87,7 @@ public class Repository
      * as for it to automatically retry an operation if the connection
      * failed for some transient reason.
      */
-    protected interface Operation
+    public interface Operation
     {
         /**
          * Invokes code that performs one or more database operations, all

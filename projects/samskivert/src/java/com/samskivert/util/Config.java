@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.18 2002/11/26 01:57:22 mdb Exp $
+// $Id: Config.java,v 1.19 2002/12/13 22:12:28 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,6 +19,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.util;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 import java.io.IOException;
 
@@ -139,7 +142,14 @@ public class Config
      */
     public int getValue (String name, int defval)
     {
-        // if there is a value, parse it into an integer
+        return _prefs.getInt(name, getDefValue(name, defval));
+    }
+
+    /**
+     * Returns the value specified in the properties override file.
+     */
+    protected int getDefValue (String name, int defval)
+    {
         String val = _props.getProperty(name);
         if (val != null) {
             try {
@@ -149,9 +159,7 @@ public class Config
                             ", value=" + val + "].");
             }
         }
-
-        // finally look for an overridden value
-        return _prefs.getInt(name, defval);
+        return defval;
     }
 
     /**
@@ -160,7 +168,14 @@ public class Config
      */
     public void setValue (String name, int value)
     {
+        Integer oldValue = null;
+        if (_prefs.get(name, null) != null ||
+            _props.getProperty(name) != null) {
+            oldValue = new Integer(_prefs.getInt(name, getDefValue(name, 0)));
+        }
+
         _prefs.putInt(name, value);
+        _propsup.firePropertyChange(name, oldValue, new Integer(value));
     }
 
     /**
@@ -179,7 +194,14 @@ public class Config
      */
     public long getValue (String name, long defval)
     {
-        // if there is a value, parse it into an integer
+        return _prefs.getLong(name, getDefValue(name, defval));
+    }
+
+    /**
+     * Returns the value specified in the properties override file.
+     */
+    protected long getDefValue (String name, long defval)
+    {
         String val = _props.getProperty(name);
         if (val != null) {
             try {
@@ -189,9 +211,7 @@ public class Config
                             ", value=" + val + "].");
             }
         }
-
-        // finally look for an overridden value
-        return _prefs.getLong(name, defval);
+        return defval;
     }
 
     /**
@@ -200,7 +220,14 @@ public class Config
      */
     public void setValue (String name, long value)
     {
+        Long oldValue = null;
+        if (_prefs.get(name, null) != null ||
+            _props.getProperty(name) != null) {
+            oldValue = new Long(_prefs.getLong(name, getDefValue(name, 0L)));
+        }
+
         _prefs.putLong(name, value);
+        _propsup.firePropertyChange(name, oldValue, new Long(value));
     }
 
     /**
@@ -219,7 +246,14 @@ public class Config
      */
     public float getValue (String name, float defval)
     {
-        // if there is a value, parse it into an integer
+        return _prefs.getFloat(name, getDefValue(name, defval));
+    }
+
+    /**
+     * Returns the value specified in the properties override file.
+     */
+    protected float getDefValue (String name, float defval)
+    {
         String val = _props.getProperty(name);
         if (val != null) {
             try {
@@ -229,9 +263,7 @@ public class Config
                             ", value=" + val + "].");
             }
         }
-
-        // finally look for an overridden value
-        return _prefs.getFloat(name, defval);
+        return defval;
     }
 
     /**
@@ -240,7 +272,14 @@ public class Config
      */
     public void setValue (String name, float value)
     {
+        Float oldValue = null;
+        if (_prefs.get(name, null) != null ||
+            _props.getProperty(name) != null) {
+            oldValue = new Float(_prefs.getFloat(name, getDefValue(name, 0f)));
+        }
+
         _prefs.putFloat(name, value);
+        _propsup.firePropertyChange(name, oldValue, new Float(value));
     }
 
     /**
@@ -272,7 +311,9 @@ public class Config
      */
     public void setValue (String name, String value)
     {
+        String oldValue = getValue(name, (String)null);
         _prefs.put(name, value);
+        _propsup.firePropertyChange(name, oldValue, value);
     }
 
     /**
@@ -291,14 +332,19 @@ public class Config
      */
     public boolean getValue (String name, boolean defval)
     {
-        // if there is a value, parse it into an integer
+        return _prefs.getBoolean(name, getDefValue(name, defval));
+    }
+
+    /**
+     * Returns the value specified in the properties override file.
+     */
+    protected boolean getDefValue (String name, boolean defval)
+    {
         String val = _props.getProperty(name);
         if (val != null) {
             defval = !val.equalsIgnoreCase("false");
         }
-
-        // finally look for an overridden value
-        return _prefs.getBoolean(name, defval);
+        return defval;
     }
 
     /**
@@ -307,7 +353,15 @@ public class Config
      */
     public void setValue (String name, boolean value)
     {
+        Boolean oldValue = null;
+        if (_prefs.get(name, null) != null ||
+            _props.getProperty(name) != null) {
+            oldValue = new Boolean(
+                _prefs.getBoolean(name, getDefValue(name, false)));
+        }
+
         _prefs.putBoolean(name, value);
+        _propsup.firePropertyChange(name, oldValue, new Boolean(value));
     }
 
     /**
@@ -350,7 +404,9 @@ public class Config
      */
     public void setValue (String name, int[] value)
     {
+        int[] oldValue = getValue(name, (int[])null);
         _prefs.put(name, StringUtil.toString(value, "", ""));
+        _propsup.firePropertyChange(name, oldValue, value);
     }
 
     /**
@@ -393,7 +449,49 @@ public class Config
      */
     public void setValue (String name, String[] value)
     {
+        String[] oldValue = getValue(name, (String[])null);
         _prefs.put(name, StringUtil.joinEscaped(value));
+        _propsup.firePropertyChange(name, oldValue, value);
+    }
+
+    /**
+     * Adds a listener that will be notified whenever any configuration
+     * properties are changed by a call to one of the <code>set</code>
+     * methods.
+     */
+    public void addPropertyChangeListener (PropertyChangeListener listener)
+    {
+        _propsup.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a property change listener previously added via a call to
+     * {@link #addPropertyChangeListener}.
+     */
+    public void removePropertyChangeListener (PropertyChangeListener listener)
+    {
+        _propsup.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Adds a listener that will be notified whenever the specified
+     * configuration property is changed by a call to the appropriate
+     * <code>set</code> method.
+     */
+    public void addPropertyChangeListener (
+        String name, PropertyChangeListener listener)
+    {
+        _propsup.addPropertyChangeListener(name, listener);
+    }
+
+    /**
+     * Removes a property change listener previously added via a call to
+     * {@link #addPropertyChangeListener(String,PropertyChangeListener)}.
+     */
+    public void removePropertyChangeListener (
+        String name, PropertyChangeListener listener)
+    {
+        _propsup.removePropertyChangeListener(name, listener);
     }
 
     /**
@@ -490,6 +588,9 @@ public class Config
 
     /** Used to maintain configuration overrides. */
     protected Preferences _prefs;
+
+    /** Used to support our property change mechanism. */
+    protected PropertyChangeSupport _propsup = new PropertyChangeSupport(this);
 
     /** The file extension used for configuration files. */
     protected static final String PROPS_SUFFIX = ".properties";

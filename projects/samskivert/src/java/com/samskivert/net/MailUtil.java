@@ -1,5 +1,5 @@
 //
-// $Id: MailUtil.java,v 1.6 2003/08/15 22:35:57 mdb Exp $
+// $Id: MailUtil.java,v 1.7 2004/01/15 16:56:02 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -58,7 +58,14 @@ public class MailUtil
     public static boolean deliverMail (String message)
         throws IOException
     {
-        Process p = Runtime.getRuntime().exec(SENDMAIL_COMMAND);
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(SENDMAIL_COMMAND);
+        } catch (Exception e) {
+            // try try again, with the full path. Environment be damned!
+            p = Runtime.getRuntime().exec(FULL_SENDMAIL_COMMAND);
+        }
+        
         PrintWriter writer = new PrintWriter(p.getOutputStream());
         writer.print(message);
         writer.flush();
@@ -83,15 +90,13 @@ public class MailUtil
         return _emailre.matcher(address).matches();
     }
 
-    public static void main (String[] args)
-    {
-        String address = "mdb@samskivert.com";
-        System.out.println(address + ": " + isValidAddress(address));
-    }
-
     /** Command used to execute the program with which mail is sent. */
     protected static final String SENDMAIL_COMMAND = "sendmail -t";
 
+    /** Full path to the command to execute the program to send mail. */
+    protected static final String FULL_SENDMAIL_COMMAND =
+        "/usr/sbin/sendmail -t";
+        
     /** Originally formulated by lambert@nas.nasa.gov. */
     protected static final String EMAIL_REGEX = "^([-A-Za-z0-9_.!%+]+@" +
         "[-a-zA-Z0-9]+(\\.[-a-zA-Z0-9]+)*\\.[-a-zA-Z0-9]+)$";
@@ -104,6 +109,18 @@ public class MailUtil
         } catch (PatternSyntaxException pse) {
             Log.warning("Unable to initialize email regexp?!");
             Log.logStackTrace(pse);
+        }
+    }
+
+    public static void main (String[] args)
+    {
+        String msg = "To: eric@threerings.com, eric@radiantenergy.org\n" +
+            "Subject: test\n\n" +
+            "Body of message is here. Yiza!\n";
+        try {
+            MailUtil.deliverMail(msg);
+        } catch (Exception e) {
+            System.err.println("Le Booch Sending Mail [exception=" + e + "].");
         }
     }
 }

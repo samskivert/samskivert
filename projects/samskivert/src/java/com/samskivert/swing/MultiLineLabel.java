@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.7 2002/11/12 01:15:19 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.8 2002/11/12 06:41:29 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -105,8 +105,12 @@ public class MultiLineLabel extends JComponent
      * #GOLDEN} if the label should be laid out in a rectangle whose
      * bounds approximate the golden ratio.
      * @param size the width or height respectively to be targeted by the
-     * label. This is ignored if <code>constrain</code> is {@link
-     * #GOLDEN}.
+     * label or 0 if the label should react the first time it is laid out
+     * and use the dimension available at that point. <em>Note:</em> this
+     * requires that the label invalidate itself during its first
+     * validation which will cause it to change size visibly in the user
+     * interface. This argument is ignored if <code>constrain</code> is
+     * {@link #GOLDEN}.
      */
     public void setLayout (int constrain, int size)
     {
@@ -120,11 +124,19 @@ public class MultiLineLabel extends JComponent
     {
         switch (constrain) {
         case HORIZONTAL:
-            _label.setTargetWidth(size);
+            if (size == 0) {
+                _constrain = HORIZONTAL;
+            } else {
+                _label.setTargetWidth(size);
+            }
             break;
 
         case VERTICAL:
-            _label.setTargetHeight(size);
+            if (size == 0) {
+                _constrain = VERTICAL;
+            } else {
+                _label.setTargetHeight(size);
+            }
             break;
 
         case GOLDEN:
@@ -146,9 +158,11 @@ public class MultiLineLabel extends JComponent
      */
     public void setText (String text)
     {
-        _label.setText(text);
-        _dirty = true;
-        repaint();
+        if (_label.setText(text)) {
+            _dirty = true;
+            revalidate();
+            repaint();
+        }
     }
 
     /**
@@ -236,6 +250,30 @@ public class MultiLineLabel extends JComponent
     {
         super.doLayout();
 
+        // if we have been configured to relay ourselves out once we know
+        // our constrained width or height, take care of that here
+        switch (_constrain) {
+        case HORIZONTAL:
+            // sanity check; sometimes labels are laid out with completely
+            // invalid dimensions, so we just quietly play along
+            if (getWidth() > 0) {
+                _constrain = NONE;
+                _label.setTargetWidth(getWidth());
+                revalidate();
+            }
+            break;
+
+        case VERTICAL:
+            if (getHeight() > 0) {
+                _constrain = NONE;
+                _label.setTargetHeight(getHeight());
+                revalidate();
+            }
+            break;
+        }
+
+        // go ahead and lay out the label in all cases so that we assume
+        // some sort of size
         layoutLabel();
     }
 
@@ -255,9 +293,6 @@ public class MultiLineLabel extends JComponent
                                  RenderingHints.VALUE_ANTIALIAS_OFF);
             _label.layout(gfx);
             gfx.dispose();
-
-            // update our size and force a layout
-            revalidate();
 
             // note that we're no longer dirty
             _dirty = false;
@@ -284,6 +319,9 @@ public class MultiLineLabel extends JComponent
 
     /** The off-axis alignment with which the label is positioned. */
     protected int _offalign;
+
+    /** Pending constraint adjustments. */
+    protected int _constrain = NONE;
 
     /** Whether to render the label with anti-aliasing. */
     protected boolean _antialiased;

@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.8 2002/05/23 23:24:08 ray Exp $
+// $Id: HashIntMap.java,v 1.9 2002/08/19 22:59:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -472,4 +472,10 @@ public class HashIntMap
     protected Record[] _buckets;
     protected int _size;
     protected float _loadFactor;
+
+    /** Change this if the fields or inheritance hierarchy ever changes
+     * (which is extremely unlikely). We override this because I'm tired
+     * of serialized crap not working depending on whether I compiled with
+     * jikes or javac. */
+    private static final long serialVersionUID = 1;
 }

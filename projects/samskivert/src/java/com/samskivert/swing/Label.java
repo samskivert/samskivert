@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.11 2002/05/20 18:07:03 shaper Exp $
+// $Id: Label.java,v 1.12 2002/06/20 23:44:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -203,9 +203,9 @@ public class Label implements SwingConstants
         if (_constraints.height > 0) {
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
-            int lines = (int)(_constraints.height / getHeight(layout));
+            int lines = Math.round(_constraints.height / getHeight(layout));
             lines = Math.max(lines, 1);
-            int targetWidth = (int)(bounds.getWidth() / lines);
+            int targetWidth = (int)Math.round(bounds.getWidth() / lines);
 
             // attempt to lay the text out in the specified width,
             // incrementing by 10% each time; limit our attempts to 10
@@ -217,7 +217,7 @@ public class Label implements SwingConstants
                 if (layouts.size() <= lines) {
                     break;
                 }
-                targetWidth = (int)(targetWidth * 1.1);
+                targetWidth = (int)Math.round(targetWidth * 1.1);
             }
 
         } else if (_constraints.width > 0) {
@@ -231,14 +231,8 @@ public class Label implements SwingConstants
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)
-            _size.setSize((int)bounds.getWidth(), (int)getHeight(layout));
-            // the bounds returned by layout.getBounds() are such that
-            // x+width is actually a pixel contained within the bounds
-            // (and associatedly y+height), so we have to increase the
-            // bounds by 1 pixel to return a rectangle that *actually*
-            // contains ourselves
-            _size.width += 1;
-            _size.height += 1;
+            _size.setSize(Math.round(bounds.getWidth()),
+                          Math.round(getHeight(layout)));
             layouts = new ArrayList();
             layouts.add(layout);
         }
@@ -279,7 +273,7 @@ public class Label implements SwingConstants
 
         // fill in the computed size; for some reason JDK1.3 on Linux
         // chokes on setSize(double,double)
-        size.setSize((int)width, (int)height);
+        size.setSize(Math.round(width), Math.round(height));
 
         return layouts;
     }
@@ -302,6 +296,12 @@ public class Label implements SwingConstants
             gfx.setColor(_textColor);
         }
 
+        // shift everything over and down by one pixel if we're outlining
+        if (_outlineColor != null) {
+            x += 1;
+            y += 1;
+        }
+
         // render our text
         for (int i = 0; i < _layouts.length; i++) {
             TextLayout layout = _layouts[i];
@@ -309,6 +309,12 @@ public class Label implements SwingConstants
 
             float dx = 0, extra = (float)
                 (_size.width - layout.getBounds().getWidth());
+            // if we're outlining, we really have two pixels less space
+            // than we think we do
+            if (_outlineColor != null) {
+                extra -= 2;
+            }
+
             switch (_align) {
             case -1: dx = layout.isLeftToRight() ? 0 : extra; break;
             case LEFT: dx = 0; break;
@@ -322,9 +328,13 @@ public class Label implements SwingConstants
                 Color textColor = gfx.getColor();
                 gfx.setColor(_outlineColor);
                 layout.draw(gfx, x + dx - 1, y - 1);
+                layout.draw(gfx, x + dx - 1, y);
                 layout.draw(gfx, x + dx - 1, y + 1);
-                layout.draw(gfx, x + dx + 1, y + 1);
+                layout.draw(gfx, x + dx, y - 1);
+                layout.draw(gfx, x + dx, y + 1);
                 layout.draw(gfx, x + dx + 1, y - 1);
+                layout.draw(gfx, x + dx + 1, y);
+                layout.draw(gfx, x + dx + 1, y + 1);
                 gfx.setColor(textColor);
             }
 

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.69 2004/03/04 02:40:23 eric Exp $
+// $Id: StringUtil.java,v 1.70 2004/03/04 18:41:39 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -783,8 +783,7 @@ public class StringUtil
     }
 
     /**
-     * Reproduce the byte array that was used to in the call to hexlate
-     * that resulted in the specified string.
+     * Turn a hexlated String back into a byte array.
      */
     public static byte[] unhexlate (String hex)
     {
@@ -796,11 +795,11 @@ public class StringUtil
         // by hexlate, convert to lowercase so things work.
         hex = hex.toLowerCase();
         byte[] data = new byte[hex.length()/2];
-        for (int ii = 0; ii < hex.length(); ii+=2)
-        {
+        for (int ii = 0; ii < hex.length(); ii+=2) {
             int value = (byte)(XLATE.indexOf(hex.charAt(ii)) << 4);
             value  += XLATE.indexOf(hex.charAt(ii+1));
 
+            // values over 127 are wrapped around, restoring negative bytes
             data[ii/2] = (byte)value;
         }
 

@@ -1,5 +1,5 @@
 //
-// $Id: IntegerTableCellRenderer.java,v 1.1 2004/05/13 21:58:07 ray Exp $
+// $Id: IntegerTableCellRenderer.java,v 1.2 2004/05/18 19:08:45 ray Exp $
 
 package com.samskivert.swing;
 
@@ -22,12 +22,11 @@ public class IntegerTableCellRenderer extends DefaultTableCellRenderer
     // documentation inherited
     protected void setValue (Object value)
     {
-        if (value instanceof Integer) {
-            value = _nfi.format(((Integer) value).intValue());
-        } else if (value instanceof Long) {
-            value = _nfi.format(((Long) value).longValue());
+        if ((value instanceof Integer) || (value instanceof Long)) {
+            setText(_nfi.format(value));
+        } else {
+            super.setValue(value);
         }
-        super.setValue(value);
     }
 
     // our number formatter

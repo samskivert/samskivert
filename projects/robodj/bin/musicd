@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.7 2001/07/12 23:42:38 mdb Exp $
+# $Id: musicd,v 1.8 2001/07/13 00:16:01 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
 # filesystem. The playlists can be manipulated by connecting to the server
@@ -182,6 +182,16 @@ sub handle_client
         $mp3->pause();
         print $cfh "200 Music paused (use PLAY to unpause).\n";
 
+    } elsif ($input =~ m/^SKIPTO (\d+)/) {
+        my $sid = $1;
+        # stop this tune and skip to the specified tune
+        $mp3->stop();
+        if (play_this_tune($sid)) {
+            print $cfh "200 Skipped to $sid.\n";
+        } else {
+            print $cfh "404 Unable to locate song $sid.\n";
+        }
+
     } elsif ($input =~ m/^SKIP/) {
         # stop this tune and skip to the next one
         $mp3->stop();
@@ -222,6 +232,38 @@ sub play_next_tune
 
     # and play it
     $mp3->play();
+}
+
+sub play_this_tune
+{
+    my ($sid) = @_;
+    my $i;
+
+    # bail if the playlist is empty
+    if (@playlist == 0) {
+        $index = -1;
+        undef $playing;
+        return 0;
+    }
+
+    # advance the playlist pointer (wrapping around at the end because we
+    # always loop)
+    for ($i = 0; $i < @playlist; $i++) {
+        $index = ($index + $i) % @playlist;
+        $playing = $playlist[$index];
+        if ($playing->[1] == $sid) {
+            last;
+        }
+    }
+
+    # open it
+    $mp3->open($playing->[2]);
+
+    # and play it
+    $mp3->play();
+
+    # let them know if we found the tune
+    return ($playing->[1] == $sid);
 }
 
 # message handlers

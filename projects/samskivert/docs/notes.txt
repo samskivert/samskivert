@@ -14,6 +14,9 @@ Make MessageManager.resolveBundle more efficient because presently it
 iterates over all locales looking for an exact match *every* time a
 message is fetched.
 
+Make SiteResourceLoader cache the resources it loads (locate and make use
+of someone else's caching services rather than rewheeling).
+
 * Minimal database services
 ** Requirements
 - Connection management (configuration file mapping database identifiers

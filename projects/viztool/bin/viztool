@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# $Id: viztool,v 1.1 2001/08/12 02:52:51 mdb Exp $
+#
+# Sets up the classpath and invokes viztool with arguments supplied to
+# this script.
+
+BINDIR=`dirname $0`
+RUNJAVA=$BINDIR/runjava
+VIZAPP=com.samskivert.viztool.Driver
+
+usage ()
+{
+    echo "Usage: $0 [OPTIONS] package_prefix"
+cat << EOH
+
+options:
+      [--exclude=pkg:pkg:...]
+         Note that sub-packages must explicitly be enumerated in this
+         list. Excluding foo.bar will not automatically exclude
+         foo.bar.baz.
+      [--print]
+EOH
+    exit -1
+}
+
+if [ $# = 0 ]; then
+    usage
+fi
+
+while test $# -gt 0
+do
+    case "$1" in
+    -h|-\?)
+        usage
+        ;;
+    --print)
+        OPTIONS="$OPTIONS -print"
+        ;;
+    --exclude=*)
+        EXCL=`echo $1 | sed 's:--exclude=::g'`
+        JOPTIONS="$JOPTIONS -Dexclude=$EXCL"
+        ;;
+    -*)
+        echo "Unknown option: $1"
+        exit -1
+        ;;
+    *)
+        PACKAGE=$1
+        ;;
+    esac
+    shift
+done
+
+if [ -z "$PACKAGE" ]; then
+    usage
+fi
+
+# invoke the program
+$RUNJAVA -- $JOPTIONS $VIZAPP $OPTIONS $PACKAGE

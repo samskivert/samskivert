@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.13 2002/02/22 08:36:28 mdb Exp $
+# $Id: musicd,v 1.14 2002/03/03 17:20:45 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
 # filesystem. The playlists can be manipulated by connecting to the server
@@ -23,6 +23,8 @@ my @playlist;
 my $index = -1;
 # this is our handle on the MP3 player object
 my $mp3;
+# whether or not we're currently paused
+my $paused = 0;
 
 # get our options
 my $bind_addr; # bind address
@@ -199,11 +201,12 @@ sub handle_client
         }
 
     } elsif ($input =~ m/^PLAYING/) {
-        print $cfh "200 Currently playing: " .
+        print $cfh "200 Currently " . ($paused ? "paused" : "playing") . ": " .
             (defined $playing ? $playing->[1] : "<none>") . "\n";
 
     } elsif ($input =~ m/^STOP/) {
         $mp3->stop();
+        $paused = 0; # clear the paused flag
         undef $playing;
         print $cfh "200 Music stopped.\n";
 
@@ -215,6 +218,10 @@ sub handle_client
             # otherwise queue one up to play
             play_next_tune();
         }
+
+        # clear the paused flag
+        $paused = 0;
+
         # and report back based on whether or not we successfully queued
         # up a song for playing
         if (defined $playing) {
@@ -225,6 +232,7 @@ sub handle_client
 
     } elsif ($input =~ m/^PAUSE/) {
         $mp3->pause();
+        $paused = 1;
         print $cfh "200 Music paused (use PLAY to unpause).\n";
 
     } elsif ($input =~ m/^SKIPTO (\d+)/) {

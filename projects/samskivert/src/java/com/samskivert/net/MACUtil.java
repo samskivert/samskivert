@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.1 2003/07/07 01:40:59 eric Exp $
+// $Id: MACUtil.java,v 1.2 2003/07/07 18:52:56 eric Exp $
 
 package com.samskivert.net;
 
@@ -47,7 +47,8 @@ public class MACUtil
         while (m.find()) {
             list.add(m.group(1));
         }
-        return (String[])list.toArray();
+
+        return (String[])list.toArray(new String[0]);
     }
 
     /**
@@ -69,10 +70,10 @@ public class MACUtil
                 return output;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Run the specificed command and return the output as a string.
      */
@@ -83,7 +84,7 @@ public class MACUtil
             BufferedReader cin = new BufferedReader(
                 new InputStreamReader(p.getInputStream()));
             StringBuffer buffer= new StringBuffer();
-            
+
             String line = "";
             while (line != null)
             {
@@ -91,7 +92,7 @@ public class MACUtil
                 line = cin.readLine();
             }
             cin.close();
-            
+
             return buffer.toString();
         } catch (IOException e) {
             // don't want to log anything for the client to know what we

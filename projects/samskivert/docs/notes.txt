@@ -5,3 +5,51 @@ Add support to the build system for enabling and disabling packages so
 that people can build just what they want and not have to track down
 support libraries for, say, WebMacro if they don't want the WebMacro
 stuff.
+
+* Minimal database services
+** Requirements
+- Connection management (configuration file mapping database identifiers
+  to JDBC info; connection pooling if desired; automatic reconnection on
+  transient error)
+- Support for retrying transation on transient error
+- Mechanism for ironing out database idiosyncrasies
+
+* O/R database services
+** Requirements
+- Generate schemas from XML description
+- Generate Java source from XML description
+- Load object from table
+- Extensibility (extend tables & objects)
+- Partial loads (load subset of object fields)
+- Partial updates (update subset of object fields)
+- Joins (populate objects w/data from multiple tables)
+- Multiple queries (populate objects w/data from multiple queries)
+- Support multiple operations in the same transaction
+- Support automatic transation retries on transient errors
+- Extensible support for smoothing over DB vendor inconsistencies
+- Handle OID assignment
+- Support mapping of multiple classes to one table (ie. address contains
+  zipcode object, address table contains all the information)
+- Loose coupling between in memory objects and data in database
+- Ability to load entire object and dependencies at once or as needed
+
+** Postponed or explicitly ignored requirements
+- Object proxies with just in time loaded fields (use partial loads instead)
+- Cursor support
+
+** Related projects (in some sort of order)
+- Castor http://castor.exolab.org/
+- Town http://share.whichever.com/index.php?SCREEN=town
+- POEM http://www.melati.org/
+- s2j http://www.bitmechanic.com/projects/s2j/
+- COBRA http://www.kimble.easynet.co.uk/cobra/index.htm
+- DbGen http://dbgen.sourceforge.net/
+- JORA http://www.ispras.ru/~knizhnik/
+- TableGen http://tablegen.sourceforge.net/
+- DECCO http://www.khill.org/decco/
+- Osage http://osage.sourceforge.net/
+- DOGEN http://sourceforge.net/projects/dogen/
+
+** Related information
+- http://www.ambysoft.com/mappingObjects.html
+- http://www.ambysoft.com/persistenceLayer.html

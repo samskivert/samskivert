@@ -1,5 +1,5 @@
 //
-// $Id: ChainUtil.java,v 1.4 2001/07/17 07:18:09 mdb Exp $
+// $Id: ChainUtil.java,v 1.5 2001/08/12 02:40:02 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -98,6 +98,10 @@ public class ChainUtil
             Log.warning("Unable to process class [class=" + clazz +
                         ", error=" + e + "].");
             Log.logStackTrace(e);
+
+        } catch (NoClassDefFoundError ncdfe) {
+            Log.warning("Unable to load class [class=" + clazz +
+                        ", error=" + ncdfe + "].");
         }
     }
 

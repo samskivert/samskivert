@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.32 2002/03/08 02:40:02 mdb Exp $
+// $Id: StringUtil.java,v 1.33 2002/03/15 18:05:36 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -92,6 +92,21 @@ public class StringUtil
             }
             return buf.toString();
         }
+    }
+
+    /**
+     * Returns whether the supplied string represents an integer value by
+     * attempting to parse it with {@link Integer#parseInt}.
+     */
+    public static boolean isInteger (String value)
+    {
+        try {
+            Integer.parseInt(value);
+            return true;
+        } catch (NumberFormatException nfe) {
+            // fall through
+        }
+        return false;
     }
 
     /**

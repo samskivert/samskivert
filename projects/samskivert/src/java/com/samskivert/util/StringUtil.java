@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.18 2002/01/22 15:46:56 shaper Exp $
+// $Id: StringUtil.java,v 1.19 2002/01/30 18:11:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -349,6 +349,25 @@ public class StringUtil
             vals[i] = token;
         }
         return vals;
+    }
+
+    /**
+     * Joins an array of strings into a single string, separated by
+     * commas, and escaping commas that occur in the individual string
+     * values such that a subsequent call to {@link #parseStringArray}
+     * would recreated the string array properly.
+     */
+    public static String joinEscaped (String[] values)
+    {
+        StringBuffer buf = new StringBuffer();
+        int vlength = values.length;
+        for (int i = 0; i < vlength; i++) {
+            if (i > 0) {
+                buf.append(", ");
+            }
+            buf.append(replace(values[i], ",", ",,"));
+        }
+        return buf.toString();
     }
 
     /**

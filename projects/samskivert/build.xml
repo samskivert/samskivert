@@ -31,6 +31,7 @@
   <!-- include JAVA_LIBS jars in our classpath if it exists -->
   <target name="check-java-libs" if="env.JAVA_LIBS">
     <!-- overwrite the classpath with one that contains JAVA_LIBS jars -->
+    <echo message="Building using libraries from ${env.JAVA_LIBS}."/>
     <path id="classpath">
       <path refid="base.classpath"/>
       <fileset dir="${env.JAVA_LIBS}" includes="**/*.jar"/>

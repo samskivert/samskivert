@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.6 2002/11/12 00:37:41 mdb Exp $
+// $Id: LabelDemo.java,v 1.7 2002/11/13 23:17:26 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -16,10 +16,7 @@ public class LabelDemo extends JPanel
             "He then popped into the butcher's and picked up some mutton.";
         Font font = new Font("Courier", Font.PLAIN, 10);
 
-        _labels = new Label[4];
-
         int idx = 0;
-
         _labels[idx] = new Label(text);
         _labels[idx++].setFont(font);
 
@@ -41,17 +38,22 @@ public class LabelDemo extends JPanel
         _labels[idx].setFont(font);
         _labels[idx++].setGoldenLayout();
 
-//         try {
-//             InputStream in = new FileInputStream("delarobb.TTF");
-//             Font sfont = Font.createFont(Font.TRUETYPE_FONT, in);
-//             in.close();
-//             _labels[3] = new Label(String.valueOf(30), Label.OUTLINE,
-//                                     Color.pink, Color.black,
-//                                     sfont.deriveFont(Font.PLAIN, 24));
-
-//         } catch (Exception e) {
-//             e.printStackTrace(System.err);
-//         }
+        try {
+            File file = new File("delarobb.TTF");
+            if (file.exists()) {
+                InputStream in = new FileInputStream(file);
+                Font sfont = Font.createFont(Font.TRUETYPE_FONT, in);
+                in.close();
+                _labels[idx++] = new Label(String.valueOf(10), Label.OUTLINE,
+                                           Color.pink, Color.black,
+                                           sfont.deriveFont(Font.PLAIN, 24));
+                _labels[idx++] = new Label(String.valueOf(30), Label.OUTLINE,
+                                           Color.pink, Color.black,
+                                           sfont.deriveFont(Font.PLAIN, 24));
+            }
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
     }
 
     public void layout ()
@@ -61,8 +63,10 @@ public class LabelDemo extends JPanel
         // layout our labels
         Graphics2D g = (Graphics2D)getGraphics();
         for (int ii = 0; ii < _labels.length; ii++) {
-            _labels[ii].layout(g);
-            System.out.println("l" + ii + ": " + _labels[ii].getSize());
+            if (_labels[ii] != null) {
+                _labels[ii].layout(g);
+                System.out.println("l" + ii + ": " + _labels[ii].getSize());
+            }
         }
     }
 
@@ -76,6 +80,9 @@ public class LabelDemo extends JPanel
         int x = 10, y = 10;
 
         for (int ii = 0; ii < _labels.length; ii++) {
+            if (_labels[ii] == null) {
+                continue;
+            }
             size = _labels[ii].getSize();
             g2.setColor(Color.white);
             switch (ii) {
@@ -118,5 +125,5 @@ public class LabelDemo extends JPanel
         frame.show();
     }
 
-    protected Label[] _labels;
+    protected Label[] _labels = new Label[10];
 }

@@ -118,7 +118,6 @@ public abstract class Interval
         // only expire the interval if the task is still valid
         if (_task == task) {
             try {
-                System.err.println("Expiring Interval");
                 expired();
             } catch (Throwable t) {
                 Log.warning("Interval broken in expired(): " + t);

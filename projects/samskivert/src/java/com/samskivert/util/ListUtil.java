@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.4 2001/09/21 01:34:17 mdb Exp $
+// $Id: ListUtil.java,v 1.5 2001/11/06 02:13:09 mdb Exp $
 
 package com.samskivert.util;
 
@@ -314,6 +314,7 @@ public class ListUtil
             Object elem = list[i];
             if (elem == element) {
                 System.arraycopy(list, i+1, list, i, llength-(i+1));
+                list[llength-1] = null;
                 return elem;
             }
         }
@@ -344,6 +345,7 @@ public class ListUtil
             Object elem = list[i];
             if (elem != null && elem.equals(element)) {
                 System.arraycopy(list, i+1, list, i, llength-(i+1));
+                list[llength-1] = null;
                 return elem;
             }
         }
@@ -369,6 +371,7 @@ public class ListUtil
 
         Object elem = list[index];
         System.arraycopy(list, index+1, list, index, llength-(index+1));
+        list[llength-1] = null;
         return elem;
     }
 

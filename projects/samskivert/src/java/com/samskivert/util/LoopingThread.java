@@ -1,5 +1,5 @@
 //
-// $Id: LoopingThread.java,v 1.5 2001/10/03 02:20:05 mdb Exp $
+// $Id: LoopingThread.java,v 1.6 2002/10/05 23:45:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -30,6 +30,21 @@ import com.samskivert.Log;
  */
 public class LoopingThread extends Thread
 {
+    /**
+     * Ye olde zero argument constructor.
+     */
+    public LoopingThread ()
+    {
+    }
+
+    /**
+     * Ye olde zero argument constructor.
+     */
+    public LoopingThread (String name)
+    {
+        super(name);
+    }
+
     /**
      * Requests that this thread shut itself down. The running flag will
      * be cleared and if this function is being called by an external

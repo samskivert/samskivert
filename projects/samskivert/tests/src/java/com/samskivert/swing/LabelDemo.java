@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.3 2002/06/20 23:45:15 mdb Exp $
+// $Id: LabelDemo.java,v 1.4 2002/11/05 03:01:08 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -22,14 +22,14 @@ public class LabelDemo extends JPanel
         _labelOne.setFont(font);
         _labelOne.setTargetWidth(100);
         _labelOne.setAlignment(Label.RIGHT);
-        _labelOne.setOutlineColor(Color.white);
+        _labelOne.setAlternateColor(Color.white);
         _labelOne.setFont(new Font("Dialog", Font.PLAIN, 12));
 
         _labelTwo = new Label(text);
         _labelTwo.setFont(font);
         _labelTwo.setTargetHeight(30);
         _labelTwo.setAlignment(Label.CENTER);
-        _labelTwo.setOutlineColor(Color.white);
+        _labelTwo.setAlternateColor(Color.white);
         _labelTwo.setFont(new Font("Dialog", Font.PLAIN, 12));
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.3 2001/07/13 00:35:42 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.4 2001/07/26 01:18:49 mdb Exp $
 
 package robodj.chooser;
 
@@ -31,7 +31,8 @@ public class PlaylistPanel
         // create the pane that will hold the buttons
         gl = new VGroupLayout(GroupLayout.NONE);
         gl.setJustification(GroupLayout.TOP);
-        _bpanel = new JPanel(gl);
+        _bpanel = new SmartPanel();
+        _bpanel.setLayout(gl);
 
 	// give ourselves a wee bit of a border
 	_bpanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -108,6 +109,9 @@ public class PlaylistPanel
         // what's up
         _bpanel.removeAll();
         _bpanel.add(new JLabel("Loading..."));
+        // we've removed and added components and swing won't properly
+        // repaint automatically
+        _bpanel.repaint();
 
         // start up the task that reads the CD info from the database
         TaskMaster.invokeMethodTask("readPlaylist", this, this);
@@ -244,6 +248,12 @@ public class PlaylistPanel
             button.putClientProperty("entry", entry);
             hpanel.add(button);
 
+            // let the bpanel know that we want to scroll the active track
+            // label into place once we're all laid out
+            if (entry.song.songid == _playid) {
+                _bpanel.setScrollTarget(hpanel);
+            }
+
             _bpanel.add(hpanel);
         }
 
@@ -251,6 +261,10 @@ public class PlaylistPanel
         if (_plist.size() == 0) {
             _bpanel.add(new JLabel("Nothing playing."));
         }
+
+        // we've removed and added components and swing won't properly
+        // repaint automatically
+        _bpanel.repaint();
     }
 
     protected void highlightPlaying ()
@@ -289,7 +303,31 @@ public class PlaylistPanel
         }
     }
 
-    protected JPanel _bpanel;
+    /**
+     * A panel that can be made to scroll a particular child into view
+     * when it becomes visible.
+     */
+    protected static class SmartPanel extends JPanel
+    {
+        public void setScrollTarget (JComponent comp)
+        {
+            _target = comp;
+        }
+
+        public void doLayout ()
+        {
+            super.doLayout();
+
+            if (_target != null) {
+                scrollRectToVisible(_target.getBounds());
+                _target = null;
+            }
+        }
+
+        protected JComponent _target;
+    }
+
+    protected SmartPanel _bpanel;
     protected JButton _clearbut;
 
     protected ArrayList _plist = new ArrayList();

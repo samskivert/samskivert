@@ -73,6 +73,15 @@ public class SerialExecutor
     }
 
     /**
+     * Returns the number of ExecutorTasks that are currently waiting on
+     * the queue.
+     */
+    public int getQueueSize ()
+    {
+        return _queue.size();
+    }
+
+    /**
      * Execute the next task, if applicable.
      */
     protected void checkNext ()

@@ -106,6 +106,7 @@ for ($i = 0; $i < @ARGV; $i++) {
 # log the pid file if requested to do so
 print `echo $$ > $pid_file` if (defined $pid_file);
 
-my $cmd = "$java -mx256M $classpath $serverroot $basedir " . join(" ", @ARGV);
+my $cmd = "$java -mx256M $classpath $serverroot $basedir \"" .
+    join("\" \"", @ARGV) . "\"";
 # print "$cmd\n";
 exec($cmd);

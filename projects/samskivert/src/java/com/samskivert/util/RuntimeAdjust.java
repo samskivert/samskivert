@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.5 2003/01/15 03:24:53 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.6 2003/01/15 03:28:17 mdb Exp $
 
 package com.samskivert.util;
 
@@ -11,6 +11,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -82,6 +83,7 @@ public class RuntimeAdjust
                 pkgname = null;
                 lpanel = new ScrollablePanel(layout);
                 lpanel.setTracksViewportWidth(true);
+                lpanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
                 editor.addTab(library, lpanel);
             }
 

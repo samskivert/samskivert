@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.9 2004/02/25 13:17:13 mdb Exp $
+// $Id: MACUtil.java,v 1.10 2004/02/25 20:19:06 eric Exp $
 
 package com.samskivert.net;
 
@@ -55,14 +55,18 @@ public class MACUtil
             // ignore.  And another, 00E006095566 is apparently the mac of
             // some set of all in one ASUS motherboards.  Guess they
             // didn't get the memo about the MACs all being unique.
+            // Nvidia with built in LAN has a unique prob.
             if (mac.startsWith("44-45-53") ||
                 mac.startsWith("44:45:53")) {
                 continue;
             } else if (mac.startsWith("00-53-45-00") ||
-                mac.startsWith("00:53:45:00")) {
+                       mac.startsWith("00:53:45:00")) {
                 continue;
             } else if (mac.startsWith("00-E0-06-09-55-66") ||
-                mac.startsWith("00:E0:06:09:55:66")) {
+                       mac.startsWith("00:E0:06:09:55:66")) {
+                continue;
+            } else if (mac.startsWith("00-04-4B-80-80-03") ||
+                       mac.startsWith("00:04:4B:80:80:03")) {
                 continue;
             }
 

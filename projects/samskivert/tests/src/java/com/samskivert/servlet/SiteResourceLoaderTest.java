@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoaderTest.java,v 1.4 2001/12/13 01:31:23 mdb Exp $
+// $Id: SiteResourceLoaderTest.java,v 1.5 2002/04/01 01:56:34 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import org.apache.commons.util.StreamUtils;
+import org.apache.commons.io.StreamUtils;
 
 import com.samskivert.Log;
 import com.samskivert.test.TestUtil;

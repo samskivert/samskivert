@@ -1,5 +1,5 @@
 //
-// $Id: LoopingThread.java,v 1.6 2002/10/05 23:45:59 mdb Exp $
+// $Id: LoopingThread.java,v 1.7 2002/10/07 17:52:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -38,7 +38,7 @@ public class LoopingThread extends Thread
     }
 
     /**
-     * Ye olde zero argument constructor.
+     * Creates a looping thread with the specified name.
      */
     public LoopingThread (String name)
     {

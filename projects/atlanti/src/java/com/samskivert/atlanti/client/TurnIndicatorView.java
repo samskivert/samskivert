@@ -1,5 +1,5 @@
 //
-// $Id: TurnIndicatorView.java,v 1.4 2002/12/12 05:51:54 mdb Exp $
+// $Id: TurnIndicatorView.java,v 1.5 2002/12/12 06:07:49 mdb Exp $
 
 package com.samskivert.atlanti.client;
 
@@ -122,7 +122,8 @@ public class TurnIndicatorView extends JPanel
 
     protected void updateRemainingTiles ()
     {
-        _countLabel.setText("Tiles remaining: " + (71-_atlobj.tiles.size()));
+        _countLabel.setText("Tiles remaining: " +
+                            Math.max(71-_atlobj.tiles.size(), 0));
     }
 
     /** The label displaying whose turn it is. */

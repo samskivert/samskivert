@@ -1,5 +1,5 @@
 //
-// $Id: ButtonUtil.java,v 1.2 2002/12/14 02:11:24 mdb Exp $
+// $Id: ButtonUtil.java,v 1.3 2003/11/18 01:57:02 ray Exp $
 
 package com.samskivert.swing.util;
 
@@ -17,6 +17,7 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import com.samskivert.util.Config;
+import com.samskivert.util.IntListUtil;
 
 /**
  * Utilities for buttons.
@@ -56,6 +57,27 @@ public class ButtonUtil
     {
         // create a config binding which will take care of everything
         new ButtonConfigBinding(property, config, button, defval);
+    }
+
+    /**
+     * Configure the specified button to cause the specified
+     * property to cycle through the specified values whenever the button is
+     * pressed.
+     */
+    public static void cycleToProperty (
+        final String property, final Config config, AbstractButton button,
+        final int[] values)
+    {
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed (ActionEvent event)
+            {
+                // get the current value and find out where it is in the list
+                int oldval = config.getValue(property, values[0]);
+                int newidx = (1 + IntListUtil.indexOf(values, oldval))
+                    % values.length;
+                config.setValue(property, values[newidx]);
+            }
+        });
     }
 
     /** Used for {@link #bindToProperty}. */

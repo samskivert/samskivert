@@ -16,4 +16,4 @@ intl
 libtool
 ltmain.sh
 po
-*.tgz
+*.tar.gz

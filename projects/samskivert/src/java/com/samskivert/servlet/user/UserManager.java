@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.25 2003/10/20 00:49:04 mdb Exp $
+// $Id: UserManager.java,v 1.26 2003/11/15 20:14:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -123,6 +123,12 @@ public class UserManager
 			"Authentication won't work.");
 	}
 
+        // look up any override to our user auth cookie
+        String authCook = config.getProperty("userauth_cookie");
+        if (!StringUtil.blank(authCook)) {
+            _userAuthCookie = authCook;
+        }
+
 	// register a cron job to prune the session table every hour
 	Interval pruner = new Interval() {
 	    public void intervalExpired (int id, Object arg)
@@ -175,7 +181,7 @@ public class UserManager
     public User loadUser (HttpServletRequest req)
 	throws PersistenceException
     {
-	String authcode = CookieUtil.getCookieValue(req, USERAUTH_COOKIE);
+	String authcode = CookieUtil.getCookieValue(req, _userAuthCookie);
 	if (authcode != null) {
 	    return _repository.loadUserBySession(authcode);
 	} else {
@@ -246,7 +252,7 @@ public class UserManager
 	// generate a new session for this user
 	String authcode = _repository.createNewSession(user, persist);
 	// stick it into a cookie for their browsing convenience
-	Cookie acookie = new Cookie(USERAUTH_COOKIE, authcode);
+	Cookie acookie = new Cookie(_userAuthCookie, authcode);
         // strip the hostname from the server and use that as the domain
         // unless configured not to
         if (!"false".equalsIgnoreCase(
@@ -267,7 +273,7 @@ public class UserManager
      */
     public void logout (HttpServletRequest req, HttpServletResponse rsp)
     {
-	String authcode = CookieUtil.getCookieValue(req, USERAUTH_COOKIE);
+	String authcode = CookieUtil.getCookieValue(req, _userAuthCookie);
 
 	// nothing to do if they don't already have an auth cookie
 	if (authcode == null) {
@@ -275,7 +281,7 @@ public class UserManager
 	}
 
 	// set them up the bomb
-        Cookie c = new Cookie(USERAUTH_COOKIE, "x");
+        Cookie c = new Cookie(_userAuthCookie, "x");
         c.setPath("/");
         c.setMaxAge(0);
         CookieUtil.widenDomain(req, c);
@@ -283,7 +289,7 @@ public class UserManager
 
         // we need an unwidened one to ensure that old-style cookies are
         // wiped as well
-        c = new Cookie(USERAUTH_COOKIE, "x");
+        c = new Cookie(_userAuthCookie, "x");
         c.setPath("/");
         c.setMaxAge(0);
         rsp.addCookie(c);
@@ -300,6 +306,9 @@ public class UserManager
 
     /** The URL for the user login page. */
     protected String _loginURL;
+
+    /** The name of our user authentication cookie. */
+    protected String _userAuthCookie = USERAUTH_COOKIE;
 
     /** The user authentication cookie name. */
     protected static final String USERAUTH_COOKIE = "id_";

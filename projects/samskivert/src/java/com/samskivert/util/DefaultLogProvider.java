@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.12 2002/09/23 18:00:59 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.13 2002/09/23 20:33:04 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -117,9 +117,8 @@ public class DefaultLogProvider implements LogProvider
         int wrapwid = _tdimens.width - GAP.length();
         int remain = message.length(), offset = 0;
 
-        // if the text contains newlines anywhere except at the end, don't
-        // wrap it
-        if (message.indexOf("\n") != message.length()-1) {
+        // if the text contains newlines, don't wrap it
+        if (message.indexOf("\n") != -1) {
             wrapwid = Integer.MAX_VALUE;
         }
 

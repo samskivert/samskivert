@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.10 2003/09/03 17:08:21 eric Exp $
+// $Id: ParameterUtil.java,v 1.11 2003/09/17 18:41:04 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -76,17 +76,6 @@ public class ParameterUtil
         
     }
 
-    protected static float parseFloatParameter (
-        String value, String invalidDataMessage)
-        throws DataValidationException
-    {
-        try {
-	    return Float.parseFloat(value);
-	} catch (NumberFormatException nfe) {
-	    throw new DataValidationException(invalidDataMessage);
-	}
-    }
-
     /**
      * Fetches the supplied parameter from the request and converts it to
      * an integer. If the parameter does not exist or is not a well-formed
@@ -151,17 +140,6 @@ public class ParameterUtil
         return parseIntParameter(value, invalidDataMessage);
     }
 
-    protected static int parseIntParameter (
-        String value, String invalidDataMessage)
-        throws DataValidationException
-    {
-        try {
-	    return Integer.parseInt(value);
-	} catch (NumberFormatException nfe) {
-	    throw new DataValidationException(invalidDataMessage);
-	}
-    }
-
     /**
      * Fetches the supplied parameter from the request. If the parameter
      * does not exist, a data validation exception is thrown with the
@@ -181,6 +159,12 @@ public class ParameterUtil
     /**
      * Fetches the supplied parameter from the request and ensures that
      * it is no longer than maxLength.
+     *
+     * Note that use of this method could be dangerous. If the specified
+     * HttpServletRequest is used to pre-fill in values on a form, it will
+     * not know to use the truncated version and the user may see enter, then
+     * see again a different version of the value than you get from this
+     * method. Be careful.
      */
     public static String requireParameter (
         HttpServletRequest req, String name, String missingDataMessage,
@@ -222,17 +206,6 @@ public class ParameterUtil
             return null;
         }
         return parseDateParameter(value, invalidDataMessage);
-    }
-
-    protected static
-        Date parseDateParameter (String value, String invalidDataMessage)
-	throws DataValidationException
-    {
-	try {
-            return _dparser.parse(value);
-	} catch (ParseException pe) {
-	    throw new DataValidationException(invalidDataMessage);
-	}
     }
 
     /**
@@ -280,6 +253,48 @@ public class ParameterUtil
         HttpServletRequest req, String name, String value)
     {
 	return value.equals(getParameter(req, name, false));
+    }
+
+    /**
+     * Internal method to parse integer values.
+     */
+    protected static int parseIntParameter (
+        String value, String invalidDataMessage)
+        throws DataValidationException
+    {
+        try {
+	    return Integer.parseInt(value);
+	} catch (NumberFormatException nfe) {
+	    throw new DataValidationException(invalidDataMessage);
+	}
+    }
+
+    /**
+     * Internal method to parse a float value.
+     */
+    protected static float parseFloatParameter (
+        String value, String invalidDataMessage)
+        throws DataValidationException
+    {
+        try {
+	    return Float.parseFloat(value);
+	} catch (NumberFormatException nfe) {
+	    throw new DataValidationException(invalidDataMessage);
+	}
+    }
+
+    /**
+     * Internal method to parse a date.
+     */
+    protected static Date parseDateParameter (
+        String value, String invalidDataMessage)
+	throws DataValidationException
+    {
+	try {
+            return _dparser.parse(value);
+	} catch (ParseException pe) {
+	    throw new DataValidationException(invalidDataMessage);
+	}
     }
 
     /**

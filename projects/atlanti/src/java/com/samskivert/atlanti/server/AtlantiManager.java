@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.19 2001/11/24 22:41:21 mdb Exp $
+// $Id: AtlantiManager.java,v 1.20 2001/12/18 10:17:50 mdb Exp $
 
 package com.threerings.venison;
 
@@ -19,9 +19,10 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.MessageEvent;
 
-import com.threerings.crowd.chat.ChatService;
 import com.threerings.crowd.chat.ChatMessageHandler;
 import com.threerings.crowd.chat.ChatProvider;
+import com.threerings.crowd.chat.ChatService;
+import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.parlor.turn.TurnGameManager;
 
@@ -600,7 +601,7 @@ public class VenisonManager
     /** Handles place tile requests. */
     protected class PlaceTileHandler implements MessageHandler
     {
-        public void handleEvent (MessageEvent event)
+        public void handleEvent (MessageEvent event, PlaceManager pmgr)
         {
             VenisonTile tile = (VenisonTile)event.getArgs()[0];
             int pidx = getTurnHolderIndex();
@@ -647,7 +648,7 @@ public class VenisonManager
     /** Handles place piecen requests. */
     protected class PlacePiecenHandler implements MessageHandler
     {
-        public void handleEvent (MessageEvent event)
+        public void handleEvent (MessageEvent event, PlaceManager pmgr)
         {
             Piecen piecen = (Piecen)event.getArgs()[0];
             VenisonTile tile = (VenisonTile)_venobj.tiles.get(piecen.getKey());
@@ -690,7 +691,7 @@ public class VenisonManager
     /** Handles place nothing requests. */
     protected class PlaceNothingHandler implements MessageHandler
     {
-        public void handleEvent (MessageEvent event)
+        public void handleEvent (MessageEvent event, PlaceManager pmgr)
         {
             int pidx = getTurnHolderIndex();
             if (_playerOids[pidx] != event.getSourceOid()) {

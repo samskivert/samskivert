@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.7 2001/09/21 03:09:01 mdb Exp $
+// $Id: Chooser.java,v 1.8 2002/02/22 08:36:54 mdb Exp $
 
 package robodj.chooser;
 
@@ -66,7 +66,7 @@ public class Chooser
             System.exit(-1);
         }
 
-        String mhost = System.getProperty("musicd_host", "depravity");
+        String mhost = System.getProperty("musicd_host", "localhost");
         String mportstr = System.getProperty("musicd_port", "2500");
         int mport = 2500;
         try {

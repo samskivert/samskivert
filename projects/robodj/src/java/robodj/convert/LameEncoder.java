@@ -1,5 +1,5 @@
 //
-// $Id: LameEncoder.java,v 1.1 2001/03/18 06:58:55 mdb Exp $
+// $Id: LameEncoder.java,v 1.2 2003/10/10 19:33:16 mdb Exp $
 
 package robodj.convert;
 
@@ -17,7 +17,7 @@ public class LameEncoder implements Encoder
 			     ConversionProgressListener listener)
 	throws ConvertException
     {
-	StringBuffer cmd = new StringBuffer("lame");
+	StringBuffer cmd = new StringBuffer("nice lame");
 	cmd.append(" --nohist"); // we don't want histogram output
 	cmd.append(" -v"); // request variable bitrate encoding
 	cmd.append(" ").append(source); // add source file name

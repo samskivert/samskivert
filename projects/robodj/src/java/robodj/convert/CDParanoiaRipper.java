@@ -1,5 +1,5 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.5 2001/02/06 08:18:00 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.6 2003/10/10 19:33:16 mdb Exp $
 
 package robodj.convert;
 
@@ -110,7 +110,7 @@ public class CDParanoiaRipper implements Ripper
 			  ConversionProgressListener listener)
 	throws ConvertException
     {
-	StringBuffer cmd = new StringBuffer("cdparanoia");
+	StringBuffer cmd = new StringBuffer("nice cdparanoia");
 	cmd.append(" -w"); // request output in WAV format
 	cmd.append(" -e"); // request progress information to stderr
 	cmd.append(" ").append(index); // add track number

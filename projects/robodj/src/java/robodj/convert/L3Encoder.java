@@ -1,5 +1,5 @@
 //
-// $Id: L3Encoder.java,v 1.1 2000/10/30 22:21:11 mdb Exp $
+// $Id: L3Encoder.java,v 1.2 2003/10/10 19:33:16 mdb Exp $
 
 package robodj.convert;
 
@@ -15,7 +15,7 @@ public class L3Encoder implements Encoder
 			     ConversionProgressListener listener)
 	throws ConvertException
     {
-	StringBuffer cmd = new StringBuffer("l3enc");
+	StringBuffer cmd = new StringBuffer("nice l3enc");
 	cmd.append(" ").append(source); // add input file name
 	cmd.append(" ").append(dest); // add output file name
 	cmd.append(" -br 128000"); // request 128kbps encoding

@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextResourceLoader.java,v 1.1 2001/11/02 02:03:23 mdb Exp $
+// $Id: ServletContextResourceLoader.java,v 1.2 2001/11/02 02:30:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -50,6 +50,13 @@ public class ServletContextResourceLoader extends ResourceLoader
         // the web framework was kind enough to slip this into the runtime
         // instance when it started up
         _sctx = (ServletContext)rsvc.getApplicationContext();
+        if (_sctx == null) {
+            rsvc.warn("ServletContextResourceLoader: servlet context " +
+                      "was not supplied as application context. A " +
+                      "user of the servlet context resource loader " +
+                      "must call Velocity.setApplicationContext(" +
+                      "getServletContext()).");
+        }
 
         rsvc.info("ServletContextResourceLoader : initialization complete.");
     }
@@ -68,6 +75,14 @@ public class ServletContextResourceLoader extends ResourceLoader
     public InputStream getResourceStream (String path)
         throws ResourceNotFoundException
     {
+        // make sure we were properly initialized
+        if (_sctx == null) {
+            String errmsg = "ServletContextResourceLoader not properly " +
+                "initialized. Can't load resources.";
+            throw new ResourceNotFoundException(errmsg);
+        }
+
+        // load it on up
         InputStream stream = _sctx.getResourceAsStream(path);
         if (stream == null) {
             String errmsg = "Unable to load resource via servlet context " +

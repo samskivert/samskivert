@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.11 2002/07/10 01:53:59 ray Exp $
+// $Id: SwingUtil.java,v 1.12 2002/07/24 18:58:27 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -131,7 +131,6 @@ public class SwingUtil
 	poly.addPoint(x + d.width, y);
 	poly.addPoint(x + d.width, y + d.height);
 	poly.addPoint(x, y + d.height);
-	poly.addPoint(x, y);
 	return poly; 
     }
 

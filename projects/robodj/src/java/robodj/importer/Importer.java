@@ -1,5 +1,5 @@
 //
-// $Id: Importer.java,v 1.8 2001/09/21 03:09:01 mdb Exp $
+// $Id: Importer.java,v 1.9 2002/01/17 18:22:53 mdb Exp $
 
 package robodj.importer;
 
@@ -39,7 +39,7 @@ public class Importer
     public static void main (String[] args)
     {
         // load our main configuration
-        String cpath = "rsrc/importer.properties";
+        String cpath = "conf/importer.properties";
         try {
             config = ConfigUtil.loadProperties(cpath);
         } catch (IOException ioe) {
@@ -52,7 +52,7 @@ public class Importer
         // create an interface to the database repository
         try {
             StaticConnectionProvider scp =
-                new StaticConnectionProvider("rsrc/repository.properties");
+                new StaticConnectionProvider("conf/repository.properties");
             repository = new Repository(scp);
 
         } catch (IOException ioe) {

@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.3 2001/11/01 00:28:30 mdb Exp $
+// $Id: FormTool.java,v 1.4 2001/11/01 00:35:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -131,6 +131,15 @@ public class FormTool
     }
 
     /**
+     * Constructs a submit element with the name <code>submit</code> and
+     * the specified button text.
+     */
+    public String submit (String text)
+    {
+        return fixedInput("submit", "submit", text, "");
+    }
+
+    /**
      * Constructs a submit element with the specified parameter name and
      * the specified button text.
      */
@@ -167,6 +176,17 @@ public class FormTool
     public String fixedHidden (String name, String value)
     {
         return fixedInput("hidden", name, value, "");
+    }
+
+    /**
+     * Generates a hidden form field named <code>action</code> with the
+     * specified value. This is handy when you have multiple forms
+     * submitting to the same servlet and you need to distinguist the
+     * action desired by the user.
+     */
+    public String action (String value)
+    {
+        return fixedInput("hidden", "action", value, "");
     }
 
     /**

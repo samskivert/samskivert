@@ -30,8 +30,10 @@
     <jar href="robodj.jar"/>
     <jar href="commons-io.jar"/>
     <jar href="commons-lang.jar"/>
-    <jar href="mm.mysql-2.0.14-bin.jar"/>
+    <jar href="mysql-connector-java-3.0.11-stable-bin.jar"/>
     <jar href="samskivert.jar"/>
+    <jar href="narya-base.jar"/>
+    <jar href="narya-distrib.jar"/>
     <property name="musicd_host" value="@musicd_host@"/>
   </resources>
   <application-desc main-class="robodj.chooser.Chooser"/>

@@ -1,4 +1,6 @@
 commons-io.jar
 commons-lang.jar
-mm.mysql-2.0.14-bin.jar
+mysql-connector-java-3.0.11-stable-bin.jar
 samskivert.jar
+narya-base.jar
+narya-distrib.jar

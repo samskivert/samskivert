@@ -11,10 +11,6 @@
   <property name="install.dir"    value="${web.home}/${app.name}"/>
   <property name="narya.home"     value="../../work/narya"/>
 
-  <!-- we want to access the environment -->
-  <property environment="env"/>
-  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
-
   <!-- things you probably don't want to change -->
   <property name="src.dir"          value="src/java"/>
   <property name="deploy.dir"       value="dist"/>
@@ -27,8 +23,7 @@
 
   <!-- declare our classpath -->
   <path id="classpath">
-    <fileset dir="${java.libraries}" includesfile="lib/CLIENT_LIBS"/>
-    <fileset dir="lib" includes="**/*.jar"/>
+    <fileset dir="lib" includesfile="lib/CLIENT_LIBS"/>
     <pathelement location="${classes.dir}"/>
   </path>
 
@@ -53,7 +48,7 @@
     <apply executable="${nartool.path}/genservice"
       failonerror="true" parallel="true">
       <arg value="--classpath"/>
-      <arg value="${classes.dir}:${java.libraries}/narya-distrib.jar:${java.libraries}/narya-base.jar"/>
+      <arg value="${classes.dir}:lib/narya-distrib.jar:lib/narya-base.jar"/>
       <arg value="--sourcedir"/>
       <arg value="src/java"/>
       <fileset dir="src/java" includes="**/*Service.java"/>
@@ -119,7 +114,7 @@
     <mkdir dir="${install.dir}"/>
     <!-- copy the jar files used by the client -->
     <copy todir="${install.dir}">
-      <fileset dir="${java.libraries}" includesfile="lib/CLIENT_LIBS"/>
+      <fileset dir="lib" includesfile="lib/CLIENT_LIBS"/>
       <fileset dir="dist" includes="*.jar"/>
     </copy>
     <!-- sign the jar files -->

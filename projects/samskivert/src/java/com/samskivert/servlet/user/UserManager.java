@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.8 2001/08/11 22:43:28 mdb Exp $
+// $Id: UserManager.java,v 1.9 2001/09/20 01:53:20 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,11 +21,12 @@
 package com.samskivert.servlet.user;
 
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.util.Properties;
 import javax.servlet.http.*;
 
 import com.samskivert.Log;
+import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.PersistenceException;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.*;
@@ -39,8 +40,8 @@ public class UserManager
 {
     /**
      * A user manager creates a user repository through which to load and
-     * save user records. The properties needed to configure the user
-     * repository must be provided to the user manager at construct time.
+     * save user records. A connection provider must be supplied via which
+     * the user repository can obtain its database connection.
      *
      * <p> Presently the user manager requires the following configuration
      * information:
@@ -59,16 +60,20 @@ public class UserManager
      * they are authenticated.
      * </ul>
      *
+     * @param config the user manager configuration properties.
+     * @param provider a database connection provider that will be used by
+     * the user repository to obtain it's database connection.
+     *
      * @see UserRepository#UserRepository
      */
-    public UserManager (Properties props)
-	throws SQLException
+    public UserManager (Properties config, ConnectionProvider provider)
+	throws PersistenceException
     {
 	// open up the user repository
-	_repository = new UserRepository(props);
+	_repository = new UserRepository(provider);
 
 	// fetch the login URL from the properties
-	_loginURL = props.getProperty("login_url");
+	_loginURL = config.getProperty("login_url");
 	if (_loginURL == null) {
 	    Log.warning("No login_url supplied in user manager config. " +
 			"Authentication won't work.");
@@ -80,8 +85,8 @@ public class UserManager
 	    {
 		try {
 		    _repository.pruneSessions();
-		} catch (SQLException sqe) {
-		    Log.warning("Error pruning session table: " + sqe);
+		} catch (PersistenceException pe) {
+		    Log.warning("Error pruning session table: " + pe);
 		}
 	    }
 	};
@@ -91,13 +96,6 @@ public class UserManager
 
     public void shutdown ()
     {
-	// shut down the user repository
-	try {
-	    _repository.shutdown();
-	} catch (SQLException sqe) {
-	    Log.warning("Error shutting down user repository: " + sqe);
-	}
-
 	// cancel our session table pruning thread
 	IntervalManager.remove(_prunerid);
     }
@@ -119,7 +117,7 @@ public class UserManager
      * bogus.
      */
     public User loadUser (HttpServletRequest req)
-	throws SQLException
+	throws PersistenceException
     {
 	String authcode = getAuthCode(req);
 	if (authcode != null) {
@@ -139,7 +137,7 @@ public class UserManager
      * @return the user associated with the request.
      */
     public User requireUser (HttpServletRequest req)
-	throws SQLException, RedirectException
+	throws PersistenceException, RedirectException
     {
 	User user = loadUser(req);
 	// if no user was loaded, we need to redirect these fine people to
@@ -172,7 +170,8 @@ public class UserManager
      */
     public User login (String username, String password, boolean persist,
 		       HttpServletResponse rsp)
-	throws SQLException, NoSuchUserException, InvalidPasswordException
+	throws PersistenceException, NoSuchUserException,
+        InvalidPasswordException
     {
 	// load up the requested user
 	User user = _repository.loadUser(username);

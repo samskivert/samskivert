@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.16 2001/09/15 17:22:11 mdb Exp $
+// $Id: UserRepository.java,v 1.17 2001/09/20 01:53:20 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,8 +28,7 @@ import java.util.Properties;
 import org.apache.regexp.*;
 
 import com.samskivert.Log;
-import com.samskivert.jdbc.JDBCUtil;
-import com.samskivert.jdbc.MySQLRepository;
+import com.samskivert.jdbc.*;
 import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.HashIntMap;
 
@@ -38,33 +37,32 @@ import com.samskivert.util.HashIntMap;
  * user repository encapsulates the creating, loading and management of
  * users and sessions.
  */
-public class UserRepository extends MySQLRepository
+public class UserRepository extends JORARepository
 {
     /**
-     * Creates the repository and opens the user database. A properties
-     * object should be supplied with the following fields:
-     *
-     * <pre>
-     * driver=[jdbc driver class]
-     * url=[jdbc driver url]
-     * username=[jdbc username]
-     * password=[jdbc password]
-     * </pre>
-     *
-     * @param props a properties object containing the configuration
-     * parameters for the repository.
+     * The database identifier used to obtain a connection from our
+     * connection provider. The value is <code>userdb</code> which you'll
+     * probably need to know to provide the proper configuration to your
+     * connection provider.
      */
-    public UserRepository (Properties props)
-	throws SQLException
+    public static final String USER_REPOSITORY_IDENT = "userdb";
+
+    /**
+     * Creates the repository and opens the user database. The database
+     * identifier used to fetch our database connection is documented by
+     * {@link #USER_REPOSITORY_IDENT}.
+     *
+     * @param provider the database connection provider.
+     */
+    public UserRepository (ConnectionProvider provider)
     {
-	super(props);
+	super(provider, USER_REPOSITORY_IDENT);
     }
 
-    protected void createTables ()
-	throws SQLException
+    protected void createTables (Session session)
     {
 	// create our table object
-	_utable = new Table(User.class.getName(), "users", _session,
+	_utable = new Table(User.class.getName(), "users", session,
 			    "userid");
     }
 
@@ -83,7 +81,7 @@ public class UserRepository extends MySQLRepository
      */
     public int createUser (String username, String password,
 			   String realname, String email)
-	throws InvalidUsernameException, UserExistsException, SQLException
+	throws InvalidUsernameException, UserExistsException, PersistenceException
     {
 	// check minimum length
 	if (username.length() < MINIMUM_USERNAME_LENGTH) {
@@ -103,25 +101,26 @@ public class UserRepository extends MySQLRepository
 	user.email = email;
 	user.created = new Date(System.currentTimeMillis());
 
-	try {
-	    execute(new Operation () {
-		public Object invoke () throws SQLException
-		{
+        execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                try {
 		    _utable.insert(user);
 		    // update the userid now that it's known
-		    user.userid = lastInsertedId();
+		    user.userid = liaison.lastInsertedId(conn);
                     // nothing to return
                     return null;
-		}
-	    });
 
-	} catch (SQLException sqe) {
-	    if (isDuplicateRowException(sqe)) {
-		throw new UserExistsException("error.user_exists");
-	    } else {
-		throw sqe;
-	    }
-	}
+                } catch (SQLException sqe) {
+                    if (liaison.isDuplicateRowException(sqe)) {
+                        throw new UserExistsException("error.user_exists");
+                    } else {
+                        throw sqe;
+                    }
+                }
+            }
+        });
 
 	return user.userid;
     }
@@ -133,10 +132,11 @@ public class UserRepository extends MySQLRepository
      * that id exists.
      */
     public User loadUser (final String username)
-	throws SQLException
+	throws PersistenceException
     {
         return (User)execute(new Operation () {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 // look up the user
                 String query = "where username = '" + username + "'";
@@ -161,10 +161,11 @@ public class UserRepository extends MySQLRepository
      * that id exists.
      */
     public User loadUser (final int userid)
-	throws SQLException
+	throws PersistenceException
     {
         return (User)execute(new Operation () {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 // look up the user
                 Cursor ec = _utable.select("where userid = " + userid);
@@ -188,10 +189,11 @@ public class UserRepository extends MySQLRepository
      * no session exists with the supplied identifier.
      */
     public User loadUserBySession (final String sessionKey)
-	throws SQLException
+	throws PersistenceException
     {
         return (User)execute(new Operation () {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 String query = "where authcode = '" + sessionKey +
                     "' AND sessions.userid = users.userid";
@@ -214,10 +216,11 @@ public class UserRepository extends MySQLRepository
      * Updates a user that was previously fetched from the repository.
      */
     public void updateUser (final User user)
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation () {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
 		_utable.update(user);
                 // nothing to return
@@ -230,10 +233,11 @@ public class UserRepository extends MySQLRepository
      * Removes the user from the repository.
      */
     public void deleteUser (final User user)
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation () {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
 		_utable.delete(user);
                 // nothing to return
@@ -251,7 +255,7 @@ public class UserRepository extends MySQLRepository
      * sessions expire after one month.
      */
     public String createNewSession (final User user, boolean persist)
-	throws SQLException
+	throws PersistenceException
     {
 	// generate a random session identifier
 	final String authcode = UserUtil.genAuthCode(user);
@@ -263,7 +267,8 @@ public class UserRepository extends MySQLRepository
 
 	// insert the session into the database
 	execute(new Operation () {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
 		_session.execute("insert into sessions " +
 				 "(authcode, userid, expires) values('" +
@@ -282,10 +287,11 @@ public class UserRepository extends MySQLRepository
      * Prunes any expired sessions from the sessions table.
      */
     public void pruneSessions ()
-	throws SQLException
+	throws PersistenceException
     {
 	execute(new Operation () {
-	    public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
 	    {
 		_session.execute("delete from sessions where " +
 				 "expires <= CURRENT_DATE()");
@@ -301,7 +307,7 @@ public class UserRepository extends MySQLRepository
      * slot in the array will contain a null.
      */
     public String[] loadUserNames (int[] userids)
-	throws SQLException
+	throws PersistenceException
     {
 	return loadNames(userids, "username");
     }
@@ -312,13 +318,13 @@ public class UserRepository extends MySQLRepository
      * slot in the array will contain a null.
      */
     public String[] loadRealNames (int[] userids)
-	throws SQLException
+	throws PersistenceException
     {
 	return loadNames(userids, "realname");
     }
 
     protected String[] loadNames (int[] userids, final String column)
-	throws SQLException
+	throws PersistenceException
     {
         // if userids is zero length, we've got no work to do
         if (userids.length == 0) {
@@ -338,7 +344,8 @@ public class UserRepository extends MySQLRepository
 
 	// do the query
         execute(new Operation () {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 Statement stmt = _session.connection.createStatement();
                 try {
@@ -377,13 +384,14 @@ public class UserRepository extends MySQLRepository
      * already using it to link up.
      */
     public String[] loadAllRealNames ()
-	throws SQLException
+	throws PersistenceException
     {
         final ArrayList names = new ArrayList();
 
 	// do the query
         execute(new Operation () {
-            public Object invoke () throws SQLException
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
             {
                 Statement stmt = _session.connection.createStatement();
                 try {
@@ -411,13 +419,17 @@ public class UserRepository extends MySQLRepository
     public static void main (String[] args)
     {
 	Properties props = new Properties();
-	props.put("driver", "org.gjt.mm.mysql.Driver");
-	props.put("url", "jdbc:mysql://localhost:3306/samskivert");
-	props.put("username", "www");
-	props.put("password", "Il0ve2PL@Y");
+	props.put(USER_REPOSITORY_IDENT + ".driver",
+                  "org.gjt.mm.mysql.Driver");
+	props.put(USER_REPOSITORY_IDENT + ".url",
+                  "jdbc:mysql://localhost:3306/samskivert");
+	props.put(USER_REPOSITORY_IDENT + ".username", "www");
+	props.put(USER_REPOSITORY_IDENT + ".password", "Il0ve2PL@Y");
 
 	try {
-	    UserRepository rep = new UserRepository(props);
+            StaticConnectionProvider scp =
+                new StaticConnectionProvider(props);
+	    UserRepository rep = new UserRepository(scp);
 
 	    System.out.println(rep.loadUser("mdb"));
 	    System.out.println(rep.loadUserBySession("auth"));
@@ -427,7 +439,7 @@ public class UserRepository extends MySQLRepository
 	    rep.createUser("mdb", "foobar", "Michael Bayne",
 			   "mdb@samskivert.com");
 
-	    rep.shutdown();
+	    scp.shutdown();
 
 	} catch (Throwable t) {
 	    t.printStackTrace(System.err);

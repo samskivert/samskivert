@@ -1,5 +1,5 @@
 //
-// $Id: UserExistsException.java,v 1.4 2001/09/20 01:53:20 mdb Exp $
+// $Id: LiaisonRegistry.java,v 1.1 2001/09/20 01:53:19 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -18,18 +18,22 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.servlet.user;
+package com.samskivert.jdbc;
 
-import com.samskivert.jdbc.PersistenceException;
+import java.sql.*;
 
 /**
- * Thrown during user account creation when a user with the requested
- * username already exists.
+ * The liaison registry provides access to the appropriate database
+ * liaison implementation for a particular database connection.
  */
-public class UserExistsException extends PersistenceException
+public class LiaisonRegistry
 {
-    public UserExistsException (String message)
+    /**
+     * Fetch the appropriate database liaison for the supplied database
+     * connection.
+     */
+    public static DatabaseLiaison getLiaison (Connection conn)
     {
-	super(message);
+        return null;
     }
 }

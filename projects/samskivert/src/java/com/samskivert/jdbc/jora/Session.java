@@ -13,6 +13,8 @@ package com.samskivert.jdbc.jora;
 import java.util.*;
 import java.sql.*;
 
+import com.samskivert.Log;
+
 /**
  * This class is reposnsible for establishing connection with database
  * and handling database errors.
@@ -31,10 +33,47 @@ public class Session {
 	connectionID = 0;
     }
 
+    /** Construct a session with a pre-existing connection instance. In
+     * this case, {@link #open} should not be called on this session.
+     *
+     * @param conn the connection to use.
+     */
+    public Session(Connection connection)
+    {
+        connectionID = 0;
+        preparedStmtHash = new Hashtable();
+        setConnection(connection);
+    }
+
     /** Session consructor for ODBC bridge driver
      */
     public Session() { this("sun.jdbc.odbc.JdbcOdbcDriver"); }
      
+    /** Sets the connection that should be used by this session.
+     */
+    public void setConnection(Connection conn)
+    {
+        // only up the connection id if this is a new connection
+        if (connection != conn) {
+            // clear out our prepared statement hash because we've got a
+            // new connection
+	    Enumeration items = preparedStmtHash.elements();
+	    while (items.hasMoreElements()) { 
+                try {
+                    ((PreparedStatement)items.nextElement()).close();
+                } catch (SQLException sqe) {
+                    Log.warning("Error closing cached prepared statement " +
+                                "[error=" + sqe + "].");
+                }
+	    }
+	    preparedStmtHash.clear();
+
+            // switch to our new connection
+            connection = conn;
+            connectionID += 1;
+        }
+    }
+
     /** Handler of database session errors. Programmer should override
      *  this method in derived class in order to provide application
      *  dependent error handling.

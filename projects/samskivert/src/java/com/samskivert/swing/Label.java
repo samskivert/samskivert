@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.9 2002/05/15 03:45:38 mdb Exp $
+// $Id: Label.java,v 1.10 2002/05/16 00:01:08 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -27,6 +27,7 @@ import java.util.HashMap;
 import javax.swing.SwingConstants;
 
 import com.samskivert.Log;
+import com.samskivert.util.StringUtil;
 
 /**
  * The label is a multipurpose text display mechanism that can display
@@ -70,7 +71,14 @@ public class Label implements SwingConstants
      */
     public void setText (String text)
     {
-        _text = text;
+        // the Java text stuff freaks out in a variety of ways if it is
+        // asked to deal with the empty string, so we fake blank labels by
+        // just using a space
+        if (StringUtil.blank(text)) {
+            _text = " ";
+        } else {
+            _text = text;
+        }
     }
 
     /**

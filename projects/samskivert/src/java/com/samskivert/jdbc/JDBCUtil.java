@@ -1,5 +1,5 @@
 //
-// $Id: JDBCUtil.java,v 1.5 2004/01/29 01:10:46 mdb Exp $
+// $Id: JDBCUtil.java,v 1.6 2004/04/26 02:43:35 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,7 @@
 
 package com.samskivert.jdbc;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.*;
 
 import com.samskivert.Log;
@@ -122,6 +123,39 @@ public class JDBCUtil
             Log.warning("Statement did not modify expected number of rows " +
                         "[stmt=" + stmt + ", expected=" + expectedCount +
                         ", modified=" + modified + "]");
+        }
+    }
+
+    /**
+     * Many databases simply fail to handle Unicode text properly and this
+     * routine provides a common workaround which is to represent a UTF-8
+     * string as an ISO-8895-1 string. If you don't need to use the
+     * database's collation routines, this allows you to do pretty much
+     * exactly what you want at the expense of having to jigger and
+     * dejigger every goddamned string that might contain multibyte
+     * characters every time you access the database. Three cheers for
+     * progress!
+     */
+    public static String jigger (String text)
+    {
+        try {
+            return new String(text.getBytes("UTF8"), "8859_1");
+        } catch (UnsupportedEncodingException uee) {
+            Log.logStackTrace(uee);
+            return text;
+        }
+    }
+
+    /**
+     * Reverses {@link #jigger}.
+     */
+    public static String unjigger (String text)
+    {
+        try {
+            return new String(text.getBytes("8859_1"), "UTF8");
+        } catch (UnsupportedEncodingException uee) {
+            Log.logStackTrace(uee);
+            return text;
         }
     }
 }

@@ -2,6 +2,7 @@
 
 BINDIR=`dirname $0`
 JAVA_ARGS=""
+ARGS=""
 
 # grab the -Dinviter if it's specified
 while [ ! -z "$1" ] ; do
@@ -10,7 +11,11 @@ while [ ! -z "$1" ] ; do
         JAVA_ARGS="$JAVA_ARGS $1"
         shift
         ;;
+    *)
+        ARGS="$ARGS $1"
+        shift
+        ;;
     esac
 done
 
-$BINDIR/runjava $JAVA_ARGS com.threerings.micasa.client.MiCasaApp $*
+$BINDIR/runjava $JAVA_ARGS com.threerings.micasa.client.MiCasaApp $ARGS

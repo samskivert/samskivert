@@ -1,5 +1,5 @@
 //
-// $Id: SetFieldRule.java,v 1.1 2001/11/17 03:45:52 mdb Exp $
+// $Id: SetFieldRule.java,v 1.2 2001/11/26 23:44:40 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -21,13 +21,13 @@
 package com.samskivert.xml;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 
 import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.ValueMarshaller;
 
 /**
  * Sets a field in the object on the top of the stack with a value parsed
@@ -70,70 +70,12 @@ public class SetFieldRule extends Rule
                          _bodyText + "' on '" + top + "'.");
         }
 
+        // convert the source string into an object and set the field
         Field field = top.getClass().getField(_fieldName);
-
-        // look up an argument parser for the field type
-        Parser parser = (Parser)_parsers.get(field.getType());
-        if (parser == null) {
-            String errmsg = "Don't know how to convert strings into " +
-                "fields of type '" + field.getType() +
-                "' [field=" + _fieldName + ", target=" + top + "].";
-            throw new Exception(errmsg);
-        }
-
-        // parse the text and set the field
-        field.set(top, parser.parse(_bodyText));
-    }
-
-    protected static interface Parser
-    {
-        public Object parse (String source) throws Exception;
+        Object value = ValueMarshaller.unmarshal(field.getType(), _bodyText);
+        field.set(top, value);
     }
 
     protected String _fieldName;
     protected String _bodyText;
-
-    protected static HashMap _parsers;
-
-    protected static final int[] INT_ARRAY_PROTOTYPE = new int[0];
-    protected static final String[] STRING_ARRAY_PROTOTYPE = new String[0];
-
-    static {
-        _parsers = new HashMap();
-
-        // we can parse strings
-        _parsers.put(String.class, new Parser() {
-            public Object parse (String source) throws Exception {
-                return source;
-            }
-        });
-
-        // and ints
-        _parsers.put(Integer.TYPE, new Parser() {
-            public Object parse (String source) throws Exception {
-                return Integer.valueOf(source);
-            }
-        });
-
-        // and integers
-        _parsers.put(Integer.class, new Parser() {
-            public Object parse (String source) throws Exception {
-                return Integer.valueOf(source);
-            }
-        });
-
-        // and int arrays
-        _parsers.put(INT_ARRAY_PROTOTYPE.getClass(), new Parser() {
-            public Object parse (String source) throws Exception {
-                return StringUtil.parseIntArray(source);
-            }
-        });
-
-        // and string arrays, oh my!
-        _parsers.put(STRING_ARRAY_PROTOTYPE.getClass(), new Parser() {
-            public Object parse (String source) throws Exception {
-                return StringUtil.parseStringArray(source);
-            }
-        });
-    }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: IntListUtil.java,v 1.4 2003/02/04 03:12:30 mdb Exp $
+// $Id: IntListUtil.java,v 1.5 2003/02/06 18:51:50 mdb Exp $
 
 package com.samskivert.util;
 
@@ -353,18 +353,6 @@ public class IntListUtil
             }
         }
         return idx;
-    }
-
-    /**
-     * Creates a new array one larger than the supplied array and with the
-     * specified value inserted into the last slot.
-     */
-    public static int[] append (int[] values, int value)
-    {
-        int[] nvalues = new int[values.length+1];
-        System.arraycopy(values, 0, nvalues, 0, values.length);
-        nvalues[values.length] = value;
-        return nvalues;
     }
 
     /**

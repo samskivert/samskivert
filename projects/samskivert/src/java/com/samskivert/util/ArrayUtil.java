@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.24 2003/02/04 03:12:30 mdb Exp $
+// $Id: ArrayUtil.java,v 1.25 2003/02/06 18:51:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -19,6 +19,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.util;
+
+import java.lang.reflect.Array;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -620,6 +622,56 @@ public class ArrayUtil
         int[][] nvalues = new int[size - length][];
         System.arraycopy(values, 0, nvalues, 0, offset);
         System.arraycopy(values, tstart, nvalues, offset, size - tstart);
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the last slot.
+     */
+    public static byte[] append (byte[] values, byte value)
+    {
+        byte[] nvalues = new byte[values.length+1];
+        System.arraycopy(values, 0, nvalues, 0, values.length);
+        nvalues[values.length] = value;
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the last slot.
+     */
+    public static short[] append (short[] values, short value)
+    {
+        short[] nvalues = new short[values.length+1];
+        System.arraycopy(values, 0, nvalues, 0, values.length);
+        nvalues[values.length] = value;
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the last slot.
+     */
+    public static int[] append (int[] values, int value)
+    {
+        int[] nvalues = new int[values.length+1];
+        System.arraycopy(values, 0, nvalues, 0, values.length);
+        nvalues[values.length] = value;
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the last slot. The type of the values
+     * array will be preserved.
+     */
+    public static Object[] append (Object[] values, Object value)
+    {
+        Object[] nvalues = (Object[])Array.newInstance(
+            values.getClass().getComponentType(), values.length+1);
+        System.arraycopy(values, 0, nvalues, 0, values.length);
+        nvalues[values.length] = value;
         return nvalues;
     }
 

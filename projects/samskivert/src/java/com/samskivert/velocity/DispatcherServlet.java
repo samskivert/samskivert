@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.5 2001/11/01 21:34:03 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.6 2001/11/02 02:03:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,11 +25,13 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -167,6 +169,10 @@ public class DispatcherServlet extends VelocityServlet
 
         // Log.info("Initializing dispatcher servlet.");
 
+        // initialize the Velocity application context
+        ServletContext sctx = getServletContext();
+        Velocity.setApplicationContext(sctx);
+
         // load up our application configuration
         try {
             String appcl = config.getInitParameter(APP_CLASS_PROPS_KEY);
@@ -182,8 +188,8 @@ public class DispatcherServlet extends VelocityServlet
             if (StringUtil.blank(logicPkg)) {
                 logicPkg = "";
             }
-            _app.init(getServletContext());
-            _app.postInit(getServletContext(), logicPkg);
+            _app.init(sctx);
+            _app.postInit(sctx, logicPkg);
 
         } catch (Throwable t) {
             Log.warning("Error instantiating application.");

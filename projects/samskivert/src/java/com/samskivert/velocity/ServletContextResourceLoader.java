@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextResourceLoader.java,v 1.3 2001/11/06 04:49:32 mdb Exp $
+// $Id: ServletContextResourceLoader.java,v 1.4 2002/01/24 06:32:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -67,13 +67,13 @@ public class ServletContextResourceLoader extends ResourceLoader
 
         // the web framework was kind enough to slip this into the runtime
         // instance when it started up
-        _sctx = (ServletContext)rsvc.getApplicationContext();
+        _sctx = (ServletContext)rsvc.getApplicationAttribute("ServletContext");
         if (_sctx == null) {
             rsvc.warn("ServletContextResourceLoader: servlet context " +
                       "was not supplied as application context. A " +
                       "user of the servlet context resource loader " +
-                      "must call Velocity.setApplicationContext(" +
-                      "getServletContext()).");
+                      "must call Velocity.setApplicationAttribute(" +
+                      "\"ServletContext\", getServletContext()).");
         }
 
         rsvc.info("ServletContextResourceLoader : initialization complete.");

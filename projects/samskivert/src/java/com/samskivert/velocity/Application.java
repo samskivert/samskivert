@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.7 2001/11/06 20:55:51 mdb Exp $
+// $Id: Application.java,v 1.8 2002/01/24 06:32:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,6 +23,8 @@ package com.samskivert.velocity;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
+import org.apache.velocity.app.Velocity;
+
 import com.samskivert.Log;
 import com.samskivert.servlet.IndiscriminateSiteIdentifier;
 import com.samskivert.servlet.MessageManager;
@@ -40,6 +42,14 @@ import com.samskivert.util.StringUtil;
  */
 public class Application
 {
+    /**
+     * An initialized application automatically registers itself as a
+     * Velocity application attribute so that it can be retrieved by
+     * Velocity plugins using
+     * <code>getApplicationAttribute(VELOCITY_ATTR_KEY)</code>.
+     */
+    public static final String VELOCITY_ATTR_KEY = "!application!";
+
     /**
      * Performs initializations common to all applications. Applications
      * should override {@link #willInit} to perform initializations that
@@ -62,6 +72,10 @@ public class Application
     {
         // keep this around for later
         _context = context;
+
+        // stick ourselves into an application attribute so that we can be
+        // accessed by Velocity plugins
+        Velocity.setApplicationAttribute(VELOCITY_ATTR_KEY, this);
 
         // let the derived application do pre-init stuff
         willInit(config);

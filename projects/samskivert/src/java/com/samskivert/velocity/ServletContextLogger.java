@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextLogger.java,v 1.3 2001/11/20 21:32:34 mdb Exp $
+// $Id: ServletContextLogger.java,v 1.4 2002/01/24 06:32:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -54,22 +54,27 @@ public class ServletContextLogger implements LogSystem
         // if we weren't constructed with a servlet context, try to obtain
         // one via the application context
         if (_sctx == null) {
-            Object context = rsvc.getApplicationContext();
-            if (context != null) {
-                if (context instanceof Application) {
-                    _sctx = ((Application)context).getServletContext();
-                } else if (context instanceof ServletContext) {
-                    _sctx = (ServletContext)context;
-                }
+            // first look for the servlet context directly
+            _sctx = (ServletContext)
+                rsvc.getApplicationAttribute("ServletContext");
+        }
+
+        // if that didn't work, look for an application
+        if (_sctx == null) {
+            // first look for an application
+            Application app = (Application)rsvc.getApplicationAttribute(
+                Application.VELOCITY_ATTR_KEY);
+            if (app != null) {
+                _sctx = app.getServletContext();
             }
         }
 
         // if we still don't have one, complain
         if (_sctx == null) {
             rsvc.warn("ServletContextLogger: servlet context was not " +
-                      "supplied as application context. A user of the " +
-                      "servlet context logger must call " +
-                      "Velocity.setApplicationContext(getServletContext()).");
+                      "supplied. A user of the servlet context logger must " +
+                      "call Velocity.setApplicationAttribute(" +
+                      "\"ServletContext\", getServletContext()).");
         }
     }
 

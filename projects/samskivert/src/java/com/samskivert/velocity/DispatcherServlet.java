@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.13 2001/11/20 21:33:03 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.14 2002/01/24 06:32:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -151,10 +151,6 @@ import com.samskivert.util.StringUtil;
 public class DispatcherServlet extends VelocityServlet
 {
     /**
-     * We load our velocity properties from the classpath rather than from
-     * a file.
-     */
-    /**
      * Initialize ourselves and our application.
      */
     protected void initVelocity (ServletConfig config)
@@ -180,13 +176,14 @@ public class DispatcherServlet extends VelocityServlet
             Log.logStackTrace(t);
         }
 
-        // stick the application into the Velocity application context
-        Velocity.setApplicationContext(_app);
-
         // now let velocity initialize itself
         super.initVelocity(config);
     }
 
+    /**
+     * We load our velocity properties from the classpath rather than from
+     * a file.
+     */
     protected Properties loadConfiguration (ServletConfig config)
         throws IOException
     {

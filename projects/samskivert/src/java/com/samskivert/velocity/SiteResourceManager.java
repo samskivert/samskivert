@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceManager.java,v 1.4 2001/11/06 20:16:47 mdb Exp $
+// $Id: SiteResourceManager.java,v 1.5 2002/01/24 06:32:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -55,13 +55,12 @@ public class SiteResourceManager extends ResourceManagerImpl
 
         // the web framework was kind enough to slip this into the runtime
         // instance when it started up
-        Application app = (Application)rsvc.getApplicationContext();
+        Application app = (Application)rsvc.getApplicationAttribute(
+            Application.VELOCITY_ATTR_KEY);
         if (app == null) {
-            rsvc.warn("SiteResourceManager: Application reference " +
-                      "was not supplied as application context. A " +
-                      "user of the site resource manager must supply " +
-                      "a reference to the Application instance via " +
-                      "Velocity.setApplicationContext().");
+            rsvc.warn("SiteResourceManager: No application was initialized. " +
+                      "A user of the site resource manager must ensure that " +
+                      "an application is instantiated and initialized.");
         }
 
         // get handles on the good stuff

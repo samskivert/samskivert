@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.14 2003/06/16 18:11:30 mdb Exp $
+// $Id: SortableArrayList.java,v 1.15 2003/07/15 00:30:30 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -237,6 +237,10 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public int indexOf  (Object o)
     {
+        if (_elements == null) {
+            return -1;
+        }
+
         return ListUtil.indexOfEqual(_elements, o);
     }
 

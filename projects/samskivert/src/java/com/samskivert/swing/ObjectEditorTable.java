@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEditorTable.java,v 1.2 2004/06/14 17:20:04 ray Exp $
+// $Id: ObjectEditorTable.java,v 1.3 2004/06/14 17:36:03 ray Exp $
 
 package com.samskivert.swing;
 
@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.util.BitSet;
 
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 
 import com.samskivert.swing.event.CommandEvent;
@@ -131,6 +132,7 @@ public class ObjectEditorTable extends JTable
         }
 
         setModel(_model);
+        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
     /**

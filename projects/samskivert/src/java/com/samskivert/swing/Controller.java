@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.16 2003/07/11 03:42:27 mdb Exp $
+// $Id: Controller.java,v 1.17 2004/01/16 15:25:29 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,7 +28,7 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 
 import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 import javax.swing.event.AncestorEvent;
 
 import com.samskivert.Log;
@@ -103,7 +103,7 @@ public abstract class Controller
     /**
      * Lets this controller know about the panel that it is controlling.
      */
-    public void setControlledPanel (JPanel panel)
+    public void setControlledPanel (JComponent panel)
     {
         panel.addAncestorListener(new AncestorAdapter() {
             public void ancestorAdded (AncestorEvent event) {

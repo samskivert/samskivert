@@ -4,9 +4,6 @@
 #if ($task)
 
 <p>
-<table cellpadding="0" cellspacing="10"> <!-- two colum layout table -->
-<tr><td valign="top">
-
 <table cellpadding="2" cellspacing="0" border="0">
 
 #if ($task.completor)
@@ -26,13 +23,13 @@ $form.submit("submit", "Reopen")</td></tr>
 $form.fixedHidden("action", "update")
 <input type="hidden" name="task" value="$task.taskId">
 
-<tr><td colspan="3">Summary:<br>
-<textarea name="summary" rows="5" cols="50">
+<tr><td rowspan="3" valign="top">Summary:<br>
+<textarea name="summary" rows="8" cols="50">
 $task.summary
 </textarea>
-</td></tr>
+</td>
 
-<tr><td>Category:<br>
+<td valign="top">Category:<br>
 $form.text("category", "size='10'", $task.category)
 </td>
 
@@ -44,6 +41,10 @@ $form.text("category", "size='10'", $task.category)
   $form.option("complexity", "Subsystem", "Subsystem", $task.complexity)
   $form.option("complexity", "Major refactor", "Major refactor", $task.complexity)
 </select>
+</td></tr>
+
+<tr><td valign="top">Creator:<br>
+$form.text("creator", "size='10'", $task.creator)
 </td>
 
 <td>Priority:<br>
@@ -57,25 +58,24 @@ $form.text("category", "size='10'", $task.category)
 </select>
 </td></tr>
 
-<tr><td>Creator:<br>
-$form.text("creator", "size='10'", $task.creator)
-</td>
-<td>&nbsp;</td>
-<td>Owner:<br>
+<tr><td>Owner:<br>
 #if ($task.owner)
 $form.text("owner", "size='10'", $task.owner)
 #else
 $form.text("owner", "size='10'", "")
 #end
 </td>
+<td>&nbsp;</td></tr>
 
-<tr><td colspan="3" align="right" bgcolor="$scolor">
+<tr><td colspan="4" align="right" bgcolor="$scolor">
 $form.submit("submit", "Update")</td></tr>
 </form>
+</table>
 
-<tr><td colspan="3">&nbsp;</td></tr>
-<tr><td colspan="3">Other actions:</td></tr>
-<tr><td colspan="3" align="right" bgcolor="$scolor">
+<p>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr><td>Other actions:</td></tr>
+<tr><td align="right" bgcolor="$scolor">
 
 <form action="edit.wm">
 $form.fixedHidden("action", "delete")
@@ -84,42 +84,42 @@ $form.submit("submit", "Delete")
 </form>
 
 </td></tr>
-</table>
 
-</td><td valign="top"> <!-- two colum layout table -->
-
-<table cellpadding="2" cellspacing="0" border="0">
+<tr><td>&nbsp;</td></tr>
 
 <form action="edit.wm">
 $form.fixedHidden("action", "addnote")
 <input type="hidden" name="task" value="$task.taskId">
 
 <tr><td>Add a note:<br>
-<textarea name="note" rows="5" cols="50">
+<code>
+<textarea name="note" rows="5" cols="80" wrap="hard">
 </textarea>
+</code>
 </td></tr>
 
 <tr><td align="right" bgcolor="$scolor">
 $form.submit("submit", "Add")</td></tr>
 </form>
 
+<tr><td>&nbsp;</td></tr>
+
 <form action="edit.wm">
 $form.fixedHidden("action", "editnotes")
 <input type="hidden" name="task" value="$task.taskId">
 
 <tr><td>Notes:<br>
-<textarea name="notes" rows="10" cols="50">
+<code>
+<textarea name="notes" rows="10" cols="80" wrap="hard">
 $task.notes
 </textarea>
+</code>
 </td></tr>
 
 <tr><td align="right" bgcolor="$scolor">
 $form.submit("submit", "Update")</td></tr>
 </form>
 
-</table>
-
-</td></tr> <!-- two colum layout table -->
 </table>
 
 #end

@@ -21,3 +21,8 @@ pre, code {
 .small {
   font-size: small;
 }
+
+table {
+  border-collapse: collapse;
+  border-width: 0;
+}

@@ -30,10 +30,11 @@ $form.imageSubmit("action", "claim", "images/claim.png", "Claim this task")
 </tr>
 
 #if (!$string.blank($notes))
+<tr><td colspan="4">&nbsp;</td></tr>
+<tr><td style="border-bottom: 1px, solid" colspan="4"><i>Notes</i></td></tr>
 <tr><td>&nbsp;</td>
 <td colspan="3">
-<p>
-<code>$notes</code>
+<pre>$notes</pre>
 </td></tr>
 #end
 

@@ -3,23 +3,9 @@
 
 <p>
 
-<table cellpadding="0" cellspacing="15" border="0">
-<tr><td width="50%"><b>Owned tasks:</b></td>
-
-<td width="50%"><b>
-#if ($query)
-Tasks matching '$query':
-#else
-Outstanding tasks:
-#if ($expand == "all")
-<a href="index.wm">[trim]</a>
-#else
-<a href="index.wm?expand=all">[show all]</a>
-#end
-#end
-</b></td></tr>
-
+<table cellpadding="0" cellspacing="0" border="0">
 <tr><td valign="top">
+<b>Owned tasks:</b>
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 
 #foreach ($otask in $otasks)
@@ -33,30 +19,28 @@ $ocats.clear()
 <form action="index.wm">
 $form.fixedHidden("action", "complete")
 $form.fixedHidden("task", "$task.taskId")
-#if ($vidx%2 == 0)
-#set ($rowcolor = "#FFFFFF")
-#else
-#set ($rowcolor = "#EEEEEE")
-#end
 
 #if ($ocats.checkCategory($task.complexity))
-<tr><td colspan="4" class="small">$task.complexity</td></tr>
+<tr><td colspan="4" class="small" style="border-bottom: 1px solid"><i>$task.complexity</i></td></tr>
+#set ($border = "")
+#else
+#set ($border = 'style="border-top: 1px solid"')
 #end
 
-<tr bgcolor="$rowcolor"><td>
+<tr><td>
 #if ($username == $task.owner)
 $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 #else
 &nbsp;
 #end
 </td>
-<td>$task.summary
+<td $border>$task.summary
 #if (!$string.blank($task.notes))
 &nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
 #end
 </td>
-<td valign="top">$task.getDisplayCategory()</td>
-<td valign="top"><a href="edit.wm?task=$task.taskId">
+<td valign="top" $border>$task.getDisplayCategory()</td>
+<td valign="top" $border><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0"></a></td></tr>
 </form>
 #end
@@ -66,7 +50,23 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 <p>
 <center class="small">Check the box to mark a task as completed.</center>
 
-</td><td valign="top">
+</td>
+
+<td width="15">&nbsp;</td>
+
+<td valign="top">
+<b>
+#if ($query)
+Tasks matching '$query':
+#else
+Outstanding tasks:
+#if ($expand == "all")
+<a href="index.wm">[trim]</a>
+#else
+<a href="index.wm?expand=all">[show all]</a>
+#end
+#end
+</b>
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 #foreach ($xtask in $xtasks)
@@ -88,24 +88,22 @@ $xcats.clear()
 $form.fixedHidden("task", "$task.taskId")
 
 #if ($xcats.checkCategory($task.complexity))
-<tr><td colspan="4" class="small">$task.complexity</td></tr>
+<tr><td colspan="4" class="small" style="border-bottom: 1px solid"><i>$task.complexity</i></td></tr>
+#set ($border = "")
+#else
+#set ($border = 'style="border-top: 1px solid"')
 #end
 
-#if ($vidx%2 == 0)
-#set ($rowcolor = "#FFFFFF")
-#else
-#set ($rowcolor = "#EEEEEE")
-#end
-<tr bgcolor="$rowcolor">
+<tr>
 <td>$form.imageSubmit("action", "claim", "images/claim.png", "Claim this task")</td>
-<td>$task.summary &nbsp;
+<td $border>$task.summary &nbsp;
 <span class="small">[$task.creator]</span>
 #if (!$string.blank($task.notes))
 &nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
 #end
 </td>
-<td valign="top">$task.getDisplayCategory()</td>
-<td valign="top"><a href="edit.wm?task=$task.taskId">
+<td valign="top" $border>$task.getDisplayCategory()</td>
+<td valign="top" $border><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0"></a></td>
 </tr>
 </form>
@@ -127,12 +125,10 @@ Filter on single word:<br>
 
 </td></tr>
 
-<tr><td colspan="2">&nbsp;</td></tr>
-
-<tr><td><b>Recent completed tasks:</b></td>
-<td><b>Create new task:</b></td></tr>
+<tr><td colspan="3">&nbsp;</td></tr>
 
 <tr><td valign="top">
+<b>Recent completed tasks:</b>
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 #foreach ($task in $dtasks)
 #if ($vidx%2 == 0)
@@ -154,8 +150,12 @@ Filter on single word:<br>
 #end
 </table>
 
-</td><td valign="top">
+</td>
 
+<td>&nbsp;</td>
+
+<td valign="top">
+<b>Create new task:</b>
 <form action="index.wm">
 $form.fixedHidden("action", "create")
 

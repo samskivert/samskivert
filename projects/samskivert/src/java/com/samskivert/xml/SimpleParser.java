@@ -1,5 +1,5 @@
 //
-// $Id: SimpleParser.java,v 1.2 2001/11/08 01:17:41 mdb Exp $
+// $Id: SimpleParser.java,v 1.3 2001/11/09 02:54:27 mdb Exp $
 
 package com.samskivert.xml;
 
@@ -35,22 +35,33 @@ public class SimpleParser extends DefaultHandler
     /**
      * Parse the given file.
      *
-     * @param fname the file to parse.
+     * @param path the full path to the file to parse.
      *
      * @exception IOException thrown if an error occurs while parsing
      * the file.
      */
-    public void parseFile (String fname)
+    public void parseFile (String path)
         throws IOException
     {
-        _fname = fname;
+        parseStream(getInputStream(path));
+    }
 
+    /**
+     * Parse the given input stream.
+     *
+     * @param stream the input stream from which the XML source to be
+     * parsed can be loaded.
+     *
+     * @exception IOException thrown if an error occurs while parsing
+     * the stream.
+     */
+    public void parseStream (InputStream stream)
+        throws IOException
+    {
 	try {
-            InputStream is = getInputStream(fname);
-
             // read the XML input stream and construct the scene object
             _chars = new StringBuffer();
-	    XMLUtil.parse(this, is);
+	    XMLUtil.parse(this, stream);
 
         } catch (ParserConfigurationException pce) {
   	    throw new NestableIOException(pce);
@@ -76,10 +87,10 @@ public class SimpleParser extends DefaultHandler
     /**
      * Returns an input stream to read data from the given file name.
      */
-    protected InputStream getInputStream (String fname)
+    protected InputStream getInputStream (String path)
         throws IOException
     {
-        FileInputStream fis = new FileInputStream(fname);
+        FileInputStream fis = new FileInputStream(path);
         return new BufferedInputStream(fis);
     }
 
@@ -96,9 +107,6 @@ public class SimpleParser extends DefaultHandler
             return -1;
         }
     }
-
-    /** The file being parsed. */
-    protected String _fname;
 
     /** The character data gathered while parsing. */
     protected StringBuffer _chars;

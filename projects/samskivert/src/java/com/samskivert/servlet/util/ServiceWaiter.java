@@ -1,5 +1,5 @@
 //
-// $Id: ServiceWaiter.java,v 1.1 2003/08/12 23:44:33 ray Exp $
+// $Id: ServiceWaiter.java,v 1.2 2003/08/13 01:55:05 ray Exp $
 
 package com.samskivert.servlet.util;
 
@@ -33,6 +33,10 @@ import com.samskivert.util.ResultListener;
 public class ServiceWaiter
     implements ResultListener
 {
+    /** Timeout to specify when you don't want a timeout. Use at your own
+     * risk. */
+    public static final int NO_TIMEOUT = -1;
+
     /**
      * Construct a ServiceWaiter with the default (30 second) timeout.
      */
@@ -48,7 +52,25 @@ public class ServiceWaiter
      */
     public ServiceWaiter (int timeout)
     {
+        setTimeout(timeout);
+    }
+
+    /**
+     * Change the timeout being used for this ServiceWaiter after it
+     * has been constructed.
+     */
+    public void setTimeout (int timeout)
+    {
         _timeout = timeout;
+    }
+
+    /**
+     * Reset the service waiter so that it can be used again.
+     */
+    public void reset ()
+    {
+        _success = 0;
+        _argument = null;
     }
 
     /**
@@ -94,7 +116,12 @@ public class ServiceWaiter
         while (_success == 0) {
             try {
                 // wait for the response, timing out after a while
-                wait(1000L * _timeout);
+                if (_timeout == NO_TIMEOUT) {
+                    wait();
+
+                } else {
+                    wait(1000L * _timeout);
+                }
 
                 // if we get here without some sort of response, then
                 // we've timed out and we should freak out

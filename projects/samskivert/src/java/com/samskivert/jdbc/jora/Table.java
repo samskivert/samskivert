@@ -141,6 +141,23 @@ public class Table {
     }
 
     /** Select records from database table according to search condition
+     * including the specified (comma separated) extra tables into the
+     * SELECT clause to facilitate a join in determining the key. To
+     * facilitate situations where data from multiple tables is being
+     * combined into a single object, the fields will not be qualified
+     * with the primary table name.
+     *
+     * @param tables the (comma separated) names of extra tables to
+     * include in the SELECT clause.
+     * @param condition valid SQL condition expression started with WHERE.
+     */
+    public final Cursor join(String tables, String condition) {
+	String query = "select " + listOfFields +
+	    " from " + name + "," + tables + " " + condition;
+        return new Cursor(this, session, 1, query);
+    }
+
+    /** Select records from database table according to search condition
      *
      * @param condition valid SQL condition expression started with WHERE
      *  or empty string if all records should be fetched.

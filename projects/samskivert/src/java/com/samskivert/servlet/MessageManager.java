@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -76,11 +76,49 @@ public class MessageManager
     }
 
     /**
+     * Return true if the specifed path exists in the resource bundle.
+     */
+    public boolean exists (HttpServletRequest req, String path)
+    {
+        return (getMessage(req, path, false) != null);
+    }
+
+    /**
      * Looks up the message with the specified path in the resource bundle
      * most appropriate for the locales described as preferred by the
-     * request.
+     * request.  Always reports missing paths.
      */
     public String getMessage (HttpServletRequest req, String path)
+    {
+        return getMessage(req, path, true);
+    }
+
+    /**
+     * Looks up the message with the specified path in the resource bundle
+     * most appropriate for the locales described as preferred by the
+     * request, then substitutes the supplied arguments into that message
+     * using a <code>MessageFormat</code> object.
+     *
+     * @see java.text.MessageFormat
+     */
+    public String getMessage (HttpServletRequest req, String path,
+                              Object[] args)
+    {
+        String msg = getMessage(req, path, true);
+        // we may cache message formatters later, but for now just
+        // use the static convenience function
+        return MessageFormat.format(msg, args);
+    }
+
+    /**
+     * Looks up the message with the specified path in the resource bundle
+     * most appropriate for the locales described as preferred by the
+     * request.  If requested it will log a missing path and return the
+     * path as the translation (which should make it obvious in the
+     * servlet that the translation is missing) otherwise it returns null.
+     */
+    protected String getMessage (HttpServletRequest req, String path,
+                                 boolean reportMissing)
     {
         if (path == null) {
             return "[null message key]";
@@ -128,26 +166,13 @@ public class MessageManager
             }
         }
 
-        // if there's no translation for this path, complain about it
-        Log.warning("Missing translation message [path=" + path + "].");
-        return path;
-    }
+        if (reportMissing) {
+            // if there's no translation for this path, complain about it
+            Log.warning("Missing translation message [path=" + path + "].");
+            return path;
+        }
 
-    /**
-     * Looks up the message with the specified path in the resource bundle
-     * most appropriate for the locales described as preferred by the
-     * request, then substitutes the supplied arguments into that message
-     * using a <code>MessageFormat</code> object.
-     *
-     * @see java.text.MessageFormat
-     */
-    public String getMessage (HttpServletRequest req, String path,
-                              Object[] args)
-    {
-        String msg = getMessage(req, path);
-        // we may cache message formatters later, but for now just
-        // use the static convenience function
-        return MessageFormat.format(msg, args);
+        return null;
     }
 
     /**

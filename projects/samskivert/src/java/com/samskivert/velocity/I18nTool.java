@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -59,6 +59,14 @@ public class I18nTool
     {
         _req = req;
         _msgmgr = msgmgr;
+    }
+
+    /**
+     * Returns true if the key exists.
+     */
+    public boolean exists (String key)
+    {
+        return _msgmgr.exists(_req, key);
     }
 
     /**

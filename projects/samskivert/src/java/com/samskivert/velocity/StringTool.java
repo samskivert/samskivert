@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.2 2002/10/25 18:04:44 mdb Exp $
+// $Id: StringTool.java,v 1.3 2002/11/09 02:11:36 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -42,5 +42,13 @@ public class StringTool
     public String urlEncode (String text)
     {
         return URLEncoder.encode(text);
+    }
+
+    /**
+     * Converts an integer to a string.
+     */
+    public String valueOf (int value)
+    {
+        return String.valueOf(value);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: IntIntMap.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: IntIntMap.java,v 1.4 2003/03/05 02:51:33 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -145,6 +145,38 @@ public class IntIntMap
     public Enumeration elements ()
     {
 	return new Enumerator(_buckets, false);
+    }
+
+    /**
+     * Get an array of the unique keys in this map.
+     */
+    public int[] getKeys ()
+    {
+        return toIntArray(true);
+    }
+
+    /**
+     * Get an array of the values that may be in this map.
+     * There may be duplicates.
+     */
+    public int[] getValues ()
+    {
+        return toIntArray(false);
+    }
+
+    protected int[] toIntArray (boolean keys)
+    {
+        int[] ret = new int[_size];
+
+        int dex = 0;
+        for (int ii=0, nn=_buckets.length; ii < nn; ii++) {
+            Record r = _buckets[ii];
+            while (r != null) {
+                ret[dex++] = keys ? r.key : r.value;
+                r = r.next;
+            }
+        }
+        return ret;
     }
 
     class Record

@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.4 2001/03/22 02:45:13 mdb Exp $
+// $Id: RipPanel.java,v 1.5 2002/01/19 04:35:25 mdb Exp $
 
 package robodj.importer;
 
@@ -121,15 +121,29 @@ public class RipPanel
 
                 // rip the track
                 _encoding = false;
+
                 // it takes a second or so for the ripper to start
                 // reporting progress, so we clear out the progress
                 // indicator so that the 100% progress of the previous
                 // track doesn't look like it applies to this new track
                 // while we're spinning up
                 updateProgress(0);
+
+                // start the ripping
                 postAsyncStatus("Ripping track " + _track + "...");
                 String tpath = createTempPath(_track, "wav");
-                ripper.ripTrack(_info, _track, tpath, this);
+                try {
+                    ripper.ripTrack(_info, _track, tpath, this);
+
+                } catch (Exception e) {
+                    String errmsg = "Failure occurred while ripping track " +
+                        _track + ". Attempting to encode anyway. You can " +
+                        "try re-ripping this track later with the " +
+                        "'quickrip' script provided with the importer. The " +
+                        "branchdir and entryid needed by quickrip will be " +
+                        "reported at the completion of the ripping process.";
+                    postAsyncStatus(errmsg);
+                }
 
                 // then encode it
                 _encoding = true;
@@ -234,6 +248,9 @@ public class RipPanel
                     }
                 }
 
+                // report the branch directory
+                postAsyncStatus("Branch directory: " + hash);
+
                 // fill in the entry source since we ripped this from CD
                 _entry.source = Importer.ENTRY_SOURCE;
 
@@ -266,6 +283,9 @@ public class RipPanel
                     throw new Exception("Unable to create target " +
                                         "directory: " + tpath);
                 }
+
+                // report the entry id
+                postAsyncStatus("Entry ID: " + _entry.entryid);
 
                 postAsyncStatus("Moving tracks into repository directory.");
                 // move the tracks into the target directory

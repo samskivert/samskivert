@@ -1,5 +1,5 @@
 //
-// $Id: IntField.java,v 1.1 2003/11/25 03:31:08 eric Exp $
+// $Id: IntField.java,v 1.2 2003/11/25 04:08:39 eric Exp $
 
 package com.samskivert.swing;
 
@@ -8,8 +8,6 @@ import javax.swing.JTextField;
 import com.samskivert.Log;
 import com.samskivert.swing.util.SwingUtil.DocumentValidator;
 import com.samskivert.swing.util.SwingUtil;
-
-import com.threerings.yohoho.client.YoUI;
 
 /**
  * A text field that will only take digit entries within the optional
@@ -25,12 +23,11 @@ public class IntField extends JTextField
 
     public IntField (int initial, int minValue, int maxValue)
     {
-        super("" + initial);
+        setValue(initial);
 
         _minValue = minValue;
         _maxValue = maxValue;
 
-        setFont(YoUI.getFont(YoUI.MEDIUM));
         setHorizontalAlignment(JTextField.RIGHT);
         setColumns(5);
 
@@ -41,7 +38,7 @@ public class IntField extends JTextField
     /**
      * Return the int that is represented by this field.
      */
-    public int intValue ()
+    public int getValue ()
     {
         try {
             return Integer.parseInt(getText());
@@ -52,6 +49,14 @@ public class IntField extends JTextField
         return -1;
     }
 
+    /**
+     * Set the text to the value specified.
+     */
+    public void setValue (int value)
+    {
+        setText("" + value);
+    }
+    
     /**
      * Change the current min value.
      */

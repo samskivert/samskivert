@@ -1,0 +1,27 @@
+What have we here?
+------------------
+
+This is a hacked version of JORA, a library for automatically mapping
+RDBMS database rows to Java objects and vice versa. It's simple, it uses
+reflection and doesn't require any classfile post-processing or external
+configuration information.
+
+"That's all great but why is it hacked?" wonders the astute reader. Well,
+I couldn't quite cope with the error handling paradigm that it used (catch
+all SQL exceptions internally and pass them to an application-wide error
+handler method) and a few seconds thought on the matter led me to believe
+that there is not a simple way to allow a choice of error handling
+paradigms (the methods have to throw SQLException or not). So I took the
+easy way out and forked the codebase.
+
+The code is pretty stable, so I don't expect to be merging in updates with
+any frequency. I promise to be a good monkey and submit any useful
+modifications that I make back to the original maintainer. It's a good
+thing that the license was unrestrictive enough to allow me to do this,
+otherwise I'd probably be stuck reinventing the wheel or using something
+that does less of what I want. Three cheers for free software.
+
+The original version can be found here: http://www.ispras.ru/~knizhnik/
+(or at least it could when I wrote this README).
+
+- mdb (2/12/2001)

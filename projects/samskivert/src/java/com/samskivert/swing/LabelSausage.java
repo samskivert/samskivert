@@ -1,5 +1,5 @@
 //
-// $Id: LabelSausage.java,v 1.1 2003/04/15 20:28:36 mdb Exp $
+// $Id: LabelSausage.java,v 1.2 2003/05/12 16:13:15 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -32,6 +32,15 @@ public abstract class LabelSausage
      */
     protected void layout (Graphics2D gfx, int extraPadding)
     {
+        layout(gfx, 0, extraPadding);
+    }
+
+    /**
+     * Lays out the label sausage.  It is assumed that the desired label
+     * font is already set in the label.
+     */
+    protected void layout (Graphics2D gfx, int iconPadding, int extraPadding)
+    {
         // if we have an icon, let that dictate our size; otherwise just
         // lay out our label all on one line
         int sqwid, sqhei;
@@ -39,8 +48,8 @@ public abstract class LabelSausage
             sqwid = sqhei = 0;
 
         } else {
-            sqwid = _icon.getIconWidth();
-            sqhei = _icon.getIconHeight();
+            sqwid = _icon.getIconWidth() + 2*iconPadding;
+            sqhei = _icon.getIconHeight() + 2*iconPadding;
             _label.setTargetHeight(sqhei);
         }
 
@@ -79,6 +88,9 @@ public abstract class LabelSausage
         // account for the space between it and the label.
         if (_icon != null) {
             _size.width += _xoff;
+            // also account for our icon padding
+            _xoff += iconPadding;
+            _yoff += iconPadding;
         }
     }
 

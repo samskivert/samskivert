@@ -269,6 +269,28 @@ public class UserRepository extends JORARepository
     }
 
     /**
+     * Lookup a user by email address, something that is not efficient and
+     * should really only be done by site admins attempting to look up a
+     * user record.
+     *
+     * @return the user with the specified user id or null if no user with
+     * that id exists.
+     */
+    public ArrayList lookupUsersByEmail (String email)
+	throws PersistenceException
+    {
+        final String where = "where email = '" +
+            StringUtil.replace(email, "'", "\\'") + "'";
+        return (ArrayList) execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                return _utable.select(where).toArrayList();
+            }
+        });
+    }
+
+    /**
      * Loads up a user record that matches the specified where clause.
      * Returns null if no record matches.
      */

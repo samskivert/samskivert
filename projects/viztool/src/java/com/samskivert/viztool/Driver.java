@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.13 2001/12/01 05:28:01 mdb Exp $
+// $Id: Driver.java,v 1.14 2001/12/01 06:22:18 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -70,8 +70,8 @@ public class Driver
 
         // and finally generate the visualization
         PackageEnumerator penum = new PackageEnumerator(pkgroot, enum, true);
-        Visualizer viz = new HierarchyVisualizer(pkgroot, penum);
-        // Visualizer viz = new SummaryVisualizer(pkgroot, penum);
+        // Visualizer viz = new HierarchyVisualizer(pkgroot, penum);
+        Visualizer viz = new SummaryVisualizer(pkgroot, penum);
 
         if (print) {
             // we use the print system to render things

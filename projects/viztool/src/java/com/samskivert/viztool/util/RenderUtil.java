@@ -1,5 +1,5 @@
 //
-// $Id: RenderUtil.java,v 1.1 2001/12/01 05:28:01 mdb Exp $
+// $Id: RenderUtil.java,v 1.2 2001/12/01 06:22:18 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -61,7 +61,7 @@ public class RenderUtil
         Graphics2D gfx, FontRenderContext frc, Font font,
         double x, double y, String[] text)
     {
-        return renderStrings(gfx, frc, font, x, y, text, null);
+        return renderStrings(gfx, frc, font, x, y, text, (String)null);
     }
 
     /**
@@ -99,6 +99,59 @@ public class RenderUtil
 
             maxwid = Math.max(sinset + ibounds.getWidth(), maxwid);
             y += ibounds.getHeight();
+        }
+
+        // return the dimensions occupied by the rendered strings
+        return new Rectangle2D.Double(x, y, maxwid, y-starty);
+    }
+
+    /**
+     * Renders a two column array of strings to the specified graphics
+     * context, in the specified font at the specified coordinates. The
+     * left column is right align and the right, left aligned.
+     *
+     * @return the bounds occupied by the rendered strings.
+     */
+    public static Rectangle2D renderStrings (
+        Graphics2D gfx, FontRenderContext frc, Font font,
+        double x, double y, String[] left, String[] right)
+    {
+        double maxleft = 0, maxwid = 0, starty = y;
+        double inset = 0;
+
+        // first generate text layout instances and compute bounds for all
+        // entries in both columns
+        TextLayout[] llay = new TextLayout[left.length];
+        Rectangle2D[] lbnds = new Rectangle2D[left.length];
+        TextLayout[] rlay = new TextLayout[right.length];
+        Rectangle2D[] rbnds = new Rectangle2D[right.length];
+
+        // compute the dimensions
+        for (int i = 0; i < left.length; i++) {
+            llay[i] = new TextLayout(left[i], font, frc);
+            lbnds[i] = llay[i].getBounds();
+            rlay[i] = new TextLayout(right[i], font, frc);
+            rbnds[i] = rlay[i].getBounds();
+            maxleft = Math.max(maxleft, lbnds[i].getWidth());
+        }
+
+        // do the rendering
+        for (int i = 0; i < left.length; i++) {
+            double lw = lbnds[i].getWidth();
+            llay[i].draw(gfx, (float)(x - lbnds[i].getX() + maxleft - lw),
+                         // we actually mean to use rbnds[i] here because
+                         // the right hand side (usually being the method
+                         // declaration), tends to be taller than the left
+                         // hand side (because of the parenthesis) and
+                         // would appear a bit lower than the left hand
+                         // side if we didn't use it's y offset
+                         (float)(y - rbnds[i].getY()));
+            rlay[i].draw(gfx, (float)(x - rbnds[i].getX() + maxleft +
+                                      LayoutUtil.GAP),
+                         (float)(y - rbnds[i].getY()));
+            maxwid = Math.max(maxwid, maxleft + LayoutUtil.GAP +
+                              rbnds[i].getWidth());
+            y += Math.max(lbnds[i].getHeight(), rbnds[i].getHeight());
         }
 
         // return the dimensions occupied by the rendered strings

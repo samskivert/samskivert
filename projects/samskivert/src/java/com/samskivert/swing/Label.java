@@ -136,6 +136,14 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
+     * Returns the color used to render the text.
+     */
+    public Color getTextColor ()
+    {
+        return _textColor;
+    }
+    
+    /**
      * Sets the color used to render the text.  Setting the text color to
      * <code>null</code> will render the label in the graphics context
      * color (which is the default).
@@ -145,6 +153,15 @@ public class Label implements SwingConstants, LabelStyleConstants
         _textColor = color;
     }
 
+    /**
+     * Returns the alternate color used to render the text's outline or
+     * shadow, if any.
+     */
+    public Color getAlternateColor ()
+    {
+        return _alternateColor;
+    }
+    
     /**
      * Instructs the label to render the text with the specified alternate
      * color when rendering. The text itself will be rendered in whatever

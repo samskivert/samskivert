@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.2 2001/07/17 01:54:19 mdb Exp $
+// $Id: Driver.java,v 1.3 2001/07/17 05:21:33 mdb Exp $
 
 package com.samskivert.viztool;
 
@@ -14,14 +14,19 @@ public class Driver
     public static void main (String[] args)
     {
         if (args.length < 1) {
-            System.err.println("Usage: Driver package_root");
+            System.err.println("Usage: Driver [-print] package_root");
             System.exit(-1);
         }
-        String pkgroot = args[0];
 
+        // parse our arguments
+        String pkgroot = null;
         boolean print = false;
-        if (args.length > 1) {
-            print = (args[1].equals("-print"));
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-print")) {
+                print = true;
+            } else if (pkgroot == null) {
+                pkgroot = args[i];
+            }
         }
 
         // run ourselves on the classpath
@@ -41,10 +46,12 @@ public class Driver
         if (print) {
             // we use the print system to render things
             PrinterJob job = PrinterJob.getPrinterJob();
+            job.setPrintable(viz);
+
             // pop up a dialog to format our pages
             // PageFormat format = job.pageDialog(job.defaultPage());
             PageFormat format = job.defaultPage();
-            job.setPrintable(viz);
+
             // pop up a dialog to control printing
             job.printDialog();
 
@@ -53,7 +60,11 @@ public class Driver
             } catch (PrinterException pe) {
                 pe.printStackTrace(System.err);
             }
+
+            // printing starts up the AWT threads, so we have to
+            // explicitly exit at this point
             System.exit(0);
+
         } else {
             TestFrame frame = new TestFrame(viz);
 

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.17 2002/01/17 23:00:38 shaper Exp $
+// $Id: StringUtil.java,v 1.18 2002/01/22 15:46:56 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -138,7 +138,18 @@ public class StringUtil
     public static void toString (StringBuffer buf, Object val,
                                  String openBox, String closeBox)
     {
-	if (val instanceof int[]) {
+	if (val instanceof byte[]) {
+	    buf.append(openBox);
+	    byte[] v = (byte[])val;
+	    for (int i = 0; i < v.length; i++) {
+		if (i > 0) {
+		    buf.append(", ");
+		}
+		buf.append(v[i]);
+	    }
+	    buf.append(closeBox);
+
+        } else if (val instanceof int[]) {
 	    buf.append(openBox);
 	    int[] v = (int[])val;
 	    for (int i = 0; i < v.length; i++) {

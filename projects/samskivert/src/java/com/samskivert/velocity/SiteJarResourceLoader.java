@@ -1,5 +1,5 @@
 //
-// $Id: SiteJarResourceLoader.java,v 1.1 2001/11/06 04:49:32 mdb Exp $
+// $Id: SiteJarResourceLoader.java,v 1.2 2001/11/06 19:19:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,7 +22,6 @@ package com.samskivert.velocity;
 
 import java.io.InputStream;
 import java.io.IOException;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
@@ -32,6 +31,7 @@ import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
 import com.samskivert.Log;
 import com.samskivert.servlet.SiteIdentifier;
+import com.samskivert.servlet.SiteResourceLoader;
 
 /**
  * A Velocity resource loader that loads resources from site-specific jar
@@ -39,19 +39,18 @@ import com.samskivert.servlet.SiteIdentifier;
  * but is used by the {@link SiteResourceManager} which automatically
  * handles the creation and use of this resource loader.
  *
- * @see com.samskivert.servlet.SiteResourceLoader
+ * @see SiteResourceLoader
  */
-public class SiteResourceLoader extends ResourceLoader
+public class SiteJarResourceLoader extends ResourceLoader
 {
     /**
      * Constructs a site resource loader that will use the specified site
      * identifier to map site ids to site strings.
      */
-    public SiteResourceLoader (SiteIdentifier ident, ServletContext context)
+    public SiteJarResourceLoader (SiteResourceLoader loader)
     {
-        // naming conflict... alas.
-        _loader = new com.samskivert.servlet.SiteResourceLoader(
-            ident, context);
+        // we'll use this to load resources
+        _loader = loader;
     }
 
     /**
@@ -84,7 +83,7 @@ public class SiteResourceLoader extends ResourceLoader
         // load it on up
         try {
             InputStream stream = _loader.getResourceAsStream(
-                skey.getSiteId(), skey.getPath(), false);
+                skey.getSiteId(), skey.getPath());
             if (stream == null) {
                 String errmsg = "Unable to load resource via " +
                     "site-specific jar file [key=" + skey + "].";
@@ -178,5 +177,5 @@ public class SiteResourceLoader extends ResourceLoader
 
     /** A reference to the site resource loader through which we'll load
      * things. */
-    protected com.samskivert.servlet.SiteResourceLoader _loader;
+    protected SiteResourceLoader _loader;
 }

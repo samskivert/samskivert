@@ -1,5 +1,5 @@
 //
-// $Id: LabelSausage.java,v 1.2 2003/05/12 16:13:15 mdb Exp $
+// $Id: LabelSausage.java,v 1.3 2003/05/14 01:52:52 ray Exp $
 
 package com.samskivert.swing;
 
@@ -38,6 +38,9 @@ public abstract class LabelSausage
     /**
      * Lays out the label sausage.  It is assumed that the desired label
      * font is already set in the label.
+     *
+     * @param iconPadding the number of pixels in the x direction to pad
+     * around the icon.
      */
     protected void layout (Graphics2D gfx, int iconPadding, int extraPadding)
     {
@@ -48,8 +51,8 @@ public abstract class LabelSausage
             sqwid = sqhei = 0;
 
         } else {
-            sqwid = _icon.getIconWidth() + 2*iconPadding;
-            sqhei = _icon.getIconHeight() + 2*iconPadding;
+            sqwid = _icon.getIconWidth();
+            sqhei = _icon.getIconHeight();
             _label.setTargetHeight(sqhei);
         }
 
@@ -87,10 +90,10 @@ public abstract class LabelSausage
         // and if we are actually rendering the icon, we need to
         // account for the space between it and the label.
         if (_icon != null) {
-            _size.width += _xoff;
-            // also account for our icon padding
+            // and add the padding needed for the icon
+            _size.width += _xoff + (iconPadding * 2);
             _xoff += iconPadding;
-            _yoff += iconPadding;
+            _lxoff += iconPadding * 2;
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.4 2001/07/17 01:54:19 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.5 2001/07/17 05:23:49 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -113,9 +113,6 @@ public class HierarchyVisualizer implements Printable
     {
         double starty = x;
         int pageno = 0;
-
-        System.out.println("Laying out " + width + "x" + height +
-                           "+" + x + "+" + y + ".");
 
         // lay out our groups
         for (int i = 0; i < _groups.length; i++) {

@@ -1,5 +1,5 @@
 //
-// $Id: ChainGroup.java,v 1.3 2001/07/17 05:16:16 mdb Exp $
+// $Id: ChainGroup.java,v 1.4 2001/07/17 05:23:49 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -70,9 +70,6 @@ public class ChainGroup
 
         _size = new Rectangle2D.Double();
         _size.setRect(0, 0, width + 2*BORDER, height + 2*BORDER);
-
-        System.out.println("L(" + _pkg + ") " + _size.getWidth() + "x" +
-            _size.getHeight() + "+" + _size.getX() + "+" + _size.getY() + ".");
         return _size;
     }
 

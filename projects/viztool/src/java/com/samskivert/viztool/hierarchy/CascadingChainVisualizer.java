@@ -1,5 +1,5 @@
 //
-// $Id: CascadingChainVisualizer.java,v 1.4 2001/07/17 05:16:16 mdb Exp $
+// $Id: CascadingChainVisualizer.java,v 1.5 2001/07/17 05:23:49 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -68,9 +68,6 @@ public class CascadingChainVisualizer
         Rectangle2D bounds = chain.getBounds();
         double x = bounds.getX();
         double y = bounds.getY();
-
-//          System.err.println("Rendering " + chain.getName() +
-//                             " at +" + x + "+" + y + ".");
 
         // create a text layout based on the current rendering conditions
         Font font = chain.getRoot().isInterface() ? _ifaceFont : _classFont;

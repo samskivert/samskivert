@@ -24,7 +24,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import org.xml.sax.Attributes;
-import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.StringUtil;
@@ -49,17 +48,16 @@ public class SetPropertyFieldsRule extends Rule
     /**
      * Constructs a set property fields rule.
      */
-    public SetPropertyFieldsRule (Digester digester)
+    public SetPropertyFieldsRule ()
     {
-        this(digester, true);
+        this(true);
     }
 
     /**
      * Constructs a set property fields rule.
      */
-    public SetPropertyFieldsRule (Digester digester, boolean warnNonFields)
+    public SetPropertyFieldsRule (boolean warnNonFields)
     {
-        super(digester);
         _warnNonFields = warnNonFields;
     }
 

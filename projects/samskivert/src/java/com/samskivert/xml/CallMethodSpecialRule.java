@@ -20,7 +20,6 @@
 
 package com.samskivert.xml;
 
-import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.StringUtil;
@@ -31,11 +30,6 @@ import com.samskivert.util.StringUtil;
  */
 public abstract class CallMethodSpecialRule extends Rule
 {
-    public CallMethodSpecialRule (Digester digester)
-    {
-        super(digester);
-    }
-
     public void body (String bodyText)
         throws Exception
     {

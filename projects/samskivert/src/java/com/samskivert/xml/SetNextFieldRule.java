@@ -22,7 +22,6 @@ package com.samskivert.xml;
 
 import java.lang.reflect.Field;
 
-import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 /**
@@ -34,10 +33,8 @@ public class SetNextFieldRule extends Rule
     /**
      * Constructs a set field rule for the specified field.
      */
-    public SetNextFieldRule (Digester digester, String fieldName)
+    public SetNextFieldRule (String fieldName)
     {
-        super(digester);
-
         // keep this for later
         _fieldName = fieldName;
     }

@@ -23,7 +23,6 @@ package com.samskivert.xml;
 import java.lang.NoSuchFieldException;
 import java.lang.reflect.Field;
 
-import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.ValueMarshaller;
@@ -37,10 +36,8 @@ public class SetFieldRule extends Rule
     /**
      * Constructs a set field rule for the specified field.
      */
-    public SetFieldRule (Digester digester, String fieldName)
+    public SetFieldRule (String fieldName)
     {
-        super(digester);
-
         // keep this for later
         _fieldName = fieldName;
     }

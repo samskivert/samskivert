@@ -20,7 +20,6 @@
 
 package com.samskivert.xml;
 
-import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.Log;
@@ -41,11 +40,8 @@ public class CheckVersionRule extends Rule
      * @param parserIdentifier the name of the parser using this rule
      * which will be reported in the event of a version mismatch.
      */
-    public CheckVersionRule (Digester digester, int version,
-                             String parserIdentifier)
+    public CheckVersionRule (int version, String parserIdentifier)
     {
-        super(digester);
-
         // keep this for later
         _version = version;
         _parserIdentifier = parserIdentifier;

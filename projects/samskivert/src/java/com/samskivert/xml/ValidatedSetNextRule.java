@@ -22,7 +22,6 @@ package com.samskivert.xml;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 /**
@@ -52,21 +51,18 @@ public class ValidatedSetNextRule extends Rule
     /**
      * Constructs a set method rule for the specified method.
      */
-    public ValidatedSetNextRule (Digester digester, String methodName,
-                                 Validator validator)
+    public ValidatedSetNextRule (String methodName, Validator validator)
     {
-        this(digester, methodName, null, validator);
+        this(methodName, null, validator);
     }
 
     /**
      * Constructs a set method rule for the specified method with the
      * specified parameter type.
      */
-    public ValidatedSetNextRule (Digester digester, String methodName,
-                                 Class paramType, Validator validator)
+    public ValidatedSetNextRule (
+        String methodName, Class paramType, Validator validator)
     {
-        super(digester);
-
         // keep this for later
         _methodName = methodName;
         _paramType = paramType;

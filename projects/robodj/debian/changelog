@@ -1,3 +1,12 @@
+robodj (1.1-1) unstable; urgency=low
+
+  * Added support for removing a whole CD at a time.
+  * Added script for running importer.
+  * Added defaults file for specifying music daemon host and other
+    parameters.
+
+ -- Michael Bayne <mdb@samskivert.com>  Thu, 22 Feb 2002 00:50:00 -0800
+
 robodj (1.0-1) unstable; urgency=low
 
   * Initial Release.

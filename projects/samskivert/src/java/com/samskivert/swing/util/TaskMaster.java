@@ -1,10 +1,12 @@
 //
-// $Id: TaskMaster.java,v 1.2 2000/12/07 06:14:36 mdb Exp $
+// $Id: TaskMaster.java,v 1.3 2001/03/15 19:34:06 mdb Exp $
 
 package com.samskivert.swing.util;
 
 import java.util.Hashtable;
-import com.samskivert.util.Log;
+import javax.swing.SwingUtilities;
+
+import com.samskivert.Log;
 
 /**
  * The task master provides the ability for swing applications to invoke
@@ -21,9 +23,6 @@ import com.samskivert.util.Log;
  */
 public class TaskMaster
 {
-    /** The log object to be used by the task master and services. */
-    public static Log log = new Log("com.samskivert.swing.util.task");
-
     /**
      * Instructs the task master to run the supplied task. The task is
      * given the supplied name and can be referenced by that name in
@@ -56,44 +55,75 @@ public class TaskMaster
 	    _name = name;
 	    _task = task;
 	    _observer = observer;
+            _mode = INVOKE;
 	}
 
-	public void run ()
+        /**
+         * Invokes the task and then reports completion or failure later
+         * on the swing event dispatcher thread. We need to ensure that
+         * _mode and _result are visible to the various threads that
+         * invoke this runnable so run() is synchronized. Oh how I love
+         * Chapter 17.
+         */
+	public synchronized void run ()
 	{
-	    try {
-		Object result = _task.invoke();
-		if (_observer != null) {
-		    try {
-			_observer.taskCompleted(_name, result);
-		    } catch (Throwable t) {
-			log.warning("Observer choked in " +
-				    "taskCompleted(): " + t);
-			log.logStackTrace(Log.WARNING, t);
-		    }
-		}
+            switch (_mode) {
+            default:
+            case INVOKE:
+                // invoke the task and catch any errors
+                try {
+                    _result = _task.invoke();
+                    _mode = COMPLETED;
+                } catch (Throwable t) {
+                    _result = t;
+                    _mode = FAILED;
+                } finally {
+                    TaskMaster.removeTask(_name);
+                }
 
-	    } catch (Throwable t) {
-		if (_observer != null) {
-		    try {
-			_observer.taskFailed(_name, t);
-		    } catch (Throwable ot) {
-			log.warning("Observer choked in taskFailed(): " + ot);
-			log.logStackTrace(Log.WARNING, t);
-		    }
-		}
-	    }
+                // queue ourselves up to run again on the swing event
+                // dispatch thread if we have an observer
+                if (_observer != null) {
+                    SwingUtilities.invokeLater(this);
+                }
+                break;
 
-	    TaskMaster.removeTask(_name);
+            case COMPLETED:
+                try {
+                    _observer.taskCompleted(_name, _result);
+                } catch (Throwable t) {
+                    Log.warning("Observer choked in " +
+                                "taskCompleted(): " + t);
+                    Log.logStackTrace(t);
+                }
+                break;
+
+            case FAILED:
+                try {
+                    _observer.taskFailed(_name, (Throwable)_result);
+                } catch (Throwable ot) {
+                    Log.warning("Observer choked in taskFailed(): " + ot);
+                    Log.logStackTrace(ot);
+                }
+                break;
+            }
 	}
 
 	public void abort ()
 	{
-	    log.warning("abort() not currently supported.");
+	    Log.warning("abort() not currently supported.");
 	}
 
 	protected String _name;
 	protected Task _task;
 	protected TaskObserver _observer;
+
+        protected int _mode;
+	protected Object _result;
+
+        protected static final int INVOKE = 0;
+        protected static final int COMPLETED = 1;
+        protected static final int FAILED = 2;
     }
 
     protected static Hashtable _tasks = new Hashtable();

@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.8 2001/08/12 04:36:57 mdb Exp $
+// $Id: Driver.java,v 1.9 2001/08/13 23:43:20 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -23,6 +23,7 @@ package com.samskivert.viztool;
 import java.awt.*;
 import java.awt.print.*;
 
+import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.viztool.enum.*;
 import com.samskivert.viztool.viz.*;
 
@@ -100,13 +101,8 @@ public class Driver
 
         } else {
             VizFrame frame = new VizFrame(viz);
-
-            // center the frame in the screen and show it
-            Toolkit tk = frame.getToolkit();
-            Dimension ss = tk.getScreenSize();
-            int width = 640, height = 480;
-            frame.setBounds((ss.width-width)/2, (ss.height-height)/2,
-                            width, height);
+            frame.setSize(640, 480);
+            SwingUtil.centerWindow(frame);
             frame.setVisible(true);
         }
     }

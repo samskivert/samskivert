@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.19 2002/09/23 21:19:06 shaper Exp $
+// $Id: Label.java,v 1.20 2002/09/25 08:42:00 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -303,28 +303,35 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         // start with a size of zero
         double width = 0, height = 0;
-
-        // obtain our new dimensions by using a line break iterator to lay
-        // out our text one line at a time
         ArrayList layouts = new ArrayList();
-        TextLayout layout;
-        int lastposition = _text.length();
-	while ((layout = measurer.nextLayout(
-            targetWidth, lastposition, keepWordsWhole)) != null) {
 
-            Rectangle2D bounds = layout.getBounds();
-            width = Math.max(width, bounds.getWidth());
-            height += getHeight(layout);
-            layouts.add(new Tuple(layout, bounds));
-	}
+        try {
+            // obtain our new dimensions by using a line break iterator to
+            // lay out our text one line at a time
+            TextLayout layout;
+            int lastposition = _text.length();
+            while ((layout = measurer.nextLayout(
+                        targetWidth, lastposition, keepWordsWhole)) != null) {
 
-        // fill in the computed size; for some reason JDK1.3 on Linux
-        // chokes on setSize(double,double)
-        size.setSize(Math.round(width), Math.round(height));
+                Rectangle2D bounds = layout.getBounds();
+                width = Math.max(width, bounds.getWidth());
+                height += getHeight(layout);
+                layouts.add(new Tuple(layout, bounds));
+            }
 
-        // this can only happen if keepWordsWhole is true
-        if (measurer.getPosition() < lastposition) {
-            return null;
+            // fill in the computed size; for some reason JDK1.3 on Linux
+            // chokes on setSize(double,double)
+            size.setSize(Math.round(width), Math.round(height));
+
+            // this can only happen if keepWordsWhole is true
+            if (measurer.getPosition() < lastposition) {
+                return null;
+            }
+
+        } catch (Throwable t) {
+            Log.warning("Label layout failed [text=" + _text +
+                        ", t=" + t + "].");
+            Log.logStackTrace(t);
         }
 
         return layouts;

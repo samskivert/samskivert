@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.5 2002/01/19 04:35:25 mdb Exp $
+// $Id: RipPanel.java,v 1.6 2002/03/03 06:04:56 mdb Exp $
 
 package robodj.importer;
 
@@ -105,9 +105,10 @@ public class RipPanel
     protected class RipperTask
         implements Task, ConversionProgressListener
     {
-        public RipperTask (Ripper.TrackInfo[] info)
+        public RipperTask (Ripper.TrackInfo[] info, Entry entry)
         {
             _info = info;
+            _entry = entry;
         }
 
         public Object invoke ()
@@ -115,6 +116,7 @@ public class RipPanel
         {
             Ripper ripper = new CDParanoiaRipper();
             Encoder encoder = new LameEncoder();
+            Tagger tagger = new ID3Tagger();
 
             for (int i = 0; i < _info.length; i++) {
                 _track = i+1;
@@ -152,6 +154,11 @@ public class RipPanel
                 String dpath = createTempPath(_track, "mp3");
                 encoder.encodeTrack(tpath, dpath, this);
 
+                // finally ID3 tag it
+                postAsyncStatus("Tagging track " + _track + "...");
+                tagger.idTrack(dpath, _entry.artist, _entry.title,
+                               _entry.songs[i].title, _track);
+
                 // remove the source wav file
                 File tfile = new File(tpath);
                 if (!tfile.delete()) {
@@ -184,6 +191,7 @@ public class RipPanel
         }
 
         protected Ripper.TrackInfo[] _info;
+        protected Entry _entry;
         protected int _track;
         protected boolean _encoding;
     }
@@ -353,7 +361,7 @@ public class RipPanel
 	_next.setEnabled(false);
 
 	// create our info task and set it a running
-	Task ripTask = new RipperTask(_info);
+	Task ripTask = new RipperTask(_info, _entry);
   	TaskMaster.invokeTask("convert", ripTask, this);
     }
 

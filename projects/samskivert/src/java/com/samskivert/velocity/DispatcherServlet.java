@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.19 2002/05/08 23:06:06 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.20 2003/09/18 23:52:17 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -402,8 +402,8 @@ public class DispatcherServlet extends VelocityServlet
 
 	    } catch (Throwable t) {
 		Log.warning("Unable to instantiate logic for application " +
-                            "[path=" + path + ", lclass=" + lclass +
-                            ", error=" + t + "].");
+                            "[path=" + path + ", lclass=" + lclass + "].");
+                Log.logStackTrace(t);
 	    }
 
             // if something failed, use a dummy in it's place so that we

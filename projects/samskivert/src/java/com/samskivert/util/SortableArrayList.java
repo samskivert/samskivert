@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.7 2002/11/24 04:50:27 mdb Exp $
+// $Id: SortableArrayList.java,v 1.8 2002/12/16 01:55:55 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,6 +19,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.util;
+
+import java.io.Serializable;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ import java.lang.reflect.Array;
  * Arrays#sort} clones the supplied array so that it can do a merge sort).
  */
 public class SortableArrayList extends AbstractList
-    implements List, RandomAccess, Cloneable
+    implements List, RandomAccess, Cloneable, Serializable
 {
     /**
      * Sorts the elements in this list using the quick sort algorithm

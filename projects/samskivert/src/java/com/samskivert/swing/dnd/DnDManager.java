@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.6 2002/09/06 00:07:40 ray Exp $
+// $Id: DnDManager.java,v 1.7 2002/09/06 00:26:10 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -137,11 +137,31 @@ public class DnDManager
         _topCursor = _topComp.getCursor();
         _topComp.setCursor(_curCursor);
 
-        // and see if we need to also set the cursor in the current component
-        if (_sourceComp.getCursor() != _curCursor) {
-            _lastComp = _sourceComp;
-            _oldCursor = _lastComp.getCursor();
-            _lastComp.setCursor(_curCursor);
+        setComponentCursor(_sourceComp);
+    }
+
+    /**
+     * Check to see if we need to do component-level cursor setting and take
+     * care of it if needed.
+     */
+    protected void setComponentCursor (Component comp)
+    {
+        Cursor c = comp.getCursor();
+        if (c != _curCursor) {
+            _lastComp = comp;
+            _oldCursor = comp.isCursorSet() ? c : null;
+            comp.setCursor(_curCursor);
+        }
+    }
+
+    /**
+     * Clear out the component-level cursor.
+     */
+    protected void clearComponentCursor ()
+    {
+        if (_lastComp != null) {
+            _lastComp.setCursor(_oldCursor);
+            _lastComp = null;
         }
     }
 
@@ -172,20 +192,13 @@ public class DnDManager
         _lastTarget = findAppropriateTarget(newcomp);
         Cursor newcursor = _cursors[(_lastTarget == null) ? 1 : 0];
 
+        // see if the current cursor changed.
         if (newcursor != _curCursor) {
-            // change the top-level feedback cursor.
             _topComp.setCursor(_curCursor = newcursor);
         }
 
-        // see if need to override the cursor in the component
-        if (newcomp.getCursor() != _curCursor) {
-            _lastComp = newcomp;
-            _oldCursor = _lastComp.getCursor();
-            _lastComp.setCursor(_curCursor);
-        } else {
-            // we don't
-            _lastComp = null;
-        }
+        // and check the cursor at the component level
+        setComponentCursor(newcomp);
     }
 
     /**
@@ -193,11 +206,7 @@ public class DnDManager
      */
     protected void mouseExited (MouseEvent event)
     {
-        // reset the component's custom cursor if it had one
-        if (_lastComp != null) {
-            _lastComp.setCursor(_oldCursor);
-            _lastComp = null;
-        }
+        clearComponentCursor();
 
         // and if we were over a target, let the target know that we left
         if (_lastTarget != null) {
@@ -215,9 +224,7 @@ public class DnDManager
         Toolkit.getDefaultToolkit().removeAWTEventListener(this);
 
         // reset cursors
-        if (_lastComp != null) {
-            _lastComp.setCursor(_oldCursor);
-        }
+        clearComponentCursor();
         _topComp.setCursor(_topCursor);
 
         // the event.getComponent() will be the source component here (huh..)

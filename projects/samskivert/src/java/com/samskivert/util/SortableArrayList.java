@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.16 2003/07/15 00:31:54 ray Exp $
+// $Id: SortableArrayList.java,v 1.17 2003/07/29 23:44:14 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -194,48 +194,36 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public Object get (int index)
     {
-        if (index >= 0 && index < _size) {
-            return _elements[index];
-        } else {
-            throw new IndexOutOfBoundsException();
-        }
+        rangeCheck(index, false);
+        return _elements[index];
     }
 
     // documentation inherited from interface
     public Object set (int index, Object element)
     {
-        if (index >= 0 && index < _size) {
-            Object old = _elements[index];
-            _elements[index] = element;
-            return old;
-        } else {
-            throw new IndexOutOfBoundsException();
-        }
+        rangeCheck(index, false);
+        Object old = _elements[index];
+        _elements[index] = element;
+        return old;
     }
 
     // documentation inherited from interface
     public void add (int index, Object element)
     {
-        if (index >= 0 && index <= _size) {
-            _elements = ListUtil.insert(_elements, index, element);
-            _size++;
-        } else {
-            throw new IndexOutOfBoundsException();
-        }
+        rangeCheck(index, true);
+        _elements = ListUtil.insert(_elements, index, element);
+        _size++;
     }
 
     // documentation inherited from interface
     public Object remove (int index)
     {
-        Object removed = ListUtil.remove(_elements, index);
-        if (removed != null) {
-            _size--;
-        }
-        return removed;
+        rangeCheck(index, false);
+        return ListUtil.remove(_elements, index);
     }
 
     // documentation inherited from interface
-    public int indexOf  (Object o)
+    public int indexOf (Object o)
     {
         return ListUtil.indexOfEqual(_elements, o);
     }
@@ -244,6 +232,19 @@ public class SortableArrayList extends AbstractList
 //     public int lastIndexOf (Object o)
 //     {
 //     }
+
+    /**
+     * Check the range of a passed-in index to make sure it's valid.
+     *
+     * @param insert if true, an index equal to our size is valid.
+     */
+    protected void rangeCheck (int index, boolean insert)
+    {
+        if ((index < 0) || (index > _size) || (!insert && index == _size)) {
+            throw new IndexOutOfBoundsException(
+                "Index: " + index + ", Size: " + _size);
+        }
+    }
 
     // documentation inherited
     public Object clone ()

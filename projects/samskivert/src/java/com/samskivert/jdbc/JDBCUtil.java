@@ -25,6 +25,7 @@ import java.sql.*;
 
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.StringUtil;
 
 /**
  * A repository for JDBC related utility functions.
@@ -163,6 +164,15 @@ public class JDBCUtil
             Log.logStackTrace(uee);
             return text;
         }
+    }
+
+    /**
+     * Utility method to jigger the specified string so that it's safe
+     * to use in a regular Statement.
+     */
+    public static String safeJigger (String text)
+    {
+        return StringUtil.replace(jigger(text), "'", "\\'");
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.12 2001/08/13 23:42:43 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.13 2001/08/14 00:05:03 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -171,6 +171,9 @@ public class HierarchyVisualizer implements Printable
             // increment our y location
             y += (bounds.getHeight() + GAP);
         }
+
+        // our page count is one more than the highest page number
+        _pageCount = pageno+1;
     }
 
     public void paint (Graphics2D gfx, int pageIndex)
@@ -189,11 +192,23 @@ public class HierarchyVisualizer implements Printable
         }
     }
 
+    /**
+     * Returns the number of pages occupied by this visualization. This is
+     * only valid after a call to {@link #layout}.
+     *
+     * @return the page count or -1 if we've not yet been laid out.
+     */
+    public int getPageCount ()
+    {
+        return _pageCount;
+    }
+
     protected String _pkgroot;
     protected ArrayList _classes = new ArrayList();
 
     protected String[] _packages;
     protected ArrayList _groups;
+    protected int _pageCount = -1;
 
     protected PageFormat _format;
 

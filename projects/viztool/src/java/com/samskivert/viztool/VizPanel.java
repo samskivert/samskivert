@@ -1,5 +1,5 @@
 //
-// $Id: VizPanel.java,v 1.4 2001/08/13 23:43:09 mdb Exp $
+// $Id: VizPanel.java,v 1.5 2001/08/14 00:05:03 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -31,6 +31,9 @@ import com.samskivert.viztool.viz.HierarchyVisualizer;
  */
 public class VizPanel extends JPanel
 {
+    /**
+     * Constructs a panel for displaying a particular visualization.
+     */
     public VizPanel (HierarchyVisualizer viz)
     {
         _viz = viz;
@@ -47,8 +50,46 @@ public class VizPanel extends JPanel
         Graphics2D gfx = (Graphics2D)g;
         Rectangle2D bounds = getBounds();
         _viz.layout(gfx, 0, 0, bounds.getWidth(), bounds.getHeight());
-        _viz.paint(gfx, 0);
+        _viz.paint(gfx, _currentPage);
+    }
+
+    public Dimension getPreferredSize ()
+    {
+        return new Dimension(PAGE_WIDTH, PAGE_HEIGHT);
+    }
+
+    /**
+     * Returns the number of pages in our current visualization. This is
+     * only valid after we've been rendered at least once because we
+     * needed the rendering graphics to realize the visualization.
+     */
+    public int getPageCount ()
+    {
+        return _viz.getPageCount();
+    }
+
+    /**
+     * Requests that the panel display the specified page number (indexed
+     * from zero). Requests to display invalid page numbers will be
+     * ignored.
+     */
+    public void setPage (int pageno)
+    {
+        if (pageno < _viz.getPageCount()) {
+            _currentPage = pageno;
+            repaint();
+
+        } else {
+            Log.warning("Requested to display invalid page " +
+                        "[pageno=" + pageno +
+                        ", pages=" + _viz.getPageCount() + "].");
+        }
     }
 
     protected HierarchyVisualizer _viz;
+    protected int _currentPage = 0;
+
+    // our preferred size is one page at 72 pixels per inch
+    protected static final int PAGE_WIDTH = (int)(72 * 8.5);
+    protected static final int PAGE_HEIGHT = (int)(72 * 11);
 }

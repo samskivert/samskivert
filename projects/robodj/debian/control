@@ -1,0 +1,17 @@
+Source: robodj
+Section: contrib/web
+Priority: optional
+Maintainer: Michael Bayne <mdb@samskivert.com>
+Build-Depends: debhelper (>= 3.0.40), ant (>= 1.3-1), j2sdk1.3 (>= 1.3.1-1.1)
+Standards-Version: 1.0.0
+
+Package: robodj
+Architecture: all
+Section: contrib/web
+Priority: optional
+Depends: java-virtual-machine
+Description: Digital music management system
+ robodj provides tools to convert music from CDs into MP3s and to manage
+ the resulting music in categories. it stores music metadata in a SQL
+ database and provides a music server that can be configured a network
+ enabled client.

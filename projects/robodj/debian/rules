@@ -1,0 +1,62 @@
+#!/usr/bin/make -f
+# debian/rules file for robodj (uses debhelper V3)
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=3
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+	# call ant to build RoboDJ in the dist directories
+	ant dist
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	ant clean
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Install binaries, jars and configuration files
+	install -m755 bin/rdjbrowse debian/robodj/usr/bin
+	install -m644 dist/robodj.jar debian/robodj/usr/share/robodj/lib/
+	install -m644 lib/*.jar debian/robodj/usr/share/robodj/lib/
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i
+#	dh_installdebconf -i
+#	dh_installdocs -i 
+#	dh_installexamples -i build/conf
+#	dh_installmenu -i
+#	dh_installemacsen -i
+#	dh_installpam -i
+#	dh_installinit -i
+#	dh_installcron -i
+#	dh_installlogrotate -i
+#	dh_installmanpages -i
+#	dh_installinfo -i
+#	dh_undocumented -i jspc.1
+	dh_installchangelogs -i
+#	dh_link -i
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+#	dh_perl -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+binary: binary-indep
+.PHONY: build clean binary-indep binary-arch binary install

@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.1 2002/05/20 18:07:36 shaper Exp $
+// $Id: MultiLineLabel.java,v 1.2 2002/09/18 01:19:26 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
+import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
@@ -74,6 +75,15 @@ public class MultiLineLabel extends JComponent
         _constrain = constrain;
         _label = new Label(text);
         _label.setAlignment(align);
+    }
+
+    /**
+     * Sets whether this label's text should be rendered with
+     * anti-aliasing.
+     */
+    public void setAntiAliased (boolean antialiased)
+    {
+        _antialiased = antialiased;
     }
 
     /**
@@ -161,6 +171,10 @@ public class MultiLineLabel extends JComponent
         Graphics2D gfx = (Graphics2D)getGraphics();
         if (gfx != null) {
             // re-layout the label
+            gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 (_antialiased) ?
+                                 RenderingHints.VALUE_ANTIALIAS_ON :
+                                 RenderingHints.VALUE_ANTIALIAS_OFF);
             _label.layout(gfx);
             gfx.dispose();
 
@@ -188,4 +202,7 @@ public class MultiLineLabel extends JComponent
 
     /** The off-axis alignment with which the label is positioned. */
     protected int _offalign;
+
+    /** Whether to render the label with anti-aliasing. */
+    protected boolean _antialiased;
 }

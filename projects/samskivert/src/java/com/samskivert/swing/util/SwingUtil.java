@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.13 2002/07/25 20:55:44 ray Exp $
+// $Id: SwingUtil.java,v 1.14 2002/09/24 09:47:14 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -157,11 +157,15 @@ public class SwingUtil
      */
     public static void applyToHierarchy (Component comp, ComponentOp op)
     {
+        if (comp == null) {
+            return;
+        }
+
         op.apply(comp);
         if (comp instanceof Container) {
             Container c = (Container) comp;
             int ccount = c.getComponentCount();
-            for (int ii=0; ii < ccount; ii++) {
+            for (int ii = 0; ii < ccount; ii++) {
                 applyToHierarchy(c.getComponent(ii), op);
             }
         }

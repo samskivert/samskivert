@@ -111,9 +111,7 @@ public abstract class LabelSausage
         drawBase(gfx, x, y);
 
         // render our icon if we've got one
-        if (_icon != null) {
-            _icon.paintIcon(null, gfx, x + _xoff, y + _yoff);
-        }
+        drawIcon(gfx, x, y, cliData);
 
         drawLabel(gfx, x, y);
         drawBorder(gfx, x, y);
@@ -132,6 +130,16 @@ public abstract class LabelSausage
     {
         gfx.fillRoundRect(
             x, y, _size.width - 1, _size.height - 1, _dia, _dia);
+    }
+
+    /**
+     * Draws the icon, if applicable.
+     */
+    protected void drawIcon (Graphics2D gfx, int x, int y, Object cliData)
+    {
+        if (_icon != null) {
+            _icon.paintIcon(null, gfx, x + _xoff, y + _yoff);
+        }
     }
 
     /**

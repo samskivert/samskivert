@@ -105,4 +105,17 @@ public class RadialMenuItem extends RadialLabelSausage
     {
         paint(gfx, x, y, menu);
     }
+
+    // documentation inherited
+    protected void drawIcon (Graphics2D gfx, int x, int y, Object cliData)
+    {
+        super.drawIcon(gfx, x, y, cliData);
+        if (predicate instanceof RadialMenu.IconPredicate) {
+            Icon icon = ((RadialMenu.IconPredicate) predicate).getIcon(
+               (RadialMenu) cliData, this);
+            if (icon != null) {
+                icon.paintIcon(null, gfx, x + _xoff, y + _yoff);
+            }
+        }
+    }
 }

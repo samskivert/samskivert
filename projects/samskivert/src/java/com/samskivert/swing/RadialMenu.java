@@ -94,6 +94,18 @@ public class RadialMenu
     }
 
     /**
+     * An additional interface that can be implemented by the predicate
+     * to display extra status.
+     */
+    public static interface IconPredicate extends Predicate
+    {
+        /**
+         * Return an additional predicate that should be drawn.
+         */
+        public Icon getIcon (RadialMenu menu, RadialMenuItem item);
+    }
+
+    /**
      * Constructs a radial menu.
      */
     public RadialMenu ()

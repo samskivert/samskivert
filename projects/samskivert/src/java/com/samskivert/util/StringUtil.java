@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.65 2003/11/19 18:26:51 mdb Exp $
+// $Id: StringUtil.java,v 1.66 2003/11/19 18:52:30 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -85,6 +85,9 @@ public class StringUtil
      */
     public static String capitalize (String s)
     {
+        if (blank(s)) {
+            return s;
+        }
         char c = s.charAt(0);
         if (Character.isUpperCase(c)) {
             return s;

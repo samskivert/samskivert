@@ -1,5 +1,5 @@
 //
-// $Id: ValidatedSetNextRule.java,v 1.1 2001/11/29 21:30:13 mdb Exp $
+// $Id: ValidatedSetNextRule.java,v 1.2 2002/03/16 20:50:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -30,8 +30,8 @@ import org.apache.commons.digester.Rule;
  * Like the <code>SetNextRule</code> except that the object on the top of
  * the stack is validated before the set next method is called. If the
  * object is determined not to be valid, the set next method will not be
- * called (and the assumption is that the validator will have emmitted
- * some useful error message indicating to the user why the object was
+ * called (and the assumption is that the validator will have emitted some
+ * useful error message indicating to the user why the object was
  * invalid).
  */
 public class ValidatedSetNextRule extends Rule

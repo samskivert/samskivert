@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.5 2002/11/06 04:29:17 mdb Exp $
+// $Id: LabelDemo.java,v 1.6 2002/11/12 00:37:41 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -16,28 +16,36 @@ public class LabelDemo extends JPanel
             "He then popped into the butcher's and picked up some mutton.";
         Font font = new Font("Courier", Font.PLAIN, 10);
 
-        _labelZero = new Label(text);
-        _labelZero.setFont(font);
+        _labels = new Label[4];
 
-        _labelOne = new Label(text);
-        _labelOne.setFont(font);
-        _labelOne.setTargetWidth(100);
-        _labelOne.setAlignment(Label.RIGHT);
-        _labelOne.setAlternateColor(Color.white);
-        _labelOne.setFont(new Font("Dialog", Font.PLAIN, 12));
+        int idx = 0;
 
-        _labelTwo = new Label(text);
-        _labelTwo.setFont(font);
-        _labelTwo.setTargetHeight(30);
-        _labelTwo.setAlignment(Label.CENTER);
-        _labelTwo.setAlternateColor(Color.white);
-        _labelTwo.setFont(new Font("Dialog", Font.PLAIN, 12));
+        _labels[idx] = new Label(text);
+        _labels[idx++].setFont(font);
+
+        _labels[idx] = new Label(text);
+        _labels[idx].setFont(font);
+        _labels[idx].setTargetWidth(100);
+        _labels[idx].setAlignment(Label.RIGHT);
+        _labels[idx].setAlternateColor(Color.white);
+        _labels[idx++].setFont(new Font("Dialog", Font.PLAIN, 12));
+
+        _labels[idx] = new Label(text);
+        _labels[idx].setFont(font);
+        _labels[idx].setTargetHeight(30);
+        _labels[idx].setAlignment(Label.CENTER);
+        _labels[idx].setAlternateColor(Color.white);
+        _labels[idx++].setFont(new Font("Dialog", Font.PLAIN, 12));
+
+        _labels[idx] = new Label(text);
+        _labels[idx].setFont(font);
+        _labels[idx++].setGoldenLayout();
 
 //         try {
 //             InputStream in = new FileInputStream("delarobb.TTF");
 //             Font sfont = Font.createFont(Font.TRUETYPE_FONT, in);
 //             in.close();
-//             _labelThree = new Label(String.valueOf(30), Label.OUTLINE,
+//             _labels[3] = new Label(String.valueOf(30), Label.OUTLINE,
 //                                     Color.pink, Color.black,
 //                                     sfont.deriveFont(Font.PLAIN, 24));
 
@@ -52,14 +60,10 @@ public class LabelDemo extends JPanel
 
         // layout our labels
         Graphics2D g = (Graphics2D)getGraphics();
-        _labelZero.layout(g);
-        System.out.println("l0: " + _labelZero.getSize());
-        _labelOne.layout(g);
-        System.out.println("l1: " + _labelOne.getSize());
-        _labelTwo.layout(g);
-        System.out.println("l2: " + _labelTwo.getSize());
-//         _labelThree.layout(g);
-//         System.out.println("l3: " + _labelThree.getSize());
+        for (int ii = 0; ii < _labels.length; ii++) {
+            _labels[ii].layout(g);
+            System.out.println("l" + ii + ": " + _labels[ii].getSize());
+        }
     }
 
     public void paintComponent (Graphics g)
@@ -71,48 +75,34 @@ public class LabelDemo extends JPanel
         Dimension size;
         int x = 10, y = 10;
 
-        size = _labelZero.getSize();
-        g2.setColor(Color.white);
-        g2.fillRect(x, y, size.width, size.height);
-        g2.setColor(Color.black);
-        _labelZero.render(g2, x, y);
+        for (int ii = 0; ii < _labels.length; ii++) {
+            size = _labels[ii].getSize();
+            g2.setColor(Color.white);
+            switch (ii) {
+            case 0: break;
+            case 1: g2.fillRect(x, y, 100, size.height);
+            case 2: g2.fillRect(x, y, size.width, 30);
+            case 3: break;
+            }
 
-        y += 20;
-        size = _labelTwo.getSize();
-        g2.setColor(Color.white);
-        g2.fillRect(x, y, size.width, 30);
-        g2.setColor(Color.gray);
-        g2.fillRect(x, y, size.width, size.height);
-        g2.setColor(Color.black);
-        _labelTwo.render(g2, x, y);
+            g2.setColor(Color.gray);
+            g2.fillRect(x, y, size.width, size.height);
 
-        y += 40;
-        size = _labelOne.getSize();
-        g2.setColor(Color.white);
-        g2.fillRect(x, y, 100, size.height);
-        g2.setColor(Color.gray);
-        g2.fillRect(x, y, size.width, size.height);
-        g2.setColor(Color.black);
-        _labelOne.render(g2, x, y);
+            g2.setColor(Color.black);
+            _labels[ii].render(g2, x, y);
 
-//         y += 100;
-//         size = _labelThree.getSize();
-//         g2.setColor(Color.white);
-//         g2.fillRect(x, y, 100, size.height);
-//         g2.setColor(Color.gray);
-//         g2.fillRect(x, y, size.width, size.height);
-//         g2.setColor(Color.black);
-//         _labelThree.render(g2, x, y);
+            y += size.height + 10;
+        }
     }
 
     public Dimension getPreferredSize ()
     {
         // lay out label zero if necessary
-        int width = _labelZero.getSize().width;
+        int width = _labels[0].getSize().width;
         if (width == 0) {
             Graphics2D g = (Graphics2D)getGraphics();
-            _labelZero.layout(g);
-            width = _labelZero.getSize().width;
+            _labels[0].layout(g);
+            width = _labels[0].getSize().width;
         }
 
         return new Dimension(width + 20, 300);
@@ -128,8 +118,5 @@ public class LabelDemo extends JPanel
         frame.show();
     }
 
-    protected Label _labelZero;
-    protected Label _labelOne;
-    protected Label _labelTwo;
-//     protected Label _labelThree;
+    protected Label[] _labels;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MailUtil.java,v 1.7 2004/01/15 16:56:02 eric Exp $
+// $Id: MailUtil.java,v 1.8 2004/01/15 17:00:16 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -114,7 +114,7 @@ public class MailUtil
 
     public static void main (String[] args)
     {
-        String msg = "To: eric@threerings.com, eric@radiantenergy.org\n" +
+        String msg = "To: eric@threerings.net, eric@radiantenergy.org\n" +
             "Subject: test\n\n" +
             "Body of message is here. Yiza!\n";
         try {

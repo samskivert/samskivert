@@ -1,5 +1,5 @@
 //
-// $Id: SimpleParser.java,v 1.1 2001/10/15 23:46:02 shaper Exp $
+// $Id: SimpleParser.java,v 1.2 2001/11/08 01:17:41 mdb Exp $
 
 package com.samskivert.xml;
 
@@ -10,6 +10,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.samskivert.Log;
+import com.samskivert.io.NestableIOException;
 
 /**
  * The simple parser class provides an extensible object that is
@@ -39,7 +40,8 @@ public class SimpleParser extends DefaultHandler
      * @exception IOException thrown if an error occurs while parsing
      * the file.
      */
-    public void parseFile (String fname) throws IOException
+    public void parseFile (String fname)
+        throws IOException
     {
         _fname = fname;
 
@@ -51,10 +53,10 @@ public class SimpleParser extends DefaultHandler
 	    XMLUtil.parse(this, is);
 
         } catch (ParserConfigurationException pce) {
-  	    throw new IOException(pce.toString());
+  	    throw new NestableIOException(pce);
 
 	} catch (SAXException saxe) {
-	    throw new IOException(saxe.toString());
+	    throw new NestableIOException(saxe);
 	}
     }
 

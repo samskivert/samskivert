@@ -3,7 +3,10 @@
 
   <!-- things you may want to change -->
   <property name="build.compiler" value="jikes"/>
-  <property name="java.libraries" value="/usr/share/java"/>
+
+  <!-- we want to access the environment -->
+  <property environment="env"/>
+  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
 
   <!-- we need to do this to avoid conflicts with the XML jar files loaded
        to run ant versus the XML jar files we load for our tests -->

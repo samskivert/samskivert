@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.15 2002/02/10 05:06:08 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.16 2002/05/02 05:30:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -251,11 +251,11 @@ public class DispatcherServlet extends VelocityServlet
             ictx.put(APPLICATION_KEY, _app);
 
             // if the application provides a message manager, we want
-            // to put a message resolver in the context as well
+            // create a translation tool and stuff that into the context
             MessageManager msgmgr = _app.getMessageManager();
             if (msgmgr != null) {
-                MessageResolver mrslv = new MessageResolver(msgmgr);
-                ictx.put(MSGRESOLVER_KEY, mrslv);
+                I18nTool i18n = new I18nTool(req, msgmgr);
+                ictx.put(I18NTOOL_KEY, i18n);
             }
 
             // create a form tool for use by the template
@@ -400,14 +400,13 @@ public class DispatcherServlet extends VelocityServlet
      */
     protected static final String APPLICATION_KEY = "%_app_%";
 
-    /** This is the key used to store the message resolver in the
-     * context. */
-    protected static final String MSGRESOLVER_KEY = "i18n";
+    /** The key used to store the translation tool in the context. */
+    protected static final String I18NTOOL_KEY = "i18n";
 
-    /** This is the key used to store the form tool in the context. */
+    /** The key used to store the form tool in the context. */
     protected static final String FORMTOOL_KEY = "form";
 
-    /** This is the key used to store the string tool in the context. */
+    /** The key used to store the string tool in the context. */
     protected static final String STRINGTOOL_KEY = "string";
 
     /** The servlet parameter key specifying the application class. */

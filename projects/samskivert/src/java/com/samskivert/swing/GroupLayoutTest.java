@@ -1,5 +1,5 @@
 //
-// $Id: GroupLayoutTest.java,v 1.2 2001/08/11 22:43:28 mdb Exp $
+// $Id: GroupLayoutTest.java,v 1.3 2001/10/09 19:46:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -33,8 +33,11 @@ public class GroupLayoutTest
 	GroupLayout layout = new HGroupLayout();
 	layout.setJustification(GroupLayout.CENTER);
 	layout.setPolicy(GroupLayout.STRETCH);
+        layout.setJustification(GroupLayout.RIGHT);
 	layout.setGap(15);
 	panel.setLayout(layout);
+
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 	JButton butone = new JButton("One");
 	panel.add(butone, GroupLayout.FIXED);

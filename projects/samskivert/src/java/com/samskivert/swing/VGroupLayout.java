@@ -1,5 +1,5 @@
 //
-// $Id: VGroupLayout.java,v 1.7 2001/10/09 19:21:37 mdb Exp $
+// $Id: VGroupLayout.java,v 1.8 2001/10/09 19:46:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -95,7 +95,7 @@ public class VGroupLayout extends GroupLayout
 	b.height -= (insets.top + insets.bottom);
 
 	int nk = parent.getComponentCount();
-	int sx = insets.left, sy = insets.top;
+	int sx, sy;
 	int tothei, totgap = _gap * (info.count-1);
 	int freecount = info.count - info.numfix;
 
@@ -135,11 +135,9 @@ public class VGroupLayout extends GroupLayout
 	case STRETCH:
 	    defwid = b.width;
 	    break;
-
 	case EQUALIZE:
 	    defwid = info.maxwid;
 	    break;
-
 	default:
 	case NONE:
 	    break;
@@ -147,12 +145,16 @@ public class VGroupLayout extends GroupLayout
 
 	// do the justification-related calculations
 	switch (_justification) {
+        default:
+        case LEFT:
+        case TOP:
+            sy = insets.top;
 	case CENTER:
-	    sy += (b.height - tothei)/2;
+	    sy = insets.top + (b.height - tothei)/2;
 	    break;
 	case RIGHT:
 	case BOTTOM:
-	    sy += b.height - tothei - insets.bottom;
+	    sy = insets.top + b.height - tothei;
 	    break;
 	}
 
@@ -186,12 +188,10 @@ public class VGroupLayout extends GroupLayout
             case TOP:
 		sx = insets.left;
                 break;
-
             case RIGHT:
             case BOTTOM:
-		sx = b.width - newwid - insets.right;
+		sx = insets.left + b.width - newwid;
                 break;
-
             default:
             case CENTER:
 		sx = insets.left + (b.width - newwid)/2;

@@ -1,5 +1,5 @@
 //
-// $Id: HGroupLayout.java,v 1.7 2001/10/09 19:21:37 mdb Exp $
+// $Id: HGroupLayout.java,v 1.8 2001/10/09 19:46:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -95,7 +95,7 @@ public class HGroupLayout extends GroupLayout
 	b.height -= (insets.top + insets.bottom);
 
 	int nk = parent.getComponentCount();
-	int sx = insets.left, sy = insets.top;
+	int sx, sy;
 	int totwid, totgap = _gap * (info.count-1);
 	int freecount = info.count - info.numfix;
 
@@ -135,11 +135,9 @@ public class HGroupLayout extends GroupLayout
 	case STRETCH:
 	    defhei = b.height;
 	    break;
-
 	case EQUALIZE:
 	    defhei = info.maxhei;
 	    break;
-
 	default:
 	case NONE:
 	    break;
@@ -147,12 +145,17 @@ public class HGroupLayout extends GroupLayout
 
 	// do the justification-related calculations
 	switch (_justification) {
+        default:
+        case LEFT:
+        case TOP:
+            sx = insets.left;
+            break;
 	case CENTER:
-	    sx += (b.width - totwid)/2;
+	    sx = insets.left + (b.width - totwid)/2;
 	    break;
 	case RIGHT:
 	case BOTTOM:
-	    sx += b.width - totwid - insets.right;
+	    sx = insets.left + b.width - totwid;
 	    break;
 	}
 
@@ -186,12 +189,10 @@ public class HGroupLayout extends GroupLayout
             case TOP:
 		sy = insets.top;
                 break;
-
             case RIGHT:
             case BOTTOM:
-		sy = b.height - newhei - insets.bottom;
+		sy = insets.top + b.height - newhei;
                 break;
-
             default:
             case CENTER:
 		sy = insets.top + (b.height - newhei)/2;

@@ -1,5 +1,5 @@
 //
-// $Id: FieldMask.java,v 1.3 2003/08/26 04:49:05 eric Exp $
+// $Id: FieldMask.java,v 1.4 2003/09/02 17:37:34 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,8 +22,8 @@ package com.samskivert.jdbc.jora;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Provides support for doing partial updates to objects in a JORA table.
@@ -100,7 +100,7 @@ public class FieldMask
      * Takes a subset of the fields represented by this field mask.
      * Returns true only if the modified fields intersect the subsetFields.
      */
-    public final boolean onlySubSetModified (HashSet subsetFields)
+    public final boolean onlySubSetModified (Set subsetFields)
     {
         Iterator itr = _descripMap.keySet().iterator();
         while (itr.hasNext()) {

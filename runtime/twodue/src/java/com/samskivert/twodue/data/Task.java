@@ -1,5 +1,5 @@
 //
-// $Id: Task.java,v 1.3 2002/11/09 01:15:54 mdb Exp $
+// $Id: Task.java,v 1.4 2002/11/09 02:11:22 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -33,7 +33,7 @@ public class Task
 
     public String notes;
 
-    public String getPriority ()
+    public String getPriorityName ()
     {
         switch (priority) {
         case 50: return "Urgent";

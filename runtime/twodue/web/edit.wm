@@ -18,6 +18,7 @@ Task is completed.
 <tr><td colspan="3" bgcolor="$scolor" align="right">
 $form.submit("submit", "Reopen")</td></tr>
 <tr><td colspan="3">&nbsp;</td></tr>
+</form>
 #end
 
 <form action="edit.wm">
@@ -48,12 +49,12 @@ $form.text("category", "size='10'", $task.category)
 
 <td>Priority:<br>
 <select name="priority">
-  $form.option("priority", "50", "Urgent", $task.priority)
-  $form.option("priority", "25", "Next release", $task.priority)
-  $form.option("priority", "15", "Soon", $task.priority)
-  $form.option("priority", "10", "Before launch", $task.priority)
-  $form.option("priority", "5", "Post launch", $task.priority)
-  $form.option("priority", "1", "On the list", $task.priority)
+  $form.option("priority", "50", "Urgent", $string.valueOf($task.priority))
+  $form.option("priority", "25", "Next release", $string.valueOf($task.priority))
+  $form.option("priority", "15", "Soon", $string.valueOf($task.priority))
+  $form.option("priority", "10", "Before launch", $string.valueOf($task.priority))
+  $form.option("priority", "5", "Post launch", $string.valueOf($task.priority))
+  $form.option("priority", "1", "On the list", $string.valueOf($task.priority))
 </select>
 </td></tr>
 

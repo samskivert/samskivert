@@ -73,9 +73,9 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 <form action="index.wm">
 $form.fixedHidden("task", "$task.taskId")
 
-#if ($task.getPriority() != $priority)
-#set ($priority = $task.getPriority())
-<tr><td colspan="4" class="small">$task.getPriority()</td></tr>
+#if ($task.getPriorityName() != $priority)
+#set ($priority = $task.getPriorityName())
+<tr><td colspan="4" class="small">$task.getPriorityName()</td></tr>
 #end
 
 #if ($vidx%2 == 0)

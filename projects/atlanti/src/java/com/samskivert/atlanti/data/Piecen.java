@@ -1,5 +1,5 @@
 //
-// $Id: Piecen.java,v 1.1 2001/10/17 02:19:54 mdb Exp $
+// $Id: Piecen.java,v 1.2 2001/10/17 23:27:52 mdb Exp $
 
 package com.threerings.venison;
 
@@ -42,8 +42,8 @@ public class Piecen
     /** A color constant. */
     public static final int GREEN = 4;
 
-    /** The color of this piecen. */
-    public int color;
+    /** The owner of this piecen. */
+    public int owner;
 
     /** The x and y coordinates of the tile on which this piecen is
      * placed. */
@@ -59,9 +59,9 @@ public class Piecen
     /**
      * Construts a piecen with the specified configuration.
      */
-    public Piecen (int color, int x, int y, int featureIndex)
+    public Piecen (int owner, int x, int y, int featureIndex)
     {
-        this.color = color;
+        this.owner = owner;
         this.x = x;
         this.y = y;
         this.featureIndex = featureIndex;
@@ -85,7 +85,7 @@ public class Piecen
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        out.writeInt(color);
+        out.writeInt(owner);
         out.writeInt(x);
         out.writeInt(y);
         out.writeInt(featureIndex);
@@ -95,7 +95,7 @@ public class Piecen
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        color = in.readInt();
+        owner = in.readInt();
         x = in.readInt();
         y = in.readInt();
         featureIndex = in.readInt();
@@ -127,7 +127,7 @@ public class Piecen
      */
     public String toString ()
     {
-        return "[color=" + color + ", pos=" + x + "/" + y +
-            ", fidx=" + featureIndex + "]";
+        return "[owner=" + owner + ", pos=" + x + "/" + y +
+            ", feat=" + featureIndex + ", claim=" + claimGroup + "]";
     }
 }

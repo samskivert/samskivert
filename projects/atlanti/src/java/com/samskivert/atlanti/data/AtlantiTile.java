@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.8 2001/10/17 02:19:54 mdb Exp $
+// $Id: AtlantiTile.java,v 1.9 2001/10/17 23:27:52 mdb Exp $
 
 package com.threerings.venison;
 
@@ -159,11 +159,8 @@ public class VenisonTile
      * @param featureIndex the index of the feature to update.
      * @param claimGroup the claim group to associate with the feature.
      */
-    public void setFeatureGroup (int featureIndex, int claimGroup)
+    public void setClaimGroup (int featureIndex, int claimGroup)
     {
-//          Log.info("Setting feature group [tile=" + this +
-//                   ", fidx=" + featureIndex + ", cgroup=" + claimGroup + "].");
-
         // update the claim group slot for this feature
         claims[featureIndex] = claimGroup;
 
@@ -179,7 +176,7 @@ public class VenisonTile
      * Piecen#featureIndex} field is assumed to be initialized to the
      * feature index of this tile on which the piecen is to be placed.
      *
-     * <p> Note that this will call {@link TileUtil#setFeatureGroup} to
+     * <p> Note that this will call {@link TileUtil#setClaimGroup} to
      * propagate the claiming of this feature to all neighboring tiles if
      * a non-null tiles array is supplied to the function.
      *
@@ -210,8 +207,10 @@ public class VenisonTile
             int claimGroup = TileUtil.nextClaimGroup();
             Log.info("Creating claim group [cgroup=" + claimGroup +
                      ", tile=" + this + ", fidx=" + piecen.featureIndex + "].");
-            TileUtil.setFeatureGroup(
-                tiles, this, piecen.featureIndex, claimGroup, 0);
+            TileUtil.setClaimGroup(
+                tiles, this, piecen.featureIndex, claimGroup);
+            // update our piecen with the claim group as well
+            piecen.claimGroup = claimGroup;
         }
     }
 
@@ -254,13 +253,19 @@ public class VenisonTile
             // if we have a piecen on this tile, render it as well
             if (piecen != null && piecen.featureIndex == i) {
                 features[i].paintPiecen(
-                    g, orientation, piecen.color, piecen.claimGroup);
+                    g, orientation, piecen.owner, piecen.claimGroup);
             }
         }
 
         // draw a rectangular outline
         g.setColor(Color.black);
         g.drawRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
+
+        // if we have a shield, draw a square in the lower right
+        if (hasShield) {
+            g.setColor(Color.orange);
+            g.drawRect(TILE_WIDTH-15, TILE_HEIGHT-15, 10, 10);
+        }
 
         // translate back out
         g.translate(-sx, -sy);

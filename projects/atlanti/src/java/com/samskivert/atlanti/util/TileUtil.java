@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.9 2001/10/17 05:01:51 mdb Exp $
+// $Id: TileUtil.java,v 1.10 2001/10/17 23:27:52 mdb Exp $
 
 package com.threerings.venison;
 
@@ -12,11 +12,22 @@ import java.util.List;
 
 import com.samskivert.util.IntTuple;
 
+import com.threerings.presents.dobj.DSet;
+
 /**
  * Utility functions relating to the Venison tiles.
  */
 public class TileUtil implements TileCodes
 {
+    /**
+     * Returns an instance of the starting tile (properly cloned so that
+     * it can be messed with by the server).
+     */
+    public static VenisonTile getStartingTile ()
+    {
+        return (VenisonTile)VenisonTile.STARTING_TILE.clone();
+    }
+
     /**
      * Returns a list containing the standard tile set for the Venison
      * game. The list is a clone, so it can be bent, folded and modified
@@ -24,7 +35,14 @@ public class TileUtil implements TileCodes
      */
     public static List getStandardTileSet ()
     {
-        return (List)TILE_SET.clone();
+        // we need to deep copy the default tile set, so we can't just use
+        // clone
+        List tiles = new ArrayList();
+        int tsize = TILE_SET.size();
+        for (int i = 0; i < tsize; i++) {
+            tiles.add(((VenisonTile)TILE_SET.get(i)).clone());
+        }
+        return tiles;
     }
 
     /**
@@ -189,119 +207,48 @@ public class TileUtil implements TileCodes
      */
     public static void inheritClaims (List tiles, VenisonTile tile)
     {
-        // obtain our neighboring tiles
-        VenisonTile[] neighbors = new VenisonTile[4];
-        neighbors[NORTH] = findTile(tiles, tile.x, tile.y-1);
-        neighbors[EAST] = findTile(tiles, tile.x+1, tile.y);
-        neighbors[SOUTH] = findTile(tiles, tile.x, tile.y+1);
-        neighbors[WEST] = findTile(tiles, tile.x-1, tile.y);
+        List flist = new ArrayList();
 
-        // for each feature in the tile, determine whether or not the
-        // neighboring tile's matching feature is claimed
+        // for each feature in the tile, load up its claim group and make
+        // sure all features in that group (which will include our new
+        // feature) now have the same claim number
         for (int i = 0; i < tile.features.length; i ++) {
-            int ftype = tile.features[i].type;
-            int fmask = tile.features[i].edgeMask;
-            int cgroup = 0;
+            int claimGroup = 0;
 
-            // iterate over all of the possible adjacency possibilities,
-            // first looking for a claim group to inherit
-            for (int c = 0; c < FeatureUtil.ADJACENCY_MAP.length; c += 3) {
-                int mask = FeatureUtil.ADJACENCY_MAP[c];
-                int dir = FeatureUtil.ADJACENCY_MAP[c+1];
-                int opp_mask = FeatureUtil.ADJACENCY_MAP[c+2];
+            // clear out the tilefeatures list before enumerating
+            flist.clear();
 
-                // if this feature doesn't have this edge, skip it
-                if ((fmask & mask) == 0) {
-                    continue;
-                }
+            // enumerate the claim group for this feature
+            enumerateGroup(tiles, tile, i, flist);
 
-                // translate the target direction accordingly
-                dir = (dir + tile.orientation) % 4;
-
-                // make sure we have a neighbor in the appropriate
-                // direction
-                if (neighbors[dir] == null) {
-                    continue;
-                }
-
-                // it looks like we have a match, so translate the target
-                // stuff into our orientation
-                mask = FeatureUtil.translateMask(mask, tile.orientation);
-                opp_mask = FeatureUtil.translateMask(
-                    opp_mask, tile.orientation);
-
-                // inherit the group of the opposing feature
-                cgroup = neighbors[dir].getFeatureGroup(opp_mask);
-
-                // and bail as soon as we find a non-zero claim group
-                if (cgroup != 0) {
-                    Log.info("Inherited claim [tile=" + tile +
-                             ", fidx=" + i + ", cgroup=" + cgroup +
-                             ", source=" + neighbors[dir] + "].");
+            // find the first non-zero claim number
+            for (int t = 0; t < flist.size(); t++) {
+                TileFeature feat = (TileFeature)flist.get(t);
+                int fcg = feat.tile.claims[feat.featureIndex];
+                if (fcg != 0) {
+                    claimGroup = fcg;
                     break;
                 }
             }
 
-            // if we didn't inherit a claim group, skip to the next
-            // feature
-            if (cgroup == 0) {
+            // if we found no non-zero claim number, we've nothing to
+            // inherit
+            if (claimGroup == 0) {
                 continue;
             }
 
-            // initialize the feature's claim group
-            tile.claims[i] = cgroup;
-
-            // otherwise, iterate over all of the possible adjacency
-            // possibilities, propagating our group to connected features
-            for (int c = 0; c < FeatureUtil.ADJACENCY_MAP.length; c += 3) {
-                int mask = FeatureUtil.ADJACENCY_MAP[c];
-                int dir = FeatureUtil.ADJACENCY_MAP[c+1];
-                int opp_mask = FeatureUtil.ADJACENCY_MAP[c+2];
-
-                // if this feature doesn't have this edge, skip it
-                if ((fmask & mask) == 0) {
-                    continue;
-                }
-
-                // translate the target direction accordingly
-                dir = (dir + tile.orientation) % 4;
-
-                // make sure we have a neighbor in the appropriate
-                // direction
-                if (neighbors[dir] == null) {
-                    continue;
-                }
-
-                // it looks like we have a match, so translate the target
-                // stuff into our orientation
-                mask = FeatureUtil.translateMask(mask, tile.orientation);
-                opp_mask = FeatureUtil.translateMask(
-                    opp_mask, tile.orientation);
-
-                // make sure the neighbor in question isn't the one from
-                // which we inherited the group
-                int ogroup = neighbors[dir].getFeatureGroup(opp_mask);
-                if (ogroup == cgroup) {
-                    continue;
-                }
-
-                // if we've already been assigned to a group, we propagate
-                // our group to the opposing feature
-                int fidx = neighbors[dir].getFeatureIndex(opp_mask);
-                if (fidx >= 0) {
-                    Log.info("Propagating group [fidx=" + i +
-                             ", cgroup=" + cgroup +
-                             ", dir=" + dir + "].");
-                    setFeatureGroup(tiles, neighbors[dir],
-                                    fidx, cgroup, mask);
-
-                } else {
-                    Log.warning("Can't join-propagate feature " +
-                                "[self=" + tile +
-                                ", target=" + neighbors[dir] +
-                                ", fidx=" + fidx + ", cgroup=" + cgroup +
-                                ", destEdge=" + opp_mask + 
-                                ", srcEdge=" + mask + "].");
+            // otherwise, assign our new claim number to all members of
+            // the group (potentially causing some to inherit the new
+            // claim number)
+            for (int t = 0; t < flist.size(); t++) {
+                TileFeature feat = (TileFeature)flist.get(t);
+                // set the claim group in the tile
+                feat.tile.claims[feat.featureIndex] = claimGroup;
+                // also set the claim group on the piecen if the tile has
+                // an associated piecen that is on this feature
+                Piecen p = feat.tile.piecen;
+                if (p != null && p.featureIndex == feat.featureIndex) {
+                    p.claimGroup = claimGroup;
                 }
             }
         }
@@ -316,71 +263,18 @@ public class TileUtil implements TileCodes
      * being set.
      * @param featureIndex the index of the feature.
      * @param claimGroup the claim group value to set.
-     * @param entryEdgeMask the edge from which we are propagating this
-     * claim group (to avoid traversing back over that edge when
-     * propagating the group further).
      */
-    public static void setFeatureGroup (
-        List tiles, VenisonTile tile, int featureIndex,
-        int claimGroup, int entryEdgeMask)
+    public static void setClaimGroup (
+        List tiles, VenisonTile tile, int featureIndex, int claimGroup)
     {
-        // set the claim group for this feature on this tile
-        tile.setFeatureGroup(featureIndex, claimGroup);
+        // load up this feature group
+        List flist = new ArrayList();
+        enumerateGroup(tiles, tile, featureIndex, flist);
 
-        // now propagate this feature to connected features
-        int ftype = tile.features[featureIndex].type;
-        int fmask = tile.features[featureIndex].edgeMask;
-
-        // iterate over all of the possible adjacency possibilities
-        for (int c = 0; c < FeatureUtil.ADJACENCY_MAP.length; c += 3) {
-            int mask = FeatureUtil.ADJACENCY_MAP[c];
-            int dir = FeatureUtil.ADJACENCY_MAP[c+1];
-            int opp_mask = FeatureUtil.ADJACENCY_MAP[c+2];
-            VenisonTile neighbor = null;
-
-            // if this feature doesn't have this edge, skip it
-            if ((fmask & mask) == 0) {
-                continue;
-            }
-
-            // figure out if this would be the tile from which we
-            // propagated into our current tile and skip it if so
-            opp_mask = FeatureUtil.translateMask(opp_mask, tile.orientation);
-            if ((opp_mask & entryEdgeMask) != 0) {
-                continue;
-            }
-
-            // make sure we have a neighbor in this direction
-            dir = (dir + tile.orientation) % 4;
-            switch (dir) {
-            case NORTH: neighbor = findTile(tiles, tile.x, tile.y-1); break;
-            case EAST: neighbor = findTile(tiles, tile.x+1, tile.y); break;
-            case SOUTH: neighbor = findTile(tiles, tile.x, tile.y+1); break;
-            case WEST: neighbor = findTile(tiles, tile.x-1, tile.y); break;
-            }
-            if (neighbor == null) {
-                continue;
-            }
-
-            // it looks like we have a match, so translate the target mask
-            // into our orientation
-            mask = FeatureUtil.translateMask(mask, tile.orientation);
-
-            // propagate, propagate, propagate
-            int fidx = neighbor.getFeatureIndex(opp_mask);
-            if (fidx >= 0) {
-                // only set the feature in the neighbor if they aren't
-                // already set to the appropriate group (prevent loops)
-                if (neighbor.claims[fidx] != claimGroup) {
-                    setFeatureGroup(tiles, neighbor, fidx, claimGroup, mask);
-                }
-
-            } else {
-                Log.warning("Can't propagate feature [self=" + tile +
-                            ", target=" + neighbor + ", fidx=" + fidx +
-                            ", cgroup=" + claimGroup + ", srcEdge=" + mask +
-                            ", destEdge=" + opp_mask + "].");
-            }
+        // and assign the claim number to all features in the group
+        for (int t = 0; t < flist.size(); t++) {
+            TileFeature feat = (TileFeature)flist.get(t);
+            feat.tile.claims[feat.featureIndex] = claimGroup;
         }
     }
 
@@ -401,112 +295,40 @@ public class TileUtil implements TileCodes
     public static int computeFeatureScore (
         List tiles, VenisonTile tile, int featureIndex)
     {
-        // determine what kind of feature it is
         Feature feature = tile.features[featureIndex];
 
-        switch (feature.type) {
-        case ROAD:
-            return computeFeatureScore(tiles, tile, feature, new ArrayList());
-
-        case CITY: {
-            int score =
-                computeFeatureScore(tiles, tile, feature, new ArrayList());
-            // cities receive a 2x multiplier if they are larger than size
-            // two and are completed
-            return (score > 2) ? score*2 : score;
-        }
-
-        case CLOISTER:
+        if (feature.type == CLOISTER) {
             // cloister's score specially
             return computeCloisterScore(tiles, tile);
 
-        default:
-        case GRASS:
+        } else if (feature.type == GRASS) {
             // grass doesn't score
             return 0;
         }
-    }
 
-    /**
-     * A helper function for {@link
-     * #computeFeatureScore(List,VenisonTile,int)}.
-     */
-    protected static int computeFeatureScore (
-        List tiles, VenisonTile tile, Feature feature, List seen)
-    {
-        // if we've already counted this tile, bail
-        if (seen.contains(tile)) {
-            return 0;
-        }
+        // if we're here, it's a road or city feature, which we score by
+        // loading up the group and counting its size
+        List flist = new ArrayList();
+        boolean complete = enumerateGroup(tiles, tile, featureIndex, flist);
+        int score = flist.size();
 
-        // otherwise add this tile to the seen list
-        seen.add(tile);
-
-        // cities have a base score of one but get a one point bonus if
-        // they have a shield on them
-        int score = (feature.type == CITY && tile.hasShield) ? 2 : 1;
-        boolean missedNeighbor = false;
-
-        // now figure out what connected features there are, if any
-        int ftype = feature.type;
-        int fmask = feature.edgeMask;
-
-        // iterate over all of the possible adjacency possibilities
-        for (int c = 0; c < FeatureUtil.ADJACENCY_MAP.length; c += 3) {
-            int mask = FeatureUtil.ADJACENCY_MAP[c];
-            int dir = FeatureUtil.ADJACENCY_MAP[c+1];
-            int opp_mask = FeatureUtil.ADJACENCY_MAP[c+2];
-            VenisonTile neighbor = null;
-
-            // if this feature doesn't have this edge, skip it
-            if ((fmask & mask) == 0) {
-                continue;
-            }
-
-            // make sure we have a neighbor in this direction
-            dir = (dir + tile.orientation) % 4;
-            switch (dir) {
-            case NORTH: neighbor = findTile(tiles, tile.x, tile.y-1); break;
-            case EAST: neighbor = findTile(tiles, tile.x+1, tile.y); break;
-            case SOUTH: neighbor = findTile(tiles, tile.x, tile.y+1); break;
-            case WEST: neighbor = findTile(tiles, tile.x-1, tile.y); break;
-            }
-            if (neighbor == null) {
-                // if we don't have a neighbor in a direction that we
-                // need, we're an incomplete feature. alas
-                missedNeighbor = true;
-                continue;
-            }
-
-            // translate the target mask into our orientation
-            mask = FeatureUtil.translateMask(mask, tile.orientation);
-            opp_mask = FeatureUtil.translateMask(opp_mask, tile.orientation);
-
-            // propagate, propagate, propagate
-            int fidx = neighbor.getFeatureIndex(opp_mask);
-            if (fidx < 0) {
-                Log.warning("Tile mismatch while scoring [self=" + tile +
-                            ", target=" + neighbor + ", fidx=" + fidx +
-                            ", srcEdge=" + mask +
-                            ", destEdge=" + opp_mask + "].");
-
-            } else {
-                // add the score for this neighbor
-                int nscore = computeFeatureScore(
-                    tiles, neighbor, neighbor.features[fidx], seen);
-                // if our neighbor returned a negative score, we convert
-                // it back to positive and make a note to make it negative
-                // at the end
-                if (nscore < 0) {
-                    score += -nscore;
-                    missedNeighbor = true;
-                } else {
-                    score += nscore;
+        // for city groups, we need to add a bonus of one for every tile
+        // that contains a shield and mutiply by two if the city is
+        // complete and larger than two tiles
+        if (feature.type == CITY) {
+            for (int t = 0; t < flist.size(); t++) {
+                TileFeature feat = (TileFeature)flist.get(t);
+                if (feat.tile.hasShield) {
+                    score++;
                 }
             }
+            if (complete && score > 2) {
+                score *= 2;
+            }
         }
 
-        return missedNeighbor ? -score : score;
+        // incomplete scores are reported in the negative
+        return complete ? score : -score;
     }
 
     /**
@@ -532,6 +354,161 @@ public class TileUtil implements TileCodes
     }
 
     /**
+     * Clears out the claim group information for incomplete cities so
+     * that we can ignore them during farm scoring. Assigns new claim
+     * group values to any completed cities that were unclaimed.
+     *
+     * @param tiles a sorted list of tiles on the board.
+     */
+    public static void prepCitiesForScoring (List tiles)
+    {
+        List flist = new ArrayList();
+
+        // iterate over the tiles, marking every city completed or not
+        int tsize = tiles.size();
+        for (int i = 0; i < tsize; i++) {
+            VenisonTile tile = (VenisonTile)tiles.get(i);
+
+            // iterate over each feature on this tile
+            for (int f = 0; f < tile.features.length; f++) {
+                // skip non-city features
+                if (tile.features[f].type != TileCodes.CITY) {
+                    continue;
+                }
+
+                // clear out the feature group list before processing
+                flist.clear();
+
+                // enumerate the features in the group with this feature
+                if (enumerateGroup(tiles, tile, f, flist)) {
+                    // if it's complete, we want to ensure that all of
+                    // these features have a claim number
+                    if (tile.claims[f] != 0) {
+                        // it's complete and has a claim number. move on
+                        continue;
+                    }
+
+                    // assign the claim number to all features in the group
+                    int claimGroup = nextClaimGroup();
+                    for (int t = 0; t < flist.size(); t++) {
+                        TileFeature feat = (TileFeature)flist.get(t);
+                        feat.tile.claims[feat.featureIndex] = claimGroup;
+                        if (t == 0) {
+                            Log.info("Claiming complete city " +
+                                     "[claim=" + feat.tile.claims[
+                                         feat.featureIndex] + "].");
+                        }
+                    }
+
+                } else {
+                    // it's incomplete, so we want to clear out the claim
+                    // number from all tiles in the group
+                    for (int t = 0; t < flist.size(); t++) {
+                        TileFeature feat = (TileFeature)flist.get(t);
+                        if (t == 0) {
+                            Log.info("Clearing incomplete city " +
+                                     "[claim=" + feat.tile.claims[
+                                         feat.featureIndex] + "].");
+                        }
+                        feat.tile.claims[feat.featureIndex] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Enumerates all of the features that are in the group of which the
+     * specified feature is a member.
+     *
+     * @param tiles a sorted list of the tiles on the board.
+     * @param tile the tile that contains the feature whose group is to be
+     * enumerated.
+     * @param featureIndex the index of the feature whose group is to be
+     * enumerated.
+     * @param group the list into which instances of {@link FeatureGroup}
+     * will be placed that represent the features that are members of the
+     * group.
+     *
+     * @return true if the group is complete (has no unconnected
+     * features), false if it is not.
+     */
+    protected static boolean enumerateGroup (
+        List tiles, VenisonTile tile, int featureIndex, List group)
+    {
+        // create a tilefeature for this feature
+        TileFeature feat = new TileFeature(tile, featureIndex);
+
+        // determine whether or not this feature is already in the group
+        if (group.contains(feat)) {
+            return true;
+        }
+
+        // otherwise add this feature to the group and process this
+        // feature's neighbors
+        group.add(feat);
+
+        boolean complete = true;
+        int ftype = tile.features[featureIndex].type;
+        int fmask = tile.features[featureIndex].edgeMask;
+
+        // iterate over all of the possible adjacency possibilities
+        for (int c = 0; c < FeatureUtil.ADJACENCY_MAP.length; c += 3) {
+            int mask = FeatureUtil.ADJACENCY_MAP[c];
+            int opp_mask = FeatureUtil.ADJACENCY_MAP[c+2];
+
+            // if this feature doesn't have this edge, skip it
+            if ((fmask & mask) == 0) {
+                continue;
+            }
+
+            // look up our neighbor
+            VenisonTile neighbor = null;
+            int dir = FeatureUtil.ADJACENCY_MAP[c+1];
+            dir = (dir + tile.orientation) % 4;
+            switch (dir) {
+            case NORTH: neighbor = findTile(tiles, tile.x, tile.y-1); break;
+            case EAST: neighbor = findTile(tiles, tile.x+1, tile.y); break;
+            case SOUTH: neighbor = findTile(tiles, tile.x, tile.y+1); break;
+            case WEST: neighbor = findTile(tiles, tile.x-1, tile.y); break;
+            }
+
+            // make sure we have a neighbor in this direction
+            if (neighbor == null) {
+                // if we don't have a neighbor in a direction that we
+                // need, we're an incomplete feature. alas
+                complete = false;
+                continue;
+            }
+
+            // translate the target mask into our orientation
+            mask = FeatureUtil.translateMask(mask, tile.orientation);
+            opp_mask = FeatureUtil.translateMask(opp_mask, tile.orientation);
+
+            // obtain the index of the feature on the opposing tile
+            int nFeatureIndex = neighbor.getFeatureIndex(opp_mask);
+            if (nFeatureIndex < 0) {
+                Log.warning("Tile mismatch while grouping [tile=" + tile +
+                            "featIdx=" + featureIndex +
+                            ", neighbor=" + neighbor +
+                            ", nFeatIdx=" + nFeatureIndex +
+                            ", srcEdge=" + mask +
+                            ", destEdge=" + opp_mask + "].");
+                continue;
+            }
+
+            // add this feature and its neighbors to the group
+            if (!enumerateGroup(tiles, neighbor, nFeatureIndex, group)) {
+                // if our neighbor was incomplete, we become incomplete.
+                // as dr. evil might say, "you incomplete me."
+                complete = false;
+            }
+        }
+
+        return complete;
+    }
+
+    /**
      * Locates and returns the tile with the specified coordinates.
      *
      * @param tiles a sorted list of tiles.
@@ -544,6 +521,22 @@ public class TileUtil implements TileCodes
         IntTuple coord = new IntTuple(x, y);
         int tidx = Collections.binarySearch(tiles, coord);
         return (tidx >= 0) ? (VenisonTile)tiles.get(tidx) : null;
+    }
+
+    /**
+     * Returns the number of piecens on the board owned the specified
+     * player.
+     */
+    public static int countPiecens (DSet piecens, int playerIndex)
+    {
+        int count = 0;
+        Iterator iter = piecens.elements();
+        while (iter.hasNext()) {
+            if (((Piecen)iter.next()).owner == playerIndex) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -572,10 +565,46 @@ public class TileUtil implements TileCodes
     /** Used to generate our standard tile set. */
     protected static void addTiles (int count, List list, VenisonTile tile)
     {
-        for (int i = 0; i  < count-1; i++) {
-            list.add(tile.clone());
+        for (int i = 0; i  < count; i++) {
+            list.add(tile);
         }
-        list.add(tile);
+    }
+
+    /** Used to keep track of actual features on tiles. */
+    protected static final class TileFeature
+    {
+        /** The tile that contains the feature. */
+        public VenisonTile tile;
+
+        /** The index of the feature in the tile. */
+        public int featureIndex;
+
+        /** Constructs a new tile feature. */
+        public TileFeature (VenisonTile tile, int featureIndex)
+        {
+            this.tile = tile;
+            this.featureIndex = featureIndex;
+        }
+
+        /** Properly implement equality. */
+        public boolean equals (Object other)
+        {
+            if (other == null ||
+                !(other instanceof TileFeature)) {
+                return false;
+
+            } else {
+                TileFeature feat = (TileFeature)other;
+                return (feat.tile == tile &&
+                        feat.featureIndex == featureIndex);
+            }
+        }
+
+        /** Generate a string representation. */
+        public String toString ()
+        {
+            return "[tile=" + tile + ", fidx=" + featureIndex + "]";
+        }
     }
 
     /** Used to generate claim group values. */

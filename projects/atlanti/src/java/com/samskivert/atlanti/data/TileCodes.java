@@ -1,5 +1,5 @@
 //
-// $Id: TileCodes.java,v 1.5 2001/10/17 02:19:54 mdb Exp $
+// $Id: TileCodes.java,v 1.6 2001/10/17 23:27:52 mdb Exp $
 
 package com.threerings.venison;
 
@@ -118,4 +118,8 @@ public interface TileCodes
 
     /** A constant indicating a cloister. */
     public static final int CLOISTER = 3;
+
+
+    /** A flag used to mark a tile as part of a completed city. */
+    public static final int COMPLETED_CITY = 0x01;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: FeatureUtil.java,v 1.2 2001/10/17 04:34:13 mdb Exp $
+// $Id: FeatureUtil.java,v 1.3 2001/10/17 23:27:52 mdb Exp $
 
 package com.threerings.venison;
 
@@ -59,6 +59,30 @@ public class FeatureUtil implements TileCodes
         SSW_F, SOUTH, NNW_F,
         WSW_F, WEST, ESE_F,
         WNW_F, WEST, ENE_F,
+    };
+
+    /** A mapping for city tiles to the grass features that are adjacent
+     * to the city tiles. */
+    public static final int[][] CITY_GRASS_MAP = new int[][] {
+        { }, 
+        { 1 }, // CITY_THREE
+        { 1, 2 }, // CITY_THREE_ROAD
+        { 1 }, // CITY_TWO
+        { 1 }, // CITY_TWO_ROAD
+        { 1, 2 }, // CITY_TWO_ROAD_ACROSS
+        { 0 }, // TWO_CITY_TWO
+        { 0 }, // TWO_CITY_TWO_ACROSS
+        { 0 }, // CITY_ONE
+        { 0 }, // CITY_ONE_ROAD_RIGHT
+        { 0 }, // CITY_ONE_ROAD_LEFT
+        { 0 }, // CITY_ONE_ROAD_TEE
+        { 0 }, // CITY_ONE_ROAD_STRAIGHT
+        { }, 
+        { }, 
+        { }, 
+        { }, 
+        { }, 
+        { }, 
     };
 
     /**

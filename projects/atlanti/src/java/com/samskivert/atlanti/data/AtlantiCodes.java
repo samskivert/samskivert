@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiCodes.java,v 1.2 2001/10/17 02:19:54 mdb Exp $
+// $Id: AtlantiCodes.java,v 1.3 2001/10/17 23:27:52 mdb Exp $
 
 package com.threerings.venison;
 
@@ -8,6 +8,9 @@ package com.threerings.venison;
  */
 public interface VenisonCodes
 {
+    /** The number of piecens provided to each player. */
+    public static final int PIECENS_PER_PLAYER = 7;
+
     /** The name of the command posted by the {@link VenisonBoard} when
      * the user places a tile into a valid position. */
     public static final String TILE_PLACED = "tile_placed";

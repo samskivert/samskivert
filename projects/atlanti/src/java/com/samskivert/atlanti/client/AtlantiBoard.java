@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.9 2001/10/17 04:34:14 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.10 2001/10/17 23:27:52 mdb Exp $
 
 package com.threerings.venison;
 
@@ -171,6 +171,18 @@ public class VenisonBoard
 
         Log.warning("Requested to clear piecen for which we could " +
                     "find no associated tile! [key=" + key + "].");
+    }
+
+    /**
+     * Turn off the ability to place a piecen on the most recently played
+     * tile. This function assumes that the mouse will not be over a valid
+     * piecen placement at the time this function is called (it expects
+     * that it will be over a button of some sort that says something to
+     * the effect of "skip placement for this turn").
+     */
+    public void cancelPiecenPlacement ()
+    {
+        _placingPiecen = false;
     }
 
     /**

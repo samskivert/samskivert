@@ -33,6 +33,9 @@ public class VenisonPanel
      */
     public VenisonPanel (ParlorContext ctx, VenisonController controller)
     {
+	// give ourselves a wee bit of a border
+	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
 	HGroupLayout gl = new HGroupLayout(HGroupLayout.STRETCH);
 	gl.setOffAxisPolicy(HGroupLayout.STRETCH);
 	setLayout(gl);
@@ -47,9 +50,15 @@ public class VenisonPanel
         // create our side panel
         VGroupLayout sgl = new VGroupLayout(VGroupLayout.STRETCH);
         sgl.setOffAxisPolicy(VGroupLayout.STRETCH);
+        sgl.setJustification(VGroupLayout.TOP);
         JPanel sidePanel = new JPanel(sgl);
 
+        // add a player info view to the side panel
+        sidePanel.add(new JLabel("Scores:"), VGroupLayout.FIXED);
+        sidePanel.add(new PlayerInfoView(), VGroupLayout.FIXED);
+
         // add a turn indicator to the side panel
+        sidePanel.add(new JLabel("Current turn:"), VGroupLayout.FIXED);
         sidePanel.add(new TurnIndicatorView(), VGroupLayout.FIXED);
 
         // add a "place nothing" button

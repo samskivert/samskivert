@@ -55,10 +55,10 @@ public class VenisonController
         _venobj = (VenisonObject)plobj;
 
         // find out what our index is and use that as our piecen color
-        int oidx = ListUtil.indexOfEqual(_venobj.players, _self.username);
-        if (oidx != -1) {
+        _selfIndex = ListUtil.indexOfEqual(_venobj.players, _self.username);
+        if (_selfIndex != -1) {
             // use our player index as the piecen color directly
-            _panel.board.setNewPiecenColor(oidx);
+            _panel.board.setNewPiecenColor(_selfIndex);
         }
 
         // grab the tiles and piecens from the game object and configure
@@ -137,6 +137,13 @@ public class VenisonController
                 _venobj.getOid(), PLACE_TILE_REQUEST, args);
             _ctx.getDObjectManager().postEvent(mevt);
 
+            // if we have no piecens to place, we immediately disable
+            // piecen placement in the board
+            int pcount = TileUtil.countPiecens(_venobj.piecens, _selfIndex);
+            if (pcount >= PIECENS_PER_PLAYER) {
+                _panel.board.cancelPiecenPlacement();
+            }
+
             // enable the noplace button
             _panel.noplace.setEnabled(true);
 
@@ -153,6 +160,9 @@ public class VenisonController
             _panel.noplace.setEnabled(false);
 
         } else if (action.getActionCommand().equals(PLACE_NOTHING)) {
+            // turn off piecen placement in the board
+            _panel.board.cancelPiecenPlacement();
+
             // the user doesn't want to place anything this turn. send a
             // place nothing request to the server
             MessageEvent mevt = new MessageEvent(
@@ -177,4 +187,7 @@ public class VenisonController
 
     /** A reference to our body object. */
     protected BodyObject _self;
+
+    /** Our player index or -1 if we're not a player. */
+    protected int _selfIndex;
 }

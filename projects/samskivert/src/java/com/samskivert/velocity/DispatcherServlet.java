@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.7 2001/11/02 02:30:54 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.8 2001/11/02 18:46:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -194,10 +194,12 @@ public class DispatcherServlet extends VelocityServlet
     }
 
     // documentation inherited
-    protected void velocityWillInit (Properties props)
+    protected void initVelocity (ServletConfig config)
+         throws ServletException
     {
         // stick the servlet context into the Velocity application context
         Velocity.setApplicationContext(getServletContext());
+        super.initVelocity(config);
     }
 
     /**

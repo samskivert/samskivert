@@ -281,9 +281,12 @@ public class JDBCUtil
     /**
      * Adds a column (with name 'cname' and definition 'cdef') to the
      * specified table.
+     *
+     * @param afterCname (optional) the name of the column after which to
+     * add the new column.
      */
-    public static void addColumnToTable (Connection conn, String table,
-                                         String cname, String cdef)
+    public static void addColumn (Connection conn, String table,
+                                  String cname, String cdef, String afterCname)
         throws SQLException
     {
         if (JDBCUtil.tableContainsColumn(conn, table, cname)) {
@@ -292,8 +295,11 @@ public class JDBCUtil
             return;
         }
 
-        String update = "ALTER TABLE " + table + " ADD COLUMN " + cname + " " +
-            cdef;
+        String update = "ALTER TABLE " + table + " ADD COLUMN " +
+            cname + " " + cdef;
+        if (afterCname != null) {
+            update += " AFTER " + afterCname;
+        }
 
         PreparedStatement stmt = null;
         try {

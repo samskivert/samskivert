@@ -717,15 +717,6 @@ public class Table {
     public static String fieldSeparator = "_";
 
 
-    /** Some versions of JDBC driver doesn't support
-     *  <code>getBigDecimal(int columnIndex)</code>. Setting this variable to
-     *  <code>true</code> makes JORA to explicitly request scale from result
-     *  set metadata and use deprecated version of <code>getBigDecimal</code>
-     *  with extra <code>scale</code> parameter.
-     */
-    public static boolean useDepricatedGetBigDecimal = true;
-
-
     // --- Implementation -----------------------------------------
 
     /** Is table abstract - not present in database.

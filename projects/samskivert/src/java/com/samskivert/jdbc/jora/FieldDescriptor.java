@@ -382,14 +382,7 @@ class FieldDescriptor {
 	    break;
 	    
 	  case tDecimal:
-	    if (Table.useDepricatedGetBigDecimal) { 
-		if (scale < 0) { 
-		    scale = result.getMetaData().getScale(column);
-		}
-		field.set(obj, result.getBigDecimal(column, scale));
-	    } else { 
-		field.set(obj, result.getBigDecimal(column));
-	    }
+            field.set(obj, result.getBigDecimal(column));
 	    break;
 	  case tString:
 	    field.set(obj, result.getString(column));

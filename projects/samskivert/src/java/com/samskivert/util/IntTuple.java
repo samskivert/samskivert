@@ -1,5 +1,5 @@
 //
-// $Id: IntTuple.java,v 1.2 2002/11/30 04:09:13 mdb Exp $
+// $Id: IntTuple.java,v 1.3 2003/02/18 18:22:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,6 +24,7 @@ package com.samskivert.util;
  * A simple object that holds a reference to two ints.
  */
 public class IntTuple
+    implements Comparable
 {
     /** The left int. */
     public int left;
@@ -49,6 +50,17 @@ public class IntTuple
     public int hashCode ()
     {
         return left ^ right;
+    }
+
+    // documentation inherited from interface
+    public int compareTo (Object o)
+    {
+        if (o instanceof IntTuple) {
+            IntTuple ot = (IntTuple)o;
+            return (left == ot.left) ? (right - ot.right) : (left - ot.left);
+        } else {
+            return -1;
+        }
     }
 
     /**

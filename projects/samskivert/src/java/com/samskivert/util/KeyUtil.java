@@ -58,7 +58,8 @@ public class KeyUtil
     public static boolean verifyLuhn (String key)
     {
         // If there is a non digit, or it is all zeros.
-        if (StringUtil.blank(key) || key.matches("\\D") || key.matches("^[0]+$")) {
+        if (StringUtil.blank(key) || key.matches(".*\\D.*") ||
+            key.matches("^[0]+$")) {
             return false;
         }
 

@@ -1,3 +1,9 @@
+* lookuplet-1.2 (2002-03-17)
+
+- Added history support along with tab completion from the history.
+
+- Rewrote the whole thing in Python.
+
 - Convert newlines to spaces when grabbing the selection. If we think that
   the selection is a URL (it starts with http: etc.), then we remove
   spaces as well.
@@ -13,4 +19,4 @@
 
 - Initial release.
 
-$Id: NEWS,v 1.4 2001/08/21 18:46:10 mdb Exp $
+$Id: NEWS,v 1.5 2002/03/17 21:30:19 mdb Exp $

@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.1 2001/02/15 01:09:57 mdb Exp $
+// $Id: ConfigUtil.java,v 1.2 2001/02/15 01:15:02 mdb Exp $
 
 package com.samskivert.util;
 
@@ -27,6 +27,9 @@ public class ConfigUtil
      * @param path The path to the properties file, relative to the root
      * of the classpath entry from which it will be loaded
      * (e.g. /conf/foo.properties or perhaps just bar.properties).
+     *
+     * @return A properties object loaded with the contents of the
+     * specified file if the file could be found, null otherwise.
      */
     public static Properties loadProperties (String path)
 	throws IOException
@@ -46,11 +49,22 @@ public class ConfigUtil
      * @param path The path to the properties file, relative to the root
      * of the classpath entry from which it will be loaded
      * (e.g. /conf/foo.properties or perhaps just bar.properties).
+     *
+     * @return A properties object loaded with the contents of the
+     * specified file if the file could be found, null otherwise.
      */
     public static Properties loadProperties (String name, ClassLoader loader)
 	throws IOException
     {
-	return null;
+	InputStream in = getStream(name, loader);
+	Properties props = null;
+
+	if (in != null) {
+	    props = new Properties();
+	    props.load(in);
+	}
+
+	return props;
     }
 
     /**
@@ -94,10 +108,33 @@ public class ConfigUtil
     {
 	// first try the supplied class loader
 	InputStream in = loader.getResourceAsStream(path);
-	if (in == null) {
-	    // if that didn't work, try the system classloader
-            in = Class.class.getResourceAsStream(path);
+	if (in != null) {
+	    return in;
 	}
-	return in;
+
+	// try toggling the leading slash
+	String apath = togglePath(path);
+	in = loader.getResourceAsStream(apath);
+	if (in != null) {
+	    return in;
+	}
+
+	// if that didn't work, try the system classloader
+	in = Class.class.getResourceAsStream(path);
+	if (in != null) {
+	    return in;
+	}
+
+	// help us obi wan, you're our only hope
+	return Class.class.getResourceAsStream(apath);
+    }
+
+    protected static String togglePath (String path)
+    {
+	if (path.startsWith("/")) {
+	    return path.substring(1);
+	} else {
+	    return "/" + path;
+	}
     }
 }

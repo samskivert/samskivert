@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.19 2003/05/20 17:35:51 ray Exp $
+// $Id: DnDManager.java,v 1.20 2003/07/09 02:03:34 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -442,6 +442,7 @@ public class DnDManager
             }
 
             // and check the cursor at the component level
+            clearComponentCursor();
             setComponentCursor(newcomp);
         }
 

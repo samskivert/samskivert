@@ -1,10 +1,10 @@
 //
-// $Id: Repository.java,v 1.5 2001/06/07 08:37:47 mdb Exp $
+// $Id: Repository.java,v 1.6 2001/09/15 17:31:09 mdb Exp $
 
 package robodj.repository;
 
 import java.sql.*;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -337,7 +337,7 @@ public class Repository extends MySQLRepository
                     // SQL, but I can't be bothered to sort it out for a
                     // data set that isn't going to be so big that it
                     // can't be done in Java
-                    IntMap ids = new IntMap();
+                    HashIntMap ids = new HashIntMap();
                     Statement stmt = _session.connection.createStatement();
                     try {
                         // first add all the entryids in the repository
@@ -359,9 +359,9 @@ public class Repository extends MySQLRepository
                     }
 
                     int[] eids = new int[ids.size()];
-                    Enumeration keys = ids.keys();
-                    for (int i = 0; keys.hasMoreElements(); i++) {
-                        eids[i] = ((Integer)keys.nextElement()).intValue();
+                    Iterator keys = ids.keys();
+                    for (int i = 0; keys.hasNext(); i++) {
+                        eids[i] = ((Integer)keys.next()).intValue();
                     }
                     return eids;
                 }

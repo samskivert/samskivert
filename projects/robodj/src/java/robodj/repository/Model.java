@@ -1,5 +1,5 @@
 //
-// $Id: Model.java,v 1.2 2001/07/26 00:24:22 mdb Exp $
+// $Id: Model.java,v 1.3 2001/09/15 17:31:09 mdb Exp $
 
 package robodj.repository;
 
@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import com.samskivert.util.IntMap;
-import com.samskivert.util.IntIntMap;
+import com.samskivert.util.*;
 
 /**
  * The model provides an interface to the contents of the repository which
@@ -79,7 +78,10 @@ public class Model
     {
         Entry entry = (Entry)_entries.get(entryid);
         if (entry == null) {
-            _entries.put(entryid, entry = _rep.getEntry(entryid));
+            entry = _rep.getEntry(entryid);
+            if (entry != null) {
+                _entries.put(entryid, entry);
+            }
         }
         return entry;
     }
@@ -240,7 +242,9 @@ public class Model
     protected Repository _rep;
     protected Category[] _cats;
 
-    protected IntMap _entries = new IntMap();
-    protected IntMap _catmap = new IntMap();
+    protected IntMap _entries =
+        Collections.synchronizedIntMap(new HashIntMap());
+    protected IntMap _catmap =
+        Collections.synchronizedIntMap(new HashIntMap());
     protected IntIntMap _entmap = new IntIntMap();
 }

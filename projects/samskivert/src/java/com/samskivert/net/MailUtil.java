@@ -1,5 +1,5 @@
 //
-// $Id: MailUtil.java,v 1.1 2001/05/26 07:08:00 mdb Exp $
+// $Id: MailUtil.java,v 1.2 2001/05/26 07:10:09 mdb Exp $
 
 package com.samskivert.net;
 
@@ -53,6 +53,12 @@ public class MailUtil
     public static boolean isValidAddress (String address)
     {
         return _emailre.match(address);
+    }
+
+    public static void main (String[] args)
+    {
+        String address = "mdb@samskivert.com";
+        System.out.println(address + ": " + isValidAddress(address));
     }
 
     /** Originally formulated by lambert@nas.nasa.gov. */

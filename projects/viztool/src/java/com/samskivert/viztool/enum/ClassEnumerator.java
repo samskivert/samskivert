@@ -1,5 +1,5 @@
 //
-// $Id: ClassEnumerator.java,v 1.1 2001/06/14 20:57:15 mdb Exp $
+// $Id: ClassEnumerator.java,v 1.2 2001/07/04 18:22:26 mdb Exp $
 
 package com.samskivert.viztool.enum;
 
@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
  * The component enumerators are structured so that new enumerators can be
  * authored for new kinds of classpath component.
  */
-public class ClassEnumerator
+public class ClassEnumerator implements Enumerator
 {
     /**
      * Constructs a class enumerator with the supplied classpath. A set of
@@ -42,8 +42,8 @@ public class ClassEnumerator
 
             } else {
                 try {
-                    System.out.println("Adding [enum=" + enum +
-                                       ", component=" + component + "].");
+//                      System.out.println("Adding [enum=" + enum +
+//                                         ", component=" + component + "].");
                     // construct an enumerator to enumerate this component
                     // and put it on our list
                     _enums.add(enum.enumerate(component));

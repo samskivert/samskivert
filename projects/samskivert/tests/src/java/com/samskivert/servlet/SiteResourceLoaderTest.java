@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoaderTest.java,v 1.6 2003/11/15 02:06:40 mdb Exp $
+// $Id: SiteResourceLoaderTest.java,v 1.7 2004/02/25 13:21:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,19 +20,12 @@
 
 package com.samskivert.servlet;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.Iterator;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.Test;
@@ -40,7 +33,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.StreamUtils;
 
-import com.samskivert.Log;
 import com.samskivert.test.TestUtil;
 
 public class SiteResourceLoaderTest extends TestCase

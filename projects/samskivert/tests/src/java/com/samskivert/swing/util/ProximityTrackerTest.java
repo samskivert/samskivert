@@ -1,5 +1,5 @@
 //
-// $Id: ProximityTrackerTest.java,v 1.2 2002/04/11 04:07:42 mdb Exp $
+// $Id: ProximityTrackerTest.java,v 1.3 2004/02/25 13:21:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -26,9 +26,6 @@ import java.util.Random;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-import com.samskivert.Log;
-import com.samskivert.util.StringUtil;
 
 public class ProximityTrackerTest extends TestCase
 {

@@ -1,5 +1,5 @@
 //
-// $Id: SetFieldRuleTest.java,v 1.3 2002/04/11 04:07:42 mdb Exp $
+// $Id: SetFieldRuleTest.java,v 1.4 2004/02/25 13:21:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,7 +28,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.digester.Digester;
 
-import com.samskivert.Log;
 import com.samskivert.test.TestUtil;
 import com.samskivert.util.StringUtil;
 

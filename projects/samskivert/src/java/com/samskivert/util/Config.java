@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.20 2003/01/15 00:45:22 mdb Exp $
+// $Id: Config.java,v 1.21 2003/01/22 01:41:17 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -410,6 +410,51 @@ public class Config
     public void setValue (String name, int[] value)
     {
         int[] oldValue = getValue(name, (int[])null);
+        _prefs.put(name, StringUtil.toString(value, "", ""));
+        _propsup.firePropertyChange(name, oldValue, value);
+    }
+
+    /**
+     * Fetches and returns the value for the specified configuration
+     * property. If the value is not specified in the associated
+     * properties file, the supplied default value is returned instead. If
+     * the property specified in the file is poorly formatted (not a
+     * floating point value, not in proper array specification), a warning
+     * message will be logged and the default value will be returned.
+     *
+     * @param name the name of the property to be fetched.
+     * @param defval the value to return if the property is not specified
+     * in the config file.
+     *
+     * @return the value of the requested property.
+     */
+    public float[] getValue (String name, float[] defval)
+    {
+        // look up the value in the configuration file and use that to
+        // look up any overridden value
+        String val = _prefs.get(name, _props.getProperty(name));
+        float[] result = defval;
+
+        // parse it into an array of ints
+        if (val != null) {
+            result = StringUtil.parseFloatArray(val);
+            if (result == null) {
+                Log.warning("Malformed int array property [name=" + name +
+                            ", value=" + val + "].");
+                return defval;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Sets the value of the specified preference, overriding the value
+     * defined in the configuration files shipped with the application.
+     */
+    public void setValue (String name, float[] value)
+    {
+        float[] oldValue = getValue(name, (float[])null);
         _prefs.put(name, StringUtil.toString(value, "", ""));
         _propsup.firePropertyChange(name, oldValue, value);
     }

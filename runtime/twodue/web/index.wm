@@ -50,7 +50,11 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 &nbsp;
 #end
 </td>
-<td>$task.summary</td>
+<td>$task.summary
+#if (!$string.blank($task.notes))
+&nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
+#end
+</td>
 <td valign="top">$task.getDisplayCategory()</td>
 <td valign="top"><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0"></a></td></tr>
@@ -139,7 +143,11 @@ Filter on single word:<br>
 <tr bgcolor="$rowcolor">
 <td valign="top"><img src="images/completed.png"></td>
 <td valign="top" align="center">$task.completion<br>[$task.completor]</td>
-<td>$task.summary</td>
+<td>$task.summary
+#if (!$string.blank($task.notes))
+&nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
+#end
+</td>
 <td valign="top">$task.getDisplayCategory()</td>
 <td valign="top"><a href="edit.wm?task=$task.taskId">
 <img src="images/edit.png" border="0"></a></td></tr>

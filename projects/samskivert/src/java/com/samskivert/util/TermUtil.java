@@ -1,14 +1,15 @@
 //
-// $Id: TermUtil.java,v 1.1 2002/06/06 20:52:36 mdb Exp $
+// $Id: TermUtil.java,v 1.2 2002/08/20 18:57:30 mdb Exp $
 
 package com.samskivert.util;
 
 import java.awt.Dimension;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -86,12 +87,11 @@ public class TermUtil
         try {
             Process proc = Runtime.getRuntime().exec("resize");
             InputStream in = proc.getInputStream();
-            BufferedInputStream bin = new BufferedInputStream(in);
-            DataInputStream din = new DataInputStream(bin);
+            BufferedReader bin = new BufferedReader(new InputStreamReader(in));
             Pattern regex = Pattern.compile("([0-9]+)");
             String line;
             int columns = -1, lines = -1;
-            while ((line = din.readLine()) != null) {
+            while ((line = bin.readLine()) != null) {
                 if (line.indexOf("COLUMNS") != -1) {
                     Matcher match = regex.matcher(line);
                     if (match.find()) {

@@ -1,5 +1,5 @@
 //
-// $Id: DialogUtil.java,v 1.2 2002/07/10 01:53:59 ray Exp $
+// $Id: DialogUtil.java,v 1.3 2002/08/20 18:57:31 mdb Exp $
 
 package com.samskivert.swing.util;
 
@@ -67,6 +67,6 @@ public class DialogUtil
             }
         });
 
-        dialog.resize(dialog.getPreferredSize());
+        dialog.setSize(dialog.getPreferredSize());
     }
 }

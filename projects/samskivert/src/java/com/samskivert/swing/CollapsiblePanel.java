@@ -1,5 +1,5 @@
 //
-// $Id: CollapsiblePanel.java,v 1.3 2002/07/10 01:53:32 ray Exp $
+// $Id: CollapsiblePanel.java,v 1.4 2002/08/20 18:57:31 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -117,11 +117,11 @@ public class CollapsiblePanel extends JPanel
     public void setCollapsed (boolean collapse)
     {
         if (collapse) {
-            _content.hide();
+            _content.setVisible(false);
             _trigger.setIcon(_downIcon);
 
         } else {
-            _content.show();
+            _content.setVisible(true);
             _trigger.setIcon(_upIcon);
         }
         revalidate();

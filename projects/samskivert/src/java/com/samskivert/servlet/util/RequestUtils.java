@@ -1,5 +1,5 @@
 //
-// $Id: RequestUtils.java,v 1.4 2002/05/09 05:01:09 mdb Exp $
+// $Id: RequestUtils.java,v 1.5 2002/08/20 18:57:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,7 @@
 
 package com.samskivert.servlet.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpUtils;
@@ -41,7 +42,12 @@ public class RequestUtils
      */
     public static String getLocationEncoded (HttpServletRequest req)
     {
-        return URLEncoder.encode(getLocation(req));
+        String location = getLocation(req);
+        try {
+            return URLEncoder.encode(location, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            return location;
+        }
     }
 
     /**

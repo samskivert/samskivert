@@ -1,5 +1,5 @@
 //
-// $Id: SmartPolygon.java,v 1.2 2002/04/27 22:07:05 mdb Exp $
+// $Id: SmartPolygon.java,v 1.3 2002/08/20 18:57:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -45,6 +45,6 @@ public class SmartPolygon extends Polygon
      */
     public Rectangle getBoundingBox ()
     {
-        return (bounds == null) ? super.getBoundingBox() : bounds;
+        return (bounds == null) ? super.getBounds() : bounds;
     }
 }

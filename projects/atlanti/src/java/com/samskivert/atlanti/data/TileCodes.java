@@ -1,5 +1,5 @@
 //
-// $Id: TileCodes.java,v 1.7 2001/10/18 19:08:50 mdb Exp $
+// $Id: TileCodes.java,v 1.8 2001/10/18 20:54:20 mdb Exp $
 
 package com.threerings.venison;
 
@@ -96,8 +96,7 @@ public interface TileCodes
     public static final int WEST = 3;
 
     /** A mapping from orientation codes to a string representation. */
-    public static final String[] ORIENT_NAMES =
-        new String[] { "N", "E", "S", "W" };
+    public static final String[] ORIENT_NAMES = { "N", "E", "S", "W" };
 
 
     /** The tile image width in pixels. */
@@ -119,6 +118,9 @@ public interface TileCodes
     /** A constant indicating a cloister. */
     public static final int CLOISTER = 3;
 
+    /** Human readable names to go along with the feature constants. */
+    public static final String[] FEATURE_NAMES = {
+        "city", "farm", "road", "cloister" };
 
     /** A flag used to mark a tile as part of a completed city. */
     public static final int COMPLETED_CITY = 0x01;

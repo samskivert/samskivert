@@ -1,5 +1,5 @@
 //
-// $Id: ToolTipManager.java,v 1.5 2001/12/14 18:58:29 shaper Exp $
+// $Id: ToolTipManager.java,v 1.6 2001/12/17 19:00:18 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -253,8 +253,10 @@ public class ToolTipManager implements Interval, AncestorListener
     public void ancestorRemoved (AncestorEvent event)
     {
 	// un-register the tip action interval since we're now hidden
-	IntervalManager.remove(_iid);
-	_iid = -1;
+        if (_iid != -1) {
+            IntervalManager.remove(_iid);
+            _iid = -1;
+        }
     }
 
     public void ancestorMoved (AncestorEvent event) { }

@@ -192,7 +192,10 @@ $form.text("category", "size='10'", "")
 </select>
 </td></tr>
 
-<tr><td colspan="3" align="right" bgcolor="$scolor">
+<tr>
+<td colspan="2" align="left" bgcolor="$scolor">$form.checkbox("claim", false)
+Claim created task</td>
+<td align="right" bgcolor="$scolor">
 $form.submit("submit", "Create")</td></tr>
 </table>
 

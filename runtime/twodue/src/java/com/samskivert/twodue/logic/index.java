@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.8 2002/11/13 03:55:07 mdb Exp $
+// $Id: index.java,v 1.9 2003/01/23 21:37:13 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -43,23 +43,26 @@ public class index extends UserLogic
 
 	// if they've submitted the form, we create a new task and stick
 	// it into the dataabse
-	if (ParameterUtil.parameterEquals(
-                ctx.getRequest(), "action", "create")) {
+	if (ParameterUtil.parameterEquals(req, "action", "create")) {
 	    // set the creator from the username of the calling user
 	    Task task = new Task();
 	    task.creator = user.username;
+            // if they requested to do so, claim the task for them
+            if (ParameterUtil.isSet(req, "claim")) {
+                task.owner = user.username;
+            }
 	    task.notes = ""; // no notes to start
 
 	    // parse our fields
 	    task.summary = ParameterUtil.requireParameter(
-                ctx.getRequest(), "summary", "task.error.missing_summary");
+                req, "summary", "task.error.missing_summary");
 	    task.category = ParameterUtil.requireParameter(
-                ctx.getRequest(), "category", "task.error.missing_category");
+                req, "category", "task.error.missing_category");
 	    task.complexity = ParameterUtil.requireParameter(
-                ctx.getRequest(), "complexity",
+                req, "complexity",
                 "task.error.missing_complexity");
 	    task.priority = ParameterUtil.requireIntParameter(
-                ctx.getRequest(), "priority", "task.error.invalid_priority");
+                req, "priority", "task.error.invalid_priority");
 
 	    // insert the task into the repository
             app.getRepository().createTask(task);
@@ -69,19 +72,17 @@ public class index extends UserLogic
             throw new RedirectException(
                 "index.wm?msg=index.message.task_created");
 
-        } else if (ParameterUtil.parameterEquals(
-                       ctx.getRequest(), "action", "complete")) {
+        } else if (ParameterUtil.parameterEquals(req, "action", "complete")) {
             int taskId = ParameterUtil.requireIntParameter(
-                ctx.getRequest(), "task", "task.error.missing_taskid");
+                req, "task", "task.error.missing_taskid");
             app.getRepository().completeTask(taskId, user.username);
 
 	    // let the user know we updated the database
 	    ctx.put("error", "index.message.task_completed");
 
-        } else if (ParameterUtil.parameterEquals(
-                       ctx.getRequest(), "action", "claim")) {
+        } else if (ParameterUtil.parameterEquals(req, "action", "claim")) {
             int taskId = ParameterUtil.requireIntParameter(
-                ctx.getRequest(), "task", "task.error.missing_taskid");
+                req, "task", "task.error.missing_taskid");
             app.getRepository().claimTask(taskId, user.username);
 
 	    // let the user know we updated the database

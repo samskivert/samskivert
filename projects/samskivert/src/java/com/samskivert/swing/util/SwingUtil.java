@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.22 2003/04/04 18:55:24 mdb Exp $
+// $Id: SwingUtil.java,v 1.23 2003/05/15 22:02:11 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,16 +22,20 @@ package com.samskivert.swing.util;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.Window;
 
 import java.awt.geom.Area;
@@ -531,5 +535,62 @@ public class SwingUtil
     {
         c.revalidate();
         c.repaint();
+    }
+
+    /**
+     * Create a custom cursor out of the specified image, putting the hotspot
+     * in the exact center of the created cursor.
+     */
+    public static Cursor createImageCursor (Image img)
+    {
+        return createImageCursor(img, null);
+    }
+
+    /**
+     * Create a custom cursor out of the specified image, with the specified
+     * hotspot.
+     */
+    public static Cursor createImageCursor (Image img, Point hotspot)
+    {
+        Toolkit tk = Toolkit.getDefaultToolkit();
+
+        // for now, just report the cursor restrictions, then blindly create
+        int w = img.getWidth(null);
+        int h = img.getHeight(null);
+        Dimension d = tk.getBestCursorSize(w, h);
+        int colors = tk.getMaximumCursorColors();
+//         Log.debug("Creating custom cursor [desiredSize=" + w + "x" + h +
+//                   ", bestSize=" + d.width + "x" + d.height +
+//                   ", maxcolors=" + colors + "].");
+
+        // if the passed-in image is smaller, pad it with transparent pixels
+        // and use it anyway.
+        if (((w < d.width) && (h <= d.height)) ||
+            ((w <= d.width) && (h < d.height))) {
+            Image padder = GraphicsEnvironment.getLocalGraphicsEnvironment().
+                getDefaultScreenDevice().getDefaultConfiguration().
+                createCompatibleImage(d.width, d.height, Transparency.BITMASK);
+            Graphics g = padder.getGraphics();
+            g.drawImage(img, 0, 0, null);
+            g.dispose();
+
+            // and reassign the image to the padded image
+            img = padder;
+
+            // and adjust the 'best' to cheat the hotspot checking code
+            d.width = w;
+            d.height = h;
+        }
+
+        // make sure the hotspot is valid
+        if (hotspot == null) {
+            hotspot = new Point(d.width / 2, d.height / 2);
+        } else {
+            hotspot.x = Math.min(d.width - 1, Math.max(0, hotspot.x));
+            hotspot.y = Math.min(d.height - 1, Math.max(0, hotspot.y));
+        }
+
+        // and create the cursor
+        return tk.createCustomCursor(img, hotspot, "samskivertDnDCursor");
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.62 2003/11/05 00:07:53 eric Exp $
+// $Id: StringUtil.java,v 1.63 2003/11/07 22:28:43 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -61,10 +61,21 @@ public class StringUtil
      */
     public static String truncate (String s, int maxLength)
     {
+        return truncate(s, maxLength, "");
+    }
+
+    /**
+     * Truncate the specified String if it is longer than maxLength.
+     *
+     * @param append a String to add to the truncated String only after
+     * truncation.
+     */
+    public static String truncate (String s, int maxLength, String append)
+    {
         if ((s == null) || (s.length() <= maxLength)) {
             return s;
         } else {
-            return s.substring(0, maxLength);
+            return s.substring(0, maxLength) + append;
         }
     }
 

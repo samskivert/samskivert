@@ -24,18 +24,39 @@ if you start from scratch and find some. lookuplet doesn't depend on any
 special GNOME services, just the configuration stuff (gnome_config) and
 some compound GTK widgets (like property_box).
 
-Once you have the necessary libraries, you can simply invoke:
+You will need one thing from the GNOME CVS sources. In the gnome-common
+package there is a macros directory that needs to be symlinked into the
+lookuplet top-level directory. I haven't been able to check out just the
+gnome-common/macros directory, only the entire gnome-common package, but
+your mileage may vary.
 
-# ./configure
-# make
+This is fairly straightforward, in any case. Change to some directory
+where you don't mind checking out the gnome-common directory and invoke:
 
-Everything else should work out of the box.
+$ export CVSROOT=':pserver:anonymous@anoncvs.gnome.org:/cvs/gnome'
+$ cvs login
+(There's no password so just press return.)
+$ cvs -z3 checkout gnome-common
+
+Then symlink the gnome-common/macros directory into the lookuplet
+top-level directory.
+
+Once you have the necessary libraries and symlinks, you can simply invoke:
+
+$ ./configure
+$ make
+
+Everything else should work out of the box. If you invoke 'make install'
+it will attempt to install lookuplet as a GNOME applet which doesn't work
+right now, so you probably shouldn't do that. Instead just install
+src/lookuplet wherever you want (/usr/local/bin is a popular choice).
+There are no other supporting files.
 
 Please let me know if you find that I've overlooked some build
-requirements.
+requirements or instructions.
 
 Thanks,
 
     Michael Bayne <mdb@samskivert.com>
 
-$Id: INSTALL,v 1.2 2001/08/16 20:41:00 mdb Exp $
+$Id: INSTALL,v 1.3 2001/08/16 20:58:03 mdb Exp $

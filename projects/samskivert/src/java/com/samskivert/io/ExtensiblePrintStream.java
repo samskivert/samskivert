@@ -1,0 +1,205 @@
+//
+// $Id: ExtensiblePrintStream.java,v 1.1 2002/10/16 19:09:02 shaper Exp $
+//
+// samskivert library - useful routines for java programs
+// Copyright (C) 2002 Walter Korman
+// 
+// This library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published
+// by the Free Software Foundation; either version 2.1 of the License, or
+// (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+package com.samskivert.io;
+
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+
+/**
+ * Wraps a supplied {@link PrintStream} to allow capturing all data
+ * written to the stream via various <code>print()</code> and
+ * <code>println()</code> variants.  Derived classes must implement the
+ * {@link #handlePrinted} and {@link #handleNewLine} methods.
+ */
+public abstract class ExtensiblePrintStream extends PrintStream
+{
+    /**
+     * Constructs an extensible print stream.
+     */
+    public ExtensiblePrintStream (PrintStream out)
+    {
+        super(out);
+    }
+
+    /**
+     * Constructs an extensible print stream.
+     */
+    public ExtensiblePrintStream (PrintStream out, boolean autoFlush)
+    {
+        super(out, autoFlush);
+    }
+
+    /**
+     * Constructs an extensible print stream.
+     */
+    public ExtensiblePrintStream (
+        PrintStream out, boolean autoFlush, String encoding)
+        throws UnsupportedEncodingException
+    {
+        super(out, autoFlush, encoding);
+    }
+
+    /**
+     * Called with any text printed to the stream, excepting newlines
+     * resulting from calls to the {@link #println} variants which are
+     * reported via {@link #handleNewLine}.
+     */
+    public abstract void handlePrinted (String s);
+
+    /**
+     * Called whenever a newline is printed to the stream by one of the
+     * {@link #println} variants.
+     */
+    public abstract void handleNewLine ();
+
+    // documentation inherited
+    public void print (boolean b)
+    {
+        super.print(b);
+        handlePrinted(b ? "true" : "false");
+    }
+
+    // documentation inherited
+    public void print (char c)
+    {
+        super.print(c);
+	handlePrinted(String.valueOf(c));
+    }
+
+    // documentation inherited
+    public void print (int i)
+    {
+        super.print(i);
+	handlePrinted(String.valueOf(i));
+    }
+
+    // documentation inherited
+    public void print (long l)
+    {
+        super.print(l);
+	handlePrinted(String.valueOf(l));
+    }
+
+    // documentation inherited
+    public void print (float f)
+    {
+        super.print(f);
+	handlePrinted(String.valueOf(f));
+    }
+
+    // documentation inherited
+    public void print (double d)
+    {
+        super.print(d);
+	handlePrinted(String.valueOf(d));
+    }
+
+    // documentation inherited
+    public void print (char[] s)
+    {
+        super.print(s);
+	handlePrinted(String.valueOf(s));
+    }
+
+    // documentation inherited
+    public void print (String s)
+    {
+        super.print(s);
+	handlePrinted((s == null) ? "null" : s);
+    }
+
+    // documentation inherited
+    public void print (Object obj)
+    {
+        super.print(obj);
+	handlePrinted(String.valueOf(obj));
+    }
+
+    // documentation inherited
+    public void println ()
+    {
+        super.println();
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (boolean x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (char x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (int x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (long x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (float x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (double x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (char[] x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (String x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+
+    // documentation inherited
+    public void println (Object x)
+    {
+        super.println(x);
+        handleNewLine();
+    }
+}

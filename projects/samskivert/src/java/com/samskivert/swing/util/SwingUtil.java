@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.21 2003/03/22 00:36:05 mdb Exp $
+// $Id: SwingUtil.java,v 1.22 2003/04/04 18:55:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -481,15 +481,15 @@ public class SwingUtil
     }
 
     /**
-     * Adjusts the widths of the columns of the supplied table to fit
-     * their contents.
+     * Adjusts the widths and heights of the cells of the supplied table
+     * to fit their contents.
      */
-    public static void sizeColumnsToContents (JTable table)
+    public static void sizeToContents (JTable table)
     {
         TableModel model = table.getModel();
         TableColumn column = null;
         Component comp = null;
-        int headerWidth = 0, cellWidth = 0;
+        int headerWidth = 0, cellWidth = 0, cellHeight = 0;
         int ccount = model.getColumnCount(), rcount = model.getRowCount();
 
         for (int cc = 0; cc < ccount; cc++) {
@@ -508,9 +508,15 @@ public class SwingUtil
                 comp = table.getDefaultRenderer(model.getColumnClass(cc)).
                     getTableCellRendererComponent(table, cellValue,
                                                   false, false, 0, cc);
-                cellWidth = Math.max(comp.getPreferredSize().width, cellWidth);
+                Dimension psize = comp.getPreferredSize();
+                cellWidth = Math.max(psize.width, cellWidth);
+                cellHeight = Math.max(psize.height, cellHeight);
             }
             column.setPreferredWidth(Math.max(headerWidth, cellWidth));
+        }
+
+        if (cellHeight > 0) {
+            table.setRowHeight(cellHeight);
         }
     }
 

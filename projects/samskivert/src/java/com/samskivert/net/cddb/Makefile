@@ -1,8 +1,12 @@
 #
-# $Id: Makefile,v 1.1 2000/10/23 03:34:28 mdb Exp $
+# $Id: Makefile,v 1.2 2000/10/23 07:32:12 mdb Exp $
 
-ROOT = ../../..
+ROOT = ../../../..
 
 SRCS = \
+	CDDB.java \
+	CDDBException.java \
+	CDDBProtocol.java \
+	CDDBTest.java \
 
 include $(ROOT)/build/Makefile.java

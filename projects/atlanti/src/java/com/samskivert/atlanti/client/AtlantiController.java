@@ -124,17 +124,6 @@ public class VenisonController
         if (event.getName().equals(VenisonObject.PIECENS)) {
             // a piecen was removed, update the board
             _panel.board.clearPiecen(event.getKey());
-
-            // if we just freed up our only playable piecen...
-            int pcount = TileUtil.countPiecens(_venobj.piecens, _selfIndex);
-            if (pcount == (PIECENS_PER_PLAYER-1) &&
-                // ...and it's also our turn...
-                _venobj.turnHolder.equals(_self.username)) {
-                // ...reenable piecen placement
-                _panel.board.enablePiecenPlacement();
-                // and, enable the noplace button
-                _panel.noplace.setEnabled(true);
-            }
         }
     }
 
@@ -154,12 +143,11 @@ public class VenisonController
             // if we have no piecens to place or if there are no unclaimed
             // features on the placed tile, we immediately disable piecen
             // placement in the board and expect that the server will end
-            // our turn (however, it may determine that our placement
-            // freed up one of our pieces which we will react to and
-            // reenable piecen placement)
+            // our turn
             int pcount = TileUtil.countPiecens(_venobj.piecens, _selfIndex);
             if (pcount >= PIECENS_PER_PLAYER || !tile.hasUnclaimedFeature()) {
                 _panel.board.cancelPiecenPlacement();
+                _panel.noplace.setEnabled(false);
 
             } else {
                 // otherwise, enable the noplace button

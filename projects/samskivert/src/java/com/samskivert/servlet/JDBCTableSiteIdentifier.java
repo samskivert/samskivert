@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.9 2003/11/13 17:05:09 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.10 2003/11/13 17:28:58 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -158,8 +158,13 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     protected void checkReloadSites ()
     {
         long now = System.currentTimeMillis();
-        if (now - _lastReload > RELOAD_INTERVAL) {
-            _lastReload = now;
+        boolean reload = false;
+        synchronized (this) {
+            if (reload = (now - _lastReload > RELOAD_INTERVAL)) {
+                _lastReload = now;
+            }
+        }
+        if (reload) {
             try {
                 _repo.refreshSiteData();
             } catch (PersistenceException pe) {
@@ -193,7 +198,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
             Statement stmt = conn.createStatement();
             try {
                 // first load up the list of sites
-                String query = "select siteId, stringId from sites";
+                String query = "select siteId, siteString from sites";
                 ResultSet rs = stmt.executeQuery(query);
                 HashIntMap sites = new HashIntMap();
                 HashMap strings = new HashMap();
@@ -213,10 +218,10 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                     mappings.add(new SiteMapping(rs.getInt(2),
                                                  rs.getString(1)));
                 }
-                _mappings = mappings;
 
                 // sort the mappings in order of specificity
-                Collections.sort(_mappings);
+                Collections.sort(mappings);
+                _mappings = mappings;
 //                 Log.info("Loaded site mappings " +
 //                          StringUtil.toString(_mappings) + ".");
 
@@ -241,7 +246,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                     PreparedStatement stmt = null;
                     try {
                         stmt = conn.prepareStatement(
-                            "insert into sites (stringId) VALUES (?)");
+                            "insert into sites (siteString) VALUES (?)");
                         stmt.setString(1, site.siteString);
                         if (1 != stmt.executeUpdate()) {
                             throw new PersistenceException(
@@ -310,15 +315,15 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
 
     /** The list of domain to site identifier mappings ordered from most
      * specific domain to least specific. */
-    protected ArrayList _mappings = new ArrayList();
+    protected volatile ArrayList _mappings = new ArrayList();
 
     /** The mapping from integer site identifiers to string site
      * identifiers. */
-    protected HashIntMap _sitesById = new HashIntMap();
+    protected volatile HashIntMap _sitesById = new HashIntMap();
 
     /** The mapping from string site identifiers to integer site
      * identifiers. */
-    protected HashMap _sitesByString = new HashMap();
+    protected volatile HashMap _sitesByString = new HashMap();
 
     /** Used to periodically reload our site data. */
     protected long _lastReload;

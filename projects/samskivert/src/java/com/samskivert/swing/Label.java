@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.32 2003/11/15 02:06:16 mdb Exp $
+// $Id: Label.java,v 1.33 2003/11/15 02:14:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -180,7 +180,8 @@ public class Label implements SwingConstants, LabelStyleConstants
 
     /**
      * Sets the style of the text within the label to one of the styles
-     * defined in {@link LabelStyleConstants}.
+     * defined in {@link LabelStyleConstants}. Some styles can be combined
+     * together into a mask, ie. <code>BOLD|UNDERLINE</code>.
      */
     public void setStyle (int style)
     {
@@ -452,11 +453,12 @@ public class Label implements SwingConstants, LabelStyleConstants
 //                                " lwidth: " + getWidth(lbounds) +
 //                                " extra: " + extra);
 
-            switch (_style) {
-            case OUTLINE:
+            Color textColor;
+
+            if ((_style & OUTLINE) != 0) {
                 // render the outline using the hacky, but much nicer than
                 // using "real" outlines (via TextLayout.getOutline), method
-                Color textColor = gfx.getColor();
+                textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
                 layout.draw(gfx, rx, y);
                 layout.draw(gfx, rx, y + 1);
@@ -468,24 +470,20 @@ public class Label implements SwingConstants, LabelStyleConstants
                 layout.draw(gfx, rx + 2, y + 2);
                 gfx.setColor(textColor);
                 layout.draw(gfx, rx + 1, y + 1);
-                break;
 
-            case SHADOW:
+            } else if ((_style & SHADOW) != 0) {
                 textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
                 layout.draw(gfx, rx, y + 1);
                 gfx.setColor(textColor);
                 layout.draw(gfx, rx + 1, y);
-                break;
 
-            case BOLD:
+            } else if ((_style & BOLD) != 0) {
                 layout.draw(gfx, rx, y);
                 layout.draw(gfx, rx + 1, y);
-                break;
 
-            default:
+            } else {
                 layout.draw(gfx, rx, y);
-                break;
             }
 
             y += layout.getDescent() + layout.getLeading();
@@ -503,7 +501,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         Font font = (_font == null) ? gfx.getFont() : _font;
         HashMap map = new HashMap();
         map.put(TextAttribute.FONT, font);
-        if (_style == UNDERLINE) {
+        if ((_style & UNDERLINE) != 0) {
             map.put(TextAttribute.UNDERLINE,
                     TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
         }
@@ -518,10 +516,12 @@ public class Label implements SwingConstants, LabelStyleConstants
     protected double getWidth (Rectangle2D laybounds)
     {
         double width = laybounds.getX() + laybounds.getWidth();
-        switch (_style) {
-        case OUTLINE: width += 2; break;
-        case SHADOW: width += 1; break;
-        case BOLD: width += 1; break;
+        if ((_style & OUTLINE) != 0) {
+            width += 2;
+        } else if ((_style & SHADOW) != 0) {
+            width += 1;
+        } else if ((_style & BOLD) != 0) {
+            width += 1;
         }
         return width;
     }
@@ -535,9 +535,10 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         float height = layout.getLeading() + layout.getAscent() +
             layout.getDescent();
-        switch (_style) {
-        case OUTLINE: height += 2; break;
-        case SHADOW: height += 1; break;
+        if ((_style & OUTLINE) != 0) {
+            height += 2;
+        } else if ((_style & SHADOW) != 0) {
+            height += 1;
         }
         return height;
     }

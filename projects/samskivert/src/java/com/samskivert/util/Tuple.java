@@ -1,5 +1,5 @@
 //
-// $Id: Tuple.java,v 1.3 2001/11/26 19:22:12 mdb Exp $
+// $Id: Tuple.java,v 1.4 2001/11/26 21:57:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,12 +20,14 @@
 
 package com.samskivert.util;
 
+import java.io.Serializable;
+
 /**
  * A tuple is a simple object that holds a reference to two other objects.
  * It provides hashcode and equality semantics that allow it to be used to
  * combine two objects into a single key (for hashtables, etc.).
  */
-public class Tuple
+public class Tuple implements Serializable
 {
     /** The left object. */
     public Object left;

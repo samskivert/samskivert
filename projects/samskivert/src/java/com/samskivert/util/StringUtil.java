@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.49 2002/12/29 01:28:45 mdb Exp $
+// $Id: StringUtil.java,v 1.50 2003/01/08 22:51:07 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -90,12 +90,40 @@ public class StringUtil
             return value;
 
         } else {
-            StringBuffer buf = new StringBuffer(value);
-            while (buf.length() < width) {
-                buf.append(" ");
-            }
-            return buf.toString();
+            return value + spaces(width-value.length());
         }
+    }
+
+    /**
+     * Pads the supplied string to the requested string width by prepending
+     * spaces to the end of the returned string. If the original string is
+     * wider than the requested width, it is returned unmodified.
+     */
+    public static String prepad (String value, int width)
+    {
+        // sanity check
+        if (width <= 0) {
+            String errmsg = "Pad width must be greater than zero.";
+            throw new IllegalArgumentException(errmsg);
+
+        } else if (value.length() >= width) {
+            return value;
+
+        } else {
+            return spaces(width-value.length()) + value;
+        }
+    }
+
+    /**
+     * Returns a string containing the requested number of spaces.
+     */
+    public static String spaces (int count)
+    {
+        StringBuffer buf = new StringBuffer();
+        for (int ii = 0; ii < count; ii++) {
+            buf.append(" ");
+        }
+        return buf.toString();
     }
 
     /**

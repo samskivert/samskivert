@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.17 2002/05/02 07:20:04 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.18 2002/05/02 21:41:54 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -192,6 +192,12 @@ public class DispatcherServlet extends VelocityServlet
         throws IOException
     {
         String propsPath = config.getInitParameter(INIT_PROPS_KEY);
+        if (propsPath == null) {
+            throw new IOException(INIT_PROPS_KEY + " must point to " +
+                                  "the velocity properties file in " +
+                                  "the servlet configuration.");
+        }
+
         // config util loads properties files from the classpath
         Properties props = ConfigUtil.loadProperties(propsPath);
 

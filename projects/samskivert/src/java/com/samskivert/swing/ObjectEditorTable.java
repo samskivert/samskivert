@@ -121,9 +121,46 @@ public class ObjectEditorTable extends JTable
     public ObjectEditorTable (Class protoClass, String[] editableFields,
                               FieldInterpreter interp)
     {
+        this(protoClass, editableFields, interp, null);
+    }
+
+    /**
+     * Construct a table to display and edit the specified class.
+     *
+     * @param protoClass the Class of the data that will be displayed.
+     * @param editableFields the names of the fields that are editable.
+     * @param interp The {@link FieldInterpreter} to use.
+     * @param displayFields the fields to display, or null to display all.
+     */
+    public ObjectEditorTable (Class protoClass, String[] editableFields,
+                              FieldInterpreter interp, String[] displayFields)
+    {
         _interp = (interp != null) ? interp : new FieldInterpreter();
 
-        _fields = ClassUtil.getFields(protoClass);
+        // figure out which fields we're going to display
+        Field[] fields = ClassUtil.getFields(protoClass);
+        if (displayFields != null) {
+            _fields = new Field[displayFields.length];
+            for (int ii=0; ii < displayFields.length; ii++) {
+                for (int jj=0; jj < fields.length; jj++) {
+                    if (displayFields[ii].equals(fields[jj].getName())) {
+                        _fields[ii] = fields[jj];
+                        break;
+                    }
+                }
+                if (_fields[ii] == null) {
+                    throw new IllegalArgumentException(
+                        "Field not found in prototype class! " +
+                        "[class=" + protoClass +
+                        ", field=" + displayFields[ii] + "].");
+                }
+            }
+
+        } else {
+            _fields = fields; // use all the fields
+        }
+        
+        // figure out which fields are editable
         for (int ii=0, nn=_fields.length; ii < nn; ii++) {
             if (ListUtil.contains(editableFields, _fields[ii].getName())) {
                 _editable.set(ii);
@@ -165,9 +202,17 @@ public class ObjectEditorTable extends JTable
     }
 
     /**
+     * Add the specified element to the end of the data set.
+     */
+    public void addDatum (Object element)
+    {
+        insertDatum(element, _data.size());
+    }
+
+    /**
      * Insert the specified element at the specified row.
      */
-    public void insertData (Object element, int row)
+    public void insertDatum (Object element, int row)
     {
         _data.add(row, element);
         _model.fireTableRowsInserted(row, row);
@@ -176,16 +221,27 @@ public class ObjectEditorTable extends JTable
     /**
      * Change the value of the specified row.
      */
-    public void updateData (Object element, int row)
+    public void updateDatum (Object element, int row)
     {
         _data.set(row, element);
         _model.fireTableRowsUpdated(row, row);
     }
 
     /**
+     * Remove the specified element from the set of data.
+     */
+    public void removeDatum (Object element)
+    {
+        int dex = _data.indexOf(element);
+        if (dex != -1) {
+            removeDatum(dex);
+        }
+    }
+
+    /**
      * Remove the specified row.
      */
-    public void removeData (int row)
+    public void removeDatum (int row)
     {
         _data.remove(row);
         _model.fireTableRowsDeleted(row, row);

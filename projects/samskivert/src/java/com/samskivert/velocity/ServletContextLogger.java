@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextLogger.java,v 1.2 2001/11/20 21:13:47 mdb Exp $
+// $Id: ServletContextLogger.java,v 1.3 2001/11/20 21:32:34 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -54,7 +54,14 @@ public class ServletContextLogger implements LogSystem
         // if we weren't constructed with a servlet context, try to obtain
         // one via the application context
         if (_sctx == null) {
-            _sctx = (ServletContext)rsvc.getApplicationContext();
+            Object context = rsvc.getApplicationContext();
+            if (context != null) {
+                if (context instanceof Application) {
+                    _sctx = ((Application)context).getServletContext();
+                } else if (context instanceof ServletContext) {
+                    _sctx = (ServletContext)context;
+                }
+            }
         }
 
         // if we still don't have one, complain

@@ -1,5 +1,5 @@
 //
-// $Id: LogProvider.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: LogProvider.java,v 1.4 2002/11/21 22:41:53 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,4 +53,14 @@ public interface LogProvider
      * level will be logged.
      */
     public void setLevel (int level);
+
+    /**
+     * Returns the log level for the specified module.
+     */
+    public int getLevel (String moduleName);
+
+    /**
+     * Returns the default log level for all modules.
+     */
+    public int getLevel ();
 }

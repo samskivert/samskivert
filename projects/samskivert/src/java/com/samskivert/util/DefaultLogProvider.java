@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.17 2002/10/16 19:30:15 shaper Exp $
+// $Id: DefaultLogProvider.java,v 1.18 2002/11/21 22:41:53 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -89,6 +89,17 @@ public class DefaultLogProvider implements LogProvider
     {
 	_level = level;
 	_levels.clear();
+    }
+
+    public synchronized int getLevel (String moduleName)
+    {
+        Integer level = (Integer)_levels.get(moduleName);
+        return (level == null) ? _level : level.intValue();
+    }
+
+    public synchronized int getLevel ()
+    {
+        return _level;
     }
 
     protected synchronized String formatEntry (

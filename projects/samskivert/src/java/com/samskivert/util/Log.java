@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.8 2002/10/08 02:17:57 shaper Exp $
+// $Id: Log.java,v 1.9 2002/11/21 22:41:53 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -135,6 +135,22 @@ public final class Log
     public static void setLevel (int level)
     {
 	_provider.setLevel(level);
+    }
+
+    /**
+     * Returns the log level of the specified module.
+     */
+    public static int getLevel (String moduleName)
+    {
+	return _provider.getLevel(moduleName);
+    }
+
+    /**
+     * Returns the default log level for all modules.
+     */
+    public static int getLevel ()
+    {
+	return _provider.getLevel();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: PropertiesUtil.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: PropertiesUtil.java,v 1.4 2002/03/03 03:09:15 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -60,11 +60,40 @@ public class PropertiesUtil
      * password=is your uncle
      * </pre>
      */
-    public static
-	Properties getSubProperties (Properties source, String prefix)
+    public static Properties getSubProperties (
+        Properties source, String prefix)
     {
 	Properties dest = new Properties();
+        extractSubProperties(source, dest, prefix);
+	return dest;
+    }
 
+    /**
+     * Like {@link #getSubProperties(Properties,String)} with the
+     * additional functionality of loading up defaults for the
+     * sub-properties which are identified by the
+     * <code>defaultsPrefix</code> string.
+     */
+    public static Properties getSubProperties (
+        Properties source, String prefix, String defaultsPrefix)
+    {
+        // first load up the defaults
+        Properties defs = new Properties();
+        extractSubProperties(source, defs, defaultsPrefix);
+
+        // now load up the desired properties
+	Properties dest = new Properties(defs);
+        extractSubProperties(source, dest, defaultsPrefix);
+
+        return dest;
+    }
+
+    /**
+     * A helper function used by the {@link getSubProperties} methods.
+     */
+    protected static void extractSubProperties (
+        Properties source, Properties dest, String prefix)
+    {
 	// extend the prefix to contain a dot
 	prefix = prefix + ".";
 	int preflen = prefix.length();
@@ -73,16 +102,12 @@ public class PropertiesUtil
 	Enumeration names = source.propertyNames();
 	while (names.hasMoreElements()) {
 	    String name = (String)names.nextElement();
-
 	    // skip unrelated properties
 	    if (!name.startsWith(prefix)) {
 		continue;
 	    }
-
 	    // insert the value into the new properties minus the prefix
 	    dest.put(name.substring(preflen), source.getProperty(name));
 	}
-
-	return dest;
     }
 }

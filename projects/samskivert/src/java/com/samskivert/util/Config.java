@@ -572,6 +572,14 @@ public class Config
     }
 
     /**
+     * Remove any set value for the specified preference.
+     */
+    public void remove (String name)
+    {
+        _prefs.remove(name);
+    }
+
+    /**
      * Adds a listener that will be notified whenever any configuration
      * properties are changed by a call to one of the <code>set</code>
      * methods.

@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.6 2002/09/24 00:09:37 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.7 2003/01/29 10:34:06 mdb Exp $
 
 package com.samskivert.util;
 
@@ -53,6 +53,13 @@ public class ValueMarshaller
         _parsers.put(String.class, new Parser() {
             public Object parse (String source) throws Exception {
                 return source;
+            }
+        });
+
+        // and bytes
+        _parsers.put(Byte.TYPE, new Parser() {
+            public Object parse (String source) throws Exception {
+                return Byte.valueOf(source);
             }
         });
 

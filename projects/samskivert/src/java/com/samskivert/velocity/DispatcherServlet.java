@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.23 2004/02/25 13:16:32 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.24 2004/04/26 08:47:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -262,8 +262,15 @@ public class DispatcherServlet extends VelocityServlet
 	// then select the template
 	Template tmpl = selectTemplate(siteId, ictx);
 
-	// assume an HTML response unless otherwise massaged by the logic
-	rsp.setContentType("text/html");
+        // assume the request is in UTF-8 format unless it has actually
+        // been sensibly parsed by the browser
+        if (req.getCharacterEncoding() == null) {
+            req.setCharacterEncoding("UTF-8");
+        }
+
+        // assume an HTML response in the UTF-8 character set unless
+        // otherwise massaged by the logic
+        rsp.setContentType("text/html; charset=UTF-8");
 
 	try {
             // insert the application into the context in case the

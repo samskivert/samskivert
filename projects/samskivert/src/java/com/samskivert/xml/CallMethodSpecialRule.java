@@ -1,5 +1,5 @@
 //
-// $Id: CallMethodSpecialRule.java,v 1.3 2002/02/23 18:24:27 mdb Exp $
+// $Id: CallMethodSpecialRule.java,v 1.4 2003/01/31 02:27:30 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -24,6 +24,8 @@ import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
+import com.samskivert.util.StringUtil;
+
 /**
  * Parses the bodies of elements and sets the value on the top object on
  * the stack using a special parser/setter interface.
@@ -45,6 +47,13 @@ public abstract class CallMethodSpecialRule extends Rule
         throws Exception
     {
 	Object top = digester.peek();
+
+	if (digester.getDebug() >= 1) {
+	    digester.log("CallSpecial " + StringUtil.shortClassName(this) +
+                         ".parseAndSet(" +
+                         StringUtil.shortClassName(top) + ")");
+        }
+
         parseAndSet(_bodyText, top);
     }
 

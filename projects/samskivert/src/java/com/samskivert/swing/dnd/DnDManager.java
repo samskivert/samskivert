@@ -119,6 +119,12 @@ public class DnDManager
      */
     protected void removeSource (JComponent comp)
     {
+        if (_sourceComp == comp) {
+            // reset cursors
+            clearComponentCursor();
+            _topComp.setCursor(_topCursor);
+            reset();
+        }
         _draggers.remove(comp);
         comp.removeMouseListener(_sourceListener);
         comp.removeMouseMotionListener(_sourceListener);

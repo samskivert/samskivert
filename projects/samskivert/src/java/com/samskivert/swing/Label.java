@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.5 2002/03/03 07:03:20 mdb Exp $
+// $Id: Label.java,v 1.6 2002/03/11 22:07:00 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -52,6 +52,14 @@ public class Label implements SwingConstants
     public Label (String text)
     {
         setText(text);
+    }
+
+    /**
+     * Returns the text displayed by this label.
+     */
+    public String getText ()
+    {
+        return _text;
     }
 
     /**

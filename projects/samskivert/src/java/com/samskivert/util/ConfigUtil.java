@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtil.java,v 1.11 2003/04/02 04:01:50 mdb Exp $
+// $Id: ConfigUtil.java,v 1.12 2004/01/24 06:02:11 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.util;
 
 import java.io.*;
 import java.net.URL;
+import java.security.AccessControlException;
 import java.util.*;
 
 import com.samskivert.Log;
@@ -287,9 +288,13 @@ public class ConfigUtil
             // if we couldn't find anything there, try the system class
             // loader (but only if that's not where we were already
             // looking)
-            ClassLoader sysloader = ClassLoader.getSystemClassLoader();
-            if (sysloader != loader) {
-                enum = getResources(path, sysloader);
+            try {
+                ClassLoader sysloader = ClassLoader.getSystemClassLoader();
+                if (sysloader != loader) {
+                    enum = getResources(path, sysloader);
+                }
+            } catch (AccessControlException ace) {
+                // can't get the system loader, no problem!
             }
         }
 
@@ -564,12 +569,15 @@ public class ConfigUtil
 
 	// if that didn't work, try the system class loader (but only if
 	// it's different from the class loader we just tried)
-        ClassLoader sysloader = ClassLoader.getSystemClassLoader();
-        if (sysloader != loader) {
-            return getResourceAsStream(path, loader);
-        } else {
-            return null;
+        try {
+            ClassLoader sysloader = ClassLoader.getSystemClassLoader();
+            if (sysloader != loader) {
+                return getResourceAsStream(path, loader);
+            }
+        } catch (AccessControlException ace) {
+            // can't get the system loader, no problem!
         }
+        return null;
     }
 
     protected static InputStream getResourceAsStream (

@@ -91,7 +91,7 @@
   </target>
 
   <!-- combines package availability into build controls -->
-  <target name="compute-builds">
+  <target name="compute-builds" depends="check-available">
     <echo message="The packages that will be built are listed below. One"/>
     <echo message="followed by 'true' indicates that it will be built. One"/>
     <echo message="followed by '${build.package}' indicates that it will"/>
@@ -186,9 +186,10 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="prepare,check-available,compute-builds">
+  <target name="compile" depends="prepare,compute-builds">
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
-           debug="on" optimize="${build.optimize}" deprecation="off">
+           debug="on" optimize="${build.optimize}" deprecation="off"
+           nowarn="on">
       <classpath refid="classpath"/>
       <exclude name="com/samskivert/io/**" unless="build.io"/>
       <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
@@ -204,14 +205,25 @@
   </target>
 
   <!-- build the javadoc documentation -->
-  <target name="javadoc" depends="prepare">
-    <javadoc sourcepath="${src.dir}"
-             packagenames="${doc.packages}"
-             windowtitle="${app.name} API"
+  <target name="javadoc" depends="prepare,compute-builds">
+    <javadoc windowtitle="${app.name} API"
              doctitle="${app.name} API"
              overview="${src.dir}/${doc.overview}"
              destdir="${javadoc.dir}"
-             additionalparam="-breakiterator">
+             additionalparam="-breakiterator"
+             link="http://dev.threerings.net/devel/docs/samskivert/">
+      <packageset dir="${src.dir}">
+        <exclude name="com/samskivert/io/**" unless="build.io"/>
+        <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+        <exclude name="com/samskivert/net/**" unless="build.net"/>
+        <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
+        <exclude name="com/samskivert/swing/**" unless="build.swing"/>
+        <exclude name="com/samskivert/test/**" unless="build.test"/>
+        <exclude name="com/samskivert/util/**" unless="build.util"/>
+        <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
+        <exclude name="com/samskivert/webmacro/**" unless="build.webmacro"/>
+        <exclude name="com/samskivert/xml/**" unless="build.xml"/>
+      </packageset>
       <bottom>Copyright &#169; 2000-${year} ${copyright.holder}.
               All Rights Reserved.</bottom>
       <classpath refid="classpath"/>

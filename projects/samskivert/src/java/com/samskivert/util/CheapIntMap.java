@@ -1,5 +1,5 @@
 //
-// $Id: CheapIntMap.java,v 1.1 2003/02/06 19:57:29 mdb Exp $
+// $Id: CheapIntMap.java,v 1.2 2003/02/06 20:00:05 mdb Exp $
 
 package com.samskivert.util;
 
@@ -93,6 +93,24 @@ public class CheapIntMap
     {
         Arrays.fill(_keys, -1);
         Arrays.fill(_values, null);
+    }
+
+    /**
+     * Returns the key with the specified index or -1 if no key exists at
+     * that index.
+     */
+    public int getKey (int index)
+    {
+        return _keys[index];
+    }
+
+    /**
+     * Returns the value with the specified index or null if no value
+     * exists at that index.
+     */
+    public Object getValue (int index)
+    {
+        return _values[index];
     }
 
     protected int[] _keys;

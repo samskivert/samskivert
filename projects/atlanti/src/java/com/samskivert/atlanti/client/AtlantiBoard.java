@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.15 2001/11/08 08:00:22 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.16 2001/11/24 08:25:04 shaper Exp $
 
 package com.threerings.venison;
 
@@ -24,10 +24,6 @@ import com.threerings.presents.dobj.DSet;
 public class VenisonBoard
     extends JPanel implements TileCodes, VenisonCodes
 {
-    /** The command posted when a tile is placed by the user on the
-     * board. */
-    public static final String TILE_PLACED_CMD = "tile_placed";
-
     /**
      * Constructs a Venison board.
      */

@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.8 2002/11/12 06:41:29 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.9 2002/11/22 21:21:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -252,21 +252,24 @@ public class MultiLineLabel extends JComponent
 
         // if we have been configured to relay ourselves out once we know
         // our constrained width or height, take care of that here
+        int size;
         switch (_constrain) {
         case HORIZONTAL:
+            size = getWidth();
             // sanity check; sometimes labels are laid out with completely
             // invalid dimensions, so we just quietly play along
-            if (getWidth() > 0) {
-                _constrain = NONE;
-                _label.setTargetWidth(getWidth());
+            if (size > 0 && size != _constrainedSize) {
+                _constrainedSize = size;
+                _label.setTargetWidth(size);
                 revalidate();
             }
             break;
 
         case VERTICAL:
-            if (getHeight() > 0) {
-                _constrain = NONE;
-                _label.setTargetHeight(getHeight());
+            size = getHeight();
+            if (size > 0 && size != _constrainedSize) {
+                _constrainedSize = size;
+                _label.setTargetHeight(size);
                 revalidate();
             }
             break;
@@ -322,6 +325,10 @@ public class MultiLineLabel extends JComponent
 
     /** Pending constraint adjustments. */
     protected int _constrain = NONE;
+
+    /** The size to which we constrained ourselves when most recently laid
+     * out. */
+    protected int _constrainedSize;
 
     /** Whether to render the label with anti-aliasing. */
     protected boolean _antialiased;

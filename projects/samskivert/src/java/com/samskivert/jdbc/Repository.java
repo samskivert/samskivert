@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.7 2001/06/01 07:27:59 mdb Exp $
+// $Id: Repository.java,v 1.8 2001/07/19 01:04:50 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -239,6 +239,8 @@ public abstract class Repository
                 return execute(op, false);
 
             } else {
+                Log.info("Non-transient exception, we're hosed " +
+                         "[error=" + sqe + "].");
                 throw sqe;
             }
 

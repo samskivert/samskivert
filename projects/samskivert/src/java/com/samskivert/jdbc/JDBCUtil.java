@@ -1,5 +1,5 @@
 //
-// $Id: JDBCUtil.java,v 1.3 2002/02/01 18:33:16 mdb Exp $
+// $Id: JDBCUtil.java,v 1.4 2003/06/28 20:29:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -63,6 +63,25 @@ public class JDBCUtil
         throws SQLException, PersistenceException
     {
         int modified = stmt.executeUpdate();
+        if (modified != expectedCount) {
+            String err = "Statement did not modify expected number of rows " +
+                "[stmt=" + stmt + ", expected=" + expectedCount +
+                ", modified=" + modified + "]";
+            throw new PersistenceException(err);
+        }
+    }
+
+    /**
+     * Calls <code>stmt.executeUpdate()</code> on the supplied statement
+     * with the supplied query, checking to see that it returns the
+     * expected update count and throwing a persistence exception if it
+     * does not.
+     */
+    public static void checkedUpdate (
+        Statement stmt, String query, int expectedCount)
+        throws SQLException, PersistenceException
+    {
+        int modified = stmt.executeUpdate(query);
         if (modified != expectedCount) {
             String err = "Statement did not modify expected number of rows " +
                 "[stmt=" + stmt + ", expected=" + expectedCount +

@@ -23,6 +23,7 @@ package com.samskivert.util;
 import java.io.Serializable;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.RandomAccess;
@@ -155,7 +156,7 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public boolean contains (Object o)
     {
-        return ListUtil.containsRef(_elements, o);
+        return ListUtil.contains(_elements, o);
     }
 
     // documentation inherited from interface

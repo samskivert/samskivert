@@ -165,7 +165,7 @@ public class SiteResourceLoader
                     return null;
                 }
 
-                loader = new JarFileClassLoader(bundle.jarFile);
+                loader = new SiteClassLoader(bundle);
                 _loaders.put(siteId, loader);
             }
 
@@ -286,6 +286,14 @@ public class SiteResourceLoader
         }
 
         /**
+         * Returns a string representation of this instance.
+         */
+        public String toString ()
+        {
+            return "[bundle=" + file + "]";
+        }
+
+        /**
          * Reopens our site-specific jar file if it has been modified
          * since it was last opened.
          */
@@ -322,38 +330,31 @@ public class SiteResourceLoader
         protected long _lastModified;
     }
 
-    protected static class JarFileClassLoader extends ClassLoader
+    protected static class SiteClassLoader extends ClassLoader
     {
-        public JarFileClassLoader (JarFile jarFile)
+        public SiteClassLoader (SiteResourceBundle bundle)
         {
-            _jarFile = jarFile;
+            _bundle = bundle;
         }
 
         public InputStream getResourceAsStream (String path)
         {
-//              Log.info("Seeking resource [jarFile=" + _jarFile +
-//                       ", path=" + path + "].");
             try {
-                JarEntry entry = _jarFile.getJarEntry(path);
-                return (entry == null) ? null :
-                    _jarFile.getInputStream(entry);
+                return _bundle.getResourceAsStream(path);
             } catch (IOException ioe) {
                 Log.warning("Error loading resource from jarfile " +
-                            "[jar=" + _jarFile + ", error=" + ioe + "].");
+                            "[bundle=" + _bundle + ", path=" + path +
+                            ", error=" + ioe + "].");
                 return null;
             }
         }
 
-        /**
-         * Returns a string representation of this instance.
-         */
         public String toString ()
         {
-            return "[jarFile=" + (_jarFile == null ? "<none>" :
-                                  _jarFile.getName()) + "]";
+            return _bundle.toString();
         }
 
-        protected JarFile _jarFile;
+        protected SiteResourceBundle _bundle;
     }
 
     /** The site identifier we use to identify requests. */

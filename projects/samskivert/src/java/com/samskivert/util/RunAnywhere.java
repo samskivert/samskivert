@@ -1,5 +1,5 @@
 //
-// $Id: RunAnywhere.java,v 1.3 2003/05/03 00:12:42 ray Exp $
+// $Id: RunAnywhere.java,v 1.4 2003/07/12 02:46:03 ray Exp $
 
 package com.samskivert.util;
 
@@ -44,10 +44,12 @@ public class RunAnywhere
      * the Macintosh where it returns {@link System#currentTimeMillis}
      * because {@link InputEvent#getWhen} returns completely incorrect
      * values. Hopefully this method will become unnecessary soon.
+     * We also no longer trust windows, since it seems to misbehave sometimes.
      */
     public static long getWhen (InputEvent event)
     {
-        return isMacOS() ? System.currentTimeMillis() : event.getWhen();
+        return (isWindows() || isMacOS()) ? System.currentTimeMillis()
+                                          : event.getWhen();
     }
 
     /** Flag indicating that we're on Windows; initialized when this class

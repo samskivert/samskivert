@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.59 2003/10/23 16:09:34 eric Exp $
+// $Id: StringUtil.java,v 1.60 2003/10/24 01:17:51 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -139,9 +139,18 @@ public class StringUtil
      */
     public static String spaces (int count)
     {
+        return fill(' ', count);
+    }
+
+    /**
+     * Returns a string containing the specified character repeated the
+     * specified number of times.
+     */
+    public static String fill (char c, int count)
+    {
         StringBuffer buf = new StringBuffer();
         for (int ii = 0; ii < count; ii++) {
-            buf.append(" ");
+            buf.append(c);
         }
         return buf.toString();
     }

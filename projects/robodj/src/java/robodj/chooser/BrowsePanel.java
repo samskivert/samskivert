@@ -1,5 +1,5 @@
 //
-// $Id: BrowsePanel.java,v 1.2 2002/02/22 07:06:33 mdb Exp $
+// $Id: BrowsePanel.java,v 1.3 2002/11/11 17:04:12 mdb Exp $
 
 package robodj.chooser;
 
@@ -13,6 +13,10 @@ public class BrowsePanel extends JTabbedPane
     {
         EntryList elist;
         Category[] cats = Chooser.model.getCategories();
+
+        // stick our tabs along the side and scroll if they don't fit
+        setTabPlacement(LEFT);
+        setTabLayoutPolicy(SCROLL_TAB_LAYOUT);
 
         // create a tab for each category
         for (int i = 0; i < cats.length; i++) {

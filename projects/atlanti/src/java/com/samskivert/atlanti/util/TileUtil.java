@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.5 2001/10/16 09:31:46 mdb Exp $
+// $Id: TileUtil.java,v 1.6 2001/10/16 17:11:07 mdb Exp $
 
 package com.threerings.venison;
 
@@ -132,6 +132,8 @@ public class TileUtil implements TileCodes
 
             if (sum == 0) {
                 // they overlap, nothing doing
+                Log.warning("Tile overlaps another [candidate=" + target +
+                            ", overlapped=" + tile + "].");
                 return false;
 
             } else if (sum ==  1) {
@@ -144,6 +146,9 @@ public class TileUtil implements TileCodes
                 // tile
                 int tileEdge = (targetEdge+(4-tile.orientation)+2) % 4;
 
+                // now rotate the target edge according to our orientation
+                targetEdge = ((targetEdge+(4-target.orientation)) % 4);
+
                 // see if the edges match
                 if (getEdge(tile.type, tileEdge) ==
                     getEdge(target.type, targetEdge)) {
@@ -152,6 +157,10 @@ public class TileUtil implements TileCodes
 
                 } else {
                     // the edges don't match, nothing doing
+                    Log.warning("Edge mismatch [candidate=" + target +
+                                ", tile=" + tile +
+                                ", candidateEdge=" + targetEdge +
+                                ", tileEdge=" + tileEdge + "].");
                     return false;
                 }
             }
@@ -179,7 +188,7 @@ public class TileUtil implements TileCodes
      * not include the tile whose features are being configured).
      * @param tile the tile whose features should be configured.
      */
-    public static void initClaims (VenisonTile[] tiles, VenisonTile tile)
+    public static void inheritClaims (VenisonTile[] tiles, VenisonTile tile)
     {
         // obtain our neighboring tiles
         VenisonTile[] neighbors = new VenisonTile[4];

@@ -1,5 +1,5 @@
 //
-// $Id: FileUtil.java,v 1.2 2003/05/23 18:13:36 mdb Exp $
+// $Id: FileUtil.java,v 1.3 2003/05/27 07:58:08 mdb Exp $
 
 package com.samskivert.util;
 
@@ -18,7 +18,7 @@ public class FileUtil
      */
     public static void recursiveDelete (File file)
     {
-        recursiveWipe(file, false);
+        recursiveWipe(file, true);
     }
 
     /**

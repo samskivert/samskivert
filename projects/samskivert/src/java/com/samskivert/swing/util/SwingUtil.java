@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.28 2003/12/19 04:07:33 mdb Exp $
+// $Id: SwingUtil.java,v 1.29 2004/01/12 08:39:49 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -246,9 +246,23 @@ public class SwingUtil
     public static void setEnabled (Container comp, final boolean enabled)
     {
         applyToHierarchy(comp, new ComponentOp() {
-            public void apply (Component comp)
-            {
+            public void apply (Component comp) {
                 comp.setEnabled(enabled);
+            }
+        });
+    }
+
+    /**
+     * Set the opacity on the specified component, <em>and all of its
+     * children.</cite>
+     */
+    public static void setOpaque (JComponent comp, final boolean opaque)
+    {
+        applyToHierarchy(comp, new ComponentOp() {
+            public void apply (Component comp) {
+                if (comp instanceof JComponent) {
+                    ((JComponent) comp).setOpaque(opaque);
+                }
             }
         });
     }

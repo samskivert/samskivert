@@ -25,13 +25,30 @@ public class Table {
      *  
      * @param tclassName name of Java class
      * @param tableName name of database table mapped on this Java class
+     * @param s session, which should be opened before first access to the table
+     * @param key table's primary key. This parameter is used in UPDATE/DELETE
+     *  operations to locate record in the table.
+     * @param mixedCaseConvert whether or not to convert mixed case field
+     * names into underscore separated uppercase column names.
+     */
+    public Table(String className, String tableName, Session s, String key,
+                 boolean mixedCaseConvert) {
+	String[] keys = {key};
+	init(className, tableName, s, keys, mixedCaseConvert);
+    }
+
+    /** Constructor for table object. Make association between Java class 
+     *  and database table.
+     *  
+     * @param tclassName name of Java class
+     * @param tableName name of database table mapped on this Java class
      * @param key table's primary key. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
      * @param s session, which should be opened before first access to the table
      */
     public Table(String className, String tableName, Session s, String key) {
 	String[] keys = {key};
-	init(className, tableName, s, keys);
+	init(className, tableName, s, keys, false);
     }
 
     /** Constructor for table object. Make association between Java class 
@@ -45,7 +62,7 @@ public class Table {
      */
     public Table(String className, String tableName, Session s, String[] keys) 
     { 
-	init(className, tableName, s, keys);
+	init(className, tableName, s, keys, false);
     }
 
     /** Constructor for table object. Make association between Java class 
@@ -60,7 +77,7 @@ public class Table {
      */
     public Table(String className, Session s, String[] keys) {
         init(className, className.substring(className.lastIndexOf('.')+1),
-	     s, keys);
+	     s, keys, false);
     }
 
     /** Constructor for table object. Make association between Java class 
@@ -76,7 +93,7 @@ public class Table {
     public Table(String className, Session s, String key) {
 	String[] keys = {key};
         init(className, className.substring(className.lastIndexOf('.')+1),
-	     s, keys);
+	     s, keys, false);
     }
 
     /** Constructor of table without explicit key specification.
@@ -85,7 +102,7 @@ public class Table {
      */
     public Table(String className, Session s) {
         init(className, className.substring(className.lastIndexOf('.')+1),
-	     s, null);
+	     s, null, false);
     }
 
     /** Constructor of table with "key" and "session" parameters inherited 
@@ -93,7 +110,7 @@ public class Table {
      */
     public Table(String className) {
         init(className, className.substring(className.lastIndexOf('.')+1),
-	     null, null);
+	     null, null, false);
     }
 
     /** Select records from database table according to search condition
@@ -506,16 +523,6 @@ public class Table {
 	return nDeleted;
     }
 
-    /**
-     * Configures the table to convert mixed case Java fields
-     * (e.g. <code>locationId</code>) into underscore separated uppercase
-     * fields (e.g. <code>LOCATION_ID</code>).
-     */
-    public void setMixedCaseConvert (boolean mixedCaseConvert)
-    {
-        this.mixedCaseConvert = mixedCaseConvert;
-    }
-
     /** Spearator of name components of compound field. For example, if Java
      *  class constains component "location" of Point class, which
      *  has two components "x" and "y", then database table should
@@ -584,9 +591,10 @@ public class Table {
 
 
     private final void init(String className, String tableName, Session s, 
-			    String[] keys) 
+			    String[] keys, boolean mixedCaseConvert) 
     {
         name = tableName;
+        this.mixedCaseConvert = mixedCaseConvert;
 	try { 
 	    cls = Class.forName(className);
 	} catch(ClassNotFoundException ex) {throw new NoClassDefFoundError();}

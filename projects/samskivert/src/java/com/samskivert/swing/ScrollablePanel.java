@@ -1,5 +1,5 @@
 //
-// $Id: ScrollablePanel.java,v 1.2 2002/02/28 16:31:11 mdb Exp $
+// $Id: ScrollablePanel.java,v 1.3 2002/11/12 05:52:03 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -54,6 +54,24 @@ public class ScrollablePanel extends JPanel
      */
     public ScrollablePanel ()
     {
+    }
+
+    /**
+     * Instructs this panel to not scroll in the horizontal direction but
+     * to set its viewport's horizontal size when it is sized.
+     */
+    public void setTracksViewportWidth (boolean tracksWidth)
+    {
+        _tracksWidth = tracksWidth;
+    }
+
+    /**
+     * Instructs this panel to not scroll in the vertical direction but to
+     * set its viewport's vertical size when it is sized.
+     */
+    public void setTracksViewportHeight (boolean tracksHeight)
+    {
+        _tracksHeight = tracksHeight;
     }
 
     // documentation inherited from interface
@@ -119,14 +137,17 @@ public class ScrollablePanel extends JPanel
     // documentation inherited from interface
     public boolean getScrollableTracksViewportWidth ()
     {
-        return false;
+        return _tracksWidth;
     }
 
     // documentation inherited from interface
     public boolean getScrollableTracksViewportHeight ()
     {
-        return false;
+        return _tracksHeight;
     }
+
+    protected boolean _tracksWidth = false;
+    protected boolean _tracksHeight = false;
 
     /** The number of pixels to scroll if we can't find a component to
      * scroll into view or if we're scrolling horizontally. */

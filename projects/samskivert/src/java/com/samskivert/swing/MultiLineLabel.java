@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.12 2003/04/04 21:29:54 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.13 2003/11/15 03:06:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -161,6 +161,11 @@ public class MultiLineLabel extends JComponent
     {
         if (_label.setText(text)) {
             _dirty = true;
+            // clear out our constrained size where appropriate
+            if (_constrain == HORIZONTAL || _constrain == VERTICAL) {
+                _constrainedSize = 0;
+                _label.clearTargetDimens();
+            }
             revalidate();
             repaint();
         }
@@ -229,6 +234,9 @@ public class MultiLineLabel extends JComponent
         int dx = 0, dy = 0;
         int wid = getWidth(), hei = getHeight();
         Dimension ld = _label.getSize();
+
+        // set the text color to our foreground color
+        _label.setTextColor(getForeground());
 
         // calculate the x-offset at which the label is rendered
         switch (align) {

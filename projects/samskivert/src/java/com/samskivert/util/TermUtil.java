@@ -1,11 +1,10 @@
 //
-// $Id: TermUtil.java,v 1.2 2002/08/20 18:57:30 mdb Exp $
+// $Id: TermUtil.java,v 1.3 2004/02/25 13:20:44 mdb Exp $
 
 package com.samskivert.util;
 
 import java.awt.Dimension;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

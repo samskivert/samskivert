@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.13 2003/11/13 18:36:07 ray Exp $
+// $Id: HashIntMap.java,v 1.14 2004/02/25 13:20:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,7 +27,6 @@ import java.io.Serializable;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;

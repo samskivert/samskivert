@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.21 2003/11/25 02:12:45 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.22 2004/02/25 13:20:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,10 +25,8 @@ import java.awt.Dimension;
 import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.List;
 
 /**
  * If no log provider is registered with the log services, the default

@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.10 2003/04/26 17:59:17 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.11 2004/02/25 13:20:44 mdb Exp $
 
 package com.samskivert.util;
 
@@ -15,8 +15,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import java.io.File;
-
-import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

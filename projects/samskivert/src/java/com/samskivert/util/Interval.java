@@ -1,5 +1,5 @@
 //
-// $Id: Interval.java,v 1.4 2002/05/23 23:43:17 ray Exp $
+// $Id: Interval.java,v 1.5 2004/02/25 13:20:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,8 +19,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.util;
-
-import java.util.*;
 
 /**
  * An interface for doing operations after some delay. Normally,

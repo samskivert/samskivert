@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.20 2003/07/30 20:02:49 mdb Exp $
+// $Id: SortableArrayList.java,v 1.21 2004/02/25 13:20:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,8 +23,6 @@ package com.samskivert.util;
 import java.io.Serializable;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.RandomAccess;

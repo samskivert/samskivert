@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.26 2003/02/10 22:01:46 mdb Exp $
+// $Id: ArrayUtil.java,v 1.27 2004/02/25 13:20:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -22,11 +22,8 @@ package com.samskivert.util;
 
 import java.lang.reflect.Array;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
-
-import com.samskivert.Log;
 
 /**
  * Miscellaneous utility routines for working with arrays.

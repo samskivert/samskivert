@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.24 2004/01/25 13:37:24 mdb Exp $
+// $Id: Config.java,v 1.25 2004/02/25 13:20:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -29,7 +29,6 @@ import java.io.IOException;
 
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
 

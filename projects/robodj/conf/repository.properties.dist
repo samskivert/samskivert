@@ -1,9 +1,0 @@
-#
-# $Id: repository.properties.dist,v 1.2 2002/03/03 16:05:34 mdb Exp $
-#
-# RoboDJ music repository configuration
-
-robodj.driver = org.gjt.mm.mysql.Driver
-robodj.url = jdbc:mysql://DATABASE_HOST:3306/DATABASE_NAME
-robodj.username = DATABASE_USERNAME
-robodj.password = DATABASE_PASSWORD

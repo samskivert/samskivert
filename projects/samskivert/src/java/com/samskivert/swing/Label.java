@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.27 2002/11/12 06:37:37 mdb Exp $
+// $Id: Label.java,v 1.28 2002/11/13 23:14:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -292,13 +292,13 @@ public class Label implements SwingConstants, LabelStyleConstants
                 Rectangle2D bounds = layout.getBounds();
 
                 int lines = 1;
-                double width = bounds.getWidth()/lines;
-                double height = bounds.getHeight()*lines;
+                double width = getWidth(bounds)/lines;
+                double height = getHeight(layout)*lines;
                 double delta = Math.abs(width/height - GOLDEN_RATIO);
 
                 do {
-                    width = bounds.getWidth() / (lines+1);
-                    double nheight = bounds.getHeight() * (lines+1);
+                    width = getWidth(bounds) / (lines+1);
+                    double nheight = getHeight(layout) * (lines+1);
                     double ndelta = Math.abs(width/nheight - GOLDEN_RATIO);
                     if (delta <= ndelta) {
                         break;
@@ -314,7 +314,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             Rectangle2D bounds = layout.getBounds();
             int lines = Math.round(targetHeight / getHeight(layout));
             if (lines > 1) {
-                int targetWidth = (int)Math.round(bounds.getWidth() / lines);
+                int targetWidth = (int)Math.round(getWidth(bounds) / lines);
 
                 // attempt to lay the text out in the specified width,
                 // incrementing by 10% each time; limit our attempts to 10
@@ -342,7 +342,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)
-            _size.setSize(Math.ceil(bounds.getWidth()),
+            _size.setSize(Math.ceil(getWidth(bounds)),
                           Math.ceil(getHeight(layout)));
             layouts = new ArrayList();
             layouts.add(new Tuple(layout, bounds));
@@ -413,7 +413,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                     break;
                 }
                 Rectangle2D bounds = layout.getBounds();
-                width = Math.max(width, bounds.getX() + bounds.getWidth());
+                width = Math.max(width, getWidth(bounds));
                 height += getHeight(layout);
                 layouts.add(new Tuple(layout, bounds));
             }
@@ -483,8 +483,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             Rectangle2D lbounds = _lbounds[i];
             y += layout.getAscent();
 
-            float extra = (float)(_size.width - lbounds.getWidth() -
-                                  lbounds.getX());
+            float extra = (float)(_size.width - getWidth(lbounds));
             switch (_style) {
             case OUTLINE:
                 // if we're outlining, we really have two pixels less space
@@ -563,6 +562,15 @@ public class Label implements SwingConstants, LabelStyleConstants
         map.put(TextAttribute.FONT, font);
         AttributedString text = new AttributedString(_text, map);
         return text.getIterator();
+    }
+
+    /**
+     * Computes the total width of a {@link TextLayout} given bounds
+     * returned from a call to {@link TextLayout#getBounds}.
+     */
+    protected static double getWidth (Rectangle2D laybounds)
+    {
+        return laybounds.getX() + laybounds.getWidth();
     }
 
     /**

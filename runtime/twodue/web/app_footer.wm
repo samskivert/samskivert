@@ -1,3 +1,5 @@
 Two Due:
 <a href="index.wm">$i18n.xlate("app_footer.summary_link")</a> |
+<a href="tasks.wm">$i18n.xlate("app_footer.tasks_link")</a> |
+<a href="bycategory.wm">$i18n.xlate("app_footer.bycategory_link")</a> |
 <a href="/register/">$i18n.xlate("app_footer.account_link")</a>

@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.11 2003/11/15 22:55:32 mdb Exp $
+// $Id: tasks.java,v 1.1 2003/11/15 22:55:32 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -22,9 +22,9 @@ import com.samskivert.twodue.TwoDueApp;
 import com.samskivert.twodue.data.Task;
 
 /**
- * Displays a summary out outstanding and completed tasks.
+ * Displays a summary of unclaimed tasks.
  */
-public class index extends UserLogic
+public class tasks extends UserLogic
 {
     public void invoke (InvocationContext ctx, TwoDueApp app, User user)
         throws Exception
@@ -41,82 +41,29 @@ public class index extends UserLogic
         // tasks
         ctx.put("username", user.username);
 
-	// if they've submitted the form, we create a new task and stick
-	// it into the dataabse
-	if (ParameterUtil.parameterEquals(req, "action", "create")) {
-	    // set the creator from the username of the calling user
-	    Task task = new Task();
-	    task.creator = user.username;
-            // if they requested to do so, claim the task for them
-            if (ParameterUtil.isSet(req, "claim")) {
-                task.owner = user.username;
-            }
-	    task.notes = ""; // no notes to start
-
-	    // parse our fields
-	    task.summary = ParameterUtil.requireParameter(
-                req, "summary", "task.error.missing_summary");
-	    task.category = ParameterUtil.requireParameter(
-                req, "category", "task.error.missing_category");
-	    task.complexity = ParameterUtil.requireParameter(
-                req, "complexity",
-                "task.error.missing_complexity");
-	    task.priority = ParameterUtil.requireIntParameter(
-                req, "priority", "task.error.invalid_priority");
-
-	    // insert the task into the repository
-            app.getRepository().createTask(task);
-
-            // if they want to edit this task, shoot them to the edit
-            // page, otherwise flip back to this same page minus our query
-            // parameters to clear out the creation form
-            if (ParameterUtil.isSet(req, "edit")) {
-                throw new RedirectException("edit.wm?task=" + task.taskId);
-            } else {
-                throw new RedirectException(
-                    "index.wm?msg=index.message.task_created");
-            }
-
-        } else if (ParameterUtil.parameterEquals(req, "action", "complete")) {
-            int taskId = ParameterUtil.requireIntParameter(
-                req, "task", "task.error.missing_taskid");
-            app.getRepository().completeTask(taskId, user.username);
-
-	    // let the user know we updated the database
-	    ctx.put("error", "index.message.task_completed");
-
-        } else if (ParameterUtil.parameterEquals(req, "action", "claim")) {
-            int taskId = ParameterUtil.requireIntParameter(
-                req, "task", "task.error.missing_taskid");
-            app.getRepository().claimTask(taskId, user.username);
-
-	    // let the user know we updated the database
-	    ctx.put("error", "index.message.task_claimed");
+        ArrayList tasks = null;
+        String query = ParameterUtil.getParameter(req, "query", false);
+        if (StringUtil.blank(query)) {
+            tasks = app.getRepository().loadTasks();
+        } else {
+            ctx.put("query", query);
+            tasks = app.getRepository().findTasks(query);
         }
 
-        // load up owned tasks and break them down by owner
-        ArrayList tasks = app.getRepository().loadOwnedTasks();
-        Collections.sort(tasks, OWNED_PARATOR);
-        CatList[] otasks = categorize(tasks, new Categorizer() {
+        // sort the tasks by priority, then complexity
+        Collections.sort(tasks, OPEN_PARATOR);
+
+        CatList[] xtasks = categorize(tasks, new Categorizer() {
             public String category (Task task) {
-                return task.owner;
+                return task.getPriorityName();
             }
         });
-        // look for our name and swap that into the zeroth position
-        for (int ii = 0; ii < otasks.length; ii++) {
-            if (otasks[ii].name.equals(user.username)) {
-                CatList tlist = otasks[0];
-                otasks[0] = otasks[ii];
-                otasks[ii] = tlist;
-                break;
-            }
-        }
-        ctx.put("otasks", otasks);
-        ctx.put("ocats", new CategoryTool());
+        ctx.put("xtasks", xtasks);
+        ctx.put("xcats", new CategoryTool());
 
-        // load up recently completed tasks
-        tasks = app.getRepository().loadCompletedTasks(0, 6);
-        ctx.put("dtasks", tasks);
+        if (!StringUtil.blank(query) && xtasks.length == 0) {
+            ctx.put("error", "index.error.no_matching_tasks");
+        }
     }
 
     protected static class CatList

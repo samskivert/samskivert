@@ -4,7 +4,8 @@
 <p>
 
 <table cellpadding="0" cellspacing="0" border="0">
-<tr><td valign="top">
+<tr><td width="50%">
+
 <b>Owned tasks:</b>
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 
@@ -12,7 +13,7 @@
 #if ($vidx > 0)
 <tr><td colspan="4">&nbsp;</td></tr>
 #end
-<tr><td colspan="4" align="left" bgcolor="$scolor">$otask.name</td></tr>
+<tr><td colspan="4" align="left" style="color: $fcolor" bgcolor="$scolor">$otask.name</td></tr>
 
 $ocats.clear()
 #foreach ($task in $otask.tasks)
@@ -43,85 +44,10 @@ $ocats.clear()
 #end
 </table>
 
-<p>
-<center class="small">Check the box to mark a task as completed.</center>
-
 </td>
-
 <td width="15">&nbsp;</td>
-
 <td valign="top">
-<b>
-#if ($query)
-Tasks matching '$query':
-#else
-Outstanding tasks:
-#if ($expand == "all")
-<a href="index.wm">[trim]</a>
-#else
-<a href="index.wm?expand=all">[show all]</a>
-#end
-#end
-</b>
 
-<table cellpadding="2" cellspacing="0" border="0" width="100%">
-#foreach ($xtask in $xtasks)
-#if ($vidx > 0)
-<tr><td colspan="4">&nbsp;</td></tr>
-#end
-<tr bgcolor="$scolor"><td colspan="2" align="left">$xtask.name</td>
-<td colspan="2">
-#if ($xtask.pruned > 0)
-<a href="index.wm?expand=$xtask.name">($xtask.pruned ...)</a>
-#else
-&nbsp;
-#end
-</td></tr>
-
-$xcats.clear()
-#foreach ($task in $xtask.tasks)
-
-#if ($xcats.checkCategory($task.complexity))
-<tr><td colspan="4" class="small" style="border-bottom: 1px solid"><i>$task.complexity</i></td></tr>
-#set ($border = "")
-#else
-#set ($border = 'style="border-top: 1px solid"')
-#end
-
-<tr>
-<td><a href="index.wm?action=claim&task=$task.taskId">
-<img src="images/claim.png" border="0" alt="Claim this task"></a></td>
-<td $border>$task.summary &nbsp;
-<span class="small">[$task.creator]</span>
-#if (!$string.blank($task.notes))
-&nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
-#end
-</td>
-<td valign="top" $border>$task.getDisplayCategory()</td>
-<td valign="top" $border><a href="edit.wm?task=$task.taskId">
-<img src="images/edit.png" border="0" alt="Edit this task"></a></td>
-</tr>
-#end
-#end
-</table>
-
-<p align="center">
-<table width="100%">
-<tr><td class="small" valign="top">Click the wrench to claim a task.</td>
-<td class="small"><form action="index.wm">
-Filter on single word:<br>
-<input name="query" size="10">
-</form>
-</center>
-
-</td></tr>
-</table>
-
-</td></tr>
-
-<tr><td colspan="3">&nbsp;</td></tr>
-
-<tr><td valign="top">
 <b>Recent completed tasks:</b>
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 #foreach ($task in $dtasks)
@@ -144,12 +70,10 @@ Filter on single word:<br>
 #end
 </table>
 
-</td>
+<p><b>Browse:&nbsp;&nbsp;<a href="bycategory.wm">by category</a>
+&nbsp;&nbsp;<a href="tasks.wm">by priority</a></b>
 
-<td>&nbsp;</td>
-
-<td valign="top">
-<b>Create new task:</b>
+<p><b>Create new task:</b>
 <form action="index.wm">
 $form.fixedHidden("action", "create")
 
@@ -187,13 +111,12 @@ $form.text("category", "size='10'", "")
 </td></tr>
 
 <tr>
-<td colspan="2" align="left" bgcolor="$scolor">
+<td colspan="2" align="left" style="color: $fcolor" bgcolor="$scolor">
 $form.checkbox("claim", false) Claim created task&nbsp;&nbsp;
 $form.checkbox("edit", false) Edit created task</td>
 <td align="right" bgcolor="$scolor">
 $form.submit("submit", "Create")</td></tr>
 </table>
-
 </form>
 
 </td></tr>

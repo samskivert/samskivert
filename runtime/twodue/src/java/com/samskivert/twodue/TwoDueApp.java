@@ -1,5 +1,5 @@
 //
-// $Id: TwoDueApp.java,v 1.1 2002/11/08 09:14:21 mdb Exp $
+// $Id: TwoDueApp.java,v 1.2 2003/11/15 22:55:32 mdb Exp $
 
 package com.samskivert.twodue;
 
@@ -14,6 +14,7 @@ import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.servlet.JDBCTableSiteIdentifier;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.user.UserManager;
+import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.ServiceUnavailableException;
 import com.samskivert.velocity.Application;
 
@@ -51,9 +52,8 @@ public class TwoDueApp extends Application
             // create a static connection provider
             _conprov = new StaticConnectionProvider(CONN_CONFIG);
 
-	    // initialize the user manager
-	    Properties props = new Properties();
-	    props.put("login_url", "/register/login.wm?from=%R");
+            // load up our configuration properties
+            Properties props = ConfigUtil.loadProperties("user.properties");
 	    _usermgr = new UserManager(props, _conprov);
 
 	    // initialize the task repository

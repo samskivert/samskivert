@@ -3,6 +3,7 @@
 ## These colors are used for common UI elements
 #set ($tcolor = "#99CCFF")
 #set ($scolor = "#CCCCCC")
+#set ($fcolor = "#000000")
 
 <html>
 <head>

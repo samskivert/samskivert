@@ -26,7 +26,7 @@
     </init-param>
     <init-param>
       <param-name>site_jar_path</param-name>
-      <param-value>/usr/share/java/webapps/site-data</param-value>
+      <param-value>/export/threerings/webapps/site-data</param-value>
     </init-param>
     <init-param>
       <param-name>site_messages_path</param-name>

@@ -1,5 +1,5 @@
 //
-// $Id: PropertiesUtil.java,v 1.4 2002/03/03 03:09:15 mdb Exp $
+// $Id: PropertiesUtil.java,v 1.5 2002/03/03 07:05:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -89,7 +89,7 @@ public class PropertiesUtil
     }
 
     /**
-     * A helper function used by the {@link getSubProperties} methods.
+     * A helper function used by the {@link #getSubProperties} methods.
      */
     protected static void extractSubProperties (
         Properties source, Properties dest, String prefix)

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.16 2001/10/18 23:57:02 mdb Exp $
+// $Id: AtlantiManager.java,v 1.17 2001/11/07 10:42:24 mdb Exp $
 
 package com.threerings.venison;
 
@@ -139,19 +139,13 @@ public class VenisonManager
     {
         super.gameDidEnd();
 
-        // create a piecen array that we can manipulate while scoring
-        Piecen[] piecens = new Piecen[_venobj.piecens.size()];
-        Iterator iter = _venobj.piecens.elements();
-        for (int i = 0; iter.hasNext(); i++) {
-            piecens[i] = (Piecen)iter.next();
-        }
-
         // compute the final scores by iterating over each tile and
         // scoring its features
-        iter = _venobj.tiles.elements();
+        Piecen[] piecens = getPiecens();
+        Iterator iter = _venobj.tiles.elements();
         while (iter.hasNext()) {
             VenisonTile tile = (VenisonTile)iter.next();
-            scoreFeatures(tile, piecens);
+            scoreFeatures(tile, piecens, true);
         }
 
         // lastly, we have to score the farms (cue the ominous drums)...
@@ -162,18 +156,33 @@ public class VenisonManager
     }
 
     /**
+     * Creates an array of piecens based on the contents of the piecens
+     * set in the game object, suitable for passing to {@link
+     * #scoreFeatures}.
+     */
+    protected Piecen[] getPiecens ()
+    {
+        // create a piecen array that we can manipulate while scoring
+        Piecen[] piecens = new Piecen[_venobj.piecens.size()];
+        Iterator iter = _venobj.piecens.elements();
+        for (int i = 0; iter.hasNext(); i++) {
+            piecens[i] = (Piecen)iter.next();
+        }
+        return piecens;
+    }
+
+    /**
      * Scores the features on this tile.
      *
      * @param tile the tile whose features should be scored.
-     * @param piecens during the final tally, we don't look for piecens on
-     * the board and remove them when we score them, we instead look for
-     * the piecens in this supplied array and remove them from there both
-     * to preserve the appearance of the board during final scoring and to
-     * circumvent the need to process an element removed event every time
-     * we remove a piecen. Passing a non-null piecens array also signifies
-     * that we are doing the final tally rather than an incremental score.
+     * @param piecens an array of the pieces on the board which we can
+     * manipulate directly without having to wait for element removed
+     * events to be dispatched.
+     * @param finalTally during the final tally, we score differently and
+     * we don't remove piecens from the board as we score them.
      */
-    protected void scoreFeatures (VenisonTile tile, Piecen[] piecens)
+    protected void scoreFeatures (
+        VenisonTile tile, Piecen[] piecens, boolean finalTally)
     {
         // potentially score all features on the tile
         for (int i = 0; i < tile.features.length; i++) {
@@ -203,7 +212,7 @@ public class VenisonManager
             // if the score is positive, it's a completed feature and we
             // score it regardless, we score incomplete features only
             // during the final tally
-            if (score > 0 || piecens != null) {
+            if (score > 0 || finalTally) {
                 String qual = (score > 0) ? "Completed" : "Incomplete";
 
                 // convert the score into a positive value
@@ -231,12 +240,12 @@ public class VenisonManager
                 Log.info("New scores: " + StringUtil.toString(_venobj.scores));
 
                 // broadcast the new scores if this isn't the final tally
-                if (piecens == null) {
+                if (!finalTally) {
                     _venobj.setScores(_venobj.scores);
                 }
 
                 // and free up the scored piecens
-                removePiecens(cgroup, piecens);
+                removePiecens(cgroup, piecens, finalTally);
 
             } else {
 //                  Log.info("Not scoring incomplete feature " +
@@ -287,7 +296,7 @@ public class VenisonManager
 
                     // if it's completed or if we're doing the final
                     // tally, we score it
-                    if (score > 0 || piecens != null) {
+                    if (score > 0 || finalTally) {
                         String qual = (score > 0) ?
                             "complete" : "incomplete";
 
@@ -306,13 +315,13 @@ public class VenisonManager
 
                         // only broadcast the updated scores if this isn't
                         // the final tally
-                        if (piecens == null) {
+                        if (!finalTally) {
                             _venobj.setScores(_venobj.scores);
                         }
 
                         // and clear out the piecen (only removing it from
                         // the piecen set if we're not in the final tally)
-                        removePiecen(p, piecens == null);
+                        removePiecen(p, !finalTally);
                     }
                 }
             }
@@ -442,10 +451,12 @@ public class VenisonManager
         // now report the scoring and transfer the counts to the score
         // array
         for (int i = 0; i < _players.length; i++) {
-            _venobj.scores[i] += cityScores[i];
-            String message = _players[i] + " scores " + cityScores[i] +
-                " points for farmed cities.";
-            ChatProvider.sendSystemMessage(_venobj.getOid(), message);
+            if (cityScores[i] > 0) {
+                _venobj.scores[i] += cityScores[i];
+                String message = _players[i] + " scores " + cityScores[i] +
+                    " points for farmed cities.";
+                ChatProvider.sendSystemMessage(_venobj.getOid(), message);
+            }
         }
     }
 
@@ -460,8 +471,7 @@ public class VenisonManager
      * returned previously.
      *
      * @param claimGroup the claim group that we're scoring.
-     * @param piecens an array to use when looking for matching piecens
-     * instead of looking at the piecens set in the game object.
+     * @param piecens an array to use when looking for matching piecens.
      *
      * @return an array for the specified claim group or null if no
      * players have a piecen claiming the specified claim group.
@@ -473,30 +483,15 @@ public class VenisonManager
 
         // iterate over the piecens
         int max = 0;
-        if (piecens == null) {
-            Iterator iter = _venobj.piecens.elements();
-            while (iter.hasNext()) {
-                Piecen piecen = (Piecen)iter.next();
-                if (piecen.claimGroup == claimGroup) {
-                    // color == player index... somewhat sketchy
-                    if (++_claimGroupVector[piecen.owner] > max) {
-                        // keep track of the highest scorer
-                        max = _claimGroupVector[piecen.owner];
-                    }
-                }
-            }
-
-        } else {
-            for (int i = 0; i < piecens.length; i++) {
-                Piecen piecen = piecens[i];
-                if (piecen == null) {
-                    continue;
-                } else if (piecen.claimGroup == claimGroup) {
-                    // color == player index... somewhat sketchy
-                    if (++_claimGroupVector[piecen.owner] > max) {
-                        // keep track of the highest scorer
-                        max = _claimGroupVector[piecen.owner];
-                    }
+        for (int i = 0; i < piecens.length; i++) {
+            Piecen piecen = piecens[i];
+            if (piecen == null) {
+                continue;
+            } else if (piecen.claimGroup == claimGroup) {
+                // color == player index... somewhat sketchy
+                if (++_claimGroupVector[piecen.owner] > max) {
+                    // keep track of the highest scorer
+                    max = _claimGroupVector[piecen.owner];
                 }
             }
         }
@@ -513,23 +508,25 @@ public class VenisonManager
      * Removes piecens either from the supplied array or from the game
      * object piecen set if no array is supplied.
      */
-    protected void removePiecens (int claimGroup, Piecen[] piecens)
+    protected void removePiecens (int claimGroup, Piecen[] piecens,
+                                  boolean finalTally)
     {
-        if (piecens == null) {
+        // we always clear the piecens from the array
+        for (int i = 0; i < piecens.length; i++) {
+            if (piecens[i] == null) {
+                continue;
+            } else if (piecens[i].claimGroup == claimGroup) {
+                piecens[i] = null;
+            }
+        }
+
+        // if this isn't the final tally, we also clear 'em from the board
+        if (!finalTally) {
             Iterator iter = _venobj.piecens.elements();
             while (iter.hasNext()) {
                 Piecen p = (Piecen)iter.next();
                 if (p.claimGroup == claimGroup) {
                     removePiecen(p, true);
-                }
-            }
-
-        } else {
-            for (int i = 0; i < piecens.length; i++) {
-                if (piecens[i] == null) {
-                    continue;
-                } else if (piecens[i].claimGroup == claimGroup) {
-                    piecens[i] = null;
                 }
             }
         }
@@ -582,8 +579,11 @@ public class VenisonManager
             } else {
                 // check to see if we added the piecen to a completed
                 // feature, in which case we score and remove it
-                scoreFeatures(tile, null);
+                scoreFeatures(tile, getPiecens(), false);
             }
+
+            // now that we've scored the piecen, we can end the turn
+            endTurn();
         }
     }
 
@@ -603,9 +603,16 @@ public class VenisonManager
         public void handleEvent (MessageEvent event)
         {
             VenisonTile tile = (VenisonTile)event.getArgs()[0];
+            int pidx = getTurnHolderIndex();
+
+            // make sure it's this player's turn
+            if (_playerOids[pidx] != event.getSourceOid()) {
+                Log.warning("Requested to place tile by non-turn holder " +
+                            "[event=" + event +
+                            ", turnHolder=" + _venobj.turnHolder + "].");
 
             // make sure this is a valid placement
-            if (TileUtil.isValidPlacement(_tiles, tile)) {
+            } else if (TileUtil.isValidPlacement(_tiles, tile)) {
                 // add the tile to the list and resort it
                 _tiles.add(tile);
                 Collections.sort(_tiles);
@@ -618,14 +625,13 @@ public class VenisonManager
 
                 // placing a piece may have completed road or city
                 // features. if it did, we score them now
-                scoreFeatures(tile, null);
+                scoreFeatures(tile, getPiecens(), false);
 
                 Log.info("Placed tile " + tile + ".");
 
                 // if the player has no free piecens or if there are no
                 // unclaimed features on this tile, we end their turn
                 // straight away
-                int pidx = getTurnHolderIndex();
                 int pcount = TileUtil.countPiecens(_tiles, pidx);
                 if (pcount >= PIECENS_PER_PLAYER ||
                     !tile.hasUnclaimedFeature()) {
@@ -648,8 +654,14 @@ public class VenisonManager
             int pidx = getTurnHolderIndex();
             int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
 
+            // make sure it's this player's turn
+            if (_playerOids[pidx] != event.getSourceOid()) {
+                Log.warning("Requested to place piecen by non-turn holder " +
+                            "[event=" + event +
+                            ", turnHolder=" + _venobj.turnHolder + "].");
+
             // do some checking before we place the piecen
-            if (pcount >= PIECENS_PER_PLAYER) {
+            } else if (pcount >= PIECENS_PER_PLAYER) {
                 Log.warning("Requested to place piecen for player that " +
                             "has all of their piecens in play " +
                             "[event=" + event + "].");
@@ -667,12 +679,11 @@ public class VenisonManager
                 // claim groups
                 tile.setPiecen(piecen, _tiles);
 
-                // and add the piecen to the game object
+                // and add the piecen to the game object. when we receive
+                // the piecen added event, we'll score it and then end the
+                // turn
                 _venobj.addToPiecens(piecen);
             }
-
-            // end the turn
-            endTurn();
         }
     }
 

@@ -131,21 +131,18 @@ public abstract class Interval
      */
     protected class IntervalTask extends TimerTask
     {
-        { // initializer
-            if (_runQueue != null) {
-                _runner = new Runnable() {
-                    public void run () {
-                        safelyExpire(IntervalTask.this);
-                    }
-                };
-            }
-        }
-
         // documentation inherited
         public void run () {
             if (_runQueue == null) {
                 safelyExpire(this);
             } else {
+                if (_runner == null) { // lazy initialize _runner
+                    _runner = new Runnable() {
+                        public void run () {
+                            safelyExpire(IntervalTask.this);
+                        }
+                    };
+                }
                 _runQueue.postRunnable(_runner);
             }
         }

@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.8 2002/09/06 01:04:32 ray Exp $
+// $Id: DnDManager.java,v 1.9 2002/09/06 17:41:41 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -7,9 +7,12 @@ import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
@@ -24,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.event.AncestorAdapter;
+import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.Log;
 
 /**
@@ -51,9 +55,19 @@ public class DnDManager
     }
 
     /**
-     * Create a custom cursor out of the specified image.
+     * Create a custom cursor out of the specified image, putting the hotspot
+     * in the exact center of the created cursor.
      */
     public static Cursor createImageCursor (Image img)
+    {
+        return createImageCursor(img, null);
+    }
+
+    /**
+     * Create a custom cursor out of the specified image, with the specified
+     * hotspot.
+     */
+    public static Cursor createImageCursor (Image img, Point hotspot)
     {
         Toolkit tk = Toolkit.getDefaultToolkit();
 
@@ -66,9 +80,31 @@ public class DnDManager
                   ", bestSize=" + d.width + "x" + d.height +
                   ", maxcolors=" + colors + "].");
 
-        return tk.createCustomCursor(img,
-            new Point(img.getWidth(null) / 2, img.getHeight(null) / 2),
-            "samskivertDnDCursor");
+        if ((w < d.width) && (h < d.height)) {
+            Image padder = GraphicsEnvironment.getLocalGraphicsEnvironment().
+                getDefaultScreenDevice().getDefaultConfiguration().
+                createCompatibleImage(d.width, d.height, Transparency.BITMASK);
+            Graphics g = padder.getGraphics();
+            g.drawImage(img, 0, 0, null);
+
+            // and reassign the image to the padded image
+            img = padder;
+
+            // and adjust the 'best' to cheat the hotspot checking code
+            d.width = w;
+            d.height = h;
+        }
+
+        // make sure the hotspot is valid
+        if (hotspot == null) {
+            hotspot = new Point(d.width / 2, d.height / 2);
+        } else {
+            hotspot.x = Math.min(d.width - 1, Math.max(0, hotspot.x));
+            hotspot.y = Math.min(d.height - 1, Math.max(0, hotspot.y));
+        }
+
+        // and create the cursor
+        return tk.createCustomCursor(img, hotspot, "samskivertDnDCursor");
     }
 
     /**

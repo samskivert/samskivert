@@ -1,5 +1,5 @@
 //
-// $Id: DataTool.java,v 1.1 2003/09/25 18:05:50 eric Exp $
+// $Id: DataTool.java,v 1.2 2003/12/10 20:28:51 mdb Exp $
 
 package com.samskivert.velocity;
 
@@ -27,5 +27,13 @@ public class DataTool
     public Object get (Object array, int index)
     {
         return Array.get(array, index);
+    }
+
+    /**
+     * Returns the length of the specified array.
+     */
+    public int length (Object array)
+    {
+        return Array.getLength(array);
     }
 }

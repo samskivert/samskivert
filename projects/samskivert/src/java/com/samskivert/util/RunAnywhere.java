@@ -1,7 +1,9 @@
 //
-// $Id: RunAnywhere.java,v 1.1 2003/05/02 23:47:39 mdb Exp $
+// $Id: RunAnywhere.java,v 1.2 2003/05/03 00:06:23 mdb Exp $
 
 package com.samskivert.util;
+
+import java.awt.event.InputEvent;
 
 /**
  * <cite>Write once, run anywhere.</cite> Well, at least that's what it
@@ -26,6 +28,17 @@ public class RunAnywhere
     public static final boolean isMacOS ()
     {
         return _isMacOS;
+    }
+
+    /**
+     * Returns the timestamp associated with the supplied event except on
+     * the Macintosh where it returns {@link System#currentTimeMillis}
+     * because {@link InputEvent#getWhen} returns completely incorrect
+     * values. Hopefully this method will become unnecessary soon.
+     */
+    public static long getWhen (InputEvent event)
+    {
+        return isMacOS() ? System.currentTimeMillis() : event.getWhen();
     }
 
     /** Flag indicating that we're on Windows; initialized when this class

@@ -1,5 +1,5 @@
 //
-// $Id: SetFieldRule.java,v 1.2 2001/11/26 23:44:40 mdb Exp $
+// $Id: SetFieldRule.java,v 1.3 2001/11/29 19:21:49 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -55,15 +55,6 @@ public class SetFieldRule extends Rule
     public void end ()
         throws Exception
     {
-        // make sure we've got something to set
-        if (StringUtil.blank(_bodyText)) {
-            if (digester.getDebug() >= 3) {
-                digester.log("  Skipping set field for lack of " +
-                             "body text [field=" + _fieldName + "].");
-            }
-            return;
-        }
-
 	Object top = digester.peek();
 	if (digester.getDebug() >= 1) {
             digester.log("  Setting '" + _fieldName + "' to '" +

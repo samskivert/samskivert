@@ -1,7 +1,9 @@
 //
-// $Id: SimpleSlider.java,v 1.1 2002/07/25 23:21:33 mdb Exp $
+// $Id: SimpleSlider.java,v 1.2 2002/09/04 01:28:09 shaper Exp $
 
 package com.samskivert.swing;
+
+import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,6 +42,18 @@ public class SimpleSlider extends JPanel
         JSlider source = (JSlider)e.getSource();
         if (!source.getValueIsAdjusting()) {
             _value.setText(Integer.toString(source.getValue()));
+        }
+    }
+
+    // documentation inherited
+    public void setFont (Font font)
+    {
+        super.setFont(font);
+
+        if (_label != null) {
+            _label.setFont(font);
+            _slider.setFont(font);
+            _value.setFont(font);
         }
     }
 

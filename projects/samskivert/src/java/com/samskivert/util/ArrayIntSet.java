@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.2 2002/04/17 00:19:41 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.3 2002/04/17 02:10:18 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -145,8 +145,7 @@ public class ArrayIntSet extends AbstractSet
 
         // shift and insert
         if (_size > index) {
-            System.arraycopy(source, index,
-                             _values, index+1, _size-index);
+            System.arraycopy(source, index, _values, index+1, _size-index);
         }
         _values[index] = value;
 
@@ -185,7 +184,7 @@ public class ArrayIntSet extends AbstractSet
     {
         int index = binarySearch(value);
         if (index > 0) {
-            System.arraycopy(_values, index, _values, index+1, --_size-index);
+            System.arraycopy(_values, index+1, _values, index, --_size-index);
             _values[_size] = 0;
             return true;
         }

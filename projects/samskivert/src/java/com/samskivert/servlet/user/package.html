@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  $Id: package.html,v 1.1 2001/08/12 01:34:31 mdb Exp $
+
+  samskivert library - useful routines for java programs
+  Copyright (C) 2001 Michael Bayne
+ 
+  This library is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published
+  by the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+-->
+</head>
+<body bgcolor="white">
+
+    Provides services for managing a database of users in a web
+    application or suite of web applications.
+
+    <p> This is accomplished through the
+      {@link com.samskivert.servlet.user.UserManager} which can be used to
+      load user objects, create new users, update existing users and
+      generally all of the user-related things that you'd like to do. The
+      user manager manages cookies for persistent or session-only
+      authentication and provides support for requiring that a user be
+      authenticated in order to access a page.
+
+    <p> The user manager stores user information in an SQL database which
+      is accomplished by the
+      {@link com.samskivert.servlet.user.UserRepository} class. Presently,
+      it assumes that it is making use of a MySQL database, but the
+      dependencies are minimal. Eventually I'll modify the repository
+      abstraction so that the database-specific support code can be chosen
+      at runtime rather than compile time. Why I designed it the way it is
+      in the first place, I can't imagine. I'm a bad monkey.
+
+    <p> The user table (and associated
+      {@link com.samskivert.servlet.user.User} object) are inentionally
+      minimal. The expectation is that application specific data will be
+      stored and accessed via some other table that is keyed on the userid
+      provided by these services.
+
+</body>
+</html>

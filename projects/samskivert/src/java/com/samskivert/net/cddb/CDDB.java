@@ -1,5 +1,5 @@
 //
-// $Id: CDDB.java,v 1.7 2001/08/11 22:43:28 mdb Exp $
+// $Id: CDDB.java,v 1.8 2001/08/12 01:34:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -50,6 +50,11 @@ public class CDDB
      */
     public static String CLIENT_VERSION; // assigned during static init
 
+    /**
+     * This class encapsulates the information needed to look up a full
+     * CDDB record for a particular disc. An array of them are returned in
+     * response to a CDDB query.
+     */
     public static class Entry
     {
 	/** The category to which this entry belongs. */
@@ -500,7 +505,7 @@ public class CDDB
      */
     static
     {
-	StringTokenizer tok = new StringTokenizer("$Revision: 1.7 $");
+	StringTokenizer tok = new StringTokenizer("$Revision: 1.8 $");
 	tok.nextToken();
 	CLIENT_VERSION = tok.nextToken();
     }

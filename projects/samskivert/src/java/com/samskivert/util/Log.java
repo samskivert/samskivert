@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.4 2001/08/11 22:43:29 mdb Exp $
+// $Id: Log.java,v 1.5 2001/08/12 01:34:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,7 +24,7 @@ package com.samskivert.util;
  * The log services provide debug, info and warning message logging
  * capabilities for a set of modules. These log services are designed to
  * provide the basic functionality needed by the samskivert codebase. It
- * is expected that the <code>LogProvider</code> interface will be used to
+ * is expected that the {@link LogProvider} interface will be used to
  * map these log services onto whatever more general purpose logging
  * framework is in use by the user of the samskivert codebase.
  */

@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.14 2001/08/11 22:43:28 mdb Exp $
+// $Id: UserRepository.java,v 1.15 2001/08/12 01:34:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -33,6 +33,11 @@ import com.samskivert.jdbc.MySQLRepository;
 import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.IntMap;
 
+/**
+ * Interfaces with the RDBMS in which the user information is stored. The
+ * user repository encapsulates the creating, loading and management of
+ * users and sessions.
+ */
 public class UserRepository extends MySQLRepository
 {
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.2 2001/08/11 22:43:28 mdb Exp $
+// $Id: Log.java,v 1.3 2001/08/12 01:34:30 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,10 +22,26 @@ package com.samskivert;
 
 /**
  * A placeholder class that contains a reference to the log object used by
- * the samskivert package.
+ * the samskivert package. This is a useful pattern to use when using the
+ * samskivert logging facilities. One creates a top-level class like this
+ * one that instantiates a log object with an name that identifies log
+ * messages from that package and then provides static methods that
+ * generate log messages using that instance. Then, classes in that
+ * package need only import the log wrapper class and can easily use it to
+ * generate log messages. For example:
+ *
+ * <pre>
+ * import com.samskivert.Log;
+ * // ...
+ * Log.warning("All hell is breaking loose!");
+ * // ...
+ * </pre>
+ *
+ * @see com.samskivert.util.Log
  */
 public class Log
 {
+    /** The static log instance configured for use by this package. */
     public static com.samskivert.util.Log log =
 	new com.samskivert.util.Log("samskivert");
 

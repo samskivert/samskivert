@@ -1,8 +1,8 @@
 //
-// $Id: MenuUtil.java,v 1.2 2001/08/11 22:43:29 mdb Exp $
+// $Id: MenuUtil.java,v 1.3 2001/08/12 01:34:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001 Michael Bayne
+// Copyright (C) 2001 Walter Korman
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -31,10 +31,10 @@ import javax.swing.*;
  * menu in a frame that listens to its own menus (a common case) can
  * be simplified like so:
  *
- * <code>
+ * <pre>
  * accel = KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK);
  * MenuUtil.addMenuItem(this, menuFile, "New", KeyEvent.VK_N, acc);
- * </code>
+ * </pre>
  */
 public class MenuUtil
 {

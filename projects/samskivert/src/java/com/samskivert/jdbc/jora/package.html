@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  $Id: package.html,v 1.1 2001/08/12 01:34:30 mdb Exp $
+
+  samskivert library - useful routines for java programs
+  Copyright (C) 2001 Michael Bayne
+ 
+  This library is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published
+  by the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+-->
+</head>
+<body bgcolor="white">
+
+    Provides a mapping between JDBC tables and Java objects.
+
+    <p> This is a hacked version of JORA 2.06, a library for automatically
+      mapping RDBMS database rows to Java objects and vice versa. It's
+      simple, it uses reflection and doesn't require any classfile
+      post-processing or external configuration information.
+
+    <p> "That's all great but why is it hacked?" wonders the astute
+      reader. Well, I couldn't quite cope with the error handling paradigm
+      that it used (catch all SQL exceptions internally and pass them to
+      an application-wide error handler method) and a few seconds thought
+      on the matter led me to believe that there is not a simple way to
+      allow a choice of error handling paradigms (the methods have to
+      throw SQLException or not). So I took the easy way out and forked
+      the codebase.
+
+    <p> The code is pretty stable, so I don't expect to be merging in
+      updates with any frequency. I promise to be a good monkey and submit
+      any useful modifications that I make back to the original
+      maintainer. Fortunately the license was unrestrictive enough to
+      allow me to do this, otherwise I'd probably be stuck reinventing the
+      wheel or using something that does less of what I want. Three cheers
+      for free software.
+
+    <p> The JORA package was written by Konstantin Knizhnik and the
+      original is available from
+      <a href="http://www.ispras.ru/~knizhnik/">his web site.</a>
+
+</body>
+</html>

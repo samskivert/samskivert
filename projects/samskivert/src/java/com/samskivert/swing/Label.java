@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.20 2002/09/25 08:42:00 mdb Exp $
+// $Id: Label.java,v 1.21 2002/10/17 00:32:47 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -21,6 +21,7 @@
 package com.samskivert.swing;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -62,7 +63,7 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     public Label ()
     {
-        setText("");
+        this("");
     }
 
     /**
@@ -70,7 +71,30 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     public Label (String text)
     {
+        this(text, null, null);
+    }
+
+    /**
+     * Constructs a label with the supplied text and configuration
+     * parameters.
+     */
+    public Label (String text, Color textColor, Font font)
+    {
+        this(text, NORMAL, textColor, null, font);
+    }
+
+    /**
+     * Constructs a label with the supplied text and configuration
+     * parameters.
+     */
+    public Label (
+        String text, int style, Color textColor, Color altColor, Font font)
+    {
         setText(text);
+        setStyle(style);
+        setTextColor(textColor);
+        setAlternateColor(altColor);
+        setFont(font);
     }
 
     /**
@@ -200,6 +224,19 @@ public class Label implements SwingConstants, LabelStyleConstants
     public Dimension getSize ()
     {
         return _size;
+    }
+
+    /**
+     * Calls {@link #layout(Graphics2D)} with the graphics context for the
+     * given component.
+     */
+    public void layout (Component comp)
+    {
+        Graphics2D gfx = (Graphics2D)comp.getGraphics();
+        if (gfx != null) {
+            layout(gfx);
+            gfx.dispose();
+        }
     }
 
     /**

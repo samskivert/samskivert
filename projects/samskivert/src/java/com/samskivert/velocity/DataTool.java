@@ -1,5 +1,5 @@
 //
-// $Id: DataTool.java,v 1.2 2003/12/10 20:28:51 mdb Exp $
+// $Id: DataTool.java,v 1.3 2004/01/05 19:13:30 eric Exp $
 
 package com.samskivert.velocity;
 
@@ -35,5 +35,13 @@ public class DataTool
     public int length (Object array)
     {
         return Array.getLength(array);
+    }
+
+    /**
+     * Floating point divide.
+     */
+    public float div (float a, float b)
+    {
+        return a/b;
     }
 }

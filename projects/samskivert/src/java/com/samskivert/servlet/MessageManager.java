@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.4 2001/11/06 20:16:46 mdb Exp $
+// $Id: MessageManager.java,v 1.5 2002/05/02 07:20:25 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -135,19 +135,23 @@ public class MessageManager
             return bundles;
         }
 
-        int siteId = _siteIdent.identifySite(req);
+        // grab our site-specific class loader if we have one
         ClassLoader siteLoader = null;
-        try {
-            siteLoader = _siteLoader.getSiteClassLoader(siteId);
-        } catch (IOException ioe) {
-            Log.warning("Unable to fetch site-specific classloader " +
-                        "[siteId=" + siteId + ", error=" + ioe + "].");
+        if (_siteLoader != null && _siteIdent != null) {
+            int siteId = _siteIdent.identifySite(req);
+            try {
+                siteLoader = _siteLoader.getSiteClassLoader(siteId);
+
+            } catch (IOException ioe) {
+                Log.warning("Unable to fetch site-specific classloader " +
+                            "[siteId=" + siteId + ", error=" + ioe + "].");
+            }
         }
 
-        // otherwise try looking up the appropriate bundles
+        // try looking up the appropriate bundles
         bundles = new ResourceBundle[2];
 
-        // first from the site-specific classloader (if we've got one)
+        // first from the site-specific classloader
         if (siteLoader != null) {
             bundles[0] = resolveBundle(req, _siteBundlePath, siteLoader);
         }

@@ -1,7 +1,7 @@
 //
-// $Id: TileUtil.java,v 1.16 2002/05/21 04:45:09 mdb Exp $
+// $Id: TileUtil.java,v 1.17 2002/12/12 05:51:55 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,8 +12,14 @@ import com.samskivert.util.IntTuple;
 
 import com.threerings.presents.dobj.DSet;
 
+import com.samskivert.atlanti.Log;
+import com.samskivert.atlanti.data.AtlantiTile;
+import com.samskivert.atlanti.data.Feature;
+import com.samskivert.atlanti.data.Piecen;
+import com.samskivert.atlanti.data.TileCodes;
+
 /**
- * Utility functions relating to the Venison tiles.
+ * Utility functions relating to the Atlantissonne tiles.
  */
 public class TileUtil implements TileCodes
 {
@@ -21,15 +27,15 @@ public class TileUtil implements TileCodes
      * Returns an instance of the starting tile (properly cloned so that
      * it can be messed with by the server).
      */
-    public static VenisonTile getStartingTile ()
+    public static AtlantiTile getStartingTile ()
     {
-        return (VenisonTile)VenisonTile.STARTING_TILE.clone();
+        return (AtlantiTile)AtlantiTile.STARTING_TILE.clone();
     }
 
     /**
-     * Returns a list containing the standard tile set for the Venison
-     * game. The list is a clone, so it can be bent, folded and modified
-     * by the caller.
+     * Returns a list containing the standard tile set for the
+     * Atlantissonne game. The list is a clone, so it can be bent, folded
+     * and modified by the caller.
      */
     public static List getStandardTileSet ()
     {
@@ -38,7 +44,7 @@ public class TileUtil implements TileCodes
         List tiles = new ArrayList();
         int tsize = TILE_SET.size();
         for (int i = 0; i < tsize; i++) {
-            tiles.add(((VenisonTile)TILE_SET.get(i)).clone());
+            tiles.add(((AtlantiTile)TILE_SET.get(i)).clone());
         }
         return tiles;
     }
@@ -60,7 +66,7 @@ public class TileUtil implements TileCodes
      * up with the direction constants specified in {@link TileCodes}.
      */
     public static boolean[] computeValidOrients (
-        List tiles, VenisonTile target)
+        List tiles, AtlantiTile target)
     {
         // this contains a count of tiles that match up with the candidate
         // tile in each of its four orientations
@@ -68,7 +74,7 @@ public class TileUtil implements TileCodes
 
         int tsize = tiles.size();
         for (int i = 0; i < tsize; i++) {
-            VenisonTile tile = (VenisonTile)tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)tiles.get(i);
 
             // figure out where this tile is in relation to the candidate
             int xdiff = tile.x - target.x;
@@ -132,13 +138,13 @@ public class TileUtil implements TileCodes
      * @return true if the target tile is configured with a valid position
      * and orientation, false if it is not.
      */
-    public static boolean isValidPlacement (List tiles, VenisonTile target)
+    public static boolean isValidPlacement (List tiles, AtlantiTile target)
     {
         boolean matchedAnEdge = false;
 
         int tsize = tiles.size();
         for (int i = 0; i < tsize; i++) {
-            VenisonTile tile = (VenisonTile)tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)tiles.get(i);
 
             // figure out where this tile is in relation to the candidate
             int xdiff = tile.x - target.x;
@@ -203,7 +209,7 @@ public class TileUtil implements TileCodes
      * not include the tile whose features are being configured).
      * @param tile the tile whose features should be configured.
      */
-    public static void inheritClaims (List tiles, VenisonTile tile)
+    public static void inheritClaims (List tiles, AtlantiTile tile)
     {
         List flist = new ArrayList();
 
@@ -263,7 +269,7 @@ public class TileUtil implements TileCodes
      * @param claimGroup the claim group value to set.
      */
     public static void setClaimGroup (
-        List tiles, VenisonTile tile, int featureIndex, int claimGroup)
+        List tiles, AtlantiTile tile, int featureIndex, int claimGroup)
     {
         // load up this feature group
         List flist = new ArrayList();
@@ -291,7 +297,7 @@ public class TileUtil implements TileCodes
      * score for a partial feature group.
      */
     public static int computeFeatureScore (
-        List tiles, VenisonTile tile, int featureIndex)
+        List tiles, AtlantiTile tile, int featureIndex)
     {
         Feature feature = tile.features[featureIndex];
 
@@ -316,7 +322,7 @@ public class TileUtil implements TileCodes
 
         // now iterate over the list, counting only unique tiles
         int score = 0;
-        VenisonTile lastTile = null;
+        AtlantiTile lastTile = null;
         int fsize = flist.size();
         for (int i = 0; i < fsize; i++) {
             TileFeature feat = (TileFeature)flist.get(i);
@@ -347,9 +353,9 @@ public class TileUtil implements TileCodes
 
     /**
      * A helper function for {@link
-     * #computeFeatureScore(List,VenisonTile,int)}.
+     * #computeFeatureScore(List,AtlantiTile,int)}.
      */
-    protected static int computeCloisterScore (List tiles, VenisonTile tile)
+    protected static int computeCloisterScore (List tiles, AtlantiTile tile)
     {
         int score = 0;
 
@@ -381,7 +387,7 @@ public class TileUtil implements TileCodes
         // iterate over the tiles, marking every city completed or not
         int tsize = tiles.size();
         for (int i = 0; i < tsize; i++) {
-            VenisonTile tile = (VenisonTile)tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)tiles.get(i);
 
             // iterate over each feature on this tile
             for (int f = 0; f < tile.features.length; f++) {
@@ -448,7 +454,7 @@ public class TileUtil implements TileCodes
      * features), false if it is not.
      */
     protected static boolean enumerateGroup (
-        List tiles, VenisonTile tile, int featureIndex, List group)
+        List tiles, AtlantiTile tile, int featureIndex, List group)
     {
         // create a tilefeature for this feature
         TileFeature feat = new TileFeature(tile, featureIndex);
@@ -477,7 +483,7 @@ public class TileUtil implements TileCodes
             }
 
             // look up our neighbor
-            VenisonTile neighbor = null;
+            AtlantiTile neighbor = null;
             int dir = FeatureUtil.ADJACENCY_MAP[c+1];
             dir = (dir + tile.orientation) % 4;
             switch (dir) {
@@ -530,11 +536,11 @@ public class TileUtil implements TileCodes
      * @return the tile with the requested coordinates or null if no tile
      * exists at those coordinates.
      */
-    protected static VenisonTile findTile (List tiles, int x, int y)
+    public static AtlantiTile findTile (List tiles, int x, int y)
     {
         IntTuple coord = new IntTuple(x, y);
         int tidx = Collections.binarySearch(tiles, coord);
-        return (tidx >= 0) ? (VenisonTile)tiles.get(tidx) : null;
+        return (tidx >= 0) ? (AtlantiTile)tiles.get(tidx) : null;
     }
 
     /**
@@ -551,7 +557,7 @@ public class TileUtil implements TileCodes
     {
         int count = 0;
         for (int i = 0; i < tiles.size(); i++) {
-            VenisonTile tile = (VenisonTile)tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)tiles.get(i);
             if (tile.piecen != null &&
                 tile.piecen.owner == playerIndex) {
                 count++;
@@ -604,7 +610,7 @@ public class TileUtil implements TileCodes
     }
 
     /** Used to generate our standard tile set. */
-    protected static void addTiles (int count, List list, VenisonTile tile)
+    protected static void addTiles (int count, List list, AtlantiTile tile)
     {
         for (int i = 0; i  < count; i++) {
             list.add(tile);
@@ -615,13 +621,13 @@ public class TileUtil implements TileCodes
     protected static final class TileFeature implements Comparable
     {
         /** The tile that contains the feature. */
-        public VenisonTile tile;
+        public AtlantiTile tile;
 
         /** The index of the feature in the tile. */
         public int featureIndex;
 
         /** Constructs a new tile feature. */
-        public TileFeature (VenisonTile tile, int featureIndex)
+        public TileFeature (AtlantiTile tile, int featureIndex)
         {
             this.tile = tile;
             this.featureIndex = featureIndex;
@@ -689,40 +695,40 @@ public class TileUtil implements TileCodes
         GRASS, GRASS, ROAD, ROAD, // CURVED_ROAD
     };
 
-    /** The standard tile set for a game of Venison. */
+    /** The standard tile set for a game of Atlantissonne. */
     protected static ArrayList TILE_SET = new ArrayList();
 
     // create our standard tile set
     static {
-        addTiles(1, TILE_SET, new VenisonTile(CITY_FOUR, true));
+        addTiles(1, TILE_SET, new AtlantiTile(CITY_FOUR, true));
 
-        addTiles(3, TILE_SET, new VenisonTile(CITY_THREE, false));
-        addTiles(1, TILE_SET, new VenisonTile(CITY_THREE, true));
-        addTiles(1, TILE_SET, new VenisonTile(CITY_THREE_ROAD, false));
-        addTiles(2, TILE_SET, new VenisonTile(CITY_THREE_ROAD, true));
+        addTiles(3, TILE_SET, new AtlantiTile(CITY_THREE, false));
+        addTiles(1, TILE_SET, new AtlantiTile(CITY_THREE, true));
+        addTiles(1, TILE_SET, new AtlantiTile(CITY_THREE_ROAD, false));
+        addTiles(2, TILE_SET, new AtlantiTile(CITY_THREE_ROAD, true));
 
-        addTiles(3, TILE_SET, new VenisonTile(CITY_TWO, false));
-        addTiles(2, TILE_SET, new VenisonTile(CITY_TWO, true));
-        addTiles(3, TILE_SET, new VenisonTile(CITY_TWO_ROAD, false));
-        addTiles(2, TILE_SET, new VenisonTile(CITY_TWO_ROAD, true));
-        addTiles(1, TILE_SET, new VenisonTile(CITY_TWO_ACROSS, false));
-        addTiles(2, TILE_SET, new VenisonTile(CITY_TWO_ACROSS, true));
+        addTiles(3, TILE_SET, new AtlantiTile(CITY_TWO, false));
+        addTiles(2, TILE_SET, new AtlantiTile(CITY_TWO, true));
+        addTiles(3, TILE_SET, new AtlantiTile(CITY_TWO_ROAD, false));
+        addTiles(2, TILE_SET, new AtlantiTile(CITY_TWO_ROAD, true));
+        addTiles(1, TILE_SET, new AtlantiTile(CITY_TWO_ACROSS, false));
+        addTiles(2, TILE_SET, new AtlantiTile(CITY_TWO_ACROSS, true));
 
-        addTiles(2, TILE_SET, new VenisonTile(TWO_CITY_TWO, false));
-        addTiles(3, TILE_SET, new VenisonTile(TWO_CITY_TWO_ACROSS, false));
+        addTiles(2, TILE_SET, new AtlantiTile(TWO_CITY_TWO, false));
+        addTiles(3, TILE_SET, new AtlantiTile(TWO_CITY_TWO_ACROSS, false));
 
-        addTiles(5, TILE_SET, new VenisonTile(CITY_ONE, false));
-        addTiles(3, TILE_SET, new VenisonTile(CITY_ONE_ROAD_RIGHT, false));
-        addTiles(3, TILE_SET, new VenisonTile(CITY_ONE_ROAD_LEFT, false));
-        addTiles(3, TILE_SET, new VenisonTile(CITY_ONE_ROAD_TEE, false));
-        addTiles(3, TILE_SET, new VenisonTile(CITY_ONE_ROAD_STRAIGHT, false));
+        addTiles(5, TILE_SET, new AtlantiTile(CITY_ONE, false));
+        addTiles(3, TILE_SET, new AtlantiTile(CITY_ONE_ROAD_RIGHT, false));
+        addTiles(3, TILE_SET, new AtlantiTile(CITY_ONE_ROAD_LEFT, false));
+        addTiles(3, TILE_SET, new AtlantiTile(CITY_ONE_ROAD_TEE, false));
+        addTiles(3, TILE_SET, new AtlantiTile(CITY_ONE_ROAD_STRAIGHT, false));
 
-        addTiles(4, TILE_SET, new VenisonTile(CLOISTER_PLAIN, false));
-        addTiles(2, TILE_SET, new VenisonTile(CLOISTER_ROAD, false));
+        addTiles(4, TILE_SET, new AtlantiTile(CLOISTER_PLAIN, false));
+        addTiles(2, TILE_SET, new AtlantiTile(CLOISTER_ROAD, false));
 
-        addTiles(1, TILE_SET, new VenisonTile(FOUR_WAY_ROAD, false));
-        addTiles(4, TILE_SET, new VenisonTile(THREE_WAY_ROAD, false));
-        addTiles(8, TILE_SET, new VenisonTile(STRAIGHT_ROAD, false));
-        addTiles(9, TILE_SET, new VenisonTile(CURVED_ROAD, false));
+        addTiles(1, TILE_SET, new AtlantiTile(FOUR_WAY_ROAD, false));
+        addTiles(4, TILE_SET, new AtlantiTile(THREE_WAY_ROAD, false));
+        addTiles(8, TILE_SET, new AtlantiTile(STRAIGHT_ROAD, false));
+        addTiles(9, TILE_SET, new AtlantiTile(CURVED_ROAD, false));
     }
 }

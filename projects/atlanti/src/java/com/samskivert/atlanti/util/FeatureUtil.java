@@ -1,9 +1,12 @@
 //
-// $Id: FeatureUtil.java,v 1.5 2001/12/18 11:58:53 mdb Exp $
+// $Id: FeatureUtil.java,v 1.6 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.util;
 
 import java.awt.geom.Point2D;
+
+import com.samskivert.atlanti.data.Feature;
+import com.samskivert.atlanti.data.TileCodes;
 
 /**
  * Feature related constants and utility functions.

@@ -1,7 +1,7 @@
 //
 // $Id
 
-package com.threerings.venison;
+package com.samskivert.atlanti.client;
 
 import java.awt.event.ActionEvent;
 import com.samskivert.util.ListUtil;
@@ -25,19 +25,24 @@ import com.threerings.parlor.util.ParlorContext;
 
 import com.threerings.micasa.util.MiCasaContext;
 
-import com.threerings.venison.Log;
+import com.samskivert.atlanti.Log;
+import com.samskivert.atlanti.data.AtlantiCodes;
+import com.samskivert.atlanti.data.AtlantiObject;
+import com.samskivert.atlanti.data.AtlantiTile;
+import com.samskivert.atlanti.data.Piecen;
+import com.samskivert.atlanti.util.TileUtil;
 
 /**
  * The main coordinator of user interface activities on the client-side of
- * the Venison game.
+ * the game.
  */
-public class VenisonController extends GameController
-    implements TurnGameController, VenisonCodes, SetListener
+public class AtlantiController extends GameController
+    implements TurnGameController, AtlantiCodes, SetListener
 {
     /**
      * Creates our controller and prepares it for operation.
      */
-    public VenisonController ()
+    public AtlantiController ()
     {
         addDelegate(_delegate = new TurnGameControllerDelegate(this));
     }
@@ -54,7 +59,7 @@ public class VenisonController extends GameController
     // documentation inherited
     protected PlaceView createPlaceView ()
     {
-        _panel = new VenisonPanel((MiCasaContext)_ctx, this);
+        _panel = new AtlantiPanel((MiCasaContext)_ctx, this);
         return _panel;
     }
 
@@ -64,7 +69,7 @@ public class VenisonController extends GameController
         super.willEnterPlace(plobj);
 
         // get a casted reference to our game object
-        _venobj = (VenisonObject)plobj;
+        _venobj = (AtlantiObject)plobj;
 
         // find out what our index is and use that as our piecen color
         _selfIndex = ListUtil.indexOfEqual(_venobj.players, _self.username);
@@ -99,10 +104,10 @@ public class VenisonController extends GameController
         super.attributeChanged(event);
 
         // handle the setting of the board state
-        if (event.getName().equals(VenisonObject.TILES)) {
+        if (event.getName().equals(AtlantiObject.TILES)) {
             _panel.board.setTiles(_venobj.tiles);
 
-        } else if (event.getName().equals(VenisonObject.PIECENS)) {
+        } else if (event.getName().equals(AtlantiObject.PIECENS)) {
             _panel.board.setPiecens(_venobj.piecens);
         }
     }
@@ -111,12 +116,12 @@ public class VenisonController extends GameController
     public void entryAdded (EntryAddedEvent event)
     {
         // we care about additions to TILES and PIECENS
-        if (event.getName().equals(VenisonObject.TILES)) {
+        if (event.getName().equals(AtlantiObject.TILES)) {
             // a tile was added, add it to the board
-            VenisonTile tile = (VenisonTile)event.getEntry();
+            AtlantiTile tile = (AtlantiTile)event.getEntry();
             _panel.board.addTile(tile);
 
-        } else if (event.getName().equals(VenisonObject.PIECENS)) {
+        } else if (event.getName().equals(AtlantiObject.PIECENS)) {
             // a piecen was added, place it on the board
             Piecen piecen = (Piecen)event.getEntry();
             _panel.board.placePiecen(piecen);
@@ -131,7 +136,7 @@ public class VenisonController extends GameController
     // documentation inherited
     public void entryRemoved (EntryRemovedEvent event)
     {
-        if (event.getName().equals(VenisonObject.PIECENS)) {
+        if (event.getName().equals(AtlantiObject.PIECENS)) {
             // a piecen was removed, update the board
             _panel.board.clearPiecen(event.getKey());
         }
@@ -141,7 +146,7 @@ public class VenisonController extends GameController
     public boolean handleAction (ActionEvent action)
     {
         if (action.getActionCommand().equals(TILE_PLACED)) {
-            VenisonTile tile = _panel.board.getPlacedTile();
+            AtlantiTile tile = _panel.board.getPlacedTile();
 
             // the user placed the tile into a valid location. grab the
             // placed tile from the board and submit it to the server
@@ -204,10 +209,10 @@ public class VenisonController extends GameController
     protected TurnGameControllerDelegate _delegate;
 
     /** A reference to our game panel. */
-    protected VenisonPanel _panel;
+    protected AtlantiPanel _panel;
 
     /** A reference to our game panel. */
-    protected VenisonObject _venobj;
+    protected AtlantiObject _venobj;
 
     /** A reference to our body object. */
     protected BodyObject _self;

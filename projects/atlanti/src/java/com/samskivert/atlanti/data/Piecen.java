@@ -1,7 +1,7 @@
 //
-// $Id: Piecen.java,v 1.3 2002/05/21 04:45:09 mdb Exp $
+// $Id: Piecen.java,v 1.4 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.data;
 
 import java.io.IOException;
 import java.io.DataInputStream;
@@ -75,7 +75,7 @@ public class Piecen
     }
 
     // documentation inherited
-    public Object getKey ()
+    public Comparable getKey ()
     {
         // our key is our coordinates conflated into one integer
         return new Integer((x + 128) * 256 + y + 128);
@@ -108,8 +108,8 @@ public class Piecen
         if (other == null) {
             return false;
 
-        } else if (other instanceof VenisonTile) {
-            VenisonTile tile = (VenisonTile)other;
+        } else if (other instanceof AtlantiTile) {
+            AtlantiTile tile = (AtlantiTile)other;
             return (tile.x == x) ? (y == tile.y) : false;
 
         } else if (other instanceof Piecen) {

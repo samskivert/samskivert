@@ -1,7 +1,7 @@
 //
-// $Id: AtlantiTile.java,v 1.14 2002/05/21 04:45:10 mdb Exp $
+// $Id: AtlantiTile.java,v 1.15 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.data;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -14,28 +14,38 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 import java.util.List;
 import com.samskivert.util.IntTuple;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.media.ImageManager;
+import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.UniformTileSet;
 
+import com.threerings.io.ObjectInputStream;
 import com.threerings.presents.dobj.DSet;
 
+import com.samskivert.atlanti.Log;
+import com.samskivert.atlanti.util.FeatureUtil;
+import com.samskivert.atlanti.util.PiecenUtil;
+import com.samskivert.atlanti.util.TileUtil;
+
 /**
- * Represents a single tile in play on the Venison game board.
+ * Represents a single tile in play on the game board.
+ *
+ * <p><em>Note:</em> this should really be split into a pure data class
+ * and an associated visualization class in the
+ * <code>altanti.client</code> package.
  */
-public class VenisonTile
+public class AtlantiTile
     implements DSet.Entry, TileCodes, Cloneable, Comparable
 {
     /** The starting tile. */
-    public static final VenisonTile STARTING_TILE =
-        new VenisonTile(CITY_ONE_ROAD_STRAIGHT, false, NORTH, 0, 0);
+    public static final AtlantiTile STARTING_TILE =
+        new AtlantiTile(CITY_ONE_ROAD_STRAIGHT, false, NORTH, 0, 0);
 
     /** Activate this to render a piecen on every feature (useful for the
      * tile geometry test). */
@@ -58,19 +68,19 @@ public class VenisonTile
      * connects to this tile, it will be represented here by a non-zero
      * claim group in the array slot that corresponds to the claimed
      * feature. */
-    public int[] claims;
+    public transient int[] claims;
 
     /** A reference to our static feature descriptions. */
-    public Feature[] features;
+    public transient Feature[] features;
 
     /** A reference to the piecen on this tile or null if no piecen has
      * been placed on this tile. */
-    public Piecen piecen;
+    public transient Piecen piecen;
 
     /**
      * Constructs a tile with all of the supplied tile information.
      */
-    public VenisonTile (int type, boolean hasShield, int orientation,
+    public AtlantiTile (int type, boolean hasShield, int orientation,
                         int x, int y)
     {
         this.type = type;
@@ -87,7 +97,7 @@ public class VenisonTile
      * Constructs a tile with the type information set, but in the default
      * <code>NORTH</code> orientation and with no position.
      */
-    public VenisonTile (int type, boolean hasShield)
+    public AtlantiTile (int type, boolean hasShield)
     {
         this(type, hasShield, NORTH, 0, 0);
     }
@@ -95,7 +105,7 @@ public class VenisonTile
     /**
      * Constructs a blank tile, suitable for unserialization.
      */
-    public VenisonTile ()
+    public AtlantiTile ()
     {
         // nothing doing
     }
@@ -348,11 +358,11 @@ public class VenisonTile
     }
 
     /**
-     * Returns a copy of this Venison tile object.
+     * Returns a copy of this tile object.
      */
     public Object clone ()
     {
-        return new VenisonTile(type, hasShield, orientation, x, y);
+        return new AtlantiTile(type, hasShield, orientation, x, y);
     }
 
     /**
@@ -365,8 +375,8 @@ public class VenisonTile
         if (other == null) {
             return -1;
 
-        } else if (other instanceof VenisonTile) {
-            VenisonTile tile = (VenisonTile)other;
+        } else if (other instanceof AtlantiTile) {
+            AtlantiTile tile = (AtlantiTile)other;
             return (tile.x == x) ? y - tile.y : x - tile.x;
 
         } else if (other instanceof IntTuple) {
@@ -390,32 +400,20 @@ public class VenisonTile
     }
 
     // documentation inherited
-    public Object getKey ()
+    public Comparable getKey ()
     {
         // our key is our coordinates conflated into one integer
         return new Integer((x + 128) * 256 + y + 128);
     }
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
+    /**
+     * After we've been unserialized we have to initialize some derived
+     * fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        out.writeInt(type);
-        out.writeBoolean(hasShield);
-        out.writeInt(orientation);
-        out.writeInt(x);
-        out.writeInt(y);
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        type = in.readInt();
-        hasShield = in.readBoolean();
-        orientation = in.readInt();
-        x = in.readInt();
-        y = in.readInt();
+        in.defaultReadObject();
         initFeatures();
     }
 
@@ -454,8 +452,9 @@ public class VenisonTile
      * Someone needs to configure this so that we can display tiles on
      * screen.
      */
-    public static void setTileManager (TileManager tmgr)
+    public static void setManagers (ImageManager imgr, TileManager tmgr)
     {
+        _imgr = imgr;
         _tmgr = tmgr;
     }
 
@@ -466,12 +465,9 @@ public class VenisonTile
     {
         // load up the tile set if we haven't already
         if (_tset == null) {
-            _tset = new UniformTileSet();
-            _tset.setTileCount(TILE_TYPES);
-            _tset.setWidth(TILE_WIDTH);
-            _tset.setHeight(TILE_HEIGHT);
-            _tset.setImagePath(TILES_IMG_PATH);
-            _tset.setImageProvider(_tmgr);
+            _tset = _tmgr.loadTileSet(TILES_IMG_PATH, TILE_TYPES,
+                                      TILE_WIDTH, TILE_HEIGHT);
+            _tset.setImageProvider(_imgprov);
         }
 
         // fetch the tile
@@ -485,12 +481,9 @@ public class VenisonTile
     {
         // load up the tile set if we haven't already
         if (_stset == null) {
-            _stset = new UniformTileSet();
-            _stset.setTileCount(1);
-            _stset.setWidth(SHIELD_SIZE);
-            _stset.setHeight(SHIELD_SIZE);
-            _stset.setImagePath(SHIELD_IMG_PATH);
-            _stset.setImageProvider(_tmgr);
+            _stset = _tmgr.loadTileSet(SHIELD_IMG_PATH, 1,
+                                       SHIELD_SIZE, SHIELD_SIZE);
+            _stset.setImageProvider(_imgprov);
         }
 
         // fetch the tile
@@ -498,10 +491,24 @@ public class VenisonTile
     }
 
     /** The tile image that we use to render this tile. */
-    protected Image _tileImage;
+    protected transient Image _tileImage;
+
+    /** Our image manager. */
+    protected static ImageManager _imgr;
 
     /** Our tile manager. */
     protected static TileManager _tmgr;
+
+    /** Used to load tile images. The default image provider (the tile
+     * manager) optimizes the images for display on the screen which seems
+     * to fuck Java's ability to apply rotational transforms to the image
+     * prior to rendering. Yay! */
+    protected static ImageProvider _imgprov = new ImageProvider() {
+        public Image loadImage (String path)
+            throws IOException {
+            return _imgr.loadImage(path);
+        }
+    };
 
     /** Our tile image tileset. */
     protected static UniformTileSet _tset;

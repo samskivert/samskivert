@@ -1,7 +1,7 @@
 //
-// $Id: Feature.java,v 1.5 2001/12/18 13:14:58 mdb Exp $
+// $Id: Feature.java,v 1.6 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.data;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -17,6 +17,10 @@ import java.awt.geom.RoundRectangle2D;
 
 import com.samskivert.util.StringUtil;
 
+import com.samskivert.atlanti.Log;
+import com.samskivert.atlanti.util.FeatureUtil;
+import com.samskivert.atlanti.util.TileUtil;
+
 /**
  * Represents all of the necessary information for a particular feature of
  * a particular tile.
@@ -24,6 +28,16 @@ import com.samskivert.util.StringUtil;
 public class Feature
     implements TileCodes
 {
+    /** Maps piecen color codes to colors. */
+    public static Color[] PIECEN_COLOR_MAP = {
+        new Color(0x0246B7), // BLUE
+        new Color(0x028A12), // GREEN
+        new Color(0xF47A02), // ORANGE
+        new Color(0xC20292), // MAGENTA
+        new Color(0xB90202), // RED
+        new Color(0xFECA11), // YELLOW
+    };
+
     /** The type of this feature. */
     public int type;
 
@@ -353,16 +367,6 @@ public class Feature
         Color.green.darker(), // GRASS
         Color.darkGray, // ROAD
         Color.yellow.darker(), // CLOISTER
-    };
-
-    /** Maps piecen color codes to colors. */
-    protected static Color[] PIECEN_COLOR_MAP = {
-        new Color(0x0246B7), // BLUE
-        new Color(0x028A12), // GREEN
-        new Color(0xF47A02), // ORANGE
-        new Color(0xC20292), // MAGENTA
-        new Color(0xB90202), // RED
-        new Color(0xFECA11), // YELLOW
     };
 
     /** For rendering piecens with alpha. */

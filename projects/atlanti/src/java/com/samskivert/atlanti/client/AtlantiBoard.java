@@ -1,7 +1,7 @@
 //
-// $Id: AtlantiBoard.java,v 1.17 2002/05/21 04:45:10 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.18 2002/12/12 05:51:53 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.client;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -18,27 +18,34 @@ import com.samskivert.util.CollectionUtil;
 
 import com.threerings.presents.dobj.DSet;
 
+import com.samskivert.atlanti.Log;
+import com.samskivert.atlanti.data.AtlantiCodes;
+import com.samskivert.atlanti.data.AtlantiTile;
+import com.samskivert.atlanti.data.Piecen;
+import com.samskivert.atlanti.data.TileCodes;
+import com.samskivert.atlanti.util.TileUtil;
+
 /**
- * Displays the tiles that make up the Venison board.
+ * Displays the tiles that make up the board.
  */
-public class VenisonBoard
-    extends JPanel implements TileCodes, VenisonCodes
+public class AtlantiBoard extends JPanel
+    implements TileCodes, AtlantiCodes
 {
     /**
-     * Constructs a Venison board.
+     * Constructs a board.
      */
-    public VenisonBoard ()
+    public AtlantiBoard ()
     {
         // create mouse adapters that will let us know when interesting
         // mouse events happen
         addMouseListener(new MouseAdapter() {
             public void mouseClicked (MouseEvent evt) {
-                VenisonBoard.this.mouseClicked(evt);
+                AtlantiBoard.this.mouseClicked(evt);
             }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved (MouseEvent evt) {
-                VenisonBoard.this.mouseMoved(evt);
+                AtlantiBoard.this.mouseMoved(evt);
             }
         });
     }
@@ -56,7 +63,7 @@ public class VenisonBoard
      * are forgotten and the new tiles are initialized according to their
      * geometry to set up initial claim groups.
      *
-     * @param tset the set of {@link VenisonTile} objects to be displayed
+     * @param tset the set of {@link AtlantiTile} objects to be displayed
      * by this board.
      */
     public void setTiles (DSet tset)
@@ -94,7 +101,7 @@ public class VenisonBoard
      * Instructs the board to add the specified tile to the display. The
      * tile will have its claims inherited accordingly.
      */
-    public void addTile (VenisonTile tile)
+    public void addTile (AtlantiTile tile)
     {
         Log.info("Adding tile to board " + tile + ".");
 
@@ -135,7 +142,7 @@ public class VenisonBoard
         // locate the tile associated with this piecen
         int tidx = _tiles.indexOf(piecen);
         if (tidx != -1) {
-            VenisonTile tile = (VenisonTile)_tiles.get(tidx);
+            AtlantiTile tile = (AtlantiTile)_tiles.get(tidx);
             // set the piecen on the tile (supplying our tile list so that
             // the necessary claim group adjustments can be made)
             tile.setPiecen(piecen, _tiles);
@@ -157,7 +164,7 @@ public class VenisonBoard
         // locate the tile associated with this piecen key
         int tsize = _tiles.size();
         for (int i = 0; i < tsize; i++) {
-            VenisonTile tile = (VenisonTile)_tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)_tiles.get(i);
             if (tile.getKey().equals(key)) {
                 // clear the piecen out of the tile
                 tile.clearPiecen();
@@ -208,12 +215,12 @@ public class VenisonBoard
      * @param tile the new tile to be placed or null if no tile is to
      * currently be placed.
      */
-    public void setTileToBePlaced (VenisonTile tile)
+    public void setTileToBePlaced (AtlantiTile tile)
     {
         Log.info("Setting tile to be placed [tile=" + tile + "].");
 
         // make a copy of this tile so that we can play with it
-        _placingTile = (VenisonTile)tile.clone();;
+        _placingTile = (AtlantiTile)tile.clone();;
 
         // update our internal state based on this new placing tile
         if (_placingTile != null) {
@@ -224,7 +231,7 @@ public class VenisonBoard
     /**
      * Returns the last tile placed by the user.
      */
-    public VenisonTile getPlacedTile ()
+    public AtlantiTile getPlacedTile ()
     {
         return _placedTile;
     }
@@ -242,7 +249,7 @@ public class VenisonBoard
     /**
      * Causes the supplied tile to be repainted.
      */
-    public void repaintTile (VenisonTile tile)
+    public void repaintTile (AtlantiTile tile)
     {
         int offx = _tx + (tile.x + _origX) * TILE_WIDTH;
         int offy = _ty + (tile.y + _origY) * TILE_HEIGHT;
@@ -262,7 +269,7 @@ public class VenisonBoard
         // iterate over our tiles, painting each of them
         int tsize = _tiles.size();
         for (int i = 0; i < tsize; i++) {
-            VenisonTile tile = (VenisonTile)_tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)_tiles.get(i);
             tile.paint(g2, _origX, _origY);
         }
 
@@ -551,7 +558,7 @@ public class VenisonBoard
         // figure out what our boundaries are
         int tsize = _tiles.size();
         for (int i = 0; i < tsize; i++) {
-            VenisonTile tile = (VenisonTile)_tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)_tiles.get(i);
             if (tile.x > maxX) {
                 maxX = tile.x;
             } else if (tile.x < minX) {
@@ -594,24 +601,24 @@ public class VenisonBoard
     {
         JFrame frame = new JFrame("Board test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        VenisonBoard board = new VenisonBoard();
+        AtlantiBoard board = new AtlantiBoard();
 
         TestDSet set = new TestDSet();
-        set.addTile(new VenisonTile(CITY_TWO, true, WEST, 0, 0));
-        set.addTile(new VenisonTile(CITY_TWO, false, WEST, -1, 1));
-        set.addTile(new VenisonTile(CITY_ONE, false, SOUTH, -1, -1));
-        VenisonTile zero = new VenisonTile(CURVED_ROAD, false, WEST, 0, 2);
+        set.addTile(new AtlantiTile(CITY_TWO, true, WEST, 0, 0));
+        set.addTile(new AtlantiTile(CITY_TWO, false, WEST, -1, 1));
+        set.addTile(new AtlantiTile(CITY_ONE, false, SOUTH, -1, -1));
+        AtlantiTile zero = new AtlantiTile(CURVED_ROAD, false, WEST, 0, 2);
         set.addTile(zero);
-        VenisonTile one = new VenisonTile(TWO_CITY_TWO, false, NORTH, 0, 1);
+        AtlantiTile one = new AtlantiTile(TWO_CITY_TWO, false, NORTH, 0, 1);
         set.addTile(one);
-        set.addTile(new VenisonTile(CITY_THREE, false, WEST, 1, 1));
-        set.addTile(new VenisonTile(CITY_THREE_ROAD, false, EAST, 1, 2));
-        set.addTile(new VenisonTile(CITY_THREE, false, NORTH, -1, 0));
-        VenisonTile two = new VenisonTile(CITY_ONE, false, EAST, -2, 0);
+        set.addTile(new AtlantiTile(CITY_THREE, false, WEST, 1, 1));
+        set.addTile(new AtlantiTile(CITY_THREE_ROAD, false, EAST, 1, 2));
+        set.addTile(new AtlantiTile(CITY_THREE, false, NORTH, -1, 0));
+        AtlantiTile two = new AtlantiTile(CITY_ONE, false, EAST, -2, 0);
         set.addTile(two);
         board.setTiles(set);
 
-        VenisonTile placing = new VenisonTile(CITY_TWO, false, NORTH, 0, 0);
+        AtlantiTile placing = new AtlantiTile(CITY_TWO, false, NORTH, 0, 0);
         board.setTileToBePlaced(placing);
 
         // set a feature group to test propagation
@@ -640,12 +647,7 @@ public class VenisonBoard
 
     protected static class TestDSet extends DSet
     {
-        public TestDSet ()
-        {
-            super(VenisonTile.class);
-        }
-
-        public void addTile (VenisonTile tile)
+        public void addTile (AtlantiTile tile)
         {
             add(tile);
         }
@@ -655,13 +657,13 @@ public class VenisonBoard
     protected ArrayList _tiles = new ArrayList();
 
     /** The tile currently being placed by the user. */
-    protected VenisonTile _placingTile;
+    protected AtlantiTile _placingTile;
 
     /** The last tile being placed by the user. */
-    protected VenisonTile _placedTile;
+    protected AtlantiTile _placedTile;
 
     /** The last tile placed on the board via {@link #addTile}. */
-    protected VenisonTile _lastPlacedTile;
+    protected AtlantiTile _lastPlacedTile;
 
     /** A flag indicating whether or not we're placing a piecen. */
     protected boolean _placingPiecen = false;

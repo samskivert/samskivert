@@ -1,7 +1,7 @@
 //
-// $Id: TurnIndicatorView.java,v 1.3 2002/01/29 23:47:03 mdb Exp $
+// $Id: TurnIndicatorView.java,v 1.4 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.client;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,12 +14,14 @@ import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.client.PlaceView;
 
+import com.samskivert.atlanti.data.AtlantiObject;
+
 /**
  * Displays who the current turn holder is as well as the tile they are
  * currently placing.
  */
-public class TurnIndicatorView
-    extends JPanel implements PlaceView, AttributeChangeListener
+public class TurnIndicatorView extends JPanel
+    implements PlaceView, AttributeChangeListener
 {
     /**
      * Creates a new turn indicator view which in turn creates its
@@ -47,8 +49,8 @@ public class TurnIndicatorView
     {
         // we want to grab a reference to the game object and add
         // ourselves as an attribute change listener
-        _venobj = (VenisonObject)plobj;
-        _venobj.addListener(this);
+        _atlobj = (AtlantiObject)plobj;
+        _atlobj.addListener(this);
 
         // update our displays
         updateCurrentTile();
@@ -61,24 +63,24 @@ public class TurnIndicatorView
     public void didLeavePlace (PlaceObject plobj)
     {
         // remove our listening self
-        _venobj.removeListener(this);
-        _venobj = null;
+        _atlobj.removeListener(this);
+        _atlobj = null;
     }
 
     // documentation inherited
     public void attributeChanged (AttributeChangedEvent event)
     {
-        if (event.getName().equals(VenisonObject.CURRENT_TILE)) {
+        if (event.getName().equals(AtlantiObject.CURRENT_TILE)) {
             // update the current tile display
             updateCurrentTile();
 
-        } else if (event.getName().equals(VenisonObject.STATE)) {
+        } else if (event.getName().equals(AtlantiObject.STATE)) {
             // update the game state display
             updateGameState();
             // update the tiles remaining
             updateRemainingTiles();
 
-        } else if (event.getName().equals(VenisonObject.TURN_HOLDER)) {
+        } else if (event.getName().equals(AtlantiObject.TURN_HOLDER)) {
             // update the turn holder
             updateTurnHolder();
 
@@ -89,16 +91,16 @@ public class TurnIndicatorView
 
     protected void updateGameState ()
     {
-        switch (_venobj.state) {
-        case VenisonObject.AWAITING_PLAYERS:
+        switch (_atlobj.state) {
+        case AtlantiObject.AWAITING_PLAYERS:
             _whoLabel.setText("Awaiting players...");
             _tileLabel.setTile(null);
             break;
-        case VenisonObject.GAME_OVER:
+        case AtlantiObject.GAME_OVER:
             _whoLabel.setText("Game over.");
             _tileLabel.setTile(null);
             break;
-        case VenisonObject.CANCELLED:
+        case AtlantiObject.CANCELLED:
             _whoLabel.setText("Cancelled.");
             _tileLabel.setTile(null);
             break;
@@ -107,20 +109,20 @@ public class TurnIndicatorView
 
     protected void updateTurnHolder ()
     {
-        if (_venobj.state == VenisonObject.IN_PLAY) {
-            _whoLabel.setText(_venobj.turnHolder);
+        if (_atlobj.state == AtlantiObject.IN_PLAY) {
+            _whoLabel.setText(_atlobj.turnHolder);
         }
     }
 
     protected void updateCurrentTile ()
     {
         // display the tile to be placed
-        _tileLabel.setTile(_venobj.currentTile);
+        _tileLabel.setTile(_atlobj.currentTile);
     }
 
     protected void updateRemainingTiles ()
     {
-        _countLabel.setText("Tiles remaining: " + (71-_venobj.tiles.size()));
+        _countLabel.setText("Tiles remaining: " + (71-_atlobj.tiles.size()));
     }
 
     /** The label displaying whose turn it is. */
@@ -133,5 +135,5 @@ public class TurnIndicatorView
     protected JLabel _countLabel;
 
     /** A reference to the game object. */
-    protected VenisonObject _venobj;
+    protected AtlantiObject _atlobj;
 }

@@ -1,23 +1,25 @@
 //
-// $Id: AtlantiManagerDelegate.java,v 1.1 2002/05/21 04:45:10 mdb Exp $
+// $Id: AtlantiManagerDelegate.java,v 1.2 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.server;
 
 import com.threerings.parlor.turn.TurnGameManagerDelegate;
+
+import com.samskivert.atlanti.data.AtlantiCodes;
 
 /**
  * Handles the turn-based gameplay.
  */
-public class VenisonManagerDelegate extends TurnGameManagerDelegate
-    implements VenisonCodes
+public class AtlantiManagerDelegate extends TurnGameManagerDelegate
+    implements AtlantiCodes
 {
     /**
      * Constructs the delegate and prepares it for operation.
      */
-    public VenisonManagerDelegate (VenisonManager vmgr)
+    public AtlantiManagerDelegate (AtlantiManager vmgr)
     {
         super(vmgr);
-        _vmgr = vmgr;
+        _amgr = vmgr;
     }
 
     /**
@@ -26,7 +28,7 @@ public class VenisonManagerDelegate extends TurnGameManagerDelegate
     protected void setNextTurnHolder ()
     {
         // if we have tiles left, we move to the next player as normal
-        if (_vmgr.getTilesInBox() > 0) {
+        if (_amgr.getTilesInBox() > 0) {
             super.setNextTurnHolder();
         } else {
             // if we don't, we ensure that a new turn isn't started by
@@ -36,5 +38,5 @@ public class VenisonManagerDelegate extends TurnGameManagerDelegate
     }
 
     /** The manager for whom we're delegating. */
-    protected VenisonManager _vmgr;
+    protected AtlantiManager _amgr;
 }

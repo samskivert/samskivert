@@ -1,7 +1,7 @@
 //
-// $Id: TileGeometryTest.java,v 1.5 2002/01/29 23:45:56 mdb Exp $
+// $Id: TileGeometryTest.java,v 1.6 2002/12/12 05:51:53 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -16,17 +16,21 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
 
+import com.samskivert.atlanti.data.AtlantiTile;
+import com.samskivert.atlanti.data.TileCodes;
+import com.samskivert.atlanti.util.PiecenUtil;
+
 /**
  * A simple class for testing the tile geometry specifications by drawing
  * them.
  */
-public class TileGeometryTest
-    extends JPanel implements TileCodes
+public class TileGeometryTest extends JPanel
+    implements TileCodes
 {
     public TileGeometryTest ()
     {
         for (int i = 0; i < TILE_TYPES; i++) {
-            _tiles[i] = new VenisonTile(i+1, true, NORTH, i % 5, i / 5);
+            _tiles[i] = new AtlantiTile(i+1, true, NORTH, i % 5, i / 5);
         }
     }
 
@@ -50,12 +54,12 @@ public class TileGeometryTest
     {
         JFrame frame = new JFrame("Tile geometry test");
 
-        ResourceManager rmgr = new ResourceManager("rsrc", null, null);
+        ResourceManager rmgr = new ResourceManager("rsrc");
         ImageManager imgr = new ImageManager(rmgr, frame);
         TileManager tmgr = new TileManager(imgr);
 
-        VenisonTile.setTileManager(tmgr);
-        VenisonTile.piecenDebug = true;
+        AtlantiTile.setManagers(imgr, tmgr);
+        AtlantiTile.piecenDebug = true;
         PiecenUtil.init(tmgr);
 
         // quit if we're closed
@@ -67,5 +71,5 @@ public class TileGeometryTest
         frame.show();
     }
 
-    protected VenisonTile[] _tiles = new VenisonTile[TILE_TYPES];
+    protected AtlantiTile[] _tiles = new AtlantiTile[TILE_TYPES];
 }

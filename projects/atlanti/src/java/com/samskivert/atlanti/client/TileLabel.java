@@ -1,7 +1,7 @@
 //
-// $Id: TileLabel.java,v 1.1 2001/10/16 01:41:55 mdb Exp $
+// $Id: TileLabel.java,v 1.2 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.client;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,11 +10,14 @@ import java.awt.Graphics2D;
 
 import javax.swing.JComponent;
 
+import com.samskivert.atlanti.data.AtlantiTile;
+import com.samskivert.atlanti.data.TileCodes;
+
 /**
  * Displays a single tile in a Swing component.
  */
-public class TileLabel
-    extends JComponent implements TileCodes
+public class TileLabel extends JComponent
+    implements TileCodes
 {
     /**
      * Configures the component to display the specified tile.
@@ -22,7 +25,7 @@ public class TileLabel
      * @param tile a reference to the tile to display or null if no tile
      * should be displayed.
      */
-    public void setTile (VenisonTile tile)
+    public void setTile (AtlantiTile tile)
     {
         _tile = tile;
         repaint();
@@ -46,5 +49,5 @@ public class TileLabel
     }
 
     /** The tile we are displaying. */
-    protected VenisonTile _tile;
+    protected AtlantiTile _tile;
 }

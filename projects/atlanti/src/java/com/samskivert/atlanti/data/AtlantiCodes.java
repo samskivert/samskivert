@@ -1,24 +1,24 @@
 //
-// $Id: AtlantiCodes.java,v 1.5 2002/05/21 04:45:10 mdb Exp $
+// $Id: AtlantiCodes.java,v 1.6 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.data;
 
 /**
- * Constants used by the Venison game code.
+ * Constants used by the Atlanti game code.
  */
-public interface VenisonCodes
+public interface AtlantiCodes
 {
     /** The message bundle identifier for translation messages. */
-    public static final String VENISON_MESSAGE_BUNDLE = "venison";
+    public static final String ATLANTI_MESSAGE_BUNDLE = "atlanti";
 
     /** The number of piecens provided to each player. */
     public static final int PIECENS_PER_PLAYER = 7;
 
-    /** The name of the command posted by the {@link VenisonBoard} when
+    /** The name of the command posted by the {@link AtlantiBoard} when
      * the user places a tile into a valid position. */
     public static final String TILE_PLACED = "tile_placed";
 
-    /** The name of the command posted by the {@link VenisonBoard} when
+    /** The name of the command posted by the {@link AtlantiBoard} when
      * the user places a piecen onto an unclaimed feature. */
     public static final String PIECEN_PLACED = "piecen_placed";
 

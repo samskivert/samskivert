@@ -1,31 +1,41 @@
 //
-// $Id: AtlantiConfig.java,v 1.3 2001/10/24 03:24:53 mdb Exp $
+// $Id: AtlantiConfig.java,v 1.4 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.data;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.parlor.data.TableConfig;
+import com.threerings.parlor.game.GameConfig;
+
+import com.samskivert.atlanti.client.AtlantiConfigurator;
+import com.samskivert.atlanti.client.AtlantiController;
 
 /**
- * Describes the configuration parameters for a game of Venison.
+ * Describes the configuration parameters for the game.
  */
-public class VenisonConfig
-    extends GameConfig implements TableConfig
+public class AtlantiConfig extends GameConfig
+    implements TableConfig
 {
     // documentation inherited
     public Class getControllerClass ()
     {
-        return VenisonController.class;
+        return AtlantiController.class;
+    }
+
+    // documentation inherited from interface
+    public Class getConfiguratorClass ()
+    {
+        return AtlantiConfigurator.class;
     }
 
     // documentation inherited
     public String getManagerClassName ()
     {
-        return "com.threerings.venison.VenisonManager";
+        return "com.samskivert.atlanti.server.AtlantiManager";
     }
 
     // documentation inherited
@@ -53,18 +63,18 @@ public class VenisonConfig
     }
 
     // documentation inherited
-    public void writeTo (DataOutputStream out)
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        out.defaultWriteObject();
         out.writeInt(_desiredPlayers);
     }
 
     // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        in.defaultReadObject();
         _desiredPlayers = in.readInt();
     }
 

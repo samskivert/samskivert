@@ -1,7 +1,7 @@
 //
-// $Id: PlayerInfoView.java,v 1.4 2002/05/21 04:45:09 mdb Exp $
+// $Id: PlayerInfoView.java,v 1.5 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.client;
 
 import java.awt.Color;
 import java.awt.GridBagLayout;
@@ -20,6 +20,11 @@ import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
 
+import com.samskivert.atlanti.data.AtlantiCodes;
+import com.samskivert.atlanti.data.AtlantiObject;
+import com.samskivert.atlanti.data.Feature;
+import com.samskivert.atlanti.util.TileUtil;
+
 /**
  * Displays each of the players in the game, their piece color and their
  * score.
@@ -29,8 +34,8 @@ public class PlayerInfoView
     implements PlaceView, AttributeChangeListener, SetListener
 {
     /**
-     * Constructs a new player info panel, ready for insertion into a
-     * Venison game panel.
+     * Constructs a new player info panel, ready for insertion into the
+     * game panel.
      */
     public PlayerInfoView ()
     {
@@ -45,26 +50,25 @@ public class PlayerInfoView
     {
         // we want to grab a reference to the game object and add
         // ourselves as an attribute change listener
-        _venobj = (VenisonObject)plobj;
-        _venobj.addListener(this);
+        _atlobj = (AtlantiObject)plobj;
+        _atlobj.addListener(this);
 
         // we need score and piecen labels arrays so that we can keep
         // track of per player information
-        _scoreLabels = new JLabel[_venobj.players.length];
-        _piecenLabels = new JLabel[_venobj.players.length];
+        _scoreLabels = new JLabel[_atlobj.players.length];
+        _piecenLabels = new JLabel[_atlobj.players.length];
 
         // now that we're here, we can add an entry for every player
-        for (int i = 0; i < _venobj.players.length; i++) {
-            addPlayer(i, _venobj.players[i]);
+        for (int i = 0; i < _atlobj.players.length; i++) {
+            addPlayer(i, _atlobj.players[i]);
         }
 
         // if we have scores, update them
-        if (_venobj.scores.length == _venobj.players.length) {
+        if (_atlobj.scores != null) {
             updateScores();
+            // and the piecen count
+            updatePiecenCount();
         }
-
-        // update the piecen count
-        updatePiecenCount();
     }
 
     /**
@@ -101,15 +105,15 @@ public class PlayerInfoView
     public void didLeavePlace (PlaceObject plobj)
     {
         // remove our listening self
-        _venobj.removeListener(this);
-        _venobj = null;
+        _atlobj.removeListener(this);
+        _atlobj = null;
     }
 
     // documentation inherited
     public void attributeChanged (AttributeChangedEvent event)
     {
         // we care about the scores (which change)
-        if (event.getName().equals(VenisonObject.SCORES)) {
+        if (event.getName().equals(AtlantiObject.SCORES)) {
             updateScores();
         }
     }
@@ -136,8 +140,8 @@ public class PlayerInfoView
      */
     protected void updateScores ()
     {
-        for (int i = 0; i < _venobj.scores.length; i++) {
-            _scoreLabels[i].setText(Integer.toString(_venobj.scores[i]));
+        for (int i = 0; i < _atlobj.scores.length; i++) {
+            _scoreLabels[i].setText(Integer.toString(_atlobj.scores[i]));
         }
     }
 
@@ -146,15 +150,15 @@ public class PlayerInfoView
      */
     protected void updatePiecenCount ()
     {
-        for (int i = 0; i < _venobj.scores.length; i++) {
-            int pcount = TileUtil.countPiecens(_venobj.piecens, i);
-            int pleft = VenisonCodes.PIECENS_PER_PLAYER - pcount;
+        for (int i = 0; i < _atlobj.scores.length; i++) {
+            int pcount = TileUtil.countPiecens(_atlobj.piecens, i);
+            int pleft = AtlantiCodes.PIECENS_PER_PLAYER - pcount;
             _piecenLabels[i].setText("(" + pleft + ")");
         }
     }
 
     /** A reference to the game object. */
-    protected VenisonObject _venobj;
+    protected AtlantiObject _atlobj;
 
     /** References to our score label components. */
     protected JLabel[] _scoreLabels;

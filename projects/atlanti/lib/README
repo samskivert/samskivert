@@ -1,7 +1,7 @@
 Required external libraries
 ---------------------------
 
-The Venison code requires the following external Java libraries (JAR
+The Atlantissonne code requires the following external Java libraries (JAR
 files) to be placed (or symlinked) here in the lib/ directory or in the
 shared library directory specified in the build.xml file
 (${java.libraries}).
@@ -12,16 +12,8 @@ shared library directory specified in the build.xml file
 * The samskivert package:
   http://www.waywardgeeks.org/code/samskivert/
 
-* MM MySQL driver:
+* A MySQL driver:
   http://mmmysql.sourceforge.net/
-
-* Matt Welsh's Non-blocking IO library:
-  http://www.cs.berkeley.edu/~mdw/proj/java-nbio/
-
-  (The native code shared library should be built and placed into
-  lib/i686-Linux where it will be automatically added to LD_LIBRARY_PATH
-  by the runjava script. Alternatively you can put it into your
-  LD_LIBRARY_PATH by hand.)
 
 * The Java API for XML Processing (JAXP) 1.1 Reference Implementation:
   http://java.sun.com/xml/download.html
@@ -32,15 +24,12 @@ shared library directory specified in the build.xml file
 * Megginson Technologies' XMLWriter 0.2 library:
   http://www.megginson.com/Software/xml-writer-0.2.zip
 
-* The ? game development platform
-  http://www.threerings.net/code/?/
-
-* The MiCasa game hosting service
-  http://www.threerings.net/code/micasa/
+* The Narya game development libraries
+  http://www.threerings.net/code/narya/
 
 Once the jar files are in place (regardless of what they are named), the
 build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.1 2001/10/09 20:27:35 mdb Exp $
+$Id: README,v 1.2 2002/12/12 05:51:53 mdb Exp $

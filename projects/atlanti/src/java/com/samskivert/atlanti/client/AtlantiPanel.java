@@ -1,7 +1,7 @@
 //
 // $Id
 
-package com.threerings.venison;
+package com.samskivert.atlanti.client;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -27,22 +27,27 @@ import com.threerings.crowd.client.PlaceView;
 import com.threerings.micasa.client.ChatPanel;
 import com.threerings.micasa.util.MiCasaContext;
 
+import com.samskivert.atlanti.Log;
+import com.samskivert.atlanti.data.AtlantiCodes;
+import com.samskivert.atlanti.data.AtlantiTile;
+import com.samskivert.atlanti.util.PiecenUtil;
+
 /**
- * The top-level user interface component for the Venison game display.
+ * The top-level user interface component for the game display.
  */
-public class VenisonPanel
-    extends JPanel implements PlaceView, ControllerProvider, VenisonCodes
+public class AtlantiPanel extends JPanel
+    implements PlaceView, ControllerProvider, AtlantiCodes
 {
     /** A reference to the board that is accessible to the controller. */
-    public VenisonBoard board;
+    public AtlantiBoard board;
 
     /** A reference to our _noplace button. */
     public JButton noplace;
 
     /**
-     * Constructs a new Venison game display.
+     * Constructs a new game display.
      */
-    public VenisonPanel (MiCasaContext ctx, VenisonController controller)
+    public AtlantiPanel (MiCasaContext ctx, AtlantiController controller)
     {
 	// give ourselves a wee bit of a border
 	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -52,7 +57,7 @@ public class VenisonPanel
 	setLayout(gl);
 
         // create the board
-        board = new VenisonBoard();
+        board = new AtlantiBoard();
 
         // create a scroll area to contain the board
         JScrollPane scrolly = new JScrollPane(board);
@@ -101,23 +106,20 @@ public class VenisonPanel
 
         // we'll need this later to provide it
         _controller = controller;
+    }
+
+    // documentation inherited
+    public void addNotify ()
+    {
+        super.addNotify();
 
         // we can't create our image manager until we have access to our
         // containing frame
-        addAncestorListener(new AncestorListener() {
-            public void ancestorAdded (AncestorEvent event) {
-                // create our image manager
-                JRootPane rpane = getRootPane();
-                ImageManager imgr = new ImageManager(_rmgr, rpane);
-                TileManager tmgr = new TileManager(imgr);
-                VenisonTile.setTileManager(tmgr);
-                PiecenUtil.init(tmgr);
-            }
-            public void ancestorMoved (AncestorEvent event) {
-            }
-            public void ancestorRemoved (AncestorEvent event) {
-            }
-        });
+        JRootPane rpane = getRootPane();
+        ImageManager imgr = new ImageManager(_rmgr, rpane);
+        TileManager tmgr = new TileManager(imgr);
+        AtlantiTile.setManagers(imgr, tmgr);
+        PiecenUtil.init(tmgr);
     }
 
     // documentation inherited
@@ -140,15 +142,15 @@ public class VenisonPanel
 
     /** A reference to our controller that we need to implement the {@link
      * ControllerProvider} interface. */
-    protected VenisonController _controller;
+    protected AtlantiController _controller;
 
     // this stuff is all a bit of a hack right now. by all rights, the
-    // venison app should set up the resource manager, because it knows
-    // about that sort of stuff, and make it available via the venison
-    // context and we may have some better place for the tile manager to
-    // live. but it's late and i want to get this working, so fooey.
+    // MiCasa game app should set up the resource manager, because it
+    // knows about that sort of stuff, and make it available via the
+    // MiCasa context and we may have some better place for the tile
+    // manager to live. but it's late and i want to get this working, so
+    // fooey.
 
     /** Our resource manager. */
-    protected static ResourceManager _rmgr =
-        new ResourceManager("rsrc", null, null);
+    protected static ResourceManager _rmgr = new ResourceManager("rsrc");
 }

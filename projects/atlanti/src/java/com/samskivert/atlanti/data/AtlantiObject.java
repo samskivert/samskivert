@@ -1,17 +1,17 @@
 //
-// $Id: AtlantiObject.java,v 1.8 2002/05/21 04:45:10 mdb Exp $
+// $Id: AtlantiObject.java,v 1.9 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.data;
 
-import com.samskivert.util.StringUtil;
 import com.threerings.presents.dobj.DSet;
+
 import com.threerings.parlor.game.GameObject;
 import com.threerings.parlor.turn.TurnGameObject;
 
 /**
- * The distributed object used to maintain state for the Venison game.
+ * The distributed object used to maintain state for the game.
  */
-public class VenisonObject extends GameObject
+public class AtlantiObject extends GameObject
     implements TurnGameObject
 {
     /** The field name of the <code>turnHolder</code> field. */
@@ -34,18 +34,24 @@ public class VenisonObject extends GameObject
 
     /** A set containing all of the tiles that are in play in this
      * game. */
-    public DSet tiles = new DSet(VenisonTile.class);
+    public DSet tiles = new DSet();
 
     /** The tile being placed by the current turn holder. This value is
      * only valid while it is someone's turn. */
-    public VenisonTile currentTile = VenisonTile.STARTING_TILE;
+    public AtlantiTile currentTile = AtlantiTile.STARTING_TILE;
 
     /** A set containing all of the piecens that are placed on the
      * board. */
-    public DSet piecens = new DSet(Piecen.class);
+    public DSet piecens = new DSet();
 
     /** The scores for each player. */
     public int[] scores;
+
+    // documentation inherited from interface
+    public String[] getPlayers ()
+    {
+        return players;
+    }
 
     // documentation inherited from interface
     public String getTurnHolderFieldName ()
@@ -127,7 +133,7 @@ public class VenisonObject extends GameObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setCurrentTile (VenisonTile currentTile)
+    public void setCurrentTile (AtlantiTile currentTile)
     {
         this.currentTile = currentTile;
         requestAttributeChange(CURRENT_TILE, currentTile);

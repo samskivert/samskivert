@@ -1,7 +1,7 @@
 //
-// $Id: AtlantiManager.java,v 1.23 2002/05/21 04:45:10 mdb Exp $
+// $Id: AtlantiManager.java,v 1.24 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.server;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -22,31 +22,40 @@ import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.crowd.chat.ChatProvider;
+import com.threerings.crowd.chat.SpeakProvider;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.crowd.chat.ChatMessageHandler;
-import com.threerings.crowd.chat.ChatService;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.parlor.game.GameManager;
 import com.threerings.parlor.turn.TurnGameManager;
 
+import com.samskivert.atlanti.Log;
+import com.samskivert.atlanti.data.AtlantiCodes;
+import com.samskivert.atlanti.data.AtlantiObject;
+import com.samskivert.atlanti.data.AtlantiTile;
+import com.samskivert.atlanti.data.Feature;
+import com.samskivert.atlanti.data.Piecen;
+import com.samskivert.atlanti.data.TileCodes;
+import com.samskivert.atlanti.util.FeatureUtil;
+import com.samskivert.atlanti.util.TileUtil;
+
 /**
- * The main coordinator of the Venison game on the server side.
+ * The main coordinator of the Atlantissonne game on the server side.
  */
-public class VenisonManager extends GameManager
-    implements TurnGameManager, VenisonCodes, SetListener
+public class AtlantiManager extends GameManager
+    implements TurnGameManager, AtlantiCodes, SetListener
 {
-    public VenisonManager ()
+    public AtlantiManager ()
     {
-        addDelegate(_delegate = new VenisonManagerDelegate(this));
+        addDelegate(_delegate = new AtlantiManagerDelegate(this));
     }
 
     // documentation inherited
     protected Class getPlaceObjectClass ()
     {
-        return VenisonObject.class;
+        return AtlantiObject.class;
     }
 
     public int getTilesInBox ()
@@ -60,8 +69,6 @@ public class VenisonManager extends GameManager
         super.didInit();
 
         // register our message handlers
-        registerMessageHandler(
-            ChatService.SPEAK_REQUEST, new ChatMessageHandler());
         registerMessageHandler(PLACE_TILE_REQUEST, new PlaceTileHandler());
         registerMessageHandler(
             PLACE_PIECEN_REQUEST, new PlacePiecenHandler());
@@ -75,7 +82,7 @@ public class VenisonManager extends GameManager
         super.didStartup();
 
         // grab our own casted game object reference
-        _venobj = (VenisonObject)_gameobj;
+        _atlobj = (AtlantiObject)_gameobj;
     }
 
     /**
@@ -99,18 +106,18 @@ public class VenisonManager extends GameManager
         _tiles.clear();
 
         // create a claim group vector
-        _claimGroupVector = new int[_players.length];
+        _claimGroupVector = new int[getPlayerCount()];
 
         // clear out the scores
-        _venobj.setScores(new int[_players.length]);
+        _atlobj.setScores(new int[getPlayerCount()]);
 
         // clear out the tile and piecen set
-        _venobj.setTiles(new DSet(VenisonTile.class));
-        _venobj.setPiecens(new DSet(Piecen.class));
+        _atlobj.setTiles(new DSet());
+        _atlobj.setPiecens(new DSet());
 
         // and add the starting tile
-        VenisonTile start = TileUtil.getStartingTile();
-        _venobj.addToTiles(start);
+        AtlantiTile start = TileUtil.getStartingTile();
+        _atlobj.addToTiles(start);
         _tiles.add(start);
     }
 
@@ -119,8 +126,14 @@ public class VenisonManager extends GameManager
     {
         // let the players know what the next tile is that should be
         // played
-        VenisonTile tile = (VenisonTile)_tilesInBox.remove(0);
-        _venobj.setCurrentTile(tile);
+        AtlantiTile tile = (AtlantiTile)_tilesInBox.remove(0);
+        _atlobj.setCurrentTile(tile);
+    }
+
+    // documentation inherited
+    public void turnDidStart ()
+    {
+        // nothing doing
     }
 
     // documentation inherited
@@ -142,9 +155,9 @@ public class VenisonManager extends GameManager
         // compute the final scores by iterating over each tile and
         // scoring its features
         Piecen[] piecens = getPiecens();
-        Iterator iter = _venobj.tiles.entries();
+        Iterator iter = _atlobj.tiles.entries();
         while (iter.hasNext()) {
-            VenisonTile tile = (VenisonTile)iter.next();
+            AtlantiTile tile = (AtlantiTile)iter.next();
             scoreFeatures(tile, piecens, true);
         }
 
@@ -152,7 +165,7 @@ public class VenisonManager extends GameManager
         scoreFarms();
 
         // update the final scores
-        _venobj.setScores(_venobj.scores);
+        _atlobj.setScores(_atlobj.scores);
     }
 
     /**
@@ -163,8 +176,8 @@ public class VenisonManager extends GameManager
     protected Piecen[] getPiecens ()
     {
         // create a piecen array that we can manipulate while scoring
-        Piecen[] piecens = new Piecen[_venobj.piecens.size()];
-        Iterator iter = _venobj.piecens.entries();
+        Piecen[] piecens = new Piecen[_atlobj.piecens.size()];
+        Iterator iter = _atlobj.piecens.entries();
         for (int i = 0; iter.hasNext(); i++) {
             piecens[i] = (Piecen)iter.next();
         }
@@ -182,7 +195,7 @@ public class VenisonManager extends GameManager
      * we don't remove piecens from the board as we score them.
      */
     protected void scoreFeatures (
-        VenisonTile tile, Piecen[] piecens, boolean finalTally)
+        AtlantiTile tile, Piecen[] piecens, boolean finalTally)
     {
         // potentially score all features on the tile
         for (int i = 0; i < tile.features.length; i++) {
@@ -222,27 +235,27 @@ public class VenisonManager extends GameManager
                 StringBuffer names = new StringBuffer();
                 for (int p = 0; p < cgv.length; p++) {
                     // adjust the score
-                    _venobj.scores[p] += (score * cgv[p]);
+                    _atlobj.scores[p] += (score * cgv[p]);
 
                     // append the scorers name to the list
                     if (cgv[p] > 0) {
                         if (names.length() > 0) {
                             names.append(", ");
                         }
-                        names.append(_players[p]);
+                        names.append(getPlayerName(p));
                     }
                 }
 
                 String message = qual + " " + TileCodes.FEATURE_NAMES[f.type] +
                     " scored " + score + " points for " + names + ".";
-                ChatProvider.sendSystemMessage(
-                    _venobj.getOid(), VENISON_MESSAGE_BUNDLE, message);
+                SpeakProvider.sendSystemSpeak(
+                    _atlobj, ATLANTI_MESSAGE_BUNDLE, message);
 
-                Log.info("New scores: " + StringUtil.toString(_venobj.scores));
+                Log.info("New scores: " + StringUtil.toString(_atlobj.scores));
 
                 // broadcast the new scores if this isn't the final tally
                 if (!finalTally) {
-                    _venobj.setScores(_venobj.scores);
+                    _atlobj.setScores(_atlobj.scores);
                 }
 
                 // and free up the scored piecens
@@ -259,7 +272,7 @@ public class VenisonManager extends GameManager
         for (int dx = -1; dx < 2; dx++) {
             for (int dy = -1; dy < 2; dy++) {
                 // find our neighbor and make sure they exist
-                VenisonTile neighbor =
+                AtlantiTile neighbor =
                     TileUtil.findTile(_tiles, tile.x + dx, tile.y + dy);
                 if (neighbor == null) {
                     continue;
@@ -306,18 +319,18 @@ public class VenisonManager extends GameManager
 
                         // deliver a chat notification to tell the
                         // players about the score
-                        String message = _players[p.owner] + " scored " +
+                        String message = getPlayerName(p.owner) + " scored " +
                             score + " points for " + qual + " temple.";
-                        ChatProvider.sendSystemMessage(
-                            _venobj.getOid(), VENISON_MESSAGE_BUNDLE, message);
+                        SpeakProvider.sendSystemSpeak(
+                            _atlobj, ATLANTI_MESSAGE_BUNDLE, message);
 
                         // add the score to the owning player
-                        _venobj.scores[p.owner] += score;
+                        _atlobj.scores[p.owner] += score;
 
                         // only broadcast the updated scores if this isn't
                         // the final tally
                         if (!finalTally) {
-                            _venobj.setScores(_venobj.scores);
+                            _atlobj.setScores(_atlobj.scores);
                         }
 
                         // and clear out the piecen (only removing it from
@@ -335,7 +348,7 @@ public class VenisonManager extends GameManager
     protected void scoreFarms ()
     {
         HashIntMap cities = new HashIntMap();
-        int[] cityScores = new int[_players.length];
+        int[] cityScores = new int[getPlayerCount()];
 
         // clear out the claims for incompleted cities and claim unclaimed
         // completed cities
@@ -344,7 +357,7 @@ public class VenisonManager extends GameManager
         // do the big process-ola
         int tsize = _tiles.size();
         for (int i = 0; i < tsize; i++) {
-            VenisonTile tile = (VenisonTile)_tiles.get(i);
+            AtlantiTile tile = (AtlantiTile)_tiles.get(i);
 
             // iterate over all of the city features in this tile
             for (int f = 0; f < tile.features.length; f++) {
@@ -410,10 +423,10 @@ public class VenisonManager extends GameManager
         while (iter.hasNext()) {
             int cityClaim = ((Integer)iter.next()).intValue();
             int[] farmClaims = (int[])cities.get(cityClaim);
-            int[] pcount = new int[_players.length];
+            int[] pcount = new int[getPlayerCount()];
             int max = 0;
 
-            Iterator piter = _venobj.piecens.entries();
+            Iterator piter = _atlobj.piecens.entries();
             while (piter.hasNext()) {
                 Piecen p = (Piecen)piter.next();
                 // see if the piecen is on any of the farms
@@ -442,7 +455,7 @@ public class VenisonManager extends GameManager
             for (int i = 0; i < pcount.length; i++) {
                 if (pcount[i] == max) {
                     Log.info("Scoring city for player [cgroup=" + cityClaim +
-                             ", player=" + _players[i] +
+                             ", player=" + getPlayerName(i) +
                              ", pcount=" + pcount[i] + "].");
                     cityScores[i] += 4;
                 }
@@ -451,13 +464,13 @@ public class VenisonManager extends GameManager
 
         // now report the scoring and transfer the counts to the score
         // array
-        for (int i = 0; i < _players.length; i++) {
+        for (int i = 0; i < getPlayerCount(); i++) {
             if (cityScores[i] > 0) {
-                _venobj.scores[i] += cityScores[i];
-                String message = _players[i] + " scores " + cityScores[i] +
-                    " points for fisheries.";
-                ChatProvider.sendSystemMessage(
-                    _venobj.getOid(), VENISON_MESSAGE_BUNDLE, message);
+                _atlobj.scores[i] += cityScores[i];
+                String message = getPlayerName(i) + " scores " +
+                    cityScores[i] + " points for fisheries.";
+                SpeakProvider.sendSystemSpeak(
+                    _atlobj, ATLANTI_MESSAGE_BUNDLE, message);
             }
         }
     }
@@ -524,7 +537,7 @@ public class VenisonManager extends GameManager
 
         // if this isn't the final tally, we also clear 'em from the board
         if (!finalTally) {
-            Iterator iter = _venobj.piecens.entries();
+            Iterator iter = _atlobj.piecens.entries();
             while (iter.hasNext()) {
                 Piecen p = (Piecen)iter.next();
                 if (p.claimGroup == claimGroup) {
@@ -550,14 +563,14 @@ public class VenisonManager extends GameManager
             Log.warning("Requested to remove piecen that is not " +
                         "associated with any tile [piecen=" + piecen + "].");
         } else {
-            VenisonTile tile = (VenisonTile)_tiles.get(tidx);
+            AtlantiTile tile = (AtlantiTile)_tiles.get(tidx);
             // and clear the piecen
             tile.clearPiecen();
         }
 
         // also remove from the piecens dset if requested
         if (removeFromPiecens) {
-            _venobj.removeFromPiecens(piecen.getKey());
+            _atlobj.removeFromPiecens(piecen.getKey());
         }
     }
 
@@ -569,11 +582,11 @@ public class VenisonManager extends GameManager
         // before scoring so that the players can see the piecen pop up on
         // their screen and then disappear with a scoring notice rather
         // than never show up at all; plus it simplifies our code
-        if (event.getName().equals(VenisonObject.PIECENS)) {
+        if (event.getName().equals(AtlantiObject.PIECENS)) {
             Piecen piecen = (Piecen)event.getEntry();
 
             // make sure this is a valid placement
-            VenisonTile tile = (VenisonTile)_venobj.tiles.get(piecen.getKey());
+            AtlantiTile tile = (AtlantiTile)_atlobj.tiles.get(piecen.getKey());
             if (tile == null) {
                 Log.warning("Can't find tile for piecen scoring " +
                             piecen + ".");
@@ -604,14 +617,14 @@ public class VenisonManager extends GameManager
      */
     protected void handlePlaceTileRequest (MessageEvent event)
     {
-        VenisonTile tile = (VenisonTile)event.getArgs()[0];
+        AtlantiTile tile = (AtlantiTile)event.getArgs()[0];
         int pidx = _delegate.getTurnHolderIndex();
 
         // make sure it's this player's turn
         if (_playerOids[pidx] != event.getSourceOid()) {
             Log.warning("Requested to place tile by non-turn holder " +
                         "[event=" + event +
-                        ", turnHolder=" + _venobj.turnHolder + "].");
+                        ", turnHolder=" + _atlobj.turnHolder + "].");
 
             // make sure this is a valid placement
         } else if (TileUtil.isValidPlacement(_tiles, tile)) {
@@ -623,7 +636,7 @@ public class VenisonManager extends GameManager
             TileUtil.inheritClaims(_tiles, tile);
 
             // add the tile to the tiles set
-            _venobj.addToTiles(tile);
+            _atlobj.addToTiles(tile);
 
             // placing a piece may have completed road or city
             // features. if it did, we score them now
@@ -634,7 +647,7 @@ public class VenisonManager extends GameManager
             // if the player has no free piecens or if there are no
             // unclaimed features on this tile, we end their turn
             // straight away
-            int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
+            int pcount = TileUtil.countPiecens(_atlobj.piecens, pidx);
             if (pcount >= PIECENS_PER_PLAYER ||
                 !tile.hasUnclaimedFeature()) {
                 _delegate.endTurn();
@@ -651,15 +664,15 @@ public class VenisonManager extends GameManager
     protected void handlePlacePiecenRequest (MessageEvent event)
     {
         Piecen piecen = (Piecen)event.getArgs()[0];
-        VenisonTile tile = (VenisonTile)_venobj.tiles.get(piecen.getKey());
+        AtlantiTile tile = (AtlantiTile)_atlobj.tiles.get(piecen.getKey());
         int pidx = _delegate.getTurnHolderIndex();
-        int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
+        int pcount = TileUtil.countPiecens(_atlobj.piecens, pidx);
 
         // make sure it's this player's turn
         if (_playerOids[pidx] != event.getSourceOid()) {
             Log.warning("Requested to place piecen by non-turn holder " +
                         "[event=" + event +
-                        ", turnHolder=" + _venobj.turnHolder + "].");
+                        ", turnHolder=" + _atlobj.turnHolder + "].");
 
             // do some checking before we place the piecen
         } else if (pcount >= PIECENS_PER_PLAYER) {
@@ -683,7 +696,7 @@ public class VenisonManager extends GameManager
             // and add the piecen to the game object. when we receive
             // the piecen added event, we'll score it and then end the
             // turn
-            _venobj.addToPiecens(piecen);
+            _atlobj.addToPiecens(piecen);
         }
     }
 
@@ -697,7 +710,7 @@ public class VenisonManager extends GameManager
         if (_playerOids[pidx] != event.getSourceOid()) {
             Log.warning("Requested to place nothing by non-turn holder " +
                         "[event=" + event +
-                        ", turnHolder=" + _venobj.turnHolder + "].");
+                        ", turnHolder=" + _atlobj.turnHolder + "].");
 
         } else {
             // player doesn't want to place anything, so we just end
@@ -734,10 +747,10 @@ public class VenisonManager extends GameManager
     }
 
     /** Our turn game delegate. */
-    protected VenisonManagerDelegate _delegate;
+    protected AtlantiManagerDelegate _delegate;
 
-    /** A casted reference to our Venison game object. */
-    protected VenisonObject _venobj;
+    /** A casted reference to our Atlanti game object. */
+    protected AtlantiObject _atlobj;
 
     /** The (shuffled) list of tiles remaining to be played in this
      * game. */

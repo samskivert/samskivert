@@ -1,11 +1,11 @@
 //
-// $Id: TileCodes.java,v 1.9 2001/12/18 11:58:53 mdb Exp $
+// $Id: TileCodes.java,v 1.10 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.data;
 
 /**
  * A repository for constants related to the tiles that are used in the
- * game of Venison.
+ * game of Atlantissonne.
  */
 public interface TileCodes
 {

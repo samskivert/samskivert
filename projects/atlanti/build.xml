@@ -1,10 +1,10 @@
 <!-- build configuration -->
-<project name="venison" default="compile" basedir=".">
+<project name="atlanti" default="compile" basedir=".">
 
   <!-- things you may want to change -->
-  <property name="app.name"         value="venison"/>
-  <property name="doc.packages"     value="com.threerings.venison.*"/>
-  <property name="doc.overview"     value="com/threerings/venison/overview.html"/>
+  <property name="app.name"         value="atlanti"/>
+  <property name="doc.packages"     value="com.threerings.atlanti.*"/>
+  <property name="doc.overview"     value="com/threerings/atlanti/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
   <property name="build.compiler"   value="jikes"/>
   <property name="java.libraries"   value="/usr/share/java"/>

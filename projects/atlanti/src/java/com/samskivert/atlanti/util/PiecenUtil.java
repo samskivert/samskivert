@@ -1,7 +1,7 @@
 //
-// $Id: PiecenUtil.java,v 1.2 2002/05/21 04:45:09 mdb Exp $
+// $Id: PiecenUtil.java,v 1.3 2002/12/12 05:51:54 mdb Exp $
 
-package com.threerings.venison;
+package com.samskivert.atlanti.util;
 
 import java.awt.Image;
 

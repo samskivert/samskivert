@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.16 2002/05/02 05:30:31 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.17 2002/05/02 07:20:04 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -37,6 +37,9 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.servlet.VelocityServlet;
+
+import org.apache.velocity.app.event.EventCartridge;
+import org.apache.velocity.app.event.MethodExceptionEventHandler;
 
 import com.samskivert.Log;
 
@@ -149,6 +152,7 @@ import com.samskivert.util.StringUtil;
  * @see ExceptionMap
  */
 public class DispatcherServlet extends VelocityServlet
+    implements MethodExceptionEventHandler
 {
     /**
      * Initialize ourselves and our application.
@@ -233,6 +237,14 @@ public class DispatcherServlet extends VelocityServlet
         InvocationContext ictx = (InvocationContext)ctx;
         String errmsg = null;
 
+        // listen for exceptions so that we can report them
+        EventCartridge ec = ictx.getEventCartridge();
+        if (ec == null) {
+            ec = new EventCartridge();
+            ec.attachToContext(ictx);
+            ec.addEventHandler(this);
+        }
+
         // obtain the siteid for this request and stuff that into the
         // context
         SiteIdentifier ident = _app.getSiteIdentifier();
@@ -299,6 +311,19 @@ public class DispatcherServlet extends VelocityServlet
         }
 
 	return tmpl;
+    }
+
+    /**
+     * Called when a method throws an exception during template
+     * evaluation.
+     */
+    public Object methodException (Class clazz, String method, Exception e)
+        throws Exception
+    {
+        Log.warning("Exception [class=" + clazz.getName() +
+                    ", method=" + method + "].");
+        Log.logStackTrace(e);
+        return "";
     }
 
     /**

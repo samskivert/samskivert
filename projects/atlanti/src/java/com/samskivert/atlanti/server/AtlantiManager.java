@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.13 2001/10/18 02:19:24 mdb Exp $
+// $Id: AtlantiManager.java,v 1.14 2001/10/18 20:57:21 mdb Exp $
 
 package com.threerings.venison;
 
@@ -18,6 +18,10 @@ import com.threerings.presents.dobj.ElementUpdatedEvent;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.MessageEvent;
+
+import com.threerings.crowd.chat.ChatService;
+import com.threerings.crowd.chat.ChatMessageHandler;
+import com.threerings.crowd.chat.ChatProvider;
 
 import com.threerings.parlor.turn.TurnGameManager;
 
@@ -39,6 +43,8 @@ public class VenisonManager
         super.didInit();
 
         // register our message handlers
+        registerMessageHandler(
+            ChatService.SPEAK_REQUEST, new ChatMessageHandler());
         registerMessageHandler(PLACE_TILE_REQUEST, new PlaceTileHandler());
         registerMessageHandler(
             PLACE_PIECEN_REQUEST, new PlacePiecenHandler());
@@ -198,23 +204,31 @@ public class VenisonManager
             // score it regardless, we score incomplete features only
             // during the final tally
             if (score > 0 || piecens != null) {
-                // convert the score into a positive value
-                if (score > 0) {
-                    Log.info("Scoring complete feature " +
-                             "[ttype=" + tile.type + ", feature=" + f +
-                             ", score=" + score +
-                             ", cgv=" + StringUtil.toString(cgv) + "].");
+                String qual = (score > 0) ? "Completed" : "Incomplete";
 
-                } else {
-                    Log.info("Scoring incomplete feature [ttype=" + tile.type +
-                             ", feature=" + f + ", score=" + score + "].");
-                }
+                // convert the score into a positive value
                 score = Math.abs(score);
 
-                // adjust the scores
+                // adjust and report the scores
+                StringBuffer names = new StringBuffer();
                 for (int p = 0; p < cgv.length; p++) {
+                    // adjust the score
                     _venobj.scores[p] += (score * cgv[p]);
+
+                    // append the scorers name to the list
+                    if (cgv[p] > 0) {
+                        if (names.length() > 0) {
+                            names.append(", ");
+                        }
+                        names.append(_players[p]);
+                    }
                 }
+
+                String message = qual + " " + TileCodes.FEATURE_NAMES[f.type] +
+                    " scored " + score + " points for " + names + ".";
+                ChatProvider.sendChatMessage(
+                    _venobj.getOid(), SERVER_USERNAME, message);
+
                 Log.info("New scores: " + StringUtil.toString(_venobj.scores));
 
                 // broadcast the new scores if this isn't the final tally
@@ -275,18 +289,18 @@ public class VenisonManager
                     // if it's completed or if we're doing the final
                     // tally, we score it
                     if (score > 0 || piecens != null) {
-                        if (score > 0) {
-                            Log.info("Scored completed cloister " +
-                                     "[tile=" + neighbor +
-                                     ", f=" + f + ", p=" + p + "].");
-                        } else {
-                            Log.info("Scored incomplete cloister " +
-                                     "[tile=" + neighbor +
-                                     ", f=" + f + ", p=" + p + "].");
-                        }
+                        String qual = (score > 0) ?
+                            "complete" : "incomplete";
 
                         // coerce the score into positive land
                         score = Math.abs(score);
+
+                        // deliver a chat notification to tell the
+                        // players about the score
+                        String message = _players[p.owner] + " scored " +
+                            score + " points for " + qual + " cloister.";
+                        ChatProvider.sendChatMessage(
+                            _venobj.getOid(), SERVER_USERNAME, message);
 
                         // add the score to the owning player
                         _venobj.scores[p.owner] += score;
@@ -300,10 +314,6 @@ public class VenisonManager
                         // and clear out the piecen (only removing it from
                         // the piecen set if we're not in the final tally)
                         removePiecen(p, piecens == null);
-
-                    } else {
-//                          Log.info("Not scoring incomplete cloister " +
-//                                   "[tile=" + neighbor + ", feat=" + f + "].");
                     }
                 }
             }
@@ -316,6 +326,7 @@ public class VenisonManager
     protected void scoreFarms ()
     {
         HashIntMap cities = new HashIntMap();
+        int[] cityScores = new int[_players.length];
 
         // clear out the claims for incompleted cities and claim unclaimed
         // completed cities
@@ -419,9 +430,19 @@ public class VenisonManager
                     Log.info("Scoring city for player [cgroup=" + cityClaim +
                              ", player=" + _players[i] +
                              ", pcount=" + pcount[i] + "].");
-                    _venobj.scores[i] += 4;
+                    cityScores[i] += 4;
                 }
             }
+        }
+
+        // now report the scoring and transfer the counts to the score
+        // array
+        for (int i = 0; i < _players.length; i++) {
+            _venobj.scores[i] += cityScores[i];
+            String message = _players[i] + " scores " + cityScores[i] +
+                " points for farmed cities.";
+            ChatProvider.sendChatMessage(
+                _venobj.getOid(), SERVER_USERNAME, message);
         }
     }
 
@@ -598,10 +619,13 @@ public class VenisonManager
 
                 Log.info("Placed tile " + tile + ".");
 
-                // now determine if this player has any free piecens
+                // if the player has no free piecens or if there are no
+                // unclaimed features on this tile, we end their turn
+                // straight away
                 int pidx = getTurnHolderIndex();
                 int pcount = TileUtil.countPiecens(_tiles, pidx);
-                if (pcount >= PIECENS_PER_PLAYER) {
+                if (pcount >= PIECENS_PER_PLAYER ||
+                    !tile.hasUnclaimedFeature()) {
                     endTurn();
                 }
 
@@ -672,4 +696,7 @@ public class VenisonManager
 
     /** Used to score features groups. */
     protected int[] _claimGroupVector;
+
+    /** The username we use for delivering server chat messages. */
+    protected static final String SERVER_USERNAME = "game notice";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.7 2002/03/15 17:34:48 shaper Exp $
+// $Id: Label.java,v 1.8 2002/04/30 01:57:47 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -201,6 +201,13 @@ public class Label implements SwingConstants
             _size.setSize((int)bounds.getWidth(), (int)getHeight(layout));
             layouts = new ArrayList();
             layouts.add(layout);
+        }
+
+        // if we have an outline color, we need to be two pixels bigger in
+        // both directions to account for stealthy, hack outline mode
+        if (_outlineColor != null) {
+            _size.width += 2;
+            _size.height += 2;
         }
 
         // create our layouts array

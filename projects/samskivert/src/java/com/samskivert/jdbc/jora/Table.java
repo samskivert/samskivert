@@ -366,7 +366,7 @@ public class Table {
     public int update(Object obj)
 	throws SQLException
     {
-	return update(obj, null, null);
+	return update(obj, null, session);
     }
 
     /** Update record in the table using table's primary key to locate

@@ -1,5 +1,5 @@
 //
-// $Id: RadialMenu.java,v 1.1 2003/04/15 20:28:36 mdb Exp $
+// $Id: RadialMenu.java,v 1.2 2003/04/15 20:54:34 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -32,8 +32,7 @@ import com.samskivert.util.StringUtil;
 
 /**
  * Provides a radial menu with iconic menu items that expand to include
- * textual descriptions when moused over.  Menu selections are posted as
- * controller commands.
+ * textual descriptions when moused over.
  */
 public class RadialMenu
     implements MouseMotionListener, MouseListener
@@ -436,12 +435,9 @@ public class RadialMenu
                 Object itemArg = _activeItem.argument;
                 Object arg = (itemArg == null) ? _argument : itemArg;
 
-                // post the action
+                // notify our listeners that the action is posted
                 final CommandEvent evt = new CommandEvent(
                     _host.getComponent(), _activeItem.command, arg);
-                Controller.postAction(evt);
-
-                // and notify our listeners
                 _actlist.apply(new ObserverList.ObserverOp() {
                     public boolean apply (Object obs) {
                         ((ActionListener)obs).actionPerformed(evt);

@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.6 2001/11/02 02:03:23 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.7 2001/11/02 02:30:54 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -169,10 +169,6 @@ public class DispatcherServlet extends VelocityServlet
 
         // Log.info("Initializing dispatcher servlet.");
 
-        // initialize the Velocity application context
-        ServletContext sctx = getServletContext();
-        Velocity.setApplicationContext(sctx);
-
         // load up our application configuration
         try {
             String appcl = config.getInitParameter(APP_CLASS_PROPS_KEY);
@@ -188,13 +184,20 @@ public class DispatcherServlet extends VelocityServlet
             if (StringUtil.blank(logicPkg)) {
                 logicPkg = "";
             }
-            _app.init(sctx);
-            _app.postInit(sctx, logicPkg);
+            _app.init(getServletContext());
+            _app.postInit(getServletContext(), logicPkg);
 
         } catch (Throwable t) {
             Log.warning("Error instantiating application.");
             Log.logStackTrace(t);
         }
+    }
+
+    // documentation inherited
+    protected void velocityWillInit (Properties props)
+    {
+        // stick the servlet context into the Velocity application context
+        Velocity.setApplicationContext(getServletContext());
     }
 
     /**

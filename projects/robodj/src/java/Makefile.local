@@ -1,0 +1,17 @@
+#
+# $Id: Makefile.local,v 1.1 2000/12/10 07:00:21 mdb Exp $
+#
+# Defines stuff common to this entire code tree
+
+# this tells the build system where to install shared libraries built from
+# this code tree
+LIBDIR = $(ROOT)/../../lib/$(ARCH)
+
+# where we put our zip and jar files
+ZIPDIR = $(ROOT)/../../lib
+
+LOCAL_CLASSPATH += \
+	$(shell ls $(ZIPDIR)/*.jar) \
+	/home/mdb/projects/samskivert/src/java \
+
+#	$(shell ls $(ZIPDIR)/*.zip) \

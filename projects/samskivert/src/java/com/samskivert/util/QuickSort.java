@@ -20,6 +20,7 @@
 
 package com.samskivert.util;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
@@ -33,7 +34,7 @@ public class QuickSort
      */
     public static void sort (Object[] a, Comparator comp)
     {
-	csort(a, 0, a.length - 1, comp);
+	sort(a, 0, a.length - 1, comp);
     }
 
     /**
@@ -51,7 +52,7 @@ public class QuickSort
      */
     public static void rsort (Object[] a, Comparator comp)
     {
-	crsort(a, 0, a.length - 1, comp);
+	rsort(a, 0, a.length - 1, comp);
     }
 
     /**
@@ -75,7 +76,7 @@ public class QuickSort
      * @param comp the comparator to use to establish ordering between
      * elements.
      */
-    public static void csort (Object[] a, int lo0, int hi0, Comparator comp)
+    public static void sort (Object[] a, int lo0, int hi0, Comparator comp)
     {
         // bail out if we're already done
 	if (hi0 <= lo0) {
@@ -120,13 +121,13 @@ public class QuickSort
         // if the right index has not reached the left side of array
         // must now sort the left partition
         if (lo0 < lo-1) {
-            csort(a, lo0, lo-1, comp);
+            sort(a, lo0, lo-1, comp);
         }
 
         // if the left index has not reached the right side of array
         // must now sort the right partition
         if (hi+1 < hi0) {
-            csort(a, hi+1, hi0, comp);
+            sort(a, hi+1, hi0, comp);
         }
     }
 
@@ -142,7 +143,7 @@ public class QuickSort
      * @param comp the comparator to use to establish ordering between
      * elements.
      */
-    public static void crsort (Object[] a, int lo0, int hi0, Comparator comp)
+    public static void rsort (Object[] a, int lo0, int hi0, Comparator comp)
     {
         // bail out if we're already done
 	if (hi0 <= lo0) {
@@ -187,13 +188,13 @@ public class QuickSort
         // if the right index has not reached the left side of array
         // must now sort the left partition
         if (lo0 < lo-1) {
-            crsort(a, lo0, lo-1, comp);
+            rsort(a, lo0, lo-1, comp);
         }
 
         // if the left index has not reached the right side of array
         // must now sort the right partition
         if (hi+1 < hi0) {
-            crsort(a, hi+1, hi0, comp);
+            rsort(a, hi+1, hi0, comp);
         }
     }
 
@@ -324,6 +325,109 @@ public class QuickSort
         // must now sort the right partition
         if (hi+1 < hi0) {
             rsort(a, hi+1, hi0);
+        }
+    }
+
+    /**
+     * Sort the elements in the specified ArrayList according to their
+     * natural order.
+     */
+    public static void sort (ArrayList a)
+    {
+        sort(a, Comparators.COMPARABLE);
+    }
+
+    /**
+     * Sort the elements in the specified ArrayList according to the
+     * ordering imposed by the specified Comparator.
+     */
+    public static void sort (ArrayList a, Comparator comp)
+    {
+        sort(a, 0, a.size() - 1, comp);
+    }
+
+    /**
+     * Sort the elements in the specified ArrayList according to their
+     * reverse natural order.
+     */
+    public static void rsort (ArrayList a)
+    {
+        sort(a, Comparators.REVERSE_COMPARABLE);
+    }
+
+    /**
+     * Sort the elements in the specified ArrayList according to the
+     * reverse ordering imposed by the specified Comparator.
+     */
+    public static void rsort (ArrayList a, Comparator comp)
+    {
+        sort(a, new Comparators.ReversingComparator(comp));
+    }
+
+    /**
+     * Sort a subset of the elements in the specified ArrayList according
+     * to the ordering imposed by the specified Comparator.
+     */
+    public static void sort (ArrayList a, int lo0, int hi0, Comparator comp)
+    {
+        // bail out if we're already done
+	if (hi0 <= lo0) {
+            return;
+        }
+
+        Object e1, e2, t;
+
+        // if this is a two element file, do a simple sort on it
+        if (hi0 - lo0 == 1) {
+            // if they're not already sorted, swap them
+            e1 = a.get(lo0);
+            e2 = a.get(hi0);
+            if (comp.compare(e2, e1) < 0) {
+                a.set(hi0, e1);
+                a.set(lo0, e2);
+            }
+            return;
+        }
+
+        // the middle element in the array is our partitioning element
+        Object mid = a.get((lo0 + hi0)/2);
+
+        // set up our partitioning boundaries
+        int lo = lo0-1, hi = hi0+1;
+
+        // loop through the array until indices cross
+        for (;;) {
+            // find the first element that is greater than or equal to
+            // the partition element starting from the left Index.
+            do {
+                e1 = a.get(++lo);
+            } while (comp.compare(e1, mid) < 0);
+
+            // find an element that is smaller than or equal to
+            // the partition element starting from the right Index.
+            do {
+                e2 = a.get(--hi);
+            } while (comp.compare(mid, e2) < 0);
+
+            // swap the two elements or bail out of the loop
+            if (hi > lo) {
+                a.set(lo, e2);
+                a.set(hi, e1);
+            } else {
+                break;
+            }
+        }
+
+        // if the right index has not reached the left side of array
+        // must now sort the left partition
+        if (lo0 < lo-1) {
+            sort(a, lo0, lo-1, comp);
+        }
+
+        // if the left index has not reached the right side of array
+        // must now sort the right partition
+        if (hi+1 < hi0) {
+            sort(a, hi+1, hi0, comp);
         }
     }
 }

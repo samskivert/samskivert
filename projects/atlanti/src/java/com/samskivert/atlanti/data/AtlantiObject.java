@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiObject.java,v 1.4 2001/10/12 20:34:13 mdb Exp $
+// $Id: AtlantiObject.java,v 1.5 2001/10/16 17:11:58 mdb Exp $
 
 package com.threerings.venison;
 
@@ -23,7 +23,7 @@ public class VenisonObject extends TurnGameObject
 
     /** The tile being placed by the current turn holder. This value is
      * only valid while it is someone's turn. */
-    public VenisonTile currentTile = new VenisonTile();
+    public VenisonTile currentTile = VenisonTile.STARTING_TILE;
 
     /**
      * Requests that the <code>tiles</code> field be set to the specified

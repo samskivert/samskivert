@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.7 2001/12/20 00:40:09 mdb Exp $
+// $Id: Controller.java,v 1.8 2002/02/16 06:57:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -188,7 +188,8 @@ public abstract class Controller
                         }
                     } catch (Exception e) {
                         Log.warning("Controller choked on action " +
-                                    "[ctrl=" + ctrl + "].");
+                                    "[ctrl=" + ctrl +
+                                    ", action=" + _action + "].");
                         Log.logStackTrace(e);
                     }
                 }

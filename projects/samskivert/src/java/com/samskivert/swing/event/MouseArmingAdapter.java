@@ -1,5 +1,5 @@
 //
-// $Id: MouseArmingAdapter.java,v 1.2 2002/10/01 18:56:32 shaper Exp $
+// $Id: MouseArmingAdapter.java,v 1.1 2002/12/13 04:30:38 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Ray Greenwell
@@ -18,11 +18,12 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.swing;
+package com.samskivert.swing.event;
 
 import java.awt.Component;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
+
 import javax.swing.event.MouseInputAdapter;
 
 /**
@@ -62,7 +63,7 @@ public abstract class MouseArmingAdapter
             {
                 if (button1(e)) {
                     if (_armed && contains(e)) {
-                        clicked();
+                        clicked(e);
                     }
                     _startedArmed = _armed = false;
                 }
@@ -106,9 +107,10 @@ public abstract class MouseArmingAdapter
     }
 
     /**
-     * Will be called when a click is registered over the component.
+     * Called when a click is registered over the component with the mouse
+     * event that resulted in the click.
      */
-    public void clicked ()
+    public void clicked (MouseEvent e)
     {
     }
 

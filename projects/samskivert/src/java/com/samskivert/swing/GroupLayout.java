@@ -1,5 +1,5 @@
 //
-// $Id: GroupLayout.java,v 1.3 2001/08/11 22:43:28 mdb Exp $
+// $Id: GroupLayout.java,v 1.4 2002/04/26 02:34:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,7 +21,10 @@
 package com.samskivert.swing;
 
 import java.awt.*;
+
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
 import java.util.HashMap;
 
 /**
@@ -295,9 +298,101 @@ public abstract class GroupLayout
 	return info;
     }
 
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * HGroupLayout} with a configuration conducive to containing a row of
+     * buttons.
+     */
+    public static JPanel makeButtonBox (int justification)
+    {
+        return new JPanel(new HGroupLayout(NONE, justification));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * HGroupLayout} with the default configuration.
+     */
+    public static JPanel makeHBox ()
+    {
+        return new JPanel(new HGroupLayout());
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * HGroupLayout} with the specified on-axis policy (default
+     * configuration otherwise).
+     */
+    public static JPanel makeHBox (int policy)
+    {
+        return new JPanel(new HGroupLayout(policy));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * HGroupLayout} with the specified on-axis policy and justification
+     * (default configuration otherwise).
+     */
+    public static JPanel makeHBox (int policy, int justification)
+    {
+        return new JPanel(new HGroupLayout(policy, justification));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * HGroupLayout} with the specified on-axis policy, justification and
+     * off-axis policy (default configuration otherwise).
+     */
+    public static JPanel makeHBox (int policy, int justification,
+                                   int offAxisPolicy)
+    {
+        return new JPanel(new HGroupLayout(policy, offAxisPolicy,
+                                           DEFAULT_GAP, justification));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * VGroupLayout} with the default configuration.
+     */
+    public static JPanel makeVBox ()
+    {
+        return new JPanel(new VGroupLayout());
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * VGroupLayout} with the specified on-axis policy (default
+     * configuration otherwise).
+     */
+    public static JPanel makeVBox (int policy)
+    {
+        return new JPanel(new VGroupLayout(policy));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * VGroupLayout} with the specified on-axis policy and justification
+     * (default configuration otherwise).
+     */
+    public static JPanel makeVBox (int policy, int justification)
+    {
+        return new JPanel(new VGroupLayout(policy, justification));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * VGroupLayout} with the specified on-axis policy, justification and
+     * off-axis policy (default configuration otherwise).
+     */
+    public static JPanel makeVBox (int policy, int justification,
+                                   int offAxisPolicy)
+    {
+        return new JPanel(new VGroupLayout(policy, offAxisPolicy,
+                                           DEFAULT_GAP, justification));
+    }
+
     protected int _policy = NONE;
     protected int _offpolicy = NONE;
-    protected int _gap = 5;
+    protected int _gap = DEFAULT_GAP;
     protected int _justification = CENTER;
     protected int _offjust = CENTER;
 
@@ -306,4 +401,6 @@ public abstract class GroupLayout
     protected static final int MINIMUM = 0;
     protected static final int PREFERRED = 1;
     protected static final int MAXIMUM = 2;
+
+    protected static final int DEFAULT_GAP = 5;
 }

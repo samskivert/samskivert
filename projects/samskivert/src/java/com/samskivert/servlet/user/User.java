@@ -1,5 +1,5 @@
 //
-// $Id: User.java,v 1.9 2003/07/20 01:43:59 mdb Exp $
+// $Id: User.java,v 1.10 2004/01/13 23:02:04 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -87,6 +87,15 @@ public class User
     {
 	this.email = email;
         _dirty.setModified("email");
+    }
+
+    /**
+     * Updates the user's site id.
+     */
+    public void setSiteId (int siteId)
+    {
+        this.siteId = siteId;
+        _dirty.setModified("siteId");
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.9 2003/01/23 21:37:13 mdb Exp $
+// $Id: index.java,v 1.10 2003/05/21 02:40:13 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -67,10 +67,15 @@ public class index extends UserLogic
 	    // insert the task into the repository
             app.getRepository().createTask(task);
 
-            // flip back to this same page minus our query parameters to
-            // clear out the creation form
-            throw new RedirectException(
-                "index.wm?msg=index.message.task_created");
+            // if they want to edit this task, shoot them to the edit
+            // page, otherwise flip back to this same page minus our query
+            // parameters to clear out the creation form
+            if (ParameterUtil.isSet(req, "edit")) {
+                throw new RedirectException("edit.wm?task=" + task.taskId);
+            } else {
+                throw new RedirectException(
+                    "index.wm?msg=index.message.task_created");
+            }
 
         } else if (ParameterUtil.parameterEquals(req, "action", "complete")) {
             int taskId = ParameterUtil.requireIntParameter(
@@ -127,6 +132,15 @@ public class index extends UserLogic
                 return task.owner;
             }
         });
+        // look for our name and swap that into the zeroth position
+        for (int ii = 0; ii < otasks.length; ii++) {
+            if (otasks[ii].name.equals(user.username)) {
+                CatList tlist = otasks[0];
+                otasks[0] = otasks[ii];
+                otasks[ii] = tlist;
+                break;
+            }
+        }
         ctx.put("otasks", otasks);
         ctx.put("ocats", new CategoryTool());
 

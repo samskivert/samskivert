@@ -187,8 +187,9 @@ $form.text("category", "size='10'", "")
 </td></tr>
 
 <tr>
-<td colspan="2" align="left" bgcolor="$scolor">$form.checkbox("claim", false)
-Claim created task</td>
+<td colspan="2" align="left" bgcolor="$scolor">
+$form.checkbox("claim", false) Claim created task&nbsp;&nbsp;
+$form.checkbox("edit", false) Edit created task</td>
 <td align="right" bgcolor="$scolor">
 $form.submit("submit", "Create")</td></tr>
 </table>

@@ -26,5 +26,5 @@
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 
 # send out commit emails to interested parties
-projects/samskivert $CVSROOT/CVSROOT/syncmail -u %{sVv} threerings-commits@waywardgeeks.org
+projects/samskivert $CVSROOT/CVSROOT/syncmail -u %{sVv} samskivert-commits@samskivert.com
 DEFAULT $CVSROOT/CVSROOT/syncmail -u %{sVv} mdb@samskivert.com

@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.11 2001/08/12 04:36:58 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.12 2001/08/13 23:42:43 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -196,12 +196,6 @@ public class HierarchyVisualizer implements Printable
     protected ArrayList _groups;
 
     protected PageFormat _format;
-
-    protected static final int PAGE_WIDTH = (int)(72 * 7.5);
-    protected static final int PAGE_HEIGHT = (int)(72 * 10);
-
-    protected static final int X_MARGIN = 72/2;
-    protected static final int Y_MARGIN = 72/2;
 
     protected static final int GAP = 72/4;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.13 2001/10/18 23:11:24 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.14 2001/11/07 18:03:33 mdb Exp $
 
 package com.threerings.venison;
 
@@ -214,6 +214,8 @@ public class VenisonBoard
      */
     public void setTileToBePlaced (VenisonTile tile)
     {
+        Log.info("Setting tile to be placed [tile=" + tile + "].");
+
         // make a copy of this tile so that we can play with it
         _placingTile = (VenisonTile)tile.clone();;
 

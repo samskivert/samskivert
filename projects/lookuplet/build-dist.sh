@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: build-dist.sh,v 1.2 2001/08/17 20:52:58 mdb Exp $
+# $Id: build-dist.sh,v 1.3 2002/03/17 10:15:24 mdb Exp $
 #
 # Builds a distribution archive. This should be run from the top-level
 # project directory and it will place the distribution archive into the
@@ -20,7 +20,6 @@ fi
 cat > .excludes <<EOF
 build-dist.sh
 CVS
-macros
 .excludes
 .cvsignore
 *.tar.gz

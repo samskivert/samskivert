@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.9 2001/10/17 23:27:52 mdb Exp $
+// $Id: AtlantiTile.java,v 1.10 2001/10/18 20:56:45 mdb Exp $
 
 package com.threerings.venison;
 
@@ -84,6 +84,18 @@ public class VenisonTile
     public VenisonTile ()
     {
         // nothing doing
+    }
+
+    /**
+     * Returns true if this tile has at leats one unclaimed feature.
+     */
+    public boolean hasUnclaimedFeature ()
+    {
+        boolean unclaimed = false;
+        for (int i = 0; i < claims.length; i++) {
+            unclaimed = (unclaimed || (claims[i] == 0));
+        }
+        return unclaimed;
     }
 
     /**
@@ -189,11 +201,22 @@ public class VenisonTile
      */
     public void setPiecen (Piecen piecen, List tiles)
     {
-        // are we sure about that?
+        int claimGroup = 0;
+
+        // if we're adding a piecen to a feature that's already claimed,
+        // we want to inherit the claim number (this could happen when we
+        // show up in an in progress game)
         if (claims[piecen.featureIndex] != 0) {
-            Log.warning("Aiya! Requested to add a piecen to a feature " +
-                        "that has already been claimed [tile=" + this +
-                        ", piecen=" + piecen + "].");
+            Log.info("Requested to add a piecen to a feature " +
+                     "that has already been claimed [tile=" + this +
+                     ", piecen=" + piecen + "]. Inheriting.");
+            claimGroup = claims[piecen.featureIndex];
+
+        } else {
+            // otherwise we generate a new claim group
+            claimGroup = TileUtil.nextClaimGroup();
+            Log.info("Creating claim group [cgroup=" + claimGroup +
+                     ", tile=" + this + ", fidx=" + piecen.featureIndex + "].");
         }
 
         // keep a reference to this piecen and configure its position
@@ -204,9 +227,6 @@ public class VenisonTile
         // assign a brand spanking new claim group to the feature and the
         // piecen and propagate it to neighboring features
         if (tiles != null) {
-            int claimGroup = TileUtil.nextClaimGroup();
-            Log.info("Creating claim group [cgroup=" + claimGroup +
-                     ", tile=" + this + ", fidx=" + piecen.featureIndex + "].");
             TileUtil.setClaimGroup(
                 tiles, this, piecen.featureIndex, claimGroup);
             // update our piecen with the claim group as well

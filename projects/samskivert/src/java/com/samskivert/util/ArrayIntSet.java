@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.12 2003/03/04 19:05:43 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.13 2003/06/24 21:29:41 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -35,6 +35,14 @@ import java.util.NoSuchElementException;
 public class ArrayIntSet extends AbstractSet
     implements IntSet, Cloneable, Serializable
 {
+    /**
+     * Construct an ArrayIntSet with the specified starting values.
+     */
+    public ArrayIntSet (int[] values)
+    {
+        add(values);
+    }
+
     // documentation inherited from interface
     public int size ()
     {

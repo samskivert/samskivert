@@ -1,5 +1,5 @@
 //
-// $Id: DriverTask.java,v 1.3 2001/12/03 09:14:11 mdb Exp $
+// $Id: DriverTask.java,v 1.4 2003/01/28 22:39:34 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -79,6 +79,11 @@ public class DriverTask extends Task
         _classes = classes;
     }
 
+    public void setExclude (String exclude)
+    {
+        _exclude = exclude;
+    }
+
     public void setOutput (File output)
     {
         _output = output;
@@ -116,10 +121,11 @@ public class DriverTask extends Task
         ClassEnumerator enum = new ClassEnumerator(classpath.toString());
         FilterEnumerator fenum = null;
         try {
-            fenum = new RegexpEnumerator(_classes, enum);
+            fenum = new RegexpEnumerator(_classes, _exclude, enum);
         } catch  (Exception e) {
             throw new BuildException("Invalid package regular expression " +
-                                     "[classes=" + _classes + "].", e);
+                                     "[classes=" + _classes +
+                                     ", exclude=" + _exclude + "].", e);
         }
 
         ArrayList classes = new ArrayList();
@@ -215,7 +221,7 @@ public class DriverTask extends Task
 
     protected String _vizclass;
     protected String _pkgroot;
-    protected String _classes;
+    protected String _classes, _exclude;
     protected File _output;
 
     // use use this for accumulating our classpath

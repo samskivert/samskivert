@@ -1,5 +1,5 @@
 //
-// $Id: RegexpEnumerator.java,v 1.1 2001/12/03 08:34:53 mdb Exp $
+// $Id: RegexpEnumerator.java,v 1.2 2003/01/28 22:39:35 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -30,17 +30,22 @@ import org.apache.regexp.RESyntaxException;
  */
 public class RegexpEnumerator extends FilterEnumerator
 {
-    public RegexpEnumerator (String regexp, Iterator source)
+    public RegexpEnumerator (String regexp, String exregex, Iterator source)
         throws RESyntaxException
     {
         super(source);
         _regexp = new RE(regexp);
+        if (exregex != null) {
+            _exreg = new RE(exregex);
+        }
     }
 
     protected boolean filterClass (String clazz)
     {
-        return !_regexp.match(clazz);
+        return !(_regexp.match(clazz) &&
+                 (_exreg == null || !_exreg.match(clazz)));
     }
 
     protected RE _regexp;
+    protected RE _exreg;
 }

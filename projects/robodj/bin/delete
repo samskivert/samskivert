@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w
+#
+# $Id: delete,v 1.1 2002/03/03 04:56:43 mdb Exp $
+#
+# Deletes an entry from the repository. Must be run on the machine that
+# hosts the repository so that it can delete the files.
+
+my $usage = "Usage: $0 repodir db_username db_password entryid\n";
+
+my $repodir = shift or die $usage;
+my $username = shift or die $usage;
+my $password = shift or die $usage;
+my $entryid = shift or die $usage;
+
+if (! -d $repodir) {
+    die "'$repodir' not a valid repository directory.\n";
+}
+
+invoke_sql("delete from entries where entryid=$entryid");
+invoke_sql("delete from songs where entryid=$entryid");
+system("rm -rf $repodir/*/$entryid");
+
+sub invoke_sql {
+    my ($sql) = @_;
+    system("mysql -u $username -p$password -e \"$sql\" robodj") == 0
+        or die "Error invoking 'mysql'.";
+}

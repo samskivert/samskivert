@@ -1,9 +1,10 @@
 //
-// $Id: Repository.java,v 1.8 2001/09/21 03:09:01 mdb Exp $
+// $Id: Repository.java,v 1.9 2002/02/22 07:06:34 mdb Exp $
 
 package robodj.repository;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -99,10 +100,10 @@ public class Repository extends JORARepository
      * @param query a WHERE clause describing which entries should be
      * selected (ie. 'where title like "%foo%"').
      *
-     * @return all entries in the table matching the query
-     * parameters. <em>Note</em>: this member function does not populate
-     * the songs arrays of the returned entries. Call
-     * <code>populateSongs</code> on an entry by entry basis for that.
+     * @return all entries in the table matching the query parameters.
+     * <em>Note</em>: this member function does not populate the songs
+     * arrays of the returned entries. Call <code>populateSongs</code> on
+     * an entry by entry basis for that.
      */
     public Entry[] getEntries (final String query)
 	throws PersistenceException
@@ -122,6 +123,84 @@ public class Repository extends JORARepository
                 return entries;
             }
         });
+    }
+
+    /**
+     * Returns all entries for whom the supplied word is contained in the
+     * title or artist text or in the text of any of that entry's songs.
+     *
+     * @param match a string to be case-insensitively matched in the title
+     * or artist text.
+     *
+     * @return all entries in the table matching the query parameters.
+     * <em>Note</em>: this member function does not populate the songs
+     * arrays of the returned entries. Call <code>populateSongs</code> on
+     * an entry by entry basis for that.
+     */
+    public Entry[] matchEntries (final String match)
+	throws PersistenceException
+    {
+	return (Entry[])execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+	    {
+                System.out.println("looking up '" + match + "'.");
+
+                PreparedStatement stmt = null;
+                String query;
+
+                try {
+                    // look up matching entries
+                    query = "select entryid, title, artist, source " +
+                        "from entries where title like ? or artist like ?";
+                    stmt = conn.prepareStatement(query);
+                    stmt.setString(1, "%" + match + "%");
+                    stmt.setString(2, "%" + match + "%");
+
+                    HashIntMap etable = new HashIntMap();
+                    loadEntries(stmt, etable);
+                    JDBCUtil.close(stmt);
+
+                    // now look up matching songs
+                    query = "select entries.entryid, entries.title, " +
+                        "entries.artist, entries.source from " +
+                        "songs, entries where " +
+                        "songs.entryid = entries.entryid and " +
+                        "songs.title like ?";
+                    stmt = conn.prepareStatement(query);
+                    stmt.setString(1, "%" + match + "%");
+                    loadEntries(stmt, etable);
+
+                    Entry[] entries = new Entry[etable.size()];
+                    Iterator iter = etable.values().iterator();
+                    for (int i = 0; iter.hasNext(); i++) {
+                        entries[i] = (Entry)iter.next();
+                    }
+                    return entries;
+
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+            }
+        });
+    }
+
+    /**
+     * Loads entries from the supplied query and inserts them into the
+     * supplied hash map.
+     */
+    protected void loadEntries (PreparedStatement stmt, HashIntMap entries)
+        throws SQLException
+    {
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Entry entry = new Entry();
+            entry.entryid = rs.getInt(1);
+            entry.title = rs.getString(2);
+            entry.artist = rs.getString(3);
+            entry.source = rs.getString(4);
+            entries.put(entry.entryid, entry);
+        }
     }
 
     /**

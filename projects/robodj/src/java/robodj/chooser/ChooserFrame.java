@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.5 2001/07/13 00:11:05 mdb Exp $
+// $Id: ChooserFrame.java,v 1.6 2002/02/22 07:06:33 mdb Exp $
 
 package robodj.chooser;
 
@@ -40,6 +40,10 @@ public class ChooserFrame
         BrowsePanel bpanel = new BrowsePanel();
         tip = "Browse and select tunes to play.";
         tpane.addTab("Browse", null, bpanel, tip);
+
+        SearchPanel spanel = new SearchPanel();
+        tip = "Search titles and artists.";
+        tpane.addTab("Search", null, spanel, tip);
         top.add(tpane);
 
         // the bottom is the control bar

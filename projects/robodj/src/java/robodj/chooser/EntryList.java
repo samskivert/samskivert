@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.9 2001/10/12 18:21:27 mdb Exp $
+// $Id: EntryList.java,v 1.10 2002/02/22 07:06:33 mdb Exp $
 
 package robodj.chooser;
 
@@ -17,11 +17,10 @@ import com.samskivert.swing.util.*;
 import robodj.Log;
 import robodj.repository.*;
 
-public class EntryList
-    extends JPanel
+public abstract class EntryList extends JPanel
     implements TaskObserver, ActionListener, AncestorListener
 {
-    public EntryList (int categoryid)
+    public EntryList ()
     {
 	GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
@@ -47,10 +46,6 @@ public class EntryList
 
         // use a special font for our name buttons
         _nameFont = new Font("Helvetica", Font.PLAIN, 10);
-
-        // keep track of the query that we'll use to populate our entries
-        // display
-        _catid = categoryid;
 
         // listen to ancestor events
         addAncestorListener(this);
@@ -90,13 +85,16 @@ public class EntryList
     }
 
     /**
-     * Reads the entries from the database.
+     * Reads the entries from the database. This will be called on a
+     * separate thread and should be prepared to be called repeatedly
+     * without undue overhead. When the user browses into a song and back
+     * up again, this method is called to repopulate the entries.
      */
-    public Entry[] readEntries ()
-        throws PersistenceException
-    {
-        return Chooser.model.getEntries(_catid);
-    }
+    public abstract Entry[] readEntries ()
+        throws PersistenceException;
+
+    /** The string to display when there are no matching results. */
+    protected abstract String getEmptyString ();
 
     /**
      * Reads the entries from the database.
@@ -190,7 +188,7 @@ public class EntryList
 
         // if there were no entries, stick a label in to that effect
         if (_entries.length == 0) {
-            _bpanel.add(new JLabel("No entries in this category."));
+            _bpanel.add(new JLabel(getEmptyString()));
         }
 
         // reset our scroll position so that we're displaying the top of
@@ -205,6 +203,7 @@ public class EntryList
 
         // we've removed and added components so we need to revalidate
         revalidate();
+        repaint();
     }
 
     protected void populateSong (Entry entry)
@@ -356,7 +355,6 @@ public class EntryList
     protected JPanel _bpanel;
     protected JButton _upbut;
 
-    protected int _catid;
     protected Entry[] _entries;
 
     protected Entry _entry;

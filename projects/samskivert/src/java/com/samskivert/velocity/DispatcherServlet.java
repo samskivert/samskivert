@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.12 2001/11/20 21:13:47 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.13 2001/11/20 21:33:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -198,16 +198,16 @@ public class DispatcherServlet extends VelocityServlet
         // path was provided
         SiteResourceLoader siteLoader = _app.getSiteResourceLoader();
         if (siteLoader != null) {
-            props.put(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
-                      SiteResourceManager.class.getName());
+            props.setProperty(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
+                              SiteResourceManager.class.getName());
         }
 
         // wire up our #import directive
-        props.put("userdirective", ImportDirective.class.getName());
+        props.setProperty("userdirective", ImportDirective.class.getName());
 
         // configure the servlet context logger
-        props.put(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM,
-                  new ServletContextLogger(getServletContext()));
+        props.setProperty(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                          ServletContextLogger.class.getName());
 
         // now return our augmented properties
         return props;

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.17 2002/07/18 18:14:02 ray Exp $
+// $Id: Label.java,v 1.18 2002/07/23 03:06:59 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -203,7 +203,6 @@ public class Label implements SwingConstants
      */
     public void layout (Graphics2D gfx)
     {
-        Font font = (_font == null) ? gfx.getFont() : _font;
         FontRenderContext frc = gfx.getFontRenderContext();
         ArrayList layouts = null;
 

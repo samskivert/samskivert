@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.4 2001/07/12 23:06:55 mdb Exp $
+// $Id: ChooserFrame.java,v 1.5 2001/07/13 00:11:05 mdb Exp $
 
 package robodj.chooser;
 
@@ -33,13 +33,13 @@ public class ChooserFrame
 
         // the top of the UI is the browser and the playlist manager
         JTabbedPane tpane = new JTabbedPane();
-        BrowsePanel bpanel = new BrowsePanel();
-        String tip = "Browse and select tunes to play.";
-        tpane.addTab("Browse", null, bpanel, tip);
-
         PlaylistPanel ppanel = new PlaylistPanel();
-        tip = "View and manipulate the playlist.";
+        String tip = "View and manipulate the playlist.";
         tpane.addTab("Playlist", null, ppanel, tip);
+
+        BrowsePanel bpanel = new BrowsePanel();
+        tip = "Browse and select tunes to play.";
+        tpane.addTab("Browse", null, bpanel, tip);
         top.add(tpane);
 
         // the bottom is the control bar
@@ -50,8 +50,6 @@ public class ChooserFrame
         // add some fake control buttons for now
         cbar.add(_pause = createControlButton("Pause", "pause"));
         cbar.add(createControlButton("Stop", "stop"));
-        cbar.add(createControlButton("Skip", "skip"));
-        cbar.add(createControlButton("Clear", "clear"));
         cbar.add(createControlButton("Exit", "exit"));
 
 	// stick it into the frame

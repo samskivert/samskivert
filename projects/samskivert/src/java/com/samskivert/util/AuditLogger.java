@@ -1,7 +1,7 @@
 //
-// $Id: AuditLogger.java,v 1.1 2003/08/04 20:58:07 ray Exp $
+// $Id: AuditLogger.java,v 1.2 2003/08/04 21:03:09 ray Exp $
 
-package com.threerings.samskivert.util;
+package com.samskivert.util;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,10 +16,6 @@ import java.util.Date;
 
 import com.samskivert.Log;
 
-import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
-import com.samskivert.util.Throttle;
-
 /**
  * Used by various services to generate audit logs which can be useful for
  * auditing, debugging and other logly necessities. The audit logger
@@ -32,7 +28,7 @@ public class AuditLogger
     /**
      * Creates an audit logger that logs to the specified file.
      */
-    public AuditLogger (String path, String filename)
+    public AuditLogger (File path, String filename)
     {
         _logPath = new File(path, filename);
         openLog(true);

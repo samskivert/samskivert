@@ -1,0 +1,93 @@
+#!/usr/bin/perl -w
+#
+# $Id: runjava,v 1.1 2001/06/14 01:51:28 mdb Exp $
+#
+# A script for invoking java. The project root is inferred to be one
+# directory above the directory in which this script lives. Based on the
+# root, all .jar files in the lib subdirectory are added to the classpath.
+# Additionally all shared libraries in lib/$arch, where $arch is generated
+# via uname and looks something like i686-Linux, are added to the
+# LD_LIBRARY_PATH environment variable. Classes are assumed to live in
+# $classdir as defined below.
+
+use strict;
+use Getopt::Std;
+
+# this is where our classfiles live (relative to the project root)
+my $classdir = "dist/classes";
+
+# parse the arguments
+my %opts;
+getopts('p:v', \%opts);
+my $pid_file = $opts{"p"};
+my $verbose = $opts{"v"};
+
+# make sure they specified a classfile
+my $usage = "Usage: $0 [-p pid_file] [-v] [-- args to pass to java] class\n";
+die $usage unless (@ARGV);
+
+# get the server root by popping the /bin off of our directory
+my $location;
+chomp($location = `dirname $0`);
+my @parts = split(/\//, $location);
+pop(@parts);
+my $root = join("/", @parts);
+
+# figure out where our JVM lives
+my $jhome = $ENV{"JAVA_HOME"};
+
+# make sure JAVA_HOME is set
+if (!defined $jhome) {
+    warn "$0: Error: No JAVA_HOME specified!\n";
+    warn "\n";
+    warn "You must set your JAVA_HOME environment variable to the\n";
+    warn "the absolute path of your JDK installation. For example:\n";
+    warn "\n";
+    warn " % JAVA_HOME=/usr/local/jdk1.2\n";
+    warn " % export JAVA_HOME\n";
+    die "\n";
+}
+
+my $java = "$jhome/bin/java";
+my $jlib = "$jhome/lib/classes.zip";
+
+# make sure we can run the jvm
+if (! -x $java) {
+    die "$0: Can't find a java interpreter in '$jhome'.\n";
+}
+
+# determine our machine architecture
+my $ostype = `uname -s`;
+my $machtype = `uname -m`;
+chomp($ostype);
+chomp($machtype);
+my $arch = "$machtype-$ostype";
+
+# add our native libraries to the runtime library path
+my $libs = "$root/lib/$arch";
+my $libpath = $ENV{"LD_LIBRARY_PATH"};
+
+if (defined $libpath) {
+    $ENV{"LD_LIBRARY_PATH"} = "$libs:$libpath";
+} else {
+    $ENV{"LD_LIBRARY_PATH"} = $libs;
+}
+
+# put everything in our class path
+my $classpath = "-classpath $jlib:$root/$classdir";
+
+# any zip or jar files in our lib/ directory get added to the class path
+if (opendir(DIR, "$root/lib")) {
+    my $lib;
+    foreach $lib (grep { /.(zip|jar)/ && -f "$root/lib/$_" } readdir(DIR)) {
+	$classpath .= ":$root/lib/$lib";
+    }
+    closedir DIR;
+}
+
+# log the pid file if requested to do so
+print `echo $$ > $pid_file` if (defined $pid_file);
+
+my $cmd = "$java -mx256M $classpath " . join(" ", @ARGV);
+print "$cmd\n" if ($verbose);
+exec($cmd);

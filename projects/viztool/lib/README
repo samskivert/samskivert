@@ -1,0 +1,16 @@
+Required external libraries
+---------------------------
+
+The viztool code requires the following external Java libraries (JAR
+files) to be placed here in the lib/ directory or in the shared library
+directory specified in the build.xml file (${java.libraries}).
+
+* samskivert library: 
+  http://www.samskivert.com/code/samskivert/
+
+Once the jar files are in place (regardless of what they are named), the
+build system will automatically include them in the compile-time
+classpath.
+
+--
+$Id: README,v 1.1 2001/06/14 01:51:28 mdb Exp $

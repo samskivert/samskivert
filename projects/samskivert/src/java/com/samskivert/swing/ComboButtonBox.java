@@ -1,5 +1,5 @@
 //
-// $Id: ComboButtonBox.java,v 1.1 2002/03/10 05:10:37 mdb Exp $
+// $Id: ComboButtonBox.java,v 1.2 2002/03/10 05:27:35 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -231,8 +231,13 @@ public class ComboButtonBox extends JPanel
     {
         // keep track of the selected button
         _selectedButton = (JLabel)e.getSource();
-        _selectedButton.setBorder(SELECTED_BORDER);
-        _selectedButton.repaint();
+        // if the selected button is already selected, ignore the click
+        if (_selectedButton.getBorder() == SELECTED_BORDER) {
+            _selectedButton = null;
+        } else {
+            _selectedButton.setBorder(SELECTED_BORDER);
+            _selectedButton.repaint();
+        }
     }
 
     // documentation inherited from interface
@@ -242,26 +247,10 @@ public class ComboButtonBox extends JPanel
         // ahead and select it properly
         if (_selectedButton != null) {
             if (_selectedButton.contains(e.getX(), e.getY())) {
-                // figure out which button this is
-                int selidx = -1;
-                int ccount = getComponentCount();
-                for (int i = 0; i < ccount; i++) {
-                    if (_selectedButton == getComponent(i)) {
-                        selidx = i;
-                        break;
-                    }
-                }
-
-                // sanity check
-                if (selidx == -1) {
-                    Log.warning("Got action from non-button component!? " +
-                                "[event=" + e + "].");
-
-                } else {
-                    // if the selection changed, update our display and
-                    // the model
-                    setSelectedIndex(selidx);
-                }
+                // tell the model that the selection has changed (and
+                // we'll respond and do our business
+                Object elem = _selectedButton.getClientProperty("element");
+                _model.setSelectedItem(elem);
 
             } else {
                 _selectedButton.setBorder(DESELECTED_BORDER);
@@ -300,6 +289,7 @@ public class ComboButtonBox extends JPanel
             } else {
                 ibut = new JLabel(elem.toString());
             }
+            ibut.putClientProperty("element", elem);
             ibut.addMouseListener(this);
             ibut.setBorder((_selectedIndex == i) ?
                            SELECTED_BORDER : DESELECTED_BORDER);
@@ -354,6 +344,10 @@ public class ComboButtonBox extends JPanel
             JLabel but = (JLabel)getComponent(_selectedIndex);
             but.setBorder(SELECTED_BORDER);
         }
+
+        // fire an action performed to let listeners know about our
+        // changed selection
+        fireActionPerformed();
 
         repaint();
     }

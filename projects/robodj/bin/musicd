@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.14 2002/03/03 17:20:45 mdb Exp $
+# $Id: musicd,v 1.15 2002/03/03 17:28:55 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
 # filesystem. The playlists can be manipulated by connecting to the server
@@ -114,7 +114,7 @@ sub handle_client
         # if we're not playing a song, start playing now that we have a
         # playlist with songs in it
         if (!defined $playing) {
-            play_next_tune();
+            play_next_tune(1);
         }
 
     } elsif ($input =~ m/^REMOVEGRP (\d+) (\d+)/) {
@@ -149,7 +149,7 @@ sub handle_client
 
         # now check to see if we've removed the playing tune
         if ($yanked) {
-            play_next_tune();
+            play_next_tune(1);
         }
 
         if ($sidx >= 0) {
@@ -163,7 +163,7 @@ sub handle_client
 
         # if we're playing the song to remove, skip to the next song
         if ($sid == $playing->[1]) {
-            play_next_tune();
+            play_next_tune(1);
         }
 
         # remove this songid from the playlist
@@ -216,7 +216,7 @@ sub handle_client
             $mp3->play();
         } else {
             # otherwise queue one up to play
-            play_next_tune();
+            play_next_tune(1);
         }
 
         # clear the paused flag
@@ -245,10 +245,16 @@ sub handle_client
             print $cfh "404 Unable to locate song $sid.\n";
         }
 
+    } elsif ($input =~ m/^BACK/) {
+        # stop this tune and skip to the previous one
+        $mp3->stop();
+        play_next_tune(-1);
+        print $cfh "200 Skipped current song.\n";
+
     } elsif ($input =~ m/^SKIP/) {
         # stop this tune and skip to the next one
         $mp3->stop();
-        play_next_tune();
+        play_next_tune(1);
         print $cfh "200 Skipped current song.\n";
 
     } elsif ($input =~ m/^CLOSE/) {
@@ -268,6 +274,8 @@ sub handle_client
 
 sub play_next_tune
 {
+    my ($direction) = @_;
+
     # bail if the playlist is empty
     if (@playlist == 0) {
         $index = -1;
@@ -276,9 +284,9 @@ sub play_next_tune
         return;
     }
 
-    # advance the playlist pointer (wrapping around at the end because we
-    # always loop)
-    $index = ($index + 1) % @playlist;
+    # advance the playlist pointer either forward or backward (wrapping
+    # around at the end because we always loop)
+    $index = ($index + (@playlist + $direction)) % @playlist;
     $playing = $playlist[$index];
 
     # open it

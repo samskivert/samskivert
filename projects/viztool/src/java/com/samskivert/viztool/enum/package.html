@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  $Id: package.html,v 1.1 2001/08/12 03:59:21 mdb Exp $
+
+  viztool - a tool for visualizing collections of java classes
+  Copyright (C) 2001 Michael Bayne
+ 
+  This library is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published
+  by the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+-->
+</head>
+<body bgcolor="white">
+
+    Provides the ability to enumerate over all classes in the classpath
+    and filter those enumerations.
+
+    <p> The main interface for enumerating classes is the {@link
+      com.samskivert.viztool.enum.ClassEnumerator}. It scans through the
+      class path and attempts to match a component enumerator to each
+      component. The {@link
+      com.samskivert.viztool.enum.DirectoryEnumerator} is used for all
+      components that don't match one of the other (zip or jar)
+      enumerators. These component enumerators are then used in turn to
+      enumerate through all of the classes in the class path.
+
+    <p> The enumeration can be filtered by making use of a {@link
+    com.samskivert.viztool.enum.FilterEnumerator}.
+
+</body>
+</html>

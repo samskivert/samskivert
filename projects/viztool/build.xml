@@ -1,45 +1,61 @@
 <!-- build configuration -->
 <project name="viztool" default="compile" basedir=".">
 
-  <!-- configuration parameters -->
-  <property name="app.name"       value="viztool"/>
-  <property name="deploy.home"    value="dist"/>
-  <property name="dist.home"      value="${deploy.home}"/>
-  <property name="dist.jar"       value="${app.name}.jar"/>
-  <property name="javadoc.home"   value="${deploy.home}/docs"/>
+  <!-- things you may want to change -->
   <property name="build.compiler" value="jikes"/>
   <property name="java.libraries" value="/usr/share/java"/>
 
+  <!-- things you probably don't want to change -->
+  <property name="app.name"         value="viztool"/>
+  <property name="deploy.dir"       value="dist"/>
+  <property name="dist.jar"         value="${app.name}.jar"/>
+  <property name="javadoc.dir"      value="${deploy.dir}/docs"/>
+  <property name="doc.packages"     value="com.samskivert.*"/>
+  <property name="copyright.holder" value="Michael Bayne"/>
+
+  <!-- declare our classpath -->
+  <path id="classpath">
+    <fileset dir="${java.libraries}" includes="**/*.jar"/>
+    <fileset dir="lib" includes="**/*.jar"/>
+    <pathelement location="${deploy.dir}/classes"/>
+  </path>
+
   <!-- prepares the application directories -->
   <target name="prepare">
-    <mkdir dir="${deploy.home}"/>
-    <mkdir dir="${deploy.home}/classes"/>
-    <mkdir dir="${javadoc.home}"/>
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/classes"/>
+    <mkdir dir="${javadoc.dir}"/>
+    <copy todir="${deploy.dir}/classes">
+      <fileset dir="src/java" includes="**/*.properties"/>
+    </copy>
   </target>
 
   <!-- cleans out the installed application -->
   <target name="clean">
-    <delete dir="${deploy.home}"/>
+    <delete dir="${deploy.dir}"/>
   </target>
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
-    <javac srcdir="src/java" destdir="${deploy.home}/classes"
+    <javac srcdir="src/java" destdir="${deploy.dir}/classes"
            debug="on" optimize="off" deprecation="off">
-      <classpath>
-        <fileset dir="${java.libraries}" includes="**/*.jar"/>
-        <fileset dir="lib" includes="**/*.jar"/>
-        <pathelement location="${deploy.home}/classes"/>
-      </classpath>
+      <classpath refid="classpath"/>
     </javac>
   </target>
 
   <!-- build the javadoc documentation -->
   <target name="javadoc" depends="prepare">
     <javadoc sourcepath="src/java"
-             packagenames="com.samskivert.*"
-             classpath="${deploy.home}/classes"
-             destdir="${javadoc.home}"/>
+             packagenames="${doc.packages}"
+             windowtitle="${app.name} API"
+             doctitle="${app.name} API"
+             overview="src/java/com/samskivert/viztool/overview.html"
+             bottom="Copyright &#169; 2001 ${copyright.holder}. All Rights Reserved."
+             destdir="${javadoc.dir}">
+      <classpath refid="classpath"/>
+      <link href="http://java.sun.com/products/jdk/1.3/docs/api"/>
+      <link href="http://www.waywardgeeks.org/code/samskivert/javadoc"/>
+    </javadoc>
   </target>
 
   <!-- the default target is to rebuild everything -->
@@ -47,8 +63,8 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar jarfile="${dist.home}/${dist.jar}"
-         basedir="${deploy.home}/classes"/>
+    <jar jarfile="${deploy.dir}/${dist.jar}"
+         basedir="${deploy.dir}/classes"/>
   </target>
 
 </project>

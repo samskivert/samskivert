@@ -1,5 +1,5 @@
 //
-// $Id: PackedColumnElementLayout.java,v 1.5 2001/07/24 18:07:35 mdb Exp $
+// $Id: PackedColumnElementLayout.java,v 1.6 2001/08/12 03:59:21 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -77,6 +77,11 @@ public class PackedColumnElementLayout implements ElementLayout
         return new Rectangle2D.Double(0, 0, maxwidth, y+rowheight);
     }
 
+    /**
+     * Compares the sizes of two elements. Used to sort them into order
+     * from highest to lowest. Secondarily sorts alphabetically on the
+     * element names.
+     */
     protected static class HeightComparator implements Comparator
     {
         public int compare (Object o1, Object o2)

@@ -1,5 +1,5 @@
 //
-// $Id: VizPanel.java,v 1.1 2001/07/17 01:54:19 mdb Exp $
+// $Id: VizPanel.java,v 1.2 2001/08/12 03:59:21 mdb Exp $
 
 package com.samskivert.viztool;
 
@@ -9,9 +9,12 @@ import javax.swing.*;
 
 import com.samskivert.viztool.viz.HierarchyVisualizer;
 
-public class TestPanel extends JPanel
+/**
+ * A very simple UI element for displaying visualizations on screen.
+ */
+public class VizPanel extends JPanel
 {
-    public TestPanel (HierarchyVisualizer viz)
+    public VizPanel (HierarchyVisualizer viz)
     {
         _viz = viz;
 

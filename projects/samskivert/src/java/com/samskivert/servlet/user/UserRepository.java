@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.17 2001/09/20 01:53:20 mdb Exp $
+// $Id: UserRepository.java,v 1.18 2001/09/21 03:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,6 +28,7 @@ import java.util.Properties;
 import org.apache.regexp.*;
 
 import com.samskivert.Log;
+import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.*;
 import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.HashIntMap;
@@ -81,7 +82,8 @@ public class UserRepository extends JORARepository
      */
     public int createUser (String username, String password,
 			   String realname, String email)
-	throws InvalidUsernameException, UserExistsException, PersistenceException
+	throws InvalidUsernameException, UserExistsException,
+        PersistenceException
     {
 	// check minimum length
 	if (username.length() < MINIMUM_USERNAME_LENGTH) {

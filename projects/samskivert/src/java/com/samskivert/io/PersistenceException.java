@@ -1,5 +1,5 @@
 //
-// $Id: PersistenceException.java,v 1.1 2001/09/20 01:53:19 mdb Exp $
+// $Id: PersistenceException.java,v 1.2 2001/09/21 03:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -18,12 +18,12 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.jdbc;
+package com.samskivert.io;
 
 import org.apache.commons.util.exception.NestableException;
 
 /**
- * A persistence exception can be thrown when an error occurs in the
+ * A persistence exception can be thrown when an error occurs in
  * underlying persistence code. By encapsulating errors, one retains the
  * ability to make changes to the implementation structure without
  * affecting the interface to persistence services presented to the

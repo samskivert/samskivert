@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.9 2001/09/20 01:53:20 mdb Exp $
+// $Id: UserManager.java,v 1.10 2001/09/21 03:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,8 +25,8 @@ import java.util.Properties;
 import javax.servlet.http.*;
 
 import com.samskivert.Log;
+import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
-import com.samskivert.jdbc.PersistenceException;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.*;

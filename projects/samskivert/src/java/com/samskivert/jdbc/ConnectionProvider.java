@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionProvider.java,v 1.1 2001/09/20 01:53:19 mdb Exp $
+// $Id: ConnectionProvider.java,v 1.2 2001/09/21 03:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,8 @@
 package com.samskivert.jdbc;
 
 import java.sql.*;
+
+import com.samskivert.io.PersistenceException;
 
 /**
  * As the repository aims to interface with whatever database pooling

@@ -1,5 +1,5 @@
 //
-// $Id: UserExistsException.java,v 1.4 2001/09/20 01:53:20 mdb Exp $
+// $Id: UserExistsException.java,v 1.5 2001/09/21 03:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,7 @@
 
 package com.samskivert.servlet.user;
 
-import com.samskivert.jdbc.PersistenceException;
+import com.samskivert.io.PersistenceException;
 
 /**
  * Thrown during user account creation when a user with the requested

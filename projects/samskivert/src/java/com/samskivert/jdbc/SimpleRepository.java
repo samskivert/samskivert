@@ -1,5 +1,5 @@
 //
-// $Id: SimpleRepository.java,v 1.2 2001/09/20 02:09:09 mdb Exp $
+// $Id: SimpleRepository.java,v 1.3 2001/09/21 03:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,6 +24,7 @@ import java.sql.*;
 import java.util.Properties;
 
 import com.samskivert.Log;
+import com.samskivert.io.PersistenceException;
 
 /**
  * The simple repository should be used for a repository that only needs

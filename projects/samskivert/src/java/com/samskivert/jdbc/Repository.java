@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.10 2001/09/20 01:53:19 mdb Exp $
+// $Id: Repository.java,v 1.11 2001/09/21 03:01:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,8 @@ package com.samskivert.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import com.samskivert.io.PersistenceException;
 
 /**
  * The repository class provides basic functionality upon which to build

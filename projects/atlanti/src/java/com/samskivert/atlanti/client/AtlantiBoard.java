@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.10 2001/10/17 23:27:52 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.11 2001/10/18 02:17:30 mdb Exp $
 
 package com.threerings.venison;
 
@@ -111,6 +111,9 @@ public class VenisonBoard
         // add the tile
         _tiles.add(tile);
 
+        // reference this as our most recently placed tile
+        _lastPlacedTile = tile;
+
         // resort the list
         Collections.sort(_tiles);
 
@@ -183,6 +186,15 @@ public class VenisonBoard
     public void cancelPiecenPlacement ()
     {
         _placingPiecen = false;
+    }
+
+    /**
+     * If we freed up a placeable piecen that we didn't have when we
+     * placed our tile, this can be called to reenable piecen placement.
+     */
+    public void enablePiecenPlacement ()
+    {
+        _placingPiecen = true;
     }
 
     /**
@@ -269,6 +281,14 @@ public class VenisonBoard
             g.setColor(Color.white);
             int sx = (_placedTile.x + _origX) * TILE_WIDTH;
             int sy = (_placedTile.y + _origY) * TILE_HEIGHT;
+            g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
+        }
+
+        // draw a white rectangle around the last placed
+        if (_lastPlacedTile != null) {
+            g.setColor(Color.white);
+            int sx = (_lastPlacedTile.x + _origX) * TILE_WIDTH;
+            int sy = (_lastPlacedTile.y + _origY) * TILE_HEIGHT;
             g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
         }
 
@@ -599,6 +619,9 @@ public class VenisonBoard
 
     /** The last tile being placed by the user. */
     protected VenisonTile _placedTile;
+
+    /** The last tile placed on the board via {@link #addTile}. */
+    protected VenisonTile _lastPlacedTile;
 
     /** A flag indicating whether or not we're placing a piecen. */
     protected boolean _placingPiecen = false;

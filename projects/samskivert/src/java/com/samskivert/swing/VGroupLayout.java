@@ -1,5 +1,5 @@
 //
-// $Id: VGroupLayout.java,v 1.1 2000/12/07 05:41:07 mdb Exp $
+// $Id: VGroupLayout.java,v 1.2 2000/12/07 11:09:59 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -59,6 +59,11 @@ public class VGroupLayout extends GroupLayout
 	dims.height -= _gap;
 	dims.width = info.maxwid;
 
+	// account for the insets
+	Insets insets = parent.getInsets();
+	dims.width += insets.left + insets.right;
+	dims.height += insets.top + insets.bottom;
+
 	return dims;
     }
 
@@ -67,8 +72,13 @@ public class VGroupLayout extends GroupLayout
 	Rectangle b = parent.bounds();
 	DimenInfo info = computeDimens(parent, PREFERRED);
 
+	// adjust the bounds width and height to account for the insets
+	Insets insets = parent.getInsets();
+	b.width -= (insets.left + insets.right);
+	b.height -= (insets.top + insets.bottom);
+
 	int nk = parent.getComponentCount();
-	int sx = 0, sy = 0;
+	int sx = insets.left, sy = insets.top;
 	int tothei, totgap = _gap * (info.count-1);
 	int freecount = info.count - info.numfix;
 
@@ -115,10 +125,11 @@ public class VGroupLayout extends GroupLayout
 	// do the justification-related calculations
 	switch (_justification) {
 	case CENTER:
-	    sy = (b.height - tothei)/2;
+	    sy += (b.height - tothei)/2;
 	    break;
 	case RIGHT:
-	    sy = b.height - tothei;
+	case BOTTOM:
+	    sy += b.height - tothei;
 	    break;
 	}
 

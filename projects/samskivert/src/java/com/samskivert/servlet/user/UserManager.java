@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.20 2003/10/09 00:48:37 ray Exp $
+// $Id: UserManager.java,v 1.21 2003/10/13 23:16:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -219,6 +219,7 @@ public class UserManager
      * @param persist If true, the cookie will expire in one month, if
      * false, the cookie will expire at the end of the user's browser
      * session.
+     * @param req The request via which the login page was loaded.
      * @param rsp The response in which the cookie is to be set.
      * @param auth The authenticator used to check whether the user should
      * be authenticated.
@@ -226,7 +227,8 @@ public class UserManager
      * @return the user object of the authenticated user.
      */
     public User login (String username, String password, boolean persist,
-		       HttpServletResponse rsp, Authenticator auth)
+                       HttpServletRequest req, HttpServletResponse rsp,
+                       Authenticator auth)
 	throws PersistenceException, AuthenticationFailedException
     {
 	// load up the requested user
@@ -242,6 +244,13 @@ public class UserManager
 	String authcode = _repository.createNewSession(user, persist);
 	// stick it into a cookie for their browsing convenience
 	Cookie acookie = new Cookie(USERAUTH_COOKIE, authcode);
+        // strip the hostname from the server and use that as the domain
+        String domain = req.getServerName();
+        int didx = domain.indexOf(".");
+        if (didx != -1) {
+            domain = domain.substring(0, didx);
+        }
+        acookie.setDomain(domain);
 	acookie.setPath("/");
         // expire in one month if persistent, else at the end of the
         // session

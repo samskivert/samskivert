@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextLogger.java,v 1.4 2002/01/24 06:32:38 mdb Exp $
+// $Id: ServletContextLogger.java,v 1.5 2002/01/25 04:49:11 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -32,8 +32,8 @@ public class ServletContextLogger implements LogSystem
 {
     /**
      * Constructs a servlet context logger that will obtain its servlet
-     * context reference via {@link RuntimeServices#getApplicationContext}
-     * when initialized.
+     * context reference via {@link
+     * RuntimeServices#getApplicationAttribute} when initialized.
      */
     public ServletContextLogger ()
     {

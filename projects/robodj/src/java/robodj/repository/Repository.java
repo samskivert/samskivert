@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.1 2000/11/08 06:42:57 mdb Exp $
+// $Id: Repository.java,v 1.2 2001/02/13 05:48:29 mdb Exp $
 
 package robodj.repository;
 
@@ -7,8 +7,9 @@ import java.sql.*;
 import java.util.List;
 import java.util.Properties;
 
+import com.samskivert.jdbc.MySQLRepository;
+import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.*;
-import jora.*;
 
 /**
  * The repository class provides access to the music information
@@ -19,7 +20,7 @@ import jora.*;
  * <p> Entries are stored in the repository according to genre. An entry
  * may be associated with multiple genres.
  */
-public class Repository
+public class Repository extends MySQLRepository
 {
     /**
      * Creates the repository and opens the music database. A properties
@@ -38,23 +39,12 @@ public class Repository
     public Repository (Properties props)
 	throws SQLException
     {
-	// create our JORA session
-	String dclass =
-	    requireProp(props, "driver", "No driver class specified.");
-	_session = new Session(dclass);
+	super(props);
+    }
 
-	// connect the session to the database
-	String url =
-	    requireProp(props, "url", "No driver url specified.");
-	String username =
-	    requireProp(props, "username", "No driver username specified.");
-	String password =
-	    requireProp(props, "password", "No driver password specified.");
-	_session.open(url, username, password);
-
-	// set auto-commit to false
-	_session.connection.setAutoCommit(false);
-
+    protected void createTables ()
+	throws SQLException
+    {
 	// create our table objects
 	_etable = new Table(Entry.class.getName(), "entries", _session,
 			    "entryid");
@@ -64,28 +54,6 @@ public class Repository
 			    "categoryid");
 	_cmtable = new Table(CategoryMapping.class.getName(), "category_map",
 			     _session, new String[] {"categoryid", "entryid"});
-    }
-
-    protected static String requireProp (Properties props,
-					 String name, String errmsg)
-	throws SQLException
-    {
-	String value = props.getProperty(name);
-	if (StringUtil.blank(value)) {
-	    throw new SQLException(errmsg);
-	}
-	return value;
-    }
-
-    /**
-     * A repository should be shutdown before the calling code disposes of
-     * it. This allows the repository to cleanly terminate the underlying
-     * database services.
-     */
-    public void shutdown ()
-	throws SQLException
-    {
-	_session.close();
     }
 
     /**
@@ -155,19 +123,6 @@ public class Repository
 	    // back out our changes if something got hosed
 	    _session.rollback();
 	    throw rte;
-	}
-    }
-
-    protected int lastInsertedId ()
-	throws SQLException
-    {
-	// we have to do this by hand. alas all is not roses.
-	Statement stmt = _session.connection.createStatement();
-	ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
-	if (rs.next()) {
-	    return rs.getInt(1);
-	} else {
-	    return -1;
 	}
     }
 
@@ -386,7 +341,6 @@ public class Repository
 	}
     }
 
-    protected Session _session;
     protected Table _etable;
     protected Table _stable;
     protected Table _ctable;

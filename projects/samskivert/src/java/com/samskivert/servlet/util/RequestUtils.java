@@ -1,5 +1,5 @@
 //
-// $Id: RequestUtils.java,v 1.7 2003/08/12 22:46:31 mdb Exp $
+// $Id: RequestUtils.java,v 1.8 2003/10/08 00:40:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,7 +23,6 @@ package com.samskivert.servlet.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpUtils;
 
 import com.samskivert.util.StringUtil;
 

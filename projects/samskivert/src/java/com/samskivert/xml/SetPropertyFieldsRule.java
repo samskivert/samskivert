@@ -1,5 +1,5 @@
 //
-// $Id: SetPropertyFieldsRule.java,v 1.2 2001/12/13 01:31:23 mdb Exp $
+// $Id: SetPropertyFieldsRule.java,v 1.3 2002/12/16 02:11:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -21,6 +21,7 @@
 package com.samskivert.xml;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
@@ -36,11 +37,50 @@ import com.samskivert.util.ValueMarshaller;
 public class SetPropertyFieldsRule extends Rule
 {
     /**
+     * Used to supplied custom code to parse a property.
+     *
+     * @see #addFieldParser
+     */
+    public static interface FieldParser
+    {
+        public Object parse (String property) throws Exception;
+    }
+
+    /**
      * Constructs a set property fields rule.
      */
     public SetPropertyFieldsRule (Digester digester)
     {
+        this(digester, true);
+    }
+
+    /**
+     * Constructs a set property fields rule.
+     */
+    public SetPropertyFieldsRule (Digester digester, boolean warnNonFields)
+    {
         super(digester);
+        _warnNonFields = warnNonFields;
+    }
+
+    /**
+     * Adds a custom parser for the specified named field.
+     */
+    public void addFieldParser (String property, FieldParser parser)
+    {
+        if (_parsers == null) {
+            _parsers = new HashMap();
+        }
+        _parsers.put(property, parser);
+    }
+
+    /**
+     * Configures this rule to warn or not when it skips properties for
+     * which there are no associated object fields.
+     */
+    public void setWarnNonFields (boolean warnNonFields)
+    {
+        _warnNonFields = warnNonFields;
     }
 
     public void begin (Attributes attrs)
@@ -62,14 +102,28 @@ public class SetPropertyFieldsRule extends Rule
             try {
                 field = topclass.getField(name);
             } catch (NoSuchFieldException nsfe) {
-                digester.log("Skipping property '" + name +
-                             "' for which there is no field.");
+                if (_warnNonFields) {
+                    digester.log("Skipping property '" + name +
+                                 "' for which there is no field.");
+                }
                 continue;
             } 
 
             // convert the value into the appropriate object type
 	    String valstr = attrs.getValue(i);
-            Object value = ValueMarshaller.unmarshal(field.getType(), valstr);
+            FieldParser parser = null;
+            Object value;
+
+            // look for a custom field parser
+            if ((_parsers != null) &&
+                ((parser = (FieldParser)_parsers.get(name)) != null)) {
+                value = parser.parse(valstr);
+            } else {
+                // otherwise use the value marshaller to parse the
+                // property based on the type of the target object field
+                value = ValueMarshaller.unmarshal(field.getType(), valstr);
+            }
+
             if (digester.getDebug() >= 9) {
                 digester.log("  Setting property '" + name + "' to '" +
                              valstr + "'");
@@ -79,4 +133,7 @@ public class SetPropertyFieldsRule extends Rule
             field.set(top, value);
 	}
     }
+
+    protected HashMap _parsers;
+    protected boolean _warnNonFields;
 }

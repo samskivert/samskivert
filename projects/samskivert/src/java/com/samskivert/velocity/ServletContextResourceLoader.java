@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextResourceLoader.java,v 1.2 2001/11/02 02:30:24 mdb Exp $
+// $Id: ServletContextResourceLoader.java,v 1.3 2001/11/06 04:49:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -38,6 +38,24 @@ import org.apache.velocity.runtime.resource.loader.ResourceLoader;
  */
 public class ServletContextResourceLoader extends ResourceLoader
 {
+    /**
+     * When used with the default Velocity resource manager, we are
+     * constructed with our zero-argument constructor and later
+     * initialized via {@link #init}.
+     */
+    public ServletContextResourceLoader ()
+    {
+    }
+
+    /**
+     * When used with the {@link SiteResourceManager} we are constructed
+     * with our servlet context reference and not later initialized.
+     */
+    public ServletContextResourceLoader (ServletContext sctx)
+    {
+        _sctx = sctx;
+    }
+
     /**
      * Called by Velocity to initialize this resource loader.
      */

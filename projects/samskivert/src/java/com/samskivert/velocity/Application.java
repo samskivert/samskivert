@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.4 2001/11/02 00:58:22 mdb Exp $
+// $Id: Application.java,v 1.5 2001/11/06 04:49:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -38,10 +38,63 @@ import com.samskivert.util.StringUtil;
 public class Application
 {
     /**
-     * This should be overridden by the application implementation to
-     * perform any necessary initialization.
+     * Performs initializations common to all applications. Applications
+     * should override {@link #willInit} to perform initializations that
+     * need to take place before the common initialization (which includes
+     * the creation of the site identifier and message manager) and should
+     * override {@link #didInit} to perform initializations that need to
+     * take place after the common initialization (like passing the
+     * application to entities that might turn around and request a
+     * reference to our site identifier).
+     *
+     * @param context the servlet context in which this application is
+     * operating.
+     * @param logicPkg the base package for all of the logic
+     * implementations for this application.
      */
-    public void init (ServletContext context)
+    public void init (ServletContext context, String logicPkg)
+    {
+        // keep this around for later
+        _context = context;
+
+        // let the derived application do pre-init stuff
+        willInit();
+
+        // remove any trailing dot
+        if (logicPkg.endsWith(".")) {
+            _logicPkg = logicPkg.substring(0, logicPkg.length()-1);
+        } else {
+            _logicPkg = logicPkg;
+        }
+
+        // instantiate our message manager if the application wants one
+        String bpath = getMessageBundlePath();
+        if (bpath != null) {
+            _msgmgr = new MessageManager(bpath);
+        }
+
+        // create our site identifier
+        _siteIdent = createSiteIdentifier(_context);
+
+        // let the derived application do post-init stuff
+        didInit();
+    }
+
+    /**
+     * This should be overridden by the application implementation to
+     * invoke any necessary pre-initialization code. They should be sure
+     * to call <code>super.willInit()</code>.
+     */
+    protected void willInit ()
+    {
+    }
+
+    /**
+     * This should be overridden by the application implementation to
+     * invoke any necessary post-initialization code. They should be sure
+     * to call <code>super.didInit()</code>.
+     */
+    protected void didInit ()
     {
     }
 
@@ -51,6 +104,15 @@ public class Application
      */
     public void shutdown ()
     {
+    }
+
+    /**
+     * Returns a reference to the servlet context in which this
+     * application is operating.
+     */
+    public ServletContext getServletContext ()
+    {
+        return _context;
     }
 
     /**
@@ -145,34 +207,6 @@ public class Application
     }
 
     /**
-     * Performs initializations common to all applications. We could put
-     * this in {@link #init} and require application derived classes to
-     * call <code>super.init()</code> but we want it to happen after the
-     * application initializes itself.
-     *
-     * @param logicPkg the base package for all of the logic
-     * implementations for this application.
-     */
-    protected void postInit (ServletContext ctx, String logicPkg)
-    {
-        // remove any trailing dot
-        if (logicPkg.endsWith(".")) {
-            _logicPkg = logicPkg.substring(0, logicPkg.length()-1);
-        } else {
-            _logicPkg = logicPkg;
-        }
-
-        // instantiate our message manager if the application wants one
-        String bpath = getMessageBundlePath();
-        if (bpath != null) {
-            _msgmgr = new MessageManager(bpath);
-        }
-
-        // create our site identifier
-        _siteIdent = createSiteIdentifier(ctx);
-    }
-
-    /**
      * Given the servlet path (the part of the URI after the context path)
      * this generates the classname of the logic class that should handle
      * the request.
@@ -189,6 +223,10 @@ public class Application
         // prepend the base logic package and we're all set
         return _logicPkg + path;
     }
+
+    /** A reference to the servlet context in which this application is
+     * operating. */
+    protected ServletContext _context;
 
     /** The prefix that we use to generate fully qualified logic class
      * names. */

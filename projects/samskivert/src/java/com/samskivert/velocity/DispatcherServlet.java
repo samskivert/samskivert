@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.8 2001/11/02 18:46:48 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.9 2001/11/06 04:49:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -35,12 +35,14 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.servlet.VelocityServlet;
 
 import com.samskivert.Log;
 
 import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
+import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.util.ExceptionMap;
 import com.samskivert.servlet.util.FriendlyException;
 
@@ -162,16 +164,13 @@ public class DispatcherServlet extends VelocityServlet
     /**
      * Initialize ourselves and our application.
      */
-    public void init (ServletConfig config)
-        throws ServletException
+    protected void initVelocity (ServletConfig config)
+         throws ServletException
     {
-        super.init(config);
-
-        // Log.info("Initializing dispatcher servlet.");
-
         // load up our application configuration
         try {
             String appcl = config.getInitParameter(APP_CLASS_PROPS_KEY);
+            Log.info("Creating application [class=" + appcl + "].");
             if (appcl == null) {
                 _app = new Application();
             } else {
@@ -184,21 +183,17 @@ public class DispatcherServlet extends VelocityServlet
             if (StringUtil.blank(logicPkg)) {
                 logicPkg = "";
             }
-            _app.init(getServletContext());
-            _app.postInit(getServletContext(), logicPkg);
+            _app.init(getServletContext(), logicPkg);
 
         } catch (Throwable t) {
             Log.warning("Error instantiating application.");
             Log.logStackTrace(t);
         }
-    }
 
-    // documentation inherited
-    protected void initVelocity (ServletConfig config)
-         throws ServletException
-    {
-        // stick the servlet context into the Velocity application context
-        Velocity.setApplicationContext(getServletContext());
+        // stick the application into the Velocity application context
+        Velocity.setApplicationContext(_app);
+
+        // now let velocity initialize itself
         super.initVelocity(config);
     }
 
@@ -219,13 +214,20 @@ public class DispatcherServlet extends VelocityServlet
      */
     public Template handleRequest (HttpServletRequest req,
                                    HttpServletResponse rsp,
-                                   Context ctx) throws Exception
+                                   Context ctx)
+        throws Exception
     {
         InvocationContext ictx = (InvocationContext)ctx;
         String errmsg = null;
 
-	// first we select the template
-	Template tmpl = selectTemplate(ictx);
+        // obtain the siteid for this request and stuff that into the
+        // context
+        SiteIdentifier ident = _app.getSiteIdentifier();
+        int siteId = ident.identifySite(req);
+        ctx.put("__siteid__", new Integer(siteId));
+
+	// then select the template
+	Template tmpl = selectTemplate(siteId, ictx);
 
 	// assume an HTML response unless otherwise massaged by the logic
 	rsp.setContentType("text/html");
@@ -313,12 +315,16 @@ public class DispatcherServlet extends VelocityServlet
      *
      * @return The template to be used in generating the response.
      */
-    protected Template selectTemplate (InvocationContext ctx)
+    protected Template selectTemplate (int siteId, InvocationContext ctx)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {
+        // create a site resource key based on the template path and the
+        // id of the site through which this request was made
         String path = ctx.getRequest().getServletPath();
-	// Log.info("Loading template [path=" + path + "].");
-        return getTemplate(path);
+        SiteResourceKey key = new SiteResourceKey(siteId, path);
+
+	// Log.info("Loading template [key=" + key + "].");
+        return RuntimeSingleton.getRuntimeServices().getTemplate(key);
     }
 
     /**

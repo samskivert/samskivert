@@ -1,5 +1,5 @@
 //
-// $Id: RequestUtils.java,v 1.5 2002/08/20 18:57:31 mdb Exp $
+// $Id: RequestUtils.java,v 1.6 2003/02/03 03:46:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -86,6 +86,22 @@ public class RequestUtils
         if (!StringUtil.blank(query)) {
             buf.append("?").append(query);
         }
+        return buf.toString();
+    }
+
+    /**
+     * Prepends the server, port and servlet context path to the supplied
+     * path, resulting in a fully-formed URL for requesting a servlet.
+     */
+    public static String getServletURL (HttpServletRequest req, String path)
+    {
+        StringBuffer buf = HttpUtils.getRequestURL(req);
+        String sname = req.getServletPath();
+        buf.delete(buf.length() - sname.length(), buf.length());
+        if (!path.startsWith("/")) {
+            buf.append("/");
+        }
+        buf.append(path);
         return buf.toString();
     }
 }

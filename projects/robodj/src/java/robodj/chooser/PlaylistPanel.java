@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.11 2002/02/28 16:32:45 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.12 2002/03/03 17:21:46 mdb Exp $
 
 package robodj.chooser;
 
@@ -18,10 +18,10 @@ import com.samskivert.util.StringUtil;
 
 import robodj.Log;
 import robodj.repository.*;
+import robodj.util.ServerControl.PlayingListener;
 
-public class PlaylistPanel
-    extends JPanel
-    implements TaskObserver, ActionListener
+public class PlaylistPanel extends JPanel
+    implements TaskObserver, ActionListener, PlayingListener
 {
     public PlaylistPanel ()
     {
@@ -48,12 +48,14 @@ public class PlaylistPanel
 
         // add our control buttons
         cbar.add(_clearbut = createControlButton("Clear", "clear"));
-        cbar.add(createControlButton("Skip", "skip"));
         cbar.add(createControlButton("Refresh", "refresh"));
         add(cbar, GroupLayout.FIXED);
 
         // use a special font for our name buttons
         _nameFont = new Font("Helvetica", Font.PLAIN, 10);
+
+        // add ourselves as a playing listener
+        Chooser.scontrol.addPlayingListener(this);
 
         // load up the playlist
         refreshPlaylist();
@@ -71,12 +73,7 @@ public class PlaylistPanel
     {
 	String cmd = e.getActionCommand();
 	if (cmd.equals("clear")) {
-            Chooser.scontrol.clear();
-            refreshPlaylist();
-
-        } else if (cmd.equals("skip")) {
-            Chooser.scontrol.skip();
-            refreshPlaying();
+            TaskMaster.invokeMethodTask("clear", Chooser.scontrol, this);
 
         } else if (cmd.equals("refresh")) {
             refreshPlaylist();
@@ -85,14 +82,20 @@ public class PlaylistPanel
             JButton src = (JButton)e.getSource();
             PlaylistEntry entry =
                 (PlaylistEntry)src.getClientProperty("entry");
-            Chooser.scontrol.skipto(entry.song.songid);
-            refreshPlaying();
+
+            // fire up a task to talk to the music daemon
+            final int songid = entry.song.songid;
+            TaskMaster.invokeTask("noop", new TaskAdapter() {
+                public Object invoke () throws Exception {
+                    Chooser.scontrol.skipto(songid);
+                    return null;
+                }
+            }, this);
 
         } else if (cmd.equals("remove")) {
             JButton src = (JButton)e.getSource();
             PlaylistEntry entry =
                 (PlaylistEntry)src.getClientProperty("entry");
-            Chooser.scontrol.remove(entry.song.songid);
 
             // remove the entry UI elements
             JPanel epanel = (JPanel)entry.label.getParent();
@@ -102,9 +105,14 @@ public class PlaylistPanel
             // remove the entry from the playlist
             _plist.remove(entry);
 
-            // update the playing indicator because we may have removed
-            // the playing entry
-            refreshPlaying();
+            // fire up a task to talk to the music daemon
+            final int songid = entry.song.songid;
+            TaskMaster.invokeTask("noop", new TaskAdapter() {
+                public Object invoke () throws Exception {
+                    Chooser.scontrol.remove(songid);
+                    return null;
+                }
+            }, this);
 
         } else if (cmd.equals("remove_all")) {
             JButton src = (JButton)e.getSource();
@@ -147,12 +155,16 @@ public class PlaylistPanel
 
             revalidate(); // relayout
 
-            // now tell the music daemon to remove these entries
-            Chooser.scontrol.removeGroup(entry.song.songid, count);
-
-            // update the playing indicator because we may have removed
-            // the playing entry
-            refreshPlaying();
+            // fire up a task to talk to the music daemon, telling it to
+            // remove those entries
+            final int songid = entry.song.songid;
+            final int fcount = count;
+            TaskMaster.invokeTask("noop", new TaskAdapter() {
+                public Object invoke () throws Exception {
+                    Chooser.scontrol.removeGroup(songid, fcount);
+                    return null;
+                }
+            }, this);
         }
     }
 
@@ -170,26 +182,11 @@ public class PlaylistPanel
         TaskMaster.invokeMethodTask("readPlaylist", this, this);
     }
 
-    protected void refreshPlaying ()
-    {
-        // unhighlight whoever is playing now
-        PlaylistEntry pentry = getPlayingEntry();
-        if (pentry != null) {
-            pentry.label.setForeground(Color.black);
-        }
-
-        // figure out who's playing
-        TaskMaster.invokeMethodTask("readPlaying", this, this);
-    }
-
     public void readPlaylist ()
         throws PersistenceException
     {
         // clear out any previous playlist
         _plist.clear();
-
-        // find out what's currently playing
-        readPlaying();
 
         // get the playlist from the music daemon
         String[] plist = Chooser.scontrol.getPlaylist();
@@ -213,30 +210,15 @@ public class PlaylistPanel
                 Log.warning("Unable to load entry [eid=" + eid + "].");
             }
         }
-    }
 
-    public void readPlaying ()
-    {
-        String playing = Chooser.scontrol.getPlaying();
-        playing = StringUtil.split(playing, ":")[1].trim();
-        _playid = -1;
-        if (!playing.equals("<none>")) {
-            try {
-                _playid = Integer.parseInt(playing);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Unable to parse currently playing id '" +
-                            playing + "'.");
-            }
-        }
+        // now find out what's currently playing
+        Chooser.scontrol.refreshPlaying();
     }
 
     public void taskCompleted (String name, Object result)
     {
 	if (name.equals("readPlaylist")) {
             populatePlaylist();
-
-        } else if (name.equals("readPlaying")) {
-            highlightPlaying();
         }
     }
 
@@ -333,11 +315,22 @@ public class PlaylistPanel
         return button;
     }
 
-    protected void highlightPlaying ()
+    public void playingUpdated (int songid, boolean paused)
     {
+        // unhighlight whoever is playing now
+        PlaylistEntry pentry = getPlayingEntry();
+        if (pentry != null && pentry.label != null) {
+            pentry.label.setForeground(Color.black);
+        }
+
+        // grab the new playing song id
+        _playid = songid;
+
+        // highlight the playing song
         for (int i = 0; i < _plist.size(); i++) {
             PlaylistEntry entry = (PlaylistEntry)_plist.get(i);
-            if (entry.song.songid == _playid) {
+            if (entry.song.songid == _playid &&
+                entry.label != null) {
                 entry.label.setForeground(Color.red);
             }
         }

@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.7 2002/05/31 21:15:27 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.8 2002/05/31 21:19:58 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -102,7 +102,10 @@ public class DefaultLogProvider implements LogProvider
         // we'll be wrapping the log lines
         int wrapwid = LOG_LINE_LENGTH - GAP.length();
         int remain = message.length(), offset = 0;
-        int linewid = Math.min(LOG_LINE_LENGTH - buf.length(), remain);
+
+        // our first line contains additionally, the module name (and a
+        // colon and space) which must be accountded for when wrapping
+        int linewid = Math.min(wrapwid - moduleName.length() - 2, remain);
 
         // append the first line
         buf.append(message.substring(offset, offset+linewid));

@@ -14,6 +14,7 @@
   <property name="deploy.dir"  value="dist"/>
   <property name="dist.jar"    value="${app.name}.jar"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+  <property name="savedoc.dir" value="docs"/>
 
   <!-- declare our classpath business -->
   <path id="base.classpath">
@@ -67,9 +68,18 @@
              destdir="${javadoc.dir}"
              additionalparam="-breakiterator">
       <classpath refid="classpath"/>
-      <link href="http://www.waywardgeeks.org/code/samskivert/javadoc"/>
-      <link href="http://java.sun.com/j2se/1.3/docs/api/"/>
+      <link href="http://samskivert.com/code/samskivert/samskivert/dist/api"/>
+      <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
     </javadoc>
+  </target>
+
+  <!-- builds the javadocs and stuffs them in a directory where they won't
+       be blown away when we do "clean" next time -->
+  <target name="savedoc" depends="javadoc">
+    <delete dir="${savedoc.dir}/api"/>
+    <copy todir="${savedoc.dir}/api">
+      <fileset dir="${javadoc.dir}" includes="**/*"/>
+    </copy>
   </target>
 
   <!-- a target for rebuilding everything -->

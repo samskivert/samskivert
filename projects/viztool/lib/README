@@ -6,10 +6,7 @@ files) to be placed here in the lib/ directory or in the shared library
 directory specified in the build.xml file (${java.libraries}).
 
 * samskivert library: 
-  http://www.waywardgeeks.org/code/samskivert/
-
-* Jakarta Regular Expression package: 
-  http://jakarta.apache.org/regexp/
+  http://samskivert.com/code/samskivert/
 
 Once the jar files are in place (regardless of what they are named), the
 build system will automatically include them in the compile-time

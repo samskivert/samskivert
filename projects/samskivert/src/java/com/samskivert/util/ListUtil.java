@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.6 2002/02/19 03:37:48 mdb Exp $
+// $Id: ListUtil.java,v 1.7 2002/04/13 01:39:17 mdb Exp $
 
 package com.samskivert.util;
 
@@ -202,6 +202,10 @@ public class ListUtil
      */
     public static boolean contains (Object[] list, Object element)
     {
+        if (list == null) {
+            return false;
+        }
+
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             if (list[i] == element) {
@@ -222,6 +226,10 @@ public class ListUtil
      */
     public static boolean containsEqual (Object[] list, Object element)
     {
+        if (list == null) {
+            return false;
+        }
+
         int llength = list.length; // no optimizing bastards
         for (int i = 0; i < llength; i++) {
             Object elem = list[i];

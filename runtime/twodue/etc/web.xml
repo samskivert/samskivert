@@ -24,7 +24,6 @@
       <param-name>messages_path</param-name>
       <param-value>messages</param-value>
     </init-param>
-<!--
     <init-param>
       <param-name>site_jar_path</param-name>
       <param-value>/usr/share/java/webapps/site-data</param-value>
@@ -33,7 +32,6 @@
       <param-name>site_messages_path</param-name>
       <param-value>site_messages</param-value>
     </init-param>
--->
   </servlet>
 
   <servlet-mapping>

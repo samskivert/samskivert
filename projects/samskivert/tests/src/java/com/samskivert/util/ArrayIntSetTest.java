@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSetTest.java,v 1.3 2002/05/16 20:50:31 mdb Exp $
+// $Id: ArrayIntSetTest.java,v 1.4 2002/05/16 22:15:19 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -37,13 +38,7 @@ public class ArrayIntSetTest extends TestCase
     public void runTest ()
     {
         ArrayIntSet set = new ArrayIntSet();
-        set.add(3);
-        set.add(5);
-        set.add(5);
-        set.add(9);
-        set.add(5);
-        set.add(7);
-        set.add(1);
+        set.add(new int[] { 3, 5, 5, 9, 5, 7, 1 });
 
         int[] values = { 1, 3, 5, 7, 9 };
         int[] setvals = set.toIntArray();
@@ -68,10 +63,42 @@ public class ArrayIntSetTest extends TestCase
         // make sure that retainAll returns false if we do something that
         // doesn't modify the set
         assertTrue("retain didn't modify", !set1.retainAll(set3));
+
+        Random rando = new Random();
+        for (int i = 0; i < 1000; i++) {
+            ArrayIntSet s1 = new ArrayIntSet();
+            ArrayIntSet s2 = new ArrayIntSet();
+            ArrayIntSet s3 = new ArrayIntSet();
+
+            // add some odd numbers to all three sets
+            for (int c = 0; c < 100; c++) {
+                int r = rando.nextInt(5000) * 2 + 1;
+                s1.add(r);
+                s2.add(r);
+                s3.add(r);
+            }
+
+            // now add some even numbers to each of the first two sets in
+            // non-overlapping ranges
+            for (int c = 0; c < 100; c++) {
+                s1.add(rando.nextInt(5000)*2);
+                s2.add(rando.nextInt(5000)*2 + 15000);
+            }
+
+            // now ensure that s1.retainAll(s2) equals s3
+            s1.retainAll(s2);
+            assertTrue("random intersection", s1.equals(s3));
+        }
     }
 
     public static Test suite ()
     {
         return new ArrayIntSetTest();
+    }
+
+    public static void main (String[] args)
+    {
+        ArrayIntSetTest test = new ArrayIntSetTest();
+        test.runTest();
     }
 }

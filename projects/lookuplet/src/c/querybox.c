@@ -1,5 +1,5 @@
 /**
- * $Id: querybox.c,v 1.2 2001/02/24 02:35:20 mdb Exp $
+ * $Id: querybox.c,v 1.3 2001/02/24 02:48:22 mdb Exp $
  */
 
 #include <config.h>
@@ -42,8 +42,6 @@ key_pressed (GtkWidget* widget, GdkEvent* event, gpointer callback_data)
     /* otherwise convert the key combo to a name and look it up */
     keystr = convert_keysym_state_to_string(ek->keyval, ek->state);
     bindings = lk_prefs_get_bindings();
-
-    g_print("key pressed: %s (%d %d)\n", keystr, ek->state, ek->keyval);
 
     for (i = 0; i < bindings->len; i++) {
 	LkBinding* binding = LK_BINDING(g_ptr_array_index(bindings, i));

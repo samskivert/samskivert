@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.57 2003/08/19 23:37:56 ray Exp $
+// $Id: StringUtil.java,v 1.58 2003/10/08 23:52:50 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,9 +24,14 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import java.io.UnsupportedEncodingException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import java.net.URLEncoder;
+import java.net.URLDecoder;
 
 import java.text.NumberFormat;
 
@@ -636,6 +641,30 @@ public class StringUtil
     }
 
     /**
+     * URL encodes the specified string using the UTF-8 character encoding.
+     */
+    public static String encode (String s)
+    {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException("UTF-8 is unknown in this Java.");
+        }
+    }
+
+    /**
+     * URL decodes the specified string using the UTF-8 character encoding.
+     */
+    public static String decode (String s)
+    {
+        try {
+            return URLDecoder.decode(s, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException("UTF-8 is unknown in this Java.");
+        }
+    }
+
+    /**
      * Generates a string from the supplied bytes that is the HEX encoded
      * representation of those bytes.  Returns the empty string for a
      * <code>null</code> or empty byte array.
@@ -650,8 +679,8 @@ public class StringUtil
             return "";
         }
 
-        char[] chars = new char[bytes.length*2];
         count = Math.min(count, bytes.length);
+        char[] chars = new char[count*2];
 
         for (int i = 0; i < count; i++) {
             int val = (int)bytes[i];

@@ -1,5 +1,5 @@
 //
-// $Id: HttpPostUtil.java,v 1.1 2003/09/26 02:36:41 ray Exp $
+// $Id: HttpPostUtil.java,v 1.2 2003/10/08 23:52:49 ray Exp $
 
 package com.samskivert.net;
 
@@ -10,7 +10,6 @@ import java.io.IOException;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import com.samskivert.util.ServiceWaiter;
 

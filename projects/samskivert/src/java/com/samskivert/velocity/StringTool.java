@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.10 2003/10/08 00:35:57 ray Exp $
+// $Id: StringTool.java,v 1.11 2003/10/08 23:52:50 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,6 @@
 
 package com.samskivert.velocity;
 
-import java.net.URLEncoder;
 import java.text.NumberFormat;
 
 import com.samskivert.servlet.util.HTMLUtil;
@@ -44,12 +43,7 @@ public class StringTool
      */
     public static String urlEncode (String text)
     {
-        try {
-            return URLEncoder.encode(text, "UTF-8");
-        } catch (java.io.UnsupportedEncodingException uee) {
-            // won't happen
-            return text;
-        }
+        return StringUtil.encode(text);
     }
 
     /**

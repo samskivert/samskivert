@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.18 2003/10/06 22:50:28 ray Exp $
+// $Id: UserManager.java,v 1.19 2003/10/08 23:52:50 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,6 @@
 
 package com.samskivert.servlet.user;
 
-import java.net.URLEncoder;
 import java.util.Properties;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

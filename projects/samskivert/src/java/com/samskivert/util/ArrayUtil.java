@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.10 2002/08/10 18:42:35 mdb Exp $
+// $Id: ArrayUtil.java,v 1.11 2002/08/10 18:45:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -42,12 +42,16 @@ public class ArrayUtil
         for (int ii=0; ii < vcount; ii++) {
             int value = values[ii];
 
-            if (value > max) {
+            if (value < max) {
+                // common case- stop checking things..
+                continue;
+
+            } else if (value > max) {
                 // new max
                 max = value;
                 num = 1;
 
-            } else if (value == max) {
+            } else {
                 // another sighting of max
                 num++;
             }

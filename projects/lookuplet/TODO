@@ -1,3 +1,6 @@
 TODO:
 
-* Finish the dang thing.
+* Add history support to the text box.
+
+* Allow configuration of the default action (the one invoked when the user
+  presses return).

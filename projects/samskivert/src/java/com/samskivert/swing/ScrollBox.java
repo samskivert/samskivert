@@ -1,9 +1,8 @@
 //
-// $Id: ScrollBox.java,v 1.3 2003/04/20 01:06:12 ray Exp $
+// $Id: ScrollBox.java,v 1.4 2004/02/25 13:17:41 mdb Exp $
 
 package com.samskivert.swing;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Point;

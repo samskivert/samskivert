@@ -1,5 +1,5 @@
 //
-// $Id: SimpleRepository.java,v 1.7 2002/05/16 03:55:27 mdb Exp $
+// $Id: SimpleRepository.java,v 1.8 2004/02/25 13:16:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,7 +21,6 @@
 package com.samskivert.jdbc;
 
 import java.sql.*;
-import java.util.Properties;
 
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;

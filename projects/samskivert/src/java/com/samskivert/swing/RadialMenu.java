@@ -1,18 +1,15 @@
 //
-// $Id: RadialMenu.java,v 1.5 2003/05/03 00:10:01 mdb Exp $
+// $Id: RadialMenu.java,v 1.6 2004/02/25 13:17:41 mdb Exp $
 
 package com.samskivert.swing;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Composite;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -22,14 +19,12 @@ import java.util.ArrayList;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.UIManager;
 
 import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.swing.util.MouseHijacker;
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
-import com.samskivert.util.StringUtil;
 
 /**
  * Provides a radial menu with iconic menu items that expand to include

@@ -1,5 +1,5 @@
 //
-// $Id: Logic.java,v 1.1 2001/10/31 09:44:22 mdb Exp $
+// $Id: Logic.java,v 1.2 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,8 +19,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.velocity;
-
-import com.samskivert.servlet.util.ExceptionMap;
 
 /**
  * The logic class is called upon to populate the WebMacro web context,

@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.13 2003/11/15 03:06:38 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.14 2004/02/25 13:17:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -29,9 +29,6 @@ import java.awt.RenderingHints;
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-
-import com.samskivert.Log;
-import com.samskivert.util.StringUtil;
 
 /**
  * A Swing component that displays a {@link Label}.

@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.20 2003/07/09 02:03:34 ray Exp $
+// $Id: DnDManager.java,v 1.21 2004/02/25 13:17:41 mdb Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -7,12 +7,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.IllegalComponentStateException;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,7 +26,6 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.MouseInputAdapter;
 
 import com.samskivert.swing.event.AncestorAdapter;
-import com.samskivert.Log;
 
 /**
  * A custom Drag and Drop manager for use within a single JVM. Does what we

@@ -11,7 +11,6 @@
 package com.samskivert.jdbc.jora;
 
 import java.util.*;
-import java.lang.reflect.*;
 import java.sql.*;
 
 /** Cursor is used for successive access to records fetched by SELECT 

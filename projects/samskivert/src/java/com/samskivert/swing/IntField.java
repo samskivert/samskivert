@@ -1,5 +1,5 @@
 //
-// $Id: IntField.java,v 1.5 2003/12/15 18:56:27 mdb Exp $
+// $Id: IntField.java,v 1.6 2004/02/25 13:17:41 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -8,8 +8,6 @@ import java.awt.event.FocusListener;
 import javax.swing.JTextField;
 
 import com.samskivert.Log;
-import com.samskivert.swing.util.SwingUtil.DocumentValidator;
-import com.samskivert.swing.util.SwingUtil.DocumentTransformer;
 import com.samskivert.swing.util.SwingUtil;
 
 /**

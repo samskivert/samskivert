@@ -1,5 +1,5 @@
 //
-// $Id: SiteJarResourceLoader.java,v 1.2 2001/11/06 19:19:47 mdb Exp $
+// $Id: SiteJarResourceLoader.java,v 1.3 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,7 +25,6 @@ import java.io.IOException;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 

@@ -1,5 +1,5 @@
 //
-// $Id: SetFieldRule.java,v 1.4 2003/02/10 22:01:06 mdb Exp $
+// $Id: SetFieldRule.java,v 1.5 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -23,11 +23,9 @@ package com.samskivert.xml;
 import java.lang.NoSuchFieldException;
 import java.lang.reflect.Field;
 
-import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.ValueMarshaller;
 
 /**

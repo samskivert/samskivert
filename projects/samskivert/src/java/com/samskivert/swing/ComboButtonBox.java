@@ -1,5 +1,5 @@
 //
-// $Id: ComboButtonBox.java,v 1.4 2003/01/11 00:44:53 shaper Exp $
+// $Id: ComboButtonBox.java,v 1.5 2004/02/25 13:17:41 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -21,7 +21,6 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.samskivert.Log;
 import com.samskivert.swing.util.SwingUtil;
 
 /**

@@ -1,5 +1,5 @@
 //
-// $Id: XMLUtil.java,v 1.3 2001/08/13 14:33:52 shaper Exp $
+// $Id: XMLUtil.java,v 1.4 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -22,7 +22,6 @@ package com.samskivert.xml;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
 import javax.xml.parsers.*;

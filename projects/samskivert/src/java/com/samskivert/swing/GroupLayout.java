@@ -1,5 +1,5 @@
 //
-// $Id: GroupLayout.java,v 1.7 2003/04/10 21:43:13 mdb Exp $
+// $Id: GroupLayout.java,v 1.8 2004/02/25 13:17:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,7 +23,6 @@ package com.samskivert.swing;
 import java.awt.*;
 
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import java.util.HashMap;
 

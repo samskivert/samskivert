@@ -1,5 +1,5 @@
 //
-// $Id: ValidatedSetNextRule.java,v 1.2 2002/03/16 20:50:31 mdb Exp $
+// $Id: ValidatedSetNextRule.java,v 1.3 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -22,7 +22,6 @@ package com.samskivert.xml;
 
 import java.lang.reflect.Method;
 
-import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 

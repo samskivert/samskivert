@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.14 2004/01/05 19:14:04 eric Exp $
+// $Id: StringTool.java,v 1.15 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,8 +19,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.velocity;
-
-import java.text.NumberFormat;
 
 import com.samskivert.servlet.util.HTMLUtil;
 import com.samskivert.util.StringUtil;

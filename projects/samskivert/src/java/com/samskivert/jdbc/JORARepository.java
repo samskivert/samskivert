@@ -1,5 +1,5 @@
 //
-// $Id: JORARepository.java,v 1.1 2001/09/20 01:53:19 mdb Exp $
+// $Id: JORARepository.java,v 1.2 2004/02/25 13:16:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,7 +21,6 @@
 package com.samskivert.jdbc;
 
 import java.sql.*;
-import java.util.Properties;
 
 import com.samskivert.jdbc.jora.*;
 

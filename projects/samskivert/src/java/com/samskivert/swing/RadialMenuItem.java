@@ -1,11 +1,10 @@
 //
-// $Id: RadialMenuItem.java,v 1.1 2003/04/15 20:28:36 mdb Exp $
+// $Id: RadialMenuItem.java,v 1.2 2004/02/25 13:17:41 mdb Exp $
 
 package com.samskivert.swing;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics2D;
 
 import javax.swing.Icon;

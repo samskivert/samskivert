@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.22 2003/11/05 00:07:53 eric Exp $
+// $Id: DispatcherServlet.java,v 1.23 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,13 +25,11 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
-import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;

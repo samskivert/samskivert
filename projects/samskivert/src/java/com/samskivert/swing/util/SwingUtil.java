@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.29 2004/01/12 08:39:49 ray Exp $
+// $Id: SwingUtil.java,v 1.30 2004/02/25 13:17:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -31,7 +31,6 @@ import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;

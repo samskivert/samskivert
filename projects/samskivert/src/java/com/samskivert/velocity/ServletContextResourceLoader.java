@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextResourceLoader.java,v 1.4 2002/01/24 06:32:38 mdb Exp $
+// $Id: ServletContextResourceLoader.java,v 1.5 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,7 +25,6 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 

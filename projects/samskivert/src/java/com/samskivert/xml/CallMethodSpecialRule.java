@@ -1,5 +1,5 @@
 //
-// $Id: CallMethodSpecialRule.java,v 1.4 2003/01/31 02:27:30 mdb Exp $
+// $Id: CallMethodSpecialRule.java,v 1.5 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -20,7 +20,6 @@
 
 package com.samskivert.xml;
 
-import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.36 2003/12/19 04:08:23 mdb Exp $
+// $Id: Label.java,v 1.37 2004/02/25 13:17:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -25,15 +25,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 
 import java.awt.font.TextLayout;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import java.text.AttributedString;

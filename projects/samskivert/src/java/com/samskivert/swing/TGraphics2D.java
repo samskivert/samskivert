@@ -1,5 +1,5 @@
 //
-// $Id: TGraphics2D.java,v 1.2 2003/10/08 00:45:18 ray Exp $
+// $Id: TGraphics2D.java,v 1.3 2004/02/25 13:17:41 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -14,7 +14,6 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Paint;
-import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.Stroke;

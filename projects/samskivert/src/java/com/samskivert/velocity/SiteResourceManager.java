@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceManager.java,v 1.5 2002/01/24 06:32:38 mdb Exp $
+// $Id: SiteResourceManager.java,v 1.6 2004/02/25 13:16:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -30,10 +30,8 @@ import org.apache.velocity.runtime.resource.ResourceFactory;
 import org.apache.velocity.runtime.resource.ResourceManagerImpl;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
-import com.samskivert.Log;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
-import com.samskivert.util.StringUtil;
 
 /**
  * A resource manager implementation for Velocity that first loads site

@@ -1,5 +1,5 @@
 //
-// $Id: RetryableTask.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: RetryableTask.java,v 1.4 2004/02/25 13:17:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,7 +22,6 @@ package com.samskivert.swing.util;
 
 import java.awt.Component;
 import javax.swing.*;
-import com.samskivert.Log;
 
 /**
  * A retryable task is one that is allowed to fail at which point a dialog

@@ -228,16 +228,25 @@ public class DispatcherServlet extends VelocityServlet
                                   "from file '" + INIT_PROPS_KEY + "'.");
         }
 
-        // wire up our site resource manager if a site-specific jar file
-        // path was provided
-        SiteResourceLoader siteLoader = _app.getSiteResourceLoader();
-        if (siteLoader != null) {
-            props.setProperty(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
-                              SiteResourceManager.class.getName());
-        } else {
-            // otherwise use a servlet context resource loader
-            props.setProperty(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
-                              ServletContextResourceManager.class.getName());
+        // let the application set up velocity properties
+        _app.configureVelocity(config, props);
+
+        // if no file resource loader path has been set and a
+        // site-specific jar file path was provided, wire up our site
+        // resource manager
+        if (props.getProperty("file.resource.loader.path") == null) {
+            SiteResourceLoader siteLoader = _app.getSiteResourceLoader();
+            if (siteLoader != null) {
+                Log.info("Velocity loading templates from site loader.");
+                props.setProperty(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
+                                  SiteResourceManager.class.getName());
+            } else {
+                // otherwise use a servlet context resource loader
+                Log.info("Velocity loading templates from servlet context.");
+                props.setProperty(
+                    RuntimeSingleton.RESOURCE_MANAGER_CLASS,
+                    ServletContextResourceManager.class.getName());
+            }
         }
 
         // wire up our #import directive
@@ -246,9 +255,6 @@ public class DispatcherServlet extends VelocityServlet
         // configure the servlet context logger
         props.setProperty(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM_CLASS,
                           ServletContextLogger.class.getName());
-
-        // let the application set up other properties
-        _app.configureVelocity(config, props);
 
         // now return our augmented properties
         return props;

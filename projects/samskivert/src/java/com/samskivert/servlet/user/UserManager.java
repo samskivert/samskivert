@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.13 2002/05/02 19:10:34 shaper Exp $
+// $Id: UserManager.java,v 1.14 2002/05/08 00:25:54 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,14 +22,18 @@ package com.samskivert.servlet.user;
 
 import java.net.URLEncoder;
 import java.util.Properties;
-import javax.servlet.http.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.util.RequestUtils;
-import com.samskivert.util.*;
+import com.samskivert.util.Interval;
+import com.samskivert.util.IntervalManager;
+import com.samskivert.util.StringUtil;
 
 /**
  * The user manager provides easy access to user objects for servlets. It
@@ -203,7 +207,8 @@ public class UserManager
      * @param username The username supplied by the user.
      * @param password The plaintext password supplied by the user.
      * @param persist If true, the cookie will expire in one month, if
-     * false, the cookie will expire in 24 hours.
+     * false, the cookie will expire at the end of the user's browser
+     * session.
      * @param rsp The response in which the cookie is to be set.
      * @param auth The authenticator used to check whether the user should
      * be authenticated.
@@ -228,11 +233,9 @@ public class UserManager
 	// stick it into a cookie for their browsing convenience
 	Cookie acookie = new Cookie(USERAUTH_COOKIE, authcode);
 	acookie.setPath("/");
-        if (persist) {
-            acookie.setMaxAge(30*24*60*60); // expire in one month
-        } else {
-            acookie.setMaxAge(24*60*60); // expire in 24 hours
-        }
+        // expire in one month if persistent, else at the end of the
+        // session
+        acookie.setMaxAge((persist) ? (30*24*60*60) : -1);
 	rsp.addCookie(acookie);
 
 	return user;

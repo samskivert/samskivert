@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.20 2002/04/30 00:52:31 mdb Exp $
+// $Id: UserRepository.java,v 1.21 2002/05/08 00:25:54 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,17 +20,29 @@
 
 package com.samskivert.servlet.user;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Properties;
 
-import org.apache.regexp.*;
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
 
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.*;
-import com.samskivert.jdbc.jora.*;
+import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.DatabaseLiaison;
+import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.JORARepository;
+import com.samskivert.jdbc.StaticConnectionProvider;
+import com.samskivert.jdbc.jora.Cursor;
+import com.samskivert.jdbc.jora.Session;
+import com.samskivert.jdbc.jora.Table;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.util.HashIntMap;
 
@@ -292,10 +304,8 @@ public class UserRepository extends JORARepository
     /**
      * Creates a new session for the specified user and returns the
      * randomly generated session identifier for that session. Temporary
-     * sessions are set to expire in two days which prevents someone from
-     * being screwed if they log in at 11:59pm, but also prevents them
-     * from leaving their browser authenticated for too long. Persistent
-     * sessions expire after one month.
+     * sessions are set to expire at the end of the user's browser
+     * session. Persistent sessions expire after one month.
      */
     public String createNewSession (final User user, boolean persist)
 	throws PersistenceException

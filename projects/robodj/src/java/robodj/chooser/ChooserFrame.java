@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.3 2001/07/12 22:31:04 mdb Exp $
+// $Id: ChooserFrame.java,v 1.4 2001/07/12 23:06:55 mdb Exp $
 
 package robodj.chooser;
 
@@ -31,24 +31,15 @@ public class ChooserFrame
 	// give ourselves a wee bit of a border
 	top.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // the top of the UI is the playlist manager section
+        // the top of the UI is the browser and the playlist manager
         JTabbedPane tpane = new JTabbedPane();
-        EntryList elist;
-        Category[] cats = Chooser.model.getCategories();
+        BrowsePanel bpanel = new BrowsePanel();
+        String tip = "Browse and select tunes to play.";
+        tpane.addTab("Browse", null, bpanel, tip);
 
-        // create a tab for each category
-        for (int i = 0; i < cats.length; i++) {
-            elist = new EntryList(cats[i].categoryid);
-            String tip = "Browse entries in '" + cats[i].name + "' category.";
-            tpane.addTab(cats[i].name, null, elist, tip);
-        }
-
-        // and add one for uncategorized entries
-        elist = new EntryList(-1);
-        tpane.addTab("Uncategorized", null, elist,
-                     "Browse uncategorized entries.");
-
-        tpane.setSelectedIndex(0);
+        PlaylistPanel ppanel = new PlaylistPanel();
+        tip = "View and manipulate the playlist.";
+        tpane.addTab("Playlist", null, ppanel, tip);
         top.add(tpane);
 
         // the bottom is the control bar
@@ -57,8 +48,7 @@ public class ChooserFrame
         JPanel cbar = new JPanel(bgl);
 
         // add some fake control buttons for now
-        cbar.add(createControlButton("Play", "play"));
-        cbar.add(createControlButton("Pause", "pause"));
+        cbar.add(_pause = createControlButton("Pause", "pause"));
         cbar.add(createControlButton("Stop", "stop"));
         cbar.add(createControlButton("Skip", "skip"));
         cbar.add(createControlButton("Clear", "clear"));
@@ -88,9 +78,13 @@ public class ChooserFrame
 
         } else if (cmd.equals("pause")) {
             Chooser.scontrol.pause();
+            _pause.setLabel("Play");
+            _pause.setActionCommand("play");
 
         } else if (cmd.equals("play")) {
             Chooser.scontrol.play();
+            _pause.setLabel("Pause");
+            _pause.setActionCommand("Pause");
 
         } else if (cmd.equals("clear")) {
             Chooser.scontrol.clear();
@@ -106,13 +100,5 @@ public class ChooserFrame
 	}
     }
 
-    protected Component makeTextPanel (String text)
-    {
-        JPanel panel = new JPanel(false);
-        JLabel filler = new JLabel(text);
-        filler.setHorizontalAlignment(JLabel.CENTER);
-        panel.setLayout(new GridLayout(1, 1));
-        panel.add(filler);
-        return panel;
-    }
+    protected JButton _pause;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
+// $Id: EntryList.java,v 1.3 2001/07/12 23:06:55 mdb Exp $
 
 package robodj.chooser;
 
@@ -66,7 +66,9 @@ public class EntryList
 
 	} else if (name.equals("readAndPlay")) {
             for (int i = 0; i < _entry.songs.length; i++) {
-                Chooser.scontrol.append(_entry.songs[i].location);
+                Chooser.scontrol.append(_entry.songs[i].entryid,
+                                        _entry.songs[i].songid,
+                                        _entry.songs[i].location);
             }
 
 	} else if (name.equals("readSongs")) {
@@ -259,7 +261,7 @@ public class EntryList
         } else if (cmd.equals("play")) {
             JButton src = (JButton)e.getSource();
             Song song = (Song)src.getClientProperty("song");
-            Chooser.scontrol.append(song.location);
+            Chooser.scontrol.append(song.entryid, song.songid, song.location);
 
         } else if (cmd.equals("up")) {
             // re-read the category beacuse this entry may have been

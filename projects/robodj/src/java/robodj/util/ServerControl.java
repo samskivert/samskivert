@@ -1,5 +1,5 @@
 //
-// $Id: ServerControl.java,v 1.1 2001/06/05 16:42:17 mdb Exp $
+// $Id: ServerControl.java,v 1.2 2001/07/12 23:06:55 mdb Exp $
 
 package robodj.util;
 
@@ -52,9 +52,14 @@ public class ServerControl
         sendCommand("SKIP");
     }
 
-    public void append (String trackPath)
+    public void append (int eid, int sid, String trackPath)
     {
-        sendCommand("APPEND " + trackPath);
+        sendCommand("APPEND " + eid + " " + sid + " " + trackPath);
+    }
+
+    public void remove (int sid)
+    {
+        sendCommand("REMOVE " + sid);
     }
 
     public String[] getPlaylist ()

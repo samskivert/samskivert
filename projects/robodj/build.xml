@@ -1,23 +1,31 @@
 <!-- build configuration -->
 <project name="robodj" default="compile" basedir=".">
 
+  <!-- import properties -->
+  <property file="build.properties"/>
+
   <!-- things you may want to change -->
-  <property name="app.name"         value="robodj"/>
+  <property name="app.name"       value="robodj"/>
+  <property name="build.compiler" value="jikes"/>
+  <property name="web.home"       value="/export/samskivert/pages/code"/>
+  <property name="install.dir"    value="${web.home}/${app.name}"/>
+
+  <!-- we want to access the environment -->
+  <property environment="env"/>
+  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
+
+  <!-- things you probably don't want to change -->
+  <property name="src.dir"          value="src/java"/>
+  <property name="deploy.dir"       value="dist"/>
+  <property name="dist.jar"         value="${app.name}.jar"/>
+  <property name="javadoc.dir"      value="${deploy.dir}/docs"/>
   <property name="doc.packages"     value="robodj.*"/>
   <property name="doc.overview"     value="robodj/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
-  <property name="build.compiler"   value="jikes"/>
-  <property name="java.libraries"   value="/usr/share/java"/>
-
-  <!-- things you probably don't want to change -->
-  <property name="src.dir"     value="src/java"/>
-  <property name="deploy.dir"  value="dist"/>
-  <property name="dist.jar"    value="${app.name}.jar"/>
-  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
 
   <!-- declare our classpath -->
   <path id="classpath">
-    <fileset dir="${java.libraries}" includes="**/*.jar"/>
+    <fileset dir="${java.libraries}" includesfile="lib/CLIENT_LIBS"/>
     <fileset dir="lib" includes="**/*.jar"/>
     <pathelement location="${deploy.dir}/classes"/>
   </path>
@@ -33,7 +41,7 @@
       <fileset dir="${src.dir}" includes="**/*.png"/>
     </copy>
     <copy todir="${deploy.dir}/classes/conf">
-      <fileset dir="conf"/>
+      <fileset dir="conf" includes="**/*.properties"/>
     </copy>
   </target>
 
@@ -74,4 +82,23 @@
          basedir="${deploy.dir}/classes"/>
   </target>
 
+  <!-- installs the JWS app -->
+  <target name="install">
+    <mkdir dir="${install.dir}"/>
+    <!-- copy the jar files used by the client -->
+    <copy todir="${install.dir}">
+      <fileset dir="${java.libraries}" includesfile="lib/CLIENT_LIBS"/>
+      <fileset dir="dist" includes="*.jar"/>
+    </copy>
+    <!-- sign the jar files -->
+    <signjar keystore="${sign.keystore}" alias="${sign.alias}"
+      storepass="${sign.storepass}" lazy="true">
+      <fileset dir="${install.dir}" includes="*.jar"/>
+    </signjar>
+    <!-- copy the jnlp file(s) into place -->
+    <filter filtersfile="build.properties"/>
+    <copy todir="${install.dir}" filtering="true">
+      <fileset dir="etc" includes="**/*.jnlp"/>
+    </copy>
+  </target>
 </project>

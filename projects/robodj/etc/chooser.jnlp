@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- JNLP File for RoboDJ music chooser -->
+
+<!-- If you're seeing this in your web browser, you probably need to
+     download and install the Sun JRE 1.4 and/or Java Web Start from
+     http://java.sun.com/j2se/ -->
+
+<jnlp spec="1.0+" codebase="@application_uri@" href="game.jnlp">
+  <information>
+    <title>RoboDJ Chooser</title>
+    <vendor>Seuss and Asseusciates</vendor>
+    <homepage href="index.html"/>
+    <icon href="icon.png"/>
+    <description kind="short">
+      Music choosing fun for the whole family!
+    </description>
+    <description>
+      Provides a browser for the RoboDJ music repository and an interface
+      by which that music can be queued up for playing on the music
+      server.
+    </description>
+  </information>
+  <security>
+    <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.4.0" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="commons-io.jar"/>
+    <jar href="commons-lang.jar"/>
+    <jar href="mm.mysql-2.0.14-bin.jar"/>
+    <jar href="samskivert.jar"/>
+    <jar href="robodj.jar"/>
+    <property name="musicd_host" value="@musicd_host@"/>
+  </resources>
+  <application-desc main-class="robodj.chooser.Chooser"/>
+</jnlp>

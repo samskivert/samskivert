@@ -576,7 +576,10 @@ public class Config
      */
     public void remove (String name)
     {
+        // we treat the old value as a String, I hope that's ok!
+        String oldValue = getValue(name, (String) null);
         _prefs.remove(name);
+        _propsup.firePropertyChange(name, oldValue, null);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.1 2001/12/19 07:02:49 mdb Exp $
+// $Id: Label.java,v 1.2 2001/12/19 07:12:31 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -70,12 +70,11 @@ public class Label
     }
 
     /**
-     * Sets the target width for this label. If possible text will be
-     * wrapped to fit into this width, but if an unwrappable run of text
-     * is encountered that is longer than the target width, it will not be
-     * forcibly broken. Calling this method will annul any previously
-     * established target height as we must have one degree of freedom in
-     * which to maneuver.
+     * Sets the target width for this label. Text will be wrapped to fit
+     * into this width, forcibly breaking words on character boundaries if
+     * a single word is too long to fit into the target width. Calling
+     * this method will annul any previously established target height as
+     * we must have one degree of freedom in which to maneuver.
      */
     public void setTargetWidth (int targetWidth)
     {

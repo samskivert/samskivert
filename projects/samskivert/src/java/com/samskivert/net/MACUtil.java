@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.samskivert.util.RunAnywhere;
+import com.samskivert.util.StringUtil;
 
 /**
  * Attempts to find all the MAC addresses on the machine.
@@ -19,6 +20,19 @@ import com.samskivert.util.RunAnywhere;
  */
 public class MACUtil
 {
+/**
+    public static void main (String[] args)
+    {
+        String testOutput =
+            "YOUR TEST STRING GOES HERE";
+
+        String[] macs = parseMACs(testOutput);
+        for (int ii = 0; ii < macs.length; ii++) {
+            System.err.println("mac: " + macs[ii]);
+        }
+    }
+*/
+
     /**
      * Get all the MAC addresses of the hardware we are running on that we
      * can find.
@@ -57,6 +71,7 @@ public class MACUtil
             // 00-04-4B-80-80-03 - Some nvidia built in lan issues.
             // 00-03-8A-XX-XX-XX - MiniWAN or AOL software.
             // 02-03-8A-00-00-11 - Westell Dual (USB/Ethernet) modem
+            // FF-FF-FF-FF-FF-FF - Tunnel adapter Teredo
             if (mac.startsWith("44-45-53")) {
                 continue;
             } else if (mac.startsWith("00-53-45-00")) {
@@ -68,6 +83,8 @@ public class MACUtil
             } else if (mac.startsWith("00-03-8A")) {
                 continue;
             } else if (mac.startsWith("02-03-8A-00-00-11")) {
+                continue;
+            } else if (mac.startsWith("FF-FF-FF-FF-FF-FF")) {
                 continue;
             }
 

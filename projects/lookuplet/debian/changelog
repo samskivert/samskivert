@@ -1,3 +1,9 @@
+lookuplet (1.2-1) unstable; urgency=low
+
+  * New upstream version: rewritten entirely in Python.
+
+ -- Michael Bayne <mdb@samskivert.com>  Sun, 17 Mar 2002 02:10:12 -0800
+
 lookuplet (1.1-1) unstable; urgency=low
 
   * New upstream version; supports operation as GNOME applet.

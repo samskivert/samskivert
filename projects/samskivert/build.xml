@@ -54,6 +54,9 @@
     <available property="servlet2.2.present"
      classname="javax.servlet.Servlet" classpathref="classpath"/>
     <echo message="Servlet 2.2: ${servlet2.2.present}"/>
+    <available property="mail.present"
+     classname="javax.mail.Transport" classpathref="classpath"/>
+    <echo message="Java Mail: ${mail.present}"/>
 
     <available property="sax.present"
      classname="org.xml.sax.SAXException" classpathref="classpath"/>
@@ -114,9 +117,12 @@
     <!--<echo message="com.samskivert.jdbc: ${build.jdbc}"/>-->
 
     <condition property="build.net">
-      <isset property="build.io"/>
+      <and>
+        <isset property="build.io"/>
+        <isset property="mail.present"/>
+      </and>
     </condition>
-    <!--<echo message="com.samskivert.net: ${build.net}"/>-->
+    <echo message="com.samskivert.net: ${build.net}"/>
 
     <condition property="build.servlet">
       <and>

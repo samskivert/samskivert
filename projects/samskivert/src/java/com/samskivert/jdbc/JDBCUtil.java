@@ -289,6 +289,30 @@ public class JDBCUtil
     }
 
     /**
+     * Returns the type (as specified in {@link java.sql.Types} for the
+     * specified column in the specified table.
+     */
+    public static int getColumnType (Connection conn, String table,
+                                     String column)
+        throws SQLException
+    {
+        boolean matched = false;
+        ResultSet rs = conn.getMetaData().getColumns("", "", table, column);
+
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            String cname = rs.getString("COLUMN_NAME");
+            int type = rs.getInt("DATA_TYPE");
+            if (tname.equals(table) && cname.equals(column)) {
+                return type;
+            }
+        }
+
+        throw new SQLException("Table or Column not defined. [table=" + table +
+                               ", col=" + column + "].");
+    }
+
+    /**
      * Adds a column (with name 'cname' and definition 'cdef') to the
      * specified table.
      *

@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.6 2002/04/09 05:13:28 mdb Exp $
+// $Id: Log.java,v 1.7 2002/05/31 20:44:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,6 +53,25 @@ public final class Log
     public Log (String moduleName)
     {
 	_moduleName = moduleName;
+
+        // try setting our default log level for this package
+        try {
+            String lstr = System.getProperty("log_level:" + moduleName);
+            if (!StringUtil.blank(lstr)) {
+                int level = levelFromString(lstr);
+                if (level != -1) {
+                    _provider.setLevel(moduleName, level);
+                } else {
+                    _provider.log(WARNING, moduleName,
+                                  "Unknown log level requested " +
+                                  "[level=" + lstr + "].");
+                }
+            }
+
+        } catch (SecurityException se) {
+            // ignore security exceptions; we're just running in a JVM
+            // that won't let us read system properties
+        }
     }
 
     /**
@@ -128,6 +147,23 @@ public final class Log
     }
 
     /**
+     * Returns the log level that matches the specified string or -1 if
+     * the string could not be interpretted as a log level.
+     */
+    public static int levelFromString (String level)
+    {
+        if (level.equalsIgnoreCase("debug")) {
+            return DEBUG;
+        } else if (level.equalsIgnoreCase("info")) {
+            return INFO;
+        } else if (level.equalsIgnoreCase("warning")) {
+            return WARNING;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
      * Checks the <code>log_provider</code> system property to see if a
      * log provider has been specified. Installs it if so. Checks the
      * <code>log_level</code> system property to see if a default log
@@ -156,18 +192,15 @@ public final class Log
 
         // now set our log level
         try {
-            String level = System.getProperty("log_level");
-            if (level != null) {
-                if (level.equalsIgnoreCase("debug")) {
-                    _provider.setLevel(DEBUG);
-                } else if (level.equalsIgnoreCase("info")) {
-                    _provider.setLevel(INFO);
-                } else if (level.equalsIgnoreCase("warning")) {
-                    _provider.setLevel(WARNING);
+            String lstr = System.getProperty("log_level");
+            if (!StringUtil.blank(lstr)) {
+                int level = levelFromString(lstr);
+                if (level != -1) {
+                    _provider.setLevel(level);
                 } else {
                     _provider.log(WARNING, "samskivert",
                                   "Unknown log level requested " +
-                                  "[level=" + level + "].");
+                                  "[level=" + lstr + "].");
                 }
             }
 

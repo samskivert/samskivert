@@ -1,5 +1,5 @@
 //
-// $Id: PropertiesUtil.java,v 1.5 2002/03/03 07:05:44 mdb Exp $
+// $Id: PropertiesUtil.java,v 1.6 2002/03/03 16:01:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -83,7 +83,7 @@ public class PropertiesUtil
 
         // now load up the desired properties
 	Properties dest = new Properties(defs);
-        extractSubProperties(source, dest, defaultsPrefix);
+        extractSubProperties(source, dest, prefix);
 
         return dest;
     }

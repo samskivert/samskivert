@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.9 2002/08/10 02:30:49 ray Exp $
+// $Id: ArrayUtil.java,v 1.10 2002/08/10 18:42:35 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -37,19 +37,17 @@ public class ArrayUtil
     public static int[] getMaxIndexes (int[] values)
     {
         int max = Integer.MIN_VALUE;
-        int num = 0;
+        int num = 0, vcount = values.length;
 
-        for (int ii=0; ii < values.length; ii++) {
-            if (values[ii] < max) {
-                // common case- stop checking things..
-                continue;
+        for (int ii=0; ii < vcount; ii++) {
+            int value = values[ii];
 
-            } else if (values[ii] > max) {
+            if (value > max) {
                 // new max
-                max = values[ii];
+                max = value;
                 num = 1;
 
-            } else {
+            } else if (value == max) {
                 // another sighting of max
                 num++;
             }
@@ -57,12 +55,9 @@ public class ArrayUtil
 
         // now find the indexes that have max
         int[] maxes = new int[num];
-        for (int ii=0, pos=0; ii < values.length; ii++) {
+        for (int ii=0, pos=0; pos < num; ii++) {
             if (values[ii] == max) {
                 maxes[pos++] = ii;
-                if (pos == num) {
-                    break; // stop when we've got them all
-                }
             }
         }
 

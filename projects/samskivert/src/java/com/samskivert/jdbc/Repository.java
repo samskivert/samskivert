@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.1 2001/02/13 00:25:14 mdb Exp $
+// $Id: Repository.java,v 1.2 2001/02/13 05:55:57 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.samskivert.util.*;
-import jora.*;
+import com.samskivert.jdbc.jora.*;
 
 /**
  * The repository class provides basic functionality upon which to build
@@ -49,7 +49,11 @@ public abstract class Repository
 	    requireProp(props, "username", "No driver username specified.");
 	String password =
 	    requireProp(props, "password", "No driver password specified.");
-	_session.open(url, username, password);
+
+	// the only reason session.open() fails is class not found
+	if (!_session.open(url, username, password)) {
+	    throw new SQLException("Unable to load JDBC driver class.");
+	}
 
 	// set auto-commit to false
 	_session.connection.setAutoCommit(false);
@@ -87,6 +91,43 @@ public abstract class Repository
 	throws SQLException
     {
 	_session.close();
+    }
+
+    /**
+     * Used by <code>execute</code>.
+     *
+     * @see #execute
+     */
+    protected interface Operation
+    {
+	public void invoke () throws SQLException;
+    }
+
+    /**
+     * Executes the supplied operation followed by a call to commit() on
+     * the session unless an SQLException or runtime error occurs, in
+     * which case a call to rollback() is executed on the session.
+     */
+    protected void execute (Operation op)
+	throws SQLException
+    {
+	try {
+	    // invoke the operation
+	    op.invoke();
+
+	    // commit the session
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
     }
 
     protected Session _session;

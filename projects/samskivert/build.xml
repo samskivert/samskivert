@@ -176,6 +176,7 @@
 
   <!-- prepares the application directories -->
   <target name="prepare">
+    <tstamp><format property="year" pattern="yyyy" /></tstamp>
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/classes"/>
     <mkdir dir="${javadoc.dir}"/>
@@ -214,9 +215,10 @@
              windowtitle="${app.name} API"
              doctitle="${app.name} API"
              overview="${src.dir}/${doc.overview}"
-             bottom="Copyright &#169; 2001 ${copyright.holder}. All Rights Reserved."
              destdir="${javadoc.dir}"
              additionalparam="-breakiterator">
+      <bottom>Copyright &#169; 2000-${year} ${copyright.holder}.
+              All Rights Reserved.</bottom>
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.3/docs/api/"/>
     </javadoc>

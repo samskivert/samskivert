@@ -1,5 +1,5 @@
 //
-// $Id: CDDB.java,v 1.3 2000/10/23 07:37:43 mdb Exp $
+// $Id: CDDB.java,v 1.4 2000/12/06 00:26:23 mdb Exp $
 
 package com.samskivert.net.cddb;
 
@@ -33,7 +33,7 @@ public class CDDB
      */
     public static String CLIENT_VERSION; // assigned during static init
 
-    public class Entry
+    public static class Entry
     {
 	/** The category to which this entry belongs. */
 	public String category;
@@ -268,25 +268,25 @@ public class CDDB
      * A detail object contains all of the detailed information about a
      * particular CD as retrieved from the CDDB server.
      */
-    public class Detail
+    public static class Detail
     {
 	/** The unique identifier for this CD. */
-	String discid;
+	public String discid;
 
 	/** The category to which this CD belongs. */
-	String category;
+	public String category;
 
 	/** The title of this CD. */
-	String title;
+	public String title;
 
 	/** The track names. */
-	String[] trackNames;
+	public String[] trackNames;
 
 	/** The extended data for the CD. */
-	String extendedData;
+	public String extendedData;
 
 	/** The extended data for each track. */
-	String[] extendedTrackData;
+	public String[] extendedTrackData;
     }
 
     /**
@@ -479,7 +479,7 @@ public class CDDB
      */
     static
     {
-	StringTokenizer tok = new StringTokenizer("$Revision: 1.3 $");
+	StringTokenizer tok = new StringTokenizer("$Revision: 1.4 $");
 	tok.nextToken();
 	CLIENT_VERSION = tok.nextToken();
     }

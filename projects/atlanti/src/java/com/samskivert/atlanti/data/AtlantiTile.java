@@ -1,8 +1,9 @@
 //
-// $Id: AtlantiTile.java,v 1.1 2001/10/10 03:35:02 mdb Exp $
+// $Id: AtlantiTile.java,v 1.2 2001/10/10 06:14:57 mdb Exp $
 
 package com.threerings.venison;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import java.io.IOException;
@@ -15,12 +16,8 @@ import com.threerings.cocktail.cher.dobj.DSet;
  * Represents a single tile in play on the Venison game board.
  */
 public class VenisonTile
-    implements DSet.Element, VenisonTileCodes
+    implements DSet.Element, TileCodes, Cloneable
 {
-    /** The starting tile. */
-    public static final VenisonTile STARTING_TILE =
-        new VenisonTile(CITY_ONE_ROAD_STRAIGHT, false, NORTH, 0, 0);
-
     /** The tile type. */
     public int type;
 
@@ -44,6 +41,15 @@ public class VenisonTile
         this.orientation = orientation;
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Constructs a tile with the type information set, but in the default
+     * <code>NORTH</code> orientation and with no position.
+     */
+    public VenisonTile (int type, boolean hasShield)
+    {
+        this(type, hasShield, NORTH, 0, 0);
     }
 
     /**
@@ -72,11 +78,52 @@ public class VenisonTile
         int sy = (y + yoff) * TILE_HEIGHT;
 
         // draw a rectangle
+        g.setColor(Color.black);
         g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
 
         // and draw our tile id in the middle for now (we'll eventually
         // draw tile images)
-        g.drawString(type + "/" + x + "/" + y, sx + 20, sy + 20);
+        String txt = type + "/" + x + "/" + y + "/" +
+            ORIENT_NAMES[orientation];
+        g.drawString(txt, sx + 20, sy + 20);
+
+        // draw little dots indicating the color of our sides
+        for (int i = 0; i < 4; i++) {
+            // adjust for our orientation
+            switch (TileUtil.getEdge(type, (i+(4-orientation))%4)) {
+            case GRASS:
+                g.setColor(Color.green);
+                break;
+            case ROAD:
+                g.setColor(Color.white);
+                break;
+            case CITY:
+                g.setColor(Color.red);
+                break;
+            }
+            switch (i) {
+            case NORTH:
+                g.fillOval(sx + TILE_WIDTH/2 - 2, sy + 2, 4, 4);
+                break;
+            case EAST:
+                g.fillOval(sx + TILE_WIDTH - 6, sy + TILE_HEIGHT/2 - 2, 4, 4);
+                break;
+            case SOUTH:
+                g.fillOval(sx + TILE_WIDTH/2 - 2, sy + TILE_HEIGHT - 6, 4, 4);
+                break;
+            case WEST:
+                g.fillOval(sx + 2, sy + TILE_HEIGHT/2 - 2, 4, 4);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Returns a copy of this Venison tile object.
+     */
+    public Object clone ()
+    {
+        return new VenisonTile(type, hasShield, orientation, x, y);
     }
 
     // documentation inherited

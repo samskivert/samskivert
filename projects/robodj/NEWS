@@ -1,0 +1,22 @@
+RoboDJ 1.2 (March 02, 2002)
+
+    NEW FEATURES
+
+        * (importer) Added support for adding ID3 tags to MP3 files after
+          they are encoded.
+
+RoboDJ 1.1 (February 22, 2002)
+
+    NEW FEATURES
+
+        * (chooser) Added support for removing an entire CD at at time
+          from the playlist browser.
+
+        * (chooser) Added ability to search repository for entries where
+          album, artist or song title contains a text string.
+
+RoboDJ 1.0 (February 21, 2002)
+
+    INITIAL RELEASE
+
+$Id: NEWS,v 1.1 2002/03/03 06:21:19 mdb Exp $

@@ -21,10 +21,9 @@ import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.presents.dobj.MessageEvent;
 
-import com.threerings.crowd.chat.ChatProvider;
-import com.threerings.crowd.chat.SpeakProvider;
+import com.threerings.crowd.chat.server.ChatProvider;
+import com.threerings.crowd.chat.server.SpeakProvider;
 import com.threerings.crowd.data.PlaceObject;
-
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.server.PlaceManager;
 
@@ -248,7 +247,7 @@ public class AtlantiManager extends GameManager
 
                 String message = qual + " " + TileCodes.FEATURE_NAMES[f.type] +
                     " scored " + score + " points for " + names + ".";
-                SpeakProvider.sendSystemSpeak(
+                SpeakProvider.sendInfo(
                     _atlobj, ATLANTI_MESSAGE_BUNDLE, message);
 
                 Log.info("New scores: " + StringUtil.toString(_atlobj.scores));
@@ -321,7 +320,7 @@ public class AtlantiManager extends GameManager
                         // players about the score
                         String message = getPlayerName(p.owner) + " scored " +
                             score + " points for " + qual + " temple.";
-                        SpeakProvider.sendSystemSpeak(
+                        SpeakProvider.sendInfo(
                             _atlobj, ATLANTI_MESSAGE_BUNDLE, message);
 
                         // add the score to the owning player
@@ -469,7 +468,7 @@ public class AtlantiManager extends GameManager
                 _atlobj.scores[i] += cityScores[i];
                 String message = getPlayerName(i) + " scores " +
                     cityScores[i] + " points for fisheries.";
-                SpeakProvider.sendSystemSpeak(
+                SpeakProvider.sendInfo(
                     _atlobj, ATLANTI_MESSAGE_BUNDLE, message);
             }
         }

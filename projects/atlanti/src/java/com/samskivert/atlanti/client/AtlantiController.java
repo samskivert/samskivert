@@ -5,6 +5,7 @@ package com.samskivert.atlanti.client;
 
 import java.awt.event.ActionEvent;
 import com.samskivert.util.ListUtil;
+import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DSet;
@@ -90,7 +91,7 @@ public class AtlantiController extends GameController
     }
 
     // documentation inherited
-    public void turnDidChange (String turnHolder)
+    public void turnDidChange (Name turnHolder)
     {
         // if it's our turn, set the tile to be placed
         if (turnHolder.equals(_self.username)) {

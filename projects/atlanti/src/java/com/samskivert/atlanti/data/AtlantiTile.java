@@ -464,12 +464,12 @@ public class AtlantiTile
     {
         // load up the tile set if we haven't already
         if (_tset == null) {
-            _tset = _tmgr.loadTileSet(TILES_IMG_PATH, TILE_TYPES,
+            _tset = _tmgr.loadTileSet(TILES_IMG_PATH,
                                       TILE_WIDTH, TILE_HEIGHT);
         }
 
         // fetch the tile
-        return _tset.getTileImage(type-1);
+        return _tset.getRawTileImage(type-1);
     }
 
     /**
@@ -479,12 +479,12 @@ public class AtlantiTile
     {
         // load up the tile set if we haven't already
         if (_stset == null) {
-            _stset = _tmgr.loadTileSet(SHIELD_IMG_PATH, 1,
+            _stset = _tmgr.loadTileSet(SHIELD_IMG_PATH,
                                        SHIELD_SIZE, SHIELD_SIZE);
         }
 
         // fetch the tile
-        return _stset.getTileImage(0);
+        return _stset.getRawTileImage(0);
     }
 
     /** The tile image that we use to render this tile. */

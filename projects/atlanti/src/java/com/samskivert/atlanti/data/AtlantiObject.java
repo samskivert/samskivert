@@ -4,6 +4,7 @@
 package com.samskivert.atlanti.data;
 
 import com.threerings.presents.dobj.DSet;
+import com.threerings.util.Name;
 
 import com.threerings.parlor.game.GameObject;
 import com.threerings.parlor.turn.TurnGameObject;
@@ -30,7 +31,7 @@ public class AtlantiObject extends GameObject
     public static final String SCORES = "scores";
 
     /** The username of the current turn holder. */
-    public String turnHolder;
+    public Name turnHolder;
 
     /** A set containing all of the tiles that are in play in this
      * game. */
@@ -48,7 +49,7 @@ public class AtlantiObject extends GameObject
     public int[] scores;
 
     // documentation inherited from interface
-    public String[] getPlayers ()
+    public Name[] getPlayers ()
     {
         return players;
     }
@@ -60,7 +61,7 @@ public class AtlantiObject extends GameObject
     }
 
     // documentation inherited from interface
-    public String getTurnHolder ()
+    public Name getTurnHolder ()
     {
         return turnHolder;
     }
@@ -73,10 +74,10 @@ public class AtlantiObject extends GameObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setTurnHolder (String turnHolder)
+    public void setTurnHolder (Name turnHolder)
     {
-        this.turnHolder = turnHolder;
         requestAttributeChange(TURN_HOLDER, turnHolder);
+        this.turnHolder = turnHolder;
     }
 
     /**
@@ -121,8 +122,8 @@ public class AtlantiObject extends GameObject
      */
     public void setTiles (DSet tiles)
     {
-        this.tiles = tiles;
         requestAttributeChange(TILES, tiles);
+        this.tiles = tiles;
     }
 
     /**
@@ -135,8 +136,8 @@ public class AtlantiObject extends GameObject
      */
     public void setCurrentTile (AtlantiTile currentTile)
     {
-        this.currentTile = currentTile;
         requestAttributeChange(CURRENT_TILE, currentTile);
+        this.currentTile = currentTile;
     }
 
     /**
@@ -181,8 +182,8 @@ public class AtlantiObject extends GameObject
      */
     public void setPiecens (DSet piecens)
     {
-        this.piecens = piecens;
         requestAttributeChange(PIECENS, piecens);
+        this.piecens = piecens;
     }
 
     /**
@@ -195,8 +196,8 @@ public class AtlantiObject extends GameObject
      */
     public void setScores (int[] scores)
     {
-        this.scores = scores;
         requestAttributeChange(SCORES, scores);
+        this.scores = scores;
     }
 
     /**
@@ -209,7 +210,7 @@ public class AtlantiObject extends GameObject
      */
     public void setScoresAt (int value, int index)
     {
-        this.scores[index] = value;
         requestElementUpdate(SCORES, new Integer(value), index);
+        this.scores[index] = value;
     }
 }

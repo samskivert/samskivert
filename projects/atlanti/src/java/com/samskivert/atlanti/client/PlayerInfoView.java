@@ -10,6 +10,8 @@ import java.awt.GridBagConstraints;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.SetListener;
@@ -74,14 +76,14 @@ public class PlayerInfoView
     /**
      * Adds a player to the display.
      */
-    protected void addPlayer (int idx, String username)
+    protected void addPlayer (int idx, Name username)
     {
         GridBagConstraints c = new GridBagConstraints();
 
         // create a label for their username
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0; // use up extra space on this label
-        JLabel unlabel = new JLabel(username);
+        JLabel unlabel = new JLabel(username.toString());
         unlabel.setForeground(Feature.PIECEN_COLOR_MAP[idx]);
         add(unlabel, c);
 

@@ -4,6 +4,7 @@
 package com.samskivert.atlanti.data;
 
 import com.threerings.presents.dobj.DSet;
+import com.threerings.util.Name;
 
 import com.threerings.parlor.game.GameObject;
 import com.threerings.parlor.turn.TurnGameObject;
@@ -15,7 +16,7 @@ public class AtlantiObject extends GameObject
     implements TurnGameObject
 {
     /** The username of the current turn holder. */
-    public String turnHolder;
+    public Name turnHolder;
 
     /** A set containing all of the tiles that are in play in this
      * game. */
@@ -33,7 +34,7 @@ public class AtlantiObject extends GameObject
     public int[] scores;
 
     // documentation inherited from interface
-    public String[] getPlayers ()
+    public Name[] getPlayers ()
     {
         return players;
     }
@@ -45,7 +46,7 @@ public class AtlantiObject extends GameObject
     }
 
     // documentation inherited from interface
-    public String getTurnHolder ()
+    public Name getTurnHolder ()
     {
         return turnHolder;
     }

@@ -17,10 +17,10 @@ public class PiecenUtil
     public static void init (TileManager tmgr)
     {
         UniformTileSet piecenSet = tmgr.loadTileSet(
-            PIECEN_IMG_PATH, PIECEN_TYPES, PIECEN_WIDTH, PIECEN_HEIGHT);
+            PIECEN_IMG_PATH, PIECEN_WIDTH, PIECEN_HEIGHT);
         _images = new Image[PIECEN_TYPES];
         for (int i = 0; i < PIECEN_TYPES; i++) {
-            _images[i] = piecenSet.getTileImage(i);
+            _images[i] = piecenSet.getRawTileImage(i);
         }
     }
 

@@ -110,7 +110,7 @@ public class TurnIndicatorView extends JPanel
     protected void updateTurnHolder ()
     {
         if (_atlobj.state == AtlantiObject.IN_PLAY) {
-            _whoLabel.setText(_atlobj.turnHolder);
+            _whoLabel.setText(_atlobj.turnHolder.toString());
         }
     }
 

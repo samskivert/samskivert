@@ -243,6 +243,9 @@ public class DispatcherServlet extends VelocityServlet
         props.setProperty(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM_CLASS,
                           ServletContextLogger.class.getName());
 
+        // let the application set up other properties
+        _app.configureVelocity(config, props);
+
         // now return our augmented properties
         return props;
     }

@@ -20,6 +20,8 @@
 
 package com.samskivert.velocity;
 
+import java.util.Properties;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
@@ -123,6 +125,14 @@ public class Application
 
         // let the derived application do post-init stuff
         didInit(config);
+    }
+
+    /**
+     * Called prior to initializing Velocity to allow the application to
+     * specify custom configuration properties.
+     */
+    protected void configureVelocity (ServletConfig config, Properties props)
+    {
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: LockableLRUHashMap.java,v 1.1 2002/11/15 01:50:46 ray Exp $
+// $Id: LockableLRUHashMap.java,v 1.2 2002/11/26 21:14:36 ray Exp $
 
 package com.samskivert.util;
 
@@ -19,6 +19,21 @@ public class LockableLRUHashMap extends LRUHashMap
     public LockableLRUHashMap (int baseMaxSize)
     {
         super(baseMaxSize);
+    }
+
+    /**
+     * Clear all entries but those that are currently locked.
+     */
+    public void clear ()
+    {
+        // unfortunately there's not a better way to do this because all the
+        // appropriate variables have package access
+        Object[] keys = keySet().toArray();
+        for (int ii=0, nn=keys.length; ii < nn; ii++) {
+            if (! _locks.contains(keys[ii])) {
+                remove(keys[ii]);
+            }
+        }
     }
 
     /**

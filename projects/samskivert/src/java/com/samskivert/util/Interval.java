@@ -1,5 +1,5 @@
 //
-// $Id: Interval.java,v 1.1 2001/03/02 00:47:10 mdb Exp $
+// $Id: Interval.java,v 1.2 2001/03/02 00:50:46 mdb Exp $
 
 package com.samskivert.util;
 
@@ -12,9 +12,9 @@ import java.util.*;
  * at <code>incrementHelperThreads</code> and
  * <code>setMaxHelperThreads</code> in <code>IntervalManager</code>.
  *
- * @see go2net.util.IntervalManager
- * @see go2net.util.IntervalManager#incrementHelperThreads
- * @see go2net.util.IntervalManager#setMaxHelperThreads
+ * @see IntervalManager
+ * @see IntervalManager#incrementHelperThreads
+ * @see IntervalManager#setMaxHelperThreads
  */
 public interface Interval
 {

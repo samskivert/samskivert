@@ -62,7 +62,8 @@ public class Cursor {
 			    }
 			}
 			synchronized(qbeStmt) { 
-			    table.bindQueryVariables(qbeStmt, qbeObject);
+			    table.bindQueryVariables(
+                                qbeStmt, qbeObject, qbeMask);
 			    result = qbeStmt.executeQuery();
 			    qbeStmt.clearParameters();
 			}
@@ -219,15 +220,17 @@ public class Cursor {
         this.query = query;
     }
 
-    protected Cursor(Table table, Session session, int nTables, Object obj) { 
+    protected Cursor(Table table, Session session, int nTables,
+                     Object obj, FieldMask mask) { 
 	if (session == null) { 
 	    session = ((SessionThread)Thread.currentThread()).session;
 	}	    
         this.table = table;
 	this.session = session;
 	this.nTables = nTables;
-	qbeObject = obj; 
-	query = table.buildQueryList(obj);
+	qbeObject = obj;
+        qbeMask = mask;
+	query = table.buildQueryList(obj, mask);
 	stmt = null;
     }
   
@@ -239,5 +242,6 @@ public class Cursor {
     private Statement stmt;
     private Object    currObject;
     private Object    qbeObject;
+    private FieldMask qbeMask;
 }
 

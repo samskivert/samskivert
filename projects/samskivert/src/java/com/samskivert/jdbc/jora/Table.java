@@ -172,38 +172,61 @@ public class Table {
     }
 
     /** Select records from database table using <I>obj</I> object as
-     * template for selection. All non-builtin fields of this object,
-     * which are not null, are compared with correspondent table values.
+     * template.
      *
-     * @param obj object for construction search condition: selected objects
-     *  should match all non-null fields of specified object.
+     * @param obj example object for search: selected objects should match
+     * all non-null fields.
      */
     public final Cursor queryByExample(Object obj) {
-        return new Cursor(this, session, 1, obj);
+        return new Cursor(this, session, 1, obj, null);
+    }
+
+    /** Select records from database table using <I>obj</I> object as
+     * template for selection.
+     *
+     * @param obj example object for search.
+     * @param mask field mask indicating which fields in the example
+     * object should be used when building the query.
+     */
+    public final Cursor queryByExample(Object obj, FieldMask mask) {
+        return new Cursor(this, session, 1, obj, mask);
     }
 
     /** Select records from database table using <I>obj</I> object as
      * template for selection. All non-builtin fields of this object,
      * which are not null, are compared with correspondent table values.
      *
-     * @param obj object for construction search condition: selected objects
-     *  should match all non-null fields of specified object.
-     * @param session user database session
+     * @param obj object for construction search condition: selected
+     * objects should match all non-null fields of specified object.
+     * @param session user database session.
      */
     public final Cursor queryByExample(Object obj, Session session) {
-        return new Cursor(this, session, 1, obj);
+        return queryByExample(obj, session, null);
+    }
+
+    /** Select records from database table using <I>obj</I> object as
+     * template for selection.
+     *
+     * @param obj example object for search.
+     * @param session user database session.
+     * @param mask field mask indicating which fields in the example
+     * object should be used when building the query.
+     */
+    public final Cursor queryByExample(Object obj, Session session,
+                                       FieldMask mask) {
+        return new Cursor(this, session, 1, obj, mask);
     }
 
     /** Select records from specified and derived database tables using
-     * <I>obj</I> object as template for selection.
-     * All non-builtin fields of this object,
-     * which are not null, are compared with correspondent table values.
+     * <I>obj</I> object as template for selection.  All non-builtin
+     * fields of this object, which are not null, are compared with
+     * correspondent table values.
      *
-     * @param obj object for construction search condition: selected objects
-     *  should match all non-null fields of specified object.
+     * @param obj object for construction search condition: selected
+     * objects should match all non-null fields of specified object.
      */
     public final Cursor queryAllByExample(Object obj) {
-        return new Cursor(this, session, nDerived+1, obj);
+        return new Cursor(this, session, nDerived+1, obj, null);
     }
 
     /** Select records from specified and derived database tables using
@@ -216,7 +239,7 @@ public class Table {
      * @param session user database session
      */
     public final Cursor queryAllByExample(Object obj, Session session) {
-        return new Cursor(this, session, nDerived+1, obj);
+        return new Cursor(this, session, nDerived+1, obj, null);
     }
 
     /** Insert new record in the table. Values of inserted record fields
@@ -972,10 +995,11 @@ public class Table {
     }
 
     protected final void bindQueryVariables(PreparedStatement pstmt,
-					    Object            obj)
+					    Object            obj,
+                                            FieldMask         mask)
        throws SQLException
     {
-	bindQueryVariables(pstmt, obj, 0, nFields, 0);
+	bindQueryVariables(pstmt, obj, 0, nFields, 0, mask);
     }
 
     protected final void updateVariables(ResultSet result, Object obj)
@@ -995,10 +1019,10 @@ public class Table {
         return sql.toString();
     }
 
-    protected final String buildQueryList(Object qbe)
+    protected final String buildQueryList(Object qbe, FieldMask mask)
     {
         StringBuffer buf = new StringBuffer();
-        buildQueryList(buf, qbe, 0, nFields);
+        buildQueryList(buf, qbe, 0, nFields, mask);
 	if (buf.length() > 0) {
 	    buf.insert(0, " where ");
 	}
@@ -1047,8 +1071,9 @@ public class Table {
     }
 
     private final int bindQueryVariables(PreparedStatement pstmt, Object obj,
-					 int i, int end, int column)
-      throws SQLException
+                                         int i, int end, int column,
+                                         FieldMask mask)
+        throws SQLException
     {
         try {
 	    while (i < end) {
@@ -1057,25 +1082,48 @@ public class Table {
 		if (!fd.field.getDeclaringClass().isInstance(obj)) {
 		    return column;
 		}
-		int nComponents =
-		    fd.isCompound() ? fd.outType-FieldDescriptor.tCompound : 0;
-		if (!fd.isBuiltin()
-		    && fd.outType != FieldDescriptor.tClosure
-		    && (comp = fd.field.get(obj)) != null)
-	        {
+		int nComponents = fd.isCompound() ?
+                    fd.outType-FieldDescriptor.tCompound : 0;
+
+                try {
+                    // skip closure fields (because querying by them makes
+                    // no sense)
+                    if (fd.outType == FieldDescriptor.tClosure) {
+                        continue;
+                    }
+
+                    // if a field mask is specified, use that to determine
+                    // whether or not the field should be skipped
+                    if (mask != null) {
+                        if (!mask.isModified(i-1)) {
+                            continue;
+                        }
+                    }
+
+                    // look up the value of the field
+                    comp = fd.field.get(obj);
+
+                    // if no field mask was specified, ignore builtin
+                    // fields and those that are null
+                    if (mask == null && (fd.isBuiltin() || comp == null)) {
+                        continue;
+                    }
+
 		    if (!fd.bindVariable(pstmt, obj, ++column)) {
-		        column = bindQueryVariables(pstmt, comp,
-						    i,i+nComponents,column-1);
+		        column = bindQueryVariables(
+                            pstmt, comp, i, i+nComponents, column-1, mask);
 		    }
-		}
-		i += nComponents;
+
+		} finally {
+                    i += nComponents;
+                }
 	    }
 	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
 	return column;
     }
 
     private final void buildQueryList(StringBuffer buf, Object qbe,
-				      int i, int end)
+				      int i, int end, FieldMask mask)
     {
 	try {
 	    while (i < end) {
@@ -1083,21 +1131,44 @@ public class Table {
 		FieldDescriptor fd = fields[i++];
 		int nComponents =
 		    fd.isCompound() ? fd.outType-FieldDescriptor.tCompound : 0;
-		if (!fd.isBuiltin()
-		    && fd.outType != FieldDescriptor.tClosure
-		    && (comp = fd.field.get(qbe)) != null)
-		{
-		    if (nComponents != 0) {
-			buildQueryList(buf, comp, i, i+nComponents);
-		    } else {
-			if (buf.length() != 0) {
-			    buf.append(",");
-			}
-			buf.append(fd.name);
-			buf.append("=?");
-		    }
-		}
-		i += nComponents;
+
+                try {
+                    // skip closure fields (because querying by them makes
+                    // no sense)
+                    if (fd.outType == FieldDescriptor.tClosure) {
+                        continue;
+                    }
+
+                    // if a field mask is specified, use that to determine
+                    // whether or not the field should be skipped
+                    if (mask != null) {
+                        if (!mask.isModified(i-1)) {
+                            continue;
+                        }
+                    }
+
+                    // look up the value of the field
+                    comp = fd.field.get(qbe);
+
+                    // if no field mask was specified, ignore builtin
+                    // fields and those that are null
+                    if (mask == null && (fd.isBuiltin() || comp == null)) {
+                        continue;
+                    }
+
+                    if (nComponents != 0) {
+                        buildQueryList(buf, comp, i, i+nComponents, mask);
+                    } else {
+                        if (buf.length() != 0) {
+                            buf.append(",");
+                        }
+                        buf.append(fd.name);
+                        buf.append("=?");
+                    }
+
+                } finally {
+                    i += nComponents;
+                }
 	    }
 	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
     }

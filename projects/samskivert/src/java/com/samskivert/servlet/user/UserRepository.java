@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.23 2002/05/11 20:32:46 mdb Exp $
+// $Id: UserRepository.java,v 1.24 2002/11/01 00:43:58 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -142,7 +142,7 @@ public class UserRepository extends JORARepository
 	}
 
 	user.username = username;
-	user.password = UserUtil.encryptPassword(username, password);
+	user.password = UserUtil.encryptPassword(username, password, true);
 	user.realname = realname;
 	user.email = email;
 	user.created = new Date(System.currentTimeMillis());

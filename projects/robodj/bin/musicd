@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.1 2001/03/22 02:41:36 mdb Exp $
+# $Id: musicd,v 1.2 2001/03/22 02:44:26 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
 # filesystem. The playlsits can be manipulated by connecting to the server
@@ -101,8 +101,8 @@ sub handle_client
         print $cfh "200 Playlist cleared.\n";
 
     } elsif ($input =~ m/^PLAYLIST/) {
-        print $cfh "200 Playlist songs: " . @playlist .
-            " current: $playing\n";
+        print $cfh "200 Playlist songs: " . @playlist . " current: " .
+            (defined $playing ? $playing : "<none>") . "\n";
         my $path;
         foreach $path (@playlist) {
             print $cfh "$path\n";
@@ -120,6 +120,12 @@ sub handle_client
     } elsif ($input =~ m/^PAUSE/) {
         $mp3->pause();
         print $cfh "200 Music paused (use PLAY to unpause).\n";
+
+    } elsif ($input =~ m/^SKIP/) {
+        # stop this tune and skip to the next one
+        $mp3->stop();
+        play_next_tune();
+        print $cfh "200 Skipped current song.\n";
 
     } elsif ($input =~ m/^CLOSE/) {
         print $cfh "200 Bye bye.\n";

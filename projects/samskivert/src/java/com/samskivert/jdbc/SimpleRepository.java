@@ -1,5 +1,5 @@
 //
-// $Id: SimpleRepository.java,v 1.3 2001/09/21 03:01:46 mdb Exp $
+// $Id: SimpleRepository.java,v 1.4 2001/11/10 04:42:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -89,8 +89,15 @@ public class SimpleRepository extends Repository
             dmd = conn.getMetaData();
             liaison = LiaisonRegistry.getLiaison(conn);
             gotConnection(conn);
+
         } catch (SQLException sqe) {
             String err = "Unable to obtain connection.";
+            // if the connection was created, let the provider know that
+            // it choked
+            if (conn != null) {
+                _provider.connectionFailed(_dbident, conn, sqe);
+            }
+            // and then do a little choking ourselves
             throw new PersistenceException(err, sqe);
         }
 

@@ -1,11 +1,13 @@
 //
-// $Id: RuntimeAdjust.java,v 1.8 2003/01/20 20:06:33 ray Exp $
+// $Id: RuntimeAdjust.java,v 1.9 2003/03/11 23:08:56 ray Exp $
 
 package com.samskivert.util;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -166,8 +168,7 @@ public class RuntimeAdjust
     }
 
     /** Provides runtime adjustable integer variables. */
-    public static class IntAdjust extends Adjust
-        implements ActionListener
+    public static class IntAdjust extends TextFieldAdjust
     {
         public IntAdjust (String descrip, String name,
                           Config config, int defval)
@@ -188,8 +189,7 @@ public class RuntimeAdjust
 
         protected void populateEditor (JPanel editor)
         {
-            editor.add(_valbox = new JTextField(), GroupLayout.FIXED);
-            _valbox.addActionListener(this);
+            super.populateEditor(editor);
             _valbox.setText("" + getValue());
         }
 
@@ -218,7 +218,6 @@ public class RuntimeAdjust
         }
 
         protected int _value;
-        protected JTextField _valbox;
     }
 
     /** Provides runtime adjustable enumerated variables. */
@@ -397,6 +396,41 @@ public class RuntimeAdjust
         {
             // not needed
         }
+    }
+
+    /**
+     * Base class for adjusts which use a text field for entry.
+     */
+    protected abstract static class TextFieldAdjust extends Adjust
+        implements ActionListener, FocusListener
+    {
+        public TextFieldAdjust (String descrip, String name, Config config)
+        {
+            super(descrip, name, config);
+        }
+
+        // documentation inherited
+        protected void populateEditor (JPanel editor)
+        {
+            editor.add(_valbox = new JTextField(), GroupLayout.FIXED);
+            _valbox.addFocusListener(this);
+            _valbox.addActionListener(this);
+        }
+
+        // documentation inherited from interface FocusListener
+        public void focusGained (FocusEvent e)
+        {
+            // nothing
+        }
+
+        // documentation inherited from interface FocusListener
+        public void focusLost (FocusEvent e)
+        {
+            actionPerformed(new ActionEvent(_valbox, 0, "focusLost"));
+        }
+
+        /** The textbox that holds the value. */
+        protected JTextField _valbox;
     }
 
     /** Base class for type-specific adjustments. */

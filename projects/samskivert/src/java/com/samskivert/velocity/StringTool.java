@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.3 2002/11/09 02:11:36 mdb Exp $
+// $Id: StringTool.java,v 1.4 2002/12/17 22:58:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -50,5 +50,13 @@ public class StringTool
     public String valueOf (int value)
     {
         return String.valueOf(value);
+    }
+
+    /**
+     * Concatenates the two string arguments.
+     */
+    public String concat (String one, String two)
+    {
+        return one + two;
     }
 }

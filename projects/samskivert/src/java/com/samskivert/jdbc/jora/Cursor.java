@@ -44,14 +44,13 @@ public class Cursor {
 			continue;
 		    }
 		    if (qbeObject != null) { 
-	 	        String sql = "select " + table.listOfFields 
-			    + " from " + table.name + " " + query;
 			PreparedStatement qbeStmt;
 			synchronized(session.preparedStmtHash) { 
-			    Object s = session.preparedStmtHash.get(sql); 
+			    Object s = session.preparedStmtHash.get(query); 
 			    if (s == null) { 
-				qbeStmt=session.connection.prepareStatement(sql);
-				session.preparedStmtHash.put(sql, qbeStmt);
+				qbeStmt=
+				    session.connection.prepareStatement(query);
+				session.preparedStmtHash.put(query, qbeStmt);
 			    } else { 
 				qbeStmt = (PreparedStatement)s;
 			    }
@@ -65,9 +64,7 @@ public class Cursor {
   		        if (stmt == null) { 
 			    stmt = session.connection.createStatement();
 			}
-	 	        String sql = "select " + table.listOfFields 
-			           + " from " + table.name + " " + query;
-			result = stmt.executeQuery(sql);
+			result = stmt.executeQuery(query);
 		    } 
 		}
 		if (result.next()) { 

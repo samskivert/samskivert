@@ -88,7 +88,6 @@ public class Table {
 	     s, null);
     }
 
-
     /** Constructor of table with "key" and "session" parameters inherited 
      *  from base table. 
      */
@@ -97,14 +96,29 @@ public class Table {
 	     null, null);
     }
 
-
     /** Select records from database table according to search condition
      * 
      * @param condition valid SQL condition expression started with WHERE
      *  or empty string if all records should be fetched.
      */
     public final Cursor select(String condition) { 
-        return new Cursor(this, session, 1, condition);
+	String query = "select " + listOfFields + " from " + name +
+	    " " + condition;
+        return new Cursor(this, session, 1, query);
+    }
+
+    /** Select records from database table according to search condition
+     * including the specified (comma separated) extra tables into the
+     * SELECT clause to facilitate a join in determining the key.
+     * 
+     * @param tables the (comma separated) names of extra tables to
+     * include in the SELECT clause.
+     * @param condition valid SQL condition expression started with WHERE.
+     */
+    public final Cursor select(String tables, String condition) { 
+	String query = "select " + qualifiedListOfFields +
+	    " from " + name + "," + tables + " " + condition;
+        return new Cursor(this, session, 1, query);
     }
 
     /** Select records from database table according to search condition
@@ -114,7 +128,9 @@ public class Table {
      * @param session user database session
      */
     public final Cursor select(String condition, Session session) { 
-        return new Cursor(this, session, 1, condition);
+	String query = "select " + listOfFields + " from " + name +
+	    " " + condition;
+        return new Cursor(this, session, 1, query);
     }
 
     /** Select records from specified and derived database tables
@@ -135,7 +151,6 @@ public class Table {
     public final Cursor selectAll(String condition, Session session) { 
         return new Cursor(this, session, nDerived+1, condition);
     }
-
     
     /** Select records from database table using <I>obj</I> object as 
      * template for selection. All non-builtin fields of this object,
@@ -519,6 +534,7 @@ public class Table {
 
     protected String  name;
     protected String  listOfFields;
+    protected String  qualifiedListOfFields;
     protected String  listOfAssignments;
     protected Class   cls;
     protected Session session;
@@ -566,6 +582,7 @@ public class Table {
 	session = s;
 	primaryKeys = keys;
 	listOfFields = "";
+	qualifiedListOfFields = "";
 	listOfAssignments = "";
 	connectionID = 0;
 	Vector fieldsVector = new Vector();
@@ -760,9 +777,11 @@ public class Table {
 		}
 		if (listOfFields.length() != 0) {
 		    listOfFields += ",";
+		    qualifiedListOfFields += ",";
 		    listOfAssignments += ",";
 		}
 		listOfFields += fullName;
+		qualifiedListOfFields += this.name + "." + fullName;
 		listOfAssignments += fullName + "=?";
 
 		fd.inType = fd.outType = type;
@@ -840,8 +859,10 @@ public class Table {
     {
         StringBuffer buf = new StringBuffer();
         buildQueryList(buf, qbe, 0, nFields);
-	String condition = buf.toString();
-	return condition.length() != 0 ? " where " + condition : "";
+	if (buf.length() > 0) {
+	    buf.insert(0, " where ");
+	}
+	return "select " + listOfFields + " from " + name + buf;
     }
 
 
@@ -968,10 +989,4 @@ public class Table {
 	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
 	return column;
     }
-
 }
-
-
-
-
-

@@ -1,5 +1,5 @@
 //
-// $Id: RunAnywhere.java,v 1.2 2003/05/03 00:06:23 mdb Exp $
+// $Id: RunAnywhere.java,v 1.3 2003/05/03 00:12:42 ray Exp $
 
 package com.samskivert.util;
 
@@ -31,6 +31,15 @@ public class RunAnywhere
     }
 
     /**
+     * Returns true if we're running in a JVM that identifies its
+     * operating system as Linux.
+     */
+    public static final boolean isLinux ()
+    {
+        return _isLinux;
+    }
+
+    /**
      * Returns the timestamp associated with the supplied event except on
      * the Macintosh where it returns {@link System#currentTimeMillis}
      * because {@link InputEvent#getWhen} returns completely incorrect
@@ -49,6 +58,10 @@ public class RunAnywhere
      * is first loaded. */
     protected static boolean _isMacOS;
 
+    /** Flag indicating that we're on Linux; initialized when this class
+     * is first loaded. */
+    protected static boolean _isLinux;
+
     static {
         try {
             String osname = System.getProperty("os.name");
@@ -56,6 +69,7 @@ public class RunAnywhere
             _isWindows = (osname.indexOf("Windows") != -1);
             _isMacOS = (osname.indexOf("Mac OS") != -1 ||
                         osname.indexOf("MacOS") != -1);
+            _isLinux = (osname.indexOf("Linux") != -1);
         } catch (Exception e) {
             // dang, can't grab system properties; we'll just pretend
             // we're not on any of these OSes

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: SwingUtil.java,v 1.4 2001/08/23 00:17:42 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -39,5 +39,25 @@ public class SwingUtil
         int width = window.getWidth(), height = window.getHeight();
         window.setBounds((ss.width-width)/2, (ss.height-height)/2,
                          width, height);
+    }
+
+    /**
+     * Draw a string centered within a rectangle.  The string is drawn
+     * using the graphics context's current font and color.
+     *
+     * @param g the graphics context.
+     * @param str the string.
+     * @param x the bounding x position.
+     * @param y the bounding y position.
+     * @param width the bounding width.
+     * @param height the bounding height.
+     */
+    public static void drawStringCentered (
+	Graphics g, String str, int x, int y, int width, int height)
+    {
+        FontMetrics fm = g.getFontMetrics(g.getFont());
+	int xpos = x + ((width - fm.stringWidth(str)) / 2);
+	int ypos = y + ((height + fm.getAscent()) / 2);
+	g.drawString(str, xpos, ypos);
     }
 }

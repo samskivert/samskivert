@@ -1,17 +1,20 @@
 //
-// $Id: Label.java,v 1.4 2001/12/20 02:00:12 mdb Exp $
+// $Id: Label.java,v 1.5 2002/03/03 07:03:20 mdb Exp $
 
 package com.samskivert.swing;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 
 import java.awt.font.TextLayout;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -69,6 +72,18 @@ public class Label implements SwingConstants
     public void setFont (Font font)
     {
         _font = font;
+    }
+
+    /**
+     * Instructs the label to render the text outlined in the specified
+     * color when rendering. The text itself will be rendered in whatever
+     * color is currently set in the graphics context, but the outline
+     * will always be in the specified color. Set the outline color to
+     * <code>null</code> to disable outlining (which is the default).
+     */
+    public void setOutlineColor (Color color)
+    {
+        _outlineColor = color;
     }
 
     /**
@@ -231,7 +246,21 @@ public class Label implements SwingConstants
             case CENTER: dx = extra/2; break;
             }
 
+            // render the outline using the hacky, but much nicer than
+            // using "real" outlines (via TextLayout.getOutline), method
+            if (_outlineColor != null) {
+                Color old = gfx.getColor();
+                gfx.setColor(_outlineColor);
+                layout.draw(gfx, x + dx - 1, y - 1);
+                layout.draw(gfx, x + dx - 1, y + 1);
+                layout.draw(gfx, x + dx + 1, y + 1);
+                layout.draw(gfx, x + dx + 1, y - 1);
+                gfx.setColor(old);
+            }
+
+            // and draw the text itself
             layout.draw(gfx, x + dx, y);
+
             y += layout.getDescent() + layout.getLeading();
         }
     }
@@ -277,4 +306,8 @@ public class Label implements SwingConstants
 
     /** Formatted text layout instances that contain each line of text. */
     protected TextLayout[] _layouts;
+
+    /** The color in which to outline the text when rendering or null if
+     * the text should not be outlined. */
+    protected Color _outlineColor = null;
 }

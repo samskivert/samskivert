@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.2 2001/03/02 02:08:50 mdb Exp $
+// $Id: UserManager.java,v 1.3 2001/03/02 02:45:48 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -141,8 +141,10 @@ public class UserManager
      * was established and the proper cookies were set in the supplied
      * response object. If invalid authentication information is provided
      * or some other error occurs, an exception will be thrown.
+     *
+     * @return the user object of the authenticated user.
      */
-    public void login (String username, String password,
+    public User login (String username, String password,
 		       HttpServletResponse rsp)
 	throws SQLException, NoSuchUserException, InvalidPasswordException
     {
@@ -162,6 +164,8 @@ public class UserManager
 	acookie.setPath("/");
 	acookie.setMaxAge(24*60*60); // expire in two days
 	rsp.addCookie(acookie);
+
+	return user;
     }
 
     public void logout (HttpServletRequest req, HttpServletResponse rsp)

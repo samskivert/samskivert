@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.6 2002/10/16 00:44:48 mdb Exp $
+// $Id: UserUtil.java,v 1.7 2002/10/30 18:58:42 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -48,6 +48,8 @@ public class UserUtil
      */
     public static String encryptPassword (String username, String password)
     {
+        // lets not be (case) sensitive about these things
+        username = username.toLowerCase();
 	return Crypt.crypt(username.substring(0, 2), password);
     }
 

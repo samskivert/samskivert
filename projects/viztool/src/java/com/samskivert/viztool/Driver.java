@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.10 2001/08/13 23:58:56 mdb Exp $
+// $Id: Driver.java,v 1.11 2001/08/14 00:41:53 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -82,17 +82,20 @@ public class Driver
             paper.setImageableArea(72*0.5, 72*0.5, 72*7.5, 72*10);
             format.setPaper(paper);
 
-            // pop up a dialog to control printing
-            job.printDialog();
-
             // use our configured page format
             job.setPrintable(viz, format);
 
-            try {
-                // invoke the printing process
-                job.print();
-            } catch (PrinterException pe) {
-                pe.printStackTrace(System.err);
+            // pop up a dialog to control printing
+            if (job.printDialog()) {
+                try {
+                    // invoke the printing process
+                    job.print();
+                } catch (PrinterException pe) {
+                    pe.printStackTrace(System.err);
+                }
+
+            } else {
+                Log.info("Printing cancelled.");
             }
 
             // printing starts up the AWT threads, so we have to

@@ -1,0 +1,55 @@
+#!/usr/bin/perl -w
+#
+# $Id: quickrip,v 1.1 2002/01/19 04:35:53 mdb Exp $
+#
+# Rips and encodes a CD and places it into the repository directory having
+# been given some necessary parameters.
+
+my $usage = "$0 branchdir entryid [trackno]\n";
+my $root = "/export/robodj/repository";
+
+# read our arguments
+my $branchdir = shift or die $usage;
+my $entryid = shift or die $usage;
+my $trackno = shift;
+
+# figure out how many tracks there are to rip
+my $trackcount = 0;
+open(SCAN, "cdparanoia -Q 2>&1|") or die "Can't invoke cdparanoia: $!\n";
+while (<SCAN>) {
+    # parse track info lines just to get the track counts
+    if (/^\s*(\d+)\.\s+(\d+)\s\[\S*\]\s+(\d+)/) {
+        $trackcount = $1;
+    }
+}
+
+# create the target directory
+my $target = "$root/$branchdir/$entryid";
+system("mkdir -p $target");
+
+# do our main business
+if (defined $trackno) {
+    # either rip a single track
+    rip_track($trackno);
+
+} else {
+    # or rip the whole kit and kaboodle
+    for ($i = 1; $i <= $trackcount; $i++) {
+        rip_track($i);
+    }
+}
+
+sub rip_track
+{
+    my ($track) = @_;
+    my $tno = sprintf("%02d", $track);
+    my $tmp = "/tmp/track$tno";
+    # rip the track
+    system("cdparanoia -w $track $tmp.wav\n");
+    # encode it
+    system("lame --nohist -v $tmp.wav $tmp.mp3\n");
+    # move it into the repository
+    system("mv $tmp.mp3 $target/$tno.mp3");
+    # and clean up after ourselves
+    unlink("$tmp.wav");
+}

@@ -1,5 +1,5 @@
 //
-// $Id: XMLUtil.java,v 1.2 2001/08/11 22:43:29 mdb Exp $
+// $Id: XMLUtil.java,v 1.3 2001/08/13 14:33:52 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -32,7 +32,8 @@ import javax.xml.parsers.*;
  *
  * <p> Classes wishing to parse XML data should extend the
  * <code>org.xml.sax.helpers.DefaultHandler</code> class, override the
- * desired SAX event handler methods, and call<code>XMLUtil.parse()</code>.
+ * desired SAX event handler methods, and call
+ * <code>XMLUtil.parse()</code>.
  */
 public class XMLUtil
 {

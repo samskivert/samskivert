@@ -152,9 +152,9 @@ public class Invoker extends LoopingThread
                 }
             }
 
-        } catch (Exception e) {
+        } catch (Throwable t) {
             Log.warning("Invocation unit failed [unit=" + unit + "].");
-            Log.logStackTrace(e);
+            Log.logStackTrace(t);
         }
     }
 

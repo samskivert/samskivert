@@ -1,5 +1,5 @@
 //
-// $Id: PropertiesUtil.java,v 1.6 2002/03/03 16:01:47 mdb Exp $
+// $Id: PropertiesUtil.java,v 1.7 2003/11/13 00:05:08 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,6 +19,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -109,5 +113,27 @@ public class PropertiesUtil
 	    // insert the value into the new properties minus the prefix
 	    dest.put(name.substring(preflen), source.getProperty(name));
 	}
+    }
+
+    /**
+     * Loads up the supplied properties file and returns the specified
+     * key. Clearly this is an expensive operation and you should load a
+     * properties file separately if you plan to retrieve multiple keys
+     * from it. This method, however, is convenient for, say, extracting a
+     * value from a properties file that contains only one key, like a
+     * build timestamp properties file, for example.
+     *
+     * @return the value of the key in question or null if no such key
+     * exists or an error occurred loading the properties file.
+     */
+    public String loadAndGet (File propFile, String key)
+    {
+        try {
+            Properties props = new Properties();
+            props.load(new FileInputStream(propFile));
+            return props.getProperty(key);
+        } catch (IOException ioe) {
+            return null;
+        }
     }
 }

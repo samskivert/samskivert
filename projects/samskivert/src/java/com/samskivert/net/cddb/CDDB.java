@@ -1,5 +1,5 @@
 //
-// $Id: CDDB.java,v 1.5 2001/03/03 21:19:05 mdb Exp $
+// $Id: CDDB.java,v 1.6 2001/06/10 21:32:48 mdb Exp $
 
 package com.samskivert.net.cddb;
 
@@ -449,6 +449,10 @@ public class CDDB
 
 	// now read the response
 	String rspstr = _in.readLine();
+        // if they closed the connection on us, we should deal
+        if (rspstr == null) {
+            throw new EOFException();
+        }
 	System.err.println("RSP:" + rspstr);
 
 	// parse the response
@@ -479,7 +483,7 @@ public class CDDB
      */
     static
     {
-	StringTokenizer tok = new StringTokenizer("$Revision: 1.5 $");
+	StringTokenizer tok = new StringTokenizer("$Revision: 1.6 $");
 	tok.nextToken();
 	CLIENT_VERSION = tok.nextToken();
     }

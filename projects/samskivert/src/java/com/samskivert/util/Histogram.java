@@ -1,5 +1,5 @@
 //
-// $Id: Histogram.java,v 1.2 2002/04/22 17:33:09 shaper Exp $
+// $Id: Histogram.java,v 1.3 2002/04/22 21:28:55 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,6 +53,7 @@ public class Histogram
         } else {
             _buckets[(value-_minValue)/_bucketWidth]++;
         }
+        _count++;
     }
 
     /**

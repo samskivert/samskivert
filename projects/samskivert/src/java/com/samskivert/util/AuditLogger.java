@@ -3,9 +3,11 @@
 
 package com.samskivert.util;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 import java.text.SimpleDateFormat;
@@ -103,7 +105,9 @@ public class AuditLogger
     {
         try {
             // create our file writer to which we'll log
-            _logWriter = new PrintWriter(new FileWriter(_logPath, true), true);
+            FileOutputStream fout = new FileOutputStream(_logPath, true);
+            OutputStreamWriter writer = new OutputStreamWriter(fout, "UTF8");
+            _logWriter = new PrintWriter(new BufferedWriter(writer), true);
 
             // log a standard message
             log("log_opened " + _logPath);

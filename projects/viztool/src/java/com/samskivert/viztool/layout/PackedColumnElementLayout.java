@@ -1,5 +1,5 @@
 //
-// $Id: PackedColumnElementLayout.java,v 1.8 2001/11/30 22:57:31 mdb Exp $
+// $Id: PackedColumnElementLayout.java,v 1.9 2001/12/03 06:13:54 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -29,6 +29,15 @@ import java.util.*;
  */
 public class PackedColumnElementLayout implements ElementLayout
 {
+    /**
+     * Configures the element layout to (or not to) first sort by height
+     * before falling back to alphabetical sort.
+     */
+    public void setSortByHeight (boolean byHeight)
+    {
+        _byHeight = byHeight;
+    }
+
     // docs inherited from interface
     public Rectangle2D layout (List elements, double pageWidth,
                                double pageHeight, List overflow)
@@ -36,7 +45,7 @@ public class PackedColumnElementLayout implements ElementLayout
         // sort the elements first by height then alphabetically
         Element[] elems = new Element[elements.size()];
         elements.toArray(elems);
-        Arrays.sort(elems, HEIGHT_COMP);
+        Arrays.sort(elems, new ElementComparator(_byHeight));
 
         // lay out the elements across the page
         double x = 0, y = 0, rowheight = 0, maxwidth = 0;
@@ -99,18 +108,27 @@ public class PackedColumnElementLayout implements ElementLayout
      * from highest to lowest. Secondarily sorts alphabetically on the
      * element names.
      */
-    protected static class HeightComparator implements Comparator
+    protected static class ElementComparator implements Comparator
     {
+        public ElementComparator (boolean byHeight)
+        {
+            _byHeight = byHeight;
+        }
+
         public int compare (Object o1, Object o2)
         {
             Element e1 = (Element)o1;
             Element e2 = (Element)o2;
+            int diff = 0;
 
-            // tallest element wins
-            int diff = (int)(e2.getBounds().getHeight() -
+            // if we're sorting by height, check that now
+            if (_byHeight) {
+                diff = (int)(e2.getBounds().getHeight() -
                              e1.getBounds().getHeight());
+            }
 
-            // if they are the same height, sort alphabetically
+            // if they are the same height (or we're not sorting by
+            // height), sort alphabetically
             return (diff != 0) ? diff : e1.getName().compareTo(e2.getName());
         }
 
@@ -118,10 +136,13 @@ public class PackedColumnElementLayout implements ElementLayout
         {
             return (other == this);
         }
+
+        protected boolean _byHeight;
     }
+
+    /** Whether or not we're sorting by height. */
+    protected boolean _byHeight = true;
 
     // hard coded for now, half inch margins
     protected static final double GAP = 72/4;
-
-    protected static final Comparator HEIGHT_COMP = new HeightComparator();
 }

@@ -1,0 +1,116 @@
+VIZTOOL: An extensible tool for visualizing Java classes
+--------------------------------------------------------
+
+As the catchy subtitle claims, viztool is used to generate visualizations
+of collections of Java classes. These visualizations are intended to be
+printed out and taped to the wall or set on the desk beside you or folded
+into paper airplanes and sailed around the room. Thus viztool does not
+include a sophisticated user interface for viewing these presentations
+onscreen (use ghostscript for that), although you can actually display
+them on the screen because the rendering is done via the Java 2D rendering
+engine.
+
+viztool was born from my repeated desire to be able to glance over all of
+the myriad classes that come to be involved in any large project. I knew I
+could go out and pay thousands of dollars for a single user license for
+some object oriented design tool that would diagram my classes three ways
+to Sunday, generate code, count my chickens and make toast on the side,
+but I couldn't find a free, simple tool for generating basic class
+diagrams.
+
+Thus, viztool aims to provide an extensible framework for generating
+visualizations of collections of classes. This initial release generates
+inheritance diagrams organized by package, with information on interfaces
+implemented and (non-anonymous) inner classes as well. It is somewhat
+modular, although not as thorougly as I'd like because, like all projects,
+it was completed in haste and with an eagerness to see the final product
+that isn't entirely conducive to elaborate design. There are also various
+enhancements I'd like to make to the inheritance visualization.
+
+Excuses aside, the foundation is laid and adding other visualizations
+should be a reasonably straightforward proces after having had a look at
+the existing code. So if you've got some handy visualization in mind, take
+a crack at it, or at least email me with the idea so that I can put it on
+a list and someone else might do it for you.
+
+Building viztool
+----------------
+
+Building viztool is very simple. First ensure that the necessary third
+party jar files are available either in the lib/ directory or in the
+system wide jar file location specified in build.xml. See lib/README for a
+list of the necessary third party jar files and how to get them.
+
+The library is built using ant, a modern build tool available from The
+Jakarta Project. If you aren't already using ant for other projects, it
+can be found here:
+
+  http://jakarta.apache.org/ant/
+
+Invoke ant with any of the following targets:
+
+  all: builds the class files and javadoc documentation
+  compile: builds only the class files (dist/classes)
+  javadoc: builds only the javadoc documentation (dist/docs)
+  dist: builds the distribution jar file (dist/viztool.jar)
+
+Look at the build.xml file for configurable build parameters.
+
+Using viztool
+-------------
+
+Using viztool is easy if you make use of the included shell script
+(bin/viztool). Add the classes that you wish to visualize to your
+CLASSPATH environment variable and then invoke the viztool script with the
+package prefix you wish to visualize.
+
+For example:
+
+% export CLASSPATH=<here>/foo.jar:<there>/bar.jar:<everywhere>/baz.jar
+% ./bin/viztool --print com.whoever.mygreatpackage
+
+Because the classes are actually resolved by the JVM when visualizing, all
+classes that the visualized classes depend upon must also be loadable
+(meaning included in the class path).
+
+If you want to write your own script, take a look at the viztool script to
+see what arguments to pass to the visualization driver class.
+
+I plan to provide an additional visualization driver that allows for
+options to be provided in a properties file, so that one can set up a
+properties file with all their favorite visualization parameters and do
+things like incorporate the generation of diagrams into their build
+process.
+
+If you want to see the layout code deal with all sorts of boundary
+conditions (like packages that span multiple pages and monster inheritance
+hierarchies), try visualizing the Swing code (I exclude the plaf packages
+and the html and rtf packages because they are fairly uninteresting, it's
+the main javax.swing package that really puts us through the hoops):
+
+% ./bin/viztool --print --exclude=javax.swing.plaf:javax.swing.plaf.basic:javax.swing.plaf.metal:javax.swing.plaf.multi:javax.swing.text.html:javax.swing.text.html.parser:javax.swing.text.rtf javax.swing
+
+Distribution
+------------
+
+viztool is released under the GPL. The most recent version of the code is
+available here:
+
+  http://www.waywardgeeks.org/code/viztool/
+
+Contribution
+------------
+
+Contributions are welcome. Control of the CVS repository is presently in
+the hands of mdb@samskivert.com, who should be emailed about
+submissions. Facilities for management of major contributions by external
+parties (ie. publicly accessible CVS server) will be provided if
+circumstances dictate.
+
+Contact Information
+-------------------
+
+The person primarily responsible for viztool is Michael Bayne and can be
+contacted at <mdb@samskivert.com>.
+
+$Id: README,v 1.1 2001/08/12 03:10:58 mdb Exp $

@@ -1,9 +1,9 @@
 //
-// $Id: StringUtil.java,v 1.58 2003/10/08 23:52:50 ray Exp $
+// $Id: StringUtil.java,v 1.59 2003/10/23 16:09:34 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -159,6 +159,22 @@ public class StringUtil
             // fall through
         }
         return false;
+    }
+
+    /**
+     * Converts a number representing dollars to a currency display string.
+     */
+    public static String currency (double value)
+    {
+        return _curFormatter.format(value);
+    }
+
+    /**
+     * Converts a number representing pennies to a currency display string.
+     */
+    public static String currencyPennies (double value)
+    {
+        return currency(value / 100.0);
     }
 
     /**
@@ -509,7 +525,7 @@ public class StringUtil
 	    buf.append(closeBox);
 
         } else {
-            // fall back on the general purpose 
+            // fall back on the general purpose
             toString(buf, val);
         }
     }
@@ -1102,4 +1118,8 @@ public class StringUtil
         _ffmt.setMinimumFractionDigits(1);
         _ffmt.setMaximumFractionDigits(2);
     }
+
+    /** Used to easily format numbers as currency. Bling Bling. */
+    protected static NumberFormat _curFormatter =
+        NumberFormat.getCurrencyInstance();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.11 2003/10/08 23:52:50 ray Exp $
+// $Id: StringTool.java,v 1.12 2003/10/23 16:09:34 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -59,7 +59,7 @@ public class StringTool
      */
     public static String currency (double value)
     {
-        return _curFormatter.format(value);
+        return StringUtil.currency(value);
     }
 
     /**
@@ -67,7 +67,7 @@ public class StringTool
      */
     public static String currencyPennies (double value)
     {
-        return currency(value / 100.0);
+        return StringUtil.currencyPennies(value);
     }
 
     /**
@@ -77,7 +77,4 @@ public class StringTool
     {
         return HTMLUtil.makeParagraphs(text);
     }
-
-    protected static NumberFormat _curFormatter =
-        NumberFormat.getCurrencyInstance();
 }

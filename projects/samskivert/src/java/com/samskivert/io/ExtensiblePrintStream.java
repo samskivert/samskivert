@@ -1,5 +1,5 @@
 //
-// $Id: ExtensiblePrintStream.java,v 1.1 2002/10/16 19:09:02 shaper Exp $
+// $Id: ExtensiblePrintStream.java,v 1.2 2002/10/16 19:12:53 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * Wraps a supplied {@link PrintStream} to allow capturing all data
- * written to the stream via various <code>print()</code> and
+ * written to the stream via the various <code>print()</code> and
  * <code>println()</code> variants.  Derived classes must implement the
  * {@link #handlePrinted} and {@link #handleNewLine} methods.
  */
@@ -59,14 +59,14 @@ public abstract class ExtensiblePrintStream extends PrintStream
 
     /**
      * Called with any text printed to the stream, excepting newlines
-     * resulting from calls to the {@link #println} variants which are
-     * reported via {@link #handleNewLine}.
+     * resulting from calls to the various <code>println()</code> methods,
+     * which are reported via {@link #handleNewLine}.
      */
     public abstract void handlePrinted (String s);
 
     /**
      * Called whenever a newline is printed to the stream by one of the
-     * {@link #println} variants.
+     * various <code>println()</code> methods.
      */
     public abstract void handleNewLine ();
 

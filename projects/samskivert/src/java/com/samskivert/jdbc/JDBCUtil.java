@@ -234,11 +234,11 @@ public class JDBCUtil
             String cname = rs.getString("COLUMN_NAME");
             String iname = rs.getString("INDEX_NAME");
 
-            if (iname == null) {
+            if (index == null) {
                 if (tname.equals(table) && cname.equals(column)) {
                     matched = true;
                 }
-            } else if (iname.equals(index)) {
+            } else if (index.equals(iname)) {
                 matched = true;
             }
         }

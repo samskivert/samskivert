@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.11 2004/05/26 21:15:36 eric Exp $
+// $Id: MACUtil.java,v 1.12 2004/07/02 19:53:26 eric Exp $
 
 package com.samskivert.net;
 
@@ -56,7 +56,7 @@ public class MACUtil
             // 00-E0-06-09-55-66 - Some bogus run of ASUS motherboards
             // 00-04-4B-80-80-03 - Some nvidia built in lan issues.
             // 00-03-8A-XX-XX-XX - MiniWAN or AOL software.
-            
+            // 02-03-8A-00-00-11 - Westell Dual (USB/Ethernet) modem
             if (mac.startsWith("44-45-53")) {
                 continue;
             } else if (mac.startsWith("00-53-45-00")) {
@@ -66,6 +66,8 @@ public class MACUtil
             } else if (mac.startsWith("00-04-4B-80-80-03")) {
                 continue;
             } else if (mac.startsWith("00-03-8A")) {
+                continue;
+            } else if (mac.startsWith("02-03-8A-00-00-11")) {
                 continue;
             }
 

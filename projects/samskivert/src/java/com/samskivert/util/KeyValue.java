@@ -1,5 +1,5 @@
 //
-// $Id: KeyValue.java,v 1.1 2003/02/27 00:43:32 mdb Exp $
+// $Id: KeyValue.java,v 1.2 2003/05/25 01:49:20 mdb Exp $
 
 package com.samskivert.util;
 
@@ -37,6 +37,14 @@ public class KeyValue
     {
         this.key = key;
         this.value = value;
+    }
+
+    /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return key + "=" + value;
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.37 2002/09/24 07:43:50 mdb Exp $
+// $Id: StringUtil.java,v 1.38 2002/10/16 00:42:26 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,6 +28,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import java.net.InetAddress;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -573,6 +576,20 @@ public class StringUtil
     public static String hexlate (byte[] bytes)
     {
         return (bytes == null) ? "" : hexlate(bytes, bytes.length);
+    }
+
+    /**
+     * Returns a hex string representing the MD5 encoded source or null if
+     * the MD5 codec was not available in this JVM.
+     */
+    public static String md5hex (String source)
+    {
+	try {
+	    MessageDigest digest = MessageDigest.getInstance("MD5");
+	    return hexlate(digest.digest(source.getBytes()));
+	} catch (NoSuchAlgorithmException nsae) {
+            return null;
+	}
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.4 2001/08/11 22:43:28 mdb Exp $
+// $Id: UserUtil.java,v 1.5 2002/10/16 00:42:26 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,8 +19,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.servlet.user;
-
-import java.security.*;
 
 import com.samskivert.util.Crypt;
 import com.samskivert.util.StringUtil;
@@ -42,17 +40,14 @@ public class UserUtil
 	buf.append(Math.random());
 
 	// and MD5 hash it
-	try {
-	    MessageDigest digest = MessageDigest.getInstance("MD5");
-	    byte[] enc = digest.digest(buf.toString().getBytes());
-	    return StringUtil.hexlate(enc);
-
-	} catch (NoSuchAlgorithmException nsae) {
+        String auth = StringUtil.md5hex(buf.toString());
+        if (auth == null) {
 	    throw new RuntimeException("JVM missing MD5 message digest " +
 				       "algorithm implementation. User " +
 				       "management facilities require MD5 " +
 				       "encoding capabilities.");
-	}
+        }
+        return auth;
     }
 
     /**

@@ -22,6 +22,7 @@ package com.samskivert.swing;
 
 import java.awt.*;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import java.util.HashMap;
@@ -356,6 +357,19 @@ public abstract class GroupLayout
     public static JPanel makeButtonBox (Justification justification)
     {
         return new JPanel(new HGroupLayout(NONE, justification));
+    }
+
+    /**
+     * Creates a {@link JPanel} that is configured with an {@link
+     * HGroupLayout} with a configuration conducive to containing a row of
+     * buttons. The supplied button is added to the box.
+     */
+    public static JPanel makeButtonBox (
+        Justification justification, JComponent button)
+    {
+        JPanel box = new JPanel(new HGroupLayout(NONE, justification));
+        box.add(button);
+        return box;
     }
 
     /**

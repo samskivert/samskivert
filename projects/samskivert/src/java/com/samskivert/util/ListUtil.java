@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.12 2003/07/15 00:31:54 ray Exp $
+// $Id: ListUtil.java,v 1.13 2003/10/07 02:14:18 ray Exp $
 
 package com.samskivert.util;
 
@@ -563,7 +563,7 @@ public class ListUtil
         new EqualityComparator() {
             public boolean equals (Object o1, Object o2)
             {
-                return (o1 == null) ? (o1 == o2) : o1.equals(o2);
+                return ObjectUtil.equals(o1, o2);
             }
         };
 

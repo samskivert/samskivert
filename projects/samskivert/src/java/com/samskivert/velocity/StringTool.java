@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.7 2003/10/01 22:58:31 eric Exp $
+// $Id: StringTool.java,v 1.8 2003/10/02 02:22:21 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -68,7 +68,7 @@ public class StringTool
      */
     public String currencyPennies (double value)
     {
-        return _curFormatter.format(value/100.0);
+        return currency(value / 100.0);
     }
 
     /**

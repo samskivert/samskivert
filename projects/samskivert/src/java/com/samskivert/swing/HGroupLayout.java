@@ -1,5 +1,5 @@
 //
-// $Id: HGroupLayout.java,v 1.2 2000/12/07 11:09:59 mdb Exp $
+// $Id: HGroupLayout.java,v 1.3 2001/03/03 21:19:48 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -69,7 +69,7 @@ public class HGroupLayout extends GroupLayout
 
     public void layoutContainer (Container parent)
     {
-	Rectangle b = parent.bounds();
+	Rectangle b = parent.getBounds();
 	DimenInfo info = computeDimens(parent, PREFERRED);
 
 	// adjust the bounds width and height to account for the insets
@@ -154,7 +154,7 @@ public class HGroupLayout extends GroupLayout
 	    }
 
 	    child.setBounds(sx, sy, newwid, newhei);
-	    sx += child.size().width + _gap;
+	    sx += child.getSize().width + _gap;
 	}
     }
 }

@@ -81,6 +81,17 @@ public class MailUtil
                                     String subject, String body)
         throws IOException
     {
+        deliverMail(recipients, sender, subject, body, null, null);
+    }
+
+    /**
+     * Delivers the supplied mail, with the specified additional headers.
+     */
+    public static void deliverMail (String[] recipients, String sender,
+                                    String subject, String body,
+                                    String[] headers, String[] values)
+        throws IOException
+    {
         if (recipients == null || recipients.length < 1) {
             throw new IOException("Must specify one or more recipients.");
         }
@@ -96,6 +107,10 @@ public class MailUtil
             for (int ii = 0; ii < recipients.length; ii++) {
                 message.addRecipient(Message.RecipientType.TO,
                                      new InternetAddress(recipients[ii]));
+            }
+            int hcount = (headers == null) ? 0 : headers.length;
+            for (int ii = 0; ii < headers.length; ii++) {
+                message.addHeader(headers[ii], values[ii]);
             }
             message.setSubject(subject);
             message.setText(body);

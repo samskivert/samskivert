@@ -1,5 +1,5 @@
 //
-// $Id: bycategory.java,v 1.2 2003/12/10 20:33:42 mdb Exp $
+// $Id: bycategory.java,v 1.3 2003/12/10 21:57:31 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -36,6 +36,9 @@ public class bycategory extends UserLogic
         if (!StringUtil.blank(msg)) {
             ctx.put("error", msg);
         }
+
+        // put any filter into the context
+        ctx.put("filter", ParameterUtil.getParameter(req, "filter", false));
 
         ArrayList tasks = null;
         String query = ParameterUtil.getParameter(req, "query", false);

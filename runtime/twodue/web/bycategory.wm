@@ -20,10 +20,54 @@
 #if ($query)
 Tasks matching '$query':
 #else
-Outstanding tasks:
+Outstanding tasks:&nbsp;&nbsp;
 #end
 </b>
 
+#if ($filter != "")
+<a href="bycategory.wm">all</a>
+#foreach ($xtask in $xtasks)
+<a href="bycategory.wm?filter=$xtask.name">$xtask.name</a>
+#end
+
+#foreach ($xtask in $xtasks)
+#if ($filter == $xtask.name)
+<p>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr style="color: $fcolor" bgcolor="$scolor"><td colspan="2" align="left">
+<a href="bycategory.wm?filter=$xtask.name">$xtask.name</a>
+($xtask.tasks.size())</td>
+<td colspan="2">&nbsp;</td></tr>
+
+$xcats.clear()
+#foreach ($task in $xtask.tasks)
+#if ($xcats.checkCategory($task.complexity))
+<tr><td colspan="4" class="small" style="border-bottom: 1px solid"><i>$task.complexity</i></td></tr>
+  #set ($border = "")
+  #else
+  #set ($border = 'style="border-top: 1px solid"')
+  #end
+
+<tr>
+<td><a href="index.wm?action=claim&task=$task.taskId">
+<img src="images/claim.png" border="0" alt="Claim this task"></a></td>
+<td $border>$task.summary &nbsp;
+<span class="small">[$task.creator]</span>
+  #if (!$string.blank($task.notes))
+&nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
+  #end
+</td>
+<td valign="top" $border>$task.getPriorityName()</td>
+<td valign="top" $border><a href="edit.wm?task=$task.taskId">
+<img src="images/edit.png" border="0" alt="Edit this task"></a></td>
+</tr>
+#end
+</table>
+<p><center>
+#end
+#end
+
+#else
 <table><tr><td valign="top"> <!-- two column table -->
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -37,7 +81,9 @@ Outstanding tasks:
 <tr><td colspan="4">&nbsp;</td></tr>
 #end
 #end
-<tr style="color: $fcolor" bgcolor="$scolor"><td colspan="2" align="left">$xtask.name</td>
+<tr style="color: $fcolor" bgcolor="$scolor"><td colspan="2" align="left">
+<a href="bycategory.wm?filter=$xtask.name">$xtask.name</a>
+($xtask.tasks.size())</td>
 <td colspan="2">&nbsp;</td></tr>
 
 $xcats.clear()
@@ -67,5 +113,6 @@ $xcats.clear()
 #end
 </table>
 </table>
+#end
 
 #import ("/footer.wm")

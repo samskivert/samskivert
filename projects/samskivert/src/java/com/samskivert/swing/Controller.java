@@ -1,5 +1,5 @@
 //
-// $Id: Controller.java,v 1.15 2002/06/19 23:22:40 mdb Exp $
+// $Id: Controller.java,v 1.16 2003/07/11 03:42:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -229,6 +229,30 @@ public abstract class Controller
             // even though we choked, we still "handled" the action
             return true;
         }
+    }
+
+    /**
+     * A convenience method for constructing and immediately handling an
+     * event on this controller (via {@link #handleAction(ActionEvent)}).
+     *
+     * @return true if the controller knew how to handle the action, false
+     * otherwise.
+     */
+    public boolean handleAction (Component source, String command)
+    {
+        return handleAction(new ActionEvent(source, 0, command));
+    }
+
+    /**
+     * A convenience method for constructing and immediately handling an
+     * event on this controller (via {@link #handleAction(ActionEvent)}).
+     *
+     * @return true if the controller knew how to handle the action, false
+     * otherwise.
+     */
+    public boolean handleAction (Component source, String command, Object arg)
+    {
+        return handleAction(new CommandEvent(source, command, arg));
     }
 
     /**

@@ -82,6 +82,12 @@ public class VenisonPanel
         chat.removeSendButton();
         sidePanel.add(chat);
 
+        // add a "back" button
+        JButton back = new JButton("Back to lobby");
+        back.setActionCommand(BACK_TO_LOBBY);
+        back.addActionListener(Controller.DISPATCHER);
+        sidePanel.add(back, VGroupLayout.FIXED);
+
         // add our side panel to the main display
         add(sidePanel, HGroupLayout.FIXED);
 

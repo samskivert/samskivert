@@ -191,6 +191,10 @@ public class VenisonController
             // disable the noplace button
             _panel.noplace.setEnabled(false);
 
+        } else if (action.getActionCommand().equals(BACK_TO_LOBBY)) {
+            // bail on out
+            _ctx.getLocationDirector().moveBack();
+
         } else {
             return super.handleAction(action);
         }

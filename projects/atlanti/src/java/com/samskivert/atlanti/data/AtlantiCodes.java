@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiCodes.java,v 1.3 2001/10/17 23:27:52 mdb Exp $
+// $Id: AtlantiCodes.java,v 1.4 2001/10/24 03:24:20 mdb Exp $
 
 package com.threerings.venison;
 
@@ -34,4 +34,8 @@ public interface VenisonCodes
     /** The message submitted by the client to the server when they decide
      * that they don't want to (or can't) place any piecen this turn. */
     public static final String PLACE_NOTHING_REQUEST = "place_nothing";
+
+    /** The name of the command posted by the "Back to lobby" button in
+     * the side bar. */
+    public static final String BACK_TO_LOBBY = "back_to_lobby";
 }

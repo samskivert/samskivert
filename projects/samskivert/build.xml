@@ -8,7 +8,10 @@
   <property name="copyright.holder" value="Michael Bayne"/>
   <property name="build.compiler"   value="jikes"/>
   <property name="build.optimize"   value="on"/>
-  <property name="java.libraries"   value="/usr/share/java"/>
+
+  <!-- we want to access the environment -->
+  <property environment="env"/>
+  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
 
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/java"/>
@@ -22,6 +25,154 @@
     <fileset dir="lib" includes="**/*.jar"/>
     <fileset dir="${java.libraries}" includes="**/*.jar"/>
   </path>
+
+  <!-- checks to see which packages are available -->
+  <target name="check-available">
+    <echo message="The packages required for building are listed below."/>
+    <echo message="A package followed by 'true' indicates that the package"/>
+    <echo message="is present. One followed by '${package.present}' indicates"/>
+    <echo message="that it was not found. Jar files can be placed into the"/>
+    <echo message="lib/ directory or placed in the directory referenced"/>
+    <echo message="by your JAVA_LIBRARIES environment variable."/>
+
+    <echo message=""/>
+    <echo message="------------------------------------------"/>
+    <echo message="Standard extensions - http://java.sun.com/"/>
+    <echo message="------------------------------------------"/>
+    <available property="servlet2.2.present"
+     classname="javax.servlet.Servlet" classpathref="classpath"/>
+    <echo message="Servlet 2.2: ${servlet2.2.present}"/>
+
+    <available property="sax.present"
+     classname="org.xml.sax.SAXException" classpathref="classpath"/>
+    <echo message="SAX: ${sax.present}"/>
+
+    <available property="jaxp.present"
+     classname="javax.xml.parsers.SAXParser" classpathref="classpath"/>
+    <echo message="JAXP: ${jaxp.present}"/>
+
+    <echo message=""/>
+    <echo message="----------------------------------------------"/>
+    <echo message="Jakarta libraries - http://jakarta.apache.org/"/>
+    <echo message="----------------------------------------------"/>
+    <available property="jakarta.commons-util.present"
+     classname="org.apache.commons.util.exception.NestableException"
+     classpathref="classpath"/>
+    <echo message="Commons Util: ${jakarta.commons-util.present}"/>
+
+    <available property="jakarta.commons-collections.present"
+     classname="org.apache.commons.collections.FilterIterator"
+     classpathref="classpath"/>
+    <echo message="Commons Collections: ${jakarta.commons-collections.present}"/>
+
+    <available property="jakarta.commons-digester.present"
+     classname="org.apache.commons.digester.Digester"
+     classpathref="classpath"/>
+    <echo message="Commons Digester: ${jakarta.commons-digester.present}"/>
+
+    <available property="jakarta.regexp.present"
+     classname="org.apache.regexp.RE" classpathref="classpath"/>
+    <echo message="Regexp: ${jakarta.regexp.present}"/>
+
+    <available property="jakarta.velocity.present"
+     classname="org.apache.velocity.Template" classpathref="classpath"/>
+    <echo message="Velocity: ${jakarta.velocity.present}"/>
+
+    <echo message=""/>
+    <echo message="-----------------------------------"/>
+    <echo message="WebMacro - http://www.webmacro.org/"/>
+    <echo message="-----------------------------------"/>
+    <available property="webmacro.present"
+     classname="org.webmacro.Template" classpathref="classpath"/>
+    <echo message="WebMacro: ${webmacro.present}"/>
+  </target>
+
+  <!-- combines package availability into build controls -->
+  <target name="compute-builds">
+    <echo message="The packages that will be built are listed below. One"/>
+    <echo message="followed by 'true' indicates that it will be built. One"/>
+    <echo message="followed by '${build.package}' indicates that it will"/>
+    <echo message="not be built. If a package is not being built, one or"/>
+    <echo message="more of its dependencies could not be located."/>
+
+    <echo message=""/>
+    <condition property="build.util">
+      <isset property="jakarta.commons-util.present"/>
+    </condition>
+    <echo message="com.samskivert.util: ${build.util}"/>
+
+    <condition property="build.io">
+      <isset property="jakarta.commons-util.present"/>
+    </condition>
+    <echo message="com.samskivert.io: ${build.io}"/>
+
+    <condition property="build.jdbc">
+      <and>
+        <isset property="build.io"/>
+        <isset property="build.util"/>
+      </and>
+    </condition>
+    <echo message="com.samskivert.jdbc: ${build.jdbc}"/>
+
+    <condition property="build.net">
+      <and>
+        <isset property="build.io"/>
+        <isset property="jakarta.regexp.present"/>
+      </and>
+    </condition>
+    <echo message="com.samskivert.net: ${build.net}"/>
+
+    <condition property="build.servlet">
+      <and>
+        <isset property="build.io"/>
+        <isset property="build.jdbc"/>
+        <isset property="build.util"/>
+        <isset property="jakarta.regexp.present"/>
+        <isset property="servlet2.2.present"/>
+      </and>
+    </condition>
+    <echo message="com.samskivert.servlet: ${build.servlet}"/>
+
+    <condition property="build.swing">
+      <isset property="build.util"/>
+    </condition>
+    <echo message="com.samskivert.swing: ${build.swing}"/>
+
+    <property name="build.test" value="true"/>
+    <echo message="com.samskivert.test: ${build.test}"/>
+
+    <condition property="build.velocity">
+      <and>
+        <isset property="build.servlet"/>
+        <isset property="build.util"/>
+        <isset property="jakarta.commons-collections.present"/>
+        <isset property="jakarta.velocity.present"/>
+        <isset property="servlet2.2.present"/>
+      </and>
+    </condition>
+    <echo message="com.samskivert.velocity: ${build.velocity}"/>
+
+    <condition property="build.webmacro">
+      <and>
+        <isset property="build.servlet"/>
+        <isset property="build.util"/>
+        <isset property="servlet2.2.present"/>
+        <isset property="webmacro.present"/>
+      </and>
+    </condition>
+    <echo message="com.samskivert.webmacro: ${build.webmacro}"/>
+
+    <condition property="build.xml">
+      <and>
+        <isset property="build.io"/>
+        <isset property="build.util"/>
+        <isset property="jakarta.commons-digester.present"/>
+        <isset property="jaxp.present"/>
+        <isset property="sax.present"/>
+      </and>
+    </condition>
+    <echo message="com.samskivert.xml: ${build.xml}"/>
+  </target>
 
   <!-- prepares the application directories -->
   <target name="prepare">
@@ -39,10 +190,20 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="prepare,check-available,compute-builds">
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
            debug="on" optimize="${build.optimize}" deprecation="off">
       <classpath refid="classpath"/>
+      <exclude name="com/samskivert/io/**" unless="build.io"/>
+      <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+      <exclude name="com/samskivert/net/**" unless="build.net"/>
+      <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
+      <exclude name="com/samskivert/swing/**" unless="build.swing"/>
+      <exclude name="com/samskivert/test/**" unless="build.test"/>
+      <exclude name="com/samskivert/util/**" unless="build.util"/>
+      <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
+      <exclude name="com/samskivert/webmacro/**" unless="build.webmacro"/>
+      <exclude name="com/samskivert/xml/**" unless="build.xml"/>
     </javac>
   </target>
 

@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.4 2001/09/15 17:22:11 mdb Exp $
+// $Id: IntervalManager.java,v 1.5 2002/02/19 03:39:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,8 +20,6 @@
 
 package com.samskivert.util;
 
-import java.util.*;
-import java.util.Collections;
 import com.samskivert.Log;
 
 /**
@@ -93,7 +91,7 @@ public class IntervalManager extends Thread
 	    IntervalItem item = new IntervalItem(i, delay, arg, recur);
 	    _hash.put(item.id, item);
 	    _schedule.add(item);
-	    Collections.sort(_schedule);
+            _schedule.sort();
 	    if (item.endtime < _nextwake) {
 		_mgr.notify();
 	    }
@@ -191,7 +189,7 @@ public class IntervalManager extends Thread
 		    // since we're definitionally not sleeping, we can just
 		    // insert into the queue without checking wait times..
 		    _schedule.add(item);
-		    Collections.sort(_schedule);
+                    _schedule.sort();
 
 		} else {
 		    // otherwise, get rid of this interval altogether
@@ -245,7 +243,8 @@ public class IntervalManager extends Thread
     // If we someday find that we have a lot of intervaleds, we may want
     // to rewrite this such that we can add and remove intervaleds much
     // faster.
-    protected static ArrayList _schedule = new ArrayList();
+    protected static SortableArrayList _schedule = new SortableArrayList();
+
     protected static HashIntMap _hash = new HashIntMap();
     protected static long _nextwake = Long.MAX_VALUE;
 

@@ -1,5 +1,5 @@
 //
-// $Id: IntListUtil.java,v 1.3 2002/11/12 05:23:41 mdb Exp $
+// $Id: IntListUtil.java,v 1.4 2003/02/04 03:12:30 mdb Exp $
 
 package com.samskivert.util;
 
@@ -290,13 +290,121 @@ public class IntListUtil
     /**
      * Returns the total of all of the values in the list.
      */
-    public static int total (int[] list)
+    public static int sum (int[] list)
     {
         int total = 0, lsize = list.length;
         for (int ii = 0; ii < lsize; ii++) {
             total += list[ii];
         }
         return total;
+    }
+
+    /**
+     * Returns the maximum value in the given array of values, or {@link
+     * Integer#MIN_VALUE} if the array is null or zero-length.
+     */
+    public static int getMaxValue (int[] values)
+    {
+        int max = Integer.MIN_VALUE;
+        int vcount = (values == null) ? 0 : values.length;
+        for (int ii = 0; ii < vcount; ii++) {
+            if (values[ii] > max) {
+                // new max
+                max = values[ii];
+            }
+        }
+        return max;
+    }
+
+    /**
+     * Returns the minimum value in the given array of values, or {@link
+     * Integer#MAX_VALUE} if the array is null or zero-length.
+     */
+    public static int getMinValue (int[] values)
+    {
+        int min = Integer.MAX_VALUE;
+        int vcount = (values == null) ? 0 : values.length;
+        for (int ii = 0; ii < vcount; ii++) {
+            if (values[ii] < min) {
+                // new min
+                min = values[ii];
+            }
+        }
+        return min;
+    }
+
+    /**
+     * Returns the index of the maximum value in the given array of
+     * values, or <code>-1</code> if the array is <code>null</code> or
+     * zero-length.
+     */
+    public static int getMaxValueIndex (int[] values)
+    {
+        if (values == null || values.length == 0) {
+            return -1;
+        }
+
+        int idx = 0;
+        int max = values[idx];
+        for (int ii = 1; ii < values.length; ii++) {
+            if (values[ii] > max) {
+                max = values[ii];
+                idx = ii;
+            }
+        }
+        return idx;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the last slot.
+     */
+    public static int[] append (int[] values, int value)
+    {
+        int[] nvalues = new int[values.length+1];
+        System.arraycopy(values, 0, nvalues, 0, values.length);
+        nvalues[values.length] = value;
+        return nvalues;
+    }
+
+    /**
+     * Returns an array of the indexes in the given array of values that
+     * have the maximum value in the array, or a zero-length array if the
+     * supplied array of values is <code>null</code> or zero-length.
+     */
+    public static int[] getMaxIndexes (int[] values)
+    {
+        int max = Integer.MIN_VALUE;
+        int num = 0;
+        int vcount = (values == null) ? 0 : values.length;
+
+        for (int ii=0; ii < vcount; ii++) {
+            int value = values[ii];
+
+            if (value < max) {
+                // common case- stop checking things..
+                continue;
+
+            } else if (value > max) {
+                // new max
+                max = value;
+                num = 1;
+
+            } else {
+                // another sighting of max
+                num++;
+            }
+        }
+
+        // now find the indexes that have max
+        int[] maxes = new int[num];
+        for (int ii=0, pos=0; pos < num; ii++) {
+            if (values[ii] == max) {
+                maxes[pos++] = ii;
+            }
+        }
+
+        return maxes;
     }
 
     /**

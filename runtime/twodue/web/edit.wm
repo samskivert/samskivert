@@ -1,14 +1,15 @@
 #set ($title = $i18n.xlate("edit.title"))
 #import ("/header.wm")
 
-<p>
+#if ($task)
 
+<p>
 <table cellpadding="0" cellspacing="10"> <!-- two colum layout table -->
 <tr><td valign="top">
 
 <table cellpadding="2" cellspacing="0" border="0">
 
-#if ($task && $task.completor)
+#if ($task.completor)
 <form action="edit.wm">
 $form.fixedHidden("action", "reopen")
 <input type="hidden" name="task" value="$task.taskId">
@@ -27,9 +28,7 @@ $form.fixedHidden("action", "update")
 
 <tr><td colspan="3">Summary:<br>
 <textarea name="summary" rows="5" cols="50">
-#if ($task)
 $task.summary
-#end
 </textarea>
 </td></tr>
 
@@ -73,6 +72,18 @@ $form.text("owner", "size='10'", "")
 <tr><td colspan="3" align="right" bgcolor="$scolor">
 $form.submit("submit", "Update")</td></tr>
 </form>
+
+<tr><td colspan="3">&nbsp;</td></tr>
+<tr><td colspan="3">Other actions:</td></tr>
+<tr><td colspan="3" align="right" bgcolor="$scolor">
+
+<form action="edit.wm">
+$form.fixedHidden("action", "delete")
+<input type="hidden" name="task" value="$task.taskId">
+$form.submit("submit", "Delete")
+</form>
+
+</td></tr>
 </table>
 
 </td><td valign="top"> <!-- two colum layout table -->
@@ -98,9 +109,7 @@ $form.fixedHidden("action", "editnotes")
 
 <tr><td>Notes:<br>
 <textarea name="notes" rows="10" cols="50">
-#if ($task)
 $task.notes
-#end
 </textarea>
 </td></tr>
 
@@ -112,5 +121,7 @@ $form.submit("submit", "Update")</td></tr>
 
 </td></tr> <!-- two colum layout table -->
 </table>
+
+#end
 
 #import ("/footer.wm")

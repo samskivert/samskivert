@@ -1,5 +1,5 @@
 //
-// $Id: TaskRepository.java,v 1.4 2002/11/12 22:32:02 mdb Exp $
+// $Id: TaskRepository.java,v 1.5 2003/01/23 21:22:56 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -238,6 +238,33 @@ public class TaskRepository extends JORARepository
                     stmt = conn.prepareStatement(query);
                     stmt.setString(1, owner);
                     stmt.setInt(2, taskId);
+                    JDBCUtil.checkedUpdate(stmt, 1);
+
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Deletes the specified task.
+     */
+    public void deleteTask (final int taskId)
+        throws PersistenceException
+    {
+        execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                String query = "delete from TASKS where TASK_ID = ?";
+                PreparedStatement stmt = null;
+
+                try {
+                    stmt = conn.prepareStatement(query);
+                    stmt.setInt(1, taskId);
                     JDBCUtil.checkedUpdate(stmt, 1);
 
                 } finally {

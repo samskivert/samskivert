@@ -1,5 +1,5 @@
 //
-// $Id: detail.java,v 1.1 2002/11/08 21:49:17 mdb Exp $
+// $Id: detail.java,v 1.2 2003/01/23 21:22:56 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -35,7 +35,7 @@ public class detail extends UserLogic
         // load up the task in question
         Task task = app.getRepository().loadTask(taskId);
         if (task == null) {
-            ctx.put("error", "task.error.no_such_task");
+            ctx.put("error", "error.no_such_task");
         } else {
             // format the notes and stuff those in the context
             ctx.put("notes", formatNotes(task.notes));

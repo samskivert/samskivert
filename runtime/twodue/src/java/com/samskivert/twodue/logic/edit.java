@@ -1,5 +1,5 @@
 //
-// $Id: edit.java,v 1.1 2002/11/08 21:49:17 mdb Exp $
+// $Id: edit.java,v 1.2 2003/01/23 21:22:56 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -36,11 +36,12 @@ public class edit extends UserLogic
         // load up the task in question
         Task task = app.getRepository().loadTask(taskId);
         if (task == null) {
-            ctx.put("error", "edit.error.no_such_task");
-        } else {
-            // stick the task in the context
-            ctx.put("task", task);
+            ctx.put("error", "error.no_such_task");
+            return;
         }
+
+        // stick the task in the context
+        ctx.put("task", task);
 
 	// if they've submitted the form, we update the task database
 	if (ParameterUtil.parameterEquals(
@@ -71,6 +72,12 @@ public class edit extends UserLogic
 
             app.getRepository().updateTask(task);
             ctx.put("error", "edit.message.task_updated");
+
+        } else if (ParameterUtil.parameterEquals(
+                       ctx.getRequest(), "action", "delete")) {
+            app.getRepository().deleteTask(taskId);
+            ctx.put("error", "edit.message.task_deleted");
+            ctx.remove("task"); // clear out the task
 
         } else if (ParameterUtil.parameterEquals(
                        ctx.getRequest(), "action", "reopen")) {

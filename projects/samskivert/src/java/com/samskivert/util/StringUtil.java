@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.42 2002/11/05 02:24:22 mdb Exp $
+// $Id: StringUtil.java,v 1.43 2002/11/06 01:39:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -847,6 +847,38 @@ public class StringUtil
         buf.append(millis % 1000).append("m");
 
         return buf.toString();
+    }
+
+    /**
+     * Returns the class name of the supplied object, truncated to one
+     * package prior to the actual class name. For example,
+     * <code>com.samskivert.util.StringUtil</code> would be reported as
+     * <code>util.StringUtil</code>. If a null object is passed in,
+     * <code>null</code> is returned.
+     */
+    public static String shortClassName (Object object)
+    {
+        return (object == null) ? "null" : shortClassName(object.getClass());
+    }
+
+    /**
+     * Returns the supplied class's name, truncated to one package prior
+     * to the actual class name. For example,
+     * <code>com.samskivert.util.StringUtil</code> would be reported as
+     * <code>util.StringUtil</code>.
+     */
+    public static String shortClassName (Class clazz)
+    {
+        String name = clazz.getName();
+        int didx = name.lastIndexOf(".");
+        if (didx == -1) {
+            return name;
+        }
+        didx = name.lastIndexOf(".", didx-1);
+        if (didx == -1) {
+            return name;
+        }
+        return name.substring(didx+1);
     }
 
     private final static String XLATE = "0123456789abcdef";

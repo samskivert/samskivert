@@ -254,7 +254,7 @@ public class Table {
 		sql += ")";
 	        insertStmt = session.connection.prepareStatement(sql);
    	    }
-	    bindUpdateVariables(insertStmt, obj);
+	    bindUpdateVariables(insertStmt, obj, null);
 	    insertStmt.executeUpdate();
 	    insertStmt.clearParameters();
 //	} catch(SQLException ex) { session.handleSQLException(ex); }
@@ -297,12 +297,21 @@ public class Table {
 	        insertStmt = session.connection.prepareStatement(sql);
    	    }
 	    for (int i = 0; i < objects.length; i++) {
-  	        bindUpdateVariables(insertStmt, objects[i]);
+  	        bindUpdateVariables(insertStmt, objects[i], null);
 	        insertStmt.addBatch();
 	    }
 	    insertStmt.executeBatch();
 	    insertStmt.clearParameters();
 //	} catch(SQLException ex) { session.handleSQLException(ex); }
+    }
+
+    /** Returns a field mask that can be configured and used to update
+     * subsets of entire objects via calls to {@link
+     * #update(Object,FieldMask)}.
+     */
+    public FieldMask getFieldMask ()
+    {
+        return (FieldMask)fMask.clone();
     }
 
     /** Update record in the table using table's primary key to locate
@@ -313,11 +322,30 @@ public class Table {
      *  updated record fields
      *
      * @return number of objects actually updated
-    */
+     */
     public int update(Object obj)
 	throws SQLException
     {
-	return update(obj, session);
+	return update(obj, null, null);
+    }
+
+    /** Update record in the table using table's primary key to locate
+     *  record in the table and values of fields of specified object <I>obj</I>
+     *  to alter record fields. Only the fields marked as modified in the
+     *  supplied field mask will be updated in the database.
+     *
+     * @param obj object specifing value of primary key and new values of
+     *  updated record fields
+     * @param mask a {@link FieldMask} instance configured to indicate
+     *  which of the object's fields are modified and should be written to
+     *  the database.
+     *
+     * @return number of objects actually updated
+     */
+    public int update(Object obj, FieldMask mask)
+	throws SQLException
+    {
+	return update(obj, mask, session);
     }
 
     /** Update record in the table using table's primary key to locate
@@ -333,6 +361,26 @@ public class Table {
     public synchronized int update(Object obj, Session session)
 	throws SQLException
     {
+        return update(obj, null, session);
+    }
+
+    /** Update record in the table using table's primary key to locate
+     *  record in the table and values of fields of specified object <I>obj</I>
+     *  to alter record fields. Only the fields marked as modified in the
+     *  supplied field mask will be updated in the database.
+     *
+     * @param obj object specifing value of primary key and new values of
+     *  updated record fields
+     * @param mask a {@link FieldMask} instance configured to indicate
+     *  which of the object's fields are modified and should be written to
+     *  the database.
+     * @param session user database session
+     *
+     * @return number of objects actually updated
+     */
+    public synchronized int update(Object obj, FieldMask mask, Session session)
+	throws SQLException
+    {
         if (primaryKeys == null) {
 	    throw new NoPrimaryKeyError(this);
 	}
@@ -342,21 +390,32 @@ public class Table {
 	int nUpdated = 0;
 //        try {
 	    checkConnection(session);
-	    if (updateStmt == null) {
-	        String sql = "update " + name + " set " + listOfAssignments
-		           + " where " + primaryKeys[0] + " = ?";
-		for (int i = 1; i < primaryKeys.length; i++) {
-		    sql += " and " + primaryKeys[i] + " = ?";
-		}
-		updateStmt = session.connection.prepareStatement(sql);
-	    }
+            PreparedStatement ustmt;
+            // if we have a field mask, we need to create a custom update
+            // statement
+            if (mask != null) {
+                String sql = "update " + name + " set " +
+                    buildListOfAssignments(mask)
+                    + buildUpdateWhere();
+                ustmt = session.connection.prepareStatement(sql);
+            } else {
+                // otherwise we can use our "full-object-update" statement
+                if (updateStmt == null) {
+                    String sql = "update " + name + " set " + listOfAssignments
+                        + buildUpdateWhere();
+                    updateStmt = session.connection.prepareStatement(sql);
+                }
+                ustmt = updateStmt;
+            }
+            // bind the update variables
+	    int column = bindUpdateVariables(ustmt, obj, mask);
+            // bind the keys
 	    for (int i = 0; i < primaryKeys.length; i++) {
-		fields[primaryKeyIndices[i]].bindVariable(updateStmt, obj,
-							  nColumns+i+1);
+                int fidx = primaryKeyIndices[i];
+		fields[fidx].bindVariable(ustmt, obj, column+i+1);
 	    }
-	    bindUpdateVariables(updateStmt, obj);
-	    nUpdated = updateStmt.executeUpdate();
-	    updateStmt.clearParameters();
+	    nUpdated = ustmt.executeUpdate();
+	    ustmt.clearParameters();
 //	} catch(SQLException ex) { session.handleSQLException(ex); }
 	return nUpdated;
     }
@@ -400,19 +459,16 @@ public class Table {
 	    checkConnection(session);
 	    if (updateStmt == null) {
 	        String sql = "update " + name + " set " + listOfAssignments
-		           + " where " + primaryKeys[0] + " = ?";
-		for (int i = 1; i < primaryKeys.length; i++) {
-		    sql += " and " + primaryKeys[i] + " = ?";
-		}
+                    + buildUpdateWhere();
 		updateStmt = session.connection.prepareStatement(sql);
 	    }
 	    for (int i = 0; i < objects.length; i++) {
+ 	        int column = bindUpdateVariables(updateStmt, objects[i], null);
 		for (int j = 0; j < primaryKeys.length; j++) {
-		    fields[primaryKeyIndices[j]].bindVariable(updateStmt,
-							      objects[i],
-							      nColumns+1+j);
+                    int fidx = primaryKeyIndices[j];
+		    fields[fidx].bindVariable(
+                        updateStmt, objects[i], column+1+j);
 		}
- 	        bindUpdateVariables(updateStmt, objects[i]);
 	        updateStmt.addBatch();
 	    }
 	    int rc[] = updateStmt.executeBatch();
@@ -571,6 +627,7 @@ public class Table {
 
     static private Class serializableClass;
     private   FieldDescriptor[] fields;
+    private   FieldMask fMask;
 
     private   int     nFields;  // length of "fields" array
     private   int     nColumns; // number of atomic fields in "fields" array
@@ -620,6 +677,7 @@ public class Table {
 	nFields = buildFieldsList(fieldsVector, cls, "");
 	fields = new FieldDescriptor[nFields];
 	fieldsVector.copyInto(fields);
+        fMask = new FieldMask(fields);
 
 	try {
 	    constructor = cls.getDeclaredConstructor(new Class[0]);
@@ -846,6 +904,24 @@ public class Table {
 	return n;
     }
 
+    protected final String buildListOfAssignments (FieldMask mask)
+    {
+        StringBuffer sql = new StringBuffer();
+        int fcount = fields.length;
+	for (int i = 0; i < fcount; i++) {
+            // skip non-modified fields
+            if (!mask.isModified(i)) {
+                continue;
+            }
+            // separate fields by a comma
+            if (sql.length() > 0) {
+                sql.append(",");
+            }
+            // append the necessary SQL to update this column
+            sql.append(fields[i].name).append("=?");
+        }
+        return sql.toString();
+    }
 
     protected final Object load(ResultSet result) throws SQLException {
 	Object obj;
@@ -887,11 +963,12 @@ public class Table {
 	return column;
     }
 
-    protected final void bindUpdateVariables(PreparedStatement pstmt,
-					     Object            obj)
+    protected final int bindUpdateVariables(PreparedStatement pstmt,
+                                            Object            obj,
+                                            FieldMask         mask)
       throws SQLException
     {
-        bindUpdateVariables(pstmt, obj, 0, nFields, 0);
+        return bindUpdateVariables(pstmt, obj, 0, nFields, 0, mask);
     }
 
     protected final void bindQueryVariables(PreparedStatement pstmt,
@@ -908,6 +985,16 @@ public class Table {
 	result.updateRow();
     }
 
+    protected final String buildUpdateWhere()
+    {
+        StringBuffer sql = new StringBuffer();
+        sql.append(" where ").append(primaryKeys[0]).append(" = ?");
+        for (int i = 1; i < primaryKeys.length; i++) {
+            sql.append(" and ").append(primaryKeys[i]).append(" = ?");
+        }
+        return sql.toString();
+    }
+
     protected final String buildQueryList(Object qbe)
     {
         StringBuffer buf = new StringBuffer();
@@ -919,13 +1006,18 @@ public class Table {
     }
 
     private final int bindUpdateVariables(PreparedStatement pstmt, Object obj,
-					  int i, int end, int column)
+					  int i, int end, int column,
+                                          FieldMask mask)
       throws SQLException
     {
         try {
 	    while (i < end) {
 		FieldDescriptor fd = fields[i++];
 		Object comp = null;
+                // skip non-modified fields
+                if (mask != null && !mask.isModified(i-1)) {
+                    continue;
+                }
 		if (!fd.isBuiltin() && (comp = fd.field.get(obj)) == null) {
 		    if (fd.isCompound()) {
  		        int nComponents = fd.outType-FieldDescriptor.tCompound;
@@ -944,8 +1036,8 @@ public class Table {
 		} else {
 		    if (!fd.bindVariable(pstmt, obj, ++column)) {
 			int nComponents = fd.outType-FieldDescriptor.tCompound;
-			column = bindUpdateVariables(pstmt, comp,
-						     i,i+nComponents,column-1);
+			column = bindUpdateVariables(
+                            pstmt, comp, i, i+nComponents,column-1, mask);
 			i += nComponents;
 		    }
 		}

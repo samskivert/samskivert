@@ -2,7 +2,7 @@
 
 use Getopt::Std;
 
-my $usage = "Usage: $0 [-p pid_file] [-r server_root] args\n";
+my $usage = "Usage: $0 [-p pid_file] [-r root_directory] args\n";
 
 # locations of stuff
 chomp($location = `dirname $0`);
@@ -52,29 +52,25 @@ if (defined $libpath) {
 }
 
 # put everything in our class path
-my $classpath = "-classpath $jlib:$root/dist/classes";
+my $classpath = "-classpath $root/dist/classes";
 
-# any zip or jar files in our lib/ directory get added to the class path
-if (opendir(DIR, "$root/lib")) {
-    foreach $lib (grep { /.(zip|jar)/ && -f "$root/lib/$_" } readdir(DIR)) {
-	$classpath .= ":$root/lib/$lib";
+# add zip and jar files from our lib/ directory and the system lib/ directory
+my @dirs = ( "$root/lib", $ENV{"JAVA_LIBS"} );
+foreach $dir (@dirs) {
+    next unless (defined $dir);
+    if (opendir(DIR, $dir)) {
+        foreach $lib (grep { /.(zip|jar)/ && -f "$dir/$_" } readdir(DIR)) {
+            $classpath .= ":$dir/$lib";
+        }
+        closedir DIR;
     }
-    closedir DIR;
 }
 
-# any zip or jar files in our lib/ directory get added to the class path
-if (opendir(DIR, "/usr/share/java")) {
-    foreach $lib (grep { /.(zip|jar)/ && -f "/usr/share/java/$_" } readdir(DIR)) {
-	$classpath .= ":/usr/share/java/$lib";
-    }
-    closedir DIR;
-}
+# finally add the standard classes
+$classpath = "$classpath:$jlib";
 
-# specify our server root (this is for server code)
-my $serverroot = "-Dserver.root=$root";
-
-# specify our base directory (this is for client code)
-my $basedir = "-Dbase.dir=$root/src/java";
+# specify our application root (the resource manager needs this)
+my $rootarg = "-Dresource_url=file:$root/rsrc";
 
 my $pid_file = undef;
 my $i = 0;
@@ -97,7 +93,7 @@ for ($i = 0; $i < @ARGV; $i++) {
 	$i -= 1; # decrement i so that things stay in sync
 
     } elsif ($arg eq "-r") {
-        $serverroot = "-Dserver.root=" . $ARGV[$i+1];
+        $rootarg = "-Dapplication.root=" . $ARGV[$i+1];
         splice(@ARGV, $i, 2);
 	$i -= 1; # decrement i so that things stay in sync
     }
@@ -106,7 +102,6 @@ for ($i = 0; $i < @ARGV; $i++) {
 # log the pid file if requested to do so
 print `echo $$ > $pid_file` if (defined $pid_file);
 
-my $cmd = "$java -mx256M $classpath $serverroot $basedir \"" .
-    join("\" \"", @ARGV) . "\"";
+my $cmd = "$java -mx256M $classpath $rootarg " . join(" ", @ARGV);
 # print "$cmd\n";
 exec($cmd);

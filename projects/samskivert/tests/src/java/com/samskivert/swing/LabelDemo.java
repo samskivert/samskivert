@@ -1,9 +1,10 @@
 //
-// $Id: LabelDemo.java,v 1.4 2002/11/05 03:01:08 mdb Exp $
+// $Id: LabelDemo.java,v 1.5 2002/11/06 04:29:17 mdb Exp $
 
 package com.samskivert.swing;
 
 import java.awt.*;
+import java.io.*;
 import javax.swing.*;
 
 public class LabelDemo extends JPanel
@@ -31,6 +32,18 @@ public class LabelDemo extends JPanel
         _labelTwo.setAlignment(Label.CENTER);
         _labelTwo.setAlternateColor(Color.white);
         _labelTwo.setFont(new Font("Dialog", Font.PLAIN, 12));
+
+//         try {
+//             InputStream in = new FileInputStream("delarobb.TTF");
+//             Font sfont = Font.createFont(Font.TRUETYPE_FONT, in);
+//             in.close();
+//             _labelThree = new Label(String.valueOf(30), Label.OUTLINE,
+//                                     Color.pink, Color.black,
+//                                     sfont.deriveFont(Font.PLAIN, 24));
+
+//         } catch (Exception e) {
+//             e.printStackTrace(System.err);
+//         }
     }
 
     public void layout ()
@@ -45,6 +58,8 @@ public class LabelDemo extends JPanel
         System.out.println("l1: " + _labelOne.getSize());
         _labelTwo.layout(g);
         System.out.println("l2: " + _labelTwo.getSize());
+//         _labelThree.layout(g);
+//         System.out.println("l3: " + _labelThree.getSize());
     }
 
     public void paintComponent (Graphics g)
@@ -79,6 +94,15 @@ public class LabelDemo extends JPanel
         g2.fillRect(x, y, size.width, size.height);
         g2.setColor(Color.black);
         _labelOne.render(g2, x, y);
+
+//         y += 100;
+//         size = _labelThree.getSize();
+//         g2.setColor(Color.white);
+//         g2.fillRect(x, y, 100, size.height);
+//         g2.setColor(Color.gray);
+//         g2.fillRect(x, y, size.width, size.height);
+//         g2.setColor(Color.black);
+//         _labelThree.render(g2, x, y);
     }
 
     public Dimension getPreferredSize ()
@@ -107,4 +131,5 @@ public class LabelDemo extends JPanel
     protected Label _labelZero;
     protected Label _labelOne;
     protected Label _labelTwo;
+//     protected Label _labelThree;
 }

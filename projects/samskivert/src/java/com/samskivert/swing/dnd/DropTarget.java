@@ -1,5 +1,5 @@
 //
-// $Id: DropTarget.java,v 1.4 2002/08/21 17:54:10 mdb Exp $
+// $Id: DropTarget.java,v 1.5 2003/05/20 17:43:02 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -14,6 +14,7 @@ public interface DropTarget
      * Also indicates that a hover has started in case the drop target would
      * like to create dragover feedback aside from the cursor feedback.
      *
+     * Called after and only if the DragSource's checkDrop returned true.
      * If this method returns true then either {@link #dropCompleted} or
      * {@link #noDrop} will be called next.
      */

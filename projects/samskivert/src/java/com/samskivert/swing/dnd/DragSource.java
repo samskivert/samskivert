@@ -1,5 +1,5 @@
 //
-// $Id: DragSource.java,v 1.2 2003/05/20 17:35:51 ray Exp $
+// $Id: DragSource.java,v 1.3 2003/05/20 17:43:02 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -26,7 +26,9 @@ public interface DragSource
 
     /**
      * Is the drop target an acceptable one?
-     * @param a potential DropTarget
+     * Called prior to calling the DropTarget's checkDrop.
+     *
+     * @param target a potential DropTarget.
      */
     public boolean checkDrop (DropTarget target);
 

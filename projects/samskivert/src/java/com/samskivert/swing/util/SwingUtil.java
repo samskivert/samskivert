@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.20 2003/01/11 00:44:53 shaper Exp $
+// $Id: SwingUtil.java,v 1.21 2003/03/22 00:36:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -50,6 +50,9 @@ import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
 
 import com.samskivert.util.SortableArrayList;
+import javax.swing.JTable;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableColumn;
 
 /**
  * Miscellaneous useful Swing-related utility functions.
@@ -475,6 +478,40 @@ public class SwingUtil
     public static void restoreAntiAliasing (Graphics2D gfx, Object rock)
     {
         gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, rock);
+    }
+
+    /**
+     * Adjusts the widths of the columns of the supplied table to fit
+     * their contents.
+     */
+    public static void sizeColumnsToContents (JTable table)
+    {
+        TableModel model = table.getModel();
+        TableColumn column = null;
+        Component comp = null;
+        int headerWidth = 0, cellWidth = 0;
+        int ccount = model.getColumnCount(), rcount = model.getRowCount();
+
+        for (int cc = 0; cc < ccount; cc++) {
+            column = table.getColumnModel().getColumn(cc);
+            try {
+                comp = column.getHeaderRenderer().
+                    getTableCellRendererComponent(null, column.getHeaderValue(),
+                                                  false, false, 0, 0);
+                headerWidth = comp.getPreferredSize().width;
+            } catch (NullPointerException e) {
+                // getHeaderRenderer() this doesn't work in 1.3
+            }
+
+            for (int rr = 0; rr < rcount; rr++) {
+                Object cellValue = model.getValueAt(rr, cc);
+                comp = table.getDefaultRenderer(model.getColumnClass(cc)).
+                    getTableCellRendererComponent(table, cellValue,
+                                                  false, false, 0, cc);
+                cellWidth = Math.max(comp.getPreferredSize().width, cellWidth);
+            }
+            column.setPreferredWidth(Math.max(headerWidth, cellWidth));
+        }
     }
 
     /**

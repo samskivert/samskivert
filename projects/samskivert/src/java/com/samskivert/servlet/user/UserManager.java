@@ -245,7 +245,7 @@ public class UserManager
 	}
 
         // potentially convert the user's legacy password
-        if (password.getCleartext() != null &&
+        if (password != null && password.getCleartext() != null &&
             user.updateLegacyPassword(password.getCleartext())) {
             Log.info("Updated legacy password " + user.username + ".");
             _repository.updateUser(user);

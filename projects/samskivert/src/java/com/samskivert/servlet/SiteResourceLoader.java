@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoader.java,v 1.3 2001/11/06 04:48:54 mdb Exp $
+// $Id: SiteResourceLoader.java,v 1.4 2001/11/06 05:05:28 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,7 @@
 package com.samskivert.servlet;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -334,6 +335,13 @@ public class SiteResourceLoader
         protected void refreshJarFile ()
             throws IOException
         {
+            // ensure that the file exists
+            if (!file.exists()) {
+                String errmsg = "No site-specific jar file " +
+                    "[path=" + file.getPath() + "].";
+                throw new FileNotFoundException(errmsg);
+            }
+
             // determine whether or not we need to create a new jarfile
             // instance
             if (file.lastModified() > _lastModified) {

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<depends>
+  <library name="jakarta-commons-util" version="1.0+"
+    url="http://jakarta.apache.org/commons/commons-util.ldf"/>
+  <library name="jakarta-commons-digester" version="1.2"
+    url="http://jakarta.apache.org/commons/commons-digester.ldf"/>
+  <!-- use local build until those kooks incorporate our patches
+  <library name="samskivert" version="1.1+"
+  url="http://www.waywardgeeks.org/code/samskivert/samskivert.ldf"/>
+  -->
+  <library name="samskivert" version="1.1+"
+    url="file:/home/mdb/projects/samskivert/target/samskivert.ldf"/>
+</depends>

@@ -1,0 +1,8 @@
+Dependency system notes
+-----------------------
+
+- Will need tool (ant task) for "stamping" a jar file (inserting the
+  library descriptor).
+
+- Will want tool that dumps library descriptor information from an
+  existing jar file (both in XML and formatted text).

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<library>
+  <!-- the library identifier: case insensitive; matches ([-_A-Za-z]+) -->
+  <name>samskivert</name>
+
+  <!-- is the inclusion of copyright necessary or desirable? -->
+  <copyright>2000-2002, Michael Bayne</copyright>
+
+  <!-- contact information for this library (optional) -->
+  <contact>mdb@samskivert.com</contact>
+
+  <!-- a web page that provides information about the library and the
+       base URL from which other URLs are interpreted to be relative -->
+  <url>http://www.waywardgeeks.org/code/samskivert/</url>
+
+  <!-- composed with <url> using the standard rules:
+       <url> + samskivert.ldf = 
+       http://www.waywardgeeks.org/code/samskivert/samskivert.ldf
+       <url> + /samskivert.ldf = 
+       http://www.waywardgeeks.org/samskivert.ldf
+       <url> + http://foo.bar.com/samskivert.ldf = 
+       http://foo.bar.com/samskivert.ldf
+  -->
+  <descriptor>samskivert.ldf</descriptor>
+
+  <!-- enumerates the "supported" releases -->
+  <releases>
+    <release>
+      <version>1.1</version>
+      <date>2001-12-03</date>
+      <!-- composed with <url> using the standard rules -->
+      <jar>releases/samskivert-1.1.jar</jar>
+      <!-- describes this release's dependencies -->
+      <depends>
+        <!-- version strings ending with + means automatically use the
+             latest version; versions are ordered by release date -->
+        <library name="jakarta-commons-util" version="1.0+"
+          url="http://jakarta.apache.org/commons/commons-util.ldf"/>
+        <library name="jakarta-commons-digester" version="1.2"
+          url="http://jakarta.apache.org/commons/commons-digester.ldf"/>
+      </depends>
+    </release>
+
+    <release>
+      <version>1.01</version>
+      <date>2001-08-13</date>
+      <jar>releases/samskivert-1.01.jar</jar>
+      <depends>
+        <library name="jakarta-commons-util" version="1.0+"
+          url="http://jakarta.apache.org/commons/util/commons-util.ldf"/>
+      </depends>
+    </release>
+  </releases>
+</library>

@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.37 2003/12/15 23:12:47 mdb Exp $
+// $Id: UserRepository.java,v 1.38 2004/01/31 06:24:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -117,6 +117,19 @@ public class UserRepository extends JORARepository
 	throws InvalidUsernameException, UserExistsException,
         PersistenceException
     {
+        return createUser(username, new Password(username, password),
+                          realname, email, siteId);
+    }
+
+    /**
+     * Like {@link #createUser(String,String,String,String,int)} except
+     * that the supplied password has already been encrypted.
+     */
+    public int createUser (String username, Password password, String realname,
+                           String email, int siteId)
+	throws InvalidUsernameException, UserExistsException,
+        PersistenceException
+    {
 	// create a new user object...
         User user = new User();
         // ...configure it...
@@ -130,7 +143,7 @@ public class UserRepository extends JORARepository
      * in preparation for inserting the record into the database for the
      * first time.
      */
-    protected void populateUser (User user, String username, String password,
+    protected void populateUser (User user, String username, Password password,
                                  String realname, String email, int siteId)
         throws InvalidUsernameException
     {
@@ -146,7 +159,7 @@ public class UserRepository extends JORARepository
 	}
 
 	user.username = username;
-	user.password = UserUtil.encryptPassword(username, password, true);
+	user.password = password.getEncrypted();
 	user.realname = realname;
 	user.email = email;
 	user.created = new Date(System.currentTimeMillis());

@@ -1,5 +1,5 @@
 //
-// $Id: Version.java,v 1.1 2002/03/03 06:32:11 mdb Exp $
+// $Id: Version.java,v 1.2 2002/11/11 17:33:43 mdb Exp $
 
 package robodj;
 
@@ -9,5 +9,5 @@ package robodj;
 public class Version
 {
     /** The application release version. */
-    public static String RELEASE_VERSION = "1.2";
+    public static String RELEASE_VERSION = "1.3";
 }

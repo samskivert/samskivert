@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.1 2001/10/31 09:44:22 mdb Exp $
+// $Id: Application.java,v 1.2 2001/11/01 01:02:20 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,7 +22,9 @@ package com.samskivert.velocity;
 
 import javax.servlet.ServletContext;
 
+import com.samskivert.servlet.IndiscriminateSiteIdentifier;
 import com.samskivert.servlet.MessageManager;
+import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -61,6 +63,15 @@ public class Application
     }
 
     /**
+     * Returns the site identifier in effect for figuring out which site
+     * through which a user is making a request.
+     */
+    public SiteIdentifier getSiteIdentifier ()
+    {
+        return _siteIdent;
+    }
+
+    /**
      * If an application wishes to make use of the translation facilities
      * provided by the message manager, it need only provide the path to
      * its message resource bundle via this member function. Using a
@@ -71,6 +82,17 @@ public class Application
     protected String getMessageBundlePath ()
     {
         return null;
+    }
+
+    /**
+     * Called to instantiate the site identifier that we'd like to use in
+     * this application. This will be an instance of {@link
+     * IndiscriminateSiteIdentifier} unless the derived application class
+     * overrides this method and creates something more to its liking.
+     */
+    protected SiteIdentifier createSiteIdentifer (ServletContext ctx)
+    {
+        return new IndiscriminateSiteIdentifier();
     }
 
     /**
@@ -128,7 +150,7 @@ public class Application
      * @param logicPkg the base package for all of the logic
      * implementations for this application.
      */
-    public void preInit (String logicPkg)
+    public void preInit (ServletContext ctx, String logicPkg)
     {
         // remove any trailing dot
         if (logicPkg.endsWith(".")) {
@@ -142,6 +164,9 @@ public class Application
         if (bpath != null) {
             _msgmgr = new MessageManager(bpath);
         }
+
+        // create our site identifier
+        _siteIdent = createSiteIdentifer(ctx);
     }
 
     /**
@@ -162,6 +187,13 @@ public class Application
         return _logicPkg + path;
     }
 
+    /** The prefix that we use to generate fully qualified logic class
+     * names. */
     protected String _logicPkg;
+
+    /** A reference to our message manager or null if we have none. */
     protected MessageManager _msgmgr;
+
+    /** A reference to our site identifier. */
+    protected SiteIdentifier _siteIdent;
 }

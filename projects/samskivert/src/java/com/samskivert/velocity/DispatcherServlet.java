@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.3 2001/10/31 11:07:55 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.4 2001/11/01 01:02:20 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -182,7 +182,7 @@ public class DispatcherServlet extends VelocityServlet
             if (StringUtil.blank(logicPkg)) {
                 logicPkg = "";
             }
-            _app.preInit(logicPkg);
+            _app.preInit(getServletContext(), logicPkg);
             _app.init(getServletContext());
 
         } catch (Throwable t) {

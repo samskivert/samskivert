@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.8 2002/04/30 01:57:47 mdb Exp $
+// $Id: Label.java,v 1.9 2002/05/15 03:45:38 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -199,6 +199,13 @@ public class Label implements SwingConstants
             Rectangle2D bounds = layout.getBounds();
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)
             _size.setSize((int)bounds.getWidth(), (int)getHeight(layout));
+            // the bounds returned by layout.getBounds() are such that
+            // x+width is actually a pixel contained within the bounds
+            // (and associatedly y+height), so we have to increase the
+            // bounds by 1 pixel to return a rectangle that *actually*
+            // contains ourselves
+            _size.width += 1;
+            _size.height += 1;
             layouts = new ArrayList();
             layouts.add(layout);
         }

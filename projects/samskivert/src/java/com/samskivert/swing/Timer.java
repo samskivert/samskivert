@@ -1,10 +1,11 @@
 //
-// $Id: Timer.java,v 1.1 2002/11/05 01:47:32 ray Exp $
+// $Id: Timer.java,v 1.2 2003/07/27 17:31:36 ray Exp $
 
 package com.samskivert.swing;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * A timer that posts commands to a controller.
@@ -21,16 +22,42 @@ public class Timer extends javax.swing.Timer
      */
     public Timer (int delay, Component source, String command)
     {
-        super(delay, Controller.DISPATCHER);
+        this(delay, Controller.DISPATCHER);
 
         _event = new RepeatingActionEvent(source, command);
+    }
+
+    /**
+     * Construct a samskivert timer with the same functionality of a swing
+     * Timer except for an improved toString().
+     */
+    public Timer (int delay, ActionListener listener)
+    {
+        super(delay, listener);
+
+        try {
+            _source = new Throwable().getStackTrace()[1].toString();
+        } catch (Throwable oopsie) {
+            _source = "<unknown>";
+        }
+    }
+
+    // documentation inherited
+    public String toString ()
+    {
+        return "Timer [source=" + _source +
+            ((_event != null) ? ", cmd=" + _event.getActionCommand() : "") +
+            "]";
     }
 
     // documentation inherited
     protected void fireActionPerformed (ActionEvent e)
     {
-        _event.setWhen(e.getWhen());
-        super.fireActionPerformed(_event);
+        if (_event != null) {
+            _event.setWhen(e.getWhen());
+            e = _event;
+        }
+        super.fireActionPerformed(e);
     }
 
     /**
@@ -71,4 +98,7 @@ public class Timer extends javax.swing.Timer
 
     /** The event we re-use to post the command. */
     protected RepeatingActionEvent _event;
+
+    /** The line of code where this Timer was constructed. */
+    protected String _source;
 }

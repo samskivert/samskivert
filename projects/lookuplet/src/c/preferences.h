@@ -1,5 +1,5 @@
 /**
- * $Id: preferences.h,v 1.1 2001/02/24 02:35:20 mdb Exp $
+ * $Id: preferences.h,v 1.2 2001/02/24 02:45:36 mdb Exp $
  */
 
 #ifndef _PREFERENCES_H_
@@ -17,6 +17,6 @@ extern void
 lk_prefs_cleanup (void);
 
 extern void
-lk_prefs_display ();
+lk_prefs_display (void);
 
 #endif /* _PREFERENCES_H_ */

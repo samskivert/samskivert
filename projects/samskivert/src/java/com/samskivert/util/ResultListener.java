@@ -47,4 +47,13 @@ public interface ResultListener
      * reason for failure.
      */
     public void requestFailed (Exception cause);
+
+    /** Useful when you want to allow optional result listeners but don't
+     * want to have to check before calling. */
+    public static final ResultListener NOOP = new ResultListener() {
+        public void requestCompleted (Object result) {
+        }
+        public void requestFailed (Exception cause) {
+        }
+    };
 }

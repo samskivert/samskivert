@@ -1,9 +1,9 @@
 //
-// $Id: DispatcherServlet.java,v 1.20 2003/09/18 23:52:17 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.21 2003/09/25 18:06:29 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -169,7 +169,7 @@ public class DispatcherServlet extends VelocityServlet
                 Class appclass = Class.forName(appcl);
                 _app = (Application)appclass.newInstance();
             }
-                
+
             // now initialize the applicaiton
             String logicPkg = config.getInitParameter(LOGIC_PKG_KEY);
             _app.init(config, getServletContext(),
@@ -287,6 +287,10 @@ public class DispatcherServlet extends VelocityServlet
             // create a new string tool for use by the template
             StringTool string = new StringTool();
             ictx.put(STRINGTOOL_KEY, string);
+
+            // create a new data tool for use by the tempate
+            DataTool datatool = new DataTool();
+            ictx.put(DATATOOL_KEY, datatool);
 
             // resolve the appropriate logic class for this URI and
             // execute it if it exists
@@ -443,6 +447,9 @@ public class DispatcherServlet extends VelocityServlet
 
     /** The key used to store the string tool in the context. */
     protected static final String STRINGTOOL_KEY = "string";
+
+    /** The key used to store the data tool in the context. */
+    protected static final String DATATOOL_KEY = "data";
 
     /** The servlet parameter key specifying the application class. */
     protected static final String APP_CLASS_KEY = "app_class";

@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.6 2001/03/03 21:20:13 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.7 2001/03/04 06:15:39 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -17,7 +17,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.webmacro.*;
-import org.webmacro.servlet.*;
+import org.webmacro.servlet.HandlerException;
+import org.webmacro.servlet.WMServlet;
+import org.webmacro.servlet.WebContext;
 
 import com.samskivert.Log;
 import com.samskivert.servlet.RedirectException;
@@ -169,14 +171,31 @@ public class DispatcherServlet extends WMServlet
 		    continue;
 		}
 
-		Application app = new Application(baseURI, basePkg);
-		// if an application class was specified, initialize it
-		if (appcl != null) {
-		    app.init(appcl, getServletContext());
-		}
+                // instantiate the specified application class
+                Application app;
 
-		// construct an application object and add it to our list
-		_apps.add(app);
+                try {
+                    // if a custom application class was specified,
+                    // instantiate one of those. otherwise use the default
+                    if (appcl != null) {
+                        Class appclass = Class.forName(appcl);
+                        app = (Application)appclass.newInstance();
+                    } else {
+                        app = new Application();
+                    }
+
+                    // now initialize the applicaiton
+                    app.setConfig(baseURI, basePkg);
+                    app.init(getServletContext());
+
+                    // finally add it to our list
+                    _apps.add(app);
+
+                } catch (Throwable t) {
+                    Log.warning("Error instantiating custom application " +
+                                "[class=" + appcl + "].");
+                    Log.logStackTrace(t);
+                }
 	    }
 	}
     }
@@ -205,24 +224,33 @@ public class DispatcherServlet extends WMServlet
 
 	// then we populate the context with data
 	try {
-	    Logic logic = selectLogic(ctx);
-	    // if no logic is matched, we simply execute the template
-	    // directly with the default information in the context (tools
-	    // and other WebMacro services can be used by the template to
-	    // do their WebMacro thing)
-	    if (logic != null) {
-		logic.invoke(ctx);
+            String path = cleanupURI(ctx.getRequest().getRequestURI());
+
+            // select the proper application for the request
+            Application app = selectApplication(path);
+            if (app != null) {
+                // insert the application into the web context in case the
+                // logic or a tool wishes to make use of it
+                ctx.put(APPLICATION_KEY, app);
+
+                // resolve the appropriate logic class for this URI and
+                // execute it if it exists
+                Logic logic = resolveLogic(app, path);
+                if (logic != null) {
+                    logic.invoke(ctx);
+                }
 	    }
-	    
+
 	} catch (RedirectException re) {
 	    try {
 		ctx.getResponse().sendRedirect(re.getRedirectURL());
+                return null;
 	    } catch (IOException ioe) {
 		throw new HandlerException("Unable to send redirect: " + ioe);
 	    }
 
-	} catch (DataValidationException dve) {
-	    ctx.put(DV_ERROR_KEY, ExceptionMap.getMessage(dve));
+	} catch (FriendlyException fe) {
+	    ctx.put(ERROR_KEY, fe.getMessage());
 
 	} catch (Exception e) {
 	    ctx.put(ERROR_KEY, ExceptionMap.getMessage(e));
@@ -230,6 +258,18 @@ public class DispatcherServlet extends WMServlet
 	}
 
 	return tmpl;
+    }
+
+    /**
+     * Returns the reference to the application that is handling this
+     * request.
+     *
+     * @return The application in effect for this request or null if no
+     * application was selected to handle the request.
+     */
+    public static Application getApplication (WebContext context)
+    {
+        return (Application)context.get(APPLICATION_KEY);
     }
 
     /**
@@ -252,39 +292,37 @@ public class DispatcherServlet extends WMServlet
     }
 
     /**
-     * This method is called to select the appropriate logic for this
-     * request. The dispatcher configuration described in this class's
-     * documentation is consulted to map the URI to a logic class which is
-     * then instantiated and a single instance used to process all
-     * matching requests.
+     * Selects and returns the matching application for this request.
      *
-     * @param ctx The context of this request.
-     *
-     * @return The logic to be used in generating the response or null if
-     * no logic could be matched.
+     * @return the application that should handle this request or null if
+     * no matching application could be found.
      */
-    protected Logic selectLogic (WebContext ctx)
+    protected Application selectApplication (String path)
     {
-	String path = cleanupURI(ctx.getRequest().getRequestURI());
-	String lclass = null;
-	// Log.info("Loading logic [path=" + path + "].");
-
 	// try to locate an application that matches this URI
 	for (int i = 0; i < _apps.size(); i++) {
 	    Application app = (Application)_apps.get(i);
 	    if (app.matches(path)) {
-		lclass = app.generateClass(path);
-		break;
+                return app;
 	    }
 	}
 
-	// if we didn't find a matching application, we can stop now
-	if (lclass == null) {
-	    return null;
-	}
+        return null;
+    }
 
-	// otherwise look for a cached logic instance
+    /**
+     * This method is called to select the appropriate logic for this
+     * request URI.
+     *
+     * @return The logic to be used in generating the response or null if
+     * no logic could be matched.
+     */
+    protected Logic resolveLogic (Application app, String path)
+    {
+	// look for a cached logic instance
+	String lclass = app.generateClass(path);
 	Logic logic = (Logic)_logic.get(lclass);
+
 	if (logic == null) {
 	    try {
 		Class pcl = Class.forName(lclass);
@@ -337,107 +375,6 @@ public class DispatcherServlet extends WMServlet
 	System.out.println(cleanupURI("//samskivert.com/is/this/even/legal"));
     }
 
-    protected static class Application
-    {
-	public Application (String baseURI, String basePkg)
-	{
-	    // remove any trailing slash
-	    if (baseURI.endsWith("/")) {
-		_baseURI = baseURI.substring(0, baseURI.length()-1);
-	    } else {
-		_baseURI = baseURI;
-	    }
-
-	    // remove any trailing dot
-	    if (basePkg.endsWith(".")) {
-		_basePkg = basePkg.substring(0, basePkg.length()-1);
-	    } else {
-		_basePkg = basePkg;
-	    }
-	}
-
-	public boolean matches (String uri)
-	{
-	    return uri.startsWith(_baseURI);
-	}
-
-	public String generateClass (String uri)
-	{
-	    // remove the base URI
-	    uri = uri.substring(_baseURI.length());
-	    // convert slashes to dots
-	    uri = StringUtil.replace(uri, "/", ".");
-	    // remove the trailing file extension
-	    uri = uri.substring(0, uri.length() - FILE_EXTENSION.length());
-	    // prepend the base package and we're all set
-	    return _basePkg + uri;
-	}
-
-	public void init (String appclass, ServletContext context)
-	{
-	    // keep track of this for later
-	    _appclass = appclass;
-
-	    try {
-		// get the application class
-		Class appcl = Class.forName(appclass);
-
-		// look up the init method
-		Class[] ptypes = new Class[] { ServletContext.class };
-		Method initmeth = appcl.getDeclaredMethod("init", ptypes);
-
-		// make sure it's static
-		if ((initmeth.getModifiers() & Modifier.STATIC) == 0) {
-		    Log.warning("Application init() method not static " +
-				"[app=" + appclass + "].");
-		    return;
-		}
-
-		// look  up the shutdown method
-		_shutdownMethod =
-		    appcl.getDeclaredMethod("shutdown", new Class[0]);
-
-		// make sure it's static
-		if ((_shutdownMethod.getModifiers() & Modifier.STATIC) == 0) {
-		    Log.warning("Application shutdown() method not static " +
-				"[app=" + appclass + "].");
-		    return;
-		}
-
-		// invoke the init method
-		Object[] args = new Object[] { context };
-		initmeth.invoke(null, args);
-
-	    } catch (NoSuchMethodError nsme) {
-		Log.warning("Application class missing init() method " +
-			    "[app=" + appclass + "].");
-
-	    } catch (Throwable t) {
-		Log.warning("Error initializing application [app=" + appclass +
-			    ", error=" + t + "].");
-	    }
-	}
-
-	public void shutdown ()
-	{
-	    if (_shutdownMethod != null) {
-		try {
-		    _shutdownMethod.invoke(null, null);
-		} catch (Throwable t) {
-		    Log.warning("Error shutting down application " +
-				"[app=" + _appclass + ", error=" + t + "].");
-		    Log.logStackTrace(t);
-		}
-	    }
-	}
-
-	protected String _baseURI;
-	protected String _basePkg;
-
-	protected String _appclass;
-	protected Method _shutdownMethod;
-    }
-
     protected ArrayList _apps = new ArrayList();
     protected HashMap _logic = new HashMap();
 
@@ -445,13 +382,8 @@ public class DispatcherServlet extends WMServlet
     protected static final String ERROR_KEY = "error";
 
     /**
-     * This is the key used in the context for data validation error
-     * messages.
+     * This is the key used to store a reference back to the dispatcher
+     * servlet in our web context.
      */
-    protected static final String DV_ERROR_KEY = "invalid_data";
-
-    /**
-     * This is the default file extension.
-     */
-    protected static final String FILE_EXTENSION = ".wm";
+    protected static final String APPLICATION_KEY = "%_app_%";
 }

@@ -1,11 +1,7 @@
 //
-// $Id: MsgTool.java,v 1.1 2001/03/03 21:21:28 mdb Exp $
+// $Id: MsgTool.java,v 1.2 2001/03/04 06:15:39 mdb Exp $
 
 package com.samskivert.webmacro;
-
-import java.text.MessageFormat;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 
 import org.webmacro.*;
 import org.webmacro.servlet.WebContext;
@@ -13,6 +9,7 @@ import org.webmacro.util.PropertyObject;
 import org.webmacro.util.PropertyMethod;
 
 import com.samskivert.Log;
+import com.samskivert.servlet.MessageManager;
 
 /**
  * The message tool maps a set of appliation messages (translation
@@ -30,19 +27,27 @@ public class MsgTool implements ContextTool
 	try {
 	    WebContext wctx = (WebContext)ctx;
 
-	    // first fetch our messages resource bundle
-	    final ResourceBundle messages =
-		ResourceBundle.getBundle(MESSAGE_FILE_NAME);
+            // get a handle on the application in effect for this request
+            Application app = DispatcherServlet.getApplication(wctx);
+            if (app == null) {
+                String err = "No application in effect for this request. " +
+                    "Can't resolve messages without an application.";
+                throw new InvalidContextException(err);
+            }
+
+            // get the message manager from the application
+            MessageManager msgmgr = app.getMessageManager();
+            if (msgmgr == null) {
+                String err = "Application did not provide a message " +
+                    "manager. Can't resolve messages without one.";
+                throw new InvalidContextException(err);
+            }
 
 	    // then create a wrapper that allows webmacro to access it
-	    return new Wrapper(messages);
-
-	} catch (MissingResourceException mre) {
-	    Log.warning("Unable to load message bundle: " + mre);
-	    return new Wrapper(null);
+	    return new Wrapper(msgmgr);
 
 	} catch (ClassCastException cce) {
-	    throw new InvalidContextException("error.requires_webcontext");
+	    throw new InvalidContextException("MsgTool requires a WebContext");
 	}
     }
 
@@ -53,9 +58,9 @@ public class MsgTool implements ContextTool
 
     public static class Wrapper implements PropertyObject
     {
-	public Wrapper (ResourceBundle bundle)
+	public Wrapper (MessageManager msgmgr)
 	{
-	    _bundle = bundle;
+	    _msgmgr = msgmgr;
 	}
 
 	public Object getProperty (Context context, Object[] names, int offset)
@@ -64,6 +69,7 @@ public class MsgTool implements ContextTool
 	    StringBuffer path = new StringBuffer();
 	    boolean bogus = false;
 	    int lastidx = names.length-1;
+            WebContext wctx = (WebContext)context;
 
 	    // reconstruct the path to the property
 	    for (int i = offset; i < names.length; i++) {
@@ -95,21 +101,20 @@ public class MsgTool implements ContextTool
 					    "path: " + path);
 	    }
 
-	    // look up the translated message
-	    String msg = _bundle.getString(path.toString());
-
-	    // if the last component is a property method, we want to
-	    // substitute it's arguments into the returned string using a
-	    // message formatter
+	    // if the last component is a property method, we want to use
+	    // it's arguments when looking up the message
 	    if (names[lastidx] instanceof PropertyMethod) {
 		PropertyMethod pm = (PropertyMethod)names[lastidx];
 		// we may cache message formatters later, but for now just
 		// use the static convenience function
 		Object[] args = pm.getArguments(context);
-		msg = MessageFormat.format(msg, args);
-	    }
+                return _msgmgr.getMessage(wctx.getRequest(),
+                                          path.toString(), args);
 
-	    return msg;
+	    } else {
+                // otherwise just look up the path
+                return _msgmgr.getMessage(wctx.getRequest(), path.toString());
+            }
 	}
 
 	public boolean setProperty (Context context, Object[] names, int offset,
@@ -120,12 +125,6 @@ public class MsgTool implements ContextTool
 					"is not supported!");
 	}
 
-	protected ResourceBundle _bundle;
+	protected MessageManager _msgmgr;
     }
-
-    /**
-     * The file name of the resource file that contains our translation
-     * strings.
-     */
-    protected static final String MESSAGE_FILE_NAME = "messages";
 }

@@ -1,9 +1,10 @@
 //
-// $Id: CategoryEntryList.java,v 1.1 2002/02/22 07:06:33 mdb Exp $
+// $Id: CategoryEntryList.java,v 1.2 2003/05/04 18:16:06 mdb Exp $
 
 package robodj.chooser;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.swing.Controller;
 
 import robodj.repository.Entry;
 
@@ -17,13 +18,14 @@ public class CategoryEntryList extends EntryList
         _categoryId = categoryId;
     }
 
-    /**
-     * Reads in the entries for this category.
-     */
-    public Entry[] readEntries ()
-        throws PersistenceException
+    // documentation inherited
+    protected Controller createController ()
     {
-        return Chooser.model.getEntries(_categoryId);
+        return new EntryController(this) {
+            public Entry[] readEntries () throws PersistenceException {
+                return Chooser.model.getEntries(_categoryId);
+            }
+        };
     }
 
     protected String getEmptyString ()

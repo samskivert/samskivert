@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.10 2002/11/11 17:04:26 mdb Exp $
+// $Id: Chooser.java,v 1.11 2003/05/04 18:16:06 mdb Exp $
 
 package robodj.chooser;
 
@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.StaticConnectionProvider;
+import com.samskivert.util.StringUtil;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.ConfigUtil;
@@ -20,6 +21,8 @@ import com.samskivert.util.PropertiesUtil;
 import robodj.Log;
 import robodj.repository.Model;
 import robodj.repository.Repository;
+import robodj.util.RDJPrefs;
+import robodj.util.RDJPrefsPanel;
 import robodj.util.ServerControl;
 
 /**
@@ -28,82 +31,86 @@ import robodj.util.ServerControl;
  */
 public class Chooser
 {
-    public static Properties config;
-
     public static Repository repository;
 
     public static Model model;
 
     public static ServerControl scontrol;
 
+    public static ChooserFrame frame;
+
     public static void main (String[] args)
     {
-        // load our main configuration
-        String cpath = "conf/chooser.properties";
-        try {
-            config = ConfigUtil.loadProperties(cpath);
-        } catch (IOException ioe) {
-            String err = "Unable to load configuration " +
-                "[path=" + cpath + "]:\n" + ioe.getMessage();
-            reportError(err);
-            System.exit(-1);
-        }
+        boolean error = false;
 
-        // create an interface to the database repository
-        try {
-            StaticConnectionProvider scp =
-                new StaticConnectionProvider("conf/repository.properties");
-            repository = new Repository(scp);
-            model = new Model(repository);
+        // loop until the user provides us with a configuration that works
+        // or requests to exit
+        for (int ii = 0; ii < 100; ii++) {
+            String repodir = RDJPrefs.getRepositoryDirectory();
+            if (StringUtil.blank(repodir) || ii > 0) {
+                // display the initial configuration wizard if we are not
+                // yet properly configured
+                RDJPrefsPanel.display(true);
+            }
 
-        } catch (IOException ioe) {
-            Log.logStackTrace(ioe);
-            reportError("Error loading repository config:\n" +
-                        ioe.getMessage());
-            System.exit(-1);
+            // create an interface to the database repository
+            try {
+                StaticConnectionProvider scp =
+                    new StaticConnectionProvider(RDJPrefs.getJDBCConfig());
+                repository = new Repository(scp);
+                model = new Model(repository);
 
-        } catch (PersistenceException pe) {
-            Log.logStackTrace(pe);
-            pe.printStackTrace();
-            reportError("Unable to establish communication " +
-                        "with database:\n" + pe.getMessage());
-            System.exit(-1);
-        }
+            } catch (PersistenceException pe) {
+                if (reportError("Unable to establish communication " +
+                                "with database:", pe)) {
+                    System.exit(-1);
+                }
+                continue;
+            }
 
-        String mhost = System.getProperty("musicd_host", "localhost");
-        String mportstr = System.getProperty("musicd_port", "2500");
-        int mport = 2500;
-        try {
-            mport = Integer.parseInt(mportstr);
-        } catch (NumberFormatException nfe) {
-            Log.warning("Invalid musicd_port value. Using default " +
-                        "(" + mport + ").");
-        }
+            try {
+                String host = RDJPrefs.getMusicDaemonHost();
+                if (StringUtil.blank(host)) {
+                    throw new IOException(
+                        "No music server host specified in configuration.");
+                }
+                // establish a connection with the music server
+                scontrol = new ServerControl(
+                    host, RDJPrefs.getMusicDaemonPort());
+            } catch (IOException ioe) {
+                if (reportError("Unable to establish communication with " +
+                                "music server on host '" +
+                                RDJPrefs.getMusicDaemonHost() + "' ", ioe)) {
+                    System.exit(-1);
+                }
+                continue;
+            }
 
-        try {
-            // establish a connection with the music server
-            scontrol = new ServerControl(mhost, 2500);
-        } catch (IOException ioe) {
-            Log.logStackTrace(ioe);
-            reportError("Unable to establish communication with music " +
-                        "server:\n" + ioe.getMessage());
-            System.exit(-1);
+            break;
         }
 
         // create our primary user interface frame, center the frame in
         // the screen and show it
-	ChooserFrame frame = new ChooserFrame();
-	frame.setSize(650, 665);
-	SwingUtil.centerWindow(frame);
-	frame.setVisible(true);
+        frame = new ChooserFrame();
+        frame.setSize(650, 665);
+        SwingUtil.centerWindow(frame);
+        frame.setVisible(true);
     }
 
-    protected static void reportError (String error)
+    protected static boolean reportError (String error, Exception e)
     {
-        Object[] options = { "OK" };
-        JOptionPane.showOptionDialog(null, error, "Error",
-                                     JOptionPane.DEFAULT_OPTION,
-                                     JOptionPane.ERROR_MESSAGE,
-                                     null, options, options[0]);
+        String text = error;
+        if (e != null) {
+            text = text + "\n\n" + e.getMessage();
+            if (e.getCause() != null) {
+                text = text + "\n" + e.getCause().getMessage();
+            }
+        }
+        Object[] options = { "Edit configuration", "Exit" };
+        int choice = JOptionPane.showOptionDialog(
+            null, text, "Error", JOptionPane.DEFAULT_OPTION,
+            JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+        System.out.println("Chose " + choice + ".");
+        return (choice == 1 || choice == JOptionPane.CLOSED_OPTION);
     }
 }

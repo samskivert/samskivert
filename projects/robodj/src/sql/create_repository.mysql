@@ -1,5 +1,5 @@
 /**
- * $Id: create_repository.mysql,v 1.1 2000/12/10 07:00:47 mdb Exp $
+ * $Id: create_repository.mysql,v 1.2 2003/05/04 18:16:07 mdb Exp $
  *
  * Creates the necessary database tables in MySQL for the music repository.
  */
@@ -27,6 +27,7 @@ CREATE TABLE songs (
 	title    VARCHAR(200) NOT NULL,
 	location VARCHAR(200) NOT NULL,
 	duration INTEGER(10) NOT NULL,
+        votes    VARCHAR(255) NOT NULL,
 
 	CONSTRAINT fk_songs_entries FOREIGN KEY (entryid) 
 	  REFERENCES entries (entryid) ON DELETE CASCADE

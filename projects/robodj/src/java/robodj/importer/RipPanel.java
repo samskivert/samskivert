@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.8 2002/11/11 17:05:37 mdb Exp $
+// $Id: RipPanel.java,v 1.9 2003/05/04 18:16:07 mdb Exp $
 
 package robodj.importer;
 
@@ -430,8 +430,8 @@ public class RipPanel
     protected Entry _entry;
 
     protected static final String DB_FAILURE_MSG =
-        "An error occurred while communicating with the database. You " +
-        "may wish to examine the following error message, remedy the " +
-        "problem with the database and retry the operation. Or you can " +
+        "An error occurred while communicating with the database.\n" +
+        "You may wish to examine the following error message, remedy the\n" +
+        "problem with the database and retry the operation. Or you can\n" +
         "abort the operation and cancel the import process entirely.";
 }

@@ -1,10 +1,9 @@
 //
-// $Id: ButtonUtil.java,v 1.1 2002/03/03 20:56:12 mdb Exp $
+// $Id: ButtonUtil.java,v 1.2 2003/05/04 18:16:07 mdb Exp $
 
 package robodj.util;
 
 import java.awt.Image;
-import java.awt.event.ActionListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +13,8 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+
+import com.samskivert.swing.Controller;
 
 import robodj.Log;
 
@@ -43,32 +44,30 @@ public class ButtonUtil
     }
 
     public static JButton createControlButton (
-        String tooltip, String action, String iconPath, ActionListener al)
+        String tooltip, String action, String iconPath)
     {
-        return createControlButton(tooltip, action, iconPath, al, false);
+        return createControlButton(tooltip, action, iconPath, false);
     }
 
     public static JButton createControlButton (
-        String tooltip, String action, String iconPath,
-        ActionListener al, boolean borderless)
+        String tooltip, String action, String iconPath, boolean borderless)
     {
         return createControlButton(
-            tooltip, action, getIcon(iconPath), al, borderless);
+            tooltip, action, getIcon(iconPath), borderless);
     }
 
     public static JButton createControlButton (
-        String tooltip, String action, ImageIcon icon, ActionListener al)
+        String tooltip, String action, ImageIcon icon)
     {
-        return createControlButton(tooltip, action, icon, al, false);
+        return createControlButton(tooltip, action, icon, false);
     }
 
     public static JButton createControlButton (
-        String tooltip, String action, ImageIcon icon,
-        ActionListener al, boolean borderless)
+        String tooltip, String action, ImageIcon icon, boolean borderless)
     {
         JButton cbut = new JButton(icon);
         cbut.setActionCommand(action);
-        cbut.addActionListener(al);
+        cbut.addActionListener(Controller.DISPATCHER);
         cbut.setToolTipText(tooltip);
         // clear out that annoying fat border that swing uses
         cbut.setBorder(borderless ? BorderFactory.createEmptyBorder() :

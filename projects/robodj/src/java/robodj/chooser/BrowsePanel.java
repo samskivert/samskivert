@@ -1,10 +1,9 @@
 //
-// $Id: BrowsePanel.java,v 1.3 2002/11/11 17:04:12 mdb Exp $
+// $Id: BrowsePanel.java,v 1.4 2003/05/04 18:16:06 mdb Exp $
 
 package robodj.chooser;
 
 import javax.swing.*;
-
 import robodj.repository.*;
 
 public class BrowsePanel extends JTabbedPane

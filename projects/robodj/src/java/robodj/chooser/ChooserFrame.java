@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.10 2002/11/11 17:04:41 mdb Exp $
+// $Id: ChooserFrame.java,v 1.11 2003/05/04 18:16:06 mdb Exp $
 
 package robodj.chooser;
 
@@ -10,18 +10,18 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import com.samskivert.swing.*;
-import com.samskivert.swing.util.TaskAdapter;
-import com.samskivert.swing.util.TaskObserver;
-import com.samskivert.swing.util.TaskMaster;
+import com.samskivert.swing.util.*;
+import com.samskivert.util.StringUtil;
 
 import robodj.Log;
 import robodj.Version;
 import robodj.repository.*;
 import robodj.util.ButtonUtil;
+import robodj.util.RDJPrefs;
 import robodj.util.ServerControl.PlayingListener;
 
 public class ChooserFrame extends JFrame
-    implements ActionListener, TaskObserver, PlayingListener
+    implements PlayingListener, ControllerProvider
 {
     public ChooserFrame ()
     {
@@ -59,22 +59,42 @@ public class ChooserFrame extends JFrame
         bgl.setJustification(GroupLayout.RIGHT);
         JPanel cbar = new JPanel(bgl);
 
+        // create a label and text field where the chooser user can
+        // identify themselves
+        cbar.add(new JLabel("Initials:"));
+        cbar.add(_userField = new JTextField());
+        Dimension ups = _userField.getPreferredSize();
+        ups.width = 35;
+        _userField.setPreferredSize(ups);
+        cbar.add(new Spacer(100, 10));
+
+        // enforce a maximum of 3 letters in initials
+        SwingUtil.setDocumentHelpers(
+            _userField, new SwingUtil.DocumentValidator() {
+                public boolean isValid (String text) {
+                    return (text.length() <= 3);
+                }
+            }, null);
+
+        // display any previously configured initials
+        _userField.setText(RDJPrefs.getUser());
+
         // add some fake control buttons for now
         cbar.add(ButtonUtil.createControlButton(
-                     BACK_TIP, "back", BACK_ICON_PATH, this, true));
+                     BACK_TIP, "back", BACK_ICON_PATH, true));
         _stop = ButtonUtil.createControlButton(
-            STOP_TIP, "stop", STOP_ICON_PATH, this, true);
+            STOP_TIP, "stop", STOP_ICON_PATH, true);
         cbar.add(_stop);
         _pauseIcon = ButtonUtil.getIcon(PAUSE_ICON_PATH);
         _playIcon = ButtonUtil.getIcon(PLAY_ICON_PATH);
         _pause = ButtonUtil.createControlButton(
-            "", "pause", _pauseIcon, this, true);
+            "", "pause", _pauseIcon, true);
         cbar.add(_pause);
         cbar.add(ButtonUtil.createControlButton(
-                     SKIP_TIP, "skip", SKIP_ICON_PATH, this, true));
+                     SKIP_TIP, "skip", SKIP_ICON_PATH, true));
         cbar.add(new Spacer(50, 10));
         cbar.add(ButtonUtil.createControlButton(
-                     EXIT_TIP, "exit", EXIT_ICON_PATH, this, true));
+                     EXIT_TIP, "exit", EXIT_ICON_PATH, true));
 
 	// stick it into the frame
 	top.add(cbar, GroupLayout.FIXED);
@@ -86,52 +106,44 @@ public class ChooserFrame extends JFrame
         // add ourselves as a playing listener
         Chooser.scontrol.addPlayingListener(this);
 
-        // read our playing state
-        TaskMaster.invokeMethodTask("refreshPlaying", Chooser.scontrol, this);
+        // create our controller
+        _controller = new ChooserController();
     }
 
-    public void actionPerformed (ActionEvent e)
+    // documentation inherited from interface
+    public Controller getController ()
     {
-	String cmd = e.getActionCommand();
-	if (cmd.equals("exit")) {
-	    System.exit(0);
-
-        } else if (cmd.equals("skip")) {
-            TaskMaster.invokeMethodTask("skip", Chooser.scontrol, this);
-
-        } else if (cmd.equals("back")) {
-            TaskMaster.invokeMethodTask("back", Chooser.scontrol, this);
-
-        } else if (cmd.equals("pause")) {
-            TaskMaster.invokeMethodTask("pause", Chooser.scontrol, this);
-
-        } else if (cmd.equals("play")) {
-            TaskMaster.invokeMethodTask("play", Chooser.scontrol, this);
-
-        } else if (cmd.equals("stop")) {
-            TaskMaster.invokeMethodTask("stop", Chooser.scontrol, this);
-
-	} else {
-	    System.out.println("Unknown action event: " + cmd);
-	}
+        return _controller;
     }
 
-    public void taskCompleted (String name, Object result)
+    /**
+     * Returns the string currently entered into the "user" field.
+     */
+    public String getUser (boolean showError)
     {
-        // nothing to do here
-    }
-
-    public void taskFailed (String name, Throwable exception)
-    {
-        String msg;
-        if (Exception.class.equals(exception.getClass())) {
-            msg = exception.getMessage();
-        } else {
-            msg = exception.toString();
+        String user = _userField.getText();
+        // if they haven't supplied a user, complain
+        if (StringUtil.blank(user)) {
+            if (!showError) {
+                return null;
+            }
+            String errmsg = "The feature you have requested requires " +
+                "that you identify yourself by entering your initials in " +
+                "the 'Initials' box at the bottom of the window.";
+            JOptionPane.showMessageDialog(this, errmsg, "Initials required",
+                                          JOptionPane.ERROR_MESSAGE);
+            return null;
         }
-        JOptionPane.showMessageDialog(this, msg, "Error",
-                                      JOptionPane.ERROR_MESSAGE); 
-        Log.logStackTrace(exception);
+
+        // if they typed in mixed or upper case, lower it for them
+        user = user.toLowerCase();
+        if (!user.equals(_userField.getText())) {
+            _userField.setText(user);
+        }
+
+        // make sure we've saved these initials values
+        RDJPrefs.config.setValue(RDJPrefs.USER_KEY, user);
+        return user;
     }
 
     public void playingUpdated (int songid, boolean paused)
@@ -149,6 +161,12 @@ public class ChooserFrame extends JFrame
 
         _stop.setEnabled(songid != -1);
     }
+
+    /** Our top-level controller. */
+    protected Controller _controller;
+
+    /** A field where the user can identify themselves. */
+    protected JTextField _userField;
 
     /** A reference to the play/pause button. */
     protected JButton _pause;

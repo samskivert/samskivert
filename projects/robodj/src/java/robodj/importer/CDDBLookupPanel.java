@@ -1,5 +1,5 @@
 //
-// $Id: CDDBLookupPanel.java,v 1.6 2002/11/11 17:05:20 mdb Exp $
+// $Id: CDDBLookupPanel.java,v 1.7 2003/05/04 18:16:07 mdb Exp $
 
 package robodj.importer;
 
@@ -171,6 +171,7 @@ public class CDDBLookupPanel
 	    Song song = (entry.songs[i] = new Song());
 	    song.title = names[i];
 	    song.position = i+1;
+            song.votes = "";
 	}
 
 	// create the rip panel and pass the entry and info along

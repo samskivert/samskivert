@@ -64,11 +64,11 @@ public class ButtonUtil
      * property to cycle through the specified values whenever the button is
      * pressed.
      */
-    public static void cycleToProperty (
+    public static ActionListener cycleToProperty (
         final String property, final Config config, AbstractButton button,
         final int[] values)
     {
-        button.addActionListener(new ActionListener() {
+        ActionListener al = new ActionListener() {
             public void actionPerformed (ActionEvent event)
             {
                 // get the current value and find out where it is in the list
@@ -77,7 +77,9 @@ public class ButtonUtil
                     % values.length;
                 config.setValue(property, values[newidx]);
             }
-        });
+        };
+        button.addActionListener(al);
+        return al;
     }
 
     /** Used for {@link #bindToProperty}. */

@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.3 2002/04/17 02:10:18 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.4 2002/04/18 00:09:17 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -183,7 +183,7 @@ public class ArrayIntSet extends AbstractSet
     public boolean remove (int value)
     {
         int index = binarySearch(value);
-        if (index > 0) {
+        if (index >= 0) {
             System.arraycopy(_values, index+1, _values, index, --_size-index);
             _values[_size] = 0;
             return true;

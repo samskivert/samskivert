@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.17 2002/09/19 23:37:40 shaper Exp $
+// $Id: ArrayUtil.java,v 1.18 2002/11/08 02:34:54 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -46,6 +46,23 @@ public class ArrayUtil
             }
         }
         return max;
+    }
+
+    /**
+     * Returns the minimum value in the given array of values, or {@link
+     * Integer#MAX_VALUE} if the array is null or zero-length.
+     */
+    public static int getMinValue (int[] values)
+    {
+        int min = Integer.MAX_VALUE;
+        int vcount = (values == null) ? 0 : values.length;
+        for (int ii = 0; ii < vcount; ii++) {
+            if (values[ii] < min) {
+                // new min
+                min = values[ii];
+            }
+        }
+        return min;
     }
 
     /**

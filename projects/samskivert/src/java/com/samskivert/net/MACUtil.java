@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.6 2003/09/05 18:07:17 eric Exp $
+// $Id: MACUtil.java,v 1.7 2004/02/09 18:36:48 eric Exp $
 
 package com.samskivert.net;
 
@@ -53,12 +53,17 @@ public class MACUtil
             // we did find another one.  Different versions of windows
             // seem to magic up different magic MAC addresses that don't
             // mean anything.  Great.  Adding 005345 to the list to
-            // ignore.
+            // ignore.  And another, 00E006095566 is apparently the mac of
+            // some set of all in one ASUS motherboards.  Guess they
+            // didn't get the memo about the MACs all being unique.
             if (mac.startsWith("44-45-53") ||
                 mac.startsWith("44:45:53")) {
                 continue;
             } else if (mac.startsWith("00-53-45-00") ||
                 mac.startsWith("00:53:45:00")) {
+                continue;
+            } else if (mac.startsWith("00-E0-06-09-55-66") ||
+                mac.startsWith("00:E0:06:09:55:66")) {
                 continue;
             }
 
@@ -119,8 +124,8 @@ public class MACUtil
         }
     }
 
-    /** Look for 2 hex values in a row followed by a ':' or '-' repeated 5 times,
-        followed by 2 hex values. */
+    /** Look for 2 hex values in a row followed by a ':' or '-' repeated 5
+        times, followed by 2 hex values. */
     protected static Pattern MACRegex =
         Pattern.compile("((?:\\p{XDigit}{2}+[:\\-]){5}+\\p{XDigit}{2}+)",
                         Pattern.CASE_INSENSITIVE);

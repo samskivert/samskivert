@@ -59,10 +59,34 @@ Look at the build.xml file for configurable build parameters.
 Using viztool
 -------------
 
-Using viztool is easy if you make use of the included shell script
-(bin/viztool). Add the classes that you wish to visualize to your
-CLASSPATH environment variable and then invoke the viztool script with the
-package prefix you wish to visualize.
+viztool is designed to be easily invoked from ant. Simply ensure that
+viztool.jar and its associated dependent jar files are in the classpath of
+the JVM that invokes ant and then add a task like the following to your
+build.xml file:
+
+  <target name="hierviz">
+    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
+    <viztool pkgroot="com.samskivert.viztool"
+      classes="com.samskivert.viztool.*"
+      visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer">
+      <classpath refid="classpath"/>
+    </viztool>
+  </target>
+
+the parameters passed to the task are:
+
+pkgroot: the base package name which will be used to strip common text
+         from the front of fully qualified class names
+classes: a regular expression matching the classes to be visualized
+visualizer: the classname of the visualizer to use
+
+the <viztool> element should contain a <classpath> element which defines the
+classpath over which viztool will iterate, searching for classes that
+match the specified pattern.
+
+There is also an included shell script (bin/viztool). Add the classes that
+you wish to visualize to your CLASSPATH environment variable and then
+invoke the viztool script with the package prefix you wish to visualize.
 
 For example:
 
@@ -76,20 +100,6 @@ classes that the visualized classes depend upon must also be loadable
 If you want to write your own script, take a look at the viztool script to
 see what arguments to pass to the visualization driver class.
 
-I plan to provide an additional visualization driver that allows for
-options to be provided in a properties file, so that one can set up a
-properties file with all their favorite visualization parameters and do
-things like incorporate the generation of diagrams into their build
-process.
-
-If you want to see the layout code deal with all sorts of boundary
-conditions (like packages that span multiple pages and monster inheritance
-hierarchies), try visualizing the Swing code (I exclude the plaf packages
-and the html and rtf packages because they are fairly uninteresting, it's
-the main javax.swing package that really puts us through the hoops):
-
-% ./bin/viztool --print --exclude=javax.swing.plaf:javax.swing.plaf.basic:javax.swing.plaf.metal:javax.swing.plaf.multi:javax.swing.text.html:javax.swing.text.html.parser:javax.swing.text.rtf javax.swing
-
 Distribution
 ------------
 
@@ -102,10 +112,10 @@ Contribution
 ------------
 
 Contributions are welcome. Control of the CVS repository is presently in
-the hands of mdb@samskivert.com, who should be emailed about
-submissions. Facilities for management of major contributions by external
-parties (ie. publicly accessible CVS server) will be provided if
-circumstances dictate.
+the hands of mdb@samskivert.com, who should be emailed about submissions.
+Facilities for management of major contributions by external parties
+(ie. publicly accessible CVS server) will be provided if circumstances
+dictate.
 
 Contact Information
 -------------------
@@ -113,4 +123,4 @@ Contact Information
 The person primarily responsible for viztool is Michael Bayne and can be
 contacted at <mdb@samskivert.com>.
 
-$Id: README,v 1.2 2001/08/12 04:21:18 mdb Exp $
+$Id: README,v 1.3 2001/12/03 08:34:05 mdb Exp $

@@ -1,5 +1,5 @@
 //
-// $Id: RDJPrefs.java,v 1.1 2003/05/04 18:16:07 mdb Exp $
+// $Id: RDJPrefs.java,v 1.2 2003/05/07 17:27:26 mdb Exp $
 
 package robodj.util;
 
@@ -14,6 +14,9 @@ public class RDJPrefs
 {
     /** Configuration key for {@link #getRepositoryDirectory}. */
     public static final String REPO_DIR_KEY = "repository.basedir";
+
+    /** Configuration key for {@link #getRepositoryTemp}. */
+    public static final String REPO_TMPDIR_KEY = "repository.tmpdir";
 
     /** Configuration key for {@link #getJDBCConfig}. */
     public static final String JDBC_DRIVER_KEY = "jdbc.default.driver";
@@ -48,6 +51,15 @@ public class RDJPrefs
     public static String getRepositoryDirectory ()
     {
         return config.getValue(REPO_DIR_KEY, "");
+    }
+
+    /**
+     * Returns a temporary directory into which we can store ripped tracks.
+     */
+    public static String getRepositoryTemp ()
+    {
+        return config.getValue(
+            REPO_TMPDIR_KEY, System.getProperty("java.io.tmpdir"));
     }
 
     /**

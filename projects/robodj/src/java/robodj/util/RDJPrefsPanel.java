@@ -1,5 +1,5 @@
 //
-// $Id: RDJPrefsPanel.java,v 1.1 2003/05/04 18:16:07 mdb Exp $
+// $Id: RDJPrefsPanel.java,v 1.2 2003/05/07 17:27:26 mdb Exp $
 
 package robodj.util;
 
@@ -173,6 +173,7 @@ public class RDJPrefsPanel extends JPanel
     /** Defines our configurable preferences. */
     protected static final String[] PREFS = {
         "Music repository directory", RDJPrefs.REPO_DIR_KEY,
+        "Music temporary directory", RDJPrefs.REPO_TMPDIR_KEY,
         "", "",
         "Music database JDBC driver", RDJPrefs.JDBC_DRIVER_KEY,
         "Music database JDBC url", RDJPrefs.JDBC_URL_KEY,

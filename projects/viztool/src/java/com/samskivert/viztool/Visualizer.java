@@ -1,5 +1,5 @@
 //
-// $Id: Visualizer.java,v 1.4 2001/11/30 22:57:31 mdb Exp $
+// $Id: Visualizer.java,v 1.5 2001/12/03 08:34:53 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.viztool;
 
 import java.awt.Graphics2D;
 import java.awt.print.Printable;
+import java.util.Iterator;
 
 /**
  * The interface via which the driver accesses whichever visualizer is
@@ -29,6 +30,18 @@ import java.awt.print.Printable;
  */
 public interface Visualizer extends Printable
 {
+    /**
+     * Provides the visualizer with the root package which it can use to
+     * format package names relative to the root package.
+     */
+    public void setPackageRoot (String pkgroot);
+
+    /**
+     * Provides the visualizer with an iterator over all of the {@link
+     * Class} instances that it will be visualizing.
+     */
+    public void setClasses (Iterator iterator);
+
     /**
      * Requests that the visualization lay itself out in pages with the
      * specified dimensions. Subsequent calls to {@link #print} or {@link

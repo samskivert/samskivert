@@ -1,5 +1,5 @@
 //
-// $Id: ChainUtil.java,v 1.7 2001/11/30 22:57:31 mdb Exp $
+// $Id: ChainUtil.java,v 1.8 2001/12/03 08:34:53 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -32,17 +32,18 @@ import com.samskivert.viztool.Log;
 public class ChainUtil
 {
     /**
-     * Builds a list of chains for all the classes enumerated by the
-     * supplied enumerator. Classes outside the specified package root
-     * will be ignored except where they are the direct parent of an
-     * enumerated class inside the package root.
+     * Builds a list of chains for the classes enumerated by the supplied
+     * enumerator. Classes outside the specified package root will be
+     * ignored except where they are the direct parent of an enumerated
+     * class inside the package root.
      *
      * @return an array list containing all of the root chains.
      */
-    public static ArrayList buildChains (String pkgroot, Iterator iter)
+    public static ArrayList buildChains (
+        String pkgroot, String pkg, Iterator iter)
     {
         ArrayList roots = new ArrayList();
-        computeRoots(pkgroot, iter, roots);
+        computeRoots(pkgroot, pkg, iter, roots);
         return roots;
     }
 
@@ -84,41 +85,18 @@ public class ChainUtil
      * Scans the list of classes provided by the supplied iterator and
      * constructs a hierarchical representation of those classes.
      */
-    protected static
-        void computeRoots (String pkgroot, Iterator iter, ArrayList roots)
+    protected static void computeRoots (
+        String pkgroot, String pkg, Iterator iter, ArrayList roots)
     {
         while (iter.hasNext()) {
-            insertClass(roots, pkgroot, (String)iter.next(), false);
-        }
-    }
-
-    /**
-     * Loads the supplied class and inserts it into the appropriate
-     * position in the hierarchy based on its inheritance properties.
-     */
-    protected static void insertClass (
-        ArrayList roots, String pkgroot, String clazz, boolean outpkg)
-    {
-        try {
-            // sanity check
-            if (!clazz.startsWith(pkgroot)) {
-                Log.warning("Requested to process class not in target " +
-                            "package [class=" + clazz +
-                            ", pkgroot=" + pkgroot + "].");
-                return;
+            Class clazz = (Class)iter.next();
+            String name = clazz.getName();
+            // skip classes not in the package in question
+            if (!name.startsWith(pkg) ||
+                name.substring(pkg.length()+1).indexOf(".") != -1) {
+                continue;
             }
-
-            // load and insert the class
-            insertClass(roots, pkgroot, Class.forName(clazz), outpkg);
-
-        } catch (Exception e) {
-            Log.warning("Unable to process class [class=" + clazz +
-                        ", error=" + e + "].");
-            Log.logStackTrace(e);
-
-        } catch (NoClassDefFoundError ncdfe) {
-            Log.warning("Unable to load class [class=" + clazz +
-                        ", error=" + ncdfe + "].");
+            insertClass(roots, pkgroot, clazz, false);
         }
     }
 

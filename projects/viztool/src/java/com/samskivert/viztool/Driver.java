@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.14 2001/12/01 06:22:18 mdb Exp $
+// $Id: Driver.java,v 1.15 2001/12/03 08:34:53 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -39,18 +39,19 @@ public class Driver
     public static void main (String[] args)
     {
         if (args.length < 1) {
-            System.err.println("Usage: Driver [-print] package_root");
+            System.err.println(USAGE);
             System.exit(-1);
         }
 
         // parse our arguments
-        String pkgroot = null;
+        String pkgroot = "";
+        String regexp = null;
         boolean print = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-print")) {
                 print = true;
-            } else if (pkgroot == null) {
-                pkgroot = args[i];
+            } else if (regexp == null) {
+                regexp = args[i];
             }
         }
 
@@ -69,9 +70,17 @@ public class Driver
         FontPicker.init(print);
 
         // and finally generate the visualization
-        PackageEnumerator penum = new PackageEnumerator(pkgroot, enum, true);
+        FilterEnumerator fenum = null;
+        try {
+            fenum = new RegexpEnumerator(regexp, enum);
+        } catch  (Exception e) {
+            Log.warning("Invalid package regular expression " +
+                        "[regexp=" + regexp + ", error=" + e + "].");
+            System.exit(-1);
+        }
+
         // Visualizer viz = new HierarchyVisualizer(pkgroot, penum);
-        Visualizer viz = new SummaryVisualizer(pkgroot, penum);
+        Visualizer viz = new SummaryVisualizer(pkgroot, fenum);
 
         if (print) {
             // we use the print system to render things
@@ -113,4 +122,11 @@ public class Driver
             frame.setVisible(true);
         }
     }
+
+    protected static final String USAGE =
+        "Usage: Driver [-mode hier|sum] [-print] package_regexp " +
+        "[package_root]\n" +
+        "       hier = class hierarchy visualization\n" +
+        "       sum = class summary visualization\n"
+        ;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.15 2001/11/30 22:57:31 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.16 2001/12/03 08:34:53 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -25,10 +25,12 @@ import java.awt.geom.Rectangle2D;
 import java.awt.print.*;
 import java.util.*;
 
+import com.samskivert.util.Comparators;
+import com.samskivert.util.CollectionUtil;
+
 import com.samskivert.viztool.Log;
 import com.samskivert.viztool.Visualizer;
 import com.samskivert.viztool.enum.PackageEnumerator;
-import com.samskivert.util.Comparators;
 
 /**
  * The hierarchy visualizer displays inheritance hierarchies in a compact
@@ -37,48 +39,25 @@ import com.samskivert.util.Comparators;
  */
 public class HierarchyVisualizer implements Visualizer
 {
-    /**
-     * Constructs a hierarchy visualizer with the supplied enumerator as
-     * its source of classes. If the hierarchy enumerator should be
-     * limited to a particular set of classes, a filter enumerator should
-     * be supplied that returns only the classes to be visualized.
-     *
-     * @param pkgroot The name of the package that is being visualized.
-     * @param iter The enumerator that will return the names of all of the
-     * classes in the specified package.
-     */
-    public HierarchyVisualizer (String pkgroot, Iterator iter)
+    // documentation inherited
+    public void setPackageRoot (String pkgroot)
     {
-        // keep track of the package root
         _pkgroot = pkgroot;
+    }
 
+    // documentation inherited
+    public void setClasses (Iterator iter)
+    {
         // dump all the classes into an array list so that we can
         // repeatedly scan through the list
-        while (iter.hasNext()) {
-            // strip out inner classes, we'll catch those via their
-            // declaring classes
-            String name = (String)iter.next();
-            if (name.indexOf("$") != -1) {
-                continue;
-            }
-            _classes.add(name);
-        }
-        // System.err.println("Scanned " + _classes.size() + " classes.");
+        CollectionUtil.addAll(_classes, iter);
 
         // compile a list of all packages in our collection
         HashSet pkgset = new HashSet();
         iter = _classes.iterator();
         while (iter.hasNext()) {
-            pkgset.add(ChainUtil.pkgFromClass((String)iter.next()));
-        }
-
-        // remove the packages on our exclusion list
-        String expkg = System.getProperty("exclude");
-        if (expkg != null) {
-            StringTokenizer tok = new StringTokenizer(expkg, ":");
-            while (tok.hasMoreTokens()) {
-                pkgset.remove(tok.nextToken());
-            }
+            Class cl = (Class)iter.next();
+            pkgset.add(ChainUtil.pkgFromClass(cl.getName()));
         }
 
         // sort our package names
@@ -93,9 +72,8 @@ public class HierarchyVisualizer implements Visualizer
         // now create chain groups for each package
         _groups = new ArrayList();
         for (int i = 0; i < _packages.length; i++) {
-            PackageEnumerator penum = new PackageEnumerator(
-                _packages[i], _classes.iterator(), false);
-            _groups.add(new ChainGroup(pkgroot, _packages[i], penum));
+            _groups.add(new ChainGroup(_pkgroot, _packages[i],
+                                       _classes.iterator()));
         }
     }
 

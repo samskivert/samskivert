@@ -1,5 +1,5 @@
 //
-// $Id: ChainGroup.java,v 1.12 2001/11/30 22:57:31 mdb Exp $
+// $Id: ChainGroup.java,v 1.13 2001/12/03 08:34:53 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -47,7 +47,7 @@ public class ChainGroup
         _pkg = pkg;
 
         // process the classes provided by our enumerator
-        _roots = ChainUtil.buildChains(pkgroot, iter);
+        _roots = ChainUtil.buildChains(pkgroot, pkg, iter);
 
         // sort our roots
         for (int i = 0; i < _roots.size(); i++) {

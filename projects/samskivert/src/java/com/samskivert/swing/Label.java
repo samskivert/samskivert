@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.3 2001/12/19 07:21:58 mdb Exp $
+// $Id: Label.java,v 1.4 2001/12/20 02:00:12 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -222,9 +222,10 @@ public class Label implements SwingConstants
             TextLayout layout = _layouts[i];
             y += layout.getAscent();
 
-            float dx = 0, extra = _size.width - layout.getAdvance();
+            float dx = 0, extra = (float)
+                (_size.width - layout.getBounds().getWidth());
             switch (_align) {
-            case -1: dx = layout.isLeftToRight() ? extra : 0; break;
+            case -1: dx = layout.isLeftToRight() ? 0 : extra; break;
             case LEFT: dx = 0; break;
             case RIGHT: dx = extra; break;
             case CENTER: dx = extra/2; break;

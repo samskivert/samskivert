@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.1 2001/12/19 07:02:50 mdb Exp $
+// $Id: LabelDemo.java,v 1.2 2001/12/20 02:00:12 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -21,10 +21,12 @@ public class LabelDemo extends JPanel
         _labelOne = new Label(text);
         _labelOne.setFont(font);
         _labelOne.setTargetWidth(100);
+        _labelOne.setAlignment(Label.RIGHT);
 
         _labelTwo = new Label(text);
         _labelTwo.setFont(font);
         _labelTwo.setTargetHeight(30);
+        _labelTwo.setAlignment(Label.CENTER);
     }
 
     public void layout ()

@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoader.java,v 1.2 2001/11/05 18:08:01 mdb Exp $
+// $Id: SiteResourceLoader.java,v 1.3 2001/11/06 04:48:54 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -134,6 +134,33 @@ public class SiteResourceLoader
     public InputStream getResourceAsStream (int siteId, String path)
         throws IOException
     {
+        return getResourceAsStream(siteId, path, true);
+    }
+
+    /**
+     * Loads the specific resource, from the site-specific jar file if one
+     * exists and contains the specified resource, or via the servlet
+     * context (if <code>fallbackToServletContext</code> is true). If no
+     * resource exists with that path in either location, null will be
+     * returned.
+     *
+     * @param siteId the unique identifer for the site for which we are
+     * loading the resource.
+     * @param path the path to the desired resource.
+     * @param fallbackToServletContext if true, the servlet context will
+     * be searched for the resource if there is no site-specific
+     * resource. If false, it will not.
+     *
+     * @return an input stream via which the resource can be read or null
+     * if no resource could be located with the specified path.
+     *
+     * @exception IOException thrown if an I/O error occurs while loading
+     * a resource.
+     */
+    public InputStream getResourceAsStream (int siteId, String path,
+                                            boolean fallbackToServletContext)
+        throws IOException
+    {
         InputStream stream = null;
 
         // if we identified a non-default site, we first look for a
@@ -146,12 +173,29 @@ public class SiteResourceLoader
         // if we didn't find a site-specific resource (or didn't look for
         // one because we're loading for the default site), we need to
         // attempt to load the resource from the servlet context
-        if (stream == null) {
+        if (stream == null && fallbackToServletContext) {
             stream = _context.getResourceAsStream(path);
         }
 
         // that's all she wrote
         return stream;
+    }
+
+    /**
+     * Returns the last modification time of the site-specific jar file
+     * for the specified site.
+     *
+     * @exception IOException thrown if an error occurs accessing the
+     * site-specific jar file (like it doesn't exist).
+     */
+    public long getLastModified (int siteId)
+        throws IOException
+    {
+        // synchronize on the lock to ensure that only one thread per site
+        // is concurrently executing
+        synchronized (getLock(siteId)) {
+            return getBundle(siteId).getLastModified();
+        }
     }
 
     /**
@@ -161,43 +205,13 @@ public class SiteResourceLoader
     protected InputStream getSiteResourceAsStream (int siteId, String path)
         throws IOException
     {
-        Object lock = null;
-
 //          Log.info("Loading site resource [siteId=" + siteId +
 //                   ", path=" + path + "].");
 
-        // we synchronize on a per-site basis, but we use a separate lock
-        // object for each site so that the process of loading a bundle
-        // for the first time does not require blocking access to
-        // resources from other sites
-        synchronized (_locks) {
-            lock = _locks.get(siteId);
-
-            // create a lock object if we haven't one already
-            if (lock == null) {
-                _locks.put(siteId, lock = new Object());
-            }
-        }
-
-        // now synchronize on the lock to ensure that only one thread per
-        // site is concurrently executing
-        synchronized (lock) {
-            // look up the site resource bundle for this site
-            SiteResourceBundle bundle = (SiteResourceBundle)
-                _bundles.get(siteId);
-
-            // if we haven't got one, create one
-            if (bundle == null) {
-                // obtain the string identifier for this site
-                String ident = _siteIdent.getSiteString(siteId);
-                // compose that with the jar file directory to obtain the
-                // path to the site-specific jar file
-                File file = new File(_jarPath, ident + JAR_EXTENSION);
-                // create a handle for this site-specific jar file
-                bundle = new SiteResourceBundle(file);
-                // cache our new bundle
-                _bundles.put(siteId, bundle);
-            }
+        // synchronize on the lock to ensure that only one thread per site
+        // is concurrently executing
+        synchronized (getLock(siteId)) {
+            SiteResourceBundle bundle = getBundle(siteId);
 
             // make sure the path has no leading slash
             if (path.startsWith("/")) {
@@ -207,6 +221,55 @@ public class SiteResourceLoader
             // obtain our resource from the bundle
             return bundle.getResourceAsStream(path);
         }
+    }
+
+    /**
+     * We synchronize on a per-site basis, but we use a separate lock
+     * object for each site so that the process of loading a bundle for
+     * the first time does not require blocking access to resources from
+     * other sites.
+     */
+    protected Object getLock (int siteId)
+    {
+        Object lock = null;
+
+        synchronized (_locks) {
+            lock = _locks.get(siteId);
+
+            // create a lock object if we haven't one already
+            if (lock == null) {
+                _locks.put(siteId, lock = new Object());
+            }
+        }
+
+        return lock;
+    }
+
+    /**
+     * Obtains the site-specific jar file for the specified site. This
+     * should only be called when the lock for this site is held.
+     */
+    protected SiteResourceBundle getBundle (int siteId)
+        throws IOException
+    {
+        // look up the site resource bundle for this site
+        SiteResourceBundle bundle = (SiteResourceBundle)
+            _bundles.get(siteId);
+
+        // if we haven't got one, create one
+        if (bundle == null) {
+            // obtain the string identifier for this site
+            String ident = _siteIdent.getSiteString(siteId);
+            // compose that with the jar file directory to obtain the
+            // path to the site-specific jar file
+            File file = new File(_jarPath, ident + JAR_EXTENSION);
+            // create a handle for this site-specific jar file
+            bundle = new SiteResourceBundle(file);
+            // cache our new bundle
+            _bundles.put(siteId, bundle);
+        }
+
+        return bundle;
     }
 
     /**
@@ -222,10 +285,6 @@ public class SiteResourceLoader
 
         /** A handle on the site-specific jar file. */
         public File file;
-
-        /** The last modified time of the jar file at the time that we
-         * opened it for reading. */
-        public long lastModified;
 
         /**
          * Constructs a new site resource bundle. The associated jar file
@@ -257,6 +316,18 @@ public class SiteResourceLoader
         }
 
         /**
+         * Returns the last modified time of the underlying jar file.
+         */
+        public long getLastModified ()
+            throws IOException
+        {
+            // open or reopen our underlying jar file as necessary
+            refreshJarFile();
+
+            return _lastModified;
+        }
+
+        /**
          * Reopens our site-specific jar file if it has been modified
          * since it was last opened.
          */
@@ -265,9 +336,9 @@ public class SiteResourceLoader
         {
             // determine whether or not we need to create a new jarfile
             // instance
-            if (file.lastModified() > lastModified) {
+            if (file.lastModified() > _lastModified) {
                 // make a note of the last modified time
-                lastModified = file.lastModified();
+                _lastModified = file.lastModified();
 
                 // close our old jar file if we've got one
                 if (jarFile != null) {
@@ -281,6 +352,10 @@ public class SiteResourceLoader
                 jarFile = new JarFile(file);
             }
         }
+
+        /** The last modified time of the jar file at the time that we
+         * opened it for reading. */
+        protected long _lastModified;
     }
 
     /** The site identifier we use to identify requests. */

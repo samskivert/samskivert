@@ -1,5 +1,5 @@
 //
-// $Id: FormUtil.java,v 1.3 2001/03/02 01:22:07 mdb Exp $
+// $Id: FormUtil.java,v 1.4 2001/03/04 08:18:28 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -62,7 +62,31 @@ public class FormUtil
 					     String invalidDataMessage)
 	throws DataValidationException
     {
+        return parseDateParameter(context.getForm(name), invalidDataMessage);
+    }
+
+    /**
+     * Fetches the supplied parameter from the request and converts it to
+     * a date. The value of the parameter should be a date formatted like
+     * so: 2001-12-25. If the parameter does not exist, null is
+     * returned. If the parameter is not a well-formed date, a data
+     * validation exception is thrown with the supplied message.
+     */
+    public static Date getDateParameter (WebContext context, String name,
+                                         String invalidDataMessage)
+	throws DataValidationException
+    {
 	String value = context.getForm(name);
+        if (StringUtil.blank(value)) {
+            return null;
+        }
+        return parseDateParameter(value, invalidDataMessage);
+    }
+
+    protected static
+        Date parseDateParameter (String value, String invalidDataMessage)
+	throws DataValidationException
+    {
 	Date date = null;
 
 	try {

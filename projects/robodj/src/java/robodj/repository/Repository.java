@@ -1,13 +1,15 @@
 //
-// $Id: Repository.java,v 1.4 2001/06/02 02:22:55 mdb Exp $
+// $Id: Repository.java,v 1.5 2001/06/07 08:37:47 mdb Exp $
 
 package robodj.repository;
 
 import java.sql.*;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
 import com.samskivert.jdbc.MySQLRepository;
+import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.*;
 
@@ -50,8 +52,8 @@ public class Repository extends MySQLRepository
 			    "entryid");
 	_stable = new Table(Song.class.getName(), "songs", _session,
 			    "songid");
-	_ctable = new Table(Category.class.getName(), "categories", _session,
-			    "categoryid");
+	_ctable = new Table(Category.class.getName(), "category_names",
+                            _session, "categoryid");
 	_cmtable = new Table(CategoryMapping.class.getName(), "category_map",
 			     _session, new String[] {"categoryid", "entryid"});
     }
@@ -98,7 +100,7 @@ public class Repository extends MySQLRepository
     public Entry[] getEntries (final String query)
 	throws SQLException
     {
-	return (Entry[])execute(new Operation () {
+	return (Entry[])execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 // look up the entry
@@ -123,7 +125,7 @@ public class Repository extends MySQLRepository
 	throws SQLException
     {
         if (entry.songs == null) {
-            execute(new Operation () {
+            execute(new Operation() {
                 public Object invoke () throws SQLException
                 {
                     // load up the songs for this entry
@@ -149,7 +151,7 @@ public class Repository extends MySQLRepository
     public void insertEntry (final Entry entry)
 	throws SQLException
     {
-	execute(new Operation () {
+	execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 // insert the entry into the entry table
@@ -187,7 +189,7 @@ public class Repository extends MySQLRepository
     public void updateEntry (final Entry entry)
 	throws SQLException
     {
-	execute(new Operation () {
+	execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 // update the entry
@@ -211,7 +213,7 @@ public class Repository extends MySQLRepository
     public void deleteEntry (final Entry entry)
 	throws SQLException
     {
-	execute(new Operation () {
+	execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 // remove the entry from the entry table and the foreign
@@ -238,7 +240,7 @@ public class Repository extends MySQLRepository
     public void addSongToEntry (final Entry entry, final Song song)
 	throws SQLException
     {
-	execute(new Operation () {
+	execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 // fill in the appropriate entry id value
@@ -261,7 +263,7 @@ public class Repository extends MySQLRepository
     public void updateSong (final Song song)
 	throws SQLException
     {
-	execute(new Operation () {
+	execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 _stable.update(song);
@@ -277,7 +279,7 @@ public class Repository extends MySQLRepository
     public int createCategory (final String name)
 	throws SQLException
     {
-	execute(new Operation () {
+	execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 Category cat = new Category();
@@ -297,7 +299,7 @@ public class Repository extends MySQLRepository
     public Category[] getCategories ()
 	throws SQLException
     {
-	return (Category[])execute(new Operation () {
+	return (Category[])execute(new Operation() {
 	    public Object invoke () throws SQLException
 	    {
                 Cursor ccur = _ctable.select("");
@@ -310,13 +312,71 @@ public class Repository extends MySQLRepository
     }
 
     /**
+     * Fetches all of the entry ids that are associated with this category
+     * and returns them. If <code>categoryid</code> is -1, it instead
+     * returns all of the entry ids that are not in any category.
+     */
+    public int[] getEntryIds (final int categoryid)
+        throws SQLException
+    {
+        return (int[])execute(new Operation() {
+            public Object invoke () throws SQLException
+            {
+                if (categoryid >= 0) {
+                    String query = "where categoryid=" + categoryid;
+                    Cursor cmcur = _cmtable.select(query);
+                    List cmlist = cmcur.toArrayList();
+                    int[] eids = new int[cmlist.size()];
+                    for (int i = 0; i < cmlist.size(); i++) {
+                        eids[i] = ((CategoryMapping)cmlist.get(i)).entryid;
+                    }
+                    return eids;
+
+                } else {
+                    // i wish i knew how to do this sort of jockeying in
+                    // SQL, but I can't be bothered to sort it out for a
+                    // data set that isn't going to be so big that it
+                    // can't be done in Java
+                    IntMap ids = new IntMap();
+                    Statement stmt = _session.connection.createStatement();
+                    try {
+                        // first add all the entryids in the repository
+                        String query = "select entryid from entries";
+                        ResultSet rs = stmt.executeQuery(query);
+                        while (rs.next()) {
+                            ids.put(rs.getInt(1), "");
+                        }
+
+                        // now remove those that are mapped to a category
+                        query = "select entryid from category_map";
+                        rs = stmt.executeQuery(query);
+                        while (rs.next()) {
+                            ids.remove(rs.getInt(1));
+                        }
+
+                    } finally {
+                        JDBCUtil.close(stmt);
+                    }
+
+                    int[] eids = new int[ids.size()];
+                    Enumeration keys = ids.keys();
+                    for (int i = 0; keys.hasMoreElements(); i++) {
+                        eids[i] = ((Integer)keys.nextElement()).intValue();
+                    }
+                    return eids;
+                }
+            }
+        });
+    }
+
+    /**
      * Associates the specified entry with the specified category. An
      * entry can be mapped into multiple categories.
      */
     public void associateEntry (final Entry entry, final int categoryid)
 	throws SQLException
     {
-        execute(new Operation () {
+        execute(new Operation() {
             public Object invoke () throws SQLException
             {
                 CategoryMapping map =
@@ -333,7 +393,7 @@ public class Repository extends MySQLRepository
     public void disassociateEntry (final Entry entry, final int categoryid)
 	throws SQLException
     {
-        execute(new Operation () {
+        execute(new Operation() {
             public Object invoke () throws SQLException
             {
                 CategoryMapping map =

@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.1 2001/06/05 16:42:38 mdb Exp $
+// $Id: Chooser.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
 
 package robodj.chooser;
 
@@ -12,6 +12,7 @@ import java.util.Properties;
 import com.samskivert.util.PropertiesUtil;
 
 import robodj.Log;
+import robodj.repository.Model;
 import robodj.repository.Repository;
 import robodj.util.ServerControl;
 
@@ -24,6 +25,8 @@ public class Chooser
     public static Properties config;
 
     public static Repository repository;
+
+    public static Model model;
 
     public static ServerControl scontrol;
 
@@ -43,6 +46,8 @@ public class Chooser
             Properties dbprops =
                 PropertiesUtil.getSubProperties(config, "repository.db");
             repository = new Repository(dbprops);
+            model = new Model(repository);
+
         } catch (SQLException sqe) {
             Log.warning("Unable to establish communication with music " +
                         "database: " + sqe);

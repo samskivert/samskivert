@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.1 2001/06/05 16:42:38 mdb Exp $
+// $Id: ChooserFrame.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
 
 package robodj.chooser;
 
@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import com.samskivert.swing.*;
+import robodj.repository.*;
 
 public class ChooserFrame
     extends JFrame
@@ -29,8 +30,21 @@ public class ChooserFrame
 
         // the top of the UI is the playlist manager section
         JTabbedPane tpane = new JTabbedPane();
-        Component elist = new EntryList();
-        tpane.addTab("Browse", null, elist, "Browse music database.");
+        EntryList elist;
+        Category[] cats = Chooser.model.getCategories();
+
+        // create a tab for each category
+        for (int i = 0; i < cats.length; i++) {
+            elist = new EntryList(cats[i].categoryid);
+            String tip = "Browse entries in '" + cats[i].name + "' category.";
+            tpane.addTab(cats[i].name, null, elist, tip);
+        }
+
+        // and add one for uncategorized entries
+        elist = new EntryList(-1);
+        tpane.addTab("Uncategorized", null, elist,
+                     "Browse uncategorized entries.");
+
         tpane.setSelectedIndex(0);
         top.add(tpane);
 

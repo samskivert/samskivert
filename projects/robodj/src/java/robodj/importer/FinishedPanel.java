@@ -1,5 +1,5 @@
 //
-// $Id: FinishedPanel.java,v 1.1 2001/03/21 00:41:03 mdb Exp $
+// $Id: FinishedPanel.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
 
 package robodj.importer;
 
@@ -54,6 +54,7 @@ public class FinishedPanel
 
     public void wasAddedToFrame (ImporterFrame frame)
     {
+	frame.addControlButton("Another", "import", this);
 	frame.addControlButton("Exit", "exit", this);
 
 	// keep a handle on this for later

@@ -1,5 +1,5 @@
 //
-// $Id: Entry.java,v 1.1 2000/11/08 06:42:57 mdb Exp $
+// $Id: Entry.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
 
 package robodj.repository;
 
@@ -20,8 +20,8 @@ public class Entry
     public String title;
 
     /**
-     * The artist that created the music for this entry or "Various" if it
-     * is not a single-artist work.
+     * The artist that created the music for this entry or "Various
+     * Artists" if it is not a single-artist work.
      */
     public String artist;
 

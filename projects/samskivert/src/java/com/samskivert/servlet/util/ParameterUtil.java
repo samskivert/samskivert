@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.7 2003/08/19 23:09:12 ray Exp $
+// $Id: ParameterUtil.java,v 1.8 2003/08/19 23:39:25 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -176,6 +176,19 @@ public class ParameterUtil
 	    throw new DataValidationException(missingDataMessage);
 	}
 	return value;
+    }
+
+    /**
+     * Fetches the supplied parameter from the request and ensures that
+     * it is no longer than maxLength.
+     */
+    public static String requireParameter (
+        HttpServletRequest req, String name, String missingDataMessage,
+        int maxLength)
+	throws DataValidationException
+    {
+        return StringUtil.truncate(
+            requireParameter(req, name, missingDataMessage), maxLength);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.16 2002/06/26 22:06:12 ray Exp $
+// $Id: Label.java,v 1.17 2002/07/18 18:14:02 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -213,20 +213,21 @@ public class Label implements SwingConstants
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
             int lines = Math.round(_constraints.height / getHeight(layout));
-            lines = Math.max(lines, 1);
-            int targetWidth = (int)Math.round(bounds.getWidth() / lines);
+            if (lines > 1) {
+                int targetWidth = (int)Math.round(bounds.getWidth() / lines);
 
-            // attempt to lay the text out in the specified width,
-            // incrementing by 10% each time; limit our attempts to 10
-            // expansions to avoid infinite loops if something is fucked
-            for (int i = 0; i < 10; i++) {
-                LineBreakMeasurer measurer =
-                    new LineBreakMeasurer(textIterator(gfx), frc);
-                layouts = computeLines(measurer, targetWidth, _size, true);
-                if ((layouts != null) && (layouts.size() <= lines)) {
-                    break;
+                // attempt to lay the text out in the specified width,
+                // incrementing by 10% each time; limit our attempts to 10
+                // expansions to avoid infinite loops if something is fucked
+                for (int i = 0; i < 10; i++) {
+                    LineBreakMeasurer measurer =
+                        new LineBreakMeasurer(textIterator(gfx), frc);
+                    layouts = computeLines(measurer, targetWidth, _size, true);
+                    if ((layouts != null) && (layouts.size() <= lines)) {
+                        break;
+                    }
+                    targetWidth = (int)Math.round(targetWidth * 1.1);
                 }
-                targetWidth = (int)Math.round(targetWidth * 1.1);
             }
 
         } else if (_constraints.width > 0) {
@@ -234,9 +235,11 @@ public class Label implements SwingConstants
                 new LineBreakMeasurer(textIterator(gfx), frc);
             layouts = computeLines(measurer, _constraints.width, _size, false);
 
-        } else {
-            // we have no target width, simply lay the text out in one big
-            // fat line and call ourselves good
+        }
+
+        // if no constraint, or our constraining height puts us on one line
+        // then layout on one line and call it good
+        if (layouts == null) {
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)

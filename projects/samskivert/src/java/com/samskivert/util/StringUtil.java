@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.34 2002/04/16 17:47:04 mdb Exp $
+// $Id: StringUtil.java,v 1.35 2002/04/16 18:19:18 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,7 @@ import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -301,6 +302,106 @@ public class StringUtil
 	} else {
 	    buf.append(val);
 	}
+    }
+
+    /**
+     * Used to format objects in {@link #listToString(Object,Formatter)}.
+     */
+    public static class Formatter
+    {
+        /**
+         * Formats the supplied object into a string.
+         */
+        public String toString (Object object)
+        {
+            return object == null ? "null" : object.toString();
+        }
+
+        /**
+         * Returns the string that will be prepended to a formatted list.
+         */
+        public String getOpenBox ()
+        {
+            return "(";
+        }
+
+        /**
+         * Returns the string that will be appended to a formatted list.
+         */
+        public String getCloseBox ()
+        {
+            return ")";
+        }
+    }
+
+    /**
+     * Formats a collection of elements (either an array of objects, an
+     * {@link Iterator}, an {@link Enumeration} or a {@link Collection})
+     * using the supplied formatter on each element. Note that if you
+     * simply wish to format a collection of elements by calling {@link
+     * Object#toString} on each element, you can just pass the list to the
+     * {@link #toString(Object)} method which will do just that.
+     */
+    public static String listToString (Object val, Formatter formatter)
+    {
+        StringBuffer buf = new StringBuffer();
+        listToString(buf, val, formatter);
+        return buf.toString();
+    }
+
+    /**
+     * Formats the supplied collection into the supplied string buffer
+     * using the supplied formatter. See {@link
+     * #listToString(Object,Formatter)} for more details.
+     */
+    public static void listToString (
+        StringBuffer buf, Object val, Formatter formatter)
+    {
+        // get an iterator if this is a collection
+        if (val instanceof Collection) {
+            val = ((Collection)val).iterator();
+        }
+
+        String openBox = formatter.getOpenBox();
+        String closeBox = formatter.getCloseBox();
+
+	if (val instanceof Object[]) {
+	    buf.append(openBox);
+	    Object[] v = (Object[])val;
+	    for (int i = 0; i < v.length; i++) {
+		if (i > 0) {
+		    buf.append(", ");
+		}
+		buf.append(formatter.toString(v[i]));
+	    }
+	    buf.append(closeBox);
+
+	} else if (val instanceof Enumeration) {
+	    buf.append(openBox);
+            Enumeration enum = (Enumeration)val;
+	    for (int i = 0; enum.hasMoreElements(); i++) {
+		if (i > 0) {
+		    buf.append(", ");
+		}
+		buf.append(formatter.toString(enum.nextElement()));
+	    }
+	    buf.append(closeBox);
+
+	} else if (val instanceof Iterator) {
+	    buf.append(openBox);
+            Iterator iter = (Iterator)val;
+	    for (int i = 0; iter.hasNext(); i++) {
+		if (i > 0) {
+		    buf.append(", ");
+		}
+		buf.append(formatter.toString(iter.next()));
+	    }
+	    buf.append(closeBox);
+
+        } else {
+            // fall back on the general purpose 
+            toString(buf, val);
+        }
     }
 
     /**

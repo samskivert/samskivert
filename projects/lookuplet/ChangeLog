@@ -1,10 +1,15 @@
-2001-08-21  Michael Bayne  <mdb@bering>
+2002-03-17  Michael Bayne  <mdb@samskivert.com>
+
+	* various: Rewrote the whole business in Python, using Glade to
+	create the user interface. Oh, the joy of being rid of C.
+
+2001-08-21  Michael Bayne  <mdb@samskivert.com>
 
 	* src/querybox.c: Massage the selection somewhat by converting
 	newlines to spaces and if we believe that we're looking at a URL,
 	by removing spaces.
 
-2001-08-17  Michael Bayne  <mdb@bering>
+2001-08-17  Michael Bayne  <mdb@samskivert.com>
 
 	* src/lookuplet.c: Got support for running as an applet working
 	again and modified the code to autodetect whether we're being run

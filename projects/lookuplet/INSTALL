@@ -1,58 +1,29 @@
 Building lookuplet
 ------------------
 
-It is necessary to have the GNOME development libraries installed to build
-lookuplet. Only the following libraries are required:
+lookuplet is now written in Python, using the Python/Gnome and Pythong/GTK
+bindings. Thus, there is no building of lookuplet, but you will need a few
+things installed to run it:
 
-    Glib        >= 1.2.1
-    GTK         >= 1.2.1
-    Imlib       >= 1.9.2
-    gnome-libs  >= 1.2.1
-
-These are available from the GNOME CVS repository
-(http://developer.gnome.org/tools/cvs.html) but you may wish to install
-packages provided by your favorite free operating system vendor instead.
+    Python       http://www.python.org/
+    GTK+         http://www.gtk.org/
+    gnome-libs   http://www.gnome.org/
+    gnome-python http://www.gnome.org/
 
 I use Debian Woody and I believe apt-get installing the following packages
 will get you to where you need to be:
 
-     gettext
-     libgnome-dev
-     libgtk1.2-dev
-     libpanel-applet-dev
+     python-gnome
 
 I'm not sure whether there will be some missed dependencies, let me know
 if you start from scratch and find some. lookuplet doesn't depend on any
 special GNOME services, just the configuration stuff (gnome_config) and
 some compound GTK widgets (like property_box).
 
-You will need one thing from the GNOME CVS sources. In the gnome-common
-package there is a macros directory that needs to be symlinked into the
-lookuplet top-level directory. I haven't been able to check out just the
-gnome-common/macros directory, only the entire gnome-common package, but
-your mileage may vary.
-
-This is fairly straightforward, in any case. Change to some directory
-where you don't mind checking out the gnome-common directory and invoke:
-
-$ export CVSROOT=':pserver:anonymous@anoncvs.gnome.org:/cvs/gnome'
-$ cvs login
-(There's no password so just press return.)
-$ cvs -z3 checkout gnome-common
-
-Then symlink the gnome-common/macros directory into the lookuplet
-top-level directory.
-
-Once you have the necessary libraries and symlinks, you can simply invoke:
-
-$ ./configure
-$ make
-
 Everything else should work out of the box. If you invoke 'make install'
-it will attempt to install lookuplet as a GNOME applet which doesn't work
-right now, so you probably shouldn't do that. Instead just install
-src/lookuplet wherever you want (/usr/local/bin is a popular choice).
-There are no other supporting files.
+it will attempt to install lookuplet int /usr/local, which can be changed
+by setting DESTDIR in your environment or specifying its value to make on
+the command line.
 
 Please let me know if you find that I've overlooked some build
 requirements or instructions.
@@ -61,4 +32,4 @@ Thanks,
 
     Michael Bayne <mdb@samskivert.com>
 
-$Id: INSTALL,v 1.4 2002/03/16 22:17:29 mdb Exp $
+$Id: INSTALL,v 1.5 2002/03/17 10:13:57 mdb Exp $

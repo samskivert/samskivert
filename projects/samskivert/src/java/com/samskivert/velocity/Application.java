@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.3 2001/11/01 21:34:03 mdb Exp $
+// $Id: Application.java,v 1.4 2001/11/02 00:58:22 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -92,7 +92,7 @@ public class Application
      * This will be called after the application's {@link #init} method
      * has been called.
      */
-    protected SiteIdentifier createSiteIdentifer (ServletContext ctx)
+    protected SiteIdentifier createSiteIdentifier (ServletContext ctx)
     {
         return new IndiscriminateSiteIdentifier();
     }
@@ -169,7 +169,7 @@ public class Application
         }
 
         // create our site identifier
-        _siteIdent = createSiteIdentifer(ctx);
+        _siteIdent = createSiteIdentifier(ctx);
     }
 
     /**

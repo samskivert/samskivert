@@ -116,6 +116,15 @@ public class User
     }
 
     /**
+     * @return true if this User has been "deleted".
+     */
+    public boolean isDeleted ()
+    {
+        // a deleted account has an "=" in the username
+        return (-1 != username.indexOf('='));
+    }
+
+    /**
      * Called by the repository to find out which fields have been
      * modified since the object was loaded.
      */

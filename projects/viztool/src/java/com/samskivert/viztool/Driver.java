@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.15 2001/12/03 08:34:53 mdb Exp $
+// $Id: Driver.java,v 1.16 2001/12/03 08:53:31 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.viztool;
 
 import java.awt.*;
 import java.awt.print.*;
+import java.util.ArrayList;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.viztool.enum.*;
@@ -79,8 +80,26 @@ public class Driver
             System.exit(-1);
         }
 
+        ArrayList classes = new ArrayList();
+        while (fenum.hasNext()) {
+            String cname = (String)fenum.next();
+            // skip inner classes, the visualizations pick those up
+            // themselves
+            if (cname.indexOf("$") != -1) {
+                continue;
+            }
+            try {
+                classes.add(Class.forName(cname));
+            } catch (Throwable t) {
+                Log.warning("Unable to introspect class [class=" + cname +
+                            ", error=" + t + "].");
+            }
+        }
+
         // Visualizer viz = new HierarchyVisualizer(pkgroot, penum);
-        Visualizer viz = new SummaryVisualizer(pkgroot, fenum);
+        Visualizer viz = new SummaryVisualizer();
+        viz.setPackageRoot(pkgroot);
+        viz.setClasses(classes.iterator());
 
         if (print) {
             // we use the print system to render things

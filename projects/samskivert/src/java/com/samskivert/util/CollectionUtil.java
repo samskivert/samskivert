@@ -1,5 +1,5 @@
 //
-// $Id: CollectionUtil.java,v 1.3 2001/09/27 23:13:24 mdb Exp $
+// $Id: CollectionUtil.java,v 1.4 2002/03/15 18:05:36 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,9 @@
 
 package com.samskivert.util;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
 
 /**
  * A collection of collection-related utility functions.
@@ -45,6 +47,17 @@ public class CollectionUtil
     {
         while (iter.hasNext()) {
             col.add(iter.next());
+        }
+    }
+
+    /**
+     * Adds all items in the given object array to the supplied
+     * collection.
+     */
+    public static void addAll (Collection col, Object[] values)
+    {
+        for (int ii = 0; ii < values.length; ii++) {
+            col.add(values[ii]);
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.14 2002/05/31 17:08:40 mdb Exp $
+// $Id: Config.java,v 1.15 2002/10/14 00:23:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -347,12 +347,25 @@ public class Config
     }
 
     /**
-     * Returns a properties file containing all configuration values that
-     * start with the supplied prefix (plus a trailing "." which will be
-     * added if it doesn't already exist). The keys in the sub-properties
-     * file will have had the prefix stripped off.
+     * Returns a properties object containing all configuration values
+     * that start with the supplied prefix (plus a trailing "." which will
+     * be added if it doesn't already exist). The keys in the
+     * sub-properties will have had the prefix stripped off.
      */
     public Properties getSubProperties (String prefix)
+    {
+        Properties props = new Properties();
+        getSubProperties(prefix, props);
+        return props;
+    }
+
+    /**
+     * Fills into the supplied properties object all configuration values
+     * that start with the supplied prefix (plus a trailing "." which will
+     * be added if it doesn't already exist). The keys in the
+     * sub-properties will have had the prefix stripped off.
+     */
+    public void getSubProperties (String prefix, Properties target)
     {
         // slap a trailing dot on if necessary
         if (!prefix.endsWith(".")) {
@@ -360,7 +373,6 @@ public class Config
         }
 
         // build the sub-properties
-        Properties props = new Properties();
         Iterator iter = keys();
         while (iter.hasNext()) {
             String key = (String)iter.next();
@@ -371,10 +383,8 @@ public class Config
             if (value == null) {
                 continue;
             }
-            props.put(key.substring(prefix.length()), value);
+            target.put(key.substring(prefix.length()), value);
         }
-
-        return props;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: MySQLRepository.java,v 1.4 2001/05/26 03:22:24 mdb Exp $
+// $Id: MySQLRepository.java,v 1.5 2001/05/30 03:18:32 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -68,6 +68,8 @@ public abstract class MySQLRepository extends Repository
     protected boolean isTransientException (SQLException sqe)
     {
 	String msg = sqe.getMessage();
-	return (msg != null && msg.indexOf("Lost connection") != -1);
+	return (msg != null &&
+                (msg.indexOf("Lost connection") != -1 ||
+                 msg.indexOf("Communication link failure") != -1));
     }
 }

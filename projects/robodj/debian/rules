@@ -28,7 +28,7 @@ install: build
 	dh_installdirs
 
 	# Install binaries, jars and configuration files
-	install -m755 bin/rdjbrowse debian/robodj/usr/bin
+	install -m755 bin/rdj* debian/robodj/usr/bin
 	install -m644 dist/robodj.jar debian/robodj/usr/share/robodj/lib/
 	install -m644 lib/*.jar debian/robodj/usr/share/robodj/lib/
 

@@ -1,9 +1,7 @@
 //
-// $Id: TileUtil.java,v 1.14 2001/11/07 10:39:00 mdb Exp $
+// $Id: TileUtil.java,v 1.15 2001/11/08 08:00:22 mdb Exp $
 
 package com.threerings.venison;
-
-import java.awt.Polygon;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.14 2001/11/07 18:03:33 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.15 2001/11/08 08:00:22 mdb Exp $
 
 package com.threerings.venison;
 
@@ -144,7 +144,7 @@ public class VenisonBoard
             // the necessary claim group adjustments can be made)
             tile.setPiecen(piecen, _tiles);
             // and repaint
-            repaint();
+            repaintTile(tile);
 
         } else {
             Log.warning("Requested to place piecen for which we could " +
@@ -166,7 +166,7 @@ public class VenisonBoard
                 // clear the piecen out of the tile
                 tile.clearPiecen();
                 // and repaint
-                repaint();
+                repaintTile(tile);
                 // and get on out
                 return;
             }
@@ -223,9 +223,6 @@ public class VenisonBoard
         if (_placingTile != null) {
             updatePlacingInfo(true);
         }
-
-        // and repaint
-        repaint();
     }
 
     /**
@@ -246,10 +243,21 @@ public class VenisonBoard
         _ty = (getHeight() - TILE_HEIGHT * _height)/2;
     }
 
+    /**
+     * Causes the supplied tile to be repainted.
+     */
+    public void repaintTile (VenisonTile tile)
+    {
+        int offx = _tx + (tile.x + _origX) * TILE_WIDTH;
+        int offy = _ty + (tile.y + _origY) * TILE_HEIGHT;
+        repaint(offx, offy, TILE_WIDTH, TILE_HEIGHT);
+    }
+
     // documentation inherited
     public void paintComponent (Graphics g)
     {
         super.paintComponent(g);
+
         Graphics2D g2 = (Graphics2D)g;
 
         // center the tile display if we are bigger than we need to be
@@ -271,7 +279,7 @@ public class VenisonBoard
             g.setColor(Color.blue);
             int sx = (_placingTile.x + _origX) * TILE_WIDTH;
             int sy = (_placingTile.y + _origY) * TILE_HEIGHT;
-            g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
+            g.drawRect(sx, sy, TILE_WIDTH-1, TILE_HEIGHT-1);
         }
 
         // if we have a recently placed tile, draw that one as well
@@ -283,7 +291,7 @@ public class VenisonBoard
             g.setColor(Color.white);
             int sx = (_placedTile.x + _origX) * TILE_WIDTH;
             int sy = (_placedTile.y + _origY) * TILE_HEIGHT;
-            g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
+            g.drawRect(sx, sy, TILE_WIDTH-1, TILE_HEIGHT-1);
         }
 
         // draw a white rectangle around the last placed
@@ -291,7 +299,7 @@ public class VenisonBoard
             g.setColor(Color.white);
             int sx = (_lastPlacedTile.x + _origX) * TILE_WIDTH;
             int sy = (_lastPlacedTile.y + _origY) * TILE_HEIGHT;
-            g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
+            g.drawRect(sx, sy, TILE_WIDTH-1, TILE_HEIGHT-1);
         }
 
         // undo our translations
@@ -306,10 +314,9 @@ public class VenisonBoard
         _mouseY = evt.getY() - _ty;
 
         if (_placingTile != null) {
-            // if we have a tile to be placed, update its coordinates
-            if (updatePlacingInfo(false)) {
-                repaint();
-            }
+            // if we have a tile to be placed, update its coordinates (it
+            // will automatically be repainted)
+            updatePlacingInfo(false);
 
         } else if (_placedTile != null && _placingPiecen) {
             // if we have a recently placed tile, we're doing piecen
@@ -349,7 +356,7 @@ public class VenisonBoard
             }
 
             if (changed) {
-                repaint();
+                repaintTile(_placedTile);
             }
         }
     }
@@ -367,7 +374,7 @@ public class VenisonBoard
             // clear out any placed piecen because we're placing nothing
             if (_placedTile != null && _placedTile.piecen != null) {
                 _placedTile.piecen = null;
-                repaint();
+                repaintTile(_placedTile);
             }
             // post the action
             Controller.postAction(this, PLACE_NOTHING);
@@ -416,12 +423,12 @@ public class VenisonBoard
 
     /**
      * Updates the coordinates and orientation of the placing tile based
-     * on the last known coordinates of the mouse and returns true if the
-     * coordinates or orientation changed from their previous values.
+     * on the last known coordinates of the mouse and causes it to be
+     * repainted.
      */
-    protected boolean updatePlacingInfo (boolean force)
+    protected void updatePlacingInfo (boolean force)
     {
-        boolean changed = false;
+        boolean updated = false;
 
         // convert mouse coordinates into tile coordinates and offset them
         // by the origin
@@ -431,12 +438,18 @@ public class VenisonBoard
         // if these are different than the values currently in the placing
         // tile, update the tile coordinates
         if (_placingTile.x != x || _placingTile.y != y || force) {
+            // if we have a valid orientation presently, and we're moving,
+            // we need to clear out the old orientation
+            if (_validPlacement) {
+                repaintTile(_placingTile);
+            }
+
             // update the coordinates of the tile
             _placingTile.x = x;
             _placingTile.y = y;
 
-            // we've changed the display, so make a note of it
-            changed = true;
+            // make a note that we moved
+            updated = true;
 
             // we also need to recompute the valid orientations for the
             // tile in this new position
@@ -460,14 +473,19 @@ public class VenisonBoard
             if (_validOrients[candOrient]) {
                 if (_placingTile.orientation != candOrient) {
                     _placingTile.orientation = candOrient;
-                    changed = true;
+                    // make a note that we moved
+                    updated = true;
                 }
                 _validPlacement = true;
                 break;
             }
         }
 
-        return changed;
+        // if we now have a valid orientation and something was changed,
+        // we want to repaint at the new tile location
+        if (_validPlacement && updated) {
+            repaintTile(_placingTile);
+        }
     }
 
     /**

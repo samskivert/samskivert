@@ -1,11 +1,13 @@
 //
-// $Id: AtlantiTile.java,v 1.10 2001/10/18 20:56:45 mdb Exp $
+// $Id: AtlantiTile.java,v 1.11 2001/11/08 08:00:22 mdb Exp $
 
 package com.threerings.venison;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.geom.AffineTransform;
 
 import java.io.IOException;
 import java.io.DataInputStream;
@@ -14,6 +16,11 @@ import java.io.DataOutputStream;
 import java.util.List;
 import com.samskivert.util.IntTuple;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.media.ImageManager;
+import com.threerings.media.tile.NoSuchTileException;
+import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.UniformTileSet;
 
 import com.threerings.presents.dobj.DSet;
 
@@ -258,6 +265,11 @@ public class VenisonTile
     {
         int tidx = type-1;
 
+        // obtain our tile image
+        if (_tileImage == null) {
+            _tileImage = getTileImage(type);
+        }
+
         // compute our screen coordinates
         int sx = (x + xoff) * TILE_WIDTH;
         int sy = (y + yoff) * TILE_HEIGHT;
@@ -265,10 +277,23 @@ public class VenisonTile
         // translate to our screen coordinates
         g.translate(sx, sy);
 
+        // render our tile image
+        if (_tileImage != null) {
+            if (orientation > 0) {
+                g.drawImage(_tileImage, _xforms[orientation], null);
+            } else {
+                g.drawImage(_tileImage, 0, 0, null);
+            }
+
+        } else {
+            Log.warning("No tile image!? [type=" + type +
+                        ", img=" + _tileImage + "].");
+        }
+
         // render our features and piecen
         for (int i = 0; i < features.length; i++) {
             // paint the feature
-            features[i].paint(g, orientation, claims[i]);
+//              features[i].paint(g, orientation, claims[i]);
 
             // if we have a piecen on this tile, render it as well
             if (piecen != null && piecen.featureIndex == i) {
@@ -277,9 +302,9 @@ public class VenisonTile
             }
         }
 
-        // draw a rectangular outline
-        g.setColor(Color.black);
-        g.drawRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
+//          // draw a rectangular outline
+//          g.setColor(Color.black);
+//          g.drawRect(0, 0, TILE_WIDTH-1, TILE_HEIGHT-1);
 
         // if we have a shield, draw a square in the lower right
         if (hasShield) {
@@ -392,5 +417,71 @@ public class VenisonTile
             ", pos=" + x + "/" + y +
             ", claims=" + StringUtil.toString(claims) +
             ", piecen=" + piecen + "]";
+    }
+
+    /**
+     * Someone needs to configure this so that we can display tiles on
+     * screen.
+     */
+    public static void setImageManager (ImageManager imgr)
+    {
+        _imgr = imgr;
+    }
+
+    /**
+     * Fetches the image for the tile of the specified type.
+     */
+    protected static Image getTileImage (int type)
+    {
+        // load up the tile set if we haven't already
+        if (_tset == null) {
+            _tset = new UniformTileSet(
+                _imgr, TILES_IMG_PATH, TILE_TYPES, TILE_WIDTH, TILE_HEIGHT);
+        }
+
+        // fetch the tile
+        try {
+            Tile tile = _tset.getTile(type-1);
+            if (tile != null) {
+                return tile.img;
+            }
+
+        } catch (NoSuchTileException nste) {
+            // fall through
+        }
+
+        Log.warning("Unable to load tile image [type=" + type + "].");
+        return null;
+    }
+
+    /** The tile image that we use to render this tile. */
+    protected Image _tileImage;
+
+    /** Our image manager. */
+    protected static ImageManager _imgr;
+
+    /** Our tileset. */
+    protected static UniformTileSet _tset;
+
+    /** The path to our tileset image. */
+    protected static final String TILES_IMG_PATH = "media/tiles.png";
+
+    /** Three affine transforms for rendering an image in three rotated
+     * orientations. */
+    protected static AffineTransform[] _xforms;
+
+    static {
+        // the first element will be left blank
+        _xforms = new AffineTransform[4];
+
+        // create our three orientation transforms
+        AffineTransform xform = new AffineTransform();
+        for (int orient = 1; orient < 4; orient++) {
+            // rotate the xform into the next orientation
+            xform.translate(TILE_WIDTH, 0);
+            xform.rotate(Math.PI/2);
+            // and save it
+            _xforms[orient] = (AffineTransform)xform.clone();
+        }
     }
 }

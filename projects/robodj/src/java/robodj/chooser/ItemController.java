@@ -32,23 +32,20 @@ public abstract class ItemController extends Controller
     public boolean handleAction (ActionEvent e)
     {
 	String cmd = e.getActionCommand();
-	if (cmd.equals(SongItem.ADD_VOTE)) {
+	if (cmd.equals(SongItem.TOGGLE_VOTE)) {
             JButton button = (JButton)e.getSource();
             SongItem item =  (SongItem)button.getParent();
             _song = item.getSong();
-            if (_song.addVote(Chooser.frame.getUser(true))) {
-                item.update();
-                TaskMaster.invokeMethodTask("updateSong", this, this);
-            }
 
-        } else if (cmd.equals(SongItem.CLEAR_VOTE)) {
-            JButton button = (JButton)e.getSource();
-            SongItem item =  (SongItem)button.getParent();
-            _song = item.getSong();
-            if (_song.clearVote(Chooser.frame.getUser(true))) {
-                item.update();
-                TaskMaster.invokeMethodTask("updateSong", this, this);
+            String who = Chooser.frame.getUser(true);
+            switch (_song.hasVoted(who)) {
+            case -1: _song.addVote(who, true); break;
+            case 1: _song.clearVote(who); break;
+            default:
+            case 0: _song.addVote(who, false); break;
             }
+            item.update();
+            TaskMaster.invokeMethodTask("updateSong", this, this);
 
 	} else {
 	    Log.warning("Unknown action event: " + cmd);

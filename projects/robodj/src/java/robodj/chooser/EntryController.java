@@ -169,6 +169,9 @@ public abstract class EntryController extends ItemController
             plist = new PlaylistEntry[0];
         }
         for (int i = 0; i < songs.length; i++) {
+            if (songs[i].isHated()) {
+                continue;
+            }
             PlaylistEntry entry = new PlaylistEntry(
                 songs[i].entryid, songs[i].songid, songs[i].title);
             plist = (PlaylistEntry[])ArrayUtil.append(plist, entry);

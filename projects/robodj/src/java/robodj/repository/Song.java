@@ -49,25 +49,36 @@ public class Song
      * Adds a voter to the votes string for this entry, not including a
      * voter that already exists in the voter set.
      *
+     * @param yea true if this is a positive vote, false if it is a
+     * negative vote.
+     *
      * @return true if the voter set was changed as a result of this
      * addition, false if not.
      */
-    public boolean addVote (String voter)
+    public boolean addVote (String voter, boolean yea)
     {
-        // handle our first vote separately
-        if (StringUtil.blank(votes)) {
-            votes = voter;
-            _votes = null; // clear our cached votes
-            return true;
+        if (voter.indexOf("-") != -1) {
+            throw new IllegalArgumentException("Voter must not contain '-'.");
         }
 
         // make sure this voter has not already cast their ballot
-        if (hasVoted(voter)) {
-            return false;
+        clearVote(voter);
+
+        // mark the vote as nay if appropriate
+        if (!yea) {
+            voter = "-" + voter;
+        }
+
+        // clear our cached votes
+        _votes = null;
+
+        // handle our first vote separately
+        if (StringUtil.blank(votes)) {
+            votes = voter;
+            return true;
         }
 
         votes = (votes + "," + voter);
-        _votes = null; // clear our cached votes
         return true;
     }
 
@@ -79,11 +90,13 @@ public class Song
      */
     public boolean clearVote (String voter)
     {
+        String nvoter = "-" + voter;
         String[] votes = getVotes();
         StringBuffer nvotes = new StringBuffer();
         boolean saw = false;
         for (int ii = 0; ii < votes.length; ii++) {
-            if (votes[ii].equalsIgnoreCase(voter)) {
+            if (votes[ii].equalsIgnoreCase(voter) ||
+                votes[ii].equalsIgnoreCase(nvoter)) {
                 saw = true;
             } else {
                 if (nvotes.length() > 0) {
@@ -116,17 +129,49 @@ public class Song
     }
 
     /**
-     * Returns true if the specified user has voted.
+     * Returns true if this song has at least one positive vote.
      */
-    public boolean hasVoted (String voter)
+    public boolean isLoved ()
     {
         String[] votes = getVotes();
         for (int ii = 0; ii < votes.length; ii++) {
-            if (votes[ii].equalsIgnoreCase(voter)) {
+            if (!votes[ii].startsWith("-")) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Returns true if this song has at least one negative vote.
+     */
+    public boolean isHated ()
+    {
+        String[] votes = getVotes();
+        for (int ii = 0; ii < votes.length; ii++) {
+            if (votes[ii].startsWith("-")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns +1, -1, or 0 to indicate whether the specified user has
+     * voted positively, negatively or not at all.
+     */
+    public int hasVoted (String voter)
+    {
+        String nvoter = "-" + voter;
+        String[] votes = getVotes();
+        for (int ii = 0; ii < votes.length; ii++) {
+            if (votes[ii].equals(voter)) {
+                return 1;
+            } else if (votes[ii].equals(nvoter)) {
+                return -1;
+            }
+        }
+        return 0;
     }
 
     /**

@@ -33,8 +33,7 @@ public class SongItem extends Item
     public static final String PLAY = "song:play";
 
     // ubiquitous actions
-    public static final String ADD_VOTE = "song:add_vote";
-    public static final String CLEAR_VOTE = "song:clear_vote";
+    public static final String TOGGLE_VOTE = "song:toggle_vote";
 
     /** Used depending on where this song is being displayed. */
     public Object extra;
@@ -85,7 +84,7 @@ public class SongItem extends Item
 
         // add a vote button
         _voteButton = ButtonUtil.createControlButton(
-            ADD_VOTE_TIP, ADD_VOTE, _addVoteIcon, true);
+            TOGGLE_VOTE_TIP, TOGGLE_VOTE, _noVoteIcon, true);
         _voteButton.putClientProperty(SONG_PROP, song);
         add(_voteButton, HGroupLayout.FIXED);
 
@@ -106,22 +105,22 @@ public class SongItem extends Item
     {
         if (!StringUtil.blank(_song.votes)) {
             _trackLabel.setFont(_hasVotesFont);
-            _trackLabel.setToolTipText("<html>" + _song.title +
-                                       "<br>Votes: " + _song.votes);
+            _trackLabel.setToolTipText(
+                "<html><table><tr><td>" + _song.title + "</td></tr>" +
+                "<tr><td>Votes: " + _song.votes + "</td></tr>" +
+                "</table></html>");
         } else {
             _trackLabel.setFont(_nameFont);
             _trackLabel.setToolTipText(_song.title);
         }
 
-        if (_song.hasVoted(Chooser.frame.getUser(false))) {
-            _voteButton.setIcon(_clearVoteIcon);
-            _voteButton.setActionCommand(CLEAR_VOTE);
-            _voteButton.setToolTipText(CLEAR_VOTE_TIP);
-        } else {
-            _voteButton.setIcon(_addVoteIcon);
-            _voteButton.setActionCommand(ADD_VOTE);
-            _voteButton.setToolTipText(ADD_VOTE_TIP);
+        switch (_song.hasVoted(Chooser.frame.getUser(false))) {
+        case -1: _voteButton.setIcon(_nayVoteIcon); break;
+        case 1: _voteButton.setIcon(_yeaVoteIcon); break;
+        default:
+        case 0: _voteButton.setIcon(_noVoteIcon); break;
         }
+
         repaint();
     }
 
@@ -149,18 +148,18 @@ public class SongItem extends Item
     protected static final String PLAY_SONG_TIP =
         "Append this song to the playlist";
 
-    protected static final String ADD_VOTE_TIP =
-        "Add your vote for this song";
-    protected static final String CLEAR_VOTE_TIP =
-        "Remove your vote for this song";
+    protected static final String TOGGLE_VOTE_TIP =
+        "Toggle your vote for this song";
 
     protected static ImageIcon _skipToIcon =
         ButtonUtil.getIcon(ICON_ROOT + "skip.png");
     protected static ImageIcon _removeIcon =
         ButtonUtil.getIcon(ICON_ROOT + "remove_song.png");
 
-    protected static ImageIcon _addVoteIcon =
-        ButtonUtil.getIcon(ICON_ROOT + "add_vote.png");
-    protected static ImageIcon _clearVoteIcon =
-        ButtonUtil.getIcon(ICON_ROOT + "clear_vote.png");
+    protected static ImageIcon _yeaVoteIcon =
+        ButtonUtil.getIcon(ICON_ROOT + "yea_vote.png");
+    protected static ImageIcon _nayVoteIcon =
+        ButtonUtil.getIcon(ICON_ROOT + "nay_vote.png");
+    protected static ImageIcon _noVoteIcon =
+        ButtonUtil.getIcon(ICON_ROOT + "no_vote.png");
 }

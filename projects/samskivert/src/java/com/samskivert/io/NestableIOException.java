@@ -1,5 +1,5 @@
 //
-// $Id: NestableIOException.java,v 1.1 2001/11/08 01:17:41 mdb Exp $
+// $Id: NestableIOException.java,v 1.2 2002/04/01 01:57:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,13 +24,13 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.IOException;
 
-import org.apache.commons.util.exception.Nestable;
-import org.apache.commons.util.exception.NestableDelegate;
+import org.apache.commons.lang.exception.Nestable;
+import org.apache.commons.lang.exception.NestableDelegate;
 
 /**
  * A base class for IO exceptions that can contain other exceptions.
  *
- * @see org.apache.commons.util.exception.NestableException
+ * @see org.apache.commons.lang.exception.NestableException
  */
 public class NestableIOException
     extends IOException

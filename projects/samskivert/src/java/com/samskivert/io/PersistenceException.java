@@ -1,5 +1,5 @@
 //
-// $Id: PersistenceException.java,v 1.2 2001/09/21 03:01:46 mdb Exp $
+// $Id: PersistenceException.java,v 1.3 2002/04/01 01:57:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,7 @@
 
 package com.samskivert.io;
 
-import org.apache.commons.util.exception.NestableException;
+import org.apache.commons.lang.exception.NestableException;
 
 /**
  * A persistence exception can be thrown when an error occurs in

@@ -1,5 +1,5 @@
 //
-// $Id: ServiceUnavailableException.java,v 1.1 2001/11/01 01:15:18 mdb Exp $
+// $Id: ServiceUnavailableException.java,v 1.2 2002/04/01 01:57:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,7 @@
 
 package com.samskivert.util;
 
-import org.apache.commons.util.exception.NestableRuntimeException;
+import org.apache.commons.lang.exception.NestableRuntimeException;
 
 /**
  * The service unavailable exception can be thrown by any service that

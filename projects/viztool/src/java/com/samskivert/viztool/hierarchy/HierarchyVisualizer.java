@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.13 2001/08/14 00:05:03 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.14 2001/11/30 22:41:04 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -43,7 +43,7 @@ public class HierarchyVisualizer implements Printable
      * be supplied that returns only the classes to be visualized.
      *
      * @param pkgroot The name of the package that is being visualized.
-     * @param enum The enumerator that will return the names of all of the
+     * @param iter The enumerator that will return the names of all of the
      * classes in the specified package.
      */
     public HierarchyVisualizer (String pkgroot, Iterator iter)

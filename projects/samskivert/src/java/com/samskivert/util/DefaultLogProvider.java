@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.15 2002/10/08 02:17:57 shaper Exp $
+// $Id: DefaultLogProvider.java,v 1.16 2002/10/16 19:10:13 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,8 +22,7 @@ package com.samskivert.util;
 
 import java.awt.Dimension;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.PrintStream;
 
 import java.text.SimpleDateFormat;
 
@@ -31,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+
+import com.samskivert.io.ExtensiblePrintStream;
 
 /**
  * If no log provider is registered with the log services, the default
@@ -42,6 +43,9 @@ import java.util.List;
  */
 public class DefaultLogProvider implements LogProvider
 {
+    /**
+     * Constructs a default log provider.
+     */
     public DefaultLogProvider ()
     {
         // obtain our terminal size, if possible
@@ -69,9 +73,23 @@ public class DefaultLogProvider implements LogProvider
     public synchronized void setCacheMessages (boolean cache)
     {
         if (cache && _recent == null) {
+            // create the list of recent messages
             _recent = new ArrayList();
+
+            // swap in our own custom output streams for stdout and stderr
+            // in order to cache all future output
+            _oout = System.out;
+            _oerr = System.err;
+            System.setOut(new CachingPrintStream(_oout));
+            System.setErr(new CachingPrintStream(_oerr));
+
         } else if (!cache && _recent != null) {
+            // clear out the recent message list
             _recent = null;
+
+            // restore the original output streams
+            System.setOut(_oout);
+            System.setErr(_oerr);
         }
     }
 
@@ -90,11 +108,7 @@ public class DefaultLogProvider implements LogProvider
 	Integer tlevel = (Integer)_levels.get(moduleName);
 	if ((tlevel != null && level >= tlevel.intValue()) ||
 	    (level >= _level)) {
-            String entry = formatEntry(moduleName, level, message);
-            if (_recent != null) {
-                _recent.add(entry);
-            }
-	    System.err.println(entry);
+	    System.err.println(formatEntry(moduleName, level, message));
 	}
     }
 
@@ -104,17 +118,7 @@ public class DefaultLogProvider implements LogProvider
 	Integer tlevel = (Integer)_levels.get(moduleName);
 	if ((tlevel != null && level >= tlevel.intValue()) ||
 	    (level >= _level)) {
-            String entry = formatEntry(moduleName, level, t.getMessage());
-            if (_recent != null) {
-                _recent.add(entry);
-            }
-	    System.err.println(entry);
-
-            if (_recent != null) {
-                StringWriter sw = new StringWriter();
-                t.printStackTrace(new PrintWriter(sw));
-                _recent.add(sw.toString());
-            }
+	    System.err.println(formatEntry(moduleName, level, t.getMessage()));
 	    t.printStackTrace(System.err);
 	}
     }
@@ -212,6 +216,40 @@ public class DefaultLogProvider implements LogProvider
         }
     }
 
+    /**
+     * A print stream that caches all printed text in the {@link #_recent}
+     * list.
+     */
+    protected class CachingPrintStream extends ExtensiblePrintStream
+    {
+        /**
+         * Constructs a caching print stream that caches all output
+         * written to the supplied stream.
+         */
+        public CachingPrintStream (PrintStream s)
+        {
+            super(s, true);
+        }
+
+        // documentation inherited
+        public void handlePrinted (String s)
+        {
+            _buf.append(s);
+        }
+
+        // documentation inherited
+        public void handleNewLine ()
+        {
+            // save off the text
+            _recent.add(_buf.toString());
+            // clear out the line buffer
+            _buf = new StringBuffer();
+        }
+
+        /** The working string that gathers each log message line. */
+        protected StringBuffer _buf = new StringBuffer();
+    }
+
     /** Whether or not to use the vt100 escape codes. */
     protected boolean _useVT100 = false;
 
@@ -229,6 +267,10 @@ public class DefaultLogProvider implements LogProvider
      * external entities that would like access to them if we're actually
      * caching messages. */
     protected ArrayList _recent;
+
+    /** The original output streams that we save off if we're caching
+     * recent log messages. */
+    protected PrintStream _oout, _oerr;
 
     /** Contains the dimensions of the terminal window in which we're
      * running, if it was possible to obtain them. Otherwise, it contains

@@ -1,5 +1,5 @@
 //
-// $Id: RetryableTask.java,v 1.1 2001/03/19 23:03:56 mdb Exp $
+// $Id: RetryableTask.java,v 1.2 2001/03/20 04:33:11 mdb Exp $
 
 package com.samskivert.swing.util;
 
@@ -35,6 +35,7 @@ public abstract class RetryableTask
         while (true) {
             try {
                 invoke();
+                return;
 
             } catch (Exception e) {
                 Object[] options = new Object[] {

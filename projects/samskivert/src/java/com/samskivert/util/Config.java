@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.23 2004/01/24 06:14:53 mdb Exp $
+// $Id: Config.java,v 1.24 2004/01/25 13:37:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -176,7 +176,12 @@ public class Config
         String val = _props.getProperty(name);
         if (val != null) {
             try {
-                defval = Integer.parseInt(val);
+                // handle hex values
+                if (val.startsWith("0x") || val.startsWith("0X")) {
+                    defval = Integer.parseInt(val.substring(2), 16);
+                } else {
+                    defval = Integer.parseInt(val);
+                }
             } catch (NumberFormatException nfe) {
                 Log.warning("Malformed integer property [name=" + name +
                             ", value=" + val + "].");

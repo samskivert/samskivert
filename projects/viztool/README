@@ -22,13 +22,13 @@ Thus, viztool aims to provide an extensible framework for generating
 visualizations of collections of classes. This initial release generates
 inheritance diagrams organized by package, with information on interfaces
 implemented and (non-anonymous) inner classes as well. It is somewhat
-modular, although not as thorougly as I'd like because, like all projects,
-it was completed in haste and with an eagerness to see the final product
-that isn't entirely conducive to elaborate design. There are also various
-enhancements I'd like to make to the inheritance visualization.
+modular, although not as thoroughly as I'd like because, like all
+projects, it was completed in haste and with an eagerness to see the final
+product that isn't entirely conducive to elaborate design. There are also
+various enhancements I'd like to make to the inheritance visualization.
 
 Excuses aside, the foundation is laid and adding other visualizations
-should be a reasonably straightforward proces after having had a look at
+should be a reasonably straightforward process after having had a look at
 the existing code. So if you've got some handy visualization in mind, take
 a crack at it, or at least email me with the idea so that I can put it on
 a list and someone else might do it for you.
@@ -113,4 +113,4 @@ Contact Information
 The person primarily responsible for viztool is Michael Bayne and can be
 contacted at <mdb@samskivert.com>.
 
-$Id: README,v 1.1 2001/08/12 03:10:58 mdb Exp $
+$Id: README,v 1.2 2001/08/12 04:21:18 mdb Exp $

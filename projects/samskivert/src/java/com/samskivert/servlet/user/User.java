@@ -1,5 +1,5 @@
 //
-// $Id: User.java,v 1.1 2001/03/02 01:21:06 mdb Exp $
+// $Id: User.java,v 1.2 2001/03/02 02:08:50 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -53,7 +53,7 @@ public class User
      */
     public void setPassword (String password)
     {
-	this.password = UserRepository.encryptPassword(username, password);
+	this.password = UserUtil.encryptPassword(username, password);
     }
 
     /**
@@ -62,5 +62,17 @@ public class User
     public void setEmail (String email)
     {
 	this.email = email;
+    }
+
+    /**
+     * Compares the supplied password with the password associated with
+     * this user record.
+     *
+     * @return true if the passwords match, false if they do not.
+     */
+    public boolean passwordsMatch (String password)
+    {
+	String epasswd = UserUtil.encryptPassword(username, password);
+	return this.password.equals(epasswd);
     }
 }

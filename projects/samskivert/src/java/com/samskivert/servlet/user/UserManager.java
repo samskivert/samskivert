@@ -1,20 +1,16 @@
 //
-// $Id: UserManager.java,v 1.1 2001/03/02 01:21:06 mdb Exp $
+// $Id: UserManager.java,v 1.2 2001/03/02 02:08:50 mdb Exp $
 
 package com.samskivert.servlet.user;
 
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.Properties;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpUtils;
+import javax.servlet.http.*;
 
 import com.samskivert.Log;
 import com.samskivert.servlet.RedirectException;
-import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
-import com.samskivert.util.StringUtil;
+import com.samskivert.util.*;
 
 /**
  * The user manager provides easy access to user objects for servlets. It
@@ -99,9 +95,9 @@ public class UserManager
     public User loadUser (HttpServletRequest req)
 	throws SQLException
     {
-	String authcode = getUserAuthCookie(req);
+	String authcode = getAuthCode(req);
 	if (authcode != null) {
-	    return _repository.getUserBySession(authcode);
+	    return _repository.loadUserBySession(authcode);
 	} else {
 	    return null;
 	}
@@ -136,7 +132,55 @@ public class UserManager
 	return user;
     }
 
-    protected static String getUserAuthCookie (HttpServletRequest req)
+    /**
+     * Attempts to authenticate the requester and initiate an
+     * authenticated session for them. An authenticated session involves
+     * their receiving a cookie that provides them to be authenticated and
+     * an entry in the session database being created that maps their
+     * information to their userid. If this call completes, the session
+     * was established and the proper cookies were set in the supplied
+     * response object. If invalid authentication information is provided
+     * or some other error occurs, an exception will be thrown.
+     */
+    public void login (String username, String password,
+		       HttpServletResponse rsp)
+	throws SQLException, NoSuchUserException, InvalidPasswordException
+    {
+	// load up the requested user
+	User user = _repository.loadUser(username);
+	if (user == null) {
+	    throw new NoSuchUserException("error.no_such_user");
+	}
+	if (!user.passwordsMatch(password)) {
+	    throw new InvalidPasswordException("error.invalid_password");
+	}
+
+	// generate a new session for this user
+	String authcode = _repository.createNewSession(user);
+	// stick it into a cookie for their browsing convenience
+	Cookie acookie = new Cookie(USERAUTH_COOKIE, authcode);
+	acookie.setPath("/");
+	acookie.setMaxAge(24*60*60); // expire in two days
+	rsp.addCookie(acookie);
+    }
+
+    public void logout (HttpServletRequest req, HttpServletResponse rsp)
+    {
+	String authcode = getAuthCode(req);
+
+	// nothing to do if they don't already have an auth cookie
+	if (authcode == null) {
+	    return;
+	}
+
+	// set them up the bomb
+	Cookie rmcookie = new Cookie(USERAUTH_COOKIE, authcode);
+	rmcookie.setPath("/");
+	rmcookie.setMaxAge(0);
+	rsp.addCookie(rmcookie);
+    }
+
+    protected static String getAuthCode (HttpServletRequest req)
     {
 	Cookie[] cookies = req.getCookies();
 	if (cookies == null) {

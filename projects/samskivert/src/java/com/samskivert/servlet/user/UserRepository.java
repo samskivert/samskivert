@@ -1,9 +1,10 @@
 //
-// $Id: UserRepository.java,v 1.1 2001/03/02 01:21:06 mdb Exp $
+// $Id: UserRepository.java,v 1.2 2001/03/02 02:08:50 mdb Exp $
 
 package com.samskivert.servlet.user;
 
 import java.sql.*;
+import java.util.Calendar;
 import java.util.Properties;
 
 import org.apache.regexp.*;
@@ -11,7 +12,6 @@ import org.apache.regexp.*;
 import com.samskivert.Log;
 import com.samskivert.jdbc.MySQLRepository;
 import com.samskivert.jdbc.jora.*;
-import com.samskivert.util.Crypt;
 
 public class UserRepository extends MySQLRepository
 {
@@ -73,7 +73,7 @@ public class UserRepository extends MySQLRepository
 	// create a new user object and stick it into the database
 	final User user = new User();
 	user.username = username;
-	user.password = encryptPassword(username, password);
+	user.password = UserUtil.encryptPassword(username, password);
 	user.realname = realname;
 	user.email = email;
 	user.created = new Date(System.currentTimeMillis());
@@ -100,20 +100,12 @@ public class UserRepository extends MySQLRepository
     }
 
     /**
-     * Encrypts the user's password according to our preferred scheme.
-     */
-    public static String encryptPassword (String username, String password)
-    {
-	return Crypt.crypt(username.substring(0, 2), password);
-    }
-
-    /**
      * Looks up a user by username.
      *
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public User getUser (String username)
+    public User loadUser (String username)
 	throws SQLException
     {
 	// look up the user
@@ -135,7 +127,7 @@ public class UserRepository extends MySQLRepository
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public User getUser (int userid)
+    public User loadUser (int userid)
 	throws SQLException
     {
 	// look up the user
@@ -157,7 +149,7 @@ public class UserRepository extends MySQLRepository
      * @return the user associated with the specified session or null of
      * no session exists with the supplied identifier.
      */
-    public User getUserBySession (String sessionKey)
+    public User loadUserBySession (String sessionKey)
 	throws SQLException
     {
 	// look up the user
@@ -204,6 +196,39 @@ public class UserRepository extends MySQLRepository
     }
 
     /**
+     * Creates a new session for the specified user and returns the
+     * randomly generated session identifier for that session. Sessions
+     * are set to expire in two days which prevents someone from being
+     * screwed if they log in at 11:59pm, but also prevents them from
+     * leaving their browser authenticated for too long.
+     */
+    public String createNewSession (final User user)
+	throws SQLException
+    {
+	// generate a random session identifier
+	final String authcode = UserUtil.genAuthCode(user);
+
+	// figure out what 48 hours from now is
+	Calendar cal = Calendar.getInstance();
+	cal.add(Calendar.DATE, 2);
+	final Date expires = new Date(cal.getTime().getTime());
+
+	// insert the session into the database
+	execute(new Operation () {
+	    public void invoke () throws SQLException
+	    {
+		_session.execute("insert into sessions " +
+				 "(authcode, userid, expires) values('" +
+				 authcode + "', " + user.userid + ", " +
+				 expires + ")");
+	    }
+	});
+
+	// and let the user know what the session identifier is
+	return authcode;
+    }
+
+    /**
      * Prunes any expired sessions from the sessions table.
      */
     public void pruneSessions ()
@@ -229,8 +254,8 @@ public class UserRepository extends MySQLRepository
 	try {
 	    UserRepository rep = new UserRepository(props);
 
-	    System.out.println(rep.getUser("mdb"));
-	    System.out.println(rep.getUserBySession("auth"));
+	    System.out.println(rep.loadUser("mdb"));
+	    System.out.println(rep.loadUserBySession("auth"));
 
 	    rep.createUser("samskivert", "foobar", "Michael Bayne",
 			   "mdb@samskivert.com");
@@ -246,8 +271,6 @@ public class UserRepository extends MySQLRepository
 
     protected Table _utable;
 
-    protected static final int MINIMUM_USERNAME_LENGTH = 2;
-
     /** Used to check usernames for invalid characteres. */
     protected static RE _userre;
     static {
@@ -257,4 +280,7 @@ public class UserRepository extends MySQLRepository
 	    Log.warning("Unable to initialize user regexp?! " + rese);
 	}
     }
+
+    /** The minimum allowable length of a username. */
+    protected static final int MINIMUM_USERNAME_LENGTH = 3;
 }

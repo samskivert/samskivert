@@ -1,5 +1,5 @@
 #
-# $Id: bindings.py,v 1.1 2002/03/17 09:03:06 mdb Exp $
+# $Id: bindings.py,v 1.2 2002/03/18 00:03:41 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -106,6 +106,26 @@ class BindingSet:
             arg = gnome.config.get_string("lookuplet/bindings/arg_%.2u" % b);
             self.bindings.append(Binding(key, type, name, arg));
         gnome.config.pop_prefix();
+
+        # if we loaded no bindings, use the defaults
+        if (count == 0):
+            self.bindings.append(Binding(
+                "Control-g", Binding.URL, "Google search",
+                "http://www.google.com/search?client=googlet&q=%U"));
+            self.bindings.append(Binding(
+                "Control-d", Binding.EXEC, "Dictionary lookup",
+                "gdict -a '%T'"));
+            self.bindings.append(Binding(
+                "Control-Shift-d", Binding.URL, "Debian package search",
+                "http://cgi.debian.org/cgi-bin/search_contents.pl?word=%U" +
+                "&case=insensitive&version=unstable&arch=i386" +
+                "&directories=yes"));
+            self.bindings.append(Binding(
+                "Control-f", Binding.URL, "Freshmeat search",
+                "http://freshmeat.net/search/?q=%U"));
+            self.bindings.append(Binding(
+                "Control-i", Binding.URL, "IMDB Title search",
+                "http://www.imdb.com/Tsearch?title=%U&restrict=Movies+only"));
         return;
 
     #

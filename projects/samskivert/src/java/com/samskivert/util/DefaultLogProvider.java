@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.9 2002/05/31 22:19:07 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.10 2002/06/06 20:53:30 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,7 +20,10 @@
 
 package com.samskivert.util;
 
+import java.awt.Dimension;
+
 import java.text.SimpleDateFormat;
+
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -36,6 +39,9 @@ public class DefaultLogProvider implements LogProvider
 {
     public DefaultLogProvider ()
     {
+        // obtain our terminal size, if possible
+        obtainTermSize();
+
         try {
             // enable vt100 escape codes if requested
             String pstr = System.getProperty("log_vt100");
@@ -86,9 +92,9 @@ public class DefaultLogProvider implements LogProvider
         StringBuffer buf = new StringBuffer();
         buf.append(_format.format(new Date())).append(" ");
         if (level == Log.WARNING && _useVT100) {
-            buf.append(BOLD);
+            buf.append(TermUtil.BOLD);
         } else if (level == Log.DEBUG && _useVT100) {
-            buf.append(REVERSE);
+            buf.append(TermUtil.REVERSE);
         }
         buf.append(LEVEL_CHARS[level]).append(" ");
 
@@ -101,11 +107,11 @@ public class DefaultLogProvider implements LogProvider
         // then it will be turned off when underlining is turned off
 
         // if we wrap, we include the module name in the wrapped text
-        buf.append(_useVT100 ? UNDERLINE : "").append(moduleName);
-        buf.append(_useVT100 ? PLAIN : "").append(": ");
+        buf.append(_useVT100 ? TermUtil.UNDERLINE : "").append(moduleName);
+        buf.append(_useVT100 ? TermUtil.PLAIN : "").append(": ");
 
         // we'll be wrapping the log lines
-        int wrapwid = LOG_LINE_LENGTH - GAP.length();
+        int wrapwid = _tdimens.width - GAP.length();
         int remain = message.length(), offset = 0;
 
         // our first line contains additionally, the module name (and a
@@ -129,6 +135,23 @@ public class DefaultLogProvider implements LogProvider
         return buf.toString();
     }
 
+    /**
+     * Attempts to obtain the dimensions of the terminal window in which
+     * we're running. This is extremely platform specific, but feel free
+     * to add code to do the right thing for your platform.
+     */
+    protected static void obtainTermSize ()
+    {
+        if (_tdimens == null) {
+            _tdimens = TermUtil.getTerminalSize();
+
+            // if we were unable to obtain our dimensions, use defaults
+            if (_tdimens == null) {
+                _tdimens = new Dimension(80, 24);
+            }
+        }
+    }
+
     /** Whether or not to use the vt100 escape codes. */
     protected boolean _useVT100 = false;
 
@@ -142,24 +165,14 @@ public class DefaultLogProvider implements LogProvider
     protected SimpleDateFormat _format =
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
 
+    /** Contains the dimensions of the terminal window in which we're
+     * running, if it was possible to obtain them. Otherwise, it contains
+     * the default dimensions. This is used to wrap lines. */
+    protected static Dimension _tdimens;
+
     /** Used to tag log messages with their log level. */
     protected static final String[] LEVEL_CHARS = { ".", "?", "!" };
 
     /** Used to align wrapped log lines. */
     protected static final String GAP = "                          ";
-
-    /** VT100 formatting code to enabled bold text. */
-    protected static final String BOLD = "\033[1m";
-
-    /** VT100 formatting code to enabled reverse video text. */
-    protected static final String REVERSE = "\033[7m";
-
-    /** VT100 formatting code to enabled underlined text. */
-    protected static final String UNDERLINE = "\033[4m";
-
-    /** VT100 formatting code to revert to plain text. */
-    protected static final String PLAIN = "\033[m";
-
-    /** Maximum log line length. */
-    protected static final int LOG_LINE_LENGTH = 132;
 }

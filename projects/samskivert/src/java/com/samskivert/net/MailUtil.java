@@ -1,5 +1,5 @@
 //
-// $Id: MailUtil.java,v 1.2 2001/05/26 07:10:09 mdb Exp $
+// $Id: MailUtil.java,v 1.3 2001/05/26 23:18:30 mdb Exp $
 
 package com.samskivert.net;
 
@@ -30,7 +30,7 @@ public class MailUtil
      * Subject: (subject)
      * </pre>
      */
-    public void deliverMail (String message)
+    public static void deliverMail (String message)
         throws IOException
     {
         Process p = Runtime.getRuntime().exec("sendmail -t");

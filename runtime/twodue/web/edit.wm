@@ -4,6 +4,8 @@
 #if ($task)
 
 <p>
+<table cellpadding="0" cellspacing="0" border="0">
+<tr><td>
 <table cellpadding="2" cellspacing="0" border="0">
 
 #if ($task.completor)
@@ -72,7 +74,8 @@ $form.submit("submit", "Update")</td></tr>
 </form>
 </table>
 
-<p>
+</td><td width="15">&nbsp;</td><td valign="bottom">
+
 <table cellpadding="2" cellspacing="0" border="0">
 <tr><td>Other actions:</td></tr>
 <tr><td align="right" bgcolor="$scolor">
@@ -84,8 +87,13 @@ $form.submit("submit", "Delete")
 </form>
 
 </td></tr>
+</table>
 
-<tr><td>&nbsp;</td></tr>
+</td></tr>
+</table>
+
+<p>
+<table cellpadding="2" cellspacing="0" border="0">
 
 <form action="edit.wm">
 $form.fixedHidden("action", "addnote")

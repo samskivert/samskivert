@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.3 2003/01/15 01:41:25 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.4 2003/01/15 02:29:23 mdb Exp $
 
 package com.samskivert.util;
 
@@ -11,6 +11,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -271,6 +272,33 @@ public class RuntimeAdjust
         protected JComboBox _valbox;
     }
 
+    /** Provides the ability to click a button and fire an action. */
+    public static abstract class Action extends Adjust
+        implements ActionListener, Runnable
+    {
+        public Action (String descrip, String name)
+        {
+            super(descrip, name, null);
+        }
+
+        protected void populateEditor (JPanel editor)
+        {
+            JButton actbut = new JButton("Go");
+            editor.add(actbut, GroupLayout.FIXED);
+            actbut.addActionListener(this);
+        }
+
+        public void actionPerformed (ActionEvent e)
+        {
+            run();
+        }
+
+        public void propertyChange (PropertyChangeEvent evt)
+        {
+            // not needed
+        }
+    }
+
     /** Base class for type-specific adjustments. */
     protected abstract static class Adjust
         implements PropertyChangeListener, Comparable
@@ -280,7 +308,9 @@ public class RuntimeAdjust
             _name = name;
             _descrip = descrip;
             _config = config;
-            _config.addPropertyChangeListener(_name, this);
+            if (_config != null) {
+                _config.addPropertyChangeListener(_name, this);
+            }
 
             // validate the structure of the name
             int fdidx = _name.indexOf("."), ldidx = _name.lastIndexOf(".");

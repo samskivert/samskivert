@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.1 2002/08/20 02:49:19 ray Exp $
+// $Id: DnDManager.java,v 1.2 2002/08/20 21:05:10 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -124,36 +124,71 @@ public class DnDManager
 
         // and start out with the no-drop cursor
         _lastComp = _sourceComp;
+        _oldCursor = _lastComp.getCursor();
         _lastComp.setCursor(_cursors[1]);
     }
 
     // documentation inherited from interface AWTEventListener
     public void eventDispatched (AWTEvent event)
     {
-        int id = event.getID();
-        if (id == MouseEvent.MOUSE_ENTERED) {
-            Component oldcomp = _lastComp;
-            _lastComp = ((MouseEvent) event).getComponent();
-            _lastTarget = findAppropriateTarget(_lastComp);
-            _lastComp.setCursor(_cursors[(_lastTarget == null) ? 1 : 0]);
-            if (_lastComp != oldcomp) {
-                oldcomp.setCursor(null);
-            }
+        switch (event.getID()) {
+        case MouseEvent.MOUSE_ENTERED:
+            mouseEntered((MouseEvent) event);
+            break;
 
-        } else if (id == MouseEvent.MOUSE_RELEASED) {
-            // since the release comes with a component of the source,
-            // we use the last enter...
-            if (_lastTarget != null) {
-                _lastTarget.dropCompleted(_data[0]);
-                _source.dragCompleted(_lastTarget);
-            }
+        case MouseEvent.MOUSE_EXITED:
+            mouseExited((MouseEvent) event);
+            break;
 
-            if (_lastComp != null) {
-                _lastComp.setCursor(null);
-            }
-            Toolkit.getDefaultToolkit().removeAWTEventListener(this);
-            reset();
+        case MouseEvent.MOUSE_RELEASED:
+            mouseReleased((MouseEvent) event);
+            break;
         }
+    }
+
+    /**
+     * Handle the mouse entering a new component.
+     */
+    protected void mouseEntered (MouseEvent event)
+    {
+        Component oldcomp = _lastComp;
+        _lastComp = ((MouseEvent) event).getComponent();
+        _lastTarget = findAppropriateTarget(_lastComp);
+        if (_lastComp != oldcomp) {
+            oldcomp.setCursor(_oldCursor);
+            _oldCursor = _lastComp.getCursor();
+        }
+        _lastComp.setCursor(_cursors[(_lastTarget == null) ? 1 : 0]);
+    }
+
+    /**
+     * Handle the mouse leaving a component.
+     */
+    protected void mouseExited (MouseEvent event)
+    {
+        _lastTarget = null;
+        if (_lastComp != null) {
+            _lastComp.setCursor(_oldCursor);
+        }
+    }
+
+    /**
+     * Handle the mouse button being released.
+     */
+    protected void mouseReleased (MouseEvent event)
+    {
+        // since the release comes with a component of the source,
+        // we use the last enter...
+        if (_lastTarget != null) {
+            _lastTarget.dropCompleted(_data[0]);
+            _source.dragCompleted(_lastTarget);
+        }
+
+        if (_lastComp != null) {
+            _lastComp.setCursor(_oldCursor);
+        }
+        Toolkit.getDefaultToolkit().removeAWTEventListener(this);
+        reset();
     }
 
     /**
@@ -217,6 +252,9 @@ public class DnDManager
 
     /** The last target, or null if no last target. */
     protected DropTarget _lastTarget;
+
+    /** The cursor that used to be set for _lastComp. */
+    protected Cursor _oldCursor;
 
     /** The accept/reject cursors. */
     protected Cursor[] _cursors = new Cursor[2];

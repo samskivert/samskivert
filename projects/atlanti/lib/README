@@ -2,29 +2,16 @@ Required external libraries
 ---------------------------
 
 The Atlantissonne code requires the following external Java libraries (JAR
-files) to be placed (or symlinked) here in the lib/ directory or in the
-shared library directory specified in the build.xml file
-(${java.libraries}).
+files) to be placed (or symlinked) here in the lib/ directory.
 
-* Apache Commons Util library (from the sanbox)
+* Apache Commons Lang library (from the sanbox)
   http://jakarta.apache.org/commons/index.html
 
-* The samskivert package:
+* The samskivert library:
   http://www.waywardgeeks.org/code/samskivert/
 
-* A MySQL driver:
-  http://mmmysql.sourceforge.net/
-
-* The Java API for XML Processing (JAXP) 1.1 Reference Implementation:
-  http://java.sun.com/xml/download.html
-
-  (Only crimson.jar and jaxp.jar are required.  xalan.jar may safely
-  be excluded.)
-
-* Megginson Technologies' XMLWriter 0.2 library:
-  http://www.megginson.com/Software/xml-writer-0.2.zip
-
-* The Narya game development libraries
+* The Narya game development libraries; specifically: base, distrib,
+  media, micasa and parlor
   http://www.threerings.net/code/narya/
 
 Once the jar files are in place (regardless of what they are named), the
@@ -32,4 +19,4 @@ build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.2 2002/12/12 05:51:53 mdb Exp $
+$Id: README,v 1.3 2002/12/12 06:10:13 mdb Exp $

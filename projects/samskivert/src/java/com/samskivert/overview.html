@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  $Id: overview.html,v 1.1 2001/08/12 01:45:46 mdb Exp $
+
+  samskivert library - useful routines for java programs
+  Copyright (C) 2001 Michael Bayne
+ 
+  This library is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published
+  by the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+-->
+</head>
+<body bgcolor="white">
+
+    The samskivert library (SL) aims to provide useful reusable Java
+    routines that do things for which I've been unable to find useful
+    reusable implementations on the net.
+
+    <p> Given the emphasis on reusability, SL attempts to closely adhere
+    to the following principles:
+
+    <ul>
+      <li><p> Each individual module should depend as little as possible
+          on other SL modules. Obvious exceptions include modules that are
+          a logical extension of other modules and modules that clearly
+          require a service that is implemented by another SL module and
+          would have to implement that service themselves in the absence
+          of dependence on the other module.
+
+      <li><p> Modules should be both simple to use and as general purpose
+          as possible. To meet these two competing requirements, a balance
+          must be struck at that sweet spot where reusability is
+          maximized.
+
+      <li><p> Code included in SL will freely depend on JDK packages
+          available in the Java 2 platform and beyond. SL is initially a
+          repository of software useful for server-side or stand alone
+          applications and therefore need not make compromises to function
+          in the jungle of JVMs in commonly available web browsers.
+
+      <li><p> We are not here to reinvent the wheel, nor to provide a
+          uniform interface to every software service under the sun. If
+          something is available in a freely redistributable and reusable
+          form from someone else, it won't be found in SL. If SL depends
+          on such software from another source, it will provide clear
+          documentation on how to get that software and make use of it
+          within the scope of SL's particular needs.  Again a balance of
+          reusability will be struck here and software that is
+          sufficiently difficult to make usable in an arbitrary
+          environment will not be used by SL and may be "reinvented".
+    </ul>
+
+    <p> I and others who have contributed to the library hope that you
+      find it useful, easy to use and time saving. Comments and
+      contributions are always welcome.
+
+    <p> -- <a href="mailto:mdb@samskivert.com">mdb@samskivert.com</a>
+
+</body>
+</html>

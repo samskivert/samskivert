@@ -49,6 +49,7 @@
              packagenames="${doc.packages}"
              windowtitle="${app.name} API"
              doctitle="${app.name} API"
+             overview="src/java/com/samskivert/overview.html"
              bottom="Copyright &#169; 2001 ${copyright.holder}. All Rights Reserved."
              destdir="${javadoc.dir}">
       <classpath refid="classpath"/>

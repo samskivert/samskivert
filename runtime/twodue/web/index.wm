@@ -1,0 +1,156 @@
+#set ($title = $i18n.xlate("index.title"))
+#import ("/header.wm")
+
+<p>
+
+<table cellpadding="0" cellspacing="15" border="0">
+<tr><td width="50%"><b>Owned tasks:</b></td>
+
+<td width="50%"><b>Outstanding tasks:</b></td></tr>
+
+<tr><td valign="top">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+
+#foreach ($otask in $otasks)
+#if ($vidx > 0)
+<tr><td colspan="3">&nbsp;</td></tr>
+#end
+<tr><td colspan="3" align="left" bgcolor="$scolor">$otask.name</td></tr>
+
+#foreach ($task in $otask.tasks)
+<form action="index.wm">
+$form.fixedHidden("action", "complete")
+$form.fixedHidden("task", "$task.taskId")
+#if ($vidx%2 == 0)
+#set ($rowcolor = "#FFFFFF")
+#else
+#set ($rowcolor = "#EEEEEE")
+#end
+<tr bgcolor="$rowcolor"><td>
+#if ($username == $task.owner)
+$form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
+#else
+&nbsp;
+#end
+</td>
+<td>$task.summary</td>
+<td valign="top">$task.category</td></tr>
+</form>
+#end
+#end
+</table>
+
+<p>
+<center class="small">Click the check box to mark a task as completed.</center>
+
+</td><td valign="top">
+
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+#foreach ($xtask in $xtasks)
+#if ($vidx > 0)
+<tr><td colspan="3">&nbsp;</td></tr>
+#end
+<tr bgcolor="$scolor"><td colspan="2" align="left">$xtask.name</td>
+<td>
+#if ($xtask.pruned > 0)
+<a href="index.wm?expand=$xtask.name">($xtask.pruned ...)</a>
+#else
+&nbsp;
+#end
+</td></tr>
+
+#foreach ($task in $xtask.tasks)
+<form action="index.wm">
+$form.fixedHidden("task", "$task.taskId")
+#if ($vidx%2 == 0)
+#set ($rowcolor = "#FFFFFF")
+#else
+#set ($rowcolor = "#EEEEEE")
+#end
+<tr bgcolor="$rowcolor">
+<td>$form.imageSubmit("action", "claim", "images/claim.png", "Claim this task")</td>
+<td>$task.summary &nbsp;
+<span class="small">[$task.creator]</span></td>
+<td valign="top">$task.category</td>
+</tr>
+</form>
+#end
+#end
+</table>
+
+<p>
+<center class="small">Click the wrench to claim a task.</center>
+
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+
+<tr><td><b>Recent completed tasks:</b></td>
+<td><b>Create new task:</b></td></tr>
+
+<tr><td valign="top">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+#foreach ($task in $dtasks)
+#if ($vidx%2 == 0)
+#set ($rowcolor = "#EEEEEE")
+#else
+#set ($rowcolor = "#FFFFFF")
+#end
+<tr bgcolor="$rowcolor">
+<td valign="top" align="center">$task.completion<br>[$task.completor]</td>
+<td>$task.summary</td>
+<td valign="top">$task.category</td></tr>
+#end
+</table>
+
+</td><td valign="top">
+
+<form action="index.wm">
+$form.fixedHidden("action", "create")
+
+<table cellpadding="2" cellspacing="0" border="0">
+<tr><td colspan="3" bgcolor="$scolor">&nbsp;<br></td></tr>
+
+<tr><td colspan="3">Summary:<br>
+<textarea name="summary" rows="5" cols="50">
+</textarea>
+</td></tr>
+
+<tr><td>Category:<br>
+<font face="courier">
+$form.text("category", "size='10'", "")
+</font></td>
+
+<td>Complexity:<br>
+<font face="courier">
+<select name="complexity">
+  $form.option("complexity", "1 - Simple hack", "Simple hack", "1 - Simple hack")
+  $form.option("complexity", "2 - Minor feature", "Minor feature", "1 - Simple hack")
+  $form.option("complexity", "3 - Major feature", "Major feature", "1 - Simple hack")
+  $form.option("complexity", "4 - Subsystem", "Subsystem", "1 - Simple hack")
+  $form.option("complexity", "5 - Major refactor", "Major refactor", "1 - Simple hack")
+</select>
+</font></td>
+
+<td>Priority:<br>
+<font face="courier">
+<select name="priority">
+  $form.option("priority", "50", "Urgent", "15")
+  $form.option("priority", "25", "Next release", "15")
+  $form.option("priority", "15", "Soon", "15")
+  $form.option("priority", "10", "Before launch", "15")
+  $form.option("priority", "5", "Post launch", "15")
+  $form.option("priority", "1", "On the list", "15")
+</select>
+</font></td></tr>
+
+<tr><td colspan="3" align="right" bgcolor="$scolor">
+$form.submit("submit", "Create")</td></tr>
+</table>
+
+</form>
+
+</td></tr>
+</table>
+
+#import ("/footer.wm")

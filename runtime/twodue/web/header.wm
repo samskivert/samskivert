@@ -1,0 +1,26 @@
+## This is the header and footer color
+#set ($hcolor = "#CCCCCC")
+## These colors are used for common UI elements
+#set ($tcolor = "#99CCFF")
+#set ($scolor = "#CCCCCC")
+
+<html>
+<head>
+<title>$i18n.xlate("header.combined_title", $i18n.xlate("app_name"), $title)</title>
+<link rel="stylesheet" type="text/css" href="/twodue/style.css">
+</head>
+
+<body bgcolor="#FFFFFF" vlink="#003366">
+
+<table cellpadding="6" cellspacing="0" border="0" width="100%">
+<tr bgcolor="$hcolor"><td align=right>
+<span class="big"><b>$i18n.xlate("header.title", $i18n.xlate("app_name"))</b></span><br>
+$title</td>
+</table>
+
+#if ($error)
+  <p>
+  <table cellpadding="6" cellspacing="0" border="0" width="100%">
+  <tr><td><font color="#FF0000">$i18n.xlate($error)</font></td></tr>
+  </table>
+#end

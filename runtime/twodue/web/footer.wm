@@ -1,0 +1,16 @@
+<p>
+<table cellpadding=6 cellspacing=0 border=0 width="100%">
+<tr bgcolor="$hcolor">
+<td>
+#import ("app_footer.wm")
+</td>
+<!--
+<td align="right">
+&copy;2002 
+<a href="http://www.samskivert.com/">Michael Bayne</a>
+</td>
+-->
+</table>
+
+</body>
+</html>

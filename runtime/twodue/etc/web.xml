@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+  PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
+  "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+
+<web-app>
+  <servlet>
+    <servlet-name>dispatcher</servlet-name>
+    <servlet-class>com.samskivert.velocity.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>org.apache.velocity.properties</param-name>
+      <param-value>/velocity.properties</param-value>
+    </init-param>
+    <init-param>
+      <param-name>app_class</param-name>
+      <param-value>com.samskivert.twodue.TwoDueApp</param-value>
+    </init-param>
+    <init-param>
+      <param-name>logic_package</param-name>
+      <param-value>com.samskivert.twodue.logic</param-value>
+    </init-param>
+    <init-param>
+      <param-name>messages_path</param-name>
+      <param-value>messages</param-value>
+    </init-param>
+<!--
+    <init-param>
+      <param-name>site_jar_path</param-name>
+      <param-value>/usr/share/java/webapps/site-data</param-value>
+    </init-param>
+    <init-param>
+      <param-name>site_messages_path</param-name>
+      <param-value>site_messages</param-value>
+    </init-param>
+-->
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>dispatcher</servlet-name>
+    <url-pattern>*.wm</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.wm</welcome-file>
+  </welcome-file-list>
+</web-app>

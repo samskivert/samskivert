@@ -1,0 +1,51 @@
+#set ($title = $i18n.xlate("edit.title"))
+#import ("/header.wm")
+
+<p>
+
+<form action="index.wm">
+$form.fixedHidden("action", "update")
+
+<table cellpadding="2" cellspacing="0" border="0">
+<tr><td colspan="3" bgcolor="$scolor">&nbsp;<br></td></tr>
+
+<tr><td colspan="3">Summary:<br>
+<textarea name="summary" rows="5" cols="50">
+</textarea>
+</td></tr>
+
+<tr><td>Category:<br>
+<font face="courier">
+$form.text("category", "size='10'", "")
+</font></td>
+
+<td>Complexity:<br>
+<font face="courier">
+<select name="complexity">
+  $form.option("complexity", "1 - Simple hack", "Simple hack", "1 - Simple hack")
+  $form.option("complexity", "2 - Minor feature", "Minor feature", "1 - Simple hack")
+  $form.option("complexity", "3 - Major feature", "Major feature", "1 - Simple hack")
+  $form.option("complexity", "4 - Subsystem", "Subsystem", "1 - Simple hack")
+  $form.option("complexity", "5 - Major refactor", "Major refactor", "1 - Simple hack")
+</select>
+</font></td>
+
+<td>Priority:<br>
+<font face="courier">
+<select name="priority">
+  $form.option("priority", "50", "Urgent", "15")
+  $form.option("priority", "25", "Next release", "15")
+  $form.option("priority", "15", "Soon", "15")
+  $form.option("priority", "10", "Before launch", "15")
+  $form.option("priority", "5", "Post launch", "15")
+  $form.option("priority", "1", "On the list", "15")
+</select>
+</font></td></tr>
+
+<tr><td colspan="3" align="right" bgcolor="$scolor">
+$form.submit("submit", "Update")</td></tr>
+</table>
+
+</form>
+
+#import ("/footer.wm")

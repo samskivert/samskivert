@@ -1,0 +1,63 @@
+<!-- build configuration for 'Two Due' project -->
+<project name="Two Due" default="compile" basedir=".">
+
+  <!-- import properties -->
+  <property file="build.properties"/>
+
+  <!-- configuration parameters -->
+  <property name="app.name"       value="twodue"/>
+  <property name="web.home"       value="/export/wayward/pages"/>
+  <property name="deploy.dir"     value="${web.home}/${app.name}"/>
+  <property name="dist.war"       value="${app.name}.war"/>
+  <property name="build.compiler" value="jikes"/>
+
+  <!-- we want to access the environment -->
+  <property environment="env"/>
+  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
+
+  <!-- prepares the application directories -->
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+    <copy todir="${deploy.dir}">
+      <fileset dir="web"/>
+    </copy>
+    <mkdir dir="${deploy.dir}/WEB-INF"/>
+    <copy file="etc/web.xml" tofile="${deploy.dir}/WEB-INF/web.xml"/>
+    <copy todir="${deploy.dir}/WEB-INF/classes">
+      <fileset dir="etc" includes="**/*.properties"/>
+    </copy>
+    <mkdir dir="${deploy.dir}/WEB-INF/classes"/>
+    <mkdir dir="${deploy.dir}/WEB-INF/lib"/>
+    <copy todir="${deploy.dir}/WEB-INF/lib">
+      <fileset dir="lib"/>
+    </copy>
+  </target>
+
+  <!-- cleans out the installed application -->
+  <target name="clean">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- build the java class files -->
+  <target name="compile" depends="prepare">
+    <javac srcdir="src" destdir="${deploy.dir}/WEB-INF/classes"
+           debug="on" optimize="off" deprecation="on">
+      <classpath>
+        <pathelement location="${deploy.dir}/WEB-INF/classes"/>
+        <fileset dir="${java.libraries}" includes="**/*.jar"/>
+        <fileset dir="lib" includes="**/*.jar"/>
+      </classpath>
+    </javac>
+    <copy todir="${deploy.dir}/WEB-INF/classes">
+      <fileset dir="src" includes="**/*.properties"/>
+    </copy>
+  </target>
+
+  <!-- the default target is to rebuild everything -->
+  <target name="all" depends="clean,prepare,compile"/>
+
+  <!-- builds our distribution files (war and jar) -->
+  <target name="dist" depends="prepare,compile">
+    <jar file="${dist.war}" basedir="${deploy.dir}"/>
+  </target>
+</project>

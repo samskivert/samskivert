@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.12 2001/10/18 20:54:34 mdb Exp $
+// $Id: TileUtil.java,v 1.13 2001/10/24 03:24:36 mdb Exp $
 
 package com.threerings.venison;
 
@@ -426,7 +426,7 @@ public class TileUtil implements TileCodes
      * enumerated.
      * @param featureIndex the index of the feature whose group is to be
      * enumerated.
-     * @param group the list into which instances of {@link FeatureGroup}
+     * @param group the list into which instances of {@link TileFeature}
      * will be placed that represent the features that are members of the
      * group.
      *

@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.6 2002/03/05 18:33:16 shaper Exp $
+// $Id: FormTool.java,v 1.7 2002/11/09 00:48:51 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -146,6 +146,35 @@ public class FormTool
     public String submit (String name, String text)
     {
         return fixedInput("submit", name, text, "");
+    }
+
+    /**
+     * Constructs a image submit element with the specified parameter name
+     * and image path.
+     */
+    public String imageSubmit (String name, String imagePath)
+    {
+        return fixedInput("image", name, "", "src=\"" + imagePath + "\"");
+    }
+
+    /**
+     * Constructs a image submit element with the specified parameter name
+     * and image path.
+     */
+    public String imageSubmit (String name, String value, String imagePath)
+    {
+        return fixedInput("image", name, value, "src=\"" + imagePath + "\"");
+    }
+
+    /**
+     * Constructs a image submit element with the specified parameter name
+     * and image path.
+     */
+    public String imageSubmit (String name, String value, String imagePath,
+                               String altText)
+    {
+        return fixedInput("image", name, value, "src=\"" + imagePath + "\" " +
+                          "alt=\"" + altText + "\"");
     }
 
     /**

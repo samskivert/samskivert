@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.10 2001/05/26 03:24:19 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.11 2001/05/26 07:10:00 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -305,7 +305,7 @@ public class DispatcherServlet extends WMServlet
     {
 	// String path = cleanupURI(ctx.getRequest().getRequestURI());
         String path = ctx.getRequest().getServletPath();
-	Log.info("Loading template [path=" + path + "].");
+	// Log.info("Loading template [path=" + path + "].");
 	return getTemplate(path);
     }
 

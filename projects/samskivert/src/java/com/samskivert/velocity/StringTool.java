@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.8 2003/10/02 02:22:21 ray Exp $
+// $Id: StringTool.java,v 1.9 2003/10/06 22:49:57 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -34,7 +34,7 @@ public class StringTool
     /**
      * Returns true if the supplied string is blank, false if not.
      */
-    public boolean blank (String text)
+    public static boolean blank (String text)
     {
         return StringUtil.blank(text);
     }
@@ -42,7 +42,7 @@ public class StringTool
     /**
      * URL encodes the supplied text.
      */
-    public String urlEncode (String text)
+    public static String urlEncode (String text)
     {
         return URLEncoder.encode(text);
     }
@@ -58,7 +58,7 @@ public class StringTool
     /**
      * Converts a number representing dollars to a currency display string.
      */
-    public String currency (double value)
+    public static String currency (double value)
     {
         return _curFormatter.format(value);
     }
@@ -66,7 +66,7 @@ public class StringTool
     /**
      * Converts a number representing pennies to a currency display string.
      */
-    public String currencyPennies (double value)
+    public static String currencyPennies (double value)
     {
         return currency(value / 100.0);
     }
@@ -74,7 +74,7 @@ public class StringTool
     /**
      * Adds &lt;p&gt; tags between each pair of consecutive newlines.
      */
-    public String parafy (String text)
+    public static String parafy (String text)
     {
         return HTMLUtil.makeParagraphs(text);
     }

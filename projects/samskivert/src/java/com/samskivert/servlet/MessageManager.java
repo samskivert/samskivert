@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.2 2001/08/11 22:43:28 mdb Exp $
+// $Id: MessageManager.java,v 1.3 2001/11/06 05:35:54 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -114,6 +114,15 @@ public class MessageManager
     protected ResourceBundle resolveBundle (HttpServletRequest req)
         throws MissingResourceException
     {
+        // first look to see if we've cached the bundle for this request
+        // in the request object
+        ResourceBundle bundle = (ResourceBundle)
+            req.getAttribute(BUNDLE_CACHE_NAME);
+        if (bundle != null) {
+            return bundle;
+        }
+
+        // otherwise try looking up the appropriate bundle
         Enumeration locales = req.getLocales();
 
         while (locales.hasMoreElements()) {
@@ -128,12 +137,11 @@ public class MessageManager
                 // matches on any of the preferred locales specified by
                 // the client. if we don't, then we can rely on java's
                 // fallback mechanisms
-                ResourceBundle bundle =
-                    ResourceBundle.getBundle(_bundlePath, locale);
+                bundle = ResourceBundle.getBundle(_bundlePath, locale);
 
                 // if it's an exact match, off we go
                 if (bundle.getLocale().equals(locale)) {
-                    return bundle;
+                    break;
                 }
 
             } catch (MissingResourceException mre) {
@@ -142,21 +150,36 @@ public class MessageManager
             }
         }
 
-        try {
-            // if we were unable to find an exact match for any of the
-            // user's preferred locales, take their most preferred and let
-            // java perform it's fallback logic on that one
-            return ResourceBundle.getBundle(_bundlePath, req.getLocale());
+        // if we were unable to find an exact match for any of the user's
+        // preferred locales, take their most preferred and let java
+        // perform it's fallback logic on that one
+        if (bundle == null) {
+            try {
+                bundle = ResourceBundle.getBundle(
+                    _bundlePath, req.getLocale());
 
-        } catch (MissingResourceException mre) {
-            // if we were unable even to find a default bundle, we've got
-            // real problems. time to freak out
-            Log.warning("Unable to resolve any message bundle " +
-                        "[bundlePath=" + _bundlePath +
-                        ", locale=" + req.getLocale() + "].");
-            return null;
+            } catch (MissingResourceException mre) {
+                // if we were unable even to find a default bundle, we've
+                // got real problems. time to freak out
+                Log.warning("Unable to resolve any message bundle " +
+                            "[bundlePath=" + _bundlePath +
+                            ", locale=" + req.getLocale() + "].");
+            }
         }
+
+        // if we found a bundle, cache it
+        if (bundle != null) {
+            req.setAttribute(BUNDLE_CACHE_NAME, bundle);
+        }
+
+        return bundle;
     }
 
+    /** The path, relative to the classpath, to our resource bundles. */
     protected String _bundlePath;
+
+    /** The attribute name that we use for caching resource bundles in
+     * request objects. */
+    protected static final String BUNDLE_CACHE_NAME =
+        "com.samskivert.servlet.MessageManager:CachedResourceBundle";
 }

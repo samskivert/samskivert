@@ -20,6 +20,7 @@
 
 package com.samskivert.velocity;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
@@ -103,19 +104,63 @@ public class I18nTool
      */
     public String date (String format, Object arg)
     {
-        Date when = null;
-        if (arg instanceof Long) {
-            when = new Date(((Long)arg).longValue());
-        } else if (arg instanceof Date) {
-            when = (Date)arg;
-        } else {
-            System.err.println("Date provided with invalid argument " +
-                               "[fmt=" + format + ", arg=" + arg + ", aclass=" +
-                               StringUtil.shortClassName(arg) + "].");
+        Date when = massageDate(arg);
+        if (when == null) {
             return format;
         }
         SimpleDateFormat fmt = new SimpleDateFormat(format, _req.getLocale());
         return fmt.format(when);
+    }
+
+    /**
+     * Formats the supplied argument (a {@link Long} or {@link Date})
+     * using a {@link DateFormat} obtained in the {@link DateFormat#SHORT}
+     * style.
+     */
+    public String shortDate (Object arg)
+    {
+        return date(DateFormat.SHORT, arg);
+    }
+
+    /**
+     * Like {@link #shortDate} but in the {@link DateFormat#MEDIUM} style.
+     */
+    public String mediumDate (Object arg)
+    {
+        return date(DateFormat.MEDIUM, arg);
+    }
+
+    /**
+     * Like {@link #shortDate} but in the {@link DateFormat#LONG} style.
+     */
+    public String longDate (Object arg)
+    {
+        return date(DateFormat.LONG, arg);
+    }
+
+    /** Helper function for formatting dates. */
+    protected String date (int style, Object arg)
+    {
+        Date when = massageDate(arg);
+        if (when == null) {
+            return "<!" + arg + ">";
+        }
+        return DateFormat.getDateInstance(style, _req.getLocale()).format(when);
+    }
+
+    /** Converts an argument to a {@link Date} if possible. */
+    protected Date massageDate (Object arg)
+    {
+        if (arg instanceof Long) {
+            return new Date(((Long)arg).longValue());
+        } else if (arg instanceof Date) {
+            return (Date)arg;
+        } else {
+            System.err.println("Date provided with invalid argument " +
+                               "[arg=" + arg + ", aclass=" +
+                               StringUtil.shortClassName(arg) + "].");
+            return null;
+        }
     }
 
     /** The servlet request was are providing i18n messages for. */

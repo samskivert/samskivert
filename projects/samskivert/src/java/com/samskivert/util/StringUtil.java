@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.44 2002/11/13 08:45:51 mdb Exp $
+// $Id: StringUtil.java,v 1.45 2002/11/16 01:07:19 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -313,7 +313,7 @@ public class StringUtil
                 buf.append(ip[0]).append(".");
                 buf.append(ip[1]).append(".");
                 buf.append(ip[2]).append(".");
-                buf.append(ip[3]).append(".");
+                buf.append(ip[3]);
             } else {
                 buf.append("<no addr>");
             }

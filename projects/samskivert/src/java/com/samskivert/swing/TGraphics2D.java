@@ -1,5 +1,5 @@
 //
-// $Id: TGraphics2D.java,v 1.1 2003/05/08 06:39:37 ray Exp $
+// $Id: TGraphics2D.java,v 1.2 2003/10/08 00:45:18 ray Exp $
 
 package com.samskivert.swing;
 
@@ -539,7 +539,9 @@ public class TGraphics2D extends Graphics2D
 
     public Rectangle getClipRect ()
     {
-        return _primary.getClipRect();
+        // getClipRect is deprecated, but getClipBounds is the new way
+        // to do the same thing. We call that to avoid deprecation warnings.
+        return _primary.getClipBounds();
     }
 
     public boolean hitClip (int x, int y, int w, int h)

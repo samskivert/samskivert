@@ -70,4 +70,15 @@
          basedir="${deploy.dir}/classes"/>
   </target>
 
+  <!-- generate a class hierarchy diagram -->
+  <target name="hiergen" depends="prepare,compile">
+    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
+    <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
+      pkgroot="com.samskivert"
+      classes="com.samskivert.*"
+      output="hierarchy.ps">
+      <classpath refid="classpath"/>
+    </viztool>
+  </target>
+
 </project>

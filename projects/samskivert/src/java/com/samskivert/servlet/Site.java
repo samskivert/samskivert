@@ -1,42 +1,42 @@
 //
-// $Id: Site.java,v 1.1 2003/09/19 02:12:55 eric Exp $
+// $Id: Site.java,v 1.2 2003/11/13 00:53:00 mdb Exp $
 
-package com.samskivert.servlet.user;
+package com.samskivert.servlet;
 
 import com.samskivert.util.StringUtil;
 
 /**
- * A representation of a row in the sites table.
+ * Represents a site mapping known to a {@link SiteIdentifier}.
+ *
+ * @see SiteIdentifier#enumerateSites
  */
 public class Site
 {
-    /** The sites unqiue identifier. */
+    /** The site's unqiue identifier. */
     public int siteId;
 
-    /** The sites human readable identifier (I.e., "Shockwave") */
-    public String stringId;
+    /** The site's human readable identifier (i.e., "monkeybutter"). */
+    public String siteString;
 
-    /** Construct a Site record with the specified siteId. */
-    public Site (int siteId)
+    /** Constructs a site record with the specified id and string. */
+    public Site (int siteId, String siteString)
     {
         this.siteId = siteId;
-    }
-
-    /** Construct a Site record with the specified stringId. */
-    public Site (String stringId)
-    {
-        this.stringId = stringId;
+        this.siteString = siteString;
     }
 
     /**
-     * Constructs a blank Site record for unserialization
-     * from the repository.
+     * Constructs a blank record for unserialization from the repository.
      */
     public Site ()
     {
     }
 
-    public String toString () {
+    /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
         return StringUtil.fieldsToString(this);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.3 2003/07/04 20:34:34 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.4 2003/11/13 00:53:00 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,7 +27,11 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import javax.servlet.http.HttpServletRequest;
+
 import com.samskivert.io.PersistenceException;
 
 import com.samskivert.jdbc.ConnectionProvider;
@@ -94,8 +98,21 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     // documentation inherited
     public String getSiteString (int siteId)
     {
-        String stringId = (String)_sites.get(siteId);
-        return (stringId == null) ? DEFAULT_SITE_STRING : stringId;
+        Site site = (Site)_sitesById.get(siteId);
+        return (site == null) ? DEFAULT_SITE_STRING : site.siteString;
+    }
+
+    // documentation inherited
+    public int getSiteId (String siteString)
+    {
+        Site site = (Site)_sitesByString.get(siteString);
+        return (site == null) ? DEFAULT_SITE_ID : site.siteId;
+    }
+
+    // documentation inherited from interface
+    public Iterator enumerateSites ()
+    {
+        return _sitesById.values().iterator();
     }
 
     /**
@@ -125,10 +142,14 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 String query = "select siteId, stringId from sites";
                 ResultSet rs = stmt.executeQuery(query);
                 HashIntMap sites = new HashIntMap();
+                HashMap strings = new HashMap();
                 while (rs.next()) {
-                    sites.put(rs.getInt(1), rs.getString(2));
+                    Site site = new Site(rs.getInt(1), rs.getString(2));
+                    sites.put(site.siteId, site);
+                    strings.put(site.siteString, site);
                 }
-                _sites = sites;
+                _sitesById = sites;
+                _sitesByString = strings;
 
                 // now load up the domain mappings
                 query = "select domain, siteId from domains";
@@ -209,5 +230,9 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
 
     /** The mapping from integer site identifiers to string site
      * identifiers. */
-    protected HashIntMap _sites = new HashIntMap();
+    protected HashIntMap _sitesById = new HashIntMap();
+
+    /** The mapping from string site identifiers to integer site
+     * identifiers. */
+    protected HashMap _sitesByString = new HashMap();
 }

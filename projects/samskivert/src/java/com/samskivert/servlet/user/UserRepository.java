@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.34 2003/10/29 19:41:52 eric Exp $
+// $Id: UserRepository.java,v 1.35 2003/11/13 00:53:00 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -43,8 +43,10 @@ import com.samskivert.jdbc.jora.Cursor;
 import com.samskivert.jdbc.jora.FieldMask;
 import com.samskivert.jdbc.jora.Session;
 import com.samskivert.jdbc.jora.Table;
-import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.util.HashIntMap;
+
+import com.samskivert.servlet.Site;
+import com.samskivert.servlet.SiteIdentifier;
 
 /**
  * Interfaces with the RDBMS in which the user information is stored. The
@@ -117,8 +119,8 @@ public class UserRepository extends JORARepository
      *
      * @return The userid of the newly created user.
      */
-    public int createUser (String username, String password,
-			   String realname, String email, int siteId)
+    public int createUser (String username, String password, String realname,
+                           String email, int siteId)
 	throws InvalidUsernameException, UserExistsException,
         PersistenceException
     {
@@ -352,7 +354,7 @@ public class UserRepository extends JORARepository
                 while (itr.hasNext()) {
                     Site site = (Site)itr.next();
                     _siteIdToSite.put(site.siteId, site);
-                    _siteNameToSite.put(site.stringId, site);
+                    _siteNameToSite.put(site.siteString, site);
                 }
                 return null;
 	    }
@@ -365,7 +367,6 @@ public class UserRepository extends JORARepository
     public int getSiteId (String stringId)
     {
         Site site = (Site)_siteNameToSite.get(stringId);
-
         return (site == null) ? -1 : site.siteId;
     }
 
@@ -375,8 +376,7 @@ public class UserRepository extends JORARepository
     public String getSiteName (int siteId)
     {
         Site site = (Site)_siteIdToSite.get(siteId);
-
-        return (site == null) ? null : site.stringId;
+        return (site == null) ? null : site.siteString;
     }
 
     /**

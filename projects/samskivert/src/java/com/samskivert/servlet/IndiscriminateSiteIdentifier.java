@@ -1,5 +1,5 @@
 //
-// $Id: IndiscriminateSiteIdentifier.java,v 1.2 2001/11/06 04:48:08 mdb Exp $
+// $Id: IndiscriminateSiteIdentifier.java,v 1.3 2003/11/13 00:53:00 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -19,6 +19,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.servlet;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,5 +47,25 @@ public class IndiscriminateSiteIdentifier implements SiteIdentifier
     public String getSiteString (int siteId)
     {
         return DEFAULT_SITE_STRING;
+    }
+
+    /**
+     * Always returns {@link #DEFAULT_SITE_ID} regardless of the value of
+     * the supplied string.
+     */
+    public int getSiteId (String siteString)
+    {
+        return DEFAULT_SITE_ID;
+    }
+
+    // documented inherited from interface
+    public Iterator enumerateSites ()
+    {
+        return _sites.iterator();
+    }
+
+    protected static ArrayList _sites = new ArrayList();
+    static {
+        _sites.add(new Site(DEFAULT_SITE_ID, DEFAULT_SITE_STRING));
     }
 }

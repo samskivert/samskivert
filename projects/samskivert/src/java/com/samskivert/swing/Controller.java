@@ -1,11 +1,12 @@
 //
-// $Id: Controller.java,v 1.2 2001/08/09 01:31:27 mdb Exp $
+// $Id: Controller.java,v 1.3 2001/08/09 01:37:26 mdb Exp $
 
 package com.threerings.yohoho.client;
 
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import com.threerings.yohoho.Log;
 
@@ -26,6 +27,18 @@ import com.threerings.yohoho.Log;
  */
 public abstract class Controller
 {
+    /**
+     * This action listener can be wired up to any action event generator
+     * and it will take care of forwarding that event on to the controller
+     * in scope for the component that generated the action event.
+     */
+    public static final ActionListener DISPATCHER = new ActionListener() {
+        public void actionPerformed (ActionEvent event)
+        {
+            Controller.postAction(event);
+        }
+    };
+
     /**
      * Instructs this controller to process this action event. When an
      * action is posted by a user interface element, it will be posted to

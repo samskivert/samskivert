@@ -1,5 +1,5 @@
 //
-// $Id: CascadingChainVisualizer.java,v 1.5 2001/07/17 05:23:49 mdb Exp $
+// $Id: CascadingChainVisualizer.java,v 1.6 2001/07/17 05:31:37 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * </pre>
  */
 public class CascadingChainVisualizer
-    implements ChainVisualizer, CascadingConstants
+    implements ChainVisualizer
 {
     // docs inherited from interface
     public void layoutChain (Chain chain, Graphics2D gfx)
@@ -127,6 +127,16 @@ public class CascadingChainVisualizer
                        bounds.getHeight() + 2*HEADER_BORDER);
         return bounds;
     }
+
+    /**
+     * The number of points surrounding the name of the chain.
+     */
+    protected static final double HEADER_BORDER = 3;
+
+    /**
+     * The number of points of spacing between each child chain.
+     */
+    protected static final double GAP = 4;
 
     protected static Font _classFont = new Font("Helvetica", Font.PLAIN, 8);
     protected static Font _ifaceFont = new Font("Helvetica", Font.ITALIC, 8);

@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.1 2000/12/06 00:24:46 mdb Exp $
+// $Id: Log.java,v 1.2 2000/12/06 03:21:59 mdb Exp $
 
 package com.samskivert.util;
 
@@ -83,12 +83,18 @@ public final class Log
 	_provider.setLevel(level);
     }
 
+    /**
+     * Instructs the logging services to use the specified log provider to
+     * perform the actual logging.
+     */
     public static void setLogProvider (LogProvider provider)
     {
 	_provider = provider;
     }
 
+    /** The name of the module to which this log instance is associated. */
     protected String _moduleName;
 
-    protected static LogProvider _provider;
+    /** The log provider currently in use by the log services. */
+    protected static LogProvider _provider = new DefaultLogProvider();
 }

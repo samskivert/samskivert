@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.2 2001/03/02 02:35:17 mdb Exp $
+// $Id: UserUtil.java,v 1.3 2001/05/26 03:22:49 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -44,5 +44,16 @@ public class UserUtil
     public static String encryptPassword (String username, String password)
     {
 	return Crypt.crypt(username.substring(0, 2), password);
+    }
+
+    public static void main (String[] args)
+    {
+        if (args.length < 2) {
+            System.err.println("Usage: UserUtil username password");
+            System.exit(-1);
+        }
+
+        System.out.println("Encrypted password: " +
+                           encryptPassword(args[0], args[1]));
     }
 }

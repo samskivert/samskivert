@@ -1,8 +1,10 @@
 //
-// $Id: Importer.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
+// $Id: Importer.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
 
 package robodj.importer;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -51,9 +53,17 @@ public class Importer
             System.exit(-1);
         }
 
+        // create our frame and first panel
 	ImporterFrame frame = new ImporterFrame();
 	InsertCDPanel panel = new InsertCDPanel();
 	frame.setPanel(panel);
+
+        // center the frame in the screen and show it
+        Toolkit tk = frame.getToolkit();
+        Dimension ss = tk.getScreenSize();
+        int width = 550, height = 300;
+        frame.setBounds((ss.width-width)/2, (ss.height-height)/2,
+                        width, height);
 	frame.setVisible(true);
     }
 }

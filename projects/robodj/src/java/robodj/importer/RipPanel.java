@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
+// $Id: RipPanel.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
 
 package robodj.importer;
 
@@ -248,7 +248,13 @@ public class RipPanel
                 // insert the entry into the repository so that we get the
                 // proper entry id which we'll need to put the tracks in their
                 // proper place in the repository
-                Importer.repository.insertEntry(_entry);
+                RetryableTask iop = new RetryableTask() {
+                    public void invoke () throws Exception
+                    {
+                        Importer.repository.insertEntry(_entry);
+                    }
+                };
+                iop.invokeTask(_frame, DB_FAILURE_MSG);
                 // track this so that we can clean up in case of failure
                 entryid = _entry.entryid;
 
@@ -284,7 +290,13 @@ public class RipPanel
                 }
 
                 // finally update the entry in the database
-                Importer.repository.updateEntry(_entry);
+                RetryableTask uop = new RetryableTask() {
+                    public void invoke () throws Exception
+                    {
+                        Importer.repository.updateEntry(_entry);
+                    }
+                };
+                uop.invokeTask(_frame, DB_FAILURE_MSG);
                 // and clear out the entryid to indicate success
                 entryid = -1;
 
@@ -335,7 +347,6 @@ public class RipPanel
 	} else if (name.equals("commit")) {
             // we're all done. fix up the buttons and call it good
             _cancel.setEnabled(false);
-            _next.setLabel("Exit");
             _next.setEnabled(true);
 	}
     }
@@ -359,7 +370,7 @@ public class RipPanel
 	    System.exit(0);
 
 	} else if (cmd.equals("next")) {
-	    System.exit(0);
+	    _frame.setPanel(new FinishedPanel(_entry));
 
 	} else {
 	    System.out.println("Unknown action event: " + cmd);
@@ -377,4 +388,10 @@ public class RipPanel
 
     protected Ripper.TrackInfo[] _info;
     protected Entry _entry;
+
+    protected static final String DB_FAILURE_MSG =
+        "An error occurred while communicating with the database. You " +
+        "may wish to examine the following error message, remedy the " +
+        "problem with the database and retry the operation. Or you can " +
+        "abort the operation and cancel the import process entirely.";
 }

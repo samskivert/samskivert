@@ -1,5 +1,5 @@
 //
-// $Id: ImporterFrame.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
+// $Id: ImporterFrame.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
 
 package robodj.importer;
 
@@ -38,13 +38,9 @@ public class ImporterFrame extends JFrame
 
     public void setPanel (ImporterPanel panel)
     {
-	boolean repack = true;
-
 	// clear out any old panel
 	if (_panel != null) {
 	    _top.remove(_panel);
-	    // don't repack if there was an old panel
-	    repack = false;
 	}
 
 	// clear out old control buttons
@@ -58,12 +54,8 @@ public class ImporterFrame extends JFrame
 	    _panel.wasAddedToFrame(this);
 	}
 
-	// and possibly repack ourselves
-	if (repack) {
-	    pack();
-	} else {
-	    validate();
-	}
+	// and lay out the new panel
+        validate();
     }
 
     public JButton addControlButton (String label, String command,

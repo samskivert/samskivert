@@ -1,5 +1,5 @@
 //
-// $Id: CDDBLookupPanel.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
+// $Id: CDDBLookupPanel.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
 
 package robodj.importer;
 
@@ -174,8 +174,7 @@ public class CDDBLookupPanel
 	}
 
 	// create the rip panel and pass the entry and info along
-	RipPanel panel = new RipPanel(_info, entry);
-	_frame.setPanel(panel);
+	_frame.setPanel(new RipPanel(_info, entry));
     }
 
     protected boolean validate (String value, String errmsg)

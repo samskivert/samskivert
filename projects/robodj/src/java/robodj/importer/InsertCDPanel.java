@@ -1,5 +1,5 @@
 //
-// $Id: InsertCDPanel.java,v 1.1 2000/12/10 07:02:09 mdb Exp $
+// $Id: InsertCDPanel.java,v 1.2 2001/03/21 00:41:03 mdb Exp $
 
 package robodj.importer;
 
@@ -49,8 +49,7 @@ public class InsertCDPanel
 	    System.exit(0);
 
 	} else if (cmd.equals("next")) {
-	    CDDBLookupPanel panel = new CDDBLookupPanel();
-	    _frame.setPanel(panel);
+	    _frame.setPanel(new CDDBLookupPanel());
 
 	} else {
 	    System.out.println("Unknown action event: " + cmd);

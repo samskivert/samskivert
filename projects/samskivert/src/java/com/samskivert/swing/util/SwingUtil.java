@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.17 2002/11/14 00:00:11 ray Exp $
+// $Id: SwingUtil.java,v 1.18 2002/12/09 04:44:36 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,10 +24,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -443,5 +445,33 @@ public class SwingUtil
                 }
             }
         });
+    }
+
+    /**
+     * Activates anti-aliasing in the supplied graphics context.
+     *
+     * @return an object that should be passed to {@link
+     * #restoreAntiAliasing} to restore the graphics context to its
+     * original settings.
+     */
+    public static Object activateAntiAliasing (Graphics2D gfx)
+    {
+        Object oalias = gfx.getRenderingHint(
+            RenderingHints.KEY_ANTIALIASING);
+        gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                             RenderingHints.VALUE_ANTIALIAS_ON);
+        return oalias;
+    }
+
+    /**
+     * Restores anti-aliasing in the supplied graphics context to its
+     * original setting.
+     *
+     * @param rock the results of a previous call to {@link
+     * #activateAntiAliasing}.
+     */
+    public static void restoreAntiAliasing (Graphics2D gfx, Object rock)
+    {
+        gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, rock);
     }
 }

@@ -234,6 +234,10 @@ public class DispatcherServlet extends VelocityServlet
         if (siteLoader != null) {
             props.setProperty(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
                               SiteResourceManager.class.getName());
+        } else {
+            // otherwise use a servlet context resource loader
+            props.setProperty(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
+                              ServletContextResourceManager.class.getName());
         }
 
         // wire up our #import directive

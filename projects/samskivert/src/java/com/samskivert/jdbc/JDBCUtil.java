@@ -434,7 +434,6 @@ public class JDBCUtil
         String update = "CREATE INDEX " + idx_name + " on " + table + "(" +
             cname + ")";
 
-        Log.warning("index: " + update);
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(update);

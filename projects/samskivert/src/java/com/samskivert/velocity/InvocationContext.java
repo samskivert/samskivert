@@ -1,5 +1,5 @@
 //
-// $Id: InvocationContext.java,v 1.1 2001/10/31 09:44:22 mdb Exp $
+// $Id: InvocationContext.java,v 1.2 2003/06/28 17:11:54 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -70,6 +70,22 @@ public class InvocationContext extends VelocityContext
         throws Exception
     {
         return RuntimeSingleton.getTemplate(path);
+    }
+
+    /**
+     * A convenience method for putting an int value into the context.
+     */
+    public void put (String key, int value)
+    {
+        put(key, new Integer(value));
+    }
+
+    /**
+     * A convenience method for putting a boolean value into the context.
+     */
+    public void put (String key, boolean value)
+    {
+        put(key, new Boolean(value));
     }
 
     protected HttpServletRequest _req;

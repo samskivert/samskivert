@@ -1,5 +1,5 @@
 //
-// $Id: ListUtil.java,v 1.5 2001/11/06 02:13:09 mdb Exp $
+// $Id: ListUtil.java,v 1.6 2002/02/19 03:37:48 mdb Exp $
 
 package com.samskivert.util;
 
@@ -98,6 +98,43 @@ public class ListUtil
         if (index >= list.length) {
             list = accomodate(list, index);
         }
+
+        // stick the element on in
+        list[index] = element;
+
+        return list;
+    }
+
+    /**
+     * Inserts the supplied element at the specified position in the
+     * array, shifting the remaining elements down. The array will be
+     * expanded if necessary.
+     *
+     * @param list the list in which to insert the element. Can be null.
+     * @param startIdx the index at which to insert the element.
+     * @param element the element to insert.
+     *
+     * @return a reference to the list with element inserted (might not be
+     * the list you passed in due to expansion, or allocation).
+     */
+    public static Object[] insert (Object[] list, int index, Object element)
+    {
+        // make sure we've got a list to work with
+        if (list == null) {
+            list = new Object[DEFAULT_LIST_SIZE];
+        }
+
+        // make a note of the size of the array
+        int size = list.length;
+
+        // expand the list if necessary (the last element contains a
+        // value)
+        if (list[size-1] != null) {
+            list = accomodate(list, size);
+        }
+
+        // shift everything down
+        System.arraycopy(list, index, list, index+1, size-index);
 
         // stick the element on in
         list[index] = element;

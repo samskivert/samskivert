@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.5 2002/05/16 20:50:31 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.6 2002/05/16 20:53:54 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
  * integers to maintain the contents of the set.
  */
 public class ArrayIntSet extends AbstractSet
-    implements IntSet
+    implements IntSet, Cloneable
 {
     // documentation inherited from interface
     public int size ()
@@ -297,6 +297,20 @@ public class ArrayIntSet extends AbstractSet
             hashCode ^= _values[i];
         }
         return hashCode;
+    }
+
+    // documentation inherited from interface
+    public Object clone ()
+    {
+        try {
+            ArrayIntSet nset = (ArrayIntSet)super.clone();
+            nset._values = new int[_values.length];
+            System.arraycopy(_values, 0, nset._values, 0, _size);
+            return nset;
+
+        } catch (CloneNotSupportedException cnse) {
+            throw new RuntimeException("Internal clone error.");
+        }
     }
 
     /**

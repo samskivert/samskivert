@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.22 2002/12/05 22:14:52 shaper Exp $
+// $Id: ArrayUtil.java,v 1.23 2003/01/17 01:27:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -125,6 +125,18 @@ public class ArrayUtil
         }
 
         return maxes;
+    }
+
+    /**
+     * Returns the sum of the values in the supplied integer array.
+     */
+    public static int sum (int[] values)
+    {
+        int sum = 0;
+        for (int ii = 0; ii < values.length; ii++) {
+            sum += values[ii];
+        }
+        return sum;
     }
 
     /**

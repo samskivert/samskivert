@@ -1,5 +1,5 @@
 //
-// $Id: CollapsibleList.java,v 1.2 2002/04/23 17:05:47 shaper Exp $
+// $Id: CollapsibleList.java,v 1.3 2002/04/27 00:23:49 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -62,6 +62,15 @@ public class CollapsibleList extends JPanel
         add(new JLabel(label));
         add(new JList(model));
         return getSectionCount()-1;
+    }
+
+    /**
+     * Returns the label object associated with the title of the specified
+     * section.
+     */
+    public JLabel getSectionLabel (int index)
+    {
+        return (JLabel)getComponent(index*2);
     }
 
     /**

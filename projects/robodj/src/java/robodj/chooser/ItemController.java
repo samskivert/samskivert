@@ -1,5 +1,5 @@
 //
-// $Id: ItemController.java,v 1.1 2003/05/04 18:16:06 mdb Exp $
+// $Id: ItemController.java,v 1.2 2003/10/10 21:31:57 mdb Exp $
 
 package robodj.chooser;
 
@@ -15,6 +15,7 @@ import com.samskivert.swing.util.TaskObserver;
 
 import robodj.Log;
 import robodj.repository.Song;
+import robodj.util.ErrorUtil;
 
 /**
  * Handles standard commands when displaying lists of items.
@@ -66,7 +67,7 @@ public abstract class ItemController extends Controller
             try {
                 Chooser.repository.updateSong(_song);
             } catch (PersistenceException pe) {
-                Chooser.reportError(
+                ErrorUtil.reportError(
                     "Failure updating song '" + _song + "'", pe);
             }
         }

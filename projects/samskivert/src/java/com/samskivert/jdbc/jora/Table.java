@@ -68,6 +68,22 @@ public class Table {
     }
 
     /** Constructor for table object. Make association between Java class
+     *  and database table.
+     *
+     * @param tclassName name of Java class
+     * @param tableName name of database table mapped on this Java class
+     * @param key table's primary key. This parameter is used in UPDATE/DELETE
+     *  operations to locate record in the table.
+     * @param s session, which should be opened before first access to the table
+     * @param mixedCaseConvert whether or not to convert mixed case field
+     * names into underscore separated uppercase column names.
+     */
+    public Table(String className, String tableName, Session s, String[] keys,
+                 boolean mixedCaseConvert) {
+	init(className, tableName, s, keys, mixedCaseConvert);
+    }
+
+    /** Constructor for table object. Make association between Java class
      *  and database table. Name of Java class should be the same as name of
      *  the database table
      *

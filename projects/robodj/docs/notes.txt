@@ -1,0 +1,7 @@
+RoboDJ Notes
+------------
+
+- Catch database errors after the ripping process and allow use to retry
+  commit to database after fixing database unavailability.
+
+- Impersonate a registered CDDB client until we can get "approval".

@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.2 2001/02/13 05:48:29 mdb Exp $
+// $Id: Repository.java,v 1.3 2001/03/18 06:58:55 mdb Exp $
 
 package robodj.repository;
 
@@ -91,39 +91,30 @@ public class Repository extends MySQLRepository
      * and the song objects) will be filled in with the entryid of the
      * newly created entry.
      */
-    public void insertEntry (Entry entry)
+    public void insertEntry (final Entry entry)
 	throws SQLException
     {
-	try {
-	    // insert the entry into the entry table
-	    _etable.insert(entry);
+	execute(new Operation () {
+	    public void invoke () throws SQLException
+	    {
+                // insert the entry into the entry table
+                _etable.insert(entry);
 
-	    // update the entryid now that it's known
-	    entry.entryid = lastInsertedId();
+                // update the entryid now that it's known
+                entry.entryid = lastInsertedId();
 
-	    // and insert all of it's songs into the songs table
-	    if (entry.songs != null) {
-		for (int i = 0; i < entry.songs.length; i++) {
-		    // insert the proper entryid
-		    entry.songs[i].entryid = entry.entryid;
-		    _stable.insert(entry.songs[i]);
-		    // find out what songid was assigned
-		    entry.songs[i].songid = lastInsertedId();
-		}
-	    }
-
-	    _session.commit();
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+                // and insert all of it's songs into the songs table
+                if (entry.songs != null) {
+                    for (int i = 0; i < entry.songs.length; i++) {
+                        // insert the proper entryid
+                        entry.songs[i].entryid = entry.entryid;
+                        _stable.insert(entry.songs[i]);
+                        // find out what songid was assigned
+                        entry.songs[i].songid = lastInsertedId();
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -136,57 +127,40 @@ public class Repository extends MySQLRepository
      * @see addSongToEntry
      * @see removeSongFromEntry
      */
-    public void updateEntry (Entry entry)
+    public void updateEntry (final Entry entry)
 	throws SQLException
     {
-	try {
-	    // update the entry
-	    _etable.update(entry);
+	execute(new Operation () {
+	    public void invoke () throws SQLException
+	    {
+                // update the entry
+                _etable.update(entry);
 
-	    // and the entry's songs
-	    if (entry.songs != null) {
-		for (int i = 0; i < entry.songs.length; i++) {
-		    _stable.update(entry.songs[i]);
-		}
-	    }
-
-	    _session.commit();
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+                // and the entry's songs
+                if (entry.songs != null) {
+                    for (int i = 0; i < entry.songs.length; i++) {
+                        _stable.update(entry.songs[i]);
+                    }
+                }
+            }
+        });
     }
 
     /**
      * Removes the entry (and all associated songs) from the database.
      */
-    public void deleteEntry (Entry entry)
+    public void deleteEntry (final Entry entry)
 	throws SQLException
     {
-	try {
-	    // remove the entry from the entry table and the foreign key
-	    // constraints will automatically remove all of the
-	    // corresponding songs
-	    _etable.delete(entry);
-	    _session.commit();
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+	execute(new Operation () {
+	    public void invoke () throws SQLException
+	    {
+                // remove the entry from the entry table and the foreign
+                // key constraints will automatically remove all of the
+                // corresponding songs
+                _etable.delete(entry);
+            }
+        });
     }
 
     /**
@@ -201,81 +175,55 @@ public class Repository extends MySQLRepository
      *
      * @see updateSong
      */
-    public void addSongToEntry (Entry entry, Song song)
+    public void addSongToEntry (final Entry entry, final Song song)
 	throws SQLException
     {
-	try {
-	    // fill in the appropriate entry id value
-	    song.entryid = entry.entryid;
+	execute(new Operation () {
+	    public void invoke () throws SQLException
+	    {
+                // fill in the appropriate entry id value
+                song.entryid = entry.entryid;
 
-	    // and stick the song into the database
-	    _stable.insert(song);
-	    // communicate the songid back to the caller
-	    song.songid = lastInsertedId();
-	    _session.commit();
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+                // and stick the song into the database
+                _stable.insert(song);
+                // communicate the songid back to the caller
+                song.songid = lastInsertedId();
+            }
+        });
     }
 
     /**
      * Updates the specified song individually. The songid and entryid
      * parameters should already be set to the appropriate values.
      */
-    public void updateSong (Song song)
+    public void updateSong (final Song song)
 	throws SQLException
     {
-	try {
-	    _stable.update(song);
-	    _session.commit();
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+	execute(new Operation () {
+	    public void invoke () throws SQLException
+	    {
+                _stable.update(song);
+            }
+        });
     }
 
     /**
      * Creates a category with the specified name and returns the id of
      * that new category.
      */
-    public int createCategory (String name)
+    public int createCategory (final String name)
 	throws SQLException
     {
-	try {
-	    Category cat = new Category();
-	    cat.name = name;
-	    _ctable.insert(cat);
+	execute(new Operation () {
+	    public void invoke () throws SQLException
+	    {
+                Category cat = new Category();
+                cat.name = name;
+                _ctable.insert(cat);
+            }
+        });
 
-	    int categoryid = lastInsertedId();
-	    _session.commit();
-
-	    return categoryid;
-
-	} catch (SQLException sqe) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw sqe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-	    _session.rollback();
-	    throw rte;
-	}
+        return lastInsertedId();
     }
 
     /**

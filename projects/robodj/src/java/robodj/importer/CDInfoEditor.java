@@ -1,5 +1,5 @@
 //
-// $Id: CDInfoEditor.java,v 1.1 2000/12/10 07:02:09 mdb Exp $
+// $Id: CDInfoEditor.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
 
 package robodj.importer;
 
@@ -26,10 +26,11 @@ public class CDInfoEditor
 	JLabel selLabel = new JLabel("Select...");
 
 	// create a string array for our combo box
-	String[] names = new String[details.length];
+	String[] names = new String[details.length + 1];
 	for (int i = 0; i < details.length; i++) {
 	    names[i] = details[i].title;
 	}
+        names[details.length] = "<blank>";
 
 	_selBox = new JComboBox(names);
 	selPanel.add(selLabel, GroupLayout.FIXED);

@@ -1,5 +1,5 @@
 //
-// $Id: RipTest.java,v 1.3 2001/02/06 08:18:00 mdb Exp $
+// $Id: RipTest.java,v 1.4 2001/03/18 06:58:55 mdb Exp $
 
 package robodj.convert;
 
@@ -24,6 +24,7 @@ public class RipTest
 	int length = RipUtil.computeDiscLength(info);
 
 	try {
+            System.out.println("connecting to: " + hostname);
 	    String rsp = cddb.connect(hostname);
 
 	    // set the timeout to 30 seconds
@@ -80,7 +81,7 @@ public class RipTest
 
 	    } else {
 		// try the CDDB lookup
-		lookupCDDB("us.cddb.com", info);
+		lookupCDDB("ca.freedb.org", info);
 
 		// rip a track, for fun
 		int track = 2;

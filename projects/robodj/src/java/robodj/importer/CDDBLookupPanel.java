@@ -1,5 +1,5 @@
 //
-// $Id: CDDBLookupPanel.java,v 1.1 2000/12/10 07:02:09 mdb Exp $
+// $Id: CDDBLookupPanel.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
 
 package robodj.importer;
 
@@ -34,11 +34,24 @@ public class CDDBLookupPanel
 	cdlabel.setFont(new Font("Helvetica", Font.BOLD, 24));
 	add(cdlabel, GroupLayout.FIXED);
 
+        // on the right hand side we want a status display to let the user
+        // know how the CDDB lookup process is going
+        GroupLayout vgl = new VGroupLayout(GroupLayout.STRETCH);
+        vgl.setOffAxisPolicy(GroupLayout.STRETCH);
+        _spanel = new JPanel(vgl);
+
+        JLabel sl = new JLabel("Status", JLabel.LEFT);
+        _spanel.add(sl, GroupLayout.FIXED);
+
 	// create the "insert cd" text label for the right hand side
 	_infoText = new JTextArea("Reading CD information...");
 	_infoText.setLineWrap(true);
 	_infoText.setEditable(false);
-	add(_infoText);
+	// make something for it to scroll around in
+	_spanel.add(new JScrollPane(_infoText));
+
+        // add our panel to the main group
+        add(_spanel);
     }
 
     public void wasAddedToFrame (ImporterFrame frame)
@@ -82,7 +95,7 @@ public class CDDBLookupPanel
 		public Object invoke ()
 		    throws Exception
 		{
-		    return CDDBUtil.doCDDBLookup("us.cddb.com", info);
+		    return CDDBUtil.doCDDBLookup("ca.freedb.org", info);
 		}
 
 		public boolean abort ()
@@ -97,7 +110,7 @@ public class CDDBLookupPanel
 	    CDDB.Detail[] details = (CDDB.Detail[])result;
 
 	    // replace the info text with the CD info editor
-	    remove(_infoText);
+	    remove(_spanel);
 	    _infoEditor = new CDInfoEditor(details, _info.length);
 	    add(_infoEditor);
 
@@ -179,6 +192,7 @@ public class CDDBLookupPanel
 
     protected ImporterFrame _frame;
     protected JButton _next;
+    protected JPanel _spanel;
     protected JTextArea _infoText;
     protected CDInfoEditor _infoEditor;
 

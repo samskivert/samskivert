@@ -1,5 +1,5 @@
 //
-// $Id: ImporterFrame.java,v 1.1 2000/12/10 07:02:09 mdb Exp $
+// $Id: ImporterFrame.java,v 1.2 2001/03/18 06:58:55 mdb Exp $
 
 package robodj.importer;
 
@@ -24,7 +24,9 @@ public class ImporterFrame extends JFrame
 	_top.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 	// create a container for our control buttons
-	_buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        GroupLayout bgl = new HGroupLayout(GroupLayout.NONE);
+        bgl.setJustification(GroupLayout.RIGHT);
+	_buttonPanel = new JPanel(bgl);
 
 	// stick it into the frame
 	_top.add(_buttonPanel, GroupLayout.FIXED);
@@ -51,7 +53,6 @@ public class ImporterFrame extends JFrame
 	// then stick the new panel in there
 	if (panel != null) {
 	    _panel = panel;
-	    _panel.setBackground(Color.yellow);
 	    _top.add(_panel, 0);
 	    // let the panel know that it was added
 	    _panel.wasAddedToFrame(this);

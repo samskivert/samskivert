@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.38 2002/10/16 00:42:26 mdb Exp $
+// $Id: StringUtil.java,v 1.39 2002/10/16 00:44:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -579,8 +579,10 @@ public class StringUtil
     }
 
     /**
-     * Returns a hex string representing the MD5 encoded source or null if
-     * the MD5 codec was not available in this JVM.
+     * Returns a hex string representing the MD5 encoded source.
+     *
+     * @exception RuntimeException thrown if the MD5 codec was not
+     * available in this JVM.
      */
     public static String md5hex (String source)
     {
@@ -588,7 +590,7 @@ public class StringUtil
 	    MessageDigest digest = MessageDigest.getInstance("MD5");
 	    return hexlate(digest.digest(source.getBytes()));
 	} catch (NoSuchAlgorithmException nsae) {
-            return null;
+            throw new RuntimeException("MD5 codec not available");
 	}
     }
 

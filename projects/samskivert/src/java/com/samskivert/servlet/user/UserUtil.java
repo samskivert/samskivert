@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.5 2002/10/16 00:42:26 mdb Exp $
+// $Id: UserUtil.java,v 1.6 2002/10/16 00:44:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -40,14 +40,7 @@ public class UserUtil
 	buf.append(Math.random());
 
 	// and MD5 hash it
-        String auth = StringUtil.md5hex(buf.toString());
-        if (auth == null) {
-	    throw new RuntimeException("JVM missing MD5 message digest " +
-				       "algorithm implementation. User " +
-				       "management facilities require MD5 " +
-				       "encoding capabilities.");
-        }
-        return auth;
+        return StringUtil.md5hex(buf.toString());
     }
 
     /**

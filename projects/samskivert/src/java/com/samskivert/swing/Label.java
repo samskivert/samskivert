@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.18 2002/07/23 03:06:59 shaper Exp $
+// $Id: Label.java,v 1.19 2002/09/23 21:19:06 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -55,7 +55,7 @@ import com.samskivert.util.Tuple;
  * text at hand. It is not a component, but is intended for use by
  * components and other more heavyweight entities.
  */
-public class Label implements SwingConstants
+public class Label implements SwingConstants, LabelStyleConstants
 {
     /**
      * Constructs a blank label.
@@ -119,15 +119,14 @@ public class Label implements SwingConstants
     }
 
     /**
-     * Instructs the label to render the text outlined in the specified
+     * Instructs the label to render the text with the specified alternate
      * color when rendering. The text itself will be rendered in whatever
-     * color is currently set in the graphics context, but the outline
-     * will always be in the specified color. Set the outline color to
-     * <code>null</code> to disable outlining (which is the default).
+     * color is currently set in the graphics context, but the outline or
+     * shadow (if any) will always be in the specified color.
      */
-    public void setOutlineColor (Color color)
+    public void setAlternateColor (Color color)
     {
-        _outlineColor = color;
+        _alternateColor = color;
     }
 
     /**
@@ -147,6 +146,15 @@ public class Label implements SwingConstants
     public void setAlignment (int align)
     {
         _align = align;
+    }
+
+    /**
+     * Sets the style of the text within the label to one of the styles
+     * defined in {@link LabelStyleConstants}.
+     */
+    public void setStyle (int style)
+    {
+        _style = style;
     }
 
     /**
@@ -248,11 +256,26 @@ public class Label implements SwingConstants
             layouts.add(new Tuple(layout, bounds));
         }
 
-        // if we have an outline color, we need to be two pixels bigger in
-        // both directions to account for stealthy, hack outline mode
-        if (_outlineColor != null) {
+        switch (_style) {
+        case OUTLINE:
+            // we need to be two pixels bigger in both directions
             _size.width += 2;
             _size.height += 2;
+            break;
+
+        case SHADOW:
+            // we need to be one pixel bigger in both directions
+            _size.width += 1;
+            _size.height += 1;
+            break;
+
+        case BOLD:
+            // we need to be one pixel bigger horizontally
+            _size.width += 1;
+            break;
+
+        default:
+            break;
         }
 
         // create our layouts array
@@ -269,10 +292,10 @@ public class Label implements SwingConstants
     /**
      * Computes the lines of text for this label given the specified
      * target width. The overall size of the computed lines is stored into
-     * the size parameter.
+     * the <code>size</code> parameter.
      *
-     * @return an ArrayList or null if keepWordsWhole was true and
-     * the lines could not be layed out in the target width.
+     * @return an {@link ArrayList} or null if <code>keepWordsWhole</code>
+     * was true and the lines could not be layed out in the target width.
      */
     protected ArrayList computeLines (
         LineBreakMeasurer measurer, int targetWidth, Dimension size,
@@ -325,10 +348,27 @@ public class Label implements SwingConstants
             gfx.setColor(_textColor);
         }
 
-        // shift everything over and down by one pixel if we're outlining
-        if (_outlineColor != null) {
+        switch (_style) {
+        case OUTLINE:
+            // shift everything over and down by one pixel if we're outlining
             x += 1;
             y += 1;
+            break;
+
+        case SHADOW:
+            // shift everything over and up by one pixel if we're drawing
+            // with a shadow
+            x += 1;
+            y -= 1;
+            break;
+
+        case BOLD:
+            // shift everything over one pixel if we're drawing in bold
+            x -= 1;
+            break;
+
+        default:
+            break;
         }
 
         // render our text
@@ -338,10 +378,22 @@ public class Label implements SwingConstants
             y += layout.getAscent();
 
             float dx = 0, extra = (float)(_size.width - lbounds.getWidth());
-            // if we're outlining, we really have two pixels less space
-            // than we think we do
-            if (_outlineColor != null) {
+            switch (_style) {
+            case OUTLINE:
+                // if we're outlining, we really have two pixels less space
+                // than we think we do
                 extra -= 2;
+                break;
+
+            case SHADOW:
+            case BOLD:
+                // if we're rendering shadowed or bolded text, we really
+                // have one pixel less space than we think we do
+                extra -= 1;
+                break;
+
+            default:
+                break;
             }
 
             switch (_align) {
@@ -358,11 +410,12 @@ public class Label implements SwingConstants
             // "position" part of their bounds
             float rx = (float)(x + dx - lbounds.getX());
 
-            // render the outline using the hacky, but much nicer than
-            // using "real" outlines (via TextLayout.getOutline), method
-            if (_outlineColor != null) {
+            switch (_style) {
+            case OUTLINE:
+                // render the outline using the hacky, but much nicer than
+                // using "real" outlines (via TextLayout.getOutline), method
                 Color textColor = gfx.getColor();
-                gfx.setColor(_outlineColor);
+                gfx.setColor(_alternateColor);
                 layout.draw(gfx, rx - 1, y - 1);
                 layout.draw(gfx, rx - 1, y);
                 layout.draw(gfx, rx - 1, y + 1);
@@ -372,6 +425,21 @@ public class Label implements SwingConstants
                 layout.draw(gfx, rx + 1, y);
                 layout.draw(gfx, rx + 1, y + 1);
                 gfx.setColor(textColor);
+                break;
+
+            case SHADOW:
+                textColor = gfx.getColor();
+                gfx.setColor(_alternateColor);
+                layout.draw(gfx, rx - 1, y + 1);
+                gfx.setColor(textColor);
+                break;
+
+            case BOLD:
+                layout.draw(gfx, rx + 1, y);
+                break;
+
+            default:
+                break;
             }
 
             // and draw the text itself
@@ -409,6 +477,9 @@ public class Label implements SwingConstants
     /** The text of the label. */
     protected String _text;
 
+    /** The text style. */
+    protected int _style;
+
     /** The text alignment. */
     protected int _align = -1; // -1 means default according to locale
 
@@ -428,9 +499,9 @@ public class Label implements SwingConstants
     /** Formatted text layout instances that contain each line of text. */
     protected Rectangle2D[] _lbounds;
 
-    /** The color in which to outline the text when rendering or null if
-     * the text should not be outlined. */
-    protected Color _outlineColor = null;
+    /** The color in which to render the text outline or shadow if we're
+     * rendering in outline or shadow mode. */
+    protected Color _alternateColor = null;
 
     /** The color in which to render the text or null if the text should
      * be rendered with the graphics context color. */

@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.2 2002/09/18 01:19:26 shaper Exp $
+// $Id: MultiLineLabel.java,v 1.3 2002/09/23 21:19:06 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -30,12 +30,13 @@ import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 
 import com.samskivert.Log;
+import com.samskivert.util.StringUtil;
 
 /**
  * A Swing component that displays a {@link Label}.
  */
 public class MultiLineLabel extends JComponent
-    implements SwingConstants
+    implements SwingConstants, LabelStyleConstants
 {
     /**
      * Constructs an empty multi line label.
@@ -65,7 +66,7 @@ public class MultiLineLabel extends JComponent
     }
 
     /**
-     * Constructs a multi line label that displays the supplied text and
+     * Constructs a multi line label that displays the supplied text with
      * the specified constraints and alignment.  Constraints should be one
      * of {@link #HORIZONTAL}, {@link #VERTICAL}, or <code>-1</code> if no
      * constraints are desired.
@@ -84,6 +85,7 @@ public class MultiLineLabel extends JComponent
     public void setAntiAliased (boolean antialiased)
     {
         _antialiased = antialiased;
+        _dirty = true;
     }
 
     /**
@@ -92,17 +94,16 @@ public class MultiLineLabel extends JComponent
     public void setText (String text)
     {
         _label.setText(text);
-        dirty();
+        _dirty = true;
     }
 
     /**
-     * Sets the outline color used to display the label text if the text
-     * style is currently set to outline mode.
+     * Sets the alternate color used to display the label text.
      */
-    public void setOutlineColor (Color color)
+    public void setAlternateColor (Color color)
     {
-        _label.setOutlineColor(color);
-        dirty();
+        _label.setAlternateColor(color);
+        _dirty = true;
     }
 
     /**
@@ -111,7 +112,7 @@ public class MultiLineLabel extends JComponent
     public void setAlignment (int align)
     {
         _label.setAlignment(align);
-        dirty();
+        _dirty = true;
     }
 
     /**
@@ -120,13 +121,27 @@ public class MultiLineLabel extends JComponent
     public void setOffAxisAlignment (int align)
     {
         _offalign = align;
-        dirty();
+        _dirty = true;
+    }
+
+    /**
+     * Sets the text style used to render this label.
+     */
+    public void setStyle (int style)
+    {
+        _label.setStyle(style);
+        _dirty = true;
     }
 
     // documentation inherited
     public void paintComponent (Graphics g)
     {
         super.paintComponent(g);
+
+        // if we're dirty, re-lay things out before painting ourselves
+        if (_dirty) {
+            layoutLabel();
+        }
 
         Graphics2D gfx = (Graphics2D)g;
         int align = _label.getAlignment();
@@ -154,11 +169,12 @@ public class MultiLineLabel extends JComponent
     public void doLayout ()
     {
         super.doLayout();
+
         switch (_constrain) {
         case HORIZONTAL: _label.setTargetWidth(getWidth()); break;
         case VERTICAL: _label.setTargetHeight(getHeight()); break;
         }
-        dirty();
+        layoutLabel();
     }
 
     /**
@@ -166,7 +182,7 @@ public class MultiLineLabel extends JComponent
      * accordingly like to re-layout the label, update our component's
      * size, and repaint everything to suit.
      */
-    protected void dirty ()
+    protected void layoutLabel ()
     {
         Graphics2D gfx = (Graphics2D)getGraphics();
         if (gfx != null) {
@@ -178,15 +194,22 @@ public class MultiLineLabel extends JComponent
             _label.layout(gfx);
             gfx.dispose();
 
-            // update our size and force a layout and repaint
+            // update our size and force a layout
             revalidate();
-            repaint();
+
+            // note that we're no longer dirty
+            _dirty = false;
         }
     }
 
     // documentation inherited
     public Dimension getPreferredSize ()
     {
+        if (_dirty) {
+            // attempt to lay out the label before obtaining its preferred
+            // dimensions
+            layoutLabel();
+        }
         Dimension size = _label.getSize();
         return (size == null) ? new Dimension(10, 10) : size;
     }
@@ -205,4 +228,7 @@ public class MultiLineLabel extends JComponent
 
     /** Whether to render the label with anti-aliasing. */
     protected boolean _antialiased;
+
+    /** Whether this label is dirty and should be re-layed out. */
+    protected boolean _dirty;
 }

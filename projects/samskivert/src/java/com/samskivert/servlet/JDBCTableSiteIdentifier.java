@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.5 2003/11/13 01:28:25 ray Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.6 2003/11/13 02:28:52 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,8 +21,9 @@
 package com.samskivert.servlet;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
@@ -36,11 +37,8 @@ import com.samskivert.io.PersistenceException;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.DatabaseLiaison;
-import com.samskivert.jdbc.JORARepository;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.SimpleRepository;
-import com.samskivert.jdbc.jora.Session;
-import com.samskivert.jdbc.jora.Table;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
@@ -145,18 +143,11 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
      * Used to load information from the site database.
      */
     protected class SiteIdentifierRepository
-        extends JORARepository implements SimpleRepository.Operation
+        extends SimpleRepository implements SimpleRepository.Operation
     {
         public SiteIdentifierRepository (ConnectionProvider conprov)
         {
             super(conprov, SITE_IDENTIFIER_IDENT);
-        }
-
-        // documentation inherited
-        protected void createTables (Session session)
-        {
-            _stable = new Table(
-                Site.class.getName(), "sites", session, "siteId");
         }
 
         public void refreshSiteData ()
@@ -217,17 +208,25 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 public Object invoke (Connection conn, DatabaseLiaison liaison)
                     throws PersistenceException, SQLException
                 {
-                    _stable.insert(site);
-                    // update the userid now that it's known
-                    site.siteId = liaison.lastInsertedId(conn);
-                    // nothing to return
+                    PreparedStatement stmt = null;
+                    try {
+                        stmt = conn.prepareStatement(
+                            "insert into sites (stringId) VALUES (?)");
+                        stmt.setString(1, site.siteString);
+                        if (1 != stmt.executeUpdate()) {
+                            throw new PersistenceException("Not inserted");
+                        }
+
+                        site.siteId = liaison.lastInsertedId(conn);
+                        System.err.println("site id inserted was " + site.siteId);
+                    } finally {
+                        JDBCUtil.close(stmt);
+                    }
+
                     return null;
                 }
             });
         }
-
-        /** A wrapper that provides access to the sites table. */
-        protected Table _stable;
     }
 
     /**

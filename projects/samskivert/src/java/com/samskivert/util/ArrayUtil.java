@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.14 2002/08/19 23:22:09 shaper Exp $
+// $Id: ArrayUtil.java,v 1.15 2002/09/06 02:12:25 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -311,6 +311,214 @@ public class ArrayUtil
             }
 	}
 	return -(low + 1); // key not found.
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * subset of values from indexes <code>0</code> to </code>offset -
+     * 1</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array after
+     * which all subsequent values are to be removed.  This must be a
+     * valid index within the <code>values</code> array.
+     */
+    public static byte[] splice (byte[] values, int offset)
+    {
+        return splice(values, offset, values.length - offset);
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * concatenated subset of values from indexes <code>0</code> to
+     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>values.length</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array at
+     * which the first element will be removed.  This must be a valid
+     * index within the <code>values</code> array.
+     * @param length the number of elements to be removed.  Note that
+     * <code>offset + length</code> must be a valid index within the
+     * <code>values</code> array.
+     */
+    public static byte[] splice (byte[] values, int offset, int length)
+    {
+        // make sure we've something to work with
+        if (values == null) {
+            throw new IllegalArgumentException("Can't splice a null array.");
+        }
+
+        // require that the entire range to remove be within the array bounds
+        int size = values.length;
+        int tstart = offset + length;
+        if (offset < 0 || tstart > size) {
+            throw new ArrayIndexOutOfBoundsException(
+                "Splice range out of bounds [offset=" + offset +
+                ", length=" + length + ", size=" + size + "].");
+        }
+
+        // create a new array and populate it with the spliced-in values
+        byte[] nvalues = new byte[size - length];
+        System.arraycopy(values, 0, nvalues, 0, offset);
+        System.arraycopy(values, tstart, nvalues, offset, size - tstart);
+        return nvalues;
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * subset of values from indexes <code>0</code> to </code>offset -
+     * 1</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array after
+     * which all subsequent values are to be removed.  This must be a
+     * valid index within the <code>values</code> array.
+     */
+    public static int[] splice (int[] values, int offset)
+    {
+        return splice(values, offset, values.length - offset);
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * concatenated subset of values from indexes <code>0</code> to
+     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>values.length</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array at
+     * which the first element will be removed.  This must be a valid
+     * index within the <code>values</code> array.
+     * @param length the number of elements to be removed.  Note that
+     * <code>offset + length</code> must be a valid index within the
+     * <code>values</code> array.
+     */
+    public static int[] splice (int[] values, int offset, int length)
+    {
+        // make sure we've something to work with
+        if (values == null) {
+            throw new IllegalArgumentException("Can't splice a null array.");
+        }
+
+        // require that the entire range to remove be within the array bounds
+        int size = values.length;
+        int tstart = offset + length;
+        if (offset < 0 || tstart > size) {
+            throw new ArrayIndexOutOfBoundsException(
+                "Splice range out of bounds [offset=" + offset +
+                ", length=" + length + ", size=" + size + "].");
+        }
+
+        // create a new array and populate it with the spliced-in values
+        int[] nvalues = new int[size - length];
+        System.arraycopy(values, 0, nvalues, 0, offset);
+        System.arraycopy(values, tstart, nvalues, offset, size - tstart);
+        return nvalues;
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * subset of values from indexes <code>0</code> to </code>offset -
+     * 1</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array after
+     * which all subsequent values are to be removed.  This must be a
+     * valid index within the <code>values</code> array.
+     */
+    public static String[] splice (String[] values, int offset)
+    {
+        return splice(values, offset, values.length - offset);
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * concatenated subset of values from indexes <code>0</code> to
+     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>values.length</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array at
+     * which the first element will be removed.  This must be a valid
+     * index within the <code>values</code> array.
+     * @param length the number of elements to be removed.  Note that
+     * <code>offset + length</code> must be a valid index within the
+     * <code>values</code> array.
+     */
+    public static String[] splice (String[] values, int offset, int length)
+    {
+        // make sure we've something to work with
+        if (values == null) {
+            throw new IllegalArgumentException("Can't splice a null array.");
+        }
+
+        // require that the entire range to remove be within the array bounds
+        int size = values.length;
+        int tstart = offset + length;
+        if (offset < 0 || tstart > size) {
+            throw new ArrayIndexOutOfBoundsException(
+                "Splice range out of bounds [offset=" + offset +
+                ", length=" + length + ", size=" + size + "].");
+        }
+
+        // create a new array and populate it with the spliced-in values
+        String[] nvalues = new String[size - length];
+        System.arraycopy(values, 0, nvalues, 0, offset);
+        System.arraycopy(values, tstart, nvalues, offset, size - tstart);
+        return nvalues;
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * subset of values from indexes <code>0</code> to </code>offset -
+     * 1</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array after
+     * which all subsequent values are to be removed.  This must be a
+     * valid index within the <code>values</code> array.
+     */
+    public static Object[] splice (Object[] values, int offset)
+    {
+        return splice(values, offset, values.length - offset);
+    }
+
+    /**
+     * Creates and returns a new array sized to fit and populated with the
+     * concatenated subset of values from indexes <code>0</code> to
+     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>values.length</code> (inclusive) in the supplied array.
+     *
+     * @param values the array of values to splice.
+     * @param offset the index within the <code>values</code> array at
+     * which the first element will be removed.  This must be a valid
+     * index within the <code>values</code> array.
+     * @param length the number of elements to be removed.  Note that
+     * <code>offset + length</code> must be a valid index within the
+     * <code>values</code> array.
+     */
+    public static Object[] splice (Object[] values, int offset, int length)
+    {
+        // make sure we've something to work with
+        if (values == null) {
+            throw new IllegalArgumentException("Can't splice a null array.");
+        }
+
+        // require that the entire range to remove be within the array bounds
+        int size = values.length;
+        int tstart = offset + length;
+        if (offset < 0 || tstart > size) {
+            throw new ArrayIndexOutOfBoundsException(
+                "Splice range out of bounds [offset=" + offset +
+                ", length=" + length + ", size=" + size + "].");
+        }
+
+        // create a new array and populate it with the spliced-in values
+        Object[] nvalues = new Object[size - length];
+        System.arraycopy(values, 0, nvalues, 0, offset);
+        System.arraycopy(values, tstart, nvalues, offset, size - tstart);
+        return nvalues;
     }
 
     /** The random object used when shuffling an array. */

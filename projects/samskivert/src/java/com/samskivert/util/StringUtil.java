@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.7 2001/07/12 23:29:16 mdb Exp $
+// $Id: StringUtil.java,v 1.8 2001/07/19 18:32:02 mdb Exp $
 
 package com.samskivert.util;
 
@@ -113,7 +113,7 @@ public class StringUtil
 		if (i > 0) {
 		    buf.append(", ");
 		}
-		buf.append(v[i]);
+		buf.append(toString(v[i]));
 	    }
 	    buf.append(")");
 

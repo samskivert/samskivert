@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.25 2004/04/30 01:50:16 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.26 2004/06/29 04:37:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -259,6 +259,7 @@ public class DispatcherServlet extends VelocityServlet
     {
         InvocationContext ictx = (InvocationContext)ctx;
         String errmsg = null;
+        Logic logic = null;
 
         // listen for exceptions so that we can report them
         EventCartridge ec = ictx.getEventCartridge();
@@ -319,7 +320,7 @@ public class DispatcherServlet extends VelocityServlet
             // resolve the appropriate logic class for this URI and
             // execute it if it exists
             String path = req.getServletPath();
-            Logic logic = resolveLogic(path);
+            logic = resolveLogic(path);
             if (logic != null) {
                 logic.invoke(_app, ictx);
             }
@@ -334,6 +335,8 @@ public class DispatcherServlet extends VelocityServlet
 
 	} catch (Exception e) {
             errmsg = ExceptionMap.getMessage(e);
+            Log.warning("Choked on request [logic=" + logic +
+                        ", req=" + req.getRequestURI() + "].");
 	    Log.logStackTrace(e);
 	}
 

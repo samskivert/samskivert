@@ -1,29 +1,40 @@
 Building lookuplet
 ------------------
 
-lookuplet is now written in Python, using the Python/Gnome and Pythong/GTK
-bindings. Thus, there is no building of lookuplet, but you will need a few
-things installed to run it:
-
-    Python       http://www.python.org/
-    GTK+         http://www.gtk.org/
-    gnome-libs   http://www.gnome.org/
-    gnome-python http://www.gnome.org/
+lookuplet is in the process of being rewritten in C++ using GLADE to
+autogenerate code for the UI. As such you will need a variety of libraries
+installed to build the program.
 
 I use Debian Woody and I believe apt-get installing the following packages
 will get you to where you need to be:
 
-     python-gnome
+  gnome-common
+  automake
+  autoconf
+  libgtk2.0-dev
+  libgnomemm2.0-dev
+  libgnomeuimm2.0-dev
 
 I'm not sure whether there will be some missed dependencies, let me know
-if you start from scratch and find some. lookuplet doesn't depend on any
-special GNOME services, just the configuration stuff (gnome_config) and
-some compound GTK widgets (like property_box).
+if you start from scratch and find some.
 
-Everything else should work out of the box. If you invoke 'make install'
-it will attempt to install lookuplet int /usr/local, which can be changed
-by setting DESTDIR in your environment or specifying its value to make on
-the command line.
+With that installed, invoke:
+
+% ./autogen.sh
+
+which will do a bunch of stuff and eventually run ./configure. You can
+pass arguments to ./autogen.sh like --prefix to install somewhere other
+than /usr/local. Then you can:
+
+% make
+
+which should build lookuplet which you can attempt to run like so:
+
+% ./src/lookuplet
+
+If that seems to work, then you can install it with:
+
+% make install
 
 Please let me know if you find that I've overlooked some build
 requirements or instructions.
@@ -32,4 +43,4 @@ Thanks,
 
     Michael Bayne <mdb@samskivert.com>
 
-$Id: INSTALL,v 1.5 2002/03/17 10:13:57 mdb Exp $
+$Id: INSTALL,v 1.6 2003/11/28 21:38:13 mdb Exp $

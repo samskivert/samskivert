@@ -1,11 +1,12 @@
 //
-// $Id: DnDManager.java,v 1.7 2002/09/06 00:26:10 ray Exp $
+// $Id: DnDManager.java,v 1.8 2002/09/06 01:04:32 ray Exp $
 
 package com.samskivert.swing.dnd;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -54,8 +55,17 @@ public class DnDManager
      */
     public static Cursor createImageCursor (Image img)
     {
-        // TODO: check colors/size
         Toolkit tk = Toolkit.getDefaultToolkit();
+
+        // for now, just report the cursor restrictions, then blindly create
+        int w = img.getWidth(null);
+        int h = img.getHeight(null);
+        Dimension d = tk.getBestCursorSize(w, h);
+        int colors = tk.getMaximumCursorColors();
+        Log.debug("Creating custom cursor [desiredSize=" + w + "x" + h +
+                  ", bestSize=" + d.width + "x" + d.height +
+                  ", maxcolors=" + colors + "].");
+
         return tk.createCustomCursor(img,
             new Point(img.getWidth(null) / 2, img.getHeight(null) / 2),
             "samskivertDnDCursor");

@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.6 2003/04/04 04:19:44 ray Exp $
+// $Id: ParameterUtil.java,v 1.7 2003/08/19 23:09:12 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,10 +53,11 @@ public class ParameterUtil
         HttpServletRequest req, String name, boolean returnNull)
     {
 	String value = req.getParameter(name);
-        if (returnNull || !StringUtil.blank(value)) {
-            return value;
+        if (value == null) {
+            return returnNull ? null : "";
+
         } else {
-            return "";
+            return value.trim();
         }
     }
 
@@ -170,7 +171,7 @@ public class ParameterUtil
         HttpServletRequest req, String name, String missingDataMessage)
 	throws DataValidationException
     {
-	String value = req.getParameter(name);
+	String value = getParameter(req, name, true);
 	if (StringUtil.blank(value)) {
 	    throw new DataValidationException(missingDataMessage);
 	}

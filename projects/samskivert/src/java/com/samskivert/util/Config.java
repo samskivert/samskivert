@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.22 2003/08/12 01:27:35 mdb Exp $
+// $Id: Config.java,v 1.23 2004/01/24 06:14:53 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.util;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.security.AccessControlException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
 
+import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -128,7 +130,12 @@ public class Config
 
         // get a handle on the preferences instance that we'll use to
         // override values in the properties file
-        _prefs = Preferences.userRoot().node(path);
+        try {
+            _prefs = Preferences.userRoot().node(path);
+        } catch (AccessControlException ace) {
+            // security manager won't let us access prefs, no problem!
+            _prefs = new NullPreferences();
+        }
     }
 
     /**
@@ -642,6 +649,37 @@ public class Config
         }
 
         return matches.iterator();
+    }
+
+    /** This is used if we don't have security access to the preferences
+     * implementation that we'd like. */
+    protected static class NullPreferences extends AbstractPreferences
+    {
+        public NullPreferences () {
+            super(null, "");
+        }
+        protected void putSpi (String key, String value) {
+        }
+        protected String getSpi (String key) {
+            return null;
+        }
+        protected void removeSpi (String key) {
+        }
+        protected void removeNodeSpi () throws BackingStoreException {
+        }
+        protected String[] keysSpi () throws BackingStoreException {
+            return new String[0];
+        }
+        protected String[] childrenNamesSpi () throws BackingStoreException {
+            return new String[0];
+        }
+        protected AbstractPreferences childSpi (String name) {
+            return null;
+        }
+        protected void syncSpi () throws BackingStoreException {
+        }
+        protected void flushSpi () throws BackingStoreException {
+        }
     }
 
     /** Contains the default configuration information. */

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.16 2002/12/12 19:53:55 mdb Exp $
+// $Id: AtlantiTile.java,v 1.17 2003/03/23 02:22:51 mdb Exp $
 
 package com.samskivert.atlanti.data;
 
@@ -19,8 +19,7 @@ import java.util.List;
 import com.samskivert.util.IntTuple;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.ImageManager;
-import com.threerings.media.tile.ImageProvider;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.UniformTileSet;
@@ -467,7 +466,6 @@ public class AtlantiTile
         if (_tset == null) {
             _tset = _tmgr.loadTileSet(TILES_IMG_PATH, TILE_TYPES,
                                       TILE_WIDTH, TILE_HEIGHT);
-            _tset.setImageProvider(_imgprov);
         }
 
         // fetch the tile
@@ -483,7 +481,6 @@ public class AtlantiTile
         if (_stset == null) {
             _stset = _tmgr.loadTileSet(SHIELD_IMG_PATH, 1,
                                        SHIELD_SIZE, SHIELD_SIZE);
-            _stset.setImageProvider(_imgprov);
         }
 
         // fetch the tile
@@ -498,17 +495,6 @@ public class AtlantiTile
 
     /** Our tile manager. */
     protected static TileManager _tmgr;
-
-    /** Used to load tile images. The default image provider (the tile
-     * manager) optimizes the images for display on the screen which seems
-     * to fuck Java's ability to apply rotational transforms to the image
-     * prior to rendering. Yay! */
-    protected static ImageProvider _imgprov = new ImageProvider() {
-        public Image loadImage (String path)
-            throws IOException {
-            return _imgr.loadImage(path);
-        }
-    };
 
     /** Our tile image tileset. */
     protected static UniformTileSet _tset;

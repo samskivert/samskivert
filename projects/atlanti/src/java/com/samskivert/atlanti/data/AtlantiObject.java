@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiObject.java,v 1.9 2002/12/12 05:51:54 mdb Exp $
+// $Id: AtlantiObject.java,v 1.10 2003/03/23 02:22:51 mdb Exp $
 
 package com.samskivert.atlanti.data;
 
@@ -94,7 +94,7 @@ public class AtlantiObject extends GameObject
      * the <code>tiles</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromTiles (Object key)
+    public void removeFromTiles (Comparable key)
     {
         requestEntryRemove(TILES, key);
     }
@@ -154,7 +154,7 @@ public class AtlantiObject extends GameObject
      * the <code>piecens</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromPiecens (Object key)
+    public void removeFromPiecens (Comparable key)
     {
         requestEntryRemove(PIECENS, key);
     }

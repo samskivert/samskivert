@@ -17,9 +17,9 @@ import com.samskivert.swing.ControllerProvider;
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 
-import com.threerings.resource.ResourceManager;
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.TileManager;
+import com.threerings.resource.ResourceManager;
 
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.client.PlaceView;

@@ -1,5 +1,5 @@
 //
-// $Id: TileGeometryTest.java,v 1.6 2002/12/12 05:51:53 mdb Exp $
+// $Id: TileGeometryTest.java,v 1.7 2003/03/23 02:22:51 mdb Exp $
 
 package com.samskivert.atlanti;
 
@@ -12,9 +12,9 @@ import javax.swing.JPanel;
 
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.resource.ResourceManager;
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.TileManager;
+import com.threerings.resource.ResourceManager;
 
 import com.samskivert.atlanti.data.AtlantiTile;
 import com.samskivert.atlanti.data.TileCodes;

@@ -1,5 +1,5 @@
 //
-// $Id: PiecenUtil.java,v 1.3 2002/12/12 05:51:54 mdb Exp $
+// $Id: PiecenUtil.java,v 1.4 2003/03/23 02:22:51 mdb Exp $
 
 package com.samskivert.atlanti.util;
 
@@ -16,15 +16,8 @@ public class PiecenUtil
      */
     public static void init (TileManager tmgr)
     {
-        // load up the piecen tiles
-        UniformTileSet piecenSet = new UniformTileSet();
-        piecenSet.setTileCount(PIECEN_TYPES);
-        piecenSet.setWidth(PIECEN_WIDTH);
-        piecenSet.setHeight(PIECEN_HEIGHT);
-        piecenSet.setImagePath(PIECEN_IMG_PATH);
-        piecenSet.setImageProvider(tmgr);
-
-        // fetch the tile images
+        UniformTileSet piecenSet = tmgr.loadTileSet(
+            PIECEN_IMG_PATH, PIECEN_TYPES, PIECEN_WIDTH, PIECEN_HEIGHT);
         _images = new Image[PIECEN_TYPES];
         for (int i = 0; i < PIECEN_TYPES; i++) {
             _images[i] = piecenSet.getTileImage(i);

@@ -1,5 +1,5 @@
 //
-// $Id: VGroupLayout.java,v 1.8 2001/10/09 19:46:31 mdb Exp $
+// $Id: VGroupLayout.java,v 1.9 2001/10/17 17:01:02 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -149,6 +149,7 @@ public class VGroupLayout extends GroupLayout
         case LEFT:
         case TOP:
             sy = insets.top;
+            break;
 	case CENTER:
 	    sy = insets.top + (b.height - tothei)/2;
 	    break;

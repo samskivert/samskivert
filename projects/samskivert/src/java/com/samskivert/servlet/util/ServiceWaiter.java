@@ -1,9 +1,7 @@
 //
-// $Id: ServiceWaiter.java,v 1.3 2003/08/15 02:23:47 ray Exp $
+// $Id: ServiceWaiter.java,v 1.4 2003/08/15 03:07:52 ray Exp $
 
 package com.samskivert.servlet.util;
-
-import com.samskivert.servlet.RedirectException;
 
 /**
  * Extends the basic ServiceWaiter to be useful for servlets.
@@ -38,23 +36,14 @@ public class ServiceWaiter extends com.samskivert.util.ServiceWaiter
      * @return true if a success response was posted, false if a failure
      * repsonse was posted.
      */
-    public boolean awaitResponse ()
-        throws RedirectException
+    public boolean awaitFriendlyResponse (String friendlyText)
+        throws FriendlyException
     {
         try {
             return waitForResponse();
 
         } catch (TimeoutException te) {
-            throw new RedirectException(getTimeoutRedirectURL());
+            throw new FriendlyException(friendlyText);
         }
-    }
-
-    /**
-     * Get the page to which we redirect on timeout.
-     */
-    protected String getTimeoutRedirectURL ()
-    {
-        // TODO
-        return "/";
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.71 2004/03/06 04:37:44 mdb Exp $
+// $Id: StringUtil.java,v 1.72 2004/03/06 20:05:41 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -1038,7 +1038,7 @@ public class StringUtil
             if (i > 0) {
                 buf.append(separator);
             }
-            String value = (values[i] == null) ? "" : String.valueOf(values[i]);
+            String value = (values[i] == null) ? "" : values[i].toString();
             buf.append((escape) ? replace(value, ",", ",,") : value);
         }
         return buf.toString();

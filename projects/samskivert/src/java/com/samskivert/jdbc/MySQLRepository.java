@@ -1,5 +1,5 @@
 //
-// $Id: MySQLRepository.java,v 1.2 2001/03/01 22:59:51 mdb Exp $
+// $Id: MySQLRepository.java,v 1.3 2001/03/19 22:59:08 mdb Exp $
 
 package com.samskivert.jdbc;
 
@@ -51,5 +51,20 @@ public abstract class MySQLRepository extends Repository
     {
 	String msg = sqe.getMessage();
 	return (msg != null && msg.indexOf("Duplicate entry") != -1);
+    }
+
+    /**
+     * Determines whether or not the supplied SQL exception is a transient
+     * failure, meaning one that is not related to the SQL being executed,
+     * but instead to the environment at the time of execution, like the
+     * connection to the database having been lost.
+     *
+     * @return true if the exception was thrown due to a transient
+     * failure, false if not.
+     */
+    protected boolean isTransientException (SQLException sqe)
+    {
+	String msg = sqe.getMessage();
+	return (msg != null && msg.indexOf("Lost connection") != -1);
     }
 }

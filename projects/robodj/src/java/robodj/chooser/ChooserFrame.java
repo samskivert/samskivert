@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.12 2004/01/26 16:10:55 mdb Exp $
+// $Id: ChooserFrame.java,v 1.13 2004/01/26 16:35:27 mdb Exp $
 
 package robodj.chooser;
 
@@ -206,5 +206,5 @@ public class ChooserFrame extends JFrame
     protected static final String EXIT_TIP = "Exit";
 
     // our common background color
-    protected static final Color BGCOLOR = new Color(0x7A719A);
+    protected static final Color BGCOLOR = new Color(0x9999CC);
 }

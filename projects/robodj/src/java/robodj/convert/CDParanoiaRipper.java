@@ -1,5 +1,5 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.2 2000/10/30 22:21:11 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.3 2000/10/30 22:21:47 mdb Exp $
 
 package robodj.convert;
 
@@ -106,7 +106,7 @@ public class CDParanoiaRipper implements Ripper
     }
 
     public void ripTrack (int index, String target,
-			  RipProgressListener listener)
+			  ConversionProgressListener listener)
 	throws ConvertException
     {
 	StringBuffer cmd = new StringBuffer("cdparanoia");

@@ -1,5 +1,5 @@
 //
-// $Id: RequestUtils.java,v 1.3 2001/08/11 22:43:28 mdb Exp $
+// $Id: RequestUtils.java,v 1.4 2002/05/09 05:01:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,6 +23,8 @@ package com.samskivert.servlet.util;
 import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpUtils;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * A repository of utility functions related to HTTP servlet stuff.
@@ -58,5 +60,26 @@ public class RequestUtils
             rurl.append("?").append(qs);
         }
         return rurl.toString();
+    }
+
+    /**
+     * Recreates the URL used to make the supplied request, replacing the
+     * server part of the URL with the supplied server name.
+     */
+    public static String rehostLocation (
+        HttpServletRequest req, String servername)
+    {
+        StringBuffer buf = HttpUtils.getRequestURL(req);
+        String csname = req.getServerName();
+        int csidx = buf.indexOf(csname);
+        if (csidx != -1) {
+            buf.delete(csidx, csidx + csname.length());
+            buf.insert(csidx, servername);
+        }
+        String query = req.getQueryString();
+        if (!StringUtil.blank(query)) {
+            buf.append("?").append(query);
+        }
+        return buf.toString();
     }
 }

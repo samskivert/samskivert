@@ -1,5 +1,5 @@
 /**
- * $Id: preferences.c,v 1.2 2001/08/16 20:25:09 mdb Exp $
+ * $Id: preferences.c,v 1.3 2001/08/18 02:34:06 mdb Exp $
  * 
  * lookuplet - a utility for quickly looking up information
  * Copyright (C) 2001 Michael Bayne
@@ -452,4 +452,10 @@ lk_prefs_display ()
 
     /* and finally show our property box */
     gtk_widget_show_all(_prefBox);
+}
+
+void
+lk_prefs_display_applet (AppletWidget* applet, gpointer data)
+{
+    lk_prefs_display();
 }

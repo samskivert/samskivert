@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.3 2001/08/16 00:12:11 mdb Exp $
+# $Id: Makefile.am,v 1.4 2001/08/18 02:34:06 mdb Exp $
 
 bin_PROGRAMS = lookuplet
 
@@ -20,6 +20,7 @@ INCLUDES = 						\
 lookuplet_LDADD = \
 	$(GNOME_LIBDIR) \
 	$(GNOMEUI_LIBS) \
+	$(GNOME_APPLETS_LIBS) \
 	$(INTLLIBS) 
 
 # currently the installation of these bitmaps wouldn't be necessary

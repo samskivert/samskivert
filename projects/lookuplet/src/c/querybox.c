@@ -1,5 +1,5 @@
 /**
- * $Id: querybox.c,v 1.6 2001/08/16 20:25:09 mdb Exp $
+ * $Id: querybox.c,v 1.7 2001/08/18 02:34:06 mdb Exp $
  * 
  * lookuplet - a utility for quickly looking up information
  * Copyright (C) 2001 Michael Bayne
@@ -29,6 +29,7 @@
 #include "launcher.h"
 #include "keysym-util.h"
 #include "preferences.h"
+#include "lookuplet.h"
 #include "querybox.h"
 
 static GtkWidget* _query;
@@ -88,12 +89,12 @@ key_pressed (GtkWidget* widget, GdkEvent* event, gpointer callback_data)
 	    /* launch the appropriate thing */
 	    lk_launcher_launch(binding, search_text);
 	    g_free(search_text);
-#ifdef APPLET_MODE
-	    /* clear out the contents of the entry box */
-	    gtk_entry_set_text(GTK_ENTRY(widget), "");
-#else
-            gtk_exit(0);
-#endif
+            if (applet_mode) {
+                /* clear out the contents of the entry box */
+                gtk_entry_set_text(GTK_ENTRY(widget), "");
+            } else {
+                gtk_exit(0);
+            }
 	    handled = TRUE;
 	    break;
 	}
@@ -120,12 +121,12 @@ launch (GtkWidget* widget, gpointer data)
     lk_launcher_launch(NULL, search_text);
     g_free(search_text);
 
-#ifdef APPLET_MODE
-    /* clear out the contents of the entry box */
-    gtk_entry_set_text(GTK_ENTRY(widget), "");
-#else
-    gtk_exit(0);
-#endif
+    if (applet_mode) {
+        /* clear out the contents of the entry box */
+        gtk_entry_set_text(GTK_ENTRY(widget), "");
+    } else {
+        gtk_exit(0);
+    }
 }
 
 GtkWidget*
@@ -145,18 +146,22 @@ lk_querybox_create (void)
     gtk_signal_connect(GTK_OBJECT(_query), "activate",
 		       GTK_SIGNAL_FUNC(launch), NULL);
 
-    /* create our preferences button */
-    prefs = gtk_button_new_with_label(_("Prefs"));
-    gtk_signal_connect (GTK_OBJECT(prefs), "clicked",
-			GTK_SIGNAL_FUNC(prefs_clicked), NULL);
-
-    /* create a vertical box to hold our query input box and the label */
+    /* create a horizontal box to hold our query input box and the
+     * label */
     hbox = gtk_hbox_new(FALSE, GNOME_PAD_SMALL);
 
     /*	pack the query box and label into the hbox */
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), _query, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), prefs, FALSE, FALSE, 0);
+
+    /* create our preferences button (only if we're not an applet, if
+     * we're an applet we'll have a preferences menu item instead) */
+    if (!applet_mode) {
+        prefs = gtk_button_new_with_label(_("Prefs"));
+        gtk_signal_connect (GTK_OBJECT(prefs), "clicked",
+                            GTK_SIGNAL_FUNC(prefs_clicked), NULL);
+        gtk_box_pack_start(GTK_BOX(hbox), prefs, FALSE, FALSE, 0);
+    }
 
     return hbox;
 }
@@ -170,18 +175,22 @@ lk_querybox_init (void)
     gtk_signal_connect(GTK_OBJECT(_query), "key_press_event",
 		       GTK_SIGNAL_FUNC(key_pressed), NULL);
 
-    /* focus the text entry box */
-    gtk_widget_grab_focus(_query);
+    /* if we're not an applet, we want to request focus and grab the
+       current X selection */
+    if (!applet_mode) {
+        /* focus the text entry box */
+        gtk_widget_grab_focus(_query);
 
-    /* register a signal handler that will select the selection when it
-       arrives */
-    gtk_signal_connect_after(GTK_OBJECT(_query), "selection_received",
-			     GTK_SIGNAL_FUNC(selection_received), NULL);
+        /* register a signal handler that will select the selection when
+           it arrives */
+        gtk_signal_connect_after(GTK_OBJECT(_query), "selection_received",
+                                 GTK_SIGNAL_FUNC(selection_received), NULL);
 
-    /* request the selection as type "STRING" */
-    if (targets_atom == GDK_NONE) {
-	targets_atom = gdk_atom_intern ("STRING", FALSE);
+        /* request the selection as type "STRING" */
+        if (targets_atom == GDK_NONE) {
+            targets_atom = gdk_atom_intern ("STRING", FALSE);
+        }
+        gtk_selection_convert(_query, GDK_SELECTION_PRIMARY, targets_atom,
+                              GDK_CURRENT_TIME);
     }
-    gtk_selection_convert(_query, GDK_SELECTION_PRIMARY, targets_atom,
-			  GDK_CURRENT_TIME);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.6 2003/07/04 20:34:57 mdb Exp $
+// $Id: MessageManager.java,v 1.7 2003/07/12 04:40:24 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -81,6 +81,10 @@ public class MessageManager
      */
     public String getMessage (HttpServletRequest req, String path)
     {
+        if (path == null) {
+            return "[null message key]";
+        }
+
         // load up the matching resource bundles (the array will contain
         // the site-specific resources first and the application resources
         // second); use the locale preferred by the client if possible

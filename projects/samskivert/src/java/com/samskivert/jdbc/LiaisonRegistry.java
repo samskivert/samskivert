@@ -1,5 +1,5 @@
 //
-// $Id: LiaisonRegistry.java,v 1.2 2001/09/20 02:09:09 mdb Exp $
+// $Id: LiaisonRegistry.java,v 1.3 2001/09/20 02:17:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -60,6 +60,8 @@ public class LiaisonRegistry
 
             // if we didn't find a matching liaison, use the default
             if (liaison == null) {
+                Log.warning("Unable to match liaison for database " +
+                            "[url=" + url + "]. Using default.");
                 liaison = new DefaultLiaison();
             }
 

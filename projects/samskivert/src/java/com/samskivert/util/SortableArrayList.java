@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.2 2002/02/19 03:53:37 mdb Exp $
+// $Id: SortableArrayList.java,v 1.3 2002/06/18 00:45:18 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -65,6 +65,34 @@ public class SortableArrayList extends AbstractList
         if (_size > 1) {
             QuickSort.csort(_elements, 0, _size-1, comp);
         }
+    }
+
+    /**
+     * Performs a binary search, attempting to locate the specified
+     * object. The array must be sorted for this to operate correctly and
+     * the contents of the array must all implement {@link Comparable}
+     * (and actually be comparable to one another).
+     *
+     * @return the index of the object in question or
+     * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
+     * value) if the object was not found in the list.
+     */
+    public int binarySearch (Object key)
+    {
+	int low = 0, high = _size-1;
+	while (low <= high) {
+	    int mid = (low + high) >> 1;
+	    Object midVal = _elements[mid];
+	    int cmp = ((Comparable)midVal).compareTo(key);
+	    if (cmp < 0) {
+		low = mid + 1;
+	    } else if (cmp > 0) {
+		high = mid - 1;
+	    } else {
+		return mid; // key found
+            }
+	}
+	return -(low + 1); // key not found.
     }
 
     // documentation inherited from interface

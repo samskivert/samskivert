@@ -1,5 +1,5 @@
 //
-// $Id: MenuUtil.java,v 1.3 2001/08/12 01:34:31 mdb Exp $
+// $Id: MenuUtil.java,v 1.4 2001/12/07 01:48:35 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -21,15 +21,17 @@
 package com.samskivert.swing.util;
 
 import java.awt.event.*;
+import java.lang.reflect.Method;
+
 import javax.swing.*;
 
+import com.samskivert.Log;
+
 /**
- * The MenuUtil class provides miscellaneous useful utility routines
- * for working with menus.
- *
- * Adding a menu item with both a mnemonic and an accelerator to a
- * menu in a frame that listens to its own menus (a common case) can
- * be simplified like so:
+ * The MenuUtil class provides miscellaneous useful utility routines for
+ * working with menus. Adding a menu item with both a mnemonic and an
+ * accelerator to a menu in a frame that listens to its own menus (a
+ * common case) can be simplified like so:
  *
  * <pre>
  * accel = KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK);
@@ -52,11 +54,8 @@ public class MenuUtil
                                     String name, Integer mnem,
                                     KeyStroke accel)
     {
-	JMenuItem item = new JMenuItem(name);
+        JMenuItem item = createAndAddItem(menu, name, mnem, accel);
 	item.addActionListener(l);
-        if (mnem != null) item.setMnemonic(mnem.intValue());
-        if (accel != null) item.setAccelerator(accel);
-	menu.add(item);
     }
 
     /**
@@ -101,4 +100,109 @@ public class MenuUtil
     {
         addMenuItem(l, menu, name, null, null);
     }
+
+    /**
+     * Add a new menu item to the menu with the specified name and
+     * attributes. The supplied method name will be called (it must have
+     * the same signature as {@link ActionListener#actionPerformed} but
+     * can be named whatever you like) when the menu item is selected.
+     *
+     * @param menu the menu to add the item to.
+     * @param name the item name.
+     * @param mnem the mnemonic key for the item.
+     * @param accel the keystroke for the item or null if none.
+     * @param target the object on which to invoke a method when the menu
+     * is selected.
+     * @param callbackName the name of the method to invoke when the menu
+     * is selected.
+     */
+    public static void addMenuItem (
+        JMenu menu, String name, int mnem, KeyStroke accel,
+        Object target, String callbackName)
+    {
+	JMenuItem item = createAndAddItem(menu, name, new Integer(mnem), accel);
+	item.addActionListener(new ReflectedAction(target, callbackName));
+    }
+
+    /**
+     * Add a new menu item to the menu with the specified name and
+     * attributes. The supplied method name will be called (it must have
+     * the same signature as {@link ActionListener#actionPerformed} but
+     * can be named whatever you like) when the menu item is selected.
+     *
+     * @param menu the menu to add the item to.
+     * @param name the item name.
+     * @param target the object on which to invoke a method when the menu
+     * is selected.
+     * @param callbackName the name of the method to invoke when the menu
+     * is selected.
+     */
+    public static void addMenuItem (
+        JMenu menu, String name, Object target, String callbackName)
+    {
+	JMenuItem item = createAndAddItem(menu, name, null, null);
+	item.addActionListener(new ReflectedAction(target, callbackName));
+    }
+
+    /**
+     * Creates and configures a menu item and adds it to the specified
+     * menu.
+     */
+    protected static JMenuItem createAndAddItem (
+        JMenu menu, String name, Integer mnem, KeyStroke accel)
+    {
+	JMenuItem item = new JMenuItem(name);
+        if (mnem != null) {
+            item.setMnemonic(mnem.intValue());
+        }
+        if (accel != null) {
+            item.setAccelerator(accel);
+        }
+	menu.add(item);
+        return item;
+    }
+
+    /**
+     * Used to wire menu items directly up to method calls.
+     */
+    protected static class ReflectedAction implements ActionListener
+    {
+        public ReflectedAction (Object target, String methodName)
+        {
+            try {
+                // lookp the method we'll be calling
+                _method = target.getClass().getMethod(methodName, METHOD_ARGS);
+                _target = target;
+
+            } catch (Exception e) {
+                Log.warning("Unable to obtain menu callback method " +
+                            "[target=" + target + ", method=" + _method +
+                            ", error=" + e + "]. Item will not function.");
+            }
+        }
+
+        public void actionPerformed (ActionEvent event)
+        {
+            if (_method != null) {
+                try {
+                    _method.invoke(_target, new Object[] { event });
+                } catch (Exception e) {
+                    Log.warning("Failure invoking menu callback " +
+                                "[target=" + _target +
+                                ", method=" + _method + "].");
+                    Log.logStackTrace(e);
+                }
+            }
+        }
+
+        /** The object on which to invoke the reflected method. */
+        protected Object _target;
+
+        /** The method to call when the menu item is invoked. */
+        protected Method _method;
+    }
+
+    /** The method signature for menu callback methods. */
+    protected static final Class[] METHOD_ARGS =
+        new Class[] { ActionEvent.class };
 }

@@ -1,12 +1,10 @@
 //
-// $Id: ObserverListTest.java,v 1.1 2002/05/16 22:00:07 mdb Exp $
+// $Id: ObserverListTest.java,v 1.2 2004/02/25 13:21:08 mdb Exp $
 
 package com.samskivert.util;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-import com.samskivert.Log;
 
 /**
  * Tests the {@link ObserverList} class.

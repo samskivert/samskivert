@@ -1,5 +1,5 @@
 //
-// $Id: StringUtilTest.java,v 1.3 2002/04/11 04:07:42 mdb Exp $
+// $Id: StringUtilTest.java,v 1.4 2004/02/25 13:21:08 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,8 +22,6 @@ package com.samskivert.util;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-import com.samskivert.Log;
 
 public class StringUtilTest extends TestCase
 {

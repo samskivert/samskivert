@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSetTest.java,v 1.4 2002/05/16 22:15:19 mdb Exp $
+// $Id: ArrayIntSetTest.java,v 1.5 2004/02/25 13:21:08 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,8 +25,6 @@ import java.util.Random;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-import com.samskivert.Log;
 
 public class ArrayIntSetTest extends TestCase
 {

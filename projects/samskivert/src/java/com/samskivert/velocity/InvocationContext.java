@@ -1,5 +1,5 @@
 //
-// $Id: InvocationContext.java,v 1.3 2003/10/11 00:13:17 eric Exp $
+// $Id: InvocationContext.java,v 1.4 2003/10/13 17:40:10 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.runtime.RuntimeSingleton;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * The invocation context provides access to request related information
@@ -103,6 +105,24 @@ public class InvocationContext extends VelocityContext
         }
     }
 
+    /**
+     * Encodes all the request params so they can be slapped
+     * onto a different URL which is useful when doing redirects.
+     */
+    public String encodeAllParameters ()
+    {
+        Enumeration e = _req.getParameterNames();
+
+        String url = "";
+        while (e.hasMoreElements()) {
+            String param = (String)e.nextElement();
+            url += StringUtil.blank(url) ? param : "&" + param;
+            url += "=" + StringUtil.encode(_req.getParameter(param));
+        }
+
+        return url;
+    }
+    
     protected HttpServletRequest _req;
     protected HttpServletResponse _rsp;
 }

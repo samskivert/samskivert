@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.3 2001/08/11 22:43:29 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.4 2002/05/31 18:47:05 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 
 /**
@@ -32,34 +34,43 @@ import java.util.Hashtable;
  */
 public class DefaultLogProvider implements LogProvider
 {
-    public void log (int level, String moduleName, String message)
+    public synchronized void log (
+        int level, String moduleName, String message)
     {
 	Integer tlevel = (Integer)_levels.get(moduleName);
 	if ((tlevel != null && level >= tlevel.intValue()) ||
 	    (level >= _level)) {
-	    System.err.println(moduleName + ": " + message);
+	    System.err.println(formatEntry(moduleName, level, message));
 	}
     }
 
-    public void logStackTrace (int level, String moduleName, Throwable t)
+    public synchronized void logStackTrace (
+        int level, String moduleName, Throwable t)
     {
 	Integer tlevel = (Integer)_levels.get(moduleName);
 	if ((tlevel != null && level >= tlevel.intValue()) ||
 	    (level >= _level)) {
-	    System.err.println(moduleName + ": " + t.getMessage());
+	    System.err.println(formatEntry(moduleName, level, t.getMessage()));
 	    t.printStackTrace(System.err);
 	}
     }
 
-    public void setLevel (String moduleName, int level)
+    public synchronized void setLevel (String moduleName, int level)
     {
 	_levels.put(moduleName, new Integer(level));
     }
 
-    public void setLevel (int level)
+    public synchronized void setLevel (int level)
     {
 	_level = level;
 	_levels.clear();
+    }
+
+    protected synchronized String formatEntry (
+        String moduleName, int level, String message)
+    {
+        return (_format.format(new Date()) + " " +
+                LEVEL_CHARS[level] + " " + moduleName + ": " + message);
     }
 
     /** The default log level. */
@@ -67,4 +78,11 @@ public class DefaultLogProvider implements LogProvider
 
     /** The levels of each module. */
     protected Hashtable _levels = new Hashtable();
+
+    /** Used to accompany log messages with time stamps. */
+    protected SimpleDateFormat _format =
+        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSSS");
+
+    /** Used to tag log messages with their log level. */
+    protected static final String[] LEVEL_CHARS = { "*", "?", "!" };
 }

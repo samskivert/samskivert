@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.11 2003/01/31 02:27:48 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.12 2003/03/04 19:05:43 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -129,6 +129,20 @@ public class ArrayIntSet extends AbstractSet
     {
         System.arraycopy(_values, 0, target, offset, _size);
         return target;
+    }
+
+    /**
+     * Creates an array of shorts from the contents of this set. Any
+     * values outside the range of a short will be truncated by way of a
+     * cast.
+     */
+    public short[] toShortArray ()
+    {
+        short[] values = new short[_size];
+        for (int ii = 0; ii < _size; ii++) {
+            values[ii] = (short)_values[ii];
+        }
+        return values;
     }
 
     // documentation inherited from interface

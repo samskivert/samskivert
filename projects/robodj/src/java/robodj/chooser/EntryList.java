@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.5 2001/07/26 01:18:21 mdb Exp $
+// $Id: EntryList.java,v 1.6 2001/08/06 23:26:42 mdb Exp $
 
 package robodj.chooser;
 
@@ -176,6 +176,7 @@ public class EntryList
             button.setActionCommand("browse");
             button.addActionListener(this);
             button.putClientProperty("entry", entries[i]);
+            button.setToolTipText("Entry ID: " + entries[i].entryid);
             hpanel.add(button);
 
             button = new JButton("Play");

@@ -1,5 +1,5 @@
 //
-// $Id: TileCodes.java,v 1.6 2001/10/17 23:27:52 mdb Exp $
+// $Id: TileCodes.java,v 1.7 2001/10/18 19:08:50 mdb Exp $
 
 package com.threerings.venison;
 
@@ -101,10 +101,10 @@ public interface TileCodes
 
 
     /** The tile image width in pixels. */
-    public static int TILE_WIDTH = 90;
+    public static int TILE_WIDTH = 64;
 
     /** The tile image height in pixels. */
-    public static int TILE_HEIGHT = 90;
+    public static int TILE_HEIGHT = 64;
 
 
     /** A tile edge constant indicating a city edge. */

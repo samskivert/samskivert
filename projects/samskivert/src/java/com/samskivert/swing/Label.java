@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.2 2001/12/19 07:12:31 mdb Exp $
+// $Id: Label.java,v 1.3 2001/12/19 07:21:58 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -21,6 +21,8 @@ import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.SwingConstants;
+
 import com.samskivert.Log;
 
 /**
@@ -31,7 +33,7 @@ import com.samskivert.Log;
  * text at hand. It is not a component, but is intended for use by
  * components and other more heavyweight entities.
  */
-public class Label
+public class Label implements SwingConstants
 {
     /**
      * Constructs a blank label.
@@ -67,6 +69,17 @@ public class Label
     public void setFont (Font font)
     {
         _font = font;
+    }
+
+    /**
+     * Sets the alignment of the text within the label to either {@link
+     * SwingConstants#LEFT}, {@link SwingConstants#RIGHT}, or {@link
+     * SwingConstants#CENTER}. The default alignment is selected to be
+     * appropriate for the locale of the text being rendered.
+     */
+    public void setAlignment (int align)
+    {
+        _align = align;
     }
 
     /**
@@ -208,8 +221,15 @@ public class Label
         for (int i = 0; i < _layouts.length; i++) {
             TextLayout layout = _layouts[i];
             y += layout.getAscent();
-            float dx = layout.isLeftToRight() ? 0 :
-                _size.width - layout.getAdvance();
+
+            float dx = 0, extra = _size.width - layout.getAdvance();
+            switch (_align) {
+            case -1: dx = layout.isLeftToRight() ? extra : 0; break;
+            case LEFT: dx = 0; break;
+            case RIGHT: dx = extra; break;
+            case CENTER: dx = extra/2; break;
+            }
+
             layout.draw(gfx, x + dx, y);
             y += layout.getDescent() + layout.getLeading();
         }
@@ -241,7 +261,8 @@ public class Label
     /** The text of the label. */
     protected String _text;
 
-    protected int _justification;
+    /** The text alignment. */
+    protected int _align = -1; // -1 means default according to locale
 
     /** Our size constraints in either the x or y direction. */
     protected Dimension _constraints = new Dimension();

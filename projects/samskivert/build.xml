@@ -54,7 +54,8 @@
              doctitle="${app.name} API"
              overview="${src.dir}/${doc.overview}"
              bottom="Copyright &#169; 2001 ${copyright.holder}. All Rights Reserved."
-             destdir="${javadoc.dir}">
+             destdir="${javadoc.dir}"
+             additionalparam="-breakiterator">
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.3/docs/api/"/>
     </javadoc>

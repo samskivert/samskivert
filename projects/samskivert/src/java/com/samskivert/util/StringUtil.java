@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.60 2003/10/24 01:17:51 ray Exp $
+// $Id: StringUtil.java,v 1.61 2003/10/29 19:42:40 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -66,6 +66,30 @@ public class StringUtil
         } else {
             return s.substring(0, maxLength);
         }
+    }
+
+    /**
+     * Validates a character.
+     */
+    public static interface CharacterValidator
+    {
+        public boolean isValid (char c);
+    }
+
+    /**
+     * Sanitize the specified String so that only valid characters are in it.
+     */
+    public static String sanitize (String source, CharacterValidator validator)
+    {
+        int nn = source.length();
+        StringBuffer buf = new StringBuffer(nn);
+        for (int ii=0; ii < nn; ii++) {
+            char c = source.charAt(ii);
+            if (validator.isValid(c)) {
+                buf.append(c);
+            }
+        }
+        return buf.toString();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Dumper.java,v 1.3 2001/08/12 04:36:57 mdb Exp $
+// $Id: Dumper.java,v 1.4 2001/08/14 06:23:08 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,7 @@
 package com.samskivert.viztool.util;
 
 import java.lang.reflect.*;
+import com.samskivert.util.StringUtil;
 
 /**
  * A simple utility that dumps out information available via reflection.
@@ -43,9 +44,26 @@ public class Dumper
             System.out.println("I: " +  ifaces[i].getName());
         }
 
-        dump("F", clazz.getDeclaredFields());
+        dumpFields("F", clazz.getDeclaredFields());
         dump("C", clazz.getDeclaredConstructors());
-        dump("M", clazz.getDeclaredMethods());
+        dumpMethods("M", clazz.getDeclaredMethods());
+    }
+
+    protected void dumpFields (String prefix, Field[] fields)
+    {
+        for (int i = 0; i < fields.length; i++) {
+            System.out.println(prefix + ": " + fields[i].getName() +
+                               " / " + fields[i].getType().getName());
+        }
+    }
+
+    protected void dumpMethods (String prefix, Method[] methods)
+    {
+        for (int i = 0; i < methods.length; i++) {
+            System.out.println(prefix + ": " + methods[i].getName() +
+                               StringUtil.toString(
+                                   methods[i].getParameterTypes()));
+        }
     }
 
     protected void dump (String prefix, Member[] members)

@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.11 2003/09/17 18:41:04 ray Exp $
+// $Id: ParameterUtil.java,v 1.12 2003/09/17 18:50:07 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -162,9 +162,10 @@ public class ParameterUtil
      *
      * Note that use of this method could be dangerous. If the specified
      * HttpServletRequest is used to pre-fill in values on a form, it will
-     * not know to use the truncated version and the user may see enter, then
-     * see again a different version of the value than you get from this
-     * method. Be careful.
+     * not know to use the truncated version. A user may enter a version that
+     * is too long, your code will see a truncated version, but then the
+     * user will see on the page again the full-length reproduction of what
+     * they typed in. Be careful.
      */
     public static String requireParameter (
         HttpServletRequest req, String name, String missingDataMessage,

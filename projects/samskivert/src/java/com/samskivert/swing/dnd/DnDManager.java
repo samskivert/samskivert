@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.3 2002/08/20 22:38:42 ray Exp $
+// $Id: DnDManager.java,v 1.4 2002/08/21 00:15:23 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -180,17 +180,18 @@ public class DnDManager
      */
     protected void mouseReleased (MouseEvent event)
     {
+        // stop listening to every little event
+        Toolkit.getDefaultToolkit().removeAWTEventListener(this);
+        if (_lastComp != null) {
+            _lastComp.setCursor(_oldCursor);
+        }
+
         // since the release comes with a component of the source,
         // we use the last enter...
         if (_lastTarget != null) {
             _lastTarget.dropCompleted(_data[0]);
             _source.dragCompleted(_lastTarget);
         }
-
-        if (_lastComp != null) {
-            _lastComp.setCursor(_oldCursor);
-        }
-        Toolkit.getDefaultToolkit().removeAWTEventListener(this);
         reset();
     }
 

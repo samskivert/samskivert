@@ -1,5 +1,5 @@
 //
-// $Id: RadialMenu.java,v 1.2 2003/04/15 20:54:34 mdb Exp $
+// $Id: RadialMenu.java,v 1.3 2003/04/16 22:50:55 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -267,21 +267,24 @@ public class RadialMenu
      */
     public void deactivate ()
     {
-        Component comp = _host.getComponent();
+        if (_host != null) {
+            // unwire ourselves from the host component
+            Component comp = _host.getComponent();
+            comp.removeMouseListener(this);
+            comp.removeMouseMotionListener(this);
 
-        // unwire ourselves from the host component
-        comp.removeMouseListener(this);
-        comp.removeMouseMotionListener(this);
+            // reinstate the previous mouse listeners
+            if (_hijacker != null) {
+                _hijacker.release();
+                _hijacker = null;
+            }
 
-        // reinstate the previous mouse listeners
-        _hijacker.release();
-        _hijacker = null;
+            // tell our host that we are no longer
+            _host.menuDeactivated(this);
 
-        // tell our host that we are no longer
-        _host.menuDeactivated(this);
-
-        // fire off a last repaint to clean up after ourselves
-        repaint();
+            // fire off a last repaint to clean up after ourselves
+            repaint();
+        }
 
         // clear out our references
         _host = null;

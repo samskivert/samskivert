@@ -1,5 +1,5 @@
 //
-// $Id: I18nTool.java,v 1.1 2002/05/02 05:30:31 mdb Exp $
+// $Id: I18nTool.java,v 1.2 2003/07/02 21:32:27 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,9 +20,12 @@
 
 package com.samskivert.velocity;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.servlet.MessageManager;
+import com.samskivert.util.StringUtil;
 
 /**
  * Provides access to a set of application messages (translation strings)
@@ -91,6 +94,28 @@ public class I18nTool
     {
         return _msgmgr.getMessage(_req, key,
                                   new Object[] { arg1, arg2, arg3 });
+    }
+
+    /**
+     * Uses {@link SimpleDateFormat} to translate the supplied {@link
+     * Long} or {@link Date} argument into a formatted date string using
+     * the locale appropriate to the current request.
+     */
+    public String date (String format, Object arg)
+    {
+        Date when = null;
+        if (arg instanceof Long) {
+            when = new Date(((Long)arg).longValue());
+        } else if (arg instanceof Date) {
+            when = (Date)arg;
+        } else {
+            System.err.println("Date provided with invalid argument " +
+                               "[fmt=" + format + ", arg=" + arg + ", aclass=" +
+                               StringUtil.shortClassName(arg) + "].");
+            return format;
+        }
+        SimpleDateFormat fmt = new SimpleDateFormat(format, _req.getLocale());
+        return fmt.format(when);
     }
 
     /** The servlet request was are providing i18n messages for. */

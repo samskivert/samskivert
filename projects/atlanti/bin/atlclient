@@ -1,0 +1,16 @@
+#!/bin/sh
+
+BINDIR=`dirname $0`
+JAVA_ARGS=""
+
+# grab the -Dinviter if it's specified
+if [ ! -z "$1" ] ; then
+    case $1 in
+    -Dinvitee=*)
+        JAVA_ARGS=$1
+        shift
+        ;;
+    esac
+fi
+
+$BINDIR/runjava $JAVA_ARGS com.threerings.micasa.client.MiCasaApp $*

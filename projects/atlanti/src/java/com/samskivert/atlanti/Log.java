@@ -1,7 +1,7 @@
 //
-// $Id: Log.java,v 1.1 2001/10/03 18:32:28 mdb Exp $
+// $Id: Log.java,v 1.2 2001/10/09 20:27:35 mdb Exp $
 
-package org.waywardgeeks;
+package com.threerings.venison;
 
 /**
  * A placeholder class that contains a reference to the log object used by
@@ -14,7 +14,7 @@ package org.waywardgeeks;
  * generate log messages. For example:
  *
  * <pre>
- * import org.waywardgeeks.venison.Log;
+ * import com.threerings.venison.Log;
  * // ...
  * Log.warning("All hell is breaking loose!");
  * // ...

@@ -1,5 +1,5 @@
 //
-// $Id: Feature.java,v 1.4 2001/12/18 11:58:53 mdb Exp $
+// $Id: Feature.java,v 1.5 2001/12/18 13:14:58 mdb Exp $
 
 package com.threerings.venison;
 
@@ -357,11 +357,12 @@ public class Feature
 
     /** Maps piecen color codes to colors. */
     protected static Color[] PIECEN_COLOR_MAP = {
-        Color.red, // RED
-        Color.darkGray, // BLACK
-        Color.blue, // BLUE
-        Color.yellow, // YELLOW
-        Color.green, // GREEN
+        new Color(0x0246B7), // BLUE
+        new Color(0x028A12), // GREEN
+        new Color(0xF47A02), // ORANGE
+        new Color(0xC20292), // MAGENTA
+        new Color(0xB90202), // RED
+        new Color(0xFECA11), // YELLOW
     };
 
     /** For rendering piecens with alpha. */

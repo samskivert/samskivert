@@ -19,6 +19,7 @@
 package com.samskivert.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * A hashmap that maintains a count for each key.
@@ -49,5 +50,17 @@ public class CountHashMap extends HashMap
     {
         int[] val = (int[]) get(key);
         return (val == null) ? 0 : val[0];
+    }
+
+    /**
+     * Get the total count for all keys in the map.
+     */
+    public int getTotalCount ()
+    {
+        int count = 0;
+        for (Iterator itr = values().iterator(); itr.hasNext(); ) {
+            count += ((int[]) itr.next())[0];
+        }
+        return count;
     }
 }

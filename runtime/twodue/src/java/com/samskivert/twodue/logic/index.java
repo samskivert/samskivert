@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.2 2002/11/08 21:49:17 mdb Exp $
+// $Id: index.java,v 1.3 2002/11/09 01:40:01 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -89,13 +89,25 @@ public class index extends UserLogic
 
         // load up outstanding tasks and break them down by complexity
         String expand = ParameterUtil.getParameter(req, "expand", false);
-        ArrayList tasks = app.getRepository().loadTasks();
+        ArrayList tasks = null;
+        String query = ParameterUtil.getParameter(req, "query", false);
+        if (StringUtil.blank(query)) {
+            tasks = app.getRepository().loadTasks();
+        } else {
+            ctx.put("query", query);
+            tasks = app.getRepository().findTasks(query);
+        }
+
         CatList[] xtasks = categorize(tasks, expand, new Categorizer() {
             public String category (Task task) {
                 return task.complexity;
             }
         });
         ctx.put("xtasks", xtasks);
+
+        if (!StringUtil.blank(query) && xtasks.length == 0) {
+            ctx.put("error", "index.error.no_matching_tasks");
+        }
 
         // load up owned tasks and break them down by owner
         tasks = app.getRepository().loadOwnedTasks();
@@ -131,6 +143,10 @@ public class index extends UserLogic
     protected CatList[] categorize (
         ArrayList tasks, String expand, Categorizer catter)
     {
+        if (tasks == null) {
+            return new CatList[0];
+        }
+
         HashMap cmap = new HashMap();
         int tcount = tasks.size();
         for (int ii = 0; ii < tcount; ii++) {
@@ -144,7 +160,7 @@ public class index extends UserLogic
                 cmap.put(category, clist);
             }
             if (expand == null || clist.tasks.size() < 2 ||
-                (expand.equals(category))) {
+                expand.equals("all") || expand.equals(category)) {
                 clist.tasks.add(task);
             } else {
                 clist.pruned++;

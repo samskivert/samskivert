@@ -6,7 +6,13 @@
 <table cellpadding="0" cellspacing="15" border="0">
 <tr><td width="50%"><b>Owned tasks:</b></td>
 
-<td width="50%"><b>Outstanding tasks:</b></td></tr>
+<td width="50%"><b>
+#if ($query)
+Tasks matching '$query':
+#else
+Outstanding tasks:
+#end
+</b></td></tr>
 
 <tr><td valign="top">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -94,8 +100,17 @@ $form.fixedHidden("task", "$task.taskId")
 #end
 </table>
 
-<p>
-<center class="small">Click the wrench to claim a task.</center>
+<p align="center">
+<table width="100%">
+<tr><td class="small" valign="top">Click the wrench to claim a task.</td>
+<td class="small"><form action="index.wm">
+Filter on single word:<br>
+<input name="query" size="10">
+</form>
+</center>
+
+</td></tr>
+</table>
 
 </td></tr>
 

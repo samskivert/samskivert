@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.4 2001/08/23 00:17:42 shaper Exp $
+// $Id: SwingUtil.java,v 1.5 2001/09/14 20:00:08 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -59,5 +59,26 @@ public class SwingUtil
 	int xpos = x + ((width - fm.stringWidth(str)) / 2);
 	int ypos = y + ((height + fm.getAscent()) / 2);
 	g.drawString(str, xpos, ypos);
+    }
+
+    /**
+     * Return a polygon representing the rectangle defined by the
+     * specified upper left coordinate and the supplied dimensions.
+     *
+     * @param x the left edge of the rectangle.
+     * @param y the top of the rectangle.
+     * @param d the rectangle's dimensions.
+     *
+     * @return the bounding polygon.
+     */
+    public static Polygon getPolygon (int x, int y, Dimension d)
+    {
+	Polygon poly = new Polygon();
+	poly.addPoint(x, y);
+	poly.addPoint(x + d.width, y);
+	poly.addPoint(x + d.width, y + d.height);
+	poly.addPoint(x, y + d.height);
+	poly.addPoint(x, y);
+	return poly; 
     }
 }

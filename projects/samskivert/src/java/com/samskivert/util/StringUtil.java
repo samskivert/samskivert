@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.3 2001/02/13 19:54:43 mdb Exp $
+// $Id: StringUtil.java,v 1.4 2001/03/02 01:49:48 mdb Exp $
 
 package com.samskivert.util;
 
@@ -121,4 +121,26 @@ public class StringUtil
 
 	return buf.toString();
     }
+
+    /**
+     * Generates a string from the supplied bytes that is the HEX encoded
+     * representation of those bytes.
+     */
+    public static String hexlate (byte[] bytes)
+    {
+        char[] chars = new char[bytes.length*2];
+
+        for (int i = 0; i < chars.length; i++) {
+            int val = (int)chars[i];
+            if (val < 0) {
+		val += 256;
+	    }
+            chars[2*i] = XLATE.charAt(val/16);
+            chars[2*i+1] = XLATE.charAt(val%16);
+        }
+
+        return new String(chars);
+    }
+
+    private final static String XLATE = "0123456789abcdef";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.5 2001/07/26 01:33:08 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.6 2001/09/14 17:45:46 mdb Exp $
 
 package robodj.chooser;
 
@@ -152,8 +152,12 @@ public class PlaylistPanel
                 continue;
             }
             Entry entry = Chooser.model.getEntry(eid);
-            Song song = entry.getSong(sid);
-            _plist.add(new PlaylistEntry(entry, song));
+            if (entry != null) {
+                Song song = entry.getSong(sid);
+                _plist.add(new PlaylistEntry(entry, song));
+            } else {
+                Log.warning("Unable to load entry [eid=" + eid + "].");
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.6 2002/03/26 19:32:16 mdb Exp $
+// $Id: SwingUtil.java,v 1.7 2002/05/13 17:40:15 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -39,6 +39,16 @@ public class SwingUtil
         int width = window.getWidth(), height = window.getHeight();
         window.setBounds((ss.width-width)/2, (ss.height-height)/2,
                          width, height);
+    }
+
+    /**
+     * Centers component <code>b</code> within component <code>a</code>.
+     */
+    public static void centerComponent (Component a, Component b)
+    {
+        Dimension asize = a.getSize(), bsize = b.getSize();
+        b.setLocation((asize.width - bsize.width) / 2,
+                      (asize.height - bsize.height) / 2);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.21 2003/01/22 01:41:17 mdb Exp $
+// $Id: Config.java,v 1.22 2003/08/12 01:27:35 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -128,6 +128,17 @@ public class Config
 
         // get a handle on the preferences instance that we'll use to
         // override values in the properties file
+        _prefs = Preferences.userRoot().node(path);
+    }
+
+    /**
+     * Constructs a config object which will obtain information from the
+     * supplied properties, rooted at the specified path in the
+     * preferences hieriarchy.
+     */
+    public Config (String path, Properties props)
+    {
+        _props = props;
         _prefs = Preferences.userRoot().node(path);
     }
 

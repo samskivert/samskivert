@@ -1,5 +1,5 @@
 //
-// $Id: Feature.java,v 1.1 2001/10/17 02:19:54 mdb Exp $
+// $Id: Feature.java,v 1.2 2001/10/17 04:34:13 mdb Exp $
 
 package com.threerings.venison;
 
@@ -334,9 +334,13 @@ public class Feature
         return poly;
     }
 
+    /**
+     * Generates a string representation of this feature.
+     */
     public String toString ()
     {
-        return "[type=" + type + ", edgeMask=" + edgeMask + "]";
+        return "[type=" + FeatureUtil.typeToString(type) +
+            ", edgeMask=" + FeatureUtil.edgeMaskToString(edgeMask) + "]";
     }
 
     /** Maps feature types to colors. */

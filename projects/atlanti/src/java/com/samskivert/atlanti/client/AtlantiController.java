@@ -4,6 +4,7 @@
 package com.threerings.venison;
 
 import java.awt.event.ActionEvent;
+import com.samskivert.util.ListUtil;
 
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DSet;
@@ -53,6 +54,13 @@ public class VenisonController
         // get a casted reference to our game object
         _venobj = (VenisonObject)plobj;
 
+        // find out what our index is and use that as our piecen color
+        int oidx = ListUtil.indexOfEqual(_venobj.players, _self.username);
+        if (oidx != -1) {
+            // use our player index as the piecen color directly
+            _panel.board.setNewPiecenColor(oidx);
+        }
+
         // grab the tiles and piecens from the game object and configure
         // the board with them
         _panel.board.setTiles(_venobj.tiles);
@@ -67,10 +75,8 @@ public class VenisonController
     {
         super.turnDidChange(turnHolder);
 
-        // if it's our turn, set the tile to be placed. otherwise clear it
-        // out
+        // if it's our turn, set the tile to be placed
         if (turnHolder.equals(_self.username)) {
-            Log.info("Setting tile to be placed: " + _venobj.currentTile);
             _panel.board.setTileToBePlaced(_venobj.currentTile);
         }
     }
@@ -113,6 +119,11 @@ public class VenisonController
     // documentation inherited
     public void elementRemoved (ElementRemovedEvent event)
     {
+        if (event.getName().equals(VenisonObject.PIECENS)) {
+            // a piecen was removed, update the board
+            Log.info("Clearing piecen " + event.getKey() + ".");
+            _panel.board.clearPiecen(event.getKey());
+        }
     }
 
     // documentation inherited

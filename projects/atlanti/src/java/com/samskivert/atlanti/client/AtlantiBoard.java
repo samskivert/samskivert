@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.8 2001/10/17 02:19:54 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.9 2001/10/17 04:34:14 mdb Exp $
 
 package com.threerings.venison;
 
@@ -45,6 +45,14 @@ public class VenisonBoard
                 VenisonBoard.this.mouseMoved(evt);
             }
         });
+    }
+
+    /**
+     * Sets the piecen color to use when creating new piecens.
+     */
+    public void setNewPiecenColor (int color)
+    {
+        _newPiecenColor = color;
     }
 
     /**
@@ -139,6 +147,30 @@ public class VenisonBoard
             Log.warning("Requested to place piecen for which we could " +
                         "find no associated tile! [piecen=" + piecen + "].");
         }
+    }
+
+    /**
+     * When a piecen is removed (after scoring it), this method should be
+     * called to update the board display.
+     */
+    public void clearPiecen (Object key)
+    {
+        // locate the tile associated with this piecen key
+        int tsize = _tiles.size();
+        for (int i = 0; i < tsize; i++) {
+            VenisonTile tile = (VenisonTile)_tiles.get(i);
+            if (tile.getKey().equals(key)) {
+                // clear the piecen out of the tile
+                tile.clearPiecen();
+                // and repaint
+                repaint();
+                // and get on out
+                return;
+            }
+        }
+
+        Log.warning("Requested to clear piecen for which we could " +
+                    "find no associated tile! [key=" + key + "].");
     }
 
     /**
@@ -264,7 +296,7 @@ public class VenisonBoard
                 if (_placedTile.claims[fidx] == 0) {
                     if (_placedTile.piecen == null ||
                         _placedTile.piecen.featureIndex != fidx) {
-                        Piecen p = new Piecen(Piecen.BLUE, 0, 0, fidx);
+                        Piecen p = new Piecen(_newPiecenColor, 0, 0, fidx);
                         _placedTile.setPiecen(p, null);
                         changed = true;
                     }
@@ -493,16 +525,17 @@ public class VenisonBoard
         VenisonBoard board = new VenisonBoard();
 
         TestDSet set = new TestDSet();
-        set.addTile(new VenisonTile(CITY_TWO, false, WEST, 0, 0));
+        set.addTile(new VenisonTile(CITY_TWO, true, WEST, 0, 0));
         set.addTile(new VenisonTile(CITY_TWO, false, WEST, -1, 1));
-        set.addTile(new VenisonTile(CITY_TWO, false, WEST, -1, -1));
-        set.addTile(new VenisonTile(CURVED_ROAD, false, WEST, 0, 2));
+        set.addTile(new VenisonTile(CITY_ONE, false, SOUTH, -1, -1));
+        VenisonTile zero = new VenisonTile(CURVED_ROAD, false, WEST, 0, 2);
+        set.addTile(zero);
         VenisonTile one = new VenisonTile(TWO_CITY_TWO, false, NORTH, 0, 1);
         set.addTile(one);
         set.addTile(new VenisonTile(CITY_THREE, false, WEST, 1, 1));
         set.addTile(new VenisonTile(CITY_THREE_ROAD, false, EAST, 1, 2));
         set.addTile(new VenisonTile(CITY_THREE, false, NORTH, -1, 0));
-        VenisonTile two = new VenisonTile(CITY_FOUR, false, NORTH, -2, 0);
+        VenisonTile two = new VenisonTile(CITY_ONE, false, EAST, -2, 0);
         set.addTile(two);
         board.setTiles(set);
 
@@ -514,8 +547,18 @@ public class VenisonBoard
         CollectionUtil.addAll(tiles, set.elements());
         Collections.sort(tiles);
 
+        zero.setPiecen(new Piecen(Piecen.GREEN, 0, 0, 2), tiles);
         one.setPiecen(new Piecen(Piecen.BLUE, 0, 0, 0), tiles);
-        two.setPiecen(new Piecen(Piecen.BLUE, 0, 0, 0), tiles);
+        two.setPiecen(new Piecen(Piecen.RED, 0, 0, 1), tiles);
+
+        Log.info("Incomplete road: " +
+                 TileUtil.computeFeatureScore(tiles, zero, 2));
+
+        Log.info("Completed city: " +
+                 TileUtil.computeFeatureScore(tiles, two, 1));
+
+        Log.info("Incomplete city: " +
+                 TileUtil.computeFeatureScore(tiles, one, 2));
 
         frame.getContentPane().add(board, BorderLayout.CENTER);
         frame.pack();
@@ -555,6 +598,9 @@ public class VenisonBoard
     /** An array indicating which of the four directions are valid
      * placements based on the current position of the placing tile. */
     protected boolean[] _validOrients;
+
+    /** The color to use when creating new piecens. */
+    protected int _newPiecenColor = Piecen.BLUE;
 
     /** Our render offset in pixels. */
     protected int _tx, _ty;

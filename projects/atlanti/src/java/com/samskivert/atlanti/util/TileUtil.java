@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.7 2001/10/17 02:19:54 mdb Exp $
+// $Id: TileUtil.java,v 1.8 2001/10/17 04:34:13 mdb Exp $
 
 package com.threerings.venison;
 
@@ -382,6 +382,153 @@ public class TileUtil implements TileCodes
                             ", destEdge=" + opp_mask + "].");
             }
         }
+    }
+
+    /**
+     * Computes the score for the specified feature and returns it. If the
+     * feature is complete (has no unconnected edges), the score will be
+     * positive. If it is incomplete, the score will be negative.
+     *
+     * @param tiles a sorted list of the tiles on the board.
+     * @param tile the tile that contains the feature whose score should
+     * be computed.
+     * @param featureIndex the index of the feature in the containing
+     * tile.
+     *
+     * @return a positive score for a completed feature group, a negative
+     * score for a partial feature group.
+     */
+    public static int computeFeatureScore (
+        List tiles, VenisonTile tile, int featureIndex)
+    {
+        // determine what kind of feature it is
+        Feature feature = tile.features[featureIndex];
+
+        switch (feature.type) {
+        case ROAD:
+            return computeFeatureScore(tiles, tile, feature, new ArrayList());
+
+        case CITY: {
+            int score =
+                computeFeatureScore(tiles, tile, feature, new ArrayList());
+            // cities receive a 2x multiplier if they are larger than size
+            // two and are completed
+            return (score > 2) ? score*2 : score;
+        }
+
+        case CLOISTER:
+            // cloister's score specially
+            return computeCloisterScore(tiles, tile);
+
+        default:
+        case GRASS:
+            // grass doesn't score
+            return 0;
+        }
+    }
+
+    /**
+     * A helper function for {@link
+     * #computeFeatureScore(List,VenisonTile,int)}.
+     */
+    protected static int computeFeatureScore (
+        List tiles, VenisonTile tile, Feature feature, List seen)
+    {
+        // if we've already counted this tile, bail
+        if (seen.contains(tile)) {
+            return 0;
+        }
+
+        // otherwise add this tile to the seen list
+        seen.add(tile);
+
+        // cities have a base score of one but get a one point bonus if
+        // they have a shield on them
+        int score = (feature.type == CITY && tile.hasShield) ? 2 : 1;
+        boolean missedNeighbor = false;
+
+        // now figure out what connected features there are, if any
+        int ftype = feature.type;
+        int fmask = feature.edgeMask;
+
+        // iterate over all of the possible adjacency possibilities
+        for (int c = 0; c < FeatureUtil.ADJACENCY_MAP.length; c += 3) {
+            int mask = FeatureUtil.ADJACENCY_MAP[c];
+            int dir = FeatureUtil.ADJACENCY_MAP[c+1];
+            int opp_mask = FeatureUtil.ADJACENCY_MAP[c+2];
+            VenisonTile neighbor = null;
+
+            // if this feature doesn't have this edge, skip it
+            if ((fmask & mask) == 0) {
+                continue;
+            }
+
+            // make sure we have a neighbor in this direction
+            dir = (dir + tile.orientation) % 4;
+            switch (dir) {
+            case NORTH: neighbor = findTile(tiles, tile.x, tile.y-1); break;
+            case EAST: neighbor = findTile(tiles, tile.x+1, tile.y); break;
+            case SOUTH: neighbor = findTile(tiles, tile.x, tile.y+1); break;
+            case WEST: neighbor = findTile(tiles, tile.x-1, tile.y); break;
+            }
+            if (neighbor == null) {
+                // if we don't have a neighbor in a direction that we
+                // need, we're an incomplete feature. alas
+                missedNeighbor = true;
+                continue;
+            }
+
+            // translate the target mask into our orientation
+            mask = FeatureUtil.translateMask(mask, tile.orientation);
+            opp_mask = FeatureUtil.translateMask(opp_mask, tile.orientation);
+
+            // propagate, propagate, propagate
+            int fidx = neighbor.getFeatureIndex(opp_mask);
+            if (fidx < 0) {
+                Log.warning("Tile mismatch while scoring [self=" + tile +
+                            ", target=" + neighbor + ", fidx=" + fidx +
+                            ", srcEdge=" + mask +
+                            ", destEdge=" + opp_mask + "].");
+
+            } else {
+                // add the score for this neighbor
+                int nscore = computeFeatureScore(
+                    tiles, neighbor, neighbor.features[fidx], seen);
+                // if our neighbor returned a negative score, we convert
+                // it back to positive and make a note to make it negative
+                // at the end
+                if (nscore < 0) {
+                    score += -nscore;
+                    missedNeighbor = true;
+                } else {
+                    score += nscore;
+                }
+            }
+        }
+
+        return missedNeighbor ? -score : score;
+    }
+
+    /**
+     * A helper function for {@link
+     * #computeFeatureScore(List,VenisonTile,int)}.
+     */
+    protected static int computeCloisterScore (List tiles, VenisonTile tile)
+    {
+        int score = 0;
+
+        // all we need to know are how many neighbors this guy has (we
+        // count ourselves as well, just for code simplicity)
+        for (int dx = -1; dx < 1; dx++) {
+            for (int dy = -1; dy < 1; dy++) {
+                if (findTile(tiles, tile.x + dx, tile.y + dy) != null) {
+                    score++;
+                }
+            }
+        }
+
+        // incomplete cloisters return a negative score
+        return (score == 9) ? 9 : -score;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: FeatureUtil.java,v 1.1 2001/10/17 02:19:54 mdb Exp $
+// $Id: FeatureUtil.java,v 1.2 2001/10/17 04:34:13 mdb Exp $
 
 package com.threerings.venison;
 
@@ -84,6 +84,39 @@ public class FeatureUtil implements TileCodes
         }
 
         return features;
+    }
+
+    /**
+     * Returns a string describing the supplied type code.
+     */
+    public static String typeToString (int type)
+    {
+        return TYPE_CODES[type];
+    }
+
+    /**
+     * Returns a string describing the supplied edge mask.
+     */
+    public static String edgeMaskToString (int edgeMask)
+    {
+        StringBuffer buf = new StringBuffer();
+        if ((edgeMask & NORTH_F) != 0) buf.append("NORTH_F|");
+        if ((edgeMask & EAST_F) != 0) buf.append("EAST_F|");
+        if ((edgeMask & SOUTH_F) != 0) buf.append("SOUTH_F|");
+        if ((edgeMask & WEST_F) != 0) buf.append("WEST_F|");
+        if ((edgeMask & NNW_F) != 0) buf.append("NNW_F|");
+        if ((edgeMask & NNE_F) != 0) buf.append("NNE_F|");
+        if ((edgeMask & SSW_F) != 0) buf.append("SSW_F|");
+        if ((edgeMask & SSE_F) != 0) buf.append("SSE_F|");
+        if ((edgeMask & WNW_F) != 0) buf.append("WNW_F|");
+        if ((edgeMask & WSW_F) != 0) buf.append("WSW_F|");
+        if ((edgeMask & ENE_F) != 0) buf.append("ENE_F|");
+        if ((edgeMask & ESE_F) != 0) buf.append("ESE_F|");
+        // strip off the trailing bar if there is one
+        if (buf.length() > 0) {
+            buf.deleteCharAt(buf.length()-1);
+        }
+        return buf.toString();
     }
 
     /**
@@ -299,6 +332,10 @@ public class FeatureUtil implements TileCodes
         { NNE_F, ESE_F, SSW_F, WNW_F },
         { ENE_F, SSE_F, WSW_F, NNW_F },
     };
+
+    /** String representations of the feature type codes. */
+    protected static final String[] TYPE_CODES = {
+        "CITY", "GRASS", "ROAD", "CLOISTER" };
 
     /** A table of features that are used on more than one tile. */
     protected static Feature[] _reusedFeatures;

@@ -1,8 +1,9 @@
 //
-// $Id: AtlantiObject.java,v 1.6 2001/10/17 02:19:54 mdb Exp $
+// $Id: AtlantiObject.java,v 1.7 2001/10/17 04:34:14 mdb Exp $
 
 package com.threerings.venison;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.parlor.turn.TurnGameObject;
 
@@ -20,6 +21,9 @@ public class VenisonObject extends TurnGameObject
     /** The field name of the <code>piecens</code> field. */
     public static final String PIECENS = "piecens";
 
+    /** The field name of the <code>scores</code> field. */
+    public static final String SCORES = "scores";
+
     /** A set containing all of the tiles that are in play in this
      * game. */
     public DSet tiles = new DSet(VenisonTile.class);
@@ -31,6 +35,9 @@ public class VenisonObject extends TurnGameObject
     /** A set containing all of the piecens that are placed on the
      * board. */
     public DSet piecens = new DSet(Piecen.class);
+
+    /** The scores for each player. */
+    public int[] scores;
 
     /**
      * Requests that the <code>tiles</code> field be set to the specified
@@ -113,6 +120,15 @@ public class VenisonObject extends TurnGameObject
         requestElementUpdate(PIECENS, elem);
     }
 
+    /**
+     * Requests that the <code>scores</code> field be set to the specified
+     * value.
+     */
+    public void setScores (int[] value)
+    {
+        requestAttributeChange(SCORES, value);
+    }
+
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
@@ -120,5 +136,6 @@ public class VenisonObject extends TurnGameObject
         buf.append(", tiles=").append(tiles);
         buf.append(", currentTile=").append(currentTile);
         buf.append(", piecens=").append(piecens);
+        buf.append(", scores=").append(StringUtil.toString(scores));
     }
 }

@@ -32,7 +32,7 @@ Or:
 
 That would be fun.
 
-* Inheritance visualization enhancements
+* Chain visualization enhancements
 Lay chains out vertically rather than horizontally to achieve better
 density and a more aesthetic arrangement. This will probably require a
 searching algorithm to try to determine how tall to make each column to
@@ -46,8 +46,15 @@ in the remaining space on the current page.
 Provide an option to split packages up to fit them in the remaining space
 on a page rather than pushing them to the next page.
 
+* Summary visualization enhancements
+Format field/method names in bold
+
 * General visualization enhancements
 Add page numbers somewhere. [shaper@waywardgeeks.org]
 
 * Printing enhancements
 Add current date to printed page.
+
+* Architecture
+Create renderable primitives and build the visualizations from those
+primitives rather than encapsulating things in Layout/RenderUtil.

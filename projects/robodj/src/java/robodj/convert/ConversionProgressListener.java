@@ -1,5 +1,5 @@
 //
-// $Id: ConversionProgressListener.java,v 1.1 2000/10/30 22:21:11 mdb Exp $
+// $Id: ConversionProgressListener.java,v 1.2 2001/02/06 08:18:00 mdb Exp $
 
 package robodj.convert;
 
@@ -18,5 +18,5 @@ public interface ConversionProgressListener
      * herein will be mapped to a global progress indication by the
      * calling software (in the case of converting an entire CD).
      */
-    public void updateProgress (float percentComplete);
+    public void updateProgress (int percentComplete);
 }

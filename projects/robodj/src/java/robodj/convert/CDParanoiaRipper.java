@@ -1,5 +1,5 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.4 2000/12/10 07:01:24 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.5 2001/02/06 08:18:00 mdb Exp $
 
 package robodj.convert;
 
@@ -106,7 +106,7 @@ public class CDParanoiaRipper implements Ripper
 	}
     }
 
-    public void ripTrack (int index, String target,
+    public void ripTrack (TrackInfo[] info, int index, String target,
 			  ConversionProgressListener listener)
 	throws ConvertException
     {
@@ -115,6 +115,14 @@ public class CDParanoiaRipper implements Ripper
 	cmd.append(" -e"); // request progress information to stderr
 	cmd.append(" ").append(index); // add track number
 	cmd.append(" ").append(target); // add output file name
+
+	// we'll need this for later
+	RE regex;
+	try {
+	    regex = new RE("^##: -?\\d+ \\[(\\S+)\\] @ (\\d+)");
+	} catch (REException ree) {
+	    throw new ConvertException("Can't compile regexp?! " + ree);
+	}
 
 	try {
 	    // fork off a cdparanoia process to read the TOC
@@ -125,9 +133,41 @@ public class CDParanoiaRipper implements Ripper
 	    BufferedInputStream bin = new BufferedInputStream(in);
 	    DataInputStream din = new DataInputStream(bin);
 
-	    // read output from the subprocess and chuck it for now
-	    while (din.readLine() != null) {
-		// la la la
+	    // read output from the subprocess
+	    String out;
+
+	    // figure out what our progress boundaries are
+	    long tstart = info[index-1].offset * MAGIC_FACTOR;
+	    long tlength = info[index-1].length * MAGIC_FACTOR;
+	    int lastReported = 0;
+
+	    while ((out = din.readLine()) != null) {
+		// if they don't care about the output then neither do we
+		if (listener == null) {
+		    continue;
+		}
+
+		// parse the output
+		REMatch match = regex.getMatch(out);
+		if (match != null) {
+		    String action = match.toString(1);
+		    long offset = -1L;
+		    try {
+			offset = Long.parseLong(match.toString(2));
+		    } catch (NumberFormatException nfe) {
+			// System.err.println("Malformed position info: " + out);
+			continue;
+		    }
+
+		    int pctDone = (int)(100 * (offset - tstart) / tlength);
+		    if (pctDone - lastReported >= 1) {
+			listener.updateProgress(pctDone);
+			lastReported = pctDone;
+		    }
+
+		} else {
+		    // System.out.println("Couldn't match: " + out);
+		}
 	    }
 
 	    // check the return value of the process
@@ -146,9 +186,15 @@ public class CDParanoiaRipper implements Ripper
 					   "ripper process to exit.");
 	    }
 
+	    // if everything was successful, report completion
+	    listener.updateProgress(100);
+
 	} catch (IOException ioe) {
 	    throw new ConvertException(
 		"Error communicating with ripper:\n" + ioe);
 	}
     }
+
+    // cdparanoia reports length in sectors and progress in 
+    protected static final int MAGIC_FACTOR = 1176;
 }

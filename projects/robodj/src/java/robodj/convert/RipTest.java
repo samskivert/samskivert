@@ -1,5 +1,5 @@
 //
-// $Id: RipTest.java,v 1.2 2000/10/30 22:21:11 mdb Exp $
+// $Id: RipTest.java,v 1.3 2001/02/06 08:18:00 mdb Exp $
 
 package robodj.convert;
 
@@ -79,8 +79,26 @@ public class RipTest
 		System.out.println("Matched no tracks?!");
 
 	    } else {
-		// finally try the CDDB lookup
+		// try the CDDB lookup
 		lookupCDDB("us.cddb.com", info);
+
+		// rip a track, for fun
+		int track = 2;
+		System.out.println("Ripping track " + track +
+				   " [" + info[track-1].offset +
+				   ", " + info[track-1].length + "]...");
+
+		// report our progress
+		ConversionProgressListener listener =
+		    new ConversionProgressListener() {
+		    public void updateProgress (int percentDone)
+		    {
+			System.out.println("Percent done: " +
+					   percentDone + "%");
+		    }
+		};
+		ripper.ripTrack(info, track, "/tmp/track" + track + ".wav",
+				listener);
 	    }
 
 	} catch (Exception e) {

@@ -1,5 +1,5 @@
 //
-// $Id: Ripper.java,v 1.2 2000/10/30 22:21:11 mdb Exp $
+// $Id: Ripper.java,v 1.3 2001/02/06 08:18:00 mdb Exp $
 
 package robodj.convert;
 
@@ -46,6 +46,8 @@ public interface Ripper
      * notification, it should communicate it to the supplied progress
      * listener. The track should be ripped in WAV format.
      *
+     * @param info the track info as returned by
+     * <code>getTrackInfo</code>. This is necessary to compute progress.
      * @param index the track number of the track to rip (starting at 1
      * since CDs start counting tracks at 1).
      * @param target the path to the file into which the track should be
@@ -58,7 +60,7 @@ public interface Ripper
      * trying to rip the specified track (like lack of access to the CDROM
      * device or any other errors).
      */
-    public void ripTrack (int index, String target,
+    public void ripTrack (TrackInfo[] info, int index, String target,
 			  ConversionProgressListener listener)
 	throws ConvertException;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: CDDBLookupPanel.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
+// $Id: CDDBLookupPanel.java,v 1.4 2001/06/10 21:32:23 mdb Exp $
 
 package robodj.importer;
 
@@ -95,7 +95,7 @@ public class CDDBLookupPanel
 		public Object invoke ()
 		    throws Exception
 		{
-		    return CDDBUtil.doCDDBLookup("ca.freedb.org", info);
+		    return CDDBUtil.doCDDBLookup("us.freedb.org", info);
 		}
 
 		public boolean abort ()
@@ -131,6 +131,7 @@ public class CDDBLookupPanel
 	} else if (name.equals("cddb_lookup")) {
 	    _infoText.append("\n\nCDDB lookup failed: " +
 			     exception.getMessage());
+            exception.printStackTrace();
 	}
     }
 

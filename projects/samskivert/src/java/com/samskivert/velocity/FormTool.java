@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.8 2003/07/04 01:29:16 mdb Exp $
+// $Id: FormTool.java,v 1.9 2003/08/12 18:31:21 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -322,7 +322,11 @@ public class FormTool
     {
         String value = ParameterUtil.getParameter(_req, name, true);
         if (StringUtil.blank(value)) {
-            value = String.valueOf(defaultValue);
+            if (defaultValue == null) {
+                value = "";
+            } else {
+                value = String.valueOf(defaultValue);
+            }
         }
         return HTMLUtil.entify(value);
     }

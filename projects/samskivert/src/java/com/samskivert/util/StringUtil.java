@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.45 2002/11/16 01:07:19 mdb Exp $
+// $Id: StringUtil.java,v 1.46 2002/11/24 04:50:10 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -324,7 +324,8 @@ public class StringUtil
     }
 
     /**
-     * Used to format objects in {@link #listToString(Object,Formatter)}.
+     * Used to format objects in {@link
+     * #listToString(Object,StringUtil.Formatter)}.
      */
     public static class Formatter
     {
@@ -371,7 +372,7 @@ public class StringUtil
     /**
      * Formats the supplied collection into the supplied string buffer
      * using the supplied formatter. See {@link
-     * #listToString(Object,Formatter)} for more details.
+     * #listToString(Object,StringUtil.Formatter)} for more details.
      */
     public static void listToString (
         StringBuffer buf, Object val, Formatter formatter)

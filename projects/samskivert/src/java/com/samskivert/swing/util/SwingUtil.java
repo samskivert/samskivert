@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.16 2002/10/27 22:17:08 shaper Exp $
+// $Id: SwingUtil.java,v 1.17 2002/11/14 00:00:11 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -142,6 +142,7 @@ public class SwingUtil
      * @param bounds the bounding box within which the rectangle must be
      *        positioned.
      * @param avoidShapes a collection of Shapes that must not be overlapped.
+     * The collection will be destructively modified.
      *
      * @return true if the rectangle was successfully placed, given the
      * constraints, or false if the positioning failed (the rectangle will

@@ -1,5 +1,5 @@
 //
-// $Id: Comparators.java,v 1.2 2001/08/11 22:43:29 mdb Exp $
+// $Id: Comparators.java,v 1.3 2002/02/19 03:38:06 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,7 +27,10 @@ import java.util.Comparator;
  */
 public class Comparators
 {
-    public static final Comparator STRING = new Comparator()
+    /**
+     * A comparator that compares {@link Comparable} instances.
+     */
+    public static final Comparator COMPARABLE = new Comparator()
     {
         public int compare (Object o1, Object o2)
         {
@@ -37,12 +40,12 @@ public class Comparators
             if (o1 == null) {
                 return 1;
             }
-            return ((String)o1).compareTo((String)o2);
-        }
-
-        public boolean equals (Object other)
-        {
-            return (other == this);
+            return ((Comparable)o1).compareTo(o2);
         }
     };
+
+    /**
+     * A comparator that compares {@link String} instances.
+     */
+    public static final Comparator STRING = COMPARABLE;
 }

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: build-dist.sh,v 1.1 2001/08/12 03:59:21 mdb Exp $
+# $Id: build-dist.sh,v 1.2 2001/08/12 04:21:13 mdb Exp $
 #
 # Builds a distribution archive. This should be run from the top-level
 # project directory and it will place the distribution archive into the
@@ -24,6 +24,7 @@ dist
 lib/*.jar
 code
 .excludes
+.cvsignore
 EOF
 
 # create our distribution directory

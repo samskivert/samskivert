@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.2 2002/02/13 19:35:50 shaper Exp $
+// $Id: ParameterUtil.java,v 1.3 2002/02/16 01:14:56 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -49,6 +49,32 @@ public class ParameterUtil
         } else {
             return "";
         }
+    }
+
+    /**
+     * Fetches the supplied parameter from the request and converts it to
+     * a float. If the parameter does not exist or is not a well-formed
+     * float, a data validation exception is thrown with the supplied
+     * message.
+     */
+    public static float requireFloatParameter (
+        HttpServletRequest req, String name, String invalidDataMessage)
+	throws DataValidationException
+    {
+	return parseFloatParameter(
+            getParameter(req, name, false), invalidDataMessage);
+        
+    }
+
+    protected static float parseFloatParameter (
+        String value, String invalidDataMessage)
+        throws DataValidationException
+    {
+        try {
+	    return Float.parseFloat(value);
+	} catch (NumberFormatException nfe) {
+	    throw new DataValidationException(invalidDataMessage);
+	}
     }
 
     /**

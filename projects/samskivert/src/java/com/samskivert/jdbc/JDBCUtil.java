@@ -1,5 +1,5 @@
 //
-// $Id: JDBCUtil.java,v 1.8 2004/05/17 15:58:45 mdb Exp $
+// $Id: JDBCUtil.java,v 1.9 2004/05/27 02:04:34 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -177,6 +177,29 @@ public class JDBCUtil
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             if (name.equals(tname)) {
+                matched = true;
+            }
+        }
+        return matched;
+    }
+
+    
+    /**
+     * Returns true if the index on the specified column exists for the
+     * specified table. false if it does not. <em>Note:</em> the names are
+     * case sensitive.
+     */
+    public static boolean tableContainsIndex (Connection conn, String table,
+                                              String column)
+        throws SQLException
+    {
+        boolean matched = false;
+        ResultSet rs = conn.getMetaData().getIndexInfo("", "", table, false,
+                                                       true);
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            String cname = rs.getString("COLUMN_NAME");
+            if (tname.equals(table) && cname.equals(column)) {
                 matched = true;
             }
         }

@@ -22,6 +22,7 @@ package com.samskivert.velocity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
@@ -163,6 +164,8 @@ public class I18nTool
             return new Date(((Long)arg).longValue());
         } else if (arg instanceof Date) {
             return (Date)arg;
+        } else if (arg instanceof Calendar) {
+            return ((Calendar)arg).getTime();
         } else {
             System.err.println("Date provided with invalid argument " +
                                "[arg=" + arg + ", aclass=" +

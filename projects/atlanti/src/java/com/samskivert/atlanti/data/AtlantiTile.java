@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.15 2002/12/12 05:51:54 mdb Exp $
+// $Id: AtlantiTile.java,v 1.16 2002/12/12 19:53:55 mdb Exp $
 
 package com.samskivert.atlanti.data;
 
@@ -38,7 +38,7 @@ import com.samskivert.atlanti.util.TileUtil;
  *
  * <p><em>Note:</em> this should really be split into a pure data class
  * and an associated visualization class in the
- * <code>altanti.client</code> package.
+ * <code>atlanti.client</code> package.
  */
 public class AtlantiTile
     implements DSet.Entry, TileCodes, Cloneable, Comparable

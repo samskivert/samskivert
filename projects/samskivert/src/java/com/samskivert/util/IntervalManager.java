@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.1 2001/03/02 00:47:10 mdb Exp $
+// $Id: IntervalManager.java,v 1.2 2001/05/26 23:16:56 mdb Exp $
 
 package com.samskivert.util;
 
@@ -35,7 +35,7 @@ public class IntervalManager extends Thread
 	// if we are moving down, we need to kill some threads.
 	if (_helpers > newmax) {
 	    for (int ii=0; ii < _helpers - newmax; ii++) {
-		_queue.addItem(KILLHELPER);
+		_queue.append(KILLHELPER);
 	    }
 	    _helpers = newmax;
 	}
@@ -136,7 +136,7 @@ public class IntervalManager extends Thread
     {
 	// put the item on the queue...
 	_busyhelpers++;
-	_queue.addItem(item);
+	_queue.append(item);
 
 	// possibly create a new thread in the pool to do this work.
 	if ((_busyhelpers > _helpers) && (_helpers < _maxhelpers)) {
@@ -329,7 +329,7 @@ class IntervalExpirer extends Thread
     {
 	while (true) {
 //  	    TrackedThread.setState("Waiting for Interval to run...");
-	    Object o = _queue.getItem();
+	    Object o = _queue.get();
 	    if (o == IntervalManager.KILLHELPER) {
 		break; //exit
 	    }

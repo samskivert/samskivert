@@ -109,7 +109,7 @@ public class MailUtil
                                      new InternetAddress(recipients[ii]));
             }
             int hcount = (headers == null) ? 0 : headers.length;
-            for (int ii = 0; ii < headers.length; ii++) {
+            for (int ii = 0; ii < hcount; ii++) {
                 message.addHeader(headers[ii], values[ii]);
             }
             message.setSubject(subject);

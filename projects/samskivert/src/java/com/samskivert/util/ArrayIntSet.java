@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.1 2002/02/03 07:10:16 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.2 2002/04/17 00:19:41 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -37,6 +37,18 @@ public class ArrayIntSet extends AbstractSet
     public int size ()
     {
         return _size;
+    }
+
+    /**
+     * Returns the element at the specified index. Note that the elements
+     * in the set are unordered and could change order after insertion or
+     * removal. This method is useful only for accessing elements of a
+     * static set (and has the desirable property of allowing access to
+     * the values in this set without having to create integer objects).
+     */
+    public int get (int index)
+    {
+        return _values[index];
     }
 
     // documentation inherited from interface
@@ -178,6 +190,25 @@ public class ArrayIntSet extends AbstractSet
             return true;
         }
         return false;
+    }
+
+    /**
+     * Removes all values in the supplied array from the set. Any values
+     * that are in the array but not in the set are simply ignored.
+     *
+     * @param values elements to be removed from the set.
+     *
+     * @return <tt>true</tt> if this set contained any of the specified
+     * elements (which will have been removed).
+     */
+    public boolean remove (int[] values)
+    {
+        boolean modified = false;
+        int vcount = values.length;
+        for (int i = 0; i < vcount; i++) {
+            modified = (remove(values[i]) || modified);
+        }
+        return modified;
     }
 
     // documentation inherited from interface

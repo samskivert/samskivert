@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.5 2002/08/12 01:10:32 mdb Exp $
+// $Id: SortableArrayList.java,v 1.6 2002/09/20 21:28:08 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -65,6 +65,42 @@ public class SortableArrayList extends AbstractList
         if (_size > 1) {
             QuickSort.csort(_elements, 0, _size-1, comp);
         }
+    }
+
+    /**
+     * Inserts the specified item into the list into a position that
+     * preserves the sorting of the list. The list must be sorted prior to
+     * the call to this method (an empty list built up entirely via calls
+     * to {@link #insertSorted} will be properly sorted). The list must be
+     * entirely comprised of elements that implement {@link Comparable}
+     * and the element being added must implement {@link Comparable} as
+     * well.
+     *
+     * @return the index at which the element was inserted.
+     */
+    public int insertSorted (Object value)
+    {
+        return insertSorted(value, Comparators.COMPARABLE);
+    }
+
+    /**
+     * Inserts the specified item into the list into a position that
+     * preserves the sorting of the list according to the supplied {@link
+     * Comparator}. The list must be sorted (via the supplied comparator)
+     * prior to the call to this method (an empty list built up entirely
+     * via calls to {@link #insertSorted} will be properly sorted).
+     *
+     * @return the index at which the element was inserted.
+     */
+    public int insertSorted (Object value, Comparator comp)
+    {
+        int ipos = binarySearch(value, comp);
+        if (ipos < 0) {
+            ipos = -(ipos+1);
+        }
+        _elements = ListUtil.insert(_elements, ipos, value);
+        _size++;
+        return ipos;
     }
 
     /**

@@ -1,0 +1,12 @@
+2001-08-13  Michael Bayne  <mdb@bering>
+
+	* various: Added a better user interface for displaying
+	visualizations on the screen rather than printing them.
+
+* Release 1.0
+
+2001-08-12  Michael Bayne  <mdb@bering>
+
+	* various: Initial release.
+
+$Id: NEWS,v 1.1 2001/08/14 01:15:02 mdb Exp $

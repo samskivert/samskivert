@@ -1,5 +1,5 @@
 //
-// $Id: TaskMaster.java,v 1.1 2000/12/06 03:25:19 mdb Exp $
+// $Id: TaskMaster.java,v 1.2 2000/12/07 06:14:36 mdb Exp $
 
 package com.samskivert.swing.util;
 
@@ -68,6 +68,7 @@ public class TaskMaster
 		    } catch (Throwable t) {
 			log.warning("Observer choked in " +
 				    "taskCompleted(): " + t);
+			log.logStackTrace(Log.WARNING, t);
 		    }
 		}
 
@@ -77,6 +78,7 @@ public class TaskMaster
 			_observer.taskFailed(_name, t);
 		    } catch (Throwable ot) {
 			log.warning("Observer choked in taskFailed(): " + ot);
+			log.logStackTrace(Log.WARNING, t);
 		    }
 		}
 	    }

@@ -1,5 +1,5 @@
 //
-// $Id: MySQLLiaison.java,v 1.2 2001/09/20 02:09:09 mdb Exp $
+// $Id: MySQLLiaison.java,v 1.3 2001/09/20 20:41:10 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -25,7 +25,7 @@ import java.sql.*;
 /**
  * A database liaison for the MySQL database.
  */
-public class MySQLLiaison
+public class MySQLLiaison implements DatabaseLiaison
 {
     // documentation inherited
     public boolean matchesURL (String url)

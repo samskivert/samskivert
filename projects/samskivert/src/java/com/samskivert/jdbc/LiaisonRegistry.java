@@ -1,5 +1,5 @@
 //
-// $Id: LiaisonRegistry.java,v 1.3 2001/09/20 02:17:03 mdb Exp $
+// $Id: LiaisonRegistry.java,v 1.4 2001/09/20 20:41:10 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -85,4 +85,9 @@ public class LiaisonRegistry
 
     protected static ArrayList _liaisons = new ArrayList();
     protected static HashMap _mappings = new HashMap();
+
+    // register our liaison classes
+    static {
+        registerLiaisonClass(MySQLLiaison.class);
+    }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ComboButtonBox.java,v 1.2 2002/03/10 05:27:35 mdb Exp $
+// $Id: ComboButtonBox.java,v 1.3 2002/03/10 20:28:56 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -88,6 +88,17 @@ public class ComboButtonBox extends JPanel
         // rebuild the list
         removeAll();
         addButtons(0, _model.getSize());
+    }
+
+    // documentation inherited
+    public void setEnabled (boolean enabled)
+    {
+        super.setEnabled(enabled);
+
+        int ccount = getComponentCount();
+        for (int i = 0; i < ccount; i++) {
+            getComponent(i).setEnabled(enabled);
+        }
     }
 
     /**
@@ -229,6 +240,11 @@ public class ComboButtonBox extends JPanel
     // documentation inherited from interface
     public void mousePressed (MouseEvent e)
     {
+        // ignore if we're not enabled
+        if (!isEnabled()) {
+            return;
+        }
+
         // keep track of the selected button
         _selectedButton = (JLabel)e.getSource();
         // if the selected button is already selected, ignore the click

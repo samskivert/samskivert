@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.12 2003/03/30 02:26:14 mdb Exp $
+// $Id: SortableArrayList.java,v 1.13 2003/04/30 22:24:31 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -244,6 +244,23 @@ public class SortableArrayList extends AbstractList
 //     public int lastIndexOf (Object o)
 //     {
 //     }
+
+    // documentation inherited
+    public Object clone ()
+    {
+        try {
+            Object[] elDup = new Object[_elements.length];
+            System.arraycopy(_elements, 0, elDup, 0, _elements.length);
+            SortableArrayList dup = (SortableArrayList) super.clone();
+            dup._elements = elDup;
+
+            return dup;
+
+        } catch (CloneNotSupportedException cnse) {
+            com.samskivert.Log.logStackTrace(cnse); // won't happen.
+            return null;
+        }
+    }
 
     /** The array of elements in our list. */
     protected Object[] _elements;

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.22 2002/02/02 09:51:19 mdb Exp $
+// $Id: StringUtil.java,v 1.23 2002/02/03 02:07:26 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -316,7 +316,8 @@ public class StringUtil
 
     /**
      * Generates a string from the supplied bytes that is the HEX encoded
-     * representation of those bytes.
+     * representation of those bytes.  Returns the empty string for a
+     * <code>null</code> or empty byte array.
      *
      * @param bytes the bytes for which we want a string representation.
      * @param count the number of bytes to stop at (which will be coerced
@@ -324,6 +325,10 @@ public class StringUtil
      */
     public static String hexlate (byte[] bytes, int count)
     {
+        if (bytes == null) {
+            return "";
+        }
+
         char[] chars = new char[bytes.length*2];
         count = Math.min(count, bytes.length);
 

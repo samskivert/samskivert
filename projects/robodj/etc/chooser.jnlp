@@ -6,7 +6,7 @@
      download and install the Sun JRE 1.4 and/or Java Web Start from
      http://java.sun.com/j2se/ -->
 
-<jnlp spec="1.0+" codebase="@application_uri@" href="game.jnlp">
+<jnlp spec="1.0+" codebase="@application_uri@" href="chooser.jnlp">
   <information>
     <title>RoboDJ Chooser</title>
     <vendor>Seuss and Asseusciates</vendor>
@@ -25,12 +25,12 @@
     <all-permissions/>
   </security>
   <resources>
-    <j2se version="1.4.0" href="http://java.sun.com/products/autodl/j2se"/>
+    <j2se version="1.4+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="robodj.jar"/>
     <jar href="commons-io.jar"/>
     <jar href="commons-lang.jar"/>
     <jar href="mm.mysql-2.0.14-bin.jar"/>
     <jar href="samskivert.jar"/>
-    <jar href="robodj.jar"/>
     <property name="musicd_host" value="@musicd_host@"/>
   </resources>
   <application-desc main-class="robodj.chooser.Chooser"/>

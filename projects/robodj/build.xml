@@ -45,9 +45,14 @@
     </copy>
   </target>
 
-  <!-- cleans out the installed application -->
+  <!-- cleans out the built application -->
   <target name="clean">
     <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- cleans out the installed application -->
+  <target name="purge" depends="clean">
+    <delete dir="${install.dir}"/>
   </target>
 
   <!-- build the java class files -->
@@ -100,5 +105,16 @@
     <copy todir="${install.dir}" filtering="true">
       <fileset dir="etc" includes="**/*.jnlp"/>
     </copy>
+  </target>
+
+  <!-- mirrors the files to the production web server -->
+  <target name="mirror">
+    <echo message="Mirroring files to ${musicd_host}..."/>
+    <apply executable="rsync" parallel="true">
+      <fileset dir="${install.dir}" includes="**"/>
+      <arg line="-av"/>
+      <srcfile/>
+      <arg line="${musicd_host}:${install.dir}"/>
+    </apply>
   </target>
 </project>

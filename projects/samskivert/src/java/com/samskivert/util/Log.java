@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.2 2000/12/06 03:21:59 mdb Exp $
+// $Id: Log.java,v 1.3 2000/12/07 06:13:59 mdb Exp $
 
 package com.samskivert.util;
 
@@ -55,6 +55,16 @@ public final class Log
     public void warning (String message)
     {
 	_provider.log(WARNING, _moduleName, message);
+    }
+
+    /**
+     * Logs the stack trace of the supplied throwable at the specified
+     * level (if the current log level for this module is at or below the
+     * specified level).
+     */
+    public void logStackTrace (int level, Throwable t)
+    {
+	_provider.logStackTrace(level, _moduleName, t);
     }
 
     /**

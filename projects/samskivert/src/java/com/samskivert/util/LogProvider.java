@@ -1,5 +1,5 @@
 //
-// $Id: LogProvider.java,v 1.1 2000/12/06 00:24:46 mdb Exp $
+// $Id: LogProvider.java,v 1.2 2000/12/07 06:13:59 mdb Exp $
 
 package com.samskivert.util;
 
@@ -15,6 +15,13 @@ public interface LogProvider
      * messages are enabled for that particular combination.
      */
     public void log (int level, String moduleName, String message);
+
+    /**
+     * Log the stack trace of the supplied throwable at the specified
+     * level for the specified module, if messages are enabled for that
+     * particular combination.
+     */
+    public void logStackTrace (int level, String moduleName, Throwable t);
 
     /**
      * Set the log level for the specified module to the specified

@@ -129,7 +129,7 @@ public class ObjectEditorTable extends JTable
 
         _fields = ClassUtil.getFields(protoClass);
         for (int ii=0, nn=_fields.length; ii < nn; ii++) {
-            if (ListUtil.contains(editableFields, _fields[ii].getName())) {
+            if (ListUtil.containsRef(editableFields, _fields[ii].getName())) {
                 _editable.set(ii);
             }
         }

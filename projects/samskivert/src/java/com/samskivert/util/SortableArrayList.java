@@ -155,7 +155,7 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public boolean contains (Object o)
     {
-        return ListUtil.contains(_elements, o);
+        return ListUtil.containsRef(_elements, o);
     }
 
     // documentation inherited from interface

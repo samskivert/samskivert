@@ -236,7 +236,7 @@ public class ListUtil
      *
      * @return true if a matching element was found, false otherwise.
      */
-    public static boolean contains (Object[] list, Object element)
+    public static boolean containsRef (Object[] list, Object element)
     {
         return contains(REFERENCE_COMP, list, element);
     }
@@ -255,7 +255,7 @@ public class ListUtil
         return contains(EQUALS_COMP, list, element);
     }
 
-    /** Helper function for {@link #contains}, etc. */
+    /** Helper function for {@link #containsRef}, etc. */
     protected static boolean contains (
         EqualityComparator eqc, Object[] list, Object element)
     {
@@ -498,7 +498,7 @@ public class ListUtil
                                            // referencing the same string
                                            // from the constant pool
         System.out.println("contains(newBar): " +
-                           ListUtil.contains(list, newBar));
+                           ListUtil.containsRef(list, newBar));
         System.out.println("containsEqual(newBar): " +
                            ListUtil.containsEqual(list, newBar));
 

@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.11 2003/04/02 04:04:53 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.12 2003/04/04 21:29:54 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -331,12 +331,34 @@ public class MultiLineLabel extends JComponent
             // dimensions
             layoutLabel();
         }
+
         Dimension size = _label.getSize();
-        return (size == null) ? new Dimension(10, 10) : size;
+        if (size != null) {
+            // never let our preferred size shrink in our constrained
+            // direction
+            switch (_constrain) {
+            case HORIZONTAL:
+                _prefd.width = Math.max(_prefd.width, size.width);
+                _prefd.height = size.height;
+                break;
+
+            case VERTICAL:
+                _prefd.width = size.width;
+                _prefd.height = Math.max(_prefd.height, size.height);
+                break;
+
+            default:
+                _prefd.width = size.width;
+                _prefd.height = size.height;
+                break;
+            }
+        }
+
+        return _prefd;
     }
 
-    /** The dimensions occupied by our label. */
-    protected Dimension _psize;
+    /** Our preferred size. */
+    protected Dimension _prefd = new Dimension(5, 5);
 
     /** The label we're displaying. */
     protected Label _label;

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.9 2002/06/05 23:15:26 ray Exp $
+// $Id: SwingUtil.java,v 1.10 2002/06/14 07:55:11 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -76,6 +76,42 @@ public class SwingUtil
 	int xpos = x + ((width - fm.stringWidth(str)) / 2);
 	int ypos = y + ((height + fm.getAscent()) / 2);
 	g.drawString(str, xpos, ypos);
+    }
+
+    /**
+     * Returns the most reasonable position for the specified rectangle to
+     * be placed at so as to maximize its containment by the specified
+     * bounding rectangle while still placing it as near its original
+     * coordinates as possible.
+     *
+     * @param rect the rectangle to be positioned.
+     * @param bounds the containing rectangle.
+     */
+    public static Point fitRectInRect (
+        Rectangle rect, Rectangle bounds)
+    {
+	// make sure left edge is within bounds
+	Rectangle erect = new Rectangle(rect);
+	if (erect.x < bounds.x) {
+	    erect.x = bounds.x;
+	}
+
+	// make sure top edge is within bounds
+	if (erect.y < bounds.y) {
+	    erect.y = bounds.y;
+	}
+
+	// do our best to fit entire rectangle into bounds horizontally
+	if ((erect.x + erect.width) > (bounds.x + bounds.width)) {
+	    erect.x = (bounds.x + bounds.width) - erect.width;
+	}
+
+	// do our best to fit entire rect into bounds vertically
+	if ((erect.y + erect.height) > (bounds.y + bounds.height)) {
+	    erect.y = (bounds.y + bounds.height) - erect.height;
+	}
+
+	return new Point(erect.x, erect.y);
     }
 
     /**

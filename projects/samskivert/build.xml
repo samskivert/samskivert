@@ -55,10 +55,10 @@
     <echo message="----------------------------------------------"/>
     <echo message="Jakarta libraries - http://jakarta.apache.org/"/>
     <echo message="----------------------------------------------"/>
-    <available property="jakarta.commons-util.present"
-     classname="org.apache.commons.util.exception.NestableException"
+    <available property="jakarta.commons-lang.present"
+     classname="org.apache.commons.lang.exception.NestableException"
      classpathref="classpath"/>
-    <echo message="Commons Util: ${jakarta.commons-util.present}"/>
+    <echo message="Commons Lang: ${jakarta.commons-lang.present}"/>
 
     <available property="jakarta.commons-collections.present"
      classname="org.apache.commons.collections.FilterIterator"
@@ -97,12 +97,12 @@
 
     <echo message=""/>
     <condition property="build.util">
-      <isset property="jakarta.commons-util.present"/>
+      <isset property="jakarta.commons-lang.present"/>
     </condition>
     <echo message="com.samskivert.util: ${build.util}"/>
 
     <condition property="build.io">
-      <isset property="jakarta.commons-util.present"/>
+      <isset property="jakarta.commons-lang.present"/>
     </condition>
     <echo message="com.samskivert.io: ${build.io}"/>
 

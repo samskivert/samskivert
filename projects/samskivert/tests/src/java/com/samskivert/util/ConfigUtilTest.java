@@ -1,5 +1,5 @@
 //
-// $Id: ConfigUtilTest.java,v 1.3 2002/04/11 04:07:42 mdb Exp $
+// $Id: ConfigUtilTest.java,v 1.4 2002/11/25 22:23:21 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,45 @@ import junit.framework.TestCase;
 
 import com.samskivert.Log;
 
+/**
+ * Our test properties files:
+ *
+ * <pre>
+ * lib/test-c.jar:
+ * _package = testC
+ * _overrides = testAL, testBR
+ *
+ * three = testC - three
+ *
+ * lib/test-br.jar:
+ * _package = testBR
+ * _overrides = testAR
+ *
+ * two = testBR - two
+ * four = testBR - four
+ *
+ * lib/test-ar.jar:
+ * _package = testAR
+ * _overrides = test
+ *
+ * one = testAR - one
+ * two = testAR - two
+ * four = testAR - four
+ *
+ * lib/test-al.jar:
+ * _package = testAL
+ * _overrides = test
+ * 
+ * one = testAL - one
+ * 
+ * lib/test.jar:
+ * _package = test
+ *
+ * one = test - one
+ * two = test - two
+ * three = test - three
+ * </pre>
+ */
 public class ConfigUtilTest extends TestCase
 {
     public ConfigUtilTest ()
@@ -41,6 +80,10 @@ public class ConfigUtilTest extends TestCase
             Properties props = ConfigUtil.loadInheritedProperties(path);
             assertTrue("props valid", props.toString().equals(DUMP));
 
+            path = "test/test.properties";
+            props = ConfigUtil.loadInheritedProperties(path);
+            assertTrue("props valid", props.toString().equals(IDUMP));
+
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -51,8 +94,17 @@ public class ConfigUtilTest extends TestCase
         return new ConfigUtilTest();
     }
 
+    public static void main (String[] args)
+    {
+        ConfigUtilTest test = new ConfigUtilTest();
+        test.runTest();
+    }
+
     protected static final String DUMP =
         "{prop4=one, two, three,, and a half, four, " +
         "prop3=9, 8, 7, 6, prop2=twenty five, prop1=25, " +
         "sub.sub2=whee!, sub.sub1=5}";
+
+    protected static final String IDUMP = "{two=testBR - two, " +
+        "one=testAR - one, three=testC - three, four=testBR - four}";
 }

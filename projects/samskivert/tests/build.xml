@@ -22,6 +22,7 @@
     <pathelement location="../${deploy.dir}/classes"/>
     <pathelement location="${deploy.dir}/classes"/>
     <fileset dir="../lib" includes="**/*.jar"/>
+    <fileset dir="lib" includes="**/*.jar"/>
     <fileset dir="${java.libraries}" includes="**/*.jar"/>
   </path>
 

@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.18 2002/05/02 21:41:54 shaper Exp $
+// $Id: DispatcherServlet.java,v 1.19 2002/05/08 23:06:06 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -200,6 +200,10 @@ public class DispatcherServlet extends VelocityServlet
 
         // config util loads properties files from the classpath
         Properties props = ConfigUtil.loadProperties(propsPath);
+        if (props == null) {
+            throw new IOException("Unable to load velocity properties " +
+                                  "from file '" + INIT_PROPS_KEY + "'.");
+        }
 
         // wire up our site resource manager if a site-specific jar file
         // path was provided

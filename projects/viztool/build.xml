@@ -83,7 +83,8 @@
     <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
     <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
       pkgroot="com.samskivert.viztool"
-      classes="com.samskivert.viztool.*">
+      classes="com.samskivert.viztool.*"
+      output="hiertest.ps">
       <classpath refid="classpath"/>
     </viztool>
   </target>

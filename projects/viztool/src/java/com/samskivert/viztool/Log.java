@@ -1,7 +1,7 @@
 //
-// $Id: Log.java,v 1.1 2001/06/14 01:51:28 mdb Exp $
+// $Id: Log.java,v 1.2 2001/06/14 20:56:54 mdb Exp $
 
-package com.samskivert.vistool;
+package com.samskivert.viztool;
 
 /**
  * A placeholder class that contains a reference to the log object used by

@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.18 2002/11/21 22:41:53 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.19 2002/12/22 06:40:02 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.util;
 
 import java.awt.Dimension;
 
+import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
@@ -106,7 +107,8 @@ public class DefaultLogProvider implements LogProvider
         String moduleName, int level, String message)
     {
         StringBuffer buf = new StringBuffer();
-        buf.append(_format.format(new Date())).append(" ");
+        _format.format(new Date(), buf, _fpos);
+        buf.append(" ");
         if (level == Log.WARNING && _useVT100) {
             buf.append(TermUtil.BOLD);
         } else if (level == Log.DEBUG && _useVT100) {
@@ -196,6 +198,11 @@ public class DefaultLogProvider implements LogProvider
     /** Used to accompany log messages with time stamps. */
     protected SimpleDateFormat _format =
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
+
+    /** Needed for the more efficient {@link
+     * SimpleDateFormat#format(Date,StringBuffer,FieldPosition)}. */
+    protected FieldPosition _fpos =
+        new FieldPosition(SimpleDateFormat.DATE_FIELD);
 
     /** Contains the dimensions of the terminal window in which we're
      * running, if it was possible to obtain them. Otherwise, it contains

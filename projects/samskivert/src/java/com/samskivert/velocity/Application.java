@@ -1,5 +1,5 @@
 //
-// $Id: Application.java,v 1.6 2001/11/06 20:16:47 mdb Exp $
+// $Id: Application.java,v 1.7 2001/11/06 20:55:51 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -80,18 +80,12 @@ public class Application
         // site-specific jar file path
         String siteJarPath = config.getInitParameter(SITE_JAR_PATH_KEY);
         if (!StringUtil.blank(siteJarPath)) {
-            Log.info("Creating site resource loader " +
-                     "[siteJarPath=" + siteJarPath + "].");
             _siteLoader = new SiteResourceLoader(_siteIdent, siteJarPath);
-        } else {
-            Log.info("No site resource loader");
         }
 
         // instantiate our message manager if the application wants one
         String bundlePath = config.getInitParameter(MESSAGE_BUNDLE_PATH_KEY);
         if (!StringUtil.blank(bundlePath)) {
-            Log.info("Creating message manager " +
-                     "[bundlePath=" + bundlePath + "].");
             _msgmgr = new MessageManager(bundlePath);
         }
 

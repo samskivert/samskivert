@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.10 2001/11/06 20:16:47 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.11 2001/11/06 20:55:51 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -163,7 +163,6 @@ public class DispatcherServlet extends VelocityServlet
         // load up our application configuration
         try {
             String appcl = config.getInitParameter(APP_CLASS_KEY);
-            Log.info("Creating application [class=" + appcl + "].");
             if (StringUtil.blank(appcl)) {
                 _app = new Application();
             } else {
@@ -199,7 +198,6 @@ public class DispatcherServlet extends VelocityServlet
         // path was provided
         SiteResourceLoader siteLoader = _app.getSiteResourceLoader();
         if (siteLoader != null) {
-            Log.info("Wiring up site resource manager.");
             props.put(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
                       SiteResourceManager.class.getName());
         }

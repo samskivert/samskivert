@@ -21,7 +21,6 @@
 package com.samskivert.net;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -38,54 +37,19 @@ import com.samskivert.util.StringUtil;
 
 /**
  * The mail util class encapsulates some utility functions related to
- * sending emails. The mail delivery mechanism depends on being able to
- * invoke <code>sendmail</code> which probably prevents it from working on
- * anything other than Unix, but maybe some day someone will care enough
- * to make the code do whatever one does on Windows to deliver mail. I
- * don't have the foggiest what that is, so I can't do that currently.
+ * sending emails.
  */
 public class MailUtil
 {
     /**
-     * Delivers the supplied mail message and returns whether the mail
-     * delivery attempt was successful. The message should already contain
-     * the mail headers and sendmail will figure everything out from
-     * those. At a minimum, these headers should be included:
-     *
-     * <pre>
-     * From: (sender)
-     * To: (recipient)
-     * Subject: (subject)
-     * </pre>
-     *
-     * Note that this method will block until the sendmail process has
-     * completed all of its business.
-     *
-     * @deprecated Use {@link #deliverMail(String,String,String,String)}.
-     * @return true if the mail was delivered successfully, false if not.
+     * Checks the supplied address against a regular expression that (for
+     * the most part) matches only valid email addresses. It's not
+     * perfect, but the omissions and inclusions are so obscure that we
+     * can't be bothered to worry about them.
      */
-    public static boolean deliverMail (String message)
-        throws IOException
+    public static boolean isValidAddress (String address)
     {
-        Process p;
-        try {
-            p = Runtime.getRuntime().exec(SENDMAIL_COMMAND);
-        } catch (Exception e) {
-            // try try again, with the full path. Environment be damned!
-            p = Runtime.getRuntime().exec(FULL_SENDMAIL_COMMAND);
-        }
-        
-        PrintWriter writer = new PrintWriter(p.getOutputStream());
-        writer.print(message);
-        writer.flush();
-        writer.close();
-
-        // make sure sendmail and the process both exit cleanly
-        try {
-            return (p.waitFor() == 0);
-        } catch (InterruptedException ie) {
-            return false;
-        }
+        return _emailre.matcher(address).matches();
     }
 
     /**
@@ -105,7 +69,9 @@ public class MailUtil
 
     /**
      * Delivers the supplied mail message using the machine's local mail
-     * SMTP server which must be listening on port 25.
+     * SMTP server which must be listening on port 25. If the
+     * <code>mail.smtp.host</code> system property is set, that will be
+     * used instead of localhost.
      *
      * @exception IOException thrown if an error occurs delivering the
      * email. See {@link Transport#send} for exceptions that can be thrown
@@ -121,7 +87,9 @@ public class MailUtil
 
         try {
             Properties props = System.getProperties();
-            props.put("mail.smtp.host", "localhost");
+            if (props.getProperty("mail.smtp.host") == null) {
+                props.put("mail.smtp.host", "localhost");
+            }
             Session session = Session.getDefaultInstance(props, null);
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(sender));
@@ -141,24 +109,6 @@ public class MailUtil
             throw ioe;
         }
     }
-
-    /**
-     * Checks the supplied address against a regular expression that (for
-     * the most part) matches only valid email addresses. It's not
-     * perfect, but the omissions and inclusions are so obscure that we
-     * can't be bothered to worry about them.
-     */
-    public static boolean isValidAddress (String address)
-    {
-        return _emailre.matcher(address).matches();
-    }
-
-    /** Command used to execute the program with which mail is sent. */
-    protected static final String SENDMAIL_COMMAND = "sendmail -t";
-
-    /** Full path to the command to execute the program to send mail. */
-    protected static final String FULL_SENDMAIL_COMMAND =
-        "/usr/sbin/sendmail -t";
         
     /** Originally formulated by lambert@nas.nasa.gov. */
     protected static final String EMAIL_REGEX = "^([-A-Za-z0-9_.!%+]+@" +
@@ -172,19 +122,6 @@ public class MailUtil
         } catch (PatternSyntaxException pse) {
             Log.warning("Unable to initialize email regexp?!");
             Log.logStackTrace(pse);
-        }
-    }
-
-    public static void main (String[] args)
-    {
-        String recipient = "eric@threerings.net";
-        String sender = "mdb@samskivert.com";
-        String subject = "This is a test";
-        String body = "Body of message is here. Yiza!\n";
-        try {
-            MailUtil.deliverMail(recipient, sender, subject, body);
-        } catch (Exception e) {
-            System.err.println("Le Booch Sending Mail [exception=" + e + "].");
         }
     }
 }

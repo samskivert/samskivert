@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.18 2001/11/24 08:26:52 shaper Exp $
+// $Id: AtlantiManager.java,v 1.19 2001/11/24 22:41:21 mdb Exp $
 
 package com.threerings.venison;
 
@@ -692,6 +692,7 @@ public class VenisonManager
     {
         public void handleEvent (MessageEvent event)
         {
+            int pidx = getTurnHolderIndex();
             if (_playerOids[pidx] != event.getSourceOid()) {
                 Log.warning("Requested to place nothing by non-turn holder " +
                             "[event=" + event +

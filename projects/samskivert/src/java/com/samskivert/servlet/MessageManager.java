@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.8 2003/12/11 06:32:38 mdb Exp $
+// $Id: MessageManager.java,v 1.9 2003/12/11 06:41:50 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -102,6 +102,7 @@ public class MessageManager
                     args[i] = getMessage(req, MessageUtil.unescape(args[i]));
                 }
             }
+            return getMessage(req, key, args);
         }
 
         // load up the matching resource bundles (the array will contain

@@ -1,5 +1,5 @@
 //
-// $Id: CollectionUtil.java,v 1.5 2002/04/11 04:11:23 mdb Exp $
+// $Id: CollectionUtil.java,v 1.6 2002/12/05 22:10:28 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -33,34 +33,38 @@ public class CollectionUtil
 {
     /**
      * Adds all items returned by the enumeration to the supplied
-     * collection.
+     * collection and returns the supplied collection.
      */
-    public static void addAll (Collection col, Enumeration enum)
+    public static Collection addAll (Collection col, Enumeration enum)
     {
         while (enum.hasMoreElements()) {
             col.add(enum.nextElement());
         }
+        return col;
     }
 
     /**
-     * Adds all items returned by the iterator to the supplied collection.
+     * Adds all items returned by the iterator to the supplied collection
+     * and returns the supplied collection.
      */
-    public static void addAll (Collection col, Iterator iter)
+    public static Collection addAll (Collection col, Iterator iter)
     {
         while (iter.hasNext()) {
             col.add(iter.next());
         }
+        return col;
     }
 
     /**
      * Adds all items in the given object array to the supplied
-     * collection.
+     * collection and returns the supplied collection.
      */
-    public static void addAll (Collection col, Object[] values)
+    public static Collection addAll (Collection col, Object[] values)
     {
         for (int ii = 0; ii < values.length; ii++) {
             col.add(values[ii]);
         }
+        return col;
     }
 
     /**

@@ -1,10 +1,9 @@
 //
-// $Id: PlaylistPanel.java,v 1.4 2001/07/26 01:18:49 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.5 2001/07/26 01:33:08 mdb Exp $
 
 package robodj.chooser;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
@@ -319,8 +318,11 @@ public class PlaylistPanel
             super.doLayout();
 
             if (_target != null) {
-                scrollRectToVisible(_target.getBounds());
+                Rectangle bounds = _target.getBounds();
                 _target = null;
+                // this seems to sometimes call layout(), so we need to
+                // prevent recursion
+                scrollRectToVisible(bounds);
             }
         }
 

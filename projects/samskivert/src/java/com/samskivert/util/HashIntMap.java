@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.5 2001/11/26 19:23:48 mdb Exp $
+// $Id: HashIntMap.java,v 1.6 2001/11/26 19:34:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,6 +23,7 @@ package com.samskivert.util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -38,7 +39,7 @@ import java.util.Set;
  * hashtable mechanism to store its key/value mappings.
  */
 public class HashIntMap
-    extends AbstractMap implements IntMap
+    extends AbstractMap implements IntMap, Serializable
 {
     /**
      * The default number of buckets to use for the hash table.

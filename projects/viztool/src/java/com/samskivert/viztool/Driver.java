@@ -25,7 +25,7 @@ import java.awt.print.*;
 import java.util.ArrayList;
 
 import com.samskivert.swing.util.SwingUtil;
-import com.samskivert.viztool.enum.*;
+import com.samskivert.viztool.clenum.*;
 
 import com.samskivert.viztool.hierarchy.HierarchyVisualizer;
 import com.samskivert.viztool.summary.SummaryVisualizer;
@@ -59,10 +59,10 @@ public class Driver
         // run ourselves on the classpath
         String classpath = System.getProperty("java.class.path");
         // System.err.println("Scanning " + classpath + ".");
-        ClassEnumerator enum = new ClassEnumerator(classpath);
+        ClassEnumerator clenum = new ClassEnumerator(classpath);
 
         // print out the warnings
-        ClassEnumerator.Warning[] warnings = enum.getWarnings();
+        ClassEnumerator.Warning[] warnings = clenum.getWarnings();
         for (int i = 0; i < warnings.length; i++) {
             System.err.println("Warning: " + warnings[i].reason);
         }
@@ -73,7 +73,7 @@ public class Driver
         // and finally generate the visualization
         FilterEnumerator fenum = null;
         try {
-            fenum = new RegexpEnumerator(regexp, enum);
+            fenum = new RegexpEnumerator(regexp, null, clenum);
         } catch  (Exception e) {
             Log.warning("Invalid package regular expression " +
                         "[regexp=" + regexp + ", error=" + e + "].");

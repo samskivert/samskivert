@@ -18,7 +18,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.viztool.enum;
+package com.samskivert.viztool.clenum;
 
 /**
  * An enumeration exception is thrown when some problem occurs while

@@ -44,9 +44,9 @@ import org.apache.tools.ant.types.Path;
 
 import com.samskivert.swing.util.SwingUtil;
 
-import com.samskivert.viztool.enum.ClassEnumerator;
-import com.samskivert.viztool.enum.FilterEnumerator;
-import com.samskivert.viztool.enum.RegexpEnumerator;
+import com.samskivert.viztool.clenum.ClassEnumerator;
+import com.samskivert.viztool.clenum.FilterEnumerator;
+import com.samskivert.viztool.clenum.RegexpEnumerator;
 import com.samskivert.viztool.util.FontPicker;
 
 /**
@@ -118,10 +118,10 @@ public class DriverTask extends Task
 
         // scan the classpath and determine which classes will be
         // visualized
-        ClassEnumerator enum = new ClassEnumerator(classpath.toString());
+        ClassEnumerator clenum = new ClassEnumerator(classpath.toString());
         FilterEnumerator fenum = null;
         try {
-            fenum = new RegexpEnumerator(_classes, _exclude, enum);
+            fenum = new RegexpEnumerator(_classes, _exclude, clenum);
         } catch  (Exception e) {
             throw new BuildException("Invalid package regular expression " +
                                      "[classes=" + _classes +

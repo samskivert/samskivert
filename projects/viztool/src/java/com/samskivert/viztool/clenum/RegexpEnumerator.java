@@ -18,12 +18,11 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.viztool.enum;
+package com.samskivert.viztool.clenum;
 
 import java.util.Iterator;
-
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * The regex enumerator filters classes based on a regular expression.
@@ -31,21 +30,21 @@ import org.apache.regexp.RESyntaxException;
 public class RegexpEnumerator extends FilterEnumerator
 {
     public RegexpEnumerator (String regexp, String exregex, Iterator source)
-        throws RESyntaxException
+        throws PatternSyntaxException
     {
         super(source);
-        _regexp = new RE(regexp);
+        _regexp = Pattern.compile(regexp);
         if (exregex != null) {
-            _exreg = new RE(exregex);
+            _exreg = Pattern.compile(exregex);
         }
     }
 
     protected boolean filterClass (String clazz)
     {
-        return !(_regexp.match(clazz) &&
-                 (_exreg == null || !_exreg.match(clazz)));
+        return !(_regexp.matcher(clazz).matches() &&
+                 (_exreg == null || !_exreg.matcher(clazz).matches()));
     }
 
-    protected RE _regexp;
-    protected RE _exreg;
+    protected Pattern _regexp;
+    protected Pattern _exreg;
 }

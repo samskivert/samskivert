@@ -18,7 +18,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.viztool.enum;
+package com.samskivert.viztool.clenum;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -53,19 +53,19 @@ public class ClassEnumerator implements Iterator
         while (tok.hasMoreTokens()) {
             String component = tok.nextToken();
             // locate an enumerator for this token
-            ComponentEnumerator enum = matchEnumerator(component);
-            if (enum == null) {
+            ComponentEnumerator cenum = matchEnumerator(component);
+            if (cenum == null) {
                 String wmsg = "Unable to match enumerator for " +
                     "component '" + component + "'.";
                 warnings.add(new Warning(wmsg));
 
             } else {
                 try {
-//                      System.out.println("Adding [enum=" + enum +
+//                      System.out.println("Adding [enum=" + cenum +
 //                                         ", component=" + component + "].");
                     // construct an enumerator to enumerate this component
                     // and put it on our list
-                    enums.add(enum.enumerate(component));
+                    enums.add(cenum.enumerate(component));
 
                 } catch (EnumerationException ee) {
                     // if there was a problem creating an enumerator for
@@ -95,10 +95,10 @@ public class ClassEnumerator implements Iterator
     protected ComponentEnumerator matchEnumerator (String component)
     {
         for (int i = 0; i < _enumerators.size(); i++) {
-            ComponentEnumerator enum =
+            ComponentEnumerator cenum =
                 (ComponentEnumerator)_enumerators.get(i);
-            if (enum.matchesComponent(component)) {
-                return enum;
+            if (cenum.matchesComponent(component)) {
+                return cenum;
             }
         }
 
@@ -143,12 +143,12 @@ public class ClassEnumerator implements Iterator
     {
         if (_enumidx < _enums.length) {
             // grab the current enumerator
-            ComponentEnumerator enum = _enums[_enumidx];
+            ComponentEnumerator cenum = _enums[_enumidx];
 
             // if it has more classes
-            if (enum.hasMoreClasses()) {
+            if (cenum.hasMoreClasses()) {
                 // get the next one
-                _nextClass = enum.nextClass();
+                _nextClass = cenum.nextClass();
                 return;
 
             } else {
@@ -182,17 +182,17 @@ public class ClassEnumerator implements Iterator
     {
         // run ourselves on the classpath
         String classpath = System.getProperty("java.class.path");
-        ClassEnumerator enum = new ClassEnumerator(classpath);
+        ClassEnumerator cenum = new ClassEnumerator(classpath);
 
         // print out the warnings
-        Warning[] warnings = enum.getWarnings();
+        Warning[] warnings = cenum.getWarnings();
         for (int i = 0; i < warnings.length; i++) {
             System.out.println("Warning: " + warnings[i].reason);
         }
 
         // enumerate over whatever classes we can
-        while (enum.hasNext()) {
-            System.out.println("Class: " + enum.next());
+        while (cenum.hasNext()) {
+            System.out.println("Class: " + cenum.next());
         }
     }
 

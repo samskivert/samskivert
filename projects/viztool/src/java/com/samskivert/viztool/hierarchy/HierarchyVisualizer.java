@@ -30,7 +30,7 @@ import com.samskivert.util.CollectionUtil;
 
 import com.samskivert.viztool.Log;
 import com.samskivert.viztool.Visualizer;
-import com.samskivert.viztool.enum.PackageEnumerator;
+import com.samskivert.viztool.clenum.PackageEnumerator;
 
 /**
  * The hierarchy visualizer displays inheritance hierarchies in a compact

@@ -18,7 +18,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.viztool.enum;
+package com.samskivert.viztool.clenum;
 
 import java.util.Iterator;
 
@@ -49,12 +49,12 @@ public class PackageEnumerator extends FilterEnumerator
     {
         // run ourselves on the classpath
         String classpath = System.getProperty("java.class.path");
-        ClassEnumerator enum = new ClassEnumerator(classpath);
-        String pkg = "com.samskivert.viztool.enum";
-        PackageEnumerator penum = new PackageEnumerator(pkg, enum, true);
+        ClassEnumerator clenum = new ClassEnumerator(classpath);
+        String pkg = "com.samskivert.viztool.clenum";
+        PackageEnumerator penum = new PackageEnumerator(pkg, clenum, true);
 
         // print out the warnings
-        ClassEnumerator.Warning[] warnings = enum.getWarnings();
+        ClassEnumerator.Warning[] warnings = clenum.getWarnings();
         for (int i = 0; i < warnings.length; i++) {
             System.out.println("Warning: " + warnings[i].reason);
         }

@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.12 2003/10/24 22:10:16 ray Exp $
+// $Id: HashIntMap.java,v 1.13 2003/11/13 18:36:07 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -39,7 +39,7 @@ import java.util.Set;
  * hashtable mechanism to store its key/value mappings.
  */
 public class HashIntMap
-    extends AbstractMap implements IntMap, Serializable
+    extends AbstractMap implements IntMap, Cloneable, Serializable
 {
     public interface Entry extends AbstractMap.Entry
     {
@@ -384,6 +384,18 @@ public class HashIntMap
     public Iterator elements ()
     {
         return values().iterator();
+    }
+
+    // documentation inherited from interface cloneable
+    public Object clone ()
+    {
+        HashIntMap copy = new HashIntMap(_buckets.length, _loadFactor);
+
+        for (Iterator itr = new EntryIterator(); itr.hasNext(); ) {
+            Entry entry = (Entry) itr.next();
+            copy.put(entry.getIntKey(), entry.getValue());
+        }
+        return copy;
     }
 
     /**

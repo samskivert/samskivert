@@ -1,5 +1,5 @@
 //
-// $Id: CollapsiblePanel.java,v 1.4 2002/08/20 18:57:31 mdb Exp $
+// $Id: CollapsiblePanel.java,v 1.5 2002/11/12 08:18:36 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -51,14 +51,22 @@ public class CollapsiblePanel extends JPanel
     }
 
     /**
-     * Set a component which contains the trigger button.
-     * The simple case is to just set the trigger button as this component.
+     * Set a component which contains the trigger button. The simple case
+     * is to just set the trigger button as this component.
      */
     public void setTriggerContainer (JComponent comp)
     {
+        setTriggerContainer(comp, new JPanel());
+    }
+
+    /**
+     * Set a component which contains the trigger button.
+     */
+    public void setTriggerContainer (JComponent comp, JPanel content)
+    {
         // these are our only two components.
         add(comp);
-        add(_content);
+        add(_content = content);
 
         // and start us out not showing
         setCollapsed(true);
@@ -134,5 +142,5 @@ public class CollapsiblePanel extends JPanel
     protected Icon _upIcon, _downIcon;
 
     /** The who in the what now? */
-    protected JPanel _content = new JPanel();
+    protected JPanel _content;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: VizFrame.java,v 1.3 2001/08/12 04:36:57 mdb Exp $
+// $Id: VizFrame.java,v 1.4 2001/08/14 00:04:08 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -37,7 +37,17 @@ public class VizFrame extends JFrame
         // quit if we're closed
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+        JPanel content = new JPanel();
+
+        // put a border around everything
+        content.setBorder(BorderFactory.createEmptyBorder(
+            BORDER, BORDER, BORDER, BORDER));
+
         VizPanel panel = new VizPanel(viz);
-        getContentPane().add(panel, BorderLayout.CENTER);
+        content.add(panel, BorderLayout.CENTER);
+
+        setContentPane(content);
     }
+
+    protected static final int BORDER = 5; // pixels
 }

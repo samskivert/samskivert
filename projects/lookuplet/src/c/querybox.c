@@ -1,10 +1,12 @@
 /**
- * $Id: querybox.c,v 1.3 2001/02/24 02:48:22 mdb Exp $
+ * $Id: querybox.c,v 1.4 2001/03/10 20:30:58 mdb Exp $
  */
 
 #include <config.h>
 #include <glib.h>
 #include <gnome.h>
+#include <ctype.h>
+#include <string.h>
 
 #include "binding.h"
 #include "launcher.h"
@@ -18,11 +20,28 @@ static void
 selection_received (GtkWidget* widget, GtkSelectionData* selection_data, 
 		    gpointer data)
 {
+    int length = selection_data->length;
+
     /* make sure some selection was provided */
-    if (selection_data->length > 0) {
+    if (length > 0) {
+        gchar* start, *end;
+        gchar* search_text =
+            gtk_editable_get_chars(GTK_EDITABLE(widget), 0, -1);
+
+        /* prune spaces from the end of the text */
+        for (start = search_text; isspace(*start); start++);
+        for (end = search_text + length - 1; isspace(*end); end--);
+        end++; *end = '\0';
+
+        /* only set the new text if we changed anything */
+        if (length != strlen(start)) {
+            length = strlen(start);
+            gtk_entry_set_text(GTK_ENTRY(widget), start);
+        }
+        g_free(search_text);
+
 	/* select the text in the entry so that it can be easily replaced */
-	gtk_editable_select_region(GTK_EDITABLE(_query), 0,
-				   selection_data->length);
+	gtk_editable_select_region(GTK_EDITABLE(_query), 0, length);
     }
 }
 

@@ -334,6 +334,9 @@ public class DispatcherServlet extends VelocityServlet
             CurrencyTool ctool = new CurrencyTool(req);
             ictx.put(CURRENCYTOOL_KEY, ctool);
 
+            // allow the application to prepare the context
+            _app.prepareContext(ictx);
+
             // resolve the appropriate logic class for this URI and
             // execute it if it exists
             String path = req.getServletPath();

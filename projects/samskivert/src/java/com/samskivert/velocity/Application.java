@@ -165,6 +165,16 @@ public class Application
     }
 
     /**
+     * Allows derived aplication classes to prepare an invocation context
+     * prior to the logic class being invoked. They may wish to add
+     * standard tools to the context or do any other request-invariant
+     * preparation.
+     */
+    protected void prepareContext (InvocationContext ctx)
+    {
+    }
+
+    /**
      * This should be overridden by the application implementation to
      * perform any necessary cleanup.
      */

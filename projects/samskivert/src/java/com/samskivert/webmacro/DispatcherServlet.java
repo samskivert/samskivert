@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.5 2001/03/02 01:22:07 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.6 2001/03/03 21:20:13 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -16,11 +16,13 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import com.samskivert.Log;
-import com.samskivert.util.ConfigUtil;
-import com.samskivert.util.StringUtil;
 import org.webmacro.*;
 import org.webmacro.servlet.*;
+
+import com.samskivert.Log;
+import com.samskivert.servlet.RedirectException;
+import com.samskivert.util.ConfigUtil;
+import com.samskivert.util.StringUtil;
 
 /**
  * The dispatcher servlet builds upon WebMacro's architecture. It does so
@@ -212,6 +214,13 @@ public class DispatcherServlet extends WMServlet
 		logic.invoke(ctx);
 	    }
 	    
+	} catch (RedirectException re) {
+	    try {
+		ctx.getResponse().sendRedirect(re.getRedirectURL());
+	    } catch (IOException ioe) {
+		throw new HandlerException("Unable to send redirect: " + ioe);
+	    }
+
 	} catch (DataValidationException dve) {
 	    ctx.put(DV_ERROR_KEY, ExceptionMap.getMessage(dve));
 

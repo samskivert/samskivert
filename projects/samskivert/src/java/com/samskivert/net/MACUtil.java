@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.10 2004/02/25 20:19:06 eric Exp $
+// $Id: MACUtil.java,v 1.11 2004/05/26 21:15:36 eric Exp $
 
 package com.samskivert.net;
 
@@ -45,28 +45,27 @@ public class MACUtil
         ArrayList list = new ArrayList();
         while (m.find()) {
             String mac = m.group(1).toUpperCase();
+            mac = mac.replace(':', '-');
 
-            // What fun, we have to explicitly skip PPP adaptor addresses
-            // since they all start with 444553 and tend to not be unique.
-            // Why do I have a feeling we will find more of this? And hey
-            // we did find another one.  Different versions of windows
-            // seem to magic up different magic MAC addresses that don't
-            // mean anything.  Great.  Adding 005345 to the list to
-            // ignore.  And another, 00E006095566 is apparently the mac of
-            // some set of all in one ASUS motherboards.  Guess they
-            // didn't get the memo about the MACs all being unique.
-            // Nvidia with built in LAN has a unique prob.
-            if (mac.startsWith("44-45-53") ||
-                mac.startsWith("44:45:53")) {
+            // "Didn't you get that memo?" Apparently some people are not
+            // up on MAC addresses actually being unique, so we will
+            // ignore those.
+            //
+            // 44-45-53-XX-XX-XX - PPP Adaptor
+            // 00-53-45-XX-XX-XX - PPP Adaptor
+            // 00-E0-06-09-55-66 - Some bogus run of ASUS motherboards
+            // 00-04-4B-80-80-03 - Some nvidia built in lan issues.
+            // 00-03-8A-XX-XX-XX - MiniWAN or AOL software.
+            
+            if (mac.startsWith("44-45-53")) {
                 continue;
-            } else if (mac.startsWith("00-53-45-00") ||
-                       mac.startsWith("00:53:45:00")) {
+            } else if (mac.startsWith("00-53-45-00")) {
                 continue;
-            } else if (mac.startsWith("00-E0-06-09-55-66") ||
-                       mac.startsWith("00:E0:06:09:55:66")) {
+            } else if (mac.startsWith("00-E0-06-09-55-66")) {
                 continue;
-            } else if (mac.startsWith("00-04-4B-80-80-03") ||
-                       mac.startsWith("00:04:4B:80:80:03")) {
+            } else if (mac.startsWith("00-04-4B-80-80-03")) {
+                continue;
+            } else if (mac.startsWith("00-03-8A")) {
                 continue;
             }
 

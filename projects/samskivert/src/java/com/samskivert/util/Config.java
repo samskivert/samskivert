@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.13 2002/04/07 23:45:27 mdb Exp $
+// $Id: Config.java,v 1.14 2002/05/31 17:08:40 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -133,6 +133,46 @@ public class Config
     public void setValue (String name, int value)
     {
         _prefs.putInt(name, value);
+    }
+
+    /**
+     * Fetches and returns the value for the specified configuration
+     * property. If the value is not specified in the associated
+     * properties file, the supplied default value is returned instead. If
+     * the property specified in the file is poorly formatted (not and
+     * integer, not in proper array specification), a warning message will
+     * be logged and the default value will be returned.
+     *
+     * @param name name of the property.
+     * @param defval the value to return if the property is not specified
+     * in the config file.
+     *
+     * @return the value of the requested property.
+     */
+    public long getValue (String name, long defval)
+    {
+        // if there is a value, parse it into an integer
+        String val = _props.getProperty(name);
+        if (val != null) {
+            try {
+                defval = Long.parseLong(val);
+            } catch (NumberFormatException nfe) {
+                Log.warning("Malformed long integer property [name=" + name +
+                            ", value=" + val + "].");
+            }
+        }
+
+        // finally look for an overridden value
+        return _prefs.getLong(name, defval);
+    }
+
+    /**
+     * Sets the value of the specified preference, overriding the value
+     * defined in the configuration files shipped with the application.
+     */
+    public void setValue (String name, long value)
+    {
+        _prefs.putLong(name, value);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.6 2002/05/16 20:53:54 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.7 2002/05/16 22:15:08 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -238,26 +238,23 @@ public class ArrayIntSet extends AbstractSet
     {
         if (c instanceof ArrayIntSet) {
             ArrayIntSet other = (ArrayIntSet)c;
-            // make a new array that will hold the union of our two arrays
-            // (this is preferable to the complicated process of repeated
-            // shrinking or swapping)
-            int[] combined = new int[Math.min(_values.length,
-                                              other._values.length)];
-            int nsize = 0;
+            int removals = 0;
+
+            // go through our array sliding all elements in the union
+            // toward the front; overwriting any elements that were to be
+            // removed
             for (int ii = 0; ii < _size; ii++) {
                 if (other.contains(_values[ii])) {
-                    combined[nsize++] = _values[ii];
+                    if (removals != 0) {
+                        _values[ii - removals] = _values[ii];
+                    }
+                } else {
+                    removals++;
                 }
             }
 
-            // keep track of whether or not things changed
-            boolean changed = (_size != nsize);
-
-            // stuff the new values into the right place
-            _values = combined;
-            _size = nsize;
-
-            return changed;
+            _size = _size - removals;
+            return (removals > 0);
 
         } else {
             throw new UnsupportedOperationException();

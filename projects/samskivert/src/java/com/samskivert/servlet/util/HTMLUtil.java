@@ -53,6 +53,9 @@ public class HTMLUtil
         if (text == null) {
             return text;
         }
-        return StringUtil.replace(text, "\n\n", "\n<p>\n");
+        // handle both line ending formats
+        text = StringUtil.replace(text, "\n\n", "\n<p>\n");
+        text = StringUtil.replace(text, "\r\n\r\n", "\r\n<p>\r\n");
+        return text;
     }
 }

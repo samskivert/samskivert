@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.9 2003/12/11 06:41:50 mdb Exp $
+// $Id: MessageManager.java,v 1.10 2004/01/28 00:45:05 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -84,6 +84,11 @@ public class MessageManager
     {
         if (path == null) {
             return "[null message key]";
+        }
+
+        // if the key is tainted, just strip the taint character
+        if (path.startsWith(MessageUtil.TAINT_CHAR)) {
+            return path.substring(1);
         }
 
         // attempt to determine whether or not this is a compound key

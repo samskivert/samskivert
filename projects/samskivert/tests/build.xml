@@ -49,7 +49,7 @@
       <formatter type="brief" usefile="false"/>
       <batchtest>
         <fileset dir="${src.dir}">
-          <include name="**/*Test*"/>
+          <include name="**/*Test.java"/>
         </fileset>
       </batchtest>
     </junit>

@@ -1,5 +1,5 @@
 //
-// $Id: HGroupLayout.java,v 1.3 2001/03/03 21:19:48 mdb Exp $
+// $Id: HGroupLayout.java,v 1.4 2001/05/28 18:26:27 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -113,7 +113,7 @@ public class HGroupLayout extends GroupLayout
 	    break;
 
 	case EQUALIZE:
-	    sy = (b.height - info.maxhei)/2;
+	    sy = insets.top + (b.height - info.maxhei)/2;
 	    defhei = info.maxhei;
 	    break;
 
@@ -150,7 +150,7 @@ public class HGroupLayout extends GroupLayout
 
 	    if (_offpolicy == NONE) {
 		newhei = info.dimens[i].height;
-		sy = (b.height - newhei)/2;
+		sy = insets.top + (b.height - newhei)/2;
 	    }
 
 	    child.setBounds(sx, sy, newwid, newhei);

@@ -1,5 +1,5 @@
 //
-// $Id: VGroupLayout.java,v 1.3 2001/03/03 21:19:48 mdb Exp $
+// $Id: VGroupLayout.java,v 1.4 2001/05/28 18:26:27 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -113,7 +113,7 @@ public class VGroupLayout extends GroupLayout
 	    break;
 
 	case EQUALIZE:
-	    sx = (b.width - info.maxwid)/2;
+	    sx = insets.left + (b.width - info.maxwid)/2;
 	    defwid = info.maxwid;
 	    break;
 
@@ -150,7 +150,7 @@ public class VGroupLayout extends GroupLayout
 
 	    if (_offpolicy == NONE) {
 		newwid = info.dimens[i].width;
-		sx = (b.width - newwid)/2;
+		sx = insets.left + (b.width - newwid)/2;
 	    }
 
 	    child.setBounds(sx, sy, newwid, newhei);

@@ -1,5 +1,5 @@
 //
-// $Id: MySQLLiaison.java,v 1.3 2001/09/20 20:41:10 mdb Exp $
+// $Id: MySQLLiaison.java,v 1.4 2001/09/28 22:41:40 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -52,13 +52,20 @@ public class MySQLLiaison implements DatabaseLiaison
     // documentation inherited
     public int lastInsertedId (Connection conn) throws SQLException
     {
+        Statement stmt = null;
+
 	// we have to do this by hand. alas all is not roses.
-	Statement stmt = conn.createStatement();
-	ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
-	if (rs.next()) {
-	    return rs.getInt(1);
-	} else {
-	    return -1;
-	}
+        try {
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                return -1;
+            }
+
+        } finally {
+            JDBCUtil.close(stmt);
+        }
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.8 2003/11/13 17:02:32 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.9 2003/11/13 17:05:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -55,6 +55,15 @@ import com.samskivert.Log;
  * another that maps site identifiers to site strings. These are both
  * loaded at construct time and refreshed periodically in the course of
  * normal operation.
+ *
+ * <p> Note that any of the calls to identify, lookup or enumerate site
+ * information can result in the sites table being refreshed from the
+ * database which will take relatively much longer than the simple
+ * hashtable lookup that the operations normally require. However, this
+ * happens only once every 15 minutes and the circumstances in which the
+ * site identifier are normally used can generally accomodate the extra
+ * 100 milliseconds or so that it is likely to take to reload the (tiny)
+ * sites and domains tables from the database.
  */
 public class JDBCTableSiteIdentifier implements SiteIdentifier
 {

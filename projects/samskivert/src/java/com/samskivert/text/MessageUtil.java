@@ -1,5 +1,5 @@
 //
-// $Id: MessageUtil.java,v 1.1 2003/12/11 06:32:18 mdb Exp $
+// $Id: MessageUtil.java,v 1.2 2003/12/11 06:34:08 mdb Exp $
 
 package com.samskivert.text;
 
@@ -60,6 +60,19 @@ public class MessageUtil
             }
         }
         return buf.toString();
+    }
+
+    /**
+     * Used to escape single quotes so that they are not interpreted by
+     * {@link MessageFormat}. As we assume all single quotes are to be
+     * escaped, we cannot use the characters <code>{</code> and
+     * <code>}</code> in our translation strings, but this is a small
+     * price to pay to have to differentiate between messages that will
+     * and won't eventually be parsed by a {@link MessageFormat} instance.
+     */
+    public static String escape (String message)
+    {
+        return StringUtil.replace(message, "'", "''");
     }
 
     /**
@@ -224,18 +237,5 @@ public class MessageUtil
         }
 
         return qualifiedKey.substring(qsidx+1);
-    }
-
-    /**
-     * Used to escape single quotes so that they are not interpreted by
-     * {@link MessageFormat}. As we assume all single quotes are to be
-     * escaped, we cannot use the characters <code>{</code> and
-     * <code>}</code> in our translation strings, but this is a small
-     * price to pay to have to differentiate between messages that will
-     * and won't eventually be parsed by a {@link MessageFormat} instance.
-     */
-    protected static String escape (String message)
-    {
-        return StringUtil.replace(message, "'", "''");
     }
 }

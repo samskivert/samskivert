@@ -330,13 +330,22 @@ public class FormTool
      */
     public String textarea (String name, String extra, Object defaultValue)
     {
+        return fixedTextarea(name, extra, getValue(name, defaultValue));
+    }
+
+    /**
+     * Construct a text area with the specified name, optional extra parameters
+     * and the specified text.
+     */
+    public String fixedTextarea (String name, String extra, Object value)
+    {
         StringBuffer buf = new StringBuffer();
         buf.append("<textarea name=\"").append(name).append("\"");
         if (!StringUtil.blank(extra)) {
             buf.append(" ").append(extra);
         }
         buf.append(">");
-        buf.append(getValue(name, defaultValue));
+        buf.append(value);
         buf.append("</textarea>");
         return buf.toString();
     }

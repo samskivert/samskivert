@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.2 2001/11/01 00:22:48 mdb Exp $
+// $Id: FormTool.java,v 1.3 2001/11/01 00:28:30 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -167,6 +167,22 @@ public class FormTool
     public String fixedHidden (String name, String value)
     {
         return fixedInput("hidden", name, value, "");
+    }
+
+    /**
+     * Constructs a checkbox input field with the specified name and
+     * default value.
+     */
+    public String checkbox (String name, boolean defaultValue)
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("<input type=\"checkbox\"");
+        buf.append(" name=\"").append(name).append("\"");
+        if (ParameterUtil.isSet(_req, name)) {
+            buf.append(" checked");
+        }
+        buf.append(">");
+        return buf.toString();
     }
 
     /**

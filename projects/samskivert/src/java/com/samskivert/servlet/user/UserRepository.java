@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.39 2004/01/31 06:38:05 mdb Exp $
+// $Id: UserRepository.java,v 1.40 2004/02/25 13:17:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,11 +28,8 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Properties;
 
-import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.DatabaseLiaison;

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.11 2003/11/13 18:36:52 ray Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.12 2004/02/25 13:17:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -42,7 +42,6 @@ import com.samskivert.jdbc.SimpleRepository;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.StringUtil;
 
 import com.samskivert.Log;
 

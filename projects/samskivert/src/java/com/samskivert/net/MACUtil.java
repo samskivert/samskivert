@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.8 2004/02/09 19:59:47 eric Exp $
+// $Id: MACUtil.java,v 1.9 2004/02/25 13:17:13 mdb Exp $
 
 package com.samskivert.net;
 
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.samskivert.Log;
 import com.samskivert.util.RunAnywhere;
 
 /**

@@ -1,5 +1,5 @@
 //
-// $Id: ExceptionMap.java,v 1.1 2001/10/31 09:44:22 mdb Exp $
+// $Id: ExceptionMap.java,v 1.2 2004/02/25 13:17:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -159,7 +159,7 @@ public class ExceptionMap
     public static void main (String[] args)
     {
 	ExceptionMap map = new ExceptionMap();
-	System.out.println(map.getMessage(new Exception("Test error")));
+	System.out.println(ExceptionMap.getMessage(new Exception("Test error")));
     }
 
     protected static List _keys;

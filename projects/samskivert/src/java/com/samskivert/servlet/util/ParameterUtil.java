@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.13 2003/12/16 01:11:50 mdb Exp $
+// $Id: ParameterUtil.java,v 1.14 2004/02/25 13:17:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -26,7 +26,6 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.samskivert.Log;
 import com.samskivert.util.StringUtil;
 
 /**

@@ -11,6 +11,27 @@ specifications.
 Move the package exclusion processing into the PackageEnumerator rather
 than the current hack of having the HierarchyVisualizer do it.
 
+** From <jon@latchkey.com>:
+Create an Ant Task that allows you to do something like this:
+
+<target name="viztool">
+  <viztool properties="viztool.properties">
+    <classpath>
+    </classpath>
+  </viztool>
+</target>
+
+Or:
+
+<target name="viztool">
+  <viztool exclude="" include="">
+    <classpath>
+    </classpath>
+  </viztool>
+</target>
+
+That would be fun.
+
 * Inheritance visualization enhancements
 Lay chains out vertically rather than horizontally to achieve better
 density and a more aesthetic arrangement. This will probably require a
@@ -27,3 +48,6 @@ on a page rather than pushing them to the next page.
 
 * General visualization enhancements
 Add page numbers somewhere. [shaper@waywardgeeks.org]
+
+* Printing enhancements
+Add current date to printed page.

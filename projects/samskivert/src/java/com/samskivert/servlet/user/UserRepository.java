@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.3 2001/03/02 02:38:31 mdb Exp $
+// $Id: UserRepository.java,v 1.4 2001/03/02 07:36:00 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -12,6 +12,7 @@ import org.apache.regexp.*;
 import com.samskivert.Log;
 import com.samskivert.jdbc.MySQLRepository;
 import com.samskivert.jdbc.jora.*;
+import com.samskivert.util.IntMap;
 
 public class UserRepository extends MySQLRepository
 {
@@ -241,6 +242,61 @@ public class UserRepository extends MySQLRepository
 				 "expires >= CURRENT_DATE()");
 	    }
 	});
+    }
+
+    /**
+     * Loads the usernames of the users identified by the supplied user
+     * ids and returns them in an array. If any users do not exist, their
+     * slot in the array will contain a null.
+     */
+    public String[] loadUserNames (int[] userids)
+	throws SQLException
+    {
+	return loadNames(userids, "username");
+    }
+
+    /**
+     * Loads the real names of the users identified by the supplied user
+     * ids and returns them in an array. If any users do not exist, their
+     * slot in the array will contain a null.
+     */
+    public String[] loadRealNames (int[] userids)
+	throws SQLException
+    {
+	return loadNames(userids, "realname");
+    }
+
+    protected String[] loadNames (int[] userids, String column)
+	throws SQLException
+    {
+	// build up the string we need for the query
+	StringBuffer ids = new StringBuffer();
+	for (int i = 0; i < userids.length; i++) {
+	    if (ids.length() > 0) {
+		ids.append(", ");
+	    }
+	    ids.append(userids[i]);
+	}
+
+	// do the query
+	IntMap map = new IntMap();
+	Statement stmt = _session.connection.createStatement();
+	ResultSet rs = stmt.executeQuery("select userid, " + column +
+					 "from users " +
+					 "where userid in (" + ids + ")");
+	while (rs.next()) {
+	    int userid = rs.getInt(1);
+	    String name = rs.getString(2);
+	    map.put(userid, name);
+	}
+
+	// finally construct our result
+	String[] result = new String[userids.length];
+	for (int i = 0; i < userids.length; i++) {
+	    result[i] = (String)map.get(userids[i]);
+	}
+
+	return result;
     }
 
     public static void main (String[] args)

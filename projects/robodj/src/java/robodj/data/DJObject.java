@@ -22,11 +22,17 @@ public class DJObject extends DObject
     /** The field name of the <code>playing</code> field. */
     public static final String PLAYING = "playing";
 
+    /** The field name of the <code>paused</code> field. */
+    public static final String PAUSED = "paused";
+
     /** The current playlist. */
     public PlaylistEntry[] playlist;
 
     /** The index of the currently playing track. */
     public int playing = -1;
+
+    /** Whether or not we're paused. */
+    public boolean paused;
 
     /**
      * Returns the currently playing track.
@@ -41,7 +47,7 @@ public class DJObject extends DObject
      */
     public PlaylistEntry getNext ()
     {
-        return getEntry(playing + 1);
+        return (playing < 0) ? null : getEntry(playing + 1);
     }
 
     /**
@@ -66,9 +72,11 @@ public class DJObject extends DObject
     public void play ()
     {
         if (havePlaylist()) {
-            // TODO: handle unpausing
             if (playing == -1) {
                 setPlaying(0);
+            }
+            if (paused) {
+                setPaused(false);
             }
         }
     }
@@ -94,7 +102,7 @@ public class DJObject extends DObject
 
     public void pause ()
     {
-        // TODO
+        setPaused(!paused);
     }
 
     public void remove (int start, int length)
@@ -172,5 +180,19 @@ public class DJObject extends DObject
     {
         requestAttributeChange(PLAYING, new Integer(playing));
         this.playing = playing;
+    }
+
+    /**
+     * Requests that the <code>paused</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setPaused (boolean paused)
+    {
+        requestAttributeChange(PAUSED, new Boolean(paused));
+        this.paused = paused;
     }
 }

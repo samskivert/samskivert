@@ -15,6 +15,9 @@ import com.samskivert.swing.*;
 import com.samskivert.swing.util.*;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
+
 import robodj.Log;
 import robodj.Version;
 import robodj.repository.*;
@@ -23,7 +26,7 @@ import robodj.util.FancyPanel;
 import robodj.util.RDJPrefs;
 
 public class ChooserFrame extends JFrame
-    implements ControllerProvider
+    implements ControllerProvider, AttributeChangeListener
 {
     public ChooserFrame ()
     {
@@ -115,8 +118,9 @@ public class ChooserFrame extends JFrame
             }
         });
 
-        // TODO: add ourselves as a playing listener
-        // Chooser.djobj.addListener(this);
+        // listen for pause and stop and whatnot
+        Chooser.djobj.addListener(this);
+        updateButtons();
 
         // create our controller
         _controller = new ChooserController();
@@ -158,10 +162,15 @@ public class ChooserFrame extends JFrame
         return user;
     }
 
-    // TODO: convert to dobj biz
-    public void playingUpdated (int songid, boolean paused)
+    // documentation inherited from interface
+    public void attributeChanged (AttributeChangedEvent event)
     {
-        if (songid == -1 || paused) {
+        updateButtons();
+    }
+
+    protected void updateButtons ()
+    {
+        if (Chooser.djobj.playing == -1 || Chooser.djobj.paused) {
             _pause.setToolTipText(PLAY_TIP);
             _pause.setActionCommand("play");
             _pause.setIcon(_playIcon);
@@ -172,7 +181,8 @@ public class ChooserFrame extends JFrame
             _pause.setIcon(_pauseIcon);
         }
 
-        _stop.setEnabled(songid != -1);
+        _stop.setEnabled(Chooser.djobj.playing != -1);
+        _pause.setEnabled(Chooser.djobj.playlist != null);
     }
 
     /** Our top-level controller. */

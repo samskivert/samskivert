@@ -44,6 +44,12 @@ public class MusicPlayer extends Thread
 
         } else if (event.getName().equals(DJObject.PLAYLIST)) {
             recomputeNext();
+
+        } else if (event.getName().equals(DJObject.PAUSED)) {
+            // wake the music thread if necessary
+            synchronized (this) {
+                notify();
+            }
         }
     }
 
@@ -55,7 +61,7 @@ public class MusicPlayer extends Thread
                 Player player = getPlaying();
                 Log.info("Playing " + _pentry + "...");
                 while (player.play(PLAY_FRAMES)) {
-                    // loop!
+                    checkPaused();
                 }
 
             } catch (Throwable t) {
@@ -83,10 +89,18 @@ public class MusicPlayer extends Thread
         _fnentry = entry;
         _fnext = getPlayer(_fnentry);
 
+        // if we're clearing the current entry, clear next as well
+        if (entry == null && _next != null) {
+            _next.close();
+            _next = null;
+            _nentry = null;
+        }
+
         // clear out any current track
         if (_playing != null) {
             Log.info("Stopping current track.");
             _playing.close();
+            _pentry = null;
         }
 
         // finally wake up the player in case it is sleeping
@@ -169,6 +183,17 @@ public class MusicPlayer extends Thread
         return _playing;
     }
 
+    protected synchronized void checkPaused ()
+    {
+        while (_djobj.paused) {
+            try {
+                wait();
+            } catch (InterruptedException ie) {
+                Log.warning("Interrupted waiting for unpause.");
+            }
+        }
+    }
+
     /** Helper function. */
     protected boolean equals (PlaylistEntry e1, PlaylistEntry e2)
     {
@@ -185,5 +210,5 @@ public class MusicPlayer extends Thread
     protected PlaylistEntry _nentry, _fnentry;
 
     /** The number of frames to play before checking up on things. */
-    protected static final int PLAY_FRAMES = 10;
+    protected static final int PLAY_FRAMES = 1;
 }

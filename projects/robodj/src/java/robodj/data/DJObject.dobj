@@ -22,6 +22,9 @@ public class DJObject extends DObject
     /** The index of the currently playing track. */
     public int playing = -1;
 
+    /** Whether or not we're paused. */
+    public boolean paused;
+
     /**
      * Returns the currently playing track.
      */
@@ -35,7 +38,7 @@ public class DJObject extends DObject
      */
     public PlaylistEntry getNext ()
     {
-        return getEntry(playing + 1);
+        return (playing < 0) ? null : getEntry(playing + 1);
     }
 
     /**
@@ -60,9 +63,11 @@ public class DJObject extends DObject
     public void play ()
     {
         if (havePlaylist()) {
-            // TODO: handle unpausing
             if (playing == -1) {
                 setPlaying(0);
+            }
+            if (paused) {
+                setPaused(false);
             }
         }
     }
@@ -88,7 +93,7 @@ public class DJObject extends DObject
 
     public void pause ()
     {
-        // TODO
+        setPaused(!paused);
     }
 
     public void remove (int start, int length)

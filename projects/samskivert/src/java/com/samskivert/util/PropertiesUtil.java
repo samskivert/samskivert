@@ -1,5 +1,5 @@
 //
-// $Id: PropertiesUtil.java,v 1.8 2003/11/13 00:08:11 mdb Exp $
+// $Id: PropertiesUtil.java,v 1.9 2003/11/13 00:11:28 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -126,7 +126,7 @@ public class PropertiesUtil
      * @return the value of the key in question or null if no such key
      * exists or an error occurred loading the properties file.
      */
-    public String loadAndGet (File propFile, String key)
+    public static String loadAndGet (File propFile, String key)
     {
         try {
             Properties props = new Properties();
@@ -144,7 +144,7 @@ public class PropertiesUtil
      * @return the value of the key in question or null if no such key
      * exists or an error occurred loading the properties file.
      */
-    public String loadAndGet (String loaderPath, String key)
+    public static String loadAndGet (String loaderPath, String key)
     {
         try {
             Properties props = ConfigUtil.loadProperties(loaderPath);

@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.15 2003/05/01 01:28:07 ray Exp $
+// $Id: DnDManager.java,v 1.16 2003/05/08 21:46:28 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -137,6 +137,7 @@ public class DnDManager
                 createCompatibleImage(d.width, d.height, Transparency.BITMASK);
             Graphics g = padder.getGraphics();
             g.drawImage(img, 0, 0, null);
+            g.dispose();
 
             // and reassign the image to the padded image
             img = padder;
@@ -402,9 +403,8 @@ public class DnDManager
      */
     protected DropTarget findAppropriateTarget (Component comp)
     {
-        Component parent;
         DropTarget target;
-        while (true) {
+        while (comp != null) {
             // here we sneakily prevent dropping on the source
             target = (comp == _sourceComp) ? null
                                            : (DropTarget) _droppers.get(comp);
@@ -412,12 +412,9 @@ public class DnDManager
                 target.checkDrop(_source, _data[0])) {
                 return target;
             }
-            parent = comp.getParent();
-            if (parent == null) {
-                return null;
-            }
-            comp = parent;
+            comp = comp.getParent();
         }
+        return null;
     }
 
     /**

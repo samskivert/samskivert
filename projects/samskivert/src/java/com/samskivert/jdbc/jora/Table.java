@@ -211,7 +211,7 @@ public class Table {
      * all non-null fields.
      */
     public final Cursor queryByExample(Object obj) {
-        return new Cursor(this, session, 1, obj, null);
+        return new Cursor(this, session, 1, obj, null, false);
     }
 
     /** Select records from database table using <I>obj</I> object as
@@ -222,9 +222,9 @@ public class Table {
      * object should be used when building the query.
      */
     public final Cursor queryByExample(Object obj, FieldMask mask) {
-        return new Cursor(this, session, 1, obj, mask);
+        return new Cursor(this, session, 1, obj, mask, false);
     }
-
+    
     /** Select records from database table using <I>obj</I> object as
      * template for selection. All non-builtin fields of this object,
      * which are not null, are compared with correspondent table values.
@@ -247,9 +247,46 @@ public class Table {
      */
     public final Cursor queryByExample(Object obj, Session session,
                                        FieldMask mask) {
-        return new Cursor(this, session, 1, obj, mask);
+        return new Cursor(this, session, 1, obj, mask, false);
     }
 
+    /**
+     * The same as the queryByExample, but string fields for the obj are
+     * matched using 'like' instead of equals, which allows you to send %
+     * in to do matching.
+     */
+    public final Cursor queryByLikeExample(Object obj) {
+        return new Cursor(this, session, 1, obj, null, true);
+    }
+
+    /**
+     * The same as the queryByExample, but string fields for the obj are
+     * matched using 'like' instead of equals, which allows you to send %
+     * in to do matching.
+     */
+    public final Cursor queryByLikeExample(Object obj, FieldMask mask) {
+        return new Cursor(this, session, 1, obj, mask, true);
+    }
+
+    /**
+     * The same as the queryByExample, but string fields for the obj are
+     * matched using 'like' instead of equals, which allows you to send %
+     * in to do matching.
+     */
+    public final Cursor queryByLikeExample(Object obj, Session session) {
+        return queryByLikeExample(obj, session, null);
+    }
+
+    /**
+     * The same as the queryByExample, but string fields for the obj are
+     * matched using 'like' instead of equals, which allows you to send %
+     * in to do matching.
+     */
+    public final Cursor queryByLikeExample(Object obj, Session session,
+                                       FieldMask mask) {
+        return new Cursor(this, session, 1, obj, mask, true);
+    }
+    
     /** Select records from specified and derived database tables using
      * <I>obj</I> object as template for selection.  All non-builtin
      * fields of this object, which are not null, are compared with
@@ -259,7 +296,7 @@ public class Table {
      * objects should match all non-null fields of specified object.
      */
     public final Cursor queryAllByExample(Object obj) {
-        return new Cursor(this, session, nDerived+1, obj, null);
+        return new Cursor(this, session, nDerived+1, obj, null, false);
     }
 
     /** Select records from specified and derived database tables using
@@ -272,7 +309,7 @@ public class Table {
      * @param session user database session
      */
     public final Cursor queryAllByExample(Object obj, Session session) {
-        return new Cursor(this, session, nDerived+1, obj, null);
+        return new Cursor(this, session, nDerived+1, obj, null, false);
     }
 
     /** Insert new record in the table. Values of inserted record fields
@@ -454,7 +491,7 @@ public class Table {
                     buildListOfAssignments(mask)
                     + buildUpdateWhere();
                 ustmt = session.connection.prepareStatement(sql);
-            } else {
+             } else {
                 // otherwise we can use our "full-object-update" statement
                 if (updateStmt == null) {
                     String sql = "update " + name + " set " + listOfAssignments
@@ -1060,10 +1097,10 @@ public class Table {
         return sql.toString();
     }
 
-    protected final String buildQueryList(Object qbe, FieldMask mask)
+    protected final String buildQueryList(Object qbe, FieldMask mask, boolean like)
     {
         StringBuffer buf = new StringBuffer();
-        buildQueryList(buf, qbe, 0, nFields, mask);
+        buildQueryList(buf, qbe, 0, nFields, mask, like);
 	if (buf.length() > 0) {
 	    buf.insert(0, " where ");
 	}
@@ -1164,7 +1201,7 @@ public class Table {
     }
 
     private final void buildQueryList(StringBuffer buf, Object qbe,
-				      int i, int end, FieldMask mask)
+				      int i, int end, FieldMask mask, boolean like)
     {
 	try {
 	    while (i < end) {
@@ -1198,13 +1235,17 @@ public class Table {
                     }
 
                     if (nComponents != 0) {
-                        buildQueryList(buf, comp, i, i+nComponents, mask);
+                        buildQueryList(buf, comp, i, i+nComponents, mask, like);
                     } else {
                         if (buf.length() != 0) {
                             buf.append(" AND ");
                         }
                         buf.append(fd.name);
-                        buf.append("=?");
+                        if (like && (comp instanceof String)) {
+                            buf.append(" like?");
+                        } else {
+                            buf.append("=?");
+                        }
                     }
 
                 } finally {

@@ -20,6 +20,8 @@
 
 package com.samskivert.velocity;
 
+import java.text.NumberFormat;
+
 import com.samskivert.servlet.util.HTMLUtil;
 import com.samskivert.util.StringUtil;
 
@@ -66,5 +68,13 @@ public class StringTool
     public static String parafy (String text)
     {
         return HTMLUtil.makeParagraphs(text);
+    }
+
+    /**
+     * Converts a float to a reasonably formatted string.
+     */
+    public static String format(float value)
+    {
+        return NumberFormat.getInstance().format(value);
     }
 }

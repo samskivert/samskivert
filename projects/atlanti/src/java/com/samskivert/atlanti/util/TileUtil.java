@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.10 2001/10/17 23:27:52 mdb Exp $
+// $Id: TileUtil.java,v 1.11 2001/10/18 02:17:54 mdb Exp $
 
 package com.threerings.venison;
 
@@ -525,7 +525,34 @@ public class TileUtil implements TileCodes
 
     /**
      * Returns the number of piecens on the board owned the specified
+     * player. This can be used when we need to count piecens and the
+     * server potentially hasn't gotten around to processing piecen
+     * removal events quite yet.
+     *
+     * @param tiles a list of the tiles on the board.
+     * @param playerIndex the index of the player whose piecen count is
+     * desired.
+     */
+    public static int countPiecens (List tiles, int playerIndex)
+    {
+        int count = 0;
+        for (int i = 0; i < tiles.size(); i++) {
+            VenisonTile tile = (VenisonTile)tiles.get(i);
+            if (tile.piecen != null &&
+                tile.piecen.owner == playerIndex) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns the number of piecens on the board owned the specified
      * player.
+     *
+     * @param piecens the piecens set from the game object.
+     * @param playerIndex the index of the player whose piecen count is
+     * desired.
      */
     public static int countPiecens (DSet piecens, int playerIndex)
     {

@@ -1,5 +1,5 @@
 //
-// $Id: EditDialog.java,v 1.2 2001/09/20 20:42:48 mdb Exp $
+// $Id: EditDialog.java,v 1.3 2001/09/21 03:09:01 mdb Exp $
 
 package robodj.chooser;
 
@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
-import com.samskivert.jdbc.PersistenceException;
+import com.samskivert.io.PersistenceException;
 import com.samskivert.swing.*;
 import com.samskivert.swing.util.*;
 

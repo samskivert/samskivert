@@ -1,5 +1,5 @@
 //
-// $Id: Model.java,v 1.4 2001/09/20 20:42:48 mdb Exp $
+// $Id: Model.java,v 1.5 2001/09/21 03:09:01 mdb Exp $
 
 package robodj.repository;
 
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import com.samskivert.jdbc.PersistenceException;
+import com.samskivert.io.PersistenceException;
 import com.samskivert.util.*;
 
 /**

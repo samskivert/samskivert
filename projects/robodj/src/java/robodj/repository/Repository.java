@@ -1,5 +1,5 @@
 //
-// $Id: Repository.java,v 1.7 2001/09/20 20:42:48 mdb Exp $
+// $Id: Repository.java,v 1.8 2001/09/21 03:09:01 mdb Exp $
 
 package robodj.repository;
 
@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.*;
 import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.*;

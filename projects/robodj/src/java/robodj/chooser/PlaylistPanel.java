@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.7 2001/09/20 20:42:48 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.8 2001/09/21 03:09:01 mdb Exp $
 
 package robodj.chooser;
 
@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.*;
 
-import com.samskivert.jdbc.PersistenceException;
+import com.samskivert.io.PersistenceException;
 import com.samskivert.swing.*;
 import com.samskivert.swing.util.*;
 import com.samskivert.util.StringUtil;

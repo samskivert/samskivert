@@ -160,7 +160,8 @@ public class StaticConnectionProvider implements ConnectionProvider
                 conn = DriverManager.getConnection(url, username, password);
             } catch (SQLException sqe) {
                 err = "Error creating database connection " +
-                    "[ident=" + ident + "].";
+                    "[ident=" + ident + ", driver=" + driver + ", url=" + url +
+                    ", username=" + username + "].";
                 throw new PersistenceException(err, sqe);
             }
 

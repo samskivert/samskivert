@@ -101,6 +101,8 @@ public class UserRepository extends JORARepository
     {
 	// create a new user object...
         User user = new User();
+        user.setDirtyMask(_utable.getFieldMask());
+
         // ...configure it...
         populateUser(user, username, password, realname, email, siteId);
         // ...and stick it into the database

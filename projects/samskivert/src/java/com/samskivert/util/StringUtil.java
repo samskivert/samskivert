@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.27 2002/02/06 00:56:57 mdb Exp $
+// $Id: StringUtil.java,v 1.28 2002/02/07 08:41:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -413,19 +413,32 @@ public class StringUtil
      */
     public static String[] parseStringArray (String source)
     {
+        int tcount = 0, tpos = -1, tstart = 0;
+
         // sort out escaped commas
         source = replace(source, ",,", "%COMMA%");
-        // now tokenize the string
-        StringTokenizer tok = new StringTokenizer(source, ",");
-        String[] vals = new String[tok.countTokens()];
-        for (int i = 0; tok.hasMoreTokens(); i++) {
-            // trim the whitespace from the token
-            String token = tok.nextToken().trim();
-            // undo the comma escaping
-            token = replace(token, "%COMMA%", ",");
-            vals[i] = token;
+
+        // count up the number of tokens
+        while ((tpos = source.indexOf(",", tpos+1)) != -1) {
+            tcount++;
         }
-        return vals;
+
+        String[] tokens = new String[tcount+1];
+        tpos = -1; tcount = 0;
+
+        // do the split
+        while ((tpos = source.indexOf(",", tpos+1)) != -1) {
+            tokens[tcount] = source.substring(tstart, tpos);
+            tokens[tcount] = replace(tokens[tcount].trim(), "%COMMA%", ",");
+            tstart = tpos+1;
+            tcount++;
+        }
+
+        // grab the last token
+        tokens[tcount] = source.substring(tstart);
+        tokens[tcount] = replace(tokens[tcount].trim(), "%COMMA%", ",");
+
+        return tokens;
     }
 
     /**
@@ -451,15 +464,31 @@ public class StringUtil
 
     /**
      * Splits the supplied string into components based on the specified
-     * separator character.
+     * separator string.
      */
     public static String[] split (String source, String sep)
     {
-        StringTokenizer tok = new StringTokenizer(source, sep);
-        String[] tokens = new String[tok.countTokens()];
-        for (int i = 0; tok.hasMoreTokens(); i++) {
-            tokens[i] = tok.nextToken();
+        int tcount = 0, tpos = -1, tstart = 0;
+
+        // count up the number of tokens
+        while ((tpos = source.indexOf(sep, tpos+1)) != -1) {
+            tcount++;
         }
+
+        String[] tokens = new String[tcount+1];
+        tpos = -1; tcount = 0;
+
+        // do the split
+        while ((tpos = source.indexOf(sep, tpos+1)) != -1) {
+            tokens[tcount] = source.substring(tstart, tpos);
+            tstart = tpos+1;
+            tcount++;
+        }
+
+        // grab the last token
+        tokens[tcount] = source.substring(tstart);
+        tokens[tcount] = replace(tokens[tcount].trim(), "%COMMA%", ",");
+
         return tokens;
     }
 

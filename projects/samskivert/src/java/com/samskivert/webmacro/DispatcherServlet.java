@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.12 2001/08/11 22:43:29 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.13 2002/04/01 01:57:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -233,7 +233,7 @@ public class DispatcherServlet extends WMServlet
 	Template tmpl;
 	try {
 	    tmpl = selectTemplate(ctx);
-	} catch (NotFoundException e) {
+	} catch (ResourceException e) {
 	    throw new HandlerException("Unable to load template: " + e);
 	}
 
@@ -318,7 +318,7 @@ public class DispatcherServlet extends WMServlet
      * @return The template to be used in generating the response.
      */
     protected Template selectTemplate (WebContext ctx)
-	throws NotFoundException
+	throws ResourceException
     {
 	// String path = cleanupURI(ctx.getRequest().getRequestURI());
         String path = ctx.getRequest().getServletPath();

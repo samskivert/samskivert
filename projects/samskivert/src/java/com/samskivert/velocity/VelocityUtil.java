@@ -26,7 +26,7 @@ public class VelocityUtil
      * throw something less generic, but that's what
      * {@link VelocityEngine#init} throws.
      */
-    public VelocityEngine createEngine ()
+    public static VelocityEngine createEngine ()
         throws Exception
     {
         // initialize velocity which we'll use for templating

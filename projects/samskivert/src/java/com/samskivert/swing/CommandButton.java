@@ -1,5 +1,5 @@
 //
-// $Id: CommandButton.java,v 1.1 2003/01/29 22:20:14 ray Exp $
+// $Id: CommandButton.java,v 1.2 2003/05/03 00:10:27 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -64,27 +64,22 @@ public class CommandButton extends JButton
             ? arg = ((CommandEvent) proto).getArgument()
             : null;
 
-        // if we were passed an actionevent, or if it was a 
-        // command event with a null arg..
+        // if we were passed an action event, or if it was a command event
+        // with a null arg...
         if (arg == null) {
-            // use ours
+            // ...use ours
             arg = getActionArgument();
         }
 
         if (arg == null) {
-            // just create a plain actionEvent
+            // just create a plain ActionEvent
             return new ActionEvent(CommandButton.this,
-                                ActionEvent.ACTION_PERFORMED,
-                                actionCommand,
-                                proto.getWhen(),
-                                proto.getModifiers());
+                                   ActionEvent.ACTION_PERFORMED, actionCommand,
+                                   proto.getWhen(), proto.getModifiers());
         } else {
-            // if we found an arg somewhere, create a commandevent
-            return new CommandEvent(CommandButton.this,
-                                actionCommand,
-                                arg,
-                                proto.getWhen(),
-                                proto.getModifiers());
+            // if we found an arg somewhere, create a CommandEvent
+            return new CommandEvent(CommandButton.this, actionCommand, arg,
+                                    proto.getWhen(), proto.getModifiers());
         }
     }
 

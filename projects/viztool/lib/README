@@ -8,9 +8,12 @@ directory specified in the build.xml file (${java.libraries}).
 * samskivert library: 
   http://www.samskivert.com/code/samskivert/
 
+* Jakarta Regular Expression package: 
+  http://jakarta.apache.org/regexp/
+
 Once the jar files are in place (regardless of what they are named), the
 build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.1 2001/06/14 01:51:28 mdb Exp $
+$Id: README,v 1.2 2001/07/04 18:20:09 mdb Exp $

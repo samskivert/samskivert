@@ -23,6 +23,8 @@ package com.samskivert.util;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.security.AccessControlException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -142,10 +144,18 @@ public class Config
      * supplied properties, rooted at the specified path in the
      * preferences hieriarchy.
      */
-    public Config (String path, Properties props)
+    public Config (final String path, Properties props)
     {
         _props = props;
-        _prefs = Preferences.userRoot().node(path);
+
+        // even if we're called from unprivileged code we want to allow
+        // access to preferences
+        AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run () {
+                _prefs = Preferences.userRoot().node(path);
+                return null;
+            }
+        });
     }
 
     /**

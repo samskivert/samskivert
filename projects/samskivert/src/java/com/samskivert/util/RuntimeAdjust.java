@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.1 2003/01/15 00:46:49 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.2 2003/01/15 01:25:55 mdb Exp $
 
 package com.samskivert.util;
 
@@ -106,6 +106,7 @@ public class RuntimeAdjust
         return panel;
     }
 
+    /** Provides runtime adjustable boolean variables. */
     public static class BooleanAdjust extends Adjust
         implements ActionListener
     {
@@ -156,6 +157,7 @@ public class RuntimeAdjust
         protected JCheckBox _valbox;
     }
 
+    /** Provides runtime adjustable integer variables. */
     public static class IntAdjust extends Adjust
         implements ActionListener
     {
@@ -210,6 +212,7 @@ public class RuntimeAdjust
         protected JTextField _valbox;
     }
 
+    /** Provides runtime adjustable enumerated variables. */
     public static class EnumAdjust extends Adjust
         implements ActionListener
     {
@@ -268,6 +271,7 @@ public class RuntimeAdjust
         protected JComboBox _valbox;
     }
 
+    /** Base class for type-specific adjustments. */
     protected abstract static class Adjust
         implements PropertyChangeListener, Comparable
     {

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: runjava,v 1.1 2001/06/14 01:51:28 mdb Exp $
+# $Id: runjava,v 1.2 2001/07/24 18:06:02 mdb Exp $
 #
 # A script for invoking java. The project root is inferred to be one
 # directory above the directory in which this script lives. Based on the
@@ -50,6 +50,14 @@ if (!defined $jhome) {
 
 my $java = "$jhome/bin/java";
 my $jlib = "$jhome/lib/classes.zip";
+
+# use rt.jar if necessary
+if (! -f $jlib) {
+    $jlib = "$jhome/lib/rt.jar";
+}
+if (! -f $jlib) {
+    $jlib = "$jhome/jre/lib/rt.jar";
+}
 
 # make sure we can run the jvm
 if (! -x $java) {

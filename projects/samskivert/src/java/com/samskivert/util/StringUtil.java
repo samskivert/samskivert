@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.64 2003/11/13 01:20:40 ray Exp $
+// $Id: StringUtil.java,v 1.65 2003/11/19 18:26:51 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -76,6 +76,20 @@ public class StringUtil
             return s;
         } else {
             return s.substring(0, maxLength) + append;
+        }
+    }
+
+    /**
+     * Returns a version of the supplied string with the first letter
+     * capitalized.
+     */
+    public static String capitalize (String s)
+    {
+        char c = s.charAt(0);
+        if (Character.isUpperCase(c)) {
+            return s;
+        } else {
+            return String.valueOf(Character.toUpperCase(c)) + s.substring(1);
         }
     }
 

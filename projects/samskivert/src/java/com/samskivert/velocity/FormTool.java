@@ -1,5 +1,5 @@
 //
-// $Id: FormTool.java,v 1.4 2001/11/01 00:35:05 mdb Exp $
+// $Id: FormTool.java,v 1.5 2002/02/19 19:01:21 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -198,7 +198,7 @@ public class FormTool
         StringBuffer buf = new StringBuffer();
         buf.append("<input type=\"checkbox\"");
         buf.append(" name=\"").append(name).append("\"");
-        if (ParameterUtil.isSet(_req, name)) {
+        if (ParameterUtil.isSet(_req, name, defaultValue)) {
             buf.append(" checked");
         }
         buf.append(">");

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.66 2003/11/19 18:52:30 mdb Exp $
+// $Id: StringUtil.java,v 1.67 2003/12/17 19:19:25 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -42,6 +42,8 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * String related utility functions.
@@ -118,6 +120,22 @@ public class StringUtil
             }
         }
         return buf.toString();
+    }
+
+    /**
+     * Sanitize the specified String such that each character must match
+     * against the regex specified.
+     */
+    public static String sanitize (String source, String charRegex)
+    {
+        final StringBuffer buf = new StringBuffer(" ");
+        final Matcher matcher = Pattern.compile(charRegex).matcher(buf);
+        return sanitize(source, new CharacterValidator() {
+            public boolean isValid (char c) {
+                buf.setCharAt(0, c);
+                return matcher.matches();
+            }
+        });
     }
 
     /**

@@ -39,10 +39,18 @@ public class HTMLUtil
     {
         // this could perhaps be done more efficiently, but this function
         // is not likely to be called on large quantities of text
+        // (first we turn the entified versions normal so that if text is
+        // repeatedly run through this it doesn't keep changing successive
+        // &'s into "&amp;".
+        text = StringUtil.replace(text, "&quot;", "\"");
+        text = StringUtil.replace(text, "&gt;", ">");
+        text = StringUtil.replace(text, "&lt;", "<");
+        text = StringUtil.replace(text, "&amp;", "&");
         text = StringUtil.replace(text, "&", "&amp;");
         text = StringUtil.replace(text, "<", "&lt;");
         text = StringUtil.replace(text, ">", "&gt;");
-        return StringUtil.replace(text, "\"", "&quot;");
+        text = StringUtil.replace(text, "\"", "&quot;");
+        return text;
     }
 
     /**

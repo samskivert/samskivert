@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.32 2003/09/19 21:13:37 mdb Exp $
+// $Id: UserRepository.java,v 1.33 2003/10/07 02:13:27 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -360,9 +360,9 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Load the site id for the passed in SiteName (stringId)
+     * Get the site id for the passed in SiteName (stringId)
      */
-    public int loadSiteId (final String stringId)
+    public int getSiteId (String stringId)
     {
         Site site = (Site)_siteNameToSite.get(stringId);
 
@@ -370,9 +370,9 @@ public class UserRepository extends JORARepository
     }
     
     /**
-     * Load the "Site Name" (stringId) for the give siteId
+     * Get the "Site Name" (stringId) for the give siteId
      */
-    public String loadSiteName (int siteId)
+    public String getSiteName (int siteId)
     {
         Site site = (Site)_siteIdToSite.get(siteId);
 

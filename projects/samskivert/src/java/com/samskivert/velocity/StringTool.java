@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.12 2003/10/23 16:09:34 eric Exp $
+// $Id: StringTool.java,v 1.13 2003/11/05 00:07:53 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,23 +53,6 @@ public class StringTool
     {
         return String.valueOf(value);
     }
-
-    /**
-     * Converts a number representing dollars to a currency display string.
-     */
-    public static String currency (double value)
-    {
-        return StringUtil.currency(value);
-    }
-
-    /**
-     * Converts a number representing pennies to a currency display string.
-     */
-    public static String currencyPennies (double value)
-    {
-        return StringUtil.currencyPennies(value);
-    }
-
     /**
      * Adds &lt;p&gt; tags between each pair of consecutive newlines.
      */

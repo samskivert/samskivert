@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.21 2003/09/25 18:06:29 eric Exp $
+// $Id: DispatcherServlet.java,v 1.22 2003/11/05 00:07:53 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -292,6 +292,10 @@ public class DispatcherServlet extends VelocityServlet
             DataTool datatool = new DataTool();
             ictx.put(DATATOOL_KEY, datatool);
 
+            // create a curreny tool set up to use the correct locale
+            CurrencyTool ctool = new CurrencyTool(req);
+            ictx.put(CURRENCYTOOL_KEY, ctool);
+
             // resolve the appropriate logic class for this URI and
             // execute it if it exists
             String path = req.getServletPath();
@@ -450,6 +454,9 @@ public class DispatcherServlet extends VelocityServlet
 
     /** The key used to store the data tool in the context. */
     protected static final String DATATOOL_KEY = "data";
+
+    /** The key used to store the currency tool in the context. */
+    protected static final String CURRENCYTOOL_KEY = "cash";
 
     /** The servlet parameter key specifying the application class. */
     protected static final String APP_CLASS_KEY = "app_class";

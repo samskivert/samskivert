@@ -1,5 +1,5 @@
 //
-// $Id: Task.java,v 1.2 2002/11/08 21:49:17 mdb Exp $
+// $Id: Task.java,v 1.3 2002/11/09 01:15:54 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -32,4 +32,17 @@ public class Task
     public Date completion;
 
     public String notes;
+
+    public String getPriority ()
+    {
+        switch (priority) {
+        case 50: return "Urgent";
+        case 25: return "Next release";
+        case 15: return "Soon";
+        case 10: return "Before launch";
+        case 5: return "Post launch";
+        case 1: return "On the list";
+        default: return "Unknown";
+        }
+    }
 }

@@ -61,9 +61,17 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 #end
 </td></tr>
 
+#set ($priority = "")
+
 #foreach ($task in $xtask.tasks)
 <form action="index.wm">
 $form.fixedHidden("task", "$task.taskId")
+
+#if ($task.getPriority() != $priority)
+#set ($priority = $task.getPriority())
+<tr><td colspan="4" class="small">$task.getPriority()</td></tr>
+#end
+
 #if ($vidx%2 == 0)
 #set ($rowcolor = "#FFFFFF")
 #else

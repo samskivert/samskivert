@@ -1,4 +1,4 @@
 #
-# $Id: Makefile.am,v 1.2 2001/02/24 02:35:20 mdb Exp $
+# $Id: Makefile.am,v 1.3 2001/08/16 00:12:11 mdb Exp $
 
-SUBDIRS = src
+SUBDIRS = macros intl src

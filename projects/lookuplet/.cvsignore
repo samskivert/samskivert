@@ -9,3 +9,10 @@ config.status
 configure
 stamp-h
 stamp-h.in
+ABOUT-NLS
+config.guess
+config.sub
+intl
+libtool
+ltmain.sh
+po

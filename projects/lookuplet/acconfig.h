@@ -1,1 +1,6 @@
+#undef ENABLE_NLS
+#undef HAVE_GETTEXT
+#undef HAVE_LC_MESSAGES
 #undef HAVE_LIBSM
+#undef HAVE_LIBINTL_H
+#undef VERSION

@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.13 2003/11/05 00:07:53 eric Exp $
+// $Id: StringTool.java,v 1.14 2004/01/05 19:14:04 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -53,6 +53,15 @@ public class StringTool
     {
         return String.valueOf(value);
     }
+
+    /**
+     * Convert a float to a nicely formated percent string.
+     */
+    public String percent (float value)
+    {
+        return StringUtil.format(value * 100.0);
+    }
+
     /**
      * Adds &lt;p&gt; tags between each pair of consecutive newlines.
      */

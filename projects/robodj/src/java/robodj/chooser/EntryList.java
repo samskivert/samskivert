@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.14 2004/01/26 16:10:55 mdb Exp $
+// $Id: EntryList.java,v 1.15 2004/01/26 16:33:40 mdb Exp $
 
 package robodj.chooser;
 
@@ -25,8 +25,6 @@ public abstract class EntryList extends JSplitPane
     {
         super(JSplitPane.VERTICAL_SPLIT);
 
-        setOpaque(false);
-        setDividerLocation(200);
         setLeftComponent(new JScrollPane(_bpanel = createPanel()));
         setRightComponent(new JScrollPane(_epanel = createPanel()));
 
@@ -35,6 +33,19 @@ public abstract class EntryList extends JSplitPane
 
         // create our controller
         _controller = createController();
+    }
+
+    // documentation inherited
+    public void doLayout ()
+    {
+        super.doLayout();
+
+        // we only want to do this once so as not to mess with subsequent
+        // adjustments by the user
+        if (!_adjusted) {
+            setDividerLocation(0.5f);
+            _adjusted = true;
+        }
     }
 
     /**
@@ -53,7 +64,6 @@ public abstract class EntryList extends JSplitPane
             }
         };
         panel.setLayout(gl);
-        panel.setOpaque(false);
 	panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         return panel;
     }
@@ -112,7 +122,6 @@ public abstract class EntryList extends JSplitPane
         clearScrollPosition((JScrollPane)getLeftComponent());
 
         // we've removed and added components so we need to revalidate
-        SwingUtil.setOpaque(_bpanel, false);
         SwingUtil.refresh(_bpanel);
     }
 
@@ -168,7 +177,6 @@ public abstract class EntryList extends JSplitPane
         }
 
         // we've removed and added components so we need to revalidate
-        SwingUtil.setOpaque(_epanel, false);
         SwingUtil.refresh(_epanel);
     }
 
@@ -182,6 +190,7 @@ public abstract class EntryList extends JSplitPane
     protected JPanel _bpanel;
     protected JPanel _epanel;
 
+    protected boolean _adjusted;
     protected Font _titleFont;
 
     protected static final String UP_TIP =

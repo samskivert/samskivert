@@ -1,10 +1,8 @@
 //
-// $Id: Chooser.java,v 1.13 2004/01/26 16:10:55 mdb Exp $
+// $Id: Chooser.java,v 1.14 2004/01/26 16:33:40 mdb Exp $
 
 package robodj.chooser;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -104,7 +102,7 @@ public class Chooser
         // create our primary user interface frame, center the frame in
         // the screen and show it
         frame = new ChooserFrame();
-        frame.setSize(650, 665);
+        frame.setSize(660, frame.getToolkit().getScreenSize().height - 60);
         SwingUtil.centerWindow(frame);
         frame.setVisible(true);
     }

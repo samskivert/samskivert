@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.15 2004/01/26 16:10:55 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.16 2004/01/26 16:33:40 mdb Exp $
 
 package robodj.chooser;
 
@@ -68,7 +68,6 @@ public class PlaylistPanel extends ControlledPanel
         GroupLayout bgl = new HGroupLayout(GroupLayout.NONE);
         bgl.setJustification(GroupLayout.RIGHT);
         JPanel cbar = new JPanel(bgl);
-        cbar.setOpaque(false);
 
         // add our control buttons
         _clearbut = ButtonUtil.createControlButton(

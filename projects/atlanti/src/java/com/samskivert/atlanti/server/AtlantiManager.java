@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.15 2001/10/18 23:11:03 mdb Exp $
+// $Id: AtlantiManager.java,v 1.16 2001/10/18 23:57:02 mdb Exp $
 
 package com.threerings.venison;
 
@@ -226,8 +226,7 @@ public class VenisonManager
 
                 String message = qual + " " + TileCodes.FEATURE_NAMES[f.type] +
                     " scored " + score + " points for " + names + ".";
-                ChatProvider.sendChatMessage(
-                    _venobj.getOid(), SERVER_USERNAME, message);
+                ChatProvider.sendSystemMessage(_venobj.getOid(), message);
 
                 Log.info("New scores: " + StringUtil.toString(_venobj.scores));
 
@@ -299,8 +298,8 @@ public class VenisonManager
                         // players about the score
                         String message = _players[p.owner] + " scored " +
                             score + " points for " + qual + " cloister.";
-                        ChatProvider.sendChatMessage(
-                            _venobj.getOid(), SERVER_USERNAME, message);
+                        ChatProvider.sendSystemMessage(
+                            _venobj.getOid(), message);
 
                         // add the score to the owning player
                         _venobj.scores[p.owner] += score;
@@ -446,8 +445,7 @@ public class VenisonManager
             _venobj.scores[i] += cityScores[i];
             String message = _players[i] + " scores " + cityScores[i] +
                 " points for farmed cities.";
-            ChatProvider.sendChatMessage(
-                _venobj.getOid(), SERVER_USERNAME, message);
+            ChatProvider.sendSystemMessage(_venobj.getOid(), message);
         }
     }
 
@@ -701,7 +699,4 @@ public class VenisonManager
 
     /** Used to score features groups. */
     protected int[] _claimGroupVector;
-
-    /** The username we use for delivering server chat messages. */
-    protected static final String SERVER_USERNAME = "game notice";
 }

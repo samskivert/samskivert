@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.29 2002/12/02 21:55:45 mdb Exp $
+// $Id: Label.java,v 1.30 2002/12/06 21:52:35 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -462,24 +462,6 @@ public class Label implements SwingConstants, LabelStyleConstants
             y += layout.getAscent();
 
             float extra = (float)(_size.width - getWidth(lbounds));
-            switch (_style) {
-            case OUTLINE:
-                // if we're outlining, we really have two pixels less space
-                // than we think we do
-                extra -= 2;
-                break;
-
-            case SHADOW:
-            case BOLD:
-                // if we're rendering shadowed or bolded text, we really
-                // have one pixel less space than we think we do
-                extra -= 1;
-                break;
-
-            default:
-                break;
-            }
-
             float rx = x;
             switch (_align) {
             case -1: rx = x + (layout.isLeftToRight() ? 0 : extra); break;

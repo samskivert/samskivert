@@ -171,9 +171,9 @@ public class TaskMaster
         public Object invoke () throws Exception
         {
             // look up the named method on the source object and invoke it
-            Method meth = _source.getClass().getMethod(_name, null);
+            Method meth = _source.getClass().getMethod(_name, (Class[]) null);
             meth.setAccessible(true);
-            return meth.invoke(_source, null);
+            return meth.invoke(_source, (Object[]) null);
         }
 
         public boolean abort ()

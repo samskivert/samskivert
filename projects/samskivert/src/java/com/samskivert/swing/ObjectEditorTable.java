@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEditorTable.java,v 1.3 2004/06/14 17:36:03 ray Exp $
+// $Id: ObjectEditorTable.java,v 1.4 2004/06/15 17:57:17 ray Exp $
 
 package com.samskivert.swing;
 
@@ -11,7 +11,9 @@ import java.awt.event.ActionListener;
 
 import java.lang.reflect.Field;
 
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -20,6 +22,7 @@ import javax.swing.table.AbstractTableModel;
 import com.samskivert.swing.event.CommandEvent;
 
 import com.samskivert.util.ClassUtil;
+import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ListUtil;
 
 import com.samskivert.Log;
@@ -137,11 +140,21 @@ public class ObjectEditorTable extends JTable
 
     /**
      * Set the data to be viewed or edited.
-     * Note that the passed in data will be edited in place.
      */
     public void setData (Object[] data)
     {
-        _data = data;
+        _data.clear();
+        CollectionUtil.addAll(_data, data);
+        _model.fireTableDataChanged();
+    }
+
+    /**
+     * Set the data to be viewed or edited.
+     */
+    public void setData (Collection data)
+    {
+        _data.clear();
+        _data.addAll(data);
         _model.fireTableDataChanged();
     }
 
@@ -150,16 +163,45 @@ public class ObjectEditorTable extends JTable
      */
     public void setData (Object data)
     {
-        setData(new Object[] { data });
+        _data.clear();
+        _data.add(data);
+        _model.fireTableDataChanged();
     }
 
     /**
-     * Get the edited data. Not really needed, since the the data passed
-     * to set is 
+     * Insert the specified element at the specified row.
+     */
+    public void insertData (Object element, int row)
+    {
+        _data.add(row, element);
+        _model.fireTableRowsInserted(row, row);
+    }
+
+    /**
+     * Change the value of the specified row.
+     */
+    public void updateData (Object element, int row)
+    {
+        _data.set(row, element);
+        _model.fireTableRowsUpdated(row, row);
+    }
+
+    /**
+     * Remove the specified row.
+     */
+    public void removeData (int row)
+    {
+        _data.remove(row);
+        _model.fireTableRowsDeleted(row, row);
+    }
+
+    /**
+     * Get the edited data. Not really needed, since the the data being
+     * edited is the same objects that were passed in.
      */
     public Object[] getData ()
     {
-        return _data;
+        return _data.toArray();
     }
 
     /**
@@ -168,7 +210,7 @@ public class ObjectEditorTable extends JTable
     public Object getSelectedObject ()
     {
         int row = getSelectedRow();
-        return (row == -1) ? null : _data[row];
+        return (row == -1) ? null : _data.get(row);
     }
 
     /**
@@ -201,7 +243,7 @@ public class ObjectEditorTable extends JTable
          * Get the object at the specified row. Useful for our subclass.
          */
         public Object getObjectAt (int row) {
-            return _data[row];
+            return _data.get(row);
         }
 
         // documentation inherited
@@ -211,8 +253,9 @@ public class ObjectEditorTable extends JTable
         }
 
         // documentation inherited
-        public int getRowCount() {
-            return (_data == null) ? 0 : _data.length;
+        public int getRowCount()
+        {
+            return _data.size();
         }
 
         // documentation inherited
@@ -281,5 +324,5 @@ public class ObjectEditorTable extends JTable
     protected BitSet _editable = new BitSet();
 
     /** The data being edited. */
-    protected Object[] _data;
+    protected ArrayList _data = new ArrayList();
 }

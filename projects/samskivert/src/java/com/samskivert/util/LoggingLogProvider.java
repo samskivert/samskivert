@@ -74,7 +74,7 @@ public class LoggingLogProvider
             logger = (Logger)_loggers.get(moduleName);
             if (logger == null) {
                 _loggers.put(moduleName,
-                             logger = Logger.getLogger("moduleName"));
+                             logger = Logger.getLogger(moduleName));
             }
         }
         return logger;

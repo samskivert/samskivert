@@ -1,5 +1,5 @@
 //
-// $Id: ElementLayout.java,v 1.2 2001/07/17 01:54:19 mdb Exp $
+// $Id: ElementLayout.java,v 1.3 2001/07/24 18:07:35 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -15,12 +15,13 @@ import java.util.List;
 public interface ElementLayout
 {
     /**
-     * Lay out the supplied list of elements. Page numbers should be
-     * assigned to all elements if the layout spans multiple pages.
+     * Lay out the supplied list of elements. Any elements that do not fit
+     * into the allotted space should be added to the overflow list. The
+     * supplied elements list should not be modified.
      *
-     * @return an array of rectangle objects representing the width and
-     * height of each page that was laid out.
+     * @return the bounding dimensions of the collection of elements that
+     * were laid out.
      */
-    public Rectangle2D[] layout (List elements,
-                                 double pageWidth, double pageHeight);
+    public Rectangle2D layout (List elements, double pageWidth,
+                               double pageHeight, List overflow);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.7 2001/07/17 07:18:09 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.8 2001/07/24 18:07:35 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -45,6 +45,7 @@ public class HierarchyVisualizer implements Printable
             }
             _classes.add(name);
         }
+        // System.err.println("Scanned " + _classes.size() + " classes.");
 
         // compile a list of all packages in our collection
         HashSet pkgset = new HashSet();
@@ -60,18 +61,15 @@ public class HierarchyVisualizer implements Printable
             _packages[i] = (String)iter.next();
         }
         Arrays.sort(_packages, Comparators.STRING);
+        // System.err.println("Scanned " + _packages.length + " packages.");
 
         // now create chain groups for each package
-        _groups = new ChainGroup[_packages.length];
-        for (int i = 0; i < _groups.length; i++) {
+        _groups = new ArrayList();
+        for (int i = 0; i < _packages.length; i++) {
             PackageEnumerator penum = new PackageEnumerator(
                 _packages[i], _classes.iterator(), false);
-            _groups[i] = new ChainGroup(pkgroot, _packages[i], penum);
+            _groups.add(new ChainGroup(pkgroot, _packages[i], penum));
         }
-
-        // we'll need these for later
-        _bounds = new Rectangle2D.Double[_packages.length];
-        _pagenos = new int[_packages.length];
     }
 
     /**
@@ -98,12 +96,16 @@ public class HierarchyVisualizer implements Printable
 
         // render the groups on the requested page
         int rendered = 0;
-        for (int i = 0; i < _groups.length; i++) {
+        for (int i = 0; i < _groups.size(); i++) {
+            ChainGroup group = (ChainGroup)_groups.get(i);
+
             // skip groups not on this page
-            if (_pagenos[i] != pageIndex) {
+            if (group.getPage() != pageIndex) {
                 continue;
             }
-            _groups[i].render(gfx, _bounds[i].getX(), _bounds[i].getY());
+
+            Rectangle2D bounds = group.getBounds();
+            group.render(gfx, bounds.getX(), bounds.getY());
             rendered++;
         }
 
@@ -113,26 +115,32 @@ public class HierarchyVisualizer implements Printable
     public void layout (Graphics2D gfx, double x, double y,
                         double width, double height)
     {
-        double starty = x;
+        double starty = y;
         int pageno = 0;
 
         // lay out our groups
-        for (int i = 0; i < _groups.length; i++) {
+        for (int i = 0; i < _groups.size(); i++) {
+            ChainGroup group = (ChainGroup)_groups.get(i);
+
             // lay out the group in question
-            Rectangle2D bounds = _groups[i].layout(gfx, width, height);
+            ChainGroup ngrp = group.layout(gfx, width, height);
+            // if the process of laying this group out caused it to become
+            // split across pages, insert this new group into the list
+            if (ngrp != null) {
+                _groups.add(i+1, ngrp);
+            }
 
             // determine if we need to skip to the next page or not
-            if ((y > 0) && (y + bounds.getHeight() > height)) {
+            Rectangle2D bounds = group.getBounds();
+            if ((y > starty) && (y + bounds.getHeight() > height + starty)) {
                 y = starty;
                 pageno++;
             }
 
             // assign x and y coordinates to this group
-            bounds.setRect(x, y, bounds.getWidth(), bounds.getHeight());
-            // and store it
-            _bounds[i] = bounds;
-            // also make a note of our page index
-            _pagenos[i] = pageno;
+            group.setPosition(x, y);
+            // make a note of our page index
+            group.setPage(pageno);
 
             // increment our y location
             y += (bounds.getHeight() + GAP);
@@ -142,13 +150,16 @@ public class HierarchyVisualizer implements Printable
     public void paint (Graphics2D gfx, int pageIndex)
     {
         // render the groups on the requested page
-        for (int i = 0; i < _groups.length; i++) {
+        for (int i = 0; i < _groups.size(); i++) {
+            ChainGroup group = (ChainGroup)_groups.get(i);
+
             // skip groups not on this page
-            if (_pagenos[i] != pageIndex) {
+            if (group.getPage() != pageIndex) {
                 continue;
             }
-            _groups[i].render((Graphics2D)gfx,
-                              _bounds[i].getX(), _bounds[i].getY());
+
+            Rectangle2D bounds = group.getBounds();
+            group.render((Graphics2D)gfx, bounds.getX(), bounds.getY());
         }
     }
 
@@ -156,11 +167,9 @@ public class HierarchyVisualizer implements Printable
     protected ArrayList _classes = new ArrayList();
 
     protected String[] _packages;
-    protected ChainGroup[] _groups;
+    protected ArrayList _groups;
 
     protected PageFormat _format;
-    protected Rectangle2D[] _bounds;
-    protected int[] _pagenos;
 
     protected static final int PAGE_WIDTH = (int)(72 * 7.5);
     protected static final int PAGE_HEIGHT = (int)(72 * 10);

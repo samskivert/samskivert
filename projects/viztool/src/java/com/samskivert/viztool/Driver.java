@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.5 2001/07/17 07:18:09 mdb Exp $
+// $Id: Driver.java,v 1.6 2001/07/24 18:07:35 mdb Exp $
 
 package com.samskivert.viztool;
 
@@ -31,6 +31,7 @@ public class Driver
 
         // run ourselves on the classpath
         String classpath = System.getProperty("java.class.path");
+        // System.err.println("Scanning " + classpath + ".");
         ClassEnumerator enum = new ClassEnumerator(classpath);
 
         // print out the warnings

@@ -1,5 +1,5 @@
 //
-// $Id: ChainGroup.java,v 1.6 2001/07/17 06:01:08 mdb Exp $
+// $Id: ChainGroup.java,v 1.7 2001/07/24 18:07:35 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -28,13 +28,60 @@ public class ChainGroup
 
         // process the classes provided by our enumerator
         _roots = ChainUtil.buildChains(pkgroot, iter);
+        // System.err.println(_roots.size() + " chains for " + pkg + ".");
+    }
+
+    protected ChainGroup (String pkg, ArrayList roots)
+    {
+        _pkg = pkg;
+        _roots = roots;
     }
 
     /**
-     * Lays out the chains in this group and returns the total size.
+     * Returns the dimensions of this chain group. This value is only
+     * valid after <code>layout</code> has been called.
      */
-    public Rectangle2D layout (Graphics2D gfx, double pageWidth,
-                               double pageHeight)
+    public Rectangle2D getBounds ()
+    {
+        return _size;
+    }
+
+    /**
+     * Sets the upper left coordinate of this group. The group itself
+     * never looks at this information, but it will be made available as
+     * the x and y coordinates of the rectangle returned by
+     * <code>getBounds</code>.
+     */
+    public void setPosition (double x, double y)
+    {
+        _size.setRect(x, y, _size.getWidth(), _size.getHeight());
+    }
+
+    /**
+     * Returns the page on which this group should be rendered.
+     */
+    public int getPage ()
+    {
+        return _page;
+    }
+
+    /**
+     * Sets the page on which this group should be rendered.
+     */
+    public void setPage (int page)
+    {
+        _page = page;
+    }
+
+    /**
+     * Lays out the chains in this group and returns the total size. If
+     * the layout process requires that this chain group be split across
+     * multiple pages, a new chain group containing the overflow chains
+     * will be returned. If the group fits in the allotted space, null
+     * will be returned.
+     */
+    public ChainGroup layout (
+        Graphics2D gfx, double pageWidth, double pageHeight)
     {
         // lay out the internal structure of our chains
         ChainVisualizer clay = new CascadingChainVisualizer();
@@ -58,19 +105,28 @@ public class ChainGroup
 
         // arrange them on the page
         ElementLayout elay = new PackedColumnElementLayout();
-        Rectangle2D[] dims = elay.layout(_roots, pageWidth, pageHeight);
-
-        // for now we're punting and assume that no group will exceed a
-        // single page in size
-        double width = dims[0].getWidth();
-        double height = dims[0].getHeight() + titleAscent;
+        ArrayList overflow = new ArrayList();
+        _size = elay.layout(_roots, pageWidth, pageHeight, overflow);
 
         // make sure we're wide enough for our title
-        width = Math.max(width, layout.getAdvance() + 4);
+        double width = Math.max(_size.getWidth(), layout.getAdvance() + 4);
 
-        _size = new Rectangle2D.Double();
+        // adjust for our border and title
+        double height = _size.getHeight() + titleAscent;
         _size.setRect(0, 0, width + 2*BORDER, height + 2*BORDER);
-        return _size;
+
+        // if we have overflow elements, create a new chain group with
+        // these elements, remove them from our roots list and be on our
+        // way
+        if (overflow.size() > 0) {
+            // remove the overflow roots from our list
+            for (int i = 0; i < overflow.size(); i++) {
+                _roots.remove(overflow.get(i));
+            }
+            return new ChainGroup(_pkg, overflow);
+        }
+
+        return null;
     }
 
     /**
@@ -132,9 +188,17 @@ public class ChainGroup
         return (Chain)_roots.get(index);
     }
 
+    public String toString ()
+    {
+        return "[pkg=" + _pkg + ", roots=" + _roots.size() +
+            ", size=" + _size + ", page=" + _page + "]";
+    }
+
     protected String _pkg;
     protected ArrayList _roots;
+
     protected Rectangle2D _size;
+    protected int _page;
 
     protected static final double BORDER = 72/8;
 }

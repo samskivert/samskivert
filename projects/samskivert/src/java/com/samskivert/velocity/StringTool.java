@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.1 2002/02/10 05:06:09 mdb Exp $
+// $Id: StringTool.java,v 1.2 2002/10/25 18:04:44 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,7 @@
 
 package com.samskivert.velocity;
 
+import java.net.URLEncoder;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -33,5 +34,13 @@ public class StringTool
     public boolean blank (String text)
     {
         return StringUtil.blank(text);
+    }
+
+    /**
+     * URL encodes the supplied text.
+     */
+    public String urlEncode (String text)
+    {
+        return URLEncoder.encode(text);
     }
 }

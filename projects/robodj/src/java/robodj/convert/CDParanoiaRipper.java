@@ -1,12 +1,14 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.6 2003/10/10 19:33:16 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.7 2003/10/10 21:25:46 mdb Exp $
 
 package robodj.convert;
 
 import java.io.*;
 import java.util.ArrayList;
 
-import gnu.regexp.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * A ripper implementation that uses cdparanoia to do it's job.
@@ -20,11 +22,11 @@ public class CDParanoiaRipper implements Ripper
 	// this:
 	//
 	//   1.    17980 [03:59.55]        0 [00:00.00]    no   no  2
-	RE regex;
+	Pattern regex;
 	try {
-	    regex = new RE("^\\s*\\d+\\.\\s+(\\d+)\\s\\[\\S*\\]\\s+(\\d+)");
-	} catch (REException ree) {
-	    throw new ConvertException("Can't compile regexp?! " + ree);
+	    regex = Pattern.compile("^\\s*\\d+\\.\\s+(\\d+)\\s\\[\\S*\\]\\s+(\\d+)");
+	} catch (PatternSyntaxException pse) {
+	    throw new ConvertException("Can't compile regexp?! " + pse);
 	}
 
 	try {
@@ -54,10 +56,10 @@ public class CDParanoiaRipper implements Ripper
 		input.append(inline).append("\n");
 
 		// see if we match our regular expression
-		REMatch match = regex.getMatch(inline);
-		if (match != null) {
-		    flist.add(match.toString(1));
-		    flist.add(match.toString(2));
+		Matcher match = regex.match(inline);
+		if (match.matches()) {
+		    flist.add(inline.substring(match.start(0), match.end(0)));
+		    flist.add(inline.substring(match.start(1), match.end(1)));
 		}
 	    }
 
@@ -117,11 +119,11 @@ public class CDParanoiaRipper implements Ripper
 	cmd.append(" ").append(target); // add output file name
 
 	// we'll need this for later
-	RE regex;
+	Pattern regex;
 	try {
-	    regex = new RE("^##: -?\\d+ \\[(\\S+)\\] @ (\\d+)");
-	} catch (REException ree) {
-	    throw new ConvertException("Can't compile regexp?! " + ree);
+	    regex = Pattern.compile("^##: -?\\d+ \\[(\\S+)\\] @ (\\d+)");
+	} catch (PatternSyntaxException pse) {
+	    throw new ConvertException("Can't compile regexp?! " + pse);
 	}
 
 	try {
@@ -148,12 +150,13 @@ public class CDParanoiaRipper implements Ripper
 		}
 
 		// parse the output
-		REMatch match = regex.getMatch(out);
-		if (match != null) {
-		    String action = match.toString(1);
+		Matcher match = regex.match(out);
+		if (match.matches()) {
+		    String action = out.substring(match.start(0), match.end(0));
 		    long offset = -1L;
 		    try {
-			offset = Long.parseLong(match.toString(2));
+			String ostr = out.substring(match.start(1), match.end(1));
+			offset = Long.parseLong(ostr);
 		    } catch (NumberFormatException nfe) {
 			// System.err.println("Malformed position info: " + out);
 			continue;

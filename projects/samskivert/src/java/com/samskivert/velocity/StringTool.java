@@ -81,11 +81,28 @@ public class StringTool
     }
 
     /**
+     * Adds a &lt;br&gt; tag before every newline.
+     */
+    public static String delineate (String text)
+    {
+        return HTMLUtil.makeLinear(text);
+    }
+
+    /**
      * Converts a float to a reasonably formatted string.
      */
     public static String format (float value)
     {
         return NumberFormat.getInstance().format(value);
+    }
+
+    /**
+     * Truncates the supplied text at the specified length, appending the
+     * specified "elipsis" indicator to the text if truncated.
+     */
+    public static String truncate (String text, int length, String append)
+    {
+        return StringUtil.truncate(text, length, append);
     }
 
     /** For formatting percentages. */

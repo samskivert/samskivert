@@ -58,4 +58,17 @@ public class HTMLUtil
         text = StringUtil.replace(text, "\r\n\r\n", "\r\n<p>\r\n");
         return text;
     }
+
+    /**
+     * Inserts a &lt;br&gt; tag before every newline.
+     */
+    public static String makeLinear (String text)
+    {
+        if (text == null) {
+            return text;
+        }
+        // handle both line ending formats
+        text = StringUtil.replace(text, "\n", "<br>\n");
+        return text;
+    }
 }

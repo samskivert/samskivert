@@ -1,5 +1,5 @@
 //
-// $Id: VizFrame.java,v 1.5 2001/08/14 00:45:56 mdb Exp $
+// $Id: VizFrame.java,v 1.6 2001/11/30 22:57:31 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -24,14 +24,13 @@ import java.awt.BorderLayout;
 import javax.swing.*;
 
 import com.samskivert.swing.*;
-import com.samskivert.viztool.viz.HierarchyVisualizer;
 
 /**
  * The top-level frame in which visualizations are displayed.
  */
 public class VizFrame extends JFrame
 {
-    public VizFrame (HierarchyVisualizer viz)
+    public VizFrame (Visualizer viz)
     {
         super("viztool");
 

@@ -1,5 +1,5 @@
 //
-// $Id: Chain.java,v 1.9 2001/08/12 04:36:58 mdb Exp $
+// $Id: Chain.java,v 1.10 2001/11/30 22:57:31 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -18,11 +18,13 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.viztool.viz;
+package com.samskivert.viztool.hierarchy;
 
 import java.util.*;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+
+import com.samskivert.viztool.layout.Element;
 
 /**
  * A chain is used by the hierarchy visualizer to represent inheritance

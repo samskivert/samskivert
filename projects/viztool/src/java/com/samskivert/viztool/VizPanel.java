@@ -1,5 +1,5 @@
 //
-// $Id: VizPanel.java,v 1.6 2001/08/14 00:45:56 mdb Exp $
+// $Id: VizPanel.java,v 1.7 2001/11/30 22:57:31 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -24,8 +24,6 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import javax.swing.*;
 
-import com.samskivert.viztool.viz.HierarchyVisualizer;
-
 /**
  * A very simple UI element for displaying visualizations on screen.
  */
@@ -34,9 +32,9 @@ public class VizPanel extends JPanel
     /**
      * Constructs a panel for displaying a particular visualization.
      */
-    public VizPanel (HierarchyVisualizer viz)
+    public VizPanel (Visualizer viz)
     {
-        // we'll need these later
+        // we'll need this later
         _viz = viz;
 
         // set the font
@@ -98,12 +96,12 @@ public class VizPanel extends JPanel
     /**
      * Returns the visualizer we're currently displaying.
      */
-    public HierarchyVisualizer getVisualizer ()
+    public Visualizer getVisualizer ()
     {
         return _viz;
     }
 
-    protected HierarchyVisualizer _viz;
+    protected Visualizer _viz;
     protected int _currentPage = 0;
 
     // our preferred size is one page at 72 pixels per inch

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.16 2002/03/03 18:05:20 mdb Exp $
+# $Id: musicd,v 1.17 2002/03/03 22:21:07 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
 # filesystem. The playlists can be manipulated by connecting to the server
@@ -114,7 +114,7 @@ sub handle_client
         # if we're not playing a song, start playing now that we have a
         # playlist with songs in it
         if (!defined $playing) {
-            play_next_tune(1);
+            play_next_tune(0);
         }
 
     } elsif ($input =~ m/^REMOVEGRP (\d+) (\d+)/) {
@@ -149,7 +149,7 @@ sub handle_client
 
         # now check to see if we've removed the playing tune
         if ($yanked) {
-            play_next_tune(1);
+            play_next_tune(0);
         }
 
         if ($sidx >= 0) {
@@ -216,7 +216,7 @@ sub handle_client
             $mp3->play();
         } else {
             # otherwise queue one up to play
-            play_next_tune(1);
+            play_next_tune(0);
         }
 
         # clear the paused flag

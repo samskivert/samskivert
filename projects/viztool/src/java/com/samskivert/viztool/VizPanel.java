@@ -1,5 +1,5 @@
 //
-// $Id: VizPanel.java,v 1.5 2001/08/14 00:05:03 mdb Exp $
+// $Id: VizPanel.java,v 1.6 2001/08/14 00:45:56 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -36,6 +36,7 @@ public class VizPanel extends JPanel
      */
     public VizPanel (HierarchyVisualizer viz)
     {
+        // we'll need these later
         _viz = viz;
 
         // set the font
@@ -84,6 +85,22 @@ public class VizPanel extends JPanel
                         "[pageno=" + pageno +
                         ", pages=" + _viz.getPageCount() + "].");
         }
+    }
+
+    /**
+     * Returns the index of the page that we're currently displaying.
+     */
+    public int getPage ()
+    {
+        return _currentPage;
+    }
+
+    /**
+     * Returns the visualizer we're currently displaying.
+     */
+    public HierarchyVisualizer getVisualizer ()
+    {
+        return _viz;
     }
 
     protected HierarchyVisualizer _viz;

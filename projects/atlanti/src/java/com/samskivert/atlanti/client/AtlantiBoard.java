@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.12 2001/10/18 18:42:33 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.13 2001/10/18 23:11:24 mdb Exp $
 
 package com.threerings.venison;
 
@@ -566,11 +566,11 @@ public class VenisonBoard
             oldWidth != _width || oldHeight != _height) {
             // if the dimensions changed, we need to relayout
             revalidate();
-
-        } else {
-            // otherwise just repaint
-            repaint();
         }
+
+        // always repaint because revalidation doesn't always seem to
+        // result in a repaint
+        repaint();
     }
 
     /** Test code. */

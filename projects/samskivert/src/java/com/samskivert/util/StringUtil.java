@@ -38,6 +38,7 @@ import java.text.NumberFormat;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -136,6 +137,81 @@ public class StringUtil
                 return matcher.matches();
             }
         });
+    }
+
+    /**
+     * Restrict all HTML from the specified String.
+     */
+    public static String restrictHTML (String src)
+    {
+        return restrictHTML(src, new String[0]);
+    }
+
+    /**
+     * Restrict HTML except for the specified tags.
+     * 
+     * @param allowFormatting enables &lt;i&gt;, &lt;b&gt;, &lt;u&gt;, and 
+     *                        &lt;font&gt;.
+     * @param allowImages enabled &lt;img ...&gt;.
+     * @param allowLinks enabled &lt;a href ...&gt;.
+     */
+    public static String restrictHTML (String src, boolean allowFormatting,
+        boolean allowImages, boolean allowLinks)
+    {
+        // TODO: these regexes should probably be checked to make
+        // sure that javascript can't live inside a link
+        ArrayList allow = new ArrayList();
+        if (allowFormatting) {
+            allow.add("<b>"); allow.add("</b>");
+            allow.add("<i>"); allow.add("</i>");
+            allow.add("<u>"); allow.add("</u>");
+            allow.add("<font [^>]+>"); allow.add("</font>");
+        }
+        if (allowImages) {
+            allow.add("<img [^>]+>"); allow.add("</img>");
+        }
+        if (allowLinks) {
+            allow.add("<a href=[^>]+>"); allow.add("</a>");
+        }
+
+        String[] regexes = new String[allow.size()];
+        allow.toArray(regexes);
+        return restrictHTML(src, regexes);
+    }
+
+    /**
+     * Restrict HTML from the specified string except for the specified
+     * regular expressions.
+     */
+    public static String restrictHTML (String src, String[] regexes)
+    {
+        ArrayList list = new ArrayList();
+        list.add(src);
+        for (int ii=0, nn = regexes.length; ii < nn; ii++) {
+            Pattern p = Pattern.compile(regexes[ii], Pattern.CASE_INSENSITIVE);
+            for (int jj=0; jj < list.size(); jj += 2) {
+                String piece = (String) list.get(jj);
+                Matcher m = p.matcher(piece);
+                if (m.find()) {
+                    list.set(jj, piece.substring(0, m.start()));
+                    list.add(jj + 1, piece.substring(m.start(), m.end()));
+                    list.add(jj + 2, piece.substring(m.end()));
+                }
+            }
+        }
+
+        // now, the even elements of list contain untrusted text, the
+        // odd elements contain stuff that matched a regex
+        StringBuffer buf = new StringBuffer();
+        for (int jj=0, nn = list.size(); jj < nn; jj++) {
+            String s = (String) list.get(jj);
+            if (jj % 2 == 0) {
+                s = replace(s, "<", "&lt;");
+                s = replace(s, ">", "&gt;");
+            }
+            buf.append(s);
+        }
+        return buf.toString();
     }
 
     /**

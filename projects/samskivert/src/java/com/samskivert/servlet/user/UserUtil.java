@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.7 2002/10/30 18:58:42 mdb Exp $
+// $Id: UserUtil.java,v 1.8 2002/11/01 00:33:48 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -45,11 +45,22 @@ public class UserUtil
 
     /**
      * Encrypts the user's password according to our preferred scheme.
+     *
+     * @param username the username of the user whose password is to be
+     * encrypted.
+     * @param password the plaintext of the password to be encrypted.
+     * @param ignoreUserCase true if the username should be uncapitalized
+     * prior to performing the encryption so that future password checks
+     * will work if the user registers as "Bluebeard" but logs in as
+     * "bluebeard".
      */
-    public static String encryptPassword (String username, String password)
+    public static String encryptPassword (
+        String username, String password, boolean ignoreUserCase)
     {
-        // lets not be (case) sensitive about these things
-        username = username.toLowerCase();
+        // perhaps we'll not be too (case) sensitive
+        if (ignoreUserCase) {
+            username = username.toLowerCase();
+        }
 	return Crypt.crypt(username.substring(0, 2), password);
     }
 
@@ -59,8 +70,7 @@ public class UserUtil
             System.err.println("Usage: UserUtil username password");
             System.exit(-1);
         }
-
         System.out.println("Encrypted password: " +
-                           encryptPassword(args[0], args[1]));
+                           encryptPassword(args[0], args[1], true));
     }
 }

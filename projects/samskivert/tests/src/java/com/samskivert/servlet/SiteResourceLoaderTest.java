@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoaderTest.java,v 1.5 2002/04/01 01:56:34 mdb Exp $
+// $Id: SiteResourceLoaderTest.java,v 1.6 2003/11/15 02:06:40 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Iterator;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
@@ -136,6 +137,22 @@ public class SiteResourceLoaderTest extends TestCase
             case SITE2_ID: return "site2";
             default: return DEFAULT_SITE_STRING;
             }
+        }
+
+        public int getSiteId (String siteString)
+        {
+            if ("site1".equals(siteString)) {
+                return SITE1_ID;
+            } else if ("site2".equals(siteString)) {
+                return SITE2_ID;
+            } else {
+                return DEFAULT_SITE_ID;
+            }
+        }
+
+        public Iterator enumerateSites ()
+        {
+            return null; // not used
         }
     }
 

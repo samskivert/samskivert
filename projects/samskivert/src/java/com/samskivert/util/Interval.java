@@ -130,9 +130,8 @@ public abstract class Interval
      * The task that schedules actually runs the interval.
      */
     protected class IntervalTask extends TimerTask
-        implements Runnable
     {
-        // inherited from both TimerTask and Runnable
+        // documentation inherited
         public void run () {
             if (_runQueue == null || _runQueue.isDispatchThread()) {
                 safelyExpire(this);

@@ -1,5 +1,5 @@
 //
-// $Id: StringTool.java,v 1.5 2002/12/17 23:53:24 mdb Exp $
+// $Id: StringTool.java,v 1.6 2002/12/30 04:55:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,8 @@
 package com.samskivert.velocity;
 
 import java.net.URLEncoder;
+
+import com.samskivert.servlet.util.HTMLUtil;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -50,5 +52,13 @@ public class StringTool
     public String valueOf (int value)
     {
         return String.valueOf(value);
+    }
+
+    /**
+     * Adds &lt;p&gt; tags between each pair of consecutive newlines.
+     */
+    public String parafy (String text)
+    {
+        return HTMLUtil.makeParagraphs(text);
     }
 }

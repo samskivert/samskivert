@@ -1,5 +1,5 @@
 //
-// $Id: JDBCUtil.java,v 1.4 2003/06/28 20:29:57 mdb Exp $
+// $Id: JDBCUtil.java,v 1.5 2004/01/29 01:10:46 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.jdbc;
 
 import java.sql.*;
 
+import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 
 /**
@@ -87,6 +88,40 @@ public class JDBCUtil
                 "[stmt=" + stmt + ", expected=" + expectedCount +
                 ", modified=" + modified + "]";
             throw new PersistenceException(err);
+        }
+    }
+
+    /**
+     * Calls <code>stmt.executeUpdate()</code> on the supplied statement,
+     * checking to see that it returns the expected update count and
+     * logging a warning if it does not.
+     */
+    public static void warnedUpdate (
+        PreparedStatement stmt, int expectedCount)
+        throws SQLException
+    {
+        int modified = stmt.executeUpdate();
+        if (modified != expectedCount) {
+            Log.warning("Statement did not modify expected number of rows " +
+                        "[stmt=" + stmt + ", expected=" + expectedCount +
+                        ", modified=" + modified + "]");
+        }
+    }
+
+    /**
+     * Calls <code>stmt.executeUpdate()</code> on the supplied statement
+     * with the supplied query, checking to see that it returns the
+     * expected update count and logging a warning if it does not.
+     */
+    public static void warnedUpdate (
+        Statement stmt, String query, int expectedCount)
+        throws SQLException
+    {
+        int modified = stmt.executeUpdate(query);
+        if (modified != expectedCount) {
+            Log.warning("Statement did not modify expected number of rows " +
+                        "[stmt=" + stmt + ", expected=" + expectedCount +
+                        ", modified=" + modified + "]");
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Username.java,v 1.2 2004/01/31 06:41:47 mdb Exp $
+// $Id: Username.java,v 1.3 2004/01/31 13:03:39 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -16,7 +16,7 @@ public class Username
     public static final int MAXIMUM_USERNAME_LENGTH = 12;
 
     /** The regular expression defining valid names. */
-    public static final String NAME_REGEX = "^[_A-Za-z0-9]+$";
+    public static final String NAME_REGEX = "^[_A-Za-z0-9]*$";
 
     /**
      * Creates a username instance. Usernames must consist only of

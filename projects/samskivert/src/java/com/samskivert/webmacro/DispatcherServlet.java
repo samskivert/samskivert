@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.2 2001/02/16 03:27:54 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.3 2001/03/01 21:06:22 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -9,7 +9,11 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import com.samskivert.util.ConfigUtil;
@@ -22,12 +26,12 @@ import org.webmacro.servlet.*;
  * in the following ways:
  *
  * <ul>
- * <li> It defines the notion of a context populator which populates the
- * context with data to be used to satisfy a particular request. The
- * context populator is not a servlet and is therefore limited in what it
- * can do while populating data. Experience dictates that ultimate
- * flexibility leads to bad design decisions and that this is a place
- * where that sort of thing can be comfortably nipped in the bud. <br><br>
+ * <li> It defines the notion of a logic object which populates the
+ * context with data to be used to satisfy a particular request. The logic
+ * is not a servlet and is therefore limited in what it can do while
+ * populating data. Experience dictates that ultimate flexibility leads to
+ * bad design decisions and that this is a place where that sort of thing
+ * can be comfortably nipped in the bud. <br><br>
  *
  * <li> It allows .wm files to be referenced directly in the URL while
  * maintaining the ability to choose a cobranded template based. The URI
@@ -60,7 +64,7 @@ import org.webmacro.servlet.*;
  * <pre>
  * applications=whowhere
  * whowhere.base_uri=/whowhere
- * whowhere.base_pkg=whowhere.servlets
+ * whowhere.base_pkg=whowhere.logic
  * </pre>
  *
  * This defines an application identified as <code>whowhere</code>. An
@@ -69,10 +73,10 @@ import org.webmacro.servlet.*;
  * <code>base_uri</code> defines the prefix shared by all pages served by
  * the application and which serves to identify which application to
  * invoke when processing a request. The <code>base_pkg</code> is used to
- * construct the populator classname based on the URI and the
+ * construct the logic classname based on the URI and the
  * <code>base_uri</code> parameter.
  *
- * <p> Now let's look at a sample request to determine how the populator
+ * <p> Now let's look at a sample request to determine how the logic
  * classname is resolved. Consider the following request URI:
  *
  * <pre>
@@ -102,16 +106,16 @@ import org.webmacro.servlet.*;
  *
  * <p><b>Error handling</b><br>
  * The dispatcher servlet provides a common error handling mechanism. The
- * design is to catch any exceptions thrown by the populator and to
- * convert them into friendly error messages that are inserted into the
- * web context with the key <code>"error"</code> for easy display in the
+ * design is to catch any exceptions thrown by the logic and to convert
+ * them into friendly error messages that are inserted into the web
+ * context with the key <code>"error"</code> for easy display in the
  * resulting web page.
  *
  * <p> The process of mapping exceptions to friendly error messages is
  * done using the <code>ExceptionMap</code> class. Consult its
  * documentation for an explanation of how it works.
  *
- * @see ContextPopulator
+ * @see Logic
  * @see ExceptionMap
  */
 public class DispatcherServlet extends WMServlet
@@ -148,6 +152,7 @@ public class DispatcherServlet extends WMServlet
 		String appid = tok.nextToken();
 		String baseURI = props.getProperty(appid + ".base_uri");
 		String basePkg = props.getProperty(appid + ".base_pkg");
+		String appcl = props.getProperty(appid + ".application");
 
 		// make sure we're not missing anything
 		if (baseURI == null) {
@@ -161,8 +166,14 @@ public class DispatcherServlet extends WMServlet
 		    continue;
 		}
 
+		Application app = new Application(baseURI, basePkg);
+		// if an application class was specified, initialize it
+		if (appcl != null) {
+		    app.init(appcl, getServletContext());
+		}
+
 		// construct an application object and add it to our list
-		_apps.add(new Application(baseURI, basePkg));
+		_apps.add(app);
 	    }
 	}
     }
@@ -177,19 +188,18 @@ public class DispatcherServlet extends WMServlet
 	    throw new HandlerException("Unable to load template: " + e);
 	}
 
-	// assume an HTML response unless otherwise massaged by the data
-	// populator
+	// assume an HTML response unless otherwise massaged by the logic
 	ctx.getResponse().setContentType("text/html");
 
 	// then we populate the context with data
 	try {
-	    ContextPopulator pop = selectPopulator(ctx);
-	    // if no populator is matched, we simply execute the template
+	    Logic logic = selectLogic(ctx);
+	    // if no logic is matched, we simply execute the template
 	    // directly with the default information in the context (tools
 	    // and other WebMacro services can be used by the template to
 	    // do their WebMacro thing)
-	    if (pop != null) {
-		pop.populate(ctx);
+	    if (logic != null) {
+		logic.invoke(ctx);
 	    }
 	    
 	} catch (DataValidationException dve) {
@@ -197,6 +207,7 @@ public class DispatcherServlet extends WMServlet
 
 	} catch (Exception e) {
 	    ctx.put(ERROR_KEY, ExceptionMap.getMessage(e));
+	    Log.logStackTrace(e);
 	}
 
 	return tmpl;
@@ -222,57 +233,57 @@ public class DispatcherServlet extends WMServlet
     }
 
     /**
-     * This method is called to select the appropriate context populator
-     * for this request. The dispatcher configuration described in this
-     * class's documentation is consulted to map the URI to a populator
-     * class which is then instantiated and a single instance used to
-     * process all matching requests.
+     * This method is called to select the appropriate logic for this
+     * request. The dispatcher configuration described in this class's
+     * documentation is consulted to map the URI to a logic class which is
+     * then instantiated and a single instance used to process all
+     * matching requests.
      *
      * @param ctx The context of this request.
      *
-     * @return The populator to be used in generating the response or null
-     * if no populator could be matched.
+     * @return The logic to be used in generating the response or null if
+     * no logic could be matched.
      */
-    protected ContextPopulator selectPopulator (WebContext ctx)
+    protected Logic selectLogic (WebContext ctx)
     {
 	String path = cleanupURI(ctx.getRequest().getRequestURI());
-	String pclass = null;
-	// Log.info("Loading populator [path=" + path + "].");
+	String lclass = null;
+	// Log.info("Loading logic [path=" + path + "].");
 
 	// try to locate an application that matches this URI
 	for (int i = 0; i < _apps.size(); i++) {
 	    Application app = (Application)_apps.get(i);
 	    if (app.matches(path)) {
-		pclass = app.generateClass(path);
+		lclass = app.generateClass(path);
 		break;
 	    }
 	}
 
 	// if we didn't find a matching application, we can stop now
-	if (pclass == null) {
+	if (lclass == null) {
 	    return null;
 	}
 
-	// otherwise look for a cached populator instance
-	ContextPopulator pop = (ContextPopulator)_pops.get(pclass);
-	if (pop == null) {
+	// otherwise look for a cached logic instance
+	Logic logic = (Logic)_logic.get(lclass);
+	if (logic == null) {
 	    try {
-		Class pcl = Class.forName(pclass);
-		pop = (ContextPopulator)pcl.newInstance();
+		Class pcl = Class.forName(lclass);
+		logic = (Logic)pcl.newInstance();
 
 	    } catch (Throwable t) {
-		Log.warning("Unable to instantiate populator for " +
+		Log.warning("Unable to instantiate logic for " +
 			    "matching application [path=" + path +
-			    ", pclass=" + pclass + ", error=" + t + "].");
+			    ", lclass=" + lclass + ", error=" + t + "].");
 		// use a dummy in it's place so that we don't sit around
 		// all day freaking out about our inability to instantiate
-		// the proper populator class
-		pop = new DummyPopulator();
+		// the proper logic class
+		logic = new DummyLogic();
 	    }
-	    _pops.put(pclass, pop);
+	    _logic.put(lclass, logic);
 	}
 
-	return pop;
+	return logic;
     }
 
     /**
@@ -343,12 +354,73 @@ public class DispatcherServlet extends WMServlet
 	    return _basePkg + uri;
 	}
 
+	public void init (String appclass, ServletContext context)
+	{
+	    // keep track of this for later
+	    _appclass = appclass;
+
+	    try {
+		// get the application class
+		Class appcl = Class.forName(appclass);
+
+		// look up the init method
+		Class[] ptypes = new Class[] { ServletContext.class };
+		Method initmeth = appcl.getDeclaredMethod("init", ptypes);
+
+		// make sure it's static
+		if ((initmeth.getModifiers() & Modifier.STATIC) == 0) {
+		    Log.warning("Application init() method not static " +
+				"[app=" + appclass + "].");
+		    return;
+		}
+
+		// look  up the shutdown method
+		_shutdownMethod =
+		    appcl.getDeclaredMethod("shutdown", new Class[0]);
+
+		// make sure it's static
+		if ((_shutdownMethod.getModifiers() & Modifier.STATIC) == 0) {
+		    Log.warning("Application shutdown() method not static " +
+				"[app=" + appclass + "].");
+		    return;
+		}
+
+		// invoke the init method
+		Object[] args = new Object[] { context };
+		initmeth.invoke(null, args);
+
+	    } catch (NoSuchMethodError nsme) {
+		Log.warning("Application class missing init() method " +
+			    "[app=" + appclass + "].");
+
+	    } catch (Throwable t) {
+		Log.warning("Error initializing application [app=" + appclass +
+			    ", error=" + t + "].");
+	    }
+	}
+
+	public void shutdown ()
+	{
+	    if (_shutdownMethod != null) {
+		try {
+		    _shutdownMethod.invoke(null, null);
+		} catch (Throwable t) {
+		    Log.warning("Error shutting down application " +
+				"[app=" + _appclass + ", error=" + t + "].");
+		    Log.logStackTrace(t);
+		}
+	    }
+	}
+
 	protected String _baseURI;
 	protected String _basePkg;
+
+	protected String _appclass;
+	protected Method _shutdownMethod;
     }
 
     protected ArrayList _apps = new ArrayList();
-    protected HashMap _pops = new HashMap();
+    protected HashMap _logic = new HashMap();
 
     /** This is the key used in the context for error messages. */
     protected static final String ERROR_KEY = "error";

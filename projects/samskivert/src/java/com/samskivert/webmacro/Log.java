@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.2 2001/02/16 03:27:54 mdb Exp $
+// $Id: Log.java,v 1.3 2001/03/01 21:06:22 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -28,5 +28,11 @@ public class Log
     public static void warning (String message)
     {
 	log.warning(message);
+    }
+
+    /** Convenience function. */
+    public static void logStackTrace (Throwable t)
+    {
+	log.logStackTrace(com.samskivert.util.Log.WARNING, t);
     }
 }

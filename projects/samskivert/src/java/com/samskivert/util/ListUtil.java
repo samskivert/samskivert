@@ -86,6 +86,9 @@ public class ListUtil
      */
     public static Object[] add (Object[] list, int startIdx, Object element)
     {
+        if (element == null) {
+            throw NPE();
+        }
         // make sure we've got a list to work with
         if (list == null) {
             list = new Object[DEFAULT_LIST_SIZE];
@@ -127,6 +130,9 @@ public class ListUtil
      */
     public static Object[] insert (Object[] list, int index, Object element)
     {
+        if (element == null) {
+            throw NPE();
+        }
         // make sure we've got a list to work with
         if (list == null) {
             list = new Object[DEFAULT_LIST_SIZE];
@@ -192,6 +198,9 @@ public class ListUtil
     protected static Object[] testAndAdd (
         EqualityComparator eqc, Object[] list, Object element)
     {
+        if (element == null) {
+            throw NPE();
+        }
         // make sure we've got a list to work with
         if (list == null) {
             list = new Object[DEFAULT_LIST_SIZE];
@@ -229,10 +238,7 @@ public class ListUtil
 
     /**
      * Looks for an object that is referentially equal to the supplied
-     * element (<code>list[idx] == element</code>). Passing a null
-     * <code>element</code> to this function will cleverly tell you
-     * whether or not there are any null elements in the array which is
-     * probably not very useful.
+     * element (<code>list[idx] == element</code>).
      *
      * @return true if a matching element was found, false otherwise.
      */
@@ -243,10 +249,7 @@ public class ListUtil
 
     /**
      * Looks for an element that is functionally equal to the supplied
-     * element (<code>list[idx].equals(element)</code>). Passing a null
-     * <code>element</code> to this function will call
-     * <code>equals(null)</code> on all objects in the list which may
-     * cause them to choke, so don't do that unless you mean it.
+     * element (<code>list[idx].equals(element)</code>).
      *
      * @return true if a matching element was found, false otherwise.
      */
@@ -259,6 +262,9 @@ public class ListUtil
     protected static boolean contains (
         EqualityComparator eqc, Object[] list, Object element)
     {
+        if (element == null) {
+            throw NPE();
+        }
         if (list == null) {
             return false;
         }
@@ -275,11 +281,25 @@ public class ListUtil
     }
 
     /**
+     * Returns the lowest index in the array that contains null,
+     * or -1 if there is no room to add elements without expanding the array.
+     */
+    public static int indexOfNull (Object[] list)
+    {
+        if (list != null) {
+            for (int ii=0, nn = list.length; ii < nn; ii++) {
+                if (list[ii] == null) {
+                    return ii;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Looks for an object that is referentially equal to the supplied
      * element (<code>list[idx] == element</code>) and returns its index
-     * in the array. Passing a null <code>element</code> to this function
-     * will cleverly tell you whether or not there are any null elements
-     * in the array which is probably not very useful.
+     * in the array.
      *
      * @return the index of the first matching element if one was found,
      * -1 otherwise.
@@ -291,10 +311,7 @@ public class ListUtil
 
     /**
      * Looks for an element that is functionally equal to the supplied
-     * element (<code>list[idx].equals(element)</code>). Passing a null
-     * <code>element</code> to this function will call
-     * <code>equals(null)</code> on all objects in the list which may
-     * cause them to choke, so don't do that unless you mean it.
+     * element (<code>list[idx].equals(element)</code>).
      *
      * @return the index of the matching element if one was found, -1
      * otherwise.
@@ -308,6 +325,9 @@ public class ListUtil
     protected static int indexOf (
         EqualityComparator eqc, Object[] list, Object element)
     {
+        if (element == null) {
+            throw NPE();
+        }
         if (list != null) {
             int llength = list.length; // no optimizing bastards
             for (int i = 0; i < llength; i++) {
@@ -322,10 +342,7 @@ public class ListUtil
 
     /**
      * Clears out the first element that is referentially equal to the
-     * supplied element (<code>list[idx] == element</code>). Passing a
-     * null <code>element</code> to this function will cleverly tell you
-     * the index of the first null element in the array which it will have
-     * kindly overwritten with null just for good measure.
+     * supplied element (<code>list[idx] == element</code>).
      *
      * @return the element that was removed or null if it was not found.
      */
@@ -336,10 +353,7 @@ public class ListUtil
 
     /**
      * Clears out the first element that is functionally equal to the
-     * supplied element (<code>list[idx].equals(element)</code>). Passing
-     * a null <code>element</code> to this function will call
-     * <code>equals(null)</code> on all objects in the list which may
-     * cause them to choke, so don't do that unless you mean it.
+     * supplied element (<code>list[idx].equals(element)</code>).
      *
      * @return the object that was cleared from the array or null if no
      * matching object was found.
@@ -353,6 +367,9 @@ public class ListUtil
     protected static Object clear (
         EqualityComparator eqc, Object[] list, Object element)
     {
+        if (element == null) {
+            throw NPE();
+        }
         // nothing to clear from an empty list
         if (list == null) {
             return null;
@@ -387,10 +404,7 @@ public class ListUtil
      * Removes the first element that is functionally equal to the
      * supplied element (<code>list[idx].equals(element)</code>). The
      * elements after the removed element will be slid down the array one
-     * spot to fill the place of the removed element. Passing a null
-     * <code>element</code> to this function will call
-     * <code>equals(null)</code> on all objects in the list which may
-     * cause them to choke, so don't do that unless you mean it.
+     * spot to fill the place of the removed element.
      *
      * @return the object that was removed from the array or null if no
      * matching object was found.
@@ -404,6 +418,9 @@ public class ListUtil
     protected static Object remove (
         EqualityComparator eqc, Object[] list, Object element)
     {
+        if (element == null) {
+            throw NPE();
+        }
         // nothing to remove from an empty list
         if (list == null) {
             return null;
@@ -474,6 +491,15 @@ public class ListUtil
         Object[] newlist = new Object[size];
         System.arraycopy(list, 0, newlist, 0, list.length);
         return newlist;
+    }
+
+    /**
+     * Throw a NullPointerException with the bad news.
+     */
+    protected static NullPointerException NPE ()
+    {
+        return new NullPointerException(
+            "ListUtil does not support null elements.");
     }
 
     /**

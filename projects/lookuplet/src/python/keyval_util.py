@@ -1,5 +1,5 @@
 #
-# $Id: keyval_util.py,v 1.1 2002/03/17 09:03:06 mdb Exp $
+# $Id: keyval_util.py,v 1.2 2002/03/19 00:22:31 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -21,10 +21,11 @@
 import string
 import GDK
 
-# these are used when doing our conversion
-_CODES = [ GDK.CONTROL_MASK, GDK.LOCK_MASK, GDK.SHIFT_MASK, GDK.MOD1_MASK,
-          GDK.MOD2_MASK, GDK.MOD3_MASK ];
-_NAMES = [ "Control", "Lock", "Shift", "Mod1", "Mod2", "Mod3" ];
+# these are used when doing our conversion; we specifically only care
+# about Control, Shift and Mod1; if you want to use other keys in your
+# combinations, we don't want you drinking our soda
+_CODES = [ GDK.CONTROL_MASK, GDK.SHIFT_MASK, GDK.MOD1_MASK ];
+_NAMES = [ "Control", "Shift", "Mod1" ];
 
 #
 # Converts a (keyval, state) pair to a human readable string.

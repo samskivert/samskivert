@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.46 2002/11/24 04:50:10 mdb Exp $
+// $Id: StringUtil.java,v 1.47 2002/11/26 09:16:53 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -669,6 +669,16 @@ public class StringUtil
      */
     public static String[] parseStringArray (String source)
     {
+        return parseStringArray(source, false);
+    }
+
+    /**
+     * Like {@link #parseStringArray(String)} but can be instructed to
+     * invoke {@link String#intern} on the strings being parsed into the
+     * array.
+     */
+    public static String[] parseStringArray (String source, boolean intern)
+    {
         int tcount = 0, tpos = -1, tstart = 0;
 
         // empty strings result in zero length arrays
@@ -691,6 +701,9 @@ public class StringUtil
         while ((tpos = source.indexOf(",", tpos+1)) != -1) {
             tokens[tcount] = source.substring(tstart, tpos);
             tokens[tcount] = replace(tokens[tcount].trim(), "%COMMA%", ",");
+            if (intern) {
+                tokens[tcount] = tokens[tcount].intern();
+            }
             tstart = tpos+1;
             tcount++;
         }

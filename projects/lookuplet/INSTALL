@@ -1,0 +1,41 @@
+Building lookuplet
+------------------
+
+It is necessary to have the GNOME development libraries installed to build
+lookuplet. Only the following libraries are required:
+
+    Glib        >= 1.2.1
+    GTK         >= 1.2.1
+    Imlib       >= 1.9.2
+    gnome-libs  >= 1.2.1
+
+These are available from the GNOME CVS repository
+(http://developer.gnome.org/tools/cvs.html) but you may wish to install
+packages provided by your favorite free operating system vendor instead.
+
+I use Debian Woody and I believe apt-get installing the following packages
+will get you to where you need to be:
+
+     libgnome-dev
+     libgtk1.2-dev
+
+I'm not sure whether there will be some missed dependencies, let me know
+if you start from scratch and find some. lookuplet doesn't depend on any
+special GNOME services, just the configuration stuff (gnome_config) and
+some compound GTK widgets (like property_box).
+
+Once you have the necessary libraries, you can simply invoke:
+
+# ./configure
+# make
+
+Everything else should work out of the box.
+
+Please let me know if you find that I've overlooked some build
+requirements.
+
+Thanks,
+
+    Michael Bayne <mdb@samskivert.com>
+
+$Id: INSTALL,v 1.2 2001/08/16 20:41:00 mdb Exp $

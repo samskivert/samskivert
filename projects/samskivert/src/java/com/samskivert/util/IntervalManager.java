@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.6 2002/05/23 23:37:50 ray Exp $
+// $Id: IntervalManager.java,v 1.7 2002/05/24 21:32:29 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -26,12 +26,12 @@ import java.util.TimerTask;
 import com.samskivert.Log;
 
 /**
- * Interval: can be used to register an object that is to be called once
- * or repeatedly after an interval has expired.
- *
- * This now uses java.util.Timer to do all the actual scheduling, but we
- * keep this front end because it is static (accessable anywhere)
- * and because Interval is an interface, unlike TimerTask, which is an
+ * Can be used to register an object that is to be called once or
+ * repeatedly after an interval has expired. This now uses {@link Timer}
+ * to do all the actual scheduling, but we keep this front end because it
+ * is static (accessible anywhere), provides a single thread where
+ * disparate simple intervals can all run happily, and because {@link
+ * Interval} is an interface, unlike {@link TimerTask}, which is an
  * abstract class.
  */
 public class IntervalManager
@@ -45,8 +45,8 @@ public class IntervalManager
      * @param recur if true, interval gets called every timeout until
      *              removed.
      *
-     * @return an ID number that will passed to the intervalExpired method
-     * of i along with arg
+     * @return an ID number that will passed to the {@link
+     * Interval#intervalExpired} method of i along with arg
      */
     public static int register (Interval i, long delay, Object arg,
 				boolean recur)
@@ -65,26 +65,23 @@ public class IntervalManager
 
     /**
      * Schedule the interval to be called repeatedly, but at a fixed delay
-     * instead of fixed rate.
-     * This means that the delay between executions will be the
-     * delay specified below plus the actual execution time it takes
-     * to run the interval's expire method.
+     * instead of fixed rate. This means that the delay between executions
+     * will be the delay specified below plus the actual execution time it
+     * takes to run the interval's expire method.
      */
     public static int registerAtFixedDelay (Interval i, long delay, Object arg)
     {
         IntervalTask task = new IntervalTask(i, arg, true);
         _hash.put(task.id, task);
-
         _timer.schedule(task, delay, delay);
-
         return task.id;
     }
 
     /**
      * Non-recurring intervals are removed automatically after they are
-     * run!  This method is only useful if you want to remove a recurring
-     * Interval or if you want to remove a non-recurring Interval before
-     * it gets run.
+     * run! This method is only useful if you want to remove a recurring
+     * {@link Interval} or if you want to remove a non-recurring {@link
+     * Interval} before it gets run.
      */
     public static void remove (int id)
     {
@@ -101,10 +98,12 @@ public class IntervalManager
     protected static Timer _timer = new Timer(true);
 
     /** Our registered intervals, indexed by id. */
-    protected static HashIntMap _hash = new HashIntMap();
+    protected static IntMap _hash =
+        Collections.synchronizedIntMap(new HashIntMap());
 
     /**
-     * A class to adapt TimerTask to the smooth action of Interval.
+     * A class to adapt {@link TimerTask} to the smooth action of {@link
+     * Interval}.
      */
     static class IntervalTask extends TimerTask
     {
@@ -123,7 +122,8 @@ public class IntervalManager
 
         /**
          * Run the interval. It's synchronized so that if we someday have
-         * multiple threads, the same interval won't be called multiple times.
+         * multiple threads, the same interval won't be called multiple
+         * times.
          */
         public void run ()
         {

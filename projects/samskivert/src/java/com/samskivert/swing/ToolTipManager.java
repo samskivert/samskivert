@@ -1,9 +1,10 @@
 //
-// $Id: ToolTipManager.java,v 1.1 2001/08/22 08:15:39 shaper Exp $
+// $Id: ToolTipManager.java,v 1.2 2001/08/23 00:16:21 shaper Exp $
 
 package com.samskivert.swing;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import javax.swing.event.*;
 
 import com.samskivert.Log;
 import com.samskivert.util.*;
@@ -25,7 +26,7 @@ import com.samskivert.util.*;
  * as necessary, taking into account standard tool tip timing and
  * semantics.
  */
-public class ToolTipManager implements Interval
+public class ToolTipManager implements Interval, AncestorListener
 {
     /**
      * Construct a tool tip manager for the given observer.
@@ -34,13 +35,23 @@ public class ToolTipManager implements Interval
      */
     public ToolTipManager (ToolTipObserver obs)
     {
+	// save off a reference to the observer
 	_obs = obs;
+
+	// set up our starting state
 	_lastmove = System.currentTimeMillis();
 	_fastshow = false;
 	_tipdelay = TIP_INTERVAL;
 
-	// register ourselves with the interval manager
-	IntervalManager.register(this, TIP_INTERVAL, null, true);
+	// register the tip action interval immediately if the
+	// component is already showing on-screen
+	JComponent target = _obs.getComponent();
+  	if (target.isShowing()) {
+	    registerInterval();
+	}
+
+	// listen to the view's ancestor events
+	target.addAncestorListener(this);
     }
 
     /**
@@ -59,6 +70,15 @@ public class ToolTipManager implements Interval
 	// show or hide the tool tip as appropriate
 	handleTipAction();
     }
+
+    /**
+     * Register the tip action interval with the interval manager.
+     */
+    protected void registerInterval ()
+    {
+	// register ourselves with the interval manager
+	IntervalManager.register(this, TIP_INTERVAL, null, true);
+    }	
 
     /**
      * Handle showing or hiding a tip as necessary.
@@ -193,6 +213,25 @@ public class ToolTipManager implements Interval
 	protected int _action;
     }
 
+    /** AncestorListener interface methods. */
+
+    public void ancestorAdded (AncestorEvent event)
+    {
+	if (_iid == -1) {
+	    // register the tip action interval since we're now visible
+	    registerInterval();
+	}
+    }
+
+    public void ancestorRemoved (AncestorEvent event)
+    {
+	// un-register the tip action interval since we're now hidden
+	IntervalManager.remove(_iid);
+	_iid = -1;
+    }
+
+    public void ancestorMoved (AncestorEvent event) { }
+
     /** Delay in milliseconds between intervals. */
     protected static final int TIP_INTERVAL = 1000;
 
@@ -218,4 +257,7 @@ public class ToolTipManager implements Interval
 
     /** The tool tip observer. */
     protected ToolTipObserver _obs;
+
+    /** The tip action interval id. */
+    protected int _iid = -1;
 }

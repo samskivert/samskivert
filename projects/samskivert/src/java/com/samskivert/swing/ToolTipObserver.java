@@ -1,7 +1,9 @@
 //
-// $Id: ToolTipObserver.java,v 1.1 2001/08/22 08:15:39 shaper Exp $
+// $Id: ToolTipObserver.java,v 1.2 2001/08/23 00:16:21 shaper Exp $
 
 package com.samskivert.swing;
+
+import javax.swing.JComponent;
 
 /**
  * An interface to be implemented by container objects that would like
@@ -23,4 +25,11 @@ public interface ToolTipObserver
      * observer is likely to want to repaint itself without the tip.
      */
     public void hideToolTip ();
+
+    /**
+     * Return the component associated with the observer so that the
+     * tool tip manager can restrict monitoring the component to when
+     * it's actually visible.
+     */
+    public JComponent getComponent ();
 }

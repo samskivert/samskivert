@@ -135,6 +135,7 @@ public class Config
             _prefs = Preferences.userRoot().node(path);
         } catch (AccessControlException ace) {
             // security manager won't let us access prefs, no problem!
+            Log.info("Can't access preferences [path=" + path + "].");
             _prefs = new NullPreferences();
         }
     }
@@ -147,15 +148,13 @@ public class Config
     public Config (final String path, Properties props)
     {
         _props = props;
-
-        // even if we're called from unprivileged code we want to allow
-        // access to preferences
-        AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run () {
-                _prefs = Preferences.userRoot().node(path);
-                return null;
-            }
-        });
+        try {
+            _prefs = Preferences.userRoot().node(path);
+        } catch (AccessControlException ace) {
+            // security manager won't let us access prefs, no problem!
+            Log.info("Can't access preferences [path=" + path + "].");
+            _prefs = new NullPreferences();
+        }
     }
 
     /**

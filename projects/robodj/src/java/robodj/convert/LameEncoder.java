@@ -1,5 +1,5 @@
 //
-// $Id: LameEncoder.java,v 1.3 2003/10/10 21:30:42 mdb Exp $
+// $Id: LameEncoder.java,v 1.4 2003/10/24 18:34:28 mdb Exp $
 
 package robodj.convert;
 
@@ -60,9 +60,9 @@ public class LameEncoder implements Encoder
 		    int offset = -1, total = -1;
 		    try {
 			offset = Integer.parseInt(
-                            out.substring(match.start(0), match.end(0)));
-			total = Integer.parseInt(
                             out.substring(match.start(1), match.end(1)));
+			total = Integer.parseInt(
+                            out.substring(match.start(2), match.end(2)));
 		    } catch (NumberFormatException nfe) {
 			System.err.println("Malformed position info: " + out);
 			continue;

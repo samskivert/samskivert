@@ -1,7 +1,9 @@
 //
-// $Id: RipUtil.java,v 1.2 2000/10/30 22:21:11 mdb Exp $
+// $Id: RipUtil.java,v 1.3 2003/10/24 18:34:28 mdb Exp $
 
 package robodj.convert;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * This class contains utility functions related to ripping.
@@ -44,6 +46,11 @@ public class RipUtil
      */
     public static int computeDiscLength (Ripper.TrackInfo[] info)
     {
+        if (info == null || info.length == 0) {
+            String errmsg = "Must have at least one track to compute disc " +
+                "length [info=" + StringUtil.toString(info) + "]";
+            throw new IllegalArgumentException(errmsg);
+        }
 	return (info[info.length-1].offset +
 		info[info.length-1].length -
 		info[0].offset)/FRAMES_PER_SECOND;

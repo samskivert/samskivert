@@ -1,5 +1,5 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.8 2003/10/10 21:30:42 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.9 2003/10/24 18:34:28 mdb Exp $
 
 package robodj.convert;
 
@@ -58,10 +58,10 @@ public class CDParanoiaRipper implements Ripper
 
 		// see if we match our regular expression
 		Matcher match = regex.matcher(inline);
-		if (match.matches()) {
-		    flist.add(inline.substring(match.start(0), match.end(0)));
+		if (match.find()) {
 		    flist.add(inline.substring(match.start(1), match.end(1)));
-		}
+		    flist.add(inline.substring(match.start(2), match.end(2)));
+                }
 	    }
 
 	    // check the return value of the process
@@ -153,11 +153,11 @@ public class CDParanoiaRipper implements Ripper
 		// parse the output
 		Matcher match = regex.matcher(out);
 		if (match.matches()) {
-		    String action = out.substring(match.start(0), match.end(0));
+		    String action = out.substring(match.start(1), match.end(1));
 		    long offset = -1L;
 		    try {
 			offset = Long.parseLong(
-                            out.substring(match.start(1), match.end(1)));
+                            out.substring(match.start(2), match.end(2)));
 		    } catch (NumberFormatException nfe) {
 			// System.err.println("Malformed pos. info: " + out);
 			continue;

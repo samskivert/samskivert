@@ -1,9 +1,9 @@
 //
-// $Id: UserRepository.java,v 1.25 2003/08/15 22:35:57 mdb Exp $
+// $Id: UserRepository.java,v 1.26 2003/09/04 02:40:00 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -38,6 +38,7 @@ import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.JORARepository;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.jdbc.jora.Cursor;
+import com.samskivert.jdbc.jora.FieldMask;
 import com.samskivert.jdbc.jora.Session;
 import com.samskivert.jdbc.jora.Table;
 import com.samskivert.servlet.SiteIdentifier;
@@ -293,7 +294,13 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Removes the user from the repository.
+     * 'Delete' the users account such that they can no longer access it,
+     * however we do not delete the record from the db.  The name is
+     * changed such that the original name has XX=FOO if the name were FOO
+     * originally.  If we have to lop off any of the name to get our
+     * prefix to fit we use a minus sign instead of a equals side.  The
+     * password field is set to be the empty string so that no one can log
+     * in (since nothing hashes to the empty string.
      */
     public void deleteUser (final User user)
 	throws PersistenceException
@@ -302,9 +309,35 @@ public class UserRepository extends JORARepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
-		_utable.delete(user);
-                // nothing to return
-                return null;
+               // create our modified fields mask
+                FieldMask mask = _utable.getFieldMask();
+                mask.setModified("username");
+                mask.setModified("password");
+
+                // set the password to unusable
+                user.password = "";
+
+                String join = "=";
+                String newName = user.username;
+                if (newName.length() > 21) {
+                    newName = newName.substring(0,21);
+                    join = "-";
+                }
+
+                for (int ii = 0; ii < 100; ii++) {
+                    try {
+                        user.username = ii + join + newName;
+                        _utable.update(user, mask);
+                        return null; // nothing to return
+                    } catch (SQLException se) {
+                        if (!liaison.isDuplicateRowException(se)) {
+                            throw se;
+                        }
+                    }
+                }
+
+                // ok we failed to rename the user, lets bust an error
+                throw new PersistenceException("Failed to 'delete' the user");
 	    }
 	});
     }

@@ -1,5 +1,8 @@
 2002-03-17  Michael Bayne  <mdb@samskivert.com>
 
+	* src/history.py: Added persistent history support and tab
+	completion (from the history) to the query box text field. Yay!
+
 	* various: Rewrote the whole business in Python, using Glade to
 	create the user interface. Oh, the joy of being rid of C.
 

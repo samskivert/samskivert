@@ -1,5 +1,5 @@
 #
-# $Id: lookuplet.py,v 1.2 2002/03/17 10:13:25 mdb Exp $
+# $Id: lookuplet.py,v 1.3 2002/03/17 21:25:20 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,7 @@ import string
 import re
 
 import bindings
+import history
 import keyval_util
 import properties
 
@@ -36,6 +37,11 @@ class Lookuplet:
     # in theory these should be defined by GDK but seem not to be
     SELECTION_PRIMARY = 1;
     CURRENT_TIME = 0;
+
+    # our special key definitions
+    PREV_HISTORY_KEY = GDK.Up
+    NEXT_HISTORY_KEY = GDK.Down
+    AUTO_COMPLETE_KEY = GDK.Tab
 
     # a reference to our key bindings
     bindings = None;
@@ -49,9 +55,17 @@ class Lookuplet:
     # whether or not we're running as a Gnome applet
     appletMode = 0;
 
+    # our query box history
+    history = None;
+
+    # where we are if we're scanning the history
+    hisidx = -1;
+
+    # the prefix we're using to match if we're matching on a prefix
+    hispref = None;
+
     def __init__ (self, xmlui, bindings, props, appletMode):
         window = xmlui.get_widget("lookuplet");
-        query = xmlui.get_widget("query");
         self.about = xmlui.get_widget("about");
         self.string_atom = None;
         self.bindings = bindings;
@@ -63,6 +77,9 @@ class Lookuplet:
         for key in dir(self.__class__):
             nameFuncMap[key] = getattr(self, key);
         xmlui.signal_autoconnect(nameFuncMap);
+
+        # create our query history
+        self.history = history.History();
 
         # if we're in applet mode, extract the UI and stick it into an
         # applet widget
@@ -93,6 +110,7 @@ class Lookuplet:
         # request the selection
         if (self.string_atom == None):
             self.string_atom = gtk.atom_intern("STRING", gtk.FALSE);
+        query = xmlui.get_widget("query");
         query.selection_convert(self.SELECTION_PRIMARY, 
                                 self.string_atom,
                                 self.CURRENT_TIME);
@@ -109,24 +127,100 @@ class Lookuplet:
     def on_prefs_clicked (self, button):
         self.props.editProperties();
 
-    def on_query_key_press_event (self, query, event):
-        # handle special keystrokes such as history and auto-complete
-        # if (handle_special_keys(widget, ek)):
-        # return true;
+    def handle_special_keys (self, query, event):
+        # we'll need this later
+        count = len(self.history.history);
 
-        # ignore plain or shifted keystrokes
-        if (event.state <= 1):
+        # handle special keystrokes such as history and auto-complete
+        if (event.keyval == self.NEXT_HISTORY_KEY):
+            if (self.hisidx >= 0 and self.hisidx < count):
+                self.hisidx += 1;
+            else:
+                return gtk.TRUE;
+
+        elif (event.keyval == self.PREV_HISTORY_KEY):
+            if (self.hisidx > 0):
+                self.hisidx -= 1;
+            elif (self.hisidx == -1):
+                # if we haven't grabbed a prefix as of yet, grab what we've got
+                if (self.hispref == None):
+                    self.hispref = query.get_text();
+                    # print "set prefix: %s" % self.hispref;
+                self.hisidx = count-1;
+            else:
+                return gtk.TRUE;
+
+        elif (event.keyval == self.AUTO_COMPLETE_KEY):
+            # if we haven't grabbed a prefix as of yet, grab what we've got
+            if (self.hispref == None):
+                self.hispref = query.get_text();
+                # print "set prefix: %s" % self.hispref;
+
+            # if our history prefix has not yet been set, set it and start
+            # scanning through the history
+            if (self.hisidx == -1):
+                self.hisidx = count;
+            self.hisidx = self.history.match(self.hispref, self.hisidx);
+
+        else:
             return gtk.FALSE;
 
-        # convert the key press into a string
-        keystr = keyval_util.convert_keyval_state_to_string(
-            event.keyval, event.state);
+        # if we found something scrolling or autocompleting, show it
+        if (self.hisidx > -1 and self.hisidx < count):
+            # print "displaying history entry %d." % self.hisidx;
+            text = self.history.history[self.hisidx];
+            self.set_query(query, text);
+            return gtk.TRUE;
 
-        # look up a binding for that key string
-        binding = self.bindings.get_match(keystr);
+        # otherwise go back to whatever we were editing
+        if (self.hispref != None):
+            # print "restoring prefix %s" % self.hispref;
+            self.set_query(query, self.hispref);
+
+        # we always want to claim to have handled the keypress if it was
+        # the autocomplete key, otherwise GTK will move the focus from our
+        # query box widget
+        if (event.keyval == self.AUTO_COMPLETE_KEY):
+            return gtk.TRUE
+        else:
+            return gtk.FALSE;
+
+    def set_query (self, query, text):
+        # display text in the query box and select it for easy erasal
+        query.set_text(text);
+        query.select_region(0, len(text));
+
+    def on_query_key_press_event (self, query, event):
+        # handle history browsing and auto-completion
+        if (self.handle_special_keys(query, event) == gtk.TRUE):
+            return gtk.TRUE;
+
+        # clear out our history prefix because it's in the text field now
+        # and we'll grab it again if we need it
+        self.hispref = None;
+        self.hisidx = -1;
+
+        # if they pressed return, map that to a special binding
+        if (event.keyval == GDK.Return):
+            binding = bindings.Binding("", bindings.Binding.URL, "", "%T");
+
+        else:
+            # ignore plain or shifted keystrokes
+            if (event.state <= 1):
+                return gtk.FALSE;
+            # convert the key press into a string
+            keystr = keyval_util.convert_keyval_state_to_string(
+                event.keyval, event.state);
+            # look up a binding for that key string
+            binding = self.bindings.get_match(keystr);
+
+        # if we found one, invoke it
         if (binding != None):
-            # if we found one, invoke it
-            binding.invoke(query.get_text());
+            text = query.get_text();
+            binding.invoke(text);
+            # append this entry to our history
+            self.history.append(text);
+            # and either bail or get ready for the next go
             if (self.appletMode):
                 query.set_text("");
             else:
@@ -136,6 +230,12 @@ class Lookuplet:
         else:
             # otherwise, let GTK know that we didn't handle the key press
             return gtk.FALSE;
+
+    def url_p (self, text):
+        return (re.match("^http:", text) or
+                re.match("^ftp:", text) or
+                re.match("^https:", text) or
+                re.match("^file:", text));
 
     def on_query_selection_received (self, query, selection_data, data):
         if (selection_data.length < 0):
@@ -156,11 +256,11 @@ class Lookuplet:
         # make sure some selection was provided
         if (len(text) > 0):
             # check to see if we're looking at a url here
-            # is_url = url_p(text);
+            is_url = self.url_p(text);
 
             # if this is a URL, we want to eat whitespace
-            # if (is_url):
-            # text.tr!(" ", "");
+            if (is_url):
+                text = re.sub(" ", "", text);
 
             if (cmp(text, selection_data.data)):
                 # print "Setting trimmed text '" + text  + "'.";

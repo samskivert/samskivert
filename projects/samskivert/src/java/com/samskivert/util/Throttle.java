@@ -1,5 +1,5 @@
 //
-// $Id: Throttle.java,v 1.2 2001/08/11 22:43:29 mdb Exp $
+// $Id: Throttle.java,v 1.3 2002/12/04 02:54:58 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -78,18 +78,38 @@ public class Throttle
      */
     public boolean throttleOp ()
     {
-        long now = System.currentTimeMillis();
+        return throttleOp(System.currentTimeMillis());
+    }
 
+    /**
+     * Registers an attempt at an operation and returns true if the
+     * operation should be performed or false if it should be throttled
+     * (meaning N operations have already been performed in the last M
+     * seconds). For systems that don't wish to use {@link
+     * System#currentTimeMillis} (opting in favor for some custom timing
+     * mechanism that is more accurate that {@link
+     * System#currentTimeMillis}) or those that already have the time,
+     * they can avoid an unnecessary call to {@link
+     * System#currentTimeMillis} by using this version of the method.
+     *
+     * @param timeStamp the timestamp at which this operation is being
+     * attempted.
+     *
+     * @return true if the throttle is activated, false if the operation
+     * can proceed.
+     */
+    public boolean throttleOp (long timeStamp)
+    {
         // if the oldest operation was performed less than _period ago, we
         // need to throttle
-        if ((now - _ops[_lastOp]) < _period) {
+        if ((timeStamp - _ops[_lastOp]) < _period) {
             return true;
         }
 
         // otherwise overwrite the oldest operation with the current time
         // and move the oldest operation pointer to the second oldest
         // operation (which is now the oldest as we overwrote the oldest)
-        _ops[_lastOp] = now;
+        _ops[_lastOp] = timeStamp;
         _lastOp = (_lastOp + 1) % _ops.length;
         return false;
     }

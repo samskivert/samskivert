@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.11 2002/09/19 18:42:42 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.12 2002/09/23 18:00:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -98,6 +98,9 @@ public class DefaultLogProvider implements LogProvider
         }
         buf.append(LEVEL_CHARS[level]).append(" ");
 
+        // append the thread id
+        // buf.append(Thread.currentThread().hashCode() % 1000).append(" ");
+
         // make sure the message isn't wack
         if (message == null) {
             message = "null";
@@ -114,9 +117,16 @@ public class DefaultLogProvider implements LogProvider
         int wrapwid = _tdimens.width - GAP.length();
         int remain = message.length(), offset = 0;
 
+        // if the text contains newlines anywhere except at the end, don't
+        // wrap it
+        if (message.indexOf("\n") != message.length()-1) {
+            wrapwid = Integer.MAX_VALUE;
+        }
+
         // our first line contains additionally, the module name (and a
         // colon and space) which must be accountded for when wrapping
         int linewid = Math.min(wrapwid - moduleName.length() - 2, remain);
+        // int linewid = Math.min(wrapwid - moduleName.length() - 6, remain);
 
         // append the first line
         buf.append(message.substring(offset, offset+linewid));

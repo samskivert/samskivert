@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.11 2001/10/18 02:17:30 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.12 2001/10/18 18:42:33 mdb Exp $
 
 package com.threerings.venison;
 
@@ -294,9 +294,6 @@ public class VenisonBoard
 
         // undo our translations
         g.translate(-_tx, -_ty);
-
-        g.setColor(Color.black);
-        g2.draw(getBounds());
     }
 
     /** Called by our adapter when the mouse moves. */
@@ -358,6 +355,29 @@ public class VenisonBoard
     /** Called by our adapter when the mouse is clicked. */
     protected void mouseClicked (MouseEvent evt)
     {
+        int modifiers = evt.getModifiers();
+
+        // if this is a right button click, and we're in piecen placing
+        // mode, generate a PLACE_NOTHING notification instead
+        if (_placingPiecen && (modifiers & MouseEvent.BUTTON3_MASK) != 0) {
+            // stop piecen placement
+            _placingPiecen = false;
+            // clear out any placed piecen because we're placing nothing
+            if (_placedTile != null && _placedTile.piecen != null) {
+                _placedTile.piecen = null;
+                repaint();
+            }
+            // post the action
+            Controller.postAction(this, PLACE_NOTHING);
+
+        } else {
+            // ignore non-button one presses other than cancel piecen
+            // placement
+            if ((modifiers & MouseEvent.BUTTON1_MASK) == 0) {
+                return;
+            }
+        }
+
         // if we have a placing tile and it's in a valid position, we want
         // to dispatch an action letting the controller know that the user
         // placed it
@@ -377,9 +397,13 @@ public class VenisonBoard
 
             // recompute our dimensions (which will relayout or repaint)
             computeDimensions();
+        }
 
-        } else if (_placingPiecen && _placedTile != null &&
-                   _placedTile.piecen != null) {
+        // if we're placing a piecen and the piecen is in a valid
+        // position, we want to dispatch an action letting the controller
+        // know that the user placed it
+        if (_placingPiecen && _placedTile != null &&
+            _placedTile.piecen != null) {
             // clear out placing piecen mode
             _placingPiecen = false;
 

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.28 2002/11/13 23:14:57 mdb Exp $
+// $Id: Label.java,v 1.29 2002/12/02 21:55:45 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -348,28 +348,6 @@ public class Label implements SwingConstants, LabelStyleConstants
             layouts.add(new Tuple(layout, bounds));
         }
 
-        switch (_style) {
-        case OUTLINE:
-            // we need to be two pixels bigger in both directions
-            _size.width += 2;
-            _size.height += 2;
-            break;
-
-        case SHADOW:
-            // we need to be one pixel bigger in both directions
-            _size.width += 1;
-            _size.height += 1;
-            break;
-
-        case BOLD:
-            // we need to be one pixel bigger horizontally
-            _size.width += 1;
-            break;
-
-        default:
-            break;
-        }
-
         // create our layouts array
         int lcount = layouts.size();
         _layouts = new TextLayout[lcount];
@@ -568,9 +546,15 @@ public class Label implements SwingConstants, LabelStyleConstants
      * Computes the total width of a {@link TextLayout} given bounds
      * returned from a call to {@link TextLayout#getBounds}.
      */
-    protected static double getWidth (Rectangle2D laybounds)
+    protected double getWidth (Rectangle2D laybounds)
     {
-        return laybounds.getX() + laybounds.getWidth();
+        double width = laybounds.getX() + laybounds.getWidth();
+        switch (_style) {
+        case OUTLINE: width += 2; break;
+        case SHADOW: width += 1; break;
+        case BOLD: width += 1; break;
+        }
+        return width;
     }
 
     /**
@@ -578,9 +562,15 @@ public class Label implements SwingConstants, LabelStyleConstants
      * than what the layout reports via <code>getBounds()</code> which
      * rarely seems to have any bearing on reality.
      */
-    protected static float getHeight (TextLayout layout)
+    protected float getHeight (TextLayout layout)
     {
-        return layout.getLeading() + layout.getAscent() + layout.getDescent();
+        float height = layout.getLeading() + layout.getAscent() +
+            layout.getDescent();
+        switch (_style) {
+        case OUTLINE: height += 2; break;
+        case SHADOW: height += 1; break;
+        }
+        return height;
     }
 
     /** The text of the label. */

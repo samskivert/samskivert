@@ -88,7 +88,7 @@
   </target>
 
   <!-- installs the JWS app -->
-  <target name="install">
+  <target name="install" depends="dist">
     <mkdir dir="${install.dir}"/>
     <!-- copy the jar files used by the client -->
     <copy todir="${install.dir}">
@@ -100,15 +100,18 @@
       storepass="${sign.storepass}" lazy="true">
       <fileset dir="${install.dir}" includes="*.jar"/>
     </signjar>
-    <!-- copy the jnlp file(s) into place -->
+    <!-- copy the jnlp file(s) and associated business into place -->
     <filter filtersfile="build.properties"/>
     <copy todir="${install.dir}" filtering="true">
       <fileset dir="etc" includes="**/*.jnlp"/>
     </copy>
+    <copy todir="${install.dir}">
+      <fileset dir="etc" includes="**/*.png"/>
+    </copy>
   </target>
 
   <!-- mirrors the files to the production web server -->
-  <target name="mirror">
+  <target name="mirror" depends="install">
     <echo message="Mirroring files to ${musicd_host}..."/>
     <apply executable="rsync" parallel="true">
       <fileset dir="${install.dir}" includes="**"/>

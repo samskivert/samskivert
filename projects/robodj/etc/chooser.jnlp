@@ -6,12 +6,12 @@
      download and install the Sun JRE 1.4 and/or Java Web Start from
      http://java.sun.com/j2se/ -->
 
-<jnlp spec="1.0+" codebase="@application_uri@" href="chooser.jnlp">
+<jnlp spec="1.0+" codebase="@application_uri@/" href="chooser.jnlp">
   <information>
     <title>RoboDJ Chooser</title>
     <vendor>Seuss and Asseusciates</vendor>
     <homepage href="index.html"/>
-    <icon href="icon.png"/>
+    <icon href="icon.png" width=64 height=64/>
     <description kind="short">
       Music choosing fun for the whole family!
     </description>
@@ -20,6 +20,7 @@
       by which that music can be queued up for playing on the music
       server.
     </description>
+    <offline-allowed/>
   </information>
   <security>
     <all-permissions/>

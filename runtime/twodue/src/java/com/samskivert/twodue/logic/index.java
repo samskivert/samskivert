@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.7 2002/11/12 23:00:14 mdb Exp $
+// $Id: index.java,v 1.8 2002/11/13 03:55:07 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -104,7 +104,7 @@ public class index extends UserLogic
         }
 
         // sort the tasks by priority, then complexity
-        Collections.sort(tasks, PLEX_PARATOR);
+        Collections.sort(tasks, OPEN_PARATOR);
 
         CatList[] xtasks = categorize(tasks, expand, new Categorizer() {
             public String category (Task task) {
@@ -120,7 +120,7 @@ public class index extends UserLogic
 
         // load up owned tasks and break them down by owner
         tasks = app.getRepository().loadOwnedTasks();
-        Collections.sort(tasks, PLEX_PARATOR);
+        Collections.sort(tasks, OWNED_PARATOR);
         CatList[] otasks = categorize(tasks, null, new Categorizer() {
             public String category (Task task) {
                 return task.owner;
@@ -187,8 +187,7 @@ public class index extends UserLogic
         return ctasks;
     }
 
-    // sorts tasks by relative complexity, simplest to most complex
-    protected static final Comparator PLEX_PARATOR = new Comparator() {
+    protected static final Comparator OPEN_PARATOR = new Comparator() {
         public int compare (Object o1, Object o2) {
             Task t1 = (Task)o1, t2 = (Task)o2;
             // sort first by reverse priority, then by complexity
@@ -197,6 +196,14 @@ public class index extends UserLogic
             } else {
                 return t2.priority - t1.priority;
             }
+        }
+    };
+
+    protected static final Comparator OWNED_PARATOR = new Comparator() {
+        public int compare (Object o1, Object o2) {
+            Task t1 = (Task)o1, t2 = (Task)o2;
+            // sort by complexity
+            return t1.getComplexityValue() - t2.getComplexityValue();
         }
     };
 

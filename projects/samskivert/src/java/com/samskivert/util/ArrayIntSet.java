@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.13 2003/06/24 21:29:41 ray Exp $
+// $Id: ArrayIntSet.java,v 1.14 2003/06/24 22:55:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -41,6 +41,13 @@ public class ArrayIntSet extends AbstractSet
     public ArrayIntSet (int[] values)
     {
         add(values);
+    }
+
+    /**
+     * Constructs an empty set.
+     */
+    public ArrayIntSet ()
+    {
     }
 
     // documentation inherited from interface

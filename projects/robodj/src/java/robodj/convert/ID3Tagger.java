@@ -6,7 +6,7 @@ package robodj.convert;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.StreamUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * A tagger implementation that uses 'id3v2' to do it's job.
@@ -27,7 +27,7 @@ public class ID3Tagger implements Tagger
             Process ripproc = rt.exec(cmdarray);
 
 	    InputStream in = ripproc.getErrorStream();
-            String output = StreamUtils.streamAsString(in);
+            String output = IOUtils.toString(in);
 
             // check the return value of the process
             try {

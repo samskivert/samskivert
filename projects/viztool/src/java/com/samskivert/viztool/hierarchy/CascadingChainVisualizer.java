@@ -1,14 +1,16 @@
 //
-// $Id: CascadingChainVisualizer.java,v 1.2 2001/07/14 00:55:21 mdb Exp $
+// $Id: CascadingChainVisualizer.java,v 1.3 2001/07/17 01:54:19 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
-import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.geom.*;
+import java.awt.font.TextLayout;
 import java.util.ArrayList;
 
 /**
- * The cascading chain layout lays out chains in the standard cascading
- * format that looks something like this:
+ * The cascading chain visualizer lays out chains in the standard
+ * cascading format that looks something like this:
  *
  * <pre>
  * Foo
@@ -19,47 +21,111 @@ import java.util.ArrayList;
  * |
  * +-> Baz
  * </pre>
- *
- * It should be used in tandem with the
- * <code>CascadingChainRenderer</code>.
- *
- * @see CascadingChainRenderer
  */
-public class CascadingChainLayout
-    implements ChainLayout, CascadingConstants
+public class CascadingChainVisualizer
+    implements ChainVisualizer, CascadingConstants
 {
     // docs inherited from interface
-    public void layoutChain (Chain chain, int pointSize)
+    public void layoutChain (Chain chain, Graphics2D gfx)
     {
+        // create a text layout based on the current rendering conditions
+        TextLayout layout = new TextLayout(chain.getName(), gfx.getFont(),
+                                           gfx.getFontRenderContext());
+
         // the header will be the name of this chain surrounded by N
         // points of space and a box
-        int hwid = PostscriptUtil.estimateWidth(chain.getName(), pointSize) +
-            2*HEADER_BORDER;
-        int hhei = 2*HEADER_BORDER + pointSize;
-        int maxwid = hwid;
+        Rectangle2D bounds = getTextBox(gfx, layout);
+        double maxwid = bounds.getWidth();
 
         // the children will be below the name of this chain and inset by
         // four points to make space for the connecty lines
-        int x = 2*GAP, y = hhei;
+        double x = 2*GAP, y = bounds.getHeight();
         ArrayList kids = chain.getChildren();
 
         for (int i = 0; i < kids.size(); i++) {
             Chain kid = (Chain)kids.get(i);
-            Dimension ksize = kid.getSize();
+            Rectangle2D kbounds = kid.getBounds();
             y += GAP; // add the gap
-            kid.setLocation(x, y);
-            y += ksize.height; // add the dimensions of the kid
-//              System.err.println("Locating " + kid.getName() +
-//                                 " at +" + x + "+" + y + ".");
+            kid.setBounds(x, y, kbounds.getWidth(), kbounds.getHeight());
+            y += kbounds.getHeight(); // add the dimensions of the kid
             // track max width
-            if (maxwid < (x + ksize.width)) {
-                maxwid = x + ksize.width;
+            if (maxwid < (x + kbounds.getWidth())) {
+                maxwid = x + kbounds.getWidth();
             }
         }
 
         // set the dimensions of the main chain
-//          System.err.println("Sizing " + chain.getName() +
-//                             " to " + maxwid + "x" + y + ".");
-        chain.setSize(maxwid, y);
+        Rectangle2D cbounds = chain.getBounds();
+        chain.setBounds(cbounds.getX(), cbounds.getY(), maxwid, y);
+    }
+
+    // docs inherited from interface
+    public void renderChain (Chain chain, Graphics2D gfx)
+    {
+        // figure out where we'll be rendering
+        Rectangle2D bounds = chain.getBounds();
+        double x = bounds.getX();
+        double y = bounds.getY();
+
+//          System.err.println("Rendering " + chain.getName() +
+//                             " at +" + x + "+" + y + ".");
+
+        // create a text layout based on the current rendering conditions
+        TextLayout layout = new TextLayout(chain.getName(), gfx.getFont(),
+                                           gfx.getFontRenderContext());
+
+        // stroke a box that will contain the name
+        Rectangle2D tbounds = getTextBox(gfx, layout);
+        double tx = -bounds.getX(), ty = -bounds.getY();
+        tbounds.setRect(x, y, tbounds.getWidth(), tbounds.getHeight());
+        gfx.draw(tbounds);
+
+        // now draw the name
+        layout.draw(gfx, (float)(x + HEADER_BORDER),
+                    (float)(y + layout.getAscent() + HEADER_BORDER));
+
+        // render our connecty lines
+        ArrayList kids = chain.getChildren();
+        if (kids.size() > 0) {
+            GeneralPath path = new GeneralPath();
+            Rectangle2D kbounds = ((Chain)kids.get(0)).getBounds();
+            double half = kbounds.getX()/2;
+            path.moveTo((float)(x + half), (float)(y + tbounds.getHeight()));
+
+            for (int i = 0; i < kids.size(); i++) {
+                Chain kid = (Chain)kids.get(i);
+                kbounds = kid.getBounds();
+                double ly = y + kbounds.getY() + layout.getAscent() +
+                    HEADER_BORDER;
+                path.lineTo((float)(x + half), (float)ly);
+                path.lineTo((float)(x + kbounds.getX()), (float)ly);
+                path.moveTo((float)(x + half), (float)ly);
+            }
+
+            gfx.draw(path);
+        }
+
+        // translate the gfx so that 0,0 is at our origin
+        gfx.translate(x, y);
+
+        // now render the kids
+        for (int i = 0; i < kids.size(); i++) {
+            Chain kid = (Chain)kids.get(i);
+            renderChain(kid, gfx);
+        }
+
+        // undo our prior translation
+        gfx.translate(-x, -y);
+    }
+
+    protected static Rectangle2D getTextBox (Graphics2D gfx,
+                                             TextLayout layout)
+    {
+        Rectangle2D bounds = layout.getBounds();
+        // incorporate room for the border in the bounds
+        bounds.setRect(bounds.getX(), bounds.getY(),
+                       bounds.getWidth() + 2*HEADER_BORDER, 
+                       bounds.getHeight() + 2*HEADER_BORDER);
+        return bounds;
     }
 }

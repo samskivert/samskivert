@@ -1,11 +1,12 @@
 //
-// $Id: ChainGroup.java,v 1.1 2001/07/14 00:55:21 mdb Exp $
+// $Id: ChainGroup.java,v 1.2 2001/07/17 01:54:19 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.io.PrintStream;
+import java.awt.*;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
+import java.awt.font.TextLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -32,75 +33,99 @@ public class ChainGroup
     /**
      * Lays out the chains in this group and returns the total size.
      */
-    public Dimension layout (int pointSize)
+    public Rectangle2D layout (Graphics2D gfx, double pageWidth,
+                               double pageHeight)
     {
         // lay out the internal structure of our chains
-        ChainLayout clay = new CascadingChainLayout();
+        ChainVisualizer clay = new CascadingChainVisualizer();
         for (int i = 0; i < _roots.size(); i++) {
             Chain chain = (Chain)_roots.get(i);
-            chain.layout(pointSize, clay);
+            chain.layout(gfx, clay);
         }
+
+        // we'll need room to incorporate our title
+        TextLayout layout = new TextLayout(_pkg, gfx.getFont(),
+                                           gfx.getFontRenderContext());
+
+        // keep room for our border
+        pageWidth -= 2*BORDER;
+        pageHeight -= (2*BORDER + layout.getAscent());
 
         // arrange them on the page
         ElementLayout elay = new PackedColumnElementLayout();
-        Dimension[] dims = elay.layout(_roots, MAX_WIDTH, MAX_HEIGHT);
+        Rectangle2D[] dims = elay.layout(_roots, pageWidth, pageHeight);
 
         // for now we're punting and assume that no group will exceed a
         // single page in size
-        _size = new Dimension();
-        _size.width = dims[0].width + 2*BORDER;
-        _size.height = dims[0].height + 2*BORDER;
+        double width = dims[0].getWidth();
+        double height = dims[0].getHeight() + layout.getAscent();
 
+        // make sure we're wide enough for our title
+        width = Math.max(width, layout.getAdvance() + 4);
+
+        _size = new Rectangle2D.Double();
+        _size.setRect(0, 0, width + 2*BORDER, height + 2*BORDER);
+
+        System.out.println("L(" + _pkg + ") " + _size.getWidth() + "x" +
+            _size.getHeight() + "+" + _size.getX() + "+" + _size.getY() + ".");
         return _size;
     }
 
     /**
-     * Renders the chains in this group to the supplied output stream.
+     * Renders the chains in this group to the supplied graphics object.
      * This function requires that <code>layoutGroup</code> has previously
      * been called to lay out the group's chains.
      *
-     * @return the size of the rectangle occupied by the rendered chain
-     * group.
-     *
      * @see #layoutGroup
      */
-    public void render (int pointSize, PrintStream out, int x, int y)
+    public void render (Graphics2D gfx, double x, double y)
     {
+        TextLayout layout = new TextLayout(_pkg, gfx.getFont(),
+                                           gfx.getFontRenderContext());
+
+        // shift everything down to the ascent of the title
+        y += layout.getAscent();
+
+        // translate to our rendering area
+        double cx = x + BORDER;
+        double cy = y + BORDER;
+        gfx.translate(cx, cy);
+
         // render our chains
-        ChainRenderer renderer = new CascadingChainRenderer();
+        ChainVisualizer renderer = new CascadingChainVisualizer();
         for (int i = 0; i < _roots.size(); i++) {
             Chain chain = (Chain)_roots.get(i);
-            Point loc = chain.getLocation();
-            renderer.renderChain(chain, out, pointSize,
-                                 x + BORDER, y + BORDER);
+            Rectangle2D bounds = chain.getBounds();
+            // render the chain
+            renderer.renderChain(chain, gfx);
         }
 
+        // undo the translation
+        gfx.translate(-cx, -cy);
+
         // print our title and a box around our border
-        out.println("/tname (" + _pkg + ") def");
-        out.println("/twid tname stringwidth pop def");
+        layout.draw(gfx, (float)(x + BORDER + 2), (float)y);
 
-        int bx = x + BORDER + 2, by = y - pointSize/2;
-        out.println(bx + " " + by + " moveto");
-        out.println("tname abshow");
+        double height = _size.getHeight() - layout.getAscent();
+        GeneralPath path = new GeneralPath();
+        path.moveTo((float)(x + BORDER), (float)y);
+        path.lineTo((float)x, (float)y);
+        path.lineTo((float)x, (float)(y + height));
+        path.lineTo((float)(x + _size.getWidth()),
+                    (float)(y + height));
+        path.lineTo((float)(x + _size.getWidth()), (float)y);
+        path.lineTo((float)(x + BORDER + layout.getAdvance() + 4), (float)y);
+        gfx.draw(path);
+    }
 
-        out.println((x + BORDER - 2) + " " + y + " moveto");
-        out.println("-" + (BORDER - 2) + " 0 rlineto");
-        out.println("0 " + _size.height + " rlineto");
-        out.println(_size.width + " 0 rlineto");
-        out.println("0 -" + _size.height + " rlineto");
-        out.println((_size.width - BORDER - 4) + " twid sub neg 0 rlineto");
-        out.println("stroke");
+    public Chain getRoot (int index)
+    {
+        return (Chain)_roots.get(index);
     }
 
     protected String _pkg;
     protected ArrayList _roots;
-    protected Dimension _size;
+    protected Rectangle2D _size;
 
-    protected static final int PAGE_WIDTH = (int)(72 * 7.5);
-    protected static final int PAGE_HEIGHT = (int)(72 * 10);
-
-    protected static final int BORDER = 72/8;
-
-    protected static final int MAX_WIDTH = PAGE_WIDTH - 2*BORDER;
-    protected static final int MAX_HEIGHT = PAGE_HEIGHT - 2*BORDER;
+    protected static final double BORDER = 72/8;
 }

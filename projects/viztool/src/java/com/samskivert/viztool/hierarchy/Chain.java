@@ -1,11 +1,11 @@
 //
-// $Id: Chain.java,v 1.3 2001/07/14 00:55:21 mdb Exp $
+// $Id: Chain.java,v 1.4 2001/07/17 01:54:19 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
 import java.util.ArrayList;
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * A chain is used by the hierarchy visualizer to represent inheritance
@@ -48,55 +48,22 @@ public class Chain implements Element
     }
 
     /**
-     * Returns a <code>Dimension</code> instance representing the size of
-     * this chain (and all contained subchains). All coordinates are in
-     * points.
+     * Returns a <code>Rectangle2D</code> instance representing the size
+     * of this chain (and all contained subchains).
      */
-    public Dimension getSize ()
+    public Rectangle2D getBounds ()
     {
-        return _size;
+        return _bounds;
     }
 
     /**
-     * Returns the location of this chain relative to its parent chain.
-     * All coordinates are in points.
-     */
-    public Point getLocation ()
-    {
-        return _location;
-    }
-
-    /**
-     * Sets the size of this chain. All coordinates are in points.
+     * Sets the bounds of this chain.
      *
-     * @see #getSize
+     * @see #getBounds
      */
-    public void setSize (int width, int height)
+    public void setBounds (double x, double y, double width, double height)
     {
-        _size = new Dimension(width, height);
-    }
-
-    /**
-     * Sets the location of this chain relative to its parent. All
-     * coordinates are in points.
-     *
-     * @see #getLocation
-     */
-    public void setLocation (int x, int y)
-    {
-        _location = new Point(x, y);
-    }
-
-    // inherited from interface
-    public void setPage (int pageno)
-    {
-        _pageno = pageno;
-    }
-
-    // inherited from interface
-    public int getPage ()
-    {
-        return _pageno;
+        _bounds.setRect(x, y, width, height);
     }
 
     /**
@@ -115,16 +82,16 @@ public class Chain implements Element
      * the supplied layout manager arrange those children and compute the
      * dimensions of this chain based on all of that information.
      */
-    public void layout (int pointSize, ChainLayout clay)
+    public void layout (Graphics2D gfx, ChainVisualizer cviz)
     {
         // first layout our children
         for (int i = 0; i < _children.size(); i++) {
             Chain child = (Chain)_children.get(i);
-            child.layout(pointSize, clay);
+            child.layout(gfx, cviz);
         }
 
         // now lay ourselves out
-        clay.layoutChain(this, pointSize);
+        cviz.layoutChain(this, gfx);
     }
 
     /**
@@ -192,7 +159,5 @@ public class Chain implements Element
     protected Class _root;
 
     protected ArrayList _children = new ArrayList();
-    protected Dimension _size = new Dimension(0, 0);
-    protected Point _location = new Point(0, 0);
-    protected int _pageno;
+    protected Rectangle2D _bounds = new Rectangle2D.Double();
 }

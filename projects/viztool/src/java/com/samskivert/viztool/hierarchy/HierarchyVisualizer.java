@@ -1,11 +1,11 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.3 2001/07/14 00:55:21 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.4 2001/07/17 01:54:19 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.io.PrintStream;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.print.*;
 import java.util.*;
 
 import com.samskivert.viztool.Log;
@@ -17,7 +17,7 @@ import com.samskivert.util.Comparators;
  * representation so that an entire package can be displayed on a single
  * page (or small number of pages).
  */
-public class HierarchyVisualizer
+public class HierarchyVisualizer implements Printable
 {
     /**
      * Constructs a hierarchy visualizer with the supplied enumerator as
@@ -62,41 +62,95 @@ public class HierarchyVisualizer
                 _packages[i], _classes.iterator(), false);
             _groups[i] = new ChainGroup(pkgroot, _packages[i], penum);
         }
+
+        // we'll need these for later
+        _bounds = new Rectangle2D.Double[_packages.length];
+        _pagenos = new int[_packages.length];
     }
 
     /**
      * Lays out and renders each of the chain groups that make up this
      * package hierarchy visualization.
      */
-    public void render (int pointSize, PrintStream out)
+    public int print (Graphics g, PageFormat pf, int pageIndex)
+        throws PrinterException
     {
-        int x = X_MARGIN, y = Y_MARGIN;
+        Graphics2D gfx = (Graphics2D)g;
 
-        // print the preamble for the first page
-        out.println("0 setlinewidth");
+        // adjust the stroke
+        gfx.setStroke(new BasicStroke(0.1f));
 
-        for (int i = 0; i < _groups.length; i++) {
-            // lay out the group in question
-            Dimension dims = _groups[i].layout(pointSize);
+        // and the font
+        Font font = new Font("Courier", Font.PLAIN, 8);
+        gfx.setFont(font);
 
-            // determine if we need to skip to the next page or not
-            if ((y > 0) && (y + dims.height > PAGE_HEIGHT)) {
-                // print the postamble for this page and preamble for the
-                // new page
-                out.println("showpage");
-                out.println("0 setlinewidth");
-                y = Y_MARGIN;
-            }
+        // only relay things out if the page format has changed
+        if (!pf.equals(_format)) {
+            // keep this around
+            _format = pf;
 
-            // render the group at the requested location
-            _groups[i].render(pointSize, out, x, y);
-
-            // increment our y location
-            y += (dims.height + GAP);
+            // and do the layout
+            layout(gfx, pf.getImageableX(), pf.getImageableY(),
+                   pf.getImageableWidth(), pf.getImageableHeight());
         }
 
-        // print the postamble for the final page
-        out.println("showpage");
+        // render the groups on the requested page
+        int rendered = 0;
+        for (int i = 0; i < _groups.length; i++) {
+            // skip groups not on this page
+            if (_pagenos[i] != pageIndex) {
+                continue;
+            }
+            _groups[i].render(gfx, _bounds[i].getX(), _bounds[i].getY());
+            rendered++;
+        }
+
+        return (rendered > 0) ? PAGE_EXISTS : NO_SUCH_PAGE;
+    }
+
+    public void layout (Graphics2D gfx, double x, double y,
+                        double width, double height)
+    {
+        double starty = x;
+        int pageno = 0;
+
+        System.out.println("Laying out " + width + "x" + height +
+                           "+" + x + "+" + y + ".");
+
+        // lay out our groups
+        for (int i = 0; i < _groups.length; i++) {
+            // lay out the group in question
+            Rectangle2D bounds = _groups[i].layout(gfx, width, height);
+
+            // determine if we need to skip to the next page or not
+            if ((y > 0) && (y + bounds.getHeight() > height)) {
+                y = starty;
+                pageno++;
+            }
+
+            // assign x and y coordinates to this group
+            bounds.setRect(x, y, bounds.getWidth(), bounds.getHeight());
+            // and store it
+            _bounds[i] = bounds;
+            // also make a note of our page index
+            _pagenos[i] = pageno;
+
+            // increment our y location
+            y += (bounds.getHeight() + GAP);
+        }
+    }
+
+    public void paint (Graphics2D gfx, int pageIndex)
+    {
+        // render the groups on the requested page
+        for (int i = 0; i < _groups.length; i++) {
+            // skip groups not on this page
+            if (_pagenos[i] != pageIndex) {
+                continue;
+            }
+            _groups[i].render((Graphics2D)gfx,
+                              _bounds[i].getX(), _bounds[i].getY());
+        }
     }
 
     protected String _pkgroot;
@@ -104,6 +158,10 @@ public class HierarchyVisualizer
 
     protected String[] _packages;
     protected ChainGroup[] _groups;
+
+    protected PageFormat _format;
+    protected Rectangle2D[] _bounds;
+    protected int[] _pagenos;
 
     protected static final int PAGE_WIDTH = (int)(72 * 7.5);
     protected static final int PAGE_HEIGHT = (int)(72 * 10);

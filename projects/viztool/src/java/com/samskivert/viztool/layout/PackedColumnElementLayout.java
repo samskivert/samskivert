@@ -1,13 +1,10 @@
 //
-// $Id: PackedColumnElementLayout.java,v 1.2 2001/07/14 00:55:21 mdb Exp $
+// $Id: PackedColumnElementLayout.java,v 1.3 2001/07/17 01:54:19 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
-import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.awt.geom.Rectangle2D;
+import java.util.*;
 
 /**
  * Lays out the elements in columns of balanced height with elements
@@ -16,7 +13,8 @@ import java.util.List;
 public class PackedColumnElementLayout implements ElementLayout
 {
     // docs inherited from interface
-    public Dimension[] layout (List elements, int pageWidth, int pageHeight)
+    public Rectangle2D[] layout (List elements,
+                                 double pageWidth, double pageHeight)
     {
         // create a new list containing the elements whose order we can
         // manipulate willy nilly
@@ -24,15 +22,22 @@ public class PackedColumnElementLayout implements ElementLayout
         elements.toArray(elems);
         Arrays.sort(elems, HEIGHT_COMP);
 
+        System.out.println("Laying out in " +
+                           pageWidth + "x" + pageHeight + ".");
+
         // lay out the elements across the page
         ArrayList pagedims = new ArrayList();
-        int x = 0, y = 0, rowheight = 0, maxwidth = 0, pageno = 0;
+        double x = 0, y = 0, rowheight = 0, maxwidth = 0;
+        int pageno = 0;
+
         for (int i = 0; i < elems.length; i++) {
-            Dimension size = elems[i].getSize();
+            Rectangle2D bounds = elems[i].getBounds();
 
             // see if we fit into this row or not (but force placement if
             // we're currently at the left margin)
-            if ((x > 0) && ((x + size.width) > pageWidth)) {
+            if ((x > 0) && ((x + bounds.getWidth()) > pageWidth)) {
+                // strip off the trailing GAP
+                x -= GAP;
                 // track our maxwidth
                 if (x > maxwidth) {
                     maxwidth = x;
@@ -41,43 +46,46 @@ public class PackedColumnElementLayout implements ElementLayout
                 x = 0;
                 y += (rowheight + GAP);
                 // reset our max rowheight
-                rowheight = size.height;
+                rowheight = bounds.getHeight();
             }
 
             // make sure we fit on this page (but force placement if we're
             // currently at the top margin)
-            if ((y > 0) && ((y + size.height) > pageHeight)) {
+            if ((y > 0) && ((y + bounds.getHeight()) > pageHeight)) {
                 // make a note of how big the current page is
-                pagedims.add(new Dimension(maxwidth, y));
+                pagedims.add(new Rectangle2D.Double(0, 0, maxwidth, y));
                 // move to the next page
                 x = 0;
                 y = 0;
-                rowheight = size.height;
+                rowheight = bounds.getHeight();
                 maxwidth = 0;
                 pageno++;
             }
 
             // lay this element out at our current coordinates
-            elems[i].setLocation(x, y);
-            elems[i].setPage(pageno);
+            elems[i].setBounds(x, y, bounds.getWidth(), bounds.getHeight());
+//              elems[i].setPage(pageno);
+            System.out.println("Laying out " + elems[i].getName() +
+                               " at " + elems[i].getBounds() + ".");
 
             // keep track of the maximum row height
-            if (size.height > rowheight) {
-                rowheight = size.height;
+            if (bounds.getHeight() > rowheight) {
+                rowheight = bounds.getHeight();
             }
 
             // advance in the x direction
-            x += (size.width + GAP);
+            x += (bounds.getWidth() + GAP);
         }
 
         // take a final stab at our maxwidth
+        x -= GAP;
         if (x > maxwidth) {
             maxwidth = x;
         }
 
         // make a note of how big the final page is
-        pagedims.add(new Dimension(maxwidth, y+rowheight));
-        Dimension[] dims = new Dimension[pagedims.size()];
+        pagedims.add(new Rectangle2D.Double(0, 0, maxwidth, y+rowheight));
+        Rectangle2D[] dims = new Rectangle2D[pagedims.size()];
         pagedims.toArray(dims);
         return dims;
     }
@@ -90,7 +98,8 @@ public class PackedColumnElementLayout implements ElementLayout
             Element e2 = (Element)o2;
 
             // tallest element wins
-            int diff = e2.getSize().height - e1.getSize().height;
+            int diff = (int)(e2.getBounds().getHeight() -
+                             e1.getBounds().getHeight());
 
             // if they are the same height, sort alphabetically
             return (diff != 0) ? diff : e1.getName().compareTo(e2.getName());
@@ -103,7 +112,7 @@ public class PackedColumnElementLayout implements ElementLayout
     }
 
     // hard coded for now, half inch margins
-    protected static final int GAP = 72/4;
+    protected static final double GAP = 72/4;
 
     protected static final Comparator HEIGHT_COMP = new HeightComparator();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.6 2003/11/13 02:28:52 ray Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.7 2003/11/13 16:58:39 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -142,8 +142,8 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     /**
      * Used to load information from the site database.
      */
-    protected class SiteIdentifierRepository
-        extends SimpleRepository implements SimpleRepository.Operation
+    protected class SiteIdentifierRepository extends SimpleRepository
+        implements SimpleRepository.Operation
     {
         public SiteIdentifierRepository (ConnectionProvider conprov)
         {
@@ -214,11 +214,11 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                             "insert into sites (stringId) VALUES (?)");
                         stmt.setString(1, site.siteString);
                         if (1 != stmt.executeUpdate()) {
-                            throw new PersistenceException("Not inserted");
+                            throw new PersistenceException(
+                                "Not inserted " + site);
                         }
-
                         site.siteId = liaison.lastInsertedId(conn);
-                        System.err.println("site id inserted was " + site.siteId);
+
                     } finally {
                         JDBCUtil.close(stmt);
                     }

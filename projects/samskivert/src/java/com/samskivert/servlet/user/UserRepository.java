@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.35 2003/11/13 00:53:00 mdb Exp $
+// $Id: UserRepository.java,v 1.36 2003/11/13 02:33:33 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -45,7 +45,6 @@ import com.samskivert.jdbc.jora.Session;
 import com.samskivert.jdbc.jora.Table;
 import com.samskivert.util.HashIntMap;
 
-import com.samskivert.servlet.Site;
 import com.samskivert.servlet.SiteIdentifier;
 
 /**
@@ -74,9 +73,6 @@ public class UserRepository extends JORARepository
         throws PersistenceException
     {
 	super(provider, USER_REPOSITORY_IDENT);
-
-        /** Load all our site data into mem. */
-        loadAllSites();
     }
 
     /**
@@ -95,10 +91,6 @@ public class UserRepository extends JORARepository
 	// create our table object
 	_utable = new Table(
             getUserClass().getName(), "users", session, "userId");
-
-        // create the sites table object
-        _stable = new Table(
-            Site.class.getName(), "sites", session, "siteId");
     }
 
     /**
@@ -337,54 +329,6 @@ public class UserRepository extends JORARepository
 	});
 
         return true;
-    }
-
-    /**
-     * Load all the site records into memory.
-     */
-    protected void loadAllSites ()
-	throws PersistenceException
-    {
-	execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
-                throws PersistenceException, SQLException
-	    {
-		Cursor c = _stable.select("");
-                Iterator itr = c.toArrayList().iterator();
-                while (itr.hasNext()) {
-                    Site site = (Site)itr.next();
-                    _siteIdToSite.put(site.siteId, site);
-                    _siteNameToSite.put(site.siteString, site);
-                }
-                return null;
-	    }
-	});
-    }
-
-    /**
-     * Get the site id for the passed in SiteName (stringId)
-     */
-    public int getSiteId (String stringId)
-    {
-        Site site = (Site)_siteNameToSite.get(stringId);
-        return (site == null) ? -1 : site.siteId;
-    }
-
-    /**
-     * Get the "Site Name" (stringId) for the give siteId
-     */
-    public String getSiteName (int siteId)
-    {
-        Site site = (Site)_siteIdToSite.get(siteId);
-        return (site == null) ? null : site.siteString;
-    }
-
-    /**
-     * Returns an iterator over all of our Site records.
-     */
-    public Iterator enumerateSites ()
-    {
-        return _siteIdToSite.elements();
     }
 
     /**
@@ -660,17 +604,8 @@ public class UserRepository extends JORARepository
 	}
     }
 
-    /** Map that contains siteName -> Site mapping. */
-    protected HashMap _siteNameToSite = new HashMap();
-
-    /** Map that contains siteId -> Site mapping. */
-    protected HashIntMap _siteIdToSite = new HashIntMap();
-
     /** A wrapper that provides access to the userstable. */
     protected Table _utable;
-
-    /** A wrapper that provides access to the sites table. */
-    protected Table _stable;
 
     /** The minimum allowable length of a username. */
     protected static final int MINIMUM_USERNAME_LENGTH = 3;

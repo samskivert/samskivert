@@ -27,7 +27,7 @@ public class Table {
      * @param tableName name of database table mapped on this Java class
      * @param key table's primary key. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
-     * @s session, which should be opened before first access to the table
+     * @param s session, which should be opened before first access to the table
      */
     public Table(String className, String tableName, Session s, String key) {
 	String[] keys = {key};
@@ -41,7 +41,7 @@ public class Table {
      * @param tableName name of database table mapped on this Java class
      * @param keys table primary keys. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
-     * @s session, which should be opened before first access to the table
+     * @param s session, which should be opened before first access to the table
      */
     public Table(String className, String tableName, Session s, String[] keys) 
     { 
@@ -56,7 +56,7 @@ public class Table {
      *  package prefix) be the same as the name of database table.
      * @param keys table primary keys. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
-     * @s session, which should be opened before first access to the table
+     * @param s session, which should be opened before first access to the table
      */
     public Table(String className, Session s, String[] keys) {
         init(className, className.substring(className.lastIndexOf('.')+1),
@@ -71,7 +71,7 @@ public class Table {
      *  package prefix) be the same as the name of database table.
      * @param key table primary key. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
-     * @s session, which should be opened before first access to the table
+     * @param s session, which should be opened before first access to the table
      */
     public Table(String className, Session s, String key) {
 	String[] keys = {key};

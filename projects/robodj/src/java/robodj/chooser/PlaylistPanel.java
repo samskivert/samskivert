@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.10 2002/02/22 08:37:17 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.11 2002/02/28 16:32:45 mdb Exp $
 
 package robodj.chooser;
 
@@ -374,7 +374,7 @@ public class PlaylistPanel
      * A panel that can be made to scroll a particular child into view
      * when it becomes visible.
      */
-    protected static class SmartPanel extends JPanel
+    protected static class SmartPanel extends ScrollablePanel
     {
         public void setScrollTarget (JComponent comp)
         {

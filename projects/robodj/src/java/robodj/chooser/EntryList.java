@@ -1,12 +1,14 @@
 //
-// $Id: EntryList.java,v 1.10 2002/02/22 07:06:33 mdb Exp $
+// $Id: EntryList.java,v 1.11 2002/02/28 16:32:45 mdb Exp $
 
 package robodj.chooser;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.util.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -29,7 +31,8 @@ public abstract class EntryList extends JPanel
         // create the pane that will hold the buttons
         gl = new VGroupLayout(GroupLayout.NONE);
         gl.setJustification(GroupLayout.TOP);
-        _bpanel = new JPanel(gl);
+        _bpanel = new ScrollablePanel();
+        _bpanel.setLayout(gl);
 
 	// give ourselves a wee bit of a border
 	_bpanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

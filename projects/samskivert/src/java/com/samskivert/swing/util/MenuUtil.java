@@ -1,5 +1,5 @@
 //
-// $Id: MenuUtil.java,v 1.5 2002/02/04 17:30:50 shaper Exp $
+// $Id: MenuUtil.java,v 1.6 2002/02/05 21:48:47 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -46,7 +46,7 @@ import com.samskivert.Log;
 public class MenuUtil
 {
     /**
-     * Add a new menu item to the menu with the specified name and
+     * Adds a new menu item to the menu with the specified name and
      * attributes.
      *
      * @param l the action listener.
@@ -54,18 +54,21 @@ public class MenuUtil
      * @param name the item name.
      * @param mnem the mnemonic key for the item or null if none.
      * @param accel the keystroke for the item or null if none.
+     *
+     * @return the new menu item.
      */
-    public static void addMenuItem (ActionListener l, JMenu menu,
-                                    String name, Integer mnem,
-                                    KeyStroke accel)
+    public static JMenuItem addMenuItem (
+        ActionListener l, JMenu menu, String name, Integer mnem,
+        KeyStroke accel)
     {
         JMenuItem item = createItem(name, mnem, accel);
 	item.addActionListener(l);
         menu.add(item);
+        return item;
     }
 
     /**
-     * Add a new menu item to the menu with the specified name and
+     * Adds a new menu item to the menu with the specified name and
      * attributes.
      *
      * @param l the action listener.
@@ -73,42 +76,49 @@ public class MenuUtil
      * @param name the item name.
      * @param mnem the mnemonic key for the item.
      * @param accel the keystroke for the item or null if none.
+     *
+     * @return the new menu item.
      */
-    public static void addMenuItem (ActionListener l, JMenu menu,
-                                    String name, int mnem, KeyStroke accel)
+    public static JMenuItem addMenuItem (
+        ActionListener l, JMenu menu, String name, int mnem, KeyStroke accel)
     {
-        addMenuItem(l, menu, name, new Integer(mnem), accel);
+        return addMenuItem(l, menu, name, new Integer(mnem), accel);
     }
 
     /**
-     * Add a new menu item to the menu with the specified name and
+     * Adds a new menu item to the menu with the specified name and
      * attributes.
      *
      * @param l the action listener.
      * @param menu the menu to add the item to.
      * @param name the item name.
      * @param mnem the mnemonic key for the item.
+     *
+     * @return the new menu item.
      */
-    public static void addMenuItem (ActionListener l, JMenu menu,
-                                    String name, int mnem)
+    public static JMenuItem addMenuItem (
+        ActionListener l, JMenu menu, String name, int mnem)
     {
-        addMenuItem(l, menu, name, new Integer(mnem), null);
+        return addMenuItem(l, menu, name, new Integer(mnem), null);
     }
 
     /**
-     * Add a new menu item to the menu with the specified name.
+     * Adds a new menu item to the menu with the specified name.
      *
      * @param l the action listener.
      * @param menu the menu to add the item to.
      * @param name the item name.
+     *
+     * @return the new menu item.
      */
-    public static void addMenuItem (ActionListener l, JMenu menu, String name)
+    public static JMenuItem addMenuItem (
+        ActionListener l, JMenu menu, String name)
     {
-        addMenuItem(l, menu, name, null, null);
+        return addMenuItem(l, menu, name, null, null);
     }
 
     /**
-     * Add a new menu item to the menu with the specified name and
+     * Adds a new menu item to the menu with the specified name and
      * attributes. The supplied method name will be called (it must have
      * the same signature as {@link ActionListener#actionPerformed} but
      * can be named whatever you like) when the menu item is selected.
@@ -121,18 +131,21 @@ public class MenuUtil
      * is selected.
      * @param callbackName the name of the method to invoke when the menu
      * is selected.
+     *
+     * @return the new menu item.
      */
-    public static void addMenuItem (
+    public static JMenuItem addMenuItem (
         JMenu menu, String name, int mnem, KeyStroke accel,
         Object target, String callbackName)
     {
 	JMenuItem item = createItem(name, new Integer(mnem), accel);
 	item.addActionListener(new ReflectedAction(target, callbackName));
         menu.add(item);
+        return item;
     }
 
     /**
-     * Add a new menu item to the menu with the specified name and
+     * Adds a new menu item to the menu with the specified name and
      * attributes. The supplied method name will be called (it must have
      * the same signature as {@link ActionListener#actionPerformed} but
      * can be named whatever you like) when the menu item is selected.
@@ -143,17 +156,20 @@ public class MenuUtil
      * is selected.
      * @param callbackName the name of the method to invoke when the menu
      * is selected.
+     *
+     * @return the new menu item.
      */
-    public static void addMenuItem (
+    public static JMenuItem addMenuItem (
         JMenu menu, String name, Object target, String callbackName)
     {
 	JMenuItem item = createItem(name, null, null);
 	item.addActionListener(new ReflectedAction(target, callbackName));
         menu.add(item);
+        return item;
     }
 
     /**
-     * Add a new menu item to the popup menu with the specified name and
+     * Adds a new menu item to the popup menu with the specified name and
      * attributes. The supplied method name will be called (it must have
      * the same signature as {@link ActionListener#actionPerformed} but
      * can be named whatever you like) when the menu item is selected.
@@ -169,13 +185,16 @@ public class MenuUtil
      * is selected.
      * @param callbackName the name of the method to invoke when the menu
      * is selected.
+     *
+     * @return the new menu item.
      */
-    public static void addMenuItem (
+    public static JMenuItem addMenuItem (
         JPopupMenu menu, String name, Object target, String callbackName)
     {
 	JMenuItem item = createItem(name, null, null);
         item.addActionListener(new ReflectedAction(target, callbackName));
         menu.add(item);
+        return item;
     }
 
     /**

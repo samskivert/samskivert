@@ -1,5 +1,5 @@
 //
-// $Id: Feature.java,v 1.2 2001/10/17 04:34:13 mdb Exp $
+// $Id: Feature.java,v 1.3 2001/11/08 08:01:42 mdb Exp $
 
 package com.threerings.venison;
 
@@ -221,10 +221,10 @@ public class Feature
         g.setColor(Color.black);
         g.draw(spot);
 
-        // for now, draw the claim group next to the piecen
-        g.drawString(Integer.toString(claimGroup),
-                     (float)(point.getX() - swidth/2 + 2),
-                     (float)(point.getY() - sheight/2 - 2));
+//          // for now, draw the claim group next to the piecen
+//          g.drawString(Integer.toString(claimGroup),
+//                       (float)(point.getX() - swidth/2 + 2),
+//                       (float)(point.getY() - sheight/2 - 2));
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.1 2001/11/26 23:44:40 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.2 2001/12/11 01:38:08 mdb Exp $
 
 package com.samskivert.util;
 
@@ -27,7 +27,7 @@ public class ValueMarshaller
         Parser parser = (Parser)_parsers.get(type);
         if (parser == null) {
             String errmsg = "Don't know how to convert strings into " +
-                "values of type '" + type + "].";
+                "values of type '" + type + "'.";
             throw new Exception(errmsg);
         }
         return parser.parse(source);
@@ -64,6 +64,13 @@ public class ValueMarshaller
         _parsers.put(Integer.class, new Parser() {
             public Object parse (String source) throws Exception {
                 return Integer.valueOf(source);
+            }
+        });
+
+        // and booleans
+        _parsers.put(Boolean.TYPE, new Parser() {
+            public Object parse (String source) throws Exception {
+                return Boolean.valueOf(source);
             }
         });
 

@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.31 2004/03/13 16:07:53 mdb Exp $
+// $Id: SwingUtil.java,v 1.32 2004/06/08 01:25:14 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -478,11 +478,11 @@ public class SwingUtil
         TableModel model = table.getModel();
         TableColumn column = null;
         Component comp = null;
-        int headerWidth = 0, cellWidth = 0, cellHeight = 0;
         int ccount = table.getColumnModel().getColumnCount(),
-            rcount = model.getRowCount();
+            rcount = model.getRowCount(), cellHeight = 0;
 
         for (int cc = 0; cc < ccount; cc++) {
+            int headerWidth = 0, cellWidth = 0;
             column = table.getColumnModel().getColumn(cc);
             try {
                 comp = column.getHeaderRenderer().

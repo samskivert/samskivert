@@ -22,6 +22,7 @@ package com.samskivert.jdbc;
 
 import java.sql.*;
 
+import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.jora.*;
 
 /**
@@ -50,6 +51,26 @@ public abstract class JORARepository extends SimpleRepository
 
         // create our tables
         createTables(_session);
+    }
+
+    /**
+     * Updates the specified field in the supplied object which must
+     * correspond to the supplied table.
+     */
+    protected void updateField (
+        final Table table, final Object object, String field)
+        throws PersistenceException
+    {
+        final FieldMask mask = table.getFieldMask();
+        mask.setModified(field);
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                table.update(object, mask);
+                return null;
+            }
+        });
     }
 
     /**

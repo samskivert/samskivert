@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
+// $Id: Chooser.java,v 1.3 2001/07/13 00:10:48 mdb Exp $
 
 package robodj.chooser;
 
@@ -54,9 +54,19 @@ public class Chooser
             System.exit(-1);
         }
 
+        String mhost = System.getProperty("musicd_host", "depravity");
+        String mportstr = System.getProperty("musicd_port", "2500");
+        int mport = 2500;
+        try {
+            mport = Integer.parseInt(mportstr);
+        } catch (NumberFormatException nfe) {
+            Log.warning("Invalid musicd_port value. Using default " +
+                        "(" + mport + ").");
+        }
+
         try {
             // establish a connection with the music server
-            scontrol = new ServerControl("depravity", 2500);
+            scontrol = new ServerControl(mhost, 2500);
         } catch (IOException ioe) {
             Log.warning("Unable to establish communication with music " +
                         "server: " + ioe);

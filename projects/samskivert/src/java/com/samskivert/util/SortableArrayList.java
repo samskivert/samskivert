@@ -156,11 +156,7 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public boolean contains (Object o)
     {
-        // we can't use ListUtil.contains() because our _elements
-        // array is larger than _size and we want to do the right thing
-        // if null is passed in.
-        int dex = ListUtil.indexOf(_elements, o);
-        return (dex >= 0 && dex < _size);
+        return ListUtil.contains(_elements, o);
     }
 
     // documentation inherited from interface

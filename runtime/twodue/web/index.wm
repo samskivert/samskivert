@@ -16,10 +16,6 @@
 
 $ocats.clear()
 #foreach ($task in $otask.tasks)
-<form action="index.wm">
-$form.fixedHidden("action", "complete")
-$form.fixedHidden("task", "$task.taskId")
-
 #if ($ocats.checkCategory($task.complexity))
 <tr><td colspan="4" class="small" style="border-bottom: 1px solid"><i>$task.complexity</i></td></tr>
 #set ($border = "")
@@ -29,7 +25,8 @@ $form.fixedHidden("task", "$task.taskId")
 
 <tr><td>
 #if ($username == $task.owner)
-$form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
+<a href="index.wm?action=complete&task=$task.taskId">
+<img src="images/complete.png" border="0" alt="Mark as completed"></a>
 #else
 &nbsp;
 #end
@@ -41,8 +38,7 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 </td>
 <td valign="top" $border>$task.getDisplayCategory()</td>
 <td valign="top" $border><a href="edit.wm?task=$task.taskId">
-<img src="images/edit.png" border="0"></a></td></tr>
-</form>
+<img src="images/edit.png" border="0" alt="Edit this task"></a></td></tr>
 #end
 #end
 </table>
@@ -84,8 +80,6 @@ Outstanding tasks:
 
 $xcats.clear()
 #foreach ($task in $xtask.tasks)
-<form action="index.wm">
-$form.fixedHidden("task", "$task.taskId")
 
 #if ($xcats.checkCategory($task.complexity))
 <tr><td colspan="4" class="small" style="border-bottom: 1px solid"><i>$task.complexity</i></td></tr>
@@ -95,7 +89,8 @@ $form.fixedHidden("task", "$task.taskId")
 #end
 
 <tr>
-<td>$form.imageSubmit("action", "claim", "images/claim.png", "Claim this task")</td>
+<td><a href="index.wm?action=claim&task=$task.taskId">
+<img src="images/claim.png" border="0" alt="Claim this task"></a></td>
 <td $border>$task.summary &nbsp;
 <span class="small">[$task.creator]</span>
 #if (!$string.blank($task.notes))
@@ -104,9 +99,8 @@ $form.fixedHidden("task", "$task.taskId")
 </td>
 <td valign="top" $border>$task.getDisplayCategory()</td>
 <td valign="top" $border><a href="edit.wm?task=$task.taskId">
-<img src="images/edit.png" border="0"></a></td>
+<img src="images/edit.png" border="0" alt="Edit this task"></a></td>
 </tr>
-</form>
 #end
 #end
 </table>
@@ -146,7 +140,7 @@ Filter on single word:<br>
 </td>
 <td valign="top">$task.getDisplayCategory()</td>
 <td valign="top"><a href="edit.wm?task=$task.taskId">
-<img src="images/edit.png" border="0"></a></td></tr>
+<img src="images/edit.png" border="0" alt="Edit this task"></a></td></tr>
 #end
 </table>
 

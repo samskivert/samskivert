@@ -78,8 +78,7 @@ public abstract class Interval
      * Schedule the interval to execute repeatedly with the specified
      * initial delay and repeat delay.
      */
-    public final synchronized void schedule (
-            long initialDelay, long repeatDelay)
+    public final void schedule (long initialDelay, long repeatDelay)
     {
         cancel();
         _task = new IntervalTask();
@@ -95,11 +94,19 @@ public abstract class Interval
      * Cancel the Interval, and ensure that any expirations that are queued
      * up but have not yet run do not run.
      */
-    public final synchronized void cancel ()
+    public final void cancel ()
     {
-        if (_task != null) { // task can only be null if we were never scheduled
-            _task.cancel();
-            _task = null;
+        if (_task != null) {
+            try {
+                _task.cancel();
+                _task = null;
+            } catch (NullPointerException npe) {
+                // This could happen if two threads call this method
+                // simultaneously. I could prevent it by synchronizing
+                // this method and schedule(), but this is less taxing
+                // in the common case.
+                // (Also, it's impossible to NPE inside task.cancel())
+            }
         }
     }
 

@@ -54,8 +54,8 @@ public abstract class JORARepository extends SimpleRepository
     }
 
     /**
-     * Updates the specified field in the supplied object which must
-     * correspond to the supplied table.
+     * Updates the specified field in the supplied object (which must
+     * correspond to the supplied table).
      */
     protected void updateField (
         final Table table, final Object object, String field)
@@ -63,6 +63,28 @@ public abstract class JORARepository extends SimpleRepository
     {
         final FieldMask mask = table.getFieldMask();
         mask.setModified(field);
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                table.update(object, mask);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Updates the specified fields in the supplied object (which must
+     * correspond to the supplied table).
+     */
+    protected void updateFields (
+        final Table table, final Object object, String[] fields)
+        throws PersistenceException
+    {
+        final FieldMask mask = table.getFieldMask();
+        for (int ii = 0; ii < fields.length; ii++) {
+            mask.setModified(fields[ii]);
+        }
         execute(new Operation() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException

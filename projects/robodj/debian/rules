@@ -32,6 +32,9 @@ install: build
 	install -m644 dist/robodj.jar debian/robodj/usr/share/robodj/lib/
 	install -m644 lib/*.jar debian/robodj/usr/share/robodj/lib/
 
+	# Install defaults file
+	install -m644 debian/robodj.default debian/robodj/etc/default/robodj
+
 # Build architecture-independent files here.
 binary-indep: build install
 	dh_testdir -i

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.4 2001/03/02 01:49:48 mdb Exp $
+// $Id: StringUtil.java,v 1.5 2001/03/02 02:34:37 mdb Exp $
 
 package com.samskivert.util;
 
@@ -130,8 +130,8 @@ public class StringUtil
     {
         char[] chars = new char[bytes.length*2];
 
-        for (int i = 0; i < chars.length; i++) {
-            int val = (int)chars[i];
+        for (int i = 0; i < bytes.length; i++) {
+            int val = (int)bytes[i];
             if (val < 0) {
 		val += 256;
 	    }

@@ -7,6 +7,7 @@
   <property name="doc.overview"     value="com/samskivert/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne"/>
   <property name="build.compiler"   value="jikes"/>
+  <property name="build.optimize"   value="on"/>
   <property name="java.libraries"   value="/usr/share/java"/>
 
   <!-- things you probably don't want to change -->
@@ -40,7 +41,7 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
-           debug="on" optimize="on" deprecation="off">
+           debug="on" optimize="${build.optimize}" deprecation="off">
       <classpath refid="classpath"/>
     </javac>
   </target>

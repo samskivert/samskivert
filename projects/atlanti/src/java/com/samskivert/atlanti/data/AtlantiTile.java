@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.6 2001/10/16 09:31:46 mdb Exp $
+// $Id: AtlantiTile.java,v 1.7 2001/10/16 17:12:32 mdb Exp $
 
 package com.threerings.venison;
 
@@ -68,11 +68,8 @@ public class VenisonTile
         this.x = x;
         this.y = y;
 
-        // grab a reference to our feature information
-        features = TileUtil.TILE_FEATURES[type-1];
-
-        // create our claims array
-        claims = new int[features.length/2];
+        // initialize our feature info
+        initFeatures();
     }
 
     /**
@@ -251,6 +248,26 @@ public class VenisonTile
         orientation = in.readInt();
         x = in.readInt();
         y = in.readInt();
+        initFeatures();
+    }
+
+    /**
+     * Initializes this tile's feature management data structures.
+     */
+    protected void initFeatures ()
+    {
+        if (type > 0) {
+            // grab a reference to our feature information
+            features = TileUtil.TILE_FEATURES[type-1];
+
+            // create our claims array
+            claims = new int[features.length/2];
+
+        } else {
+            Log.warning("Requested to init features without valid type " +
+                        this + ".");
+            Thread.dumpStack();
+        }
     }
 
     /**

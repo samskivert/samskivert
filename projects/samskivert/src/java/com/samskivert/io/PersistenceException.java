@@ -1,5 +1,5 @@
 //
-// $Id: PersistenceException.java,v 1.3 2002/04/01 01:57:03 mdb Exp $
+// $Id: PersistenceException.java,v 1.4 2003/03/17 23:01:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,8 +20,6 @@
 
 package com.samskivert.io;
 
-import org.apache.commons.lang.exception.NestableException;
-
 /**
  * A persistence exception can be thrown when an error occurs in
  * underlying persistence code. By encapsulating errors, one retains the
@@ -29,7 +27,7 @@ import org.apache.commons.lang.exception.NestableException;
  * affecting the interface to persistence services presented to the
  * application.
  */
-public class PersistenceException extends NestableException
+public class PersistenceException extends Exception
 {
     /**
      * Constructs a persistence exception with the specified error
@@ -46,7 +44,8 @@ public class PersistenceException extends NestableException
      */
     public PersistenceException (String message, Exception cause)
     {
-        super(message, cause);
+        super(message);
+        initCause(cause);
     }
 
     /**
@@ -55,6 +54,6 @@ public class PersistenceException extends NestableException
      */
     public PersistenceException (Exception cause)
     {
-        super(cause);
+        initCause(cause);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ServiceUnavailableException.java,v 1.2 2002/04/01 01:57:03 mdb Exp $
+// $Id: ServiceUnavailableException.java,v 1.3 2003/03/17 23:01:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,8 +20,6 @@
 
 package com.samskivert.util;
 
-import org.apache.commons.lang.exception.NestableRuntimeException;
-
 /**
  * The service unavailable exception can be thrown by any service that
  * relies on some other services which is currently not available. If a
@@ -36,7 +34,7 @@ import org.apache.commons.lang.exception.NestableRuntimeException;
  * class of error recovery as if our service threw a
  * <code>NullPointerException</code>).
  */
-public class ServiceUnavailableException extends NestableRuntimeException
+public class ServiceUnavailableException extends RuntimeException
 {
     /**
      * Constructs a service unavailable exception with the specified error
@@ -53,7 +51,8 @@ public class ServiceUnavailableException extends NestableRuntimeException
      */
     public ServiceUnavailableException (String message, Exception cause)
     {
-        super(message, cause);
+        super(message);
+        initCause(cause);
     }
 
     /**
@@ -62,6 +61,6 @@ public class ServiceUnavailableException extends NestableRuntimeException
      */
     public ServiceUnavailableException (Exception cause)
     {
-        super(cause);
+        initCause(cause);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: NestableIOException.java,v 1.2 2002/04/01 01:57:03 mdb Exp $
+// $Id: NestableIOException.java,v 1.3 2003/03/17 23:01:37 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,37 +24,12 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.IOException;
 
-import org.apache.commons.lang.exception.Nestable;
-import org.apache.commons.lang.exception.NestableDelegate;
-
 /**
- * A base class for IO exceptions that can contain other exceptions.
- *
- * @see org.apache.commons.lang.exception.NestableException
+ * A convenience class for creating IO exceptions that are caused by other
+ * exceptions.
  */
-public class NestableIOException
-    extends IOException
-    implements Nestable
+public class NestableIOException extends IOException
 {
-    /**
-     * Constructs a new <code>NestableIOException</code> without specified
-     * detail message.
-     */
-    public NestableIOException ()
-    {
-    }
-
-    /**
-     * Constructs a new <code>NestableIOException</code> with specified
-     * detail message.
-     *
-     * @param msg the error message.
-     */
-    public NestableIOException (String msg)
-    {
-        super(msg);
-    }
-
     /**
      * Constructs a new <code>NestableIOException</code> with specified
      * nested <code>Throwable</code>.
@@ -64,8 +39,7 @@ public class NestableIOException
      */
     public NestableIOException (Throwable cause)
     {
-        super();
-        _cause = cause;
+        initCause(cause);
     }
 
     /**
@@ -79,101 +53,6 @@ public class NestableIOException
     public NestableIOException (String msg, Throwable cause)
     {
         super(msg);
-        _cause = cause;
+        initCause(cause);
     }
-
-    /**
-     * Returns the nested exception.
-     *
-     * @see Nestable#getCause
-     */
-    public Throwable getCause ()
-    {
-        return _cause;
-    }
-
-    /**
-     * Concatenates this exception's message with that of the nested
-     * exception and returns it.
-     *
-     * @see Nestable#getMessage
-     */
-    public String getMessage ()
-    {
-        StringBuffer msg = new StringBuffer();
-        String ourMsg = super.getMessage();
-
-        // add our message (if there is one)
-        if (ourMsg != null) {
-            msg.append(ourMsg);
-        }
-
-        // add our cause's message (if there is one)
-        if (_cause != null) {
-            String causeMsg = _cause.getMessage();
-            if (causeMsg != null) {
-                if (ourMsg != null) {
-                    msg.append(": ");
-                }
-                msg.append(causeMsg);
-            }
-        }
-
-        return (msg.length() > 0 ? msg.toString() : null);
-    }
-
-    /**
-     * Prints the stack trace of this exception (and the nested exception)
-     * the the standard error stream.
-     *
-     * @see Nestable#printStackTrace()
-     */
-    public void printStackTrace ()
-    {
-        _delegate.printStackTrace();
-    }
-
-    /**
-     * Prints the stack trace of this exception (and the nested exception)
-     * to the specified print stream.
-     *
-     * @param out <code>PrintStream</code> to use for output.
-     *
-     * @see Nestable#printStackTrace(PrintStream)
-     */
-    public void printStackTrace (PrintStream out)
-    {
-        _delegate.printStackTrace(out);
-    }
-
-    /**
-     * Prints the stack trace of this exception (and the nested exception)
-     * to the specified print writer.
-     *
-     * @param out <code>PrintWriter</code> to use for output.
-     *
-     * @see Nestable#printStackTrace(PrintWriter)
-     */
-    public void printStackTrace (PrintWriter out)
-    {
-        _delegate.printStackTrace(out);
-    }
-
-    /**
-     * Prints the stack trace only of the enclosing exception.
-     *
-     * @see Nestable#printPartialStackTrace(PrintWriter)
-     */
-    public final void printPartialStackTrace (PrintWriter out)
-    {
-        super.printStackTrace(out);
-    }
-
-    /** The helper instance which contains much of the code to which we
-     * delegate. */
-    protected NestableDelegate _delegate = new NestableDelegate(this);
-
-    /** Holds the reference to the exception or error that caused this
-     * exception to be thrown. */
-    protected Throwable _cause = null;
 }

@@ -220,11 +220,34 @@ public class JDBCUtil
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             String cname = rs.getString("COLUMN_NAME");
+
             if (tname.equals(table) && cname.equals(column)) {
                 matched = true;
             }
         }
         return matched;
+    }
+
+    /**
+     * Returns the name of the index for the specified column in the
+     * specified table.
+     */
+    public static String getIndexName (Connection conn, String table,
+                                       String column)
+        throws SQLException
+    {
+        boolean matched = false;
+        ResultSet rs = conn.getMetaData().getIndexInfo("", "", table, false,
+                                                       true);
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            String cname = rs.getString("COLUMN_NAME");
+            String iname = rs.getString("INDEX_NAME");
+            if (tname.equals(table) && cname.equals(column)) {
+                return iname;
+            }
+        }
+        return null;
     }
 
     /**
@@ -257,21 +280,12 @@ public class JDBCUtil
     }
 
     /**
-     * Adds an index on the specified column (cname) to the specified
-     * table.  The index is named after the column.
+     * Removes a named index from the specified table.
      */
-    public static void addIndexToTable (Connection conn, String table,
-                                        String cname)
+    public static void dropIndex (Connection conn, String table, String iname)
         throws SQLException
     {
-        if (JDBCUtil.tableContainsIndex(conn, table, cname)) {
-            Log.info("Database table '" + table + "' already has an index on " +
-                     "column '" + cname + "'.");
-            return;
-        }
-
-        String update = "CREATE INDEX " + cname + " on " + table + "(" + cname +
-            ")";
+        String update = "ALTER TABLE " + table + " DROP INDEX " + iname;
 
         PreparedStatement stmt = null;
         try {
@@ -281,7 +295,39 @@ public class JDBCUtil
             close(stmt);
         }
 
-        Log.info("Database index '" + cname + "' added to table '" + table +
+        Log.info("Database index '" + iname + "' removed from table '" + table +
+                 "'.");
+    }
+
+    /**
+     * Adds an index on the specified column (cname) to the specified
+     * table.  Optionally supply an index name, otherwise the index is
+     * named after the column.
+     */
+    public static void addIndexToTable (Connection conn, String table,
+                                        String cname, String iname)
+        throws SQLException
+    {
+        if (JDBCUtil.tableContainsIndex(conn, table, cname)) {
+            Log.info("Database table '" + table + "' already has an index on " +
+                     "column '" + cname + "'.");
+            return;
+        }
+
+        String idx_name = (iname != null ? iname : cname);
+        String update = "CREATE INDEX " + idx_name + " on " + table + "(" +
+            cname + ")";
+
+        Log.warning("index: " + update);
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(update);
+            stmt.executeUpdate();
+        } finally {
+            close(stmt);
+        }
+
+        Log.info("Database index '" + idx_name + "' added to table '" + table +
                  "'");
     }
 }

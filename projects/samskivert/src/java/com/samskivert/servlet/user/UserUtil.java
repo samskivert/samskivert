@@ -1,5 +1,5 @@
 //
-// $Id: UserUtil.java,v 1.8 2002/11/01 00:33:48 mdb Exp $
+// $Id: UserUtil.java,v 1.9 2003/07/20 01:43:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -41,6 +41,16 @@ public class UserUtil
 
 	// and MD5 hash it
         return StringUtil.md5hex(buf.toString());
+    }
+
+    /**
+     * Encrypts the supplied username and password and returns the value
+     * that would be stored in the user record were the password to be
+     * updated via {@link User#setPassword}.
+     */
+    public static String encryptPassword (String username, String password)
+    {
+        return encryptPassword(username, password, true);
     }
 
     /**

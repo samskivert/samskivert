@@ -1,5 +1,5 @@
 //
-// $Id: User.java,v 1.8 2002/11/01 00:33:48 mdb Exp $
+// $Id: User.java,v 1.9 2003/07/20 01:43:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -76,7 +76,7 @@ public class User
      */
     public void setPassword (String password)
     {
-	this.password = UserUtil.encryptPassword(username, password, true);
+	this.password = UserUtil.encryptPassword(username, password);
         _dirty.setModified("password");
     }
 
@@ -90,20 +90,20 @@ public class User
     }
 
     /**
-     * Compares the supplied password with the password associated with
-     * this user record.
+     * Compares the supplied (unencrypted) password with the password
+     * associated with this user record.
      *
      * @return true if the passwords match, false if they do not.
      */
     public boolean passwordsMatch (String password)
     {
-	String epasswd1 = UserUtil.encryptPassword(username, password, true);
-	String epasswd2 = UserUtil.encryptPassword(username, password, false);
+	String epasswd = UserUtil.encryptPassword(username, password);
+	String oldpasswd = UserUtil.encryptPassword(username, password, false);
         // because we used to be case sensitive, we have to check both
         // versions of the encrypted password here for backward
         // compatibility
-	return (this.password.equals(epasswd1) ||
-                this.password.equals(epasswd2));
+	return (this.password.equals(epasswd) ||
+                this.password.equals(oldpasswd));
     }
 
     /**

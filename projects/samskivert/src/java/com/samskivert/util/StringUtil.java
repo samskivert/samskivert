@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.10 2001/08/11 22:43:29 mdb Exp $
+// $Id: StringUtil.java,v 1.11 2001/08/15 21:50:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 /**
@@ -72,8 +74,15 @@ public class StringUtil
      * </pre>
      *
      * Arrays of ints, longs, floats and doubles are also handled for
-     * convenience. Also note that passing null will result in the string
-     * "null" being returned.
+     * convenience.
+     *
+     * <p> Additionally, <code>Enumeration</code> or <code>Iterator</code>
+     * objects can be passed and they will be enumerated and output in a
+     * similar manner to arrays. Bear in mind that this uses up the
+     * enumeration or iterator in question.
+     *
+     * <p> Also note that passing null will result in the string "null"
+     * being returned.
      */
     public static String toString (Object val)
     {
@@ -84,8 +93,8 @@ public class StringUtil
 
     /**
      * Converts the supplied value to a string and appends it to the
-     * supplied string buffer. See the single argument
-     * version for more information.
+     * supplied string buffer. See the single argument version for more
+     * information.
      *
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.
@@ -144,6 +153,28 @@ public class StringUtil
 		    buf.append(", ");
 		}
 		buf.append(toString(v[i]));
+	    }
+	    buf.append(")");
+
+	} else if (val instanceof Enumeration) {
+	    buf.append("(");
+            Enumeration enum = (Enumeration)val;
+	    for (int i = 0; enum.hasMoreElements(); i++) {
+		if (i > 0) {
+		    buf.append(", ");
+		}
+		buf.append(toString(enum.nextElement()));
+	    }
+	    buf.append(")");
+
+	} else if (val instanceof Iterator) {
+	    buf.append("(");
+            Iterator iter = (Iterator)val;
+	    for (int i = 0; iter.hasNext(); i++) {
+		if (i > 0) {
+		    buf.append(", ");
+		}
+		buf.append(toString(iter.next()));
 	    }
 	    buf.append(")");
 

@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.47 2002/11/26 09:16:53 mdb Exp $
+// $Id: StringUtil.java,v 1.48 2002/12/02 22:59:26 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -26,8 +26,6 @@ import java.awt.geom.Rectangle2D;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
-import java.net.InetAddress;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -306,17 +304,6 @@ public class StringUtil
             buf.append(r.getWidth()).append("x").append(r.getHeight());
             coordsToString(buf, (int)r.getX(), (int)r.getY());
             buf.append(closeBox);
-
-	} else if (val instanceof InetAddress) {
-            byte[] ip = ((InetAddress)val).getAddress();
-            if (ip != null) {
-                buf.append(ip[0]).append(".");
-                buf.append(ip[1]).append(".");
-                buf.append(ip[2]).append(".");
-                buf.append(ip[3]);
-            } else {
-                buf.append("<no addr>");
-            }
 
 	} else {
 	    buf.append(val);

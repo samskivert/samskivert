@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.19 2003/07/29 23:51:37 mdb Exp $
+// $Id: SortableArrayList.java,v 1.20 2003/07/30 20:02:49 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -219,7 +219,9 @@ public class SortableArrayList extends AbstractList
     public Object remove (int index)
     {
         rangeCheck(index, false);
-        return ListUtil.remove(_elements, index);
+        Object oval = ListUtil.remove(_elements, index);
+        _size--;
+        return oval;
     }
 
     // documentation inherited from interface

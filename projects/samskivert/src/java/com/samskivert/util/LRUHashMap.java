@@ -1,5 +1,5 @@
 //
-// $Id: LRUHashMap.java,v 1.6 2003/06/05 18:02:24 ray Exp $
+// $Id: LRUHashMap.java,v 1.7 2003/06/05 18:18:12 ray Exp $
 
 package com.samskivert.util;
 
@@ -196,7 +196,7 @@ public class LRUHashMap implements Map
         if (_size > _maxSize) {
             // This works because the entrySet iterator of a LinkedHashMap
             // returns the entries in LRU order
-            Iterator iter = entrySet().iterator();
+            Iterator iter = _delegate.entrySet().iterator();
             // don't remove the last entry, even if it's too big, because
             // a cache with nothing in it sucks
             for (int ii=size(); (ii > 1) && (_size > _maxSize); ii--) {

@@ -68,11 +68,6 @@
     <echo message="----------------------------------------------"/>
     <echo message="Jakarta libraries - http://jakarta.apache.org/"/>
     <echo message="----------------------------------------------"/>
-    <available property="jakarta.commons-lang.present"
-     classname="org.apache.commons.lang.exception.NestableException"
-     classpathref="classpath"/>
-    <echo message="Commons Lang: ${jakarta.commons-lang.present}"/>
-
     <available property="jakarta.commons-collections.present"
      classname="org.apache.commons.collections.FilterIterator"
      classpathref="classpath"/>
@@ -109,15 +104,11 @@
     <echo message="more of its dependencies could not be located."/>
 
     <echo message=""/>
-    <condition property="build.util">
-      <isset property="jakarta.commons-lang.present"/>
-    </condition>
-    <echo message="com.samskivert.util: ${build.util}"/>
+    <property name="build.util" value="true"/>
+    <!--<echo message="com.samskivert.util: ${build.util}"/>-->
 
-    <condition property="build.io">
-      <isset property="jakarta.commons-lang.present"/>
-    </condition>
-    <echo message="com.samskivert.io: ${build.io}"/>
+    <property name="build.io" value="true"/>
+    <!--<echo message="com.samskivert.io: ${build.io}"/>-->
 
     <condition property="build.jdbc">
       <and>
@@ -125,7 +116,7 @@
         <isset property="build.util"/>
       </and>
     </condition>
-    <echo message="com.samskivert.jdbc: ${build.jdbc}"/>
+    <!--<echo message="com.samskivert.jdbc: ${build.jdbc}"/>-->
 
     <condition property="build.net">
       <and>

@@ -1,5 +1,5 @@
 //
-// $Id: Task.java,v 1.5 2002/11/12 22:32:02 mdb Exp $
+// $Id: Task.java,v 1.6 2003/12/10 19:12:31 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -54,11 +54,11 @@ public class Task
         } else if (priority > 15) {
             return "Next release";
         } else if (priority > 10) {
-            return "Soon";
+            return "Near term";
         } else if (priority > 5) {
-            return "Before launch";
+            return "Medium term";
         } else if (priority > 1) {
-            return "Post launch";
+            return "Long term";
         } else {
             return "On the list";
         }

@@ -101,12 +101,12 @@ $form.text("category", "size='10'", "")
 
 <td>Priority:<br>
 <select name="priority">
-  $form.option("priority", "50", "Urgent", "15")
-  $form.option("priority", "25", "Next release", "15")
-  $form.option("priority", "15", "Soon", "15")
-  $form.option("priority", "10", "Before launch", "15")
-  $form.option("priority", "5", "Post launch", "15")
-  $form.option("priority", "1", "On the list", "15")
+  $form.option("priority", "50", "Urgent", "5")
+  $form.option("priority", "25", "Next release", "5")
+  $form.option("priority", "15", "Near term", "5")
+  $form.option("priority", "10", "Medium term", "5")
+  $form.option("priority", "5", "Long term", "5")
+  $form.option("priority", "1", "On the list", "5")
 </select>
 </td></tr>
 

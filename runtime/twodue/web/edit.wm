@@ -53,9 +53,9 @@ $form.text("creator", "size='10'", $task.creator)
 <select name="priority">
   $form.option("priority", "50", "Urgent", $string.valueOf($task.priority))
   $form.option("priority", "25", "Next release", $string.valueOf($task.priority))
-  $form.option("priority", "15", "Soon", $string.valueOf($task.priority))
-  $form.option("priority", "10", "Before launch", $string.valueOf($task.priority))
-  $form.option("priority", "5", "Post launch", $string.valueOf($task.priority))
+  $form.option("priority", "15", "Near term", $string.valueOf($task.priority))
+  $form.option("priority", "10", "Medium term", $string.valueOf($task.priority))
+  $form.option("priority", "5", "Long term", $string.valueOf($task.priority))
   $form.option("priority", "1", "On the list", $string.valueOf($task.priority))
 </select>
 </td></tr>

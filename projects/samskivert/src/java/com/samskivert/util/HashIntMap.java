@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.7 2001/12/16 23:10:15 mdb Exp $
+// $Id: HashIntMap.java,v 1.8 2002/05/23 23:24:08 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -47,12 +47,31 @@ public class HashIntMap
     public final static int DEFAULT_BUCKETS = 64;
 
     /**
+     * The default load factor.
+     */
+    public final static float DEFAULT_LOAD_FACTOR = 1.75f;
+
+    /**
+     * The shrink factor.
+     * When the number of elements multiplied by this number is less
+     * than the size of the array, we shrink the array by half.
+     */
+    protected static final int SHRINK_FACTOR = 8;
+
+    /**
      * Constructs an empty hash int map with the specified number of hash
      * buckets.
      */
-    public HashIntMap (int buckets)
+    public HashIntMap (int buckets, float loadFactor)
     {
-	_buckets = new Record[buckets];
+        // force the capacity to be a power of 2
+        int capacity = 1;
+        while (capacity < buckets) {
+            capacity <<= 1;
+        }
+
+        _buckets = new Record[capacity];
+        _loadFactor = loadFactor;
     }
 
     /**
@@ -61,13 +80,13 @@ public class HashIntMap
      */
     public HashIntMap ()
     {
-	this(DEFAULT_BUCKETS);
+        this(DEFAULT_BUCKETS, DEFAULT_LOAD_FACTOR);
     }
 
     // documentation inherited
     public int size ()
     {
-	return _size;
+        return _size;
     }
 
     // documentation inherited
@@ -79,7 +98,7 @@ public class HashIntMap
     // documentation inherited
     public boolean containsKey (int key)
     {
-	return get(key) != null;
+        return get(key) != null;
     }
 
     // documentation inherited
@@ -104,13 +123,13 @@ public class HashIntMap
     // documentation inherited
     public Object get (int key)
     {
-	int index = Math.abs(key) % _buckets.length;
-	for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
-	    if (rec.key == key) {
-		return rec.value;
-	    }
-	}
-	return null;
+        int index = keyToIndex(key);
+        for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
+            if (rec.key == key) {
+                return rec.value;
+            }
+        }
+        return null;
     }
 
     // documentation inherited
@@ -127,30 +146,33 @@ public class HashIntMap
             throw new IllegalArgumentException();
         }
 
-	int index = Math.abs(key)%_buckets.length;
-	Record rec = _buckets[index];
+        // check to see if we've passed our load factor, if so: resize
+        checkGrow();
 
-	// either we start a new chain
-	if (rec == null) {
-	    _buckets[index] = new Record(key, value);
-	    _size++; // we're bigger
-	    return null;
-	}
+        int index = keyToIndex(key);
+        Record rec = _buckets[index];
 
-	// or we replace an element in an existing chain
-	Record prev = rec;
-	for (; rec != null; rec = rec.next) {
-	    if (rec.key == key) {
+        // either we start a new chain
+        if (rec == null) {
+            _buckets[index] = new Record(key, value);
+            _size++; // we're bigger
+            return null;
+        }
+
+        // or we replace an element in an existing chain
+        Record prev = rec;
+        for (; rec != null; rec = rec.next) {
+            if (rec.key == key) {
                 Object ovalue = rec.value;
-		rec.value = value; // we're not bigger
-		return ovalue;
-	    }
-	    prev = rec;
-	}
+                rec.value = value; // we're not bigger
+                return ovalue;
+            }
+            prev = rec;
+        }
 
-	// or we append it to this chain
-	prev.next = new Record(key, value);
-	_size++; // we're bigger
+        // or we append it to this chain
+        prev.next = new Record(key, value);
+        _size++; // we're bigger
         return null;
     }
 
@@ -159,47 +181,107 @@ public class HashIntMap
     {
         return remove(((Integer)key).intValue());
     }
-
+                
     // documentation inherited
     public Object remove (int key)
     {
-	int index = Math.abs(key) % _buckets.length;
-	Record rec = _buckets[index];
+        Object removed = removeImpl(key);
+        if (removed != null) {
+            checkShrink();
+        }
+        return removed;
+    }
 
-	// if there's no chain, there's no object
-	if (rec == null) {
-	    return null;
-	}
+    /**
+     * Remove an element with no checking to see if we should shrink.
+     */
+    protected Object removeImpl (int key)
+    {
+        int index = keyToIndex(key);
+        Record prev = null;
 
-	// maybe it's the first one in this chain
-	if (rec.key == key) {
-	    _buckets[index] = rec.next;
-	    _size--;
-	    return rec.value;
-	}
+        // go through the chain looking for a match
+        for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
+            if (rec.key == key) {
+                if (prev == null) {
+                    _buckets[index] = rec.next;
+                } else {
+                    prev.next = rec.next;
+                }
+                _size--;
+                return rec.value;
+            }
+            prev = rec;
+        }
 
-	// or maybe it's an element further down the chain
-	for (Record prev = rec; rec != null; rec = rec.next) {
-	    if (rec.key == key) {
-		prev.next = rec.next;
-		_size--;
-		return rec.value;
-	    }
-	    prev = rec;
-	}
-
-	return null;
+        return null;
     }
 
     // documentation inherited
     public void clear ()
     {
-	// abandon all of our hash chains (the joy of garbage collection)
-	for (int i = 0; i < _buckets.length; i++) {
-	    _buckets[i] = null;
-	}
-	// zero out our size
-	_size = 0;
+        // abandon all of our hash chains (the joy of garbage collection)
+        for (int i = 0; i < _buckets.length; i++) {
+            _buckets[i] = null;
+        }
+        // zero out our size
+        _size = 0;
+    }
+
+    /**
+     * Turn the specified key into an index.
+     */
+    protected final int keyToIndex (int key)
+    {
+        // multiply the key by -127 and take the low bits
+        return ((key - (key << 7)) & (_buckets.length - 1));
+    }
+
+    /**
+     * Check to see if we want to shrink the table.
+     */
+    protected void checkShrink ()
+    {
+        if ((_buckets.length > DEFAULT_BUCKETS) &&
+            (_size * SHRINK_FACTOR < _buckets.length)) {
+            resizeBuckets(_buckets.length >> 1);
+        }
+    }
+
+    /**
+     * Check to see if we want to grow the table.
+     */
+    protected void checkGrow ()
+    {
+        if (_size > (int) (_buckets.length * _loadFactor)) {
+            resizeBuckets(_buckets.length << 1);
+        }
+    }
+
+    /**
+     * Resize the hashtable.
+     *
+     * @param newsize MUST be a power of 2.
+     */
+    protected void resizeBuckets (int newsize)
+    {
+        Record[] oldbuckets = _buckets;
+        _buckets = new Record[newsize];
+
+        // we shuffle the records around without allocating new ones
+        int index = oldbuckets.length;
+        while (index-- > 0) {
+            Record oldrec = oldbuckets[index];
+            while (oldrec != null) {
+                Record newrec = oldrec;
+                oldrec = oldrec.next;
+
+                // always put the newrec at the start of a chain
+                int newdex = keyToIndex(newrec.key);
+                newrec.next = _buckets[newdex];
+                _buckets[newdex] = newrec;
+            }
+        }
     }
 
     // documentation inherited
@@ -268,7 +350,7 @@ public class HashIntMap
             }
 
             // remove the record the hard way
-            HashIntMap.this.remove(_last.key);
+            HashIntMap.this.removeImpl(_last.key);
             _last = null;
         }
 
@@ -300,11 +382,12 @@ public class HashIntMap
     private void writeObject (ObjectOutputStream s)
         throws IOException
     {
-	// write out number of buckets
-	s.writeInt(_buckets.length);
+        // write out number of buckets
+        s.writeInt(_buckets.length);
+        s.writeFloat(_loadFactor);
 
-	// write out size (number of mappings)
-	s.writeInt(_size);
+        // write out size (number of mappings)
+        s.writeInt(_size);
 
         // write out keys and values
         for (Iterator i = entrySet().iterator(); i.hasNext(); ) {
@@ -321,50 +404,51 @@ public class HashIntMap
     private void readObject (ObjectInputStream s)
          throws IOException, ClassNotFoundException
     {
-	// read in number of buckets and allocate the bucket array
+        // read in number of buckets and allocate the bucket array
         _buckets = new Record[s.readInt()];
+        _loadFactor = s.readFloat();
 
-	// read in size (number of mappings)
-	int size = s.readInt();
+        // read in size (number of mappings)
+        int size = s.readInt();
 
-	// read the keys and values
-	for (int i=0; i<size; i++) {
-	    int key = s.readInt();
-	    Object value = s.readObject();
-	    put(key, value);
-	}
+        // read the keys and values
+        for (int i=0; i<size; i++) {
+            int key = s.readInt();
+            Object value = s.readObject();
+            put(key, value);
+        }
     }
 
     protected static class Record implements Entry
     {
-	public Record next;
-	public int key;
-	public Object value;
+        public Record next;
+        public int key;
+        public Object value;
 
-	public Record (int key, Object value)
-	{
-	    this.key = key;
-	    this.value = value;
-	}
+        public Record (int key, Object value)
+        {
+            this.key = key;
+            this.value = value;
+        }
 
-	public Object getKey ()
+        public Object getKey ()
         {
             return new Integer(key);
         }
 
-	public Object getValue ()
+        public Object getValue ()
         {
             return value;
         }
 
-	public Object setValue (Object value)
+        public Object setValue (Object value)
         {
             Object ovalue = this.value;
             this.value = value;
             return ovalue;
         }
 
-	public boolean equals (Object o)
+        public boolean equals (Object o)
         {
             if (o instanceof Record) {
                 Record or = (Record)o;
@@ -374,7 +458,7 @@ public class HashIntMap
             }
         }
 
-	public int hashCode ()
+        public int hashCode ()
         {
             return key ^ ((value == null) ? 0 : value.hashCode());
         }
@@ -385,6 +469,7 @@ public class HashIntMap
         }
     }
 
-    private Record[] _buckets;
-    private int _size;
+    protected Record[] _buckets;
+    protected int _size;
+    protected float _loadFactor;
 }

@@ -345,7 +345,9 @@ public class FormTool
             buf.append(" ").append(extra);
         }
         buf.append(">");
-        buf.append(value);
+        if (value != null) {
+            buf.append(value);
+        }
         buf.append("</textarea>");
         return buf.toString();
     }

@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.17 2003/09/19 02:51:25 eric Exp $
+// $Id: UserManager.java,v 1.18 2003/10/06 22:50:28 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -30,6 +30,7 @@ import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.servlet.RedirectException;
+import com.samskivert.servlet.util.CookieUtil;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
@@ -172,7 +173,7 @@ public class UserManager
     public User loadUser (HttpServletRequest req)
 	throws PersistenceException
     {
-	String authcode = getAuthCode(req);
+	String authcode = CookieUtil.getCookieValue(req, USERAUTH_COOKIE);
 	if (authcode != null) {
 	    return _repository.loadUserBySession(authcode);
 	} else {
@@ -253,7 +254,7 @@ public class UserManager
 
     public void logout (HttpServletRequest req, HttpServletResponse rsp)
     {
-	String authcode = getAuthCode(req);
+	String authcode = CookieUtil.getCookieValue(req, USERAUTH_COOKIE);
 
 	// nothing to do if they don't already have an auth cookie
 	if (authcode == null) {
@@ -265,20 +266,6 @@ public class UserManager
 	rmcookie.setPath("/");
 	rmcookie.setMaxAge(0);
 	rsp.addCookie(rmcookie);
-    }
-
-    protected static String getAuthCode (HttpServletRequest req)
-    {
-	Cookie[] cookies = req.getCookies();
-	if (cookies == null) {
-	    return null;
-	}
-	for (int i = 0; i < cookies.length; i++) {
-	    if (cookies[i].getName().equals(USERAUTH_COOKIE)) {
-		return cookies[i].getValue();
-	    }
-	}
-	return null;
     }
 
     /** The user repository. */

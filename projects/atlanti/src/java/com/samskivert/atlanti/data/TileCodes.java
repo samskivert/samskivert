@@ -1,0 +1,99 @@
+//
+// $Id: TileCodes.java,v 1.1 2001/10/10 03:35:02 mdb Exp $
+
+package com.threerings.venison;
+
+/**
+ * A repository for constants related to the tiles that are used in the
+ * game of Venison.
+ */
+public interface VenisonTileCodes
+{
+    /** A four-sided city tile. */
+    public static final int CITY_FOUR = 1;
+
+    /** A three-sided city tile. */
+    public static final int CITY_THREE = 2;
+
+    /** A three-sided city tile with a road. */
+    public static final int CITY_THREE_ROAD = 3;
+
+    /** A two-sided city tile with city openings adjacent to one
+     * another. */
+    public static final int CITY_TWO = 4;
+
+    /** A two-sided city tile with city openings adjacent to one another
+     * and a road connecting the other two sides. */
+    public static final int CITY_TWO_ROAD = 5;
+
+    /** A two-sided city tile with city openings on opposite sides of the
+     * tile. */
+    public static final int CITY_TWO_ACROSS = 6;
+
+    /** A two-sided city tile with two separate city arcs adjacent to one
+     * another and not connected to each other. */
+    public static final int DISCONNECTED_CITY_TWO = 7;
+
+    /** A two-sided city tile with two separate city arcs on opposite
+     * sides of the tile. */
+    public static final int DISCONNECTED_CITY_TWO_ACROSS = 8;
+
+    /** A one-sided city tile. */
+    public static final int CITY_ONE = 9;
+
+    /** A one-sided city tile with a city arc on top and a right facing
+     * curved road segment beneath it. */
+    public static final int CITY_ONE_ROAD_RIGHT = 10;
+
+    /** A one-sided city tile with a city arc on top and a left facing
+     * curved road segment beneath it. */
+    public static final int CITY_ONE_ROAD_LEFT = 11;
+
+    /** A one-sided city tile with a city arc on top and a road tee
+     * beneath it. */
+    public static final int CITY_ONE_ROAD_TEE = 12;
+
+    /** A one-sided city tile with a city arc on top and straight road
+     * segment beneath it. */
+    public static final int CITY_ONE_ROAD_STRAIGHT = 13;
+
+    /** A cloister tile. */
+    public static final int CLOISTER = 14;
+
+    /** A cloister tile with a road extending from the cloister. */
+    public static final int CLOISTER_ROAD = 15;
+
+    /** A four-way road intersection. */
+    public static final int FOUR_WAY_ROAD = 16;
+
+    /** A three-way road intersection. */
+    public static final int THREE_WAY_ROAD = 17;
+
+    /** A straight road segment. */
+    public static final int STRAIGHT_ROAD = 18;
+
+    /** A curved road segment. */
+    public static final int CURVED_ROAD = 19;
+
+    /** A tile orientation constant indicating the tile is in its default
+     * orientation. */
+    public static final int NORTH = 0;
+
+    /** A tile orientation constant indicating the tile is rotated 90
+     * degrees clockwise from its default orientation. */
+    public static final int EAST = 1;
+
+    /** A tile orientation constant indicating the tile is rotated 180
+     * degrees clockwise from its default orientation. */
+    public static final int SOUTH = 2;
+
+    /** A tile orientation constant indicating the tile is rotated 270
+     * degrees clockwise from its default orientation. */
+    public static final int WEST = 3;
+
+    /** The tile image width in pixels. */
+    public static int TILE_WIDTH = 90;
+
+    /** The tile image height in pixels. */
+    public static int TILE_HEIGHT = 90;
+}

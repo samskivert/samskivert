@@ -22,6 +22,8 @@ public class VenisonController extends GameController
 
     protected void gameDidStart ()
     {
+        super.gameDidStart();
+
         Log.info("Venison game did start.");
     }
 }

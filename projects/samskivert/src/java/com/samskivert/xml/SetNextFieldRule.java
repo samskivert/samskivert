@@ -48,8 +48,8 @@ public class SetNextFieldRule extends Rule
         Class pclass = parent.getClass();
 
 	if (digester.getLogger().isDebugEnabled()) {
-        digester.getLogger().debug("Set " + pclass.getName() + "." + _fieldName +
-                                   " = " + child);
+            digester.getLogger().debug("Set " + pclass.getName() + "." +
+                                       _fieldName + " = " + child);
         }
 
         // stuff the child object into the field of the parent

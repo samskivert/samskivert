@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.24 2002/02/03 02:11:09 mdb Exp $
+// $Id: StringUtil.java,v 1.25 2002/02/04 01:14:49 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -272,6 +272,23 @@ public class StringUtil
     public static String fieldsToString (Object object)
     {
         StringBuffer buf = new StringBuffer("[");
+        fieldsToString(buf, object);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * Appends to the supplied string buffer a representation of the
+     * supplied object by calling {@link #toString} on the contents of its
+     * public fields and prefixing that by the name of the fields. For
+     * example:
+     *
+     * <p><code>itemId=25, itemName=Elvis, itemCoords=(14, 25)</code>
+     *
+     * <p>Note: unlike the version of this method that returns a string,
+     * enclosing brackets are not included in the output of this method.
+     */
+    public static void fieldsToString (StringBuffer buf, Object object)
+    {
         Class clazz = object.getClass();
         Field[] fields = clazz.getFields();
 
@@ -294,8 +311,6 @@ public class StringUtil
                 buf.append("<error: " + e + ">");
             }
         }
-
-        return buf.append("]").toString();
     }
 
     /**

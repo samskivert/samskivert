@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.4 2002/03/08 02:40:02 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.5 2002/03/08 06:13:21 mdb Exp $
 
 package com.samskivert.util;
 
@@ -62,10 +62,10 @@ public class ValueMarshaller
             }
         });
 
-        // and integers
-        _parsers.put(Integer.class, new Parser() {
+        // and floats
+        _parsers.put(Float.TYPE, new Parser() {
             public Object parse (String source) throws Exception {
-                return Integer.valueOf(source);
+                return Float.valueOf(source);
             }
         });
 
@@ -73,6 +73,13 @@ public class ValueMarshaller
         _parsers.put(Boolean.TYPE, new Parser() {
             public Object parse (String source) throws Exception {
                 return Boolean.valueOf(source);
+            }
+        });
+
+        // and integers
+        _parsers.put(Integer.class, new Parser() {
+            public Object parse (String source) throws Exception {
+                return Integer.valueOf(source);
             }
         });
 

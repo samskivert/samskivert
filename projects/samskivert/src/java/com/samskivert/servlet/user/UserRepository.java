@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.4 2001/03/02 07:36:00 mdb Exp $
+// $Id: UserRepository.java,v 1.5 2001/03/02 07:39:32 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -282,7 +282,7 @@ public class UserRepository extends MySQLRepository
 	IntMap map = new IntMap();
 	Statement stmt = _session.connection.createStatement();
 	ResultSet rs = stmt.executeQuery("select userid, " + column +
-					 "from users " +
+					 " from users " +
 					 "where userid in (" + ids + ")");
 	while (rs.next()) {
 	    int userid = rs.getInt(1);

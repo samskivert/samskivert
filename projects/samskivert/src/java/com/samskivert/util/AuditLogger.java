@@ -1,5 +1,5 @@
 //
-// $Id: AuditLogger.java,v 1.2 2003/08/04 21:03:09 ray Exp $
+// $Id: AuditLogger.java,v 1.3 2003/09/12 02:31:14 ray Exp $
 
 package com.samskivert.util;
 
@@ -30,7 +30,15 @@ public class AuditLogger
      */
     public AuditLogger (File path, String filename)
     {
-        _logPath = new File(path, filename);
+        this(new File(path, filename));
+    }
+
+    /**
+     * Creates an audit logger that logs to the specified file.
+     */
+    public AuditLogger (File fullpath)
+    {
+        _logPath = fullpath;
         openLog(true);
 
         // update the day format

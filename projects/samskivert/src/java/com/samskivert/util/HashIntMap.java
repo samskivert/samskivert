@@ -1,5 +1,5 @@
 //
-// $Id: HashIntMap.java,v 1.10 2003/01/08 19:44:27 mdb Exp $
+// $Id: HashIntMap.java,v 1.11 2003/06/05 18:19:11 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -233,8 +233,13 @@ public class HashIntMap
      */
     protected final int keyToIndex (int key)
     {
-        // multiply the key by -127 and take the low bits
-        return ((key - (key << 7)) & (_buckets.length - 1));
+        // we lift the hash-fixing function from HashMap because Sun
+        // wasn't kind enough to make it public
+        key += ~(key << 9);
+        key ^=  (key >>> 14);
+        key +=  (key << 4);
+        key ^=  (key >>> 10);
+        return key & (_buckets.length - 1);
     }
 
     /**

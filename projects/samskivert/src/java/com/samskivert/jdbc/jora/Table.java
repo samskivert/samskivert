@@ -506,6 +506,16 @@ public class Table {
 	return nDeleted;
     }
 
+    /**
+     * Configures the table to convert mixed case Java fields
+     * (e.g. <code>locationId</code>) into underscore separated uppercase
+     * fields (e.g. <code>LOCATION_ID</code>).
+     */
+    public void setMixedCaseConvert (boolean mixedCaseConvert)
+    {
+        this.mixedCaseConvert = mixedCaseConvert;
+    }
+
     /** Spearator of name components of compound field. For example, if Java
      *  class constains component "location" of Point class, which
      *  has two components "x" and "y", then database table should
@@ -538,6 +548,8 @@ public class Table {
     protected String  listOfAssignments;
     protected Class   cls;
     protected Session session;
+
+    protected boolean mixedCaseConvert = false;
 
     static private Class serializableClass;
     private   FieldDescriptor[] fields;
@@ -681,7 +693,32 @@ public class Table {
 	    connectionID = s.connectionID;
         }
     }
-	    
+
+    private final String convertName (String name)
+    {
+        if (mixedCaseConvert) {
+            boolean seenLower = false;
+            StringBuffer nname = new StringBuffer();
+            int nlen = name.length();
+            for (int i = 0; i < nlen; i++) {
+                char c = name.charAt(i);
+                // if we see an upper case character and we've seen a lower
+                // case character since the last time we did so, slip in an _
+                if (Character.isUpperCase(c)) {
+                    nname.append("_");
+                    seenLower = false;
+                    nname.append(c);
+                } else {
+                    seenLower = true;
+                    nname.append(Character.toUpperCase(c));
+                }
+            }
+            return nname.toString();
+
+        } else {
+            return name;
+        }
+    }
 
     private final int buildFieldsList(Vector buf, Class cls, String prefix)
     {
@@ -711,7 +748,7 @@ public class Table {
 	    {
 		String name = f[i].getName();
 		Class fieldClass = f[i].getType();
-		String fullName = prefix + name;
+		String fullName = prefix + convertName(name);
 		FieldDescriptor fd = new FieldDescriptor(f[i], fullName);
 		int type;
 
@@ -744,7 +781,7 @@ public class Table {
 		    type = FieldDescriptor.tDecimal;
 		else if (c.equals("java.lang.String")) 
 		    type = FieldDescriptor.tString;
-		else if (c.equals("java.lang.[B"))      
+		else if (fieldClass.equals(BYTE_PROTO.getClass()))
   		    type = FieldDescriptor.tBytes;
 		else if (c.equals("java.sql.Date"))        
 		    type = FieldDescriptor.tDate;
@@ -989,4 +1026,7 @@ public class Table {
 	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
 	return column;
     }
+
+    // used to identify byte[] fields
+    private static final byte[] BYTE_PROTO = new byte[0];
 }

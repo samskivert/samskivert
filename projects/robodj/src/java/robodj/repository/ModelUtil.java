@@ -1,9 +1,7 @@
 //
-// $Id: ModelUtil.java,v 1.1 2001/06/07 08:37:47 mdb Exp $
+// $Id: ModelUtil.java,v 1.2 2001/07/26 00:24:22 mdb Exp $
 
-package robodj.chooser;
-
-import robodj.repository.*;
+package robodj.repository;
 
 /**
  * Some utility functions.

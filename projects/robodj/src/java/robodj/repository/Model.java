@@ -1,5 +1,5 @@
 //
-// $Id: Model.java,v 1.1 2001/06/07 08:37:47 mdb Exp $
+// $Id: Model.java,v 1.2 2001/07/26 00:24:22 mdb Exp $
 
 package robodj.repository;
 
@@ -95,6 +95,17 @@ public class Model
         Entry[] ents = new Entry[catlist.size()];
         catlist.toArray(ents);
         return ents;
+    }
+
+    /**
+     * Updates this entry in the repository. The structure of the entry
+     * should not have changed (number of songs), but the contents (title,
+     * artist, names) may have changed.
+     */
+    public void updateEntry (Entry entry)
+        throws SQLException
+    {
+        _rep.updateEntry(entry);
     }
 
     /**

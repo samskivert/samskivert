@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.4 2001/07/21 02:04:37 shaper Exp $
+// $Id: Chooser.java,v 1.5 2001/07/26 00:24:22 mdb Exp $
 
 package robodj.chooser;
 
@@ -78,7 +78,7 @@ public class Chooser
         // the screen and show it
 	ChooserFrame frame = new ChooserFrame();
 	frame.setSize(550, 500);
-	SwingUtil.centerFrame(frame);
+	SwingUtil.centerWindow(frame);
 	frame.setVisible(true);
     }
 }

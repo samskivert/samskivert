@@ -1,5 +1,5 @@
 //
-// $Id: Importer.java,v 1.5 2001/07/21 02:04:37 shaper Exp $
+// $Id: Importer.java,v 1.6 2001/07/26 00:24:22 mdb Exp $
 
 package robodj.importer;
 
@@ -61,7 +61,7 @@ public class Importer
 
         // center the frame in the screen and show it
 	frame.setSize(640, 480);
-	SwingUtil.centerFrame(frame);
+	SwingUtil.centerWindow(frame);
 	frame.setVisible(true);
     }
 }

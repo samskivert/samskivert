@@ -1,5 +1,5 @@
 //
-// $Id: ImporterFrame.java,v 1.4 2001/07/12 22:32:27 mdb Exp $
+// $Id: ImporterFrame.java,v 1.5 2001/07/26 00:24:22 mdb Exp $
 
 package robodj.importer;
 
@@ -68,12 +68,16 @@ public class ImporterFrame extends JFrame
 	abutton.setActionCommand(command);
 	abutton.addActionListener(target);
 	_buttonPanel.add(abutton);
+        // swing doesn't properly repaint after adding/removing children
+        _buttonPanel.repaint();
 	return abutton;
     }
 
     public void clearControlButtons ()
     {
 	_buttonPanel.removeAll();
+        // swing doesn't properly repaint after adding/removing children
+        _buttonPanel.repaint();
     }
 
     protected ImporterPanel _panel;

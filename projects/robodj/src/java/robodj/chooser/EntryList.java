@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.3 2001/07/12 23:06:55 mdb Exp $
+// $Id: EntryList.java,v 1.4 2001/07/26 00:24:22 mdb Exp $
 
 package robodj.chooser;
 
@@ -37,6 +37,8 @@ public class EntryList
 
         // put it into a scrolling pane
 	JScrollPane bscroll = new JScrollPane(_bpanel);
+        bscroll.setVerticalScrollBarPolicy(
+            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(bscroll);
 
         // add our navigation button
@@ -191,6 +193,10 @@ public class EntryList
         if (_entries.length == 0) {
             _bpanel.add(new JLabel("No entries in this category."));
         }
+
+        // we've removed and added components and swing won't properly
+        // repaint automatically
+        _bpanel.repaint();
     }
 
     protected void populateSong (Entry entry)
@@ -205,15 +211,29 @@ public class EntryList
         ((GroupLayout)_bpanel.getLayout()).setOffAxisPolicy(
             GroupLayout.NONE);
 
-        // create a combo box for the categories
+        // create a combo box and accoutrements for selecting the category
+	JPanel catPanel = new JPanel(new HGroupLayout(GroupLayout.STRETCH));
+	JLabel catLabel = new JLabel("Set category");
         JComboBox catcombo =
             new JComboBox(ModelUtil.catBoxNames(Chooser.model));
+
+        // configure the combo box
         catcombo.addActionListener(this);
         catcombo.setActionCommand("categorize");
         int catid = Chooser.model.getCategory(entry.entryid);
         int catidx = ModelUtil.getCategoryIndex(Chooser.model, catid);
         catcombo.setSelectedIndex(catidx+1);
-        _bpanel.add(catcombo);
+
+        // create an edit button
+        JButton ebtn = new JButton("Edit entry");
+        ebtn.setActionCommand("edit");
+        ebtn.addActionListener(this);
+
+        // wire it all up
+	catPanel.add(catLabel, GroupLayout.FIXED);
+	catPanel.add(catcombo);
+        catPanel.add(ebtn, GroupLayout.FIXED);
+	_bpanel.add(catPanel, GroupLayout.FIXED);
 
         // add a label for the title
         JLabel label = new JLabel(entry.title);
@@ -241,6 +261,10 @@ public class EntryList
             button.putClientProperty("song", entry.songs[i]);
             _bpanel.add(button);
         }
+
+        // we've removed and added components and swing won't properly
+        // repaint automatically
+        _bpanel.repaint();
     }
 
     public void actionPerformed (ActionEvent e)
@@ -267,6 +291,12 @@ public class EntryList
             // re-read the category beacuse this entry may have been
             // recategorized
             TaskMaster.invokeMethodTask("readEntries", this, this);
+
+        } else if (cmd.equals("edit")) {
+            EditDialog dialog = new EditDialog(_entry);
+            dialog.setSize(400, 400);
+            SwingUtil.centerWindow(dialog);
+            dialog.show();
 
         } else if (cmd.equals("categorize")) {
             JComboBox cb = (JComboBox)e.getSource();

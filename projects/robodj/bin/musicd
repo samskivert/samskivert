@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: musicd,v 1.4 2001/06/05 16:40:53 mdb Exp $
+# $Id: musicd,v 1.5 2001/06/05 16:52:55 mdb Exp $
 #
 # MP3 audio server. Manages playlists of mp3 files that live on a local
 # filesystem. The playlsits can be manipulated by connecting to the server
@@ -11,6 +11,9 @@ use IO::Socket;
 use IO::Select;
 use MPEG::MP3Play;
 use Data::Dumper;
+use Getopt::Long;
+
+my $usage = "Usage: $0 [--bind_addr x.x.x.x]\n";
 
 # this is what's currently being played
 my $playing;
@@ -21,12 +24,27 @@ my $index = -1;
 # this is our handle on the MP3 player object
 my $mp3;
 
+# get our options
+my $bind_addr; # bind address
+GetOptions("bind_addr:s" => \$bind_addr);
+
+# validate the bind address
+die $usage if (defined $bind_addr && $bind_addr !~ /\d+\.\d+\.\d+\.\d+/);
+
 main: {
     # create the server part of things
-    my $sock = new IO::Socket::INET(LocalPort => 2500,
-                                    Proto => "tcp",
-                                    Listen => SOMAXCONN,
-                                    Reuse => 1);
+    my $sock;
+    if (defined $bind_addr) {
+        $sock = new IO::Socket::INET(LocalHost => "$bind_addr:2500",
+                                     Proto => "tcp",
+                                     Listen => SOMAXCONN,
+                                     Reuse => 1);
+    } else {
+        $sock = new IO::Socket::INET(LocalPort => 2500,
+                                     Proto => "tcp",
+                                     Listen => SOMAXCONN,
+                                     Reuse => 1);
+    }
     $sock or die "Unable to create server socket: $!\n";
 
     # create our MP3 interface
@@ -180,7 +198,10 @@ package MPEG::MP3Play;
 sub msg_notify_player_state
 {
     my ($mp3, $msg) = @_;
-    print "state: " . Dumper($msg) . "\n";
+
+    # deeee-bug!
+    # print "state: " . Dumper($msg) . "\n";
+
     # play the next tune if we hit the end of this one
     if ($msg->{state} == &XA_PLAYER_STATE_EOF) {
       main::play_next_tune();

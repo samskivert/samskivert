@@ -1,5 +1,5 @@
 //
-// $Id: IntTuple.java,v 1.1 2001/10/15 18:08:47 mdb Exp $
+// $Id: IntTuple.java,v 1.2 2002/11/30 04:09:13 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -41,6 +41,29 @@ public class IntTuple
     /** Construct a blank tuple. */
     public IntTuple ()
     {
+    }
+
+    /**
+     * Returns the combined hashcode of the two elements.
+     */
+    public int hashCode ()
+    {
+        return left ^ right;
+    }
+
+    /**
+     * A tuple is equal to another tuple if the left and right elements
+     * are equal to the left and right elements (respectively) of the
+     * other tuple.
+     */
+    public boolean equals (Object other)
+    {
+        if (other instanceof IntTuple) {
+            IntTuple to = (IntTuple)other;
+            return (left == to.left && right == to.right);
+        } else {
+            return false;
+        }
     }
 
     public String toString ()

@@ -11,7 +11,7 @@
     <title>RoboDJ Chooser</title>
     <vendor>Seuss and Asseusciates</vendor>
     <homepage href="index.html"/>
-    <icon href="icon.png" width=64 height=64/>
+    <icon href="icon.png"/>
     <description kind="short">
       Music choosing fun for the whole family!
     </description>

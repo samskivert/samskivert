@@ -1,0 +1,26 @@
+viztool notes -*- mode: outline -*-
+
+* Driver enhancements
+Create a driver that loads parameters from a properties file. That file
+can specify what visualization to use, parameters for that visualization
+and overall parameters like packages to exclude, etc.
+
+Add support for regular expressions in the package inclusion and exclusion
+specifications.
+
+Move the package exclusion processing into the PackageEnumerator rather
+than the current hack of having the HierarchyVisualizer do it.
+
+* Inheritance visualization enhancements
+Lay chains out vertically rather than horizontally to achieve better
+density and a more aesthetic arrangement. This will probably require a
+searching algorithm to try to determine how tall to make each column to
+make best use of space.
+
+Provide the option to arrange packages in the order that allows them to
+fit most compactly on the page rather than visualizing them in
+alphabetical order and pushing a package to a new page when it doesn't fit
+in the remaining space on the current page.
+
+Provide an option to split packages up to fit them in the remaining space
+on a page rather than pushing them to the next page.

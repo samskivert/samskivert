@@ -34,6 +34,29 @@ following principles:
   sufficiently difficult to make usable in an arbitrary environment will
   not be used by SL and may be "reinvented".
 
+Building
+--------
+
+Building the library is very simple. First ensure that the necessary third
+party jar files are available either in the lib/ directory or in the
+system wide jar file location specified in build.xml. See lib/README for a
+list of the necessary third party jar files and how to get them.
+
+The library is built using ant, a modern build tool available from The
+Jakarta Project. If you aren't already using ant for other projects, it
+can be found here:
+
+  http://jakarta.apache.org/ant/
+
+Invoke ant with any of the following targets:
+
+  all: builds the class files and javadoc documentation
+  compile: builds only the class files (dist/classes)
+  javadoc: builds only the javadoc documentation (dist/docs)
+  dist: builds the distribution jar file (dist/samskivert.jar)
+
+Look at the build.xml file for configurable build parameters.
+
 Distribution
 ------------
 
@@ -57,4 +80,4 @@ Contact Information
 The person primarily responsible for SL is Michael Bayne and can be
 contacted at <mdb@samskivert.com>.
 
-$Id: README,v 1.6 2001/08/11 22:34:46 mdb Exp $
+$Id: README,v 1.7 2001/08/12 00:00:42 mdb Exp $

@@ -1194,6 +1194,31 @@ public class StringUtil
         return name.substring(didx+1);
     }
 
+    /**
+     * Converts a name of the form <code>weAreSoCool</code> to a name of
+     * the form <code>we_are_so_cool</code>.
+     */
+    public static String unStudlyName (String name)
+    {
+        boolean seenLower = false;
+        StringBuffer nname = new StringBuffer();
+        int nlen = name.length();
+        for (int i = 0; i < nlen; i++) {
+            char c = name.charAt(i);
+            // if we see an upper case character and we've seen a lower
+            // case character since the last time we did so, slip in an _
+            if (Character.isUpperCase(c)) {
+                nname.append("_");
+                seenLower = false;
+                nname.append(c);
+            } else {
+                seenLower = true;
+                nname.append(Character.toUpperCase(c));
+            }
+        }
+        return nname.toString();
+    }
+
     private final static String XLATE = "0123456789abcdef";
 
     /** Used to easily format floats with sensible defaults. */

@@ -15,6 +15,9 @@ clean:
 
 	dh_clean
 
+build:
+	# Nothing to do here
+
 # Build architecture-independent files here.
 binary-indep:
 #	dh_testversion
@@ -46,4 +49,4 @@ binary-indep:
 
 binary: binary-indep
 
-.PHONY: clean binary-indep binary
+.PHONY: clean build binary-indep binary

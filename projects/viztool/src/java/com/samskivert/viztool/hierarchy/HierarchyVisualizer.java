@@ -1,5 +1,5 @@
 //
-// $Id: HierarchyVisualizer.java,v 1.5 2001/07/17 05:23:49 mdb Exp $
+// $Id: HierarchyVisualizer.java,v 1.6 2001/07/17 05:28:46 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -79,10 +79,6 @@ public class HierarchyVisualizer implements Printable
 
         // adjust the stroke
         gfx.setStroke(new BasicStroke(0.1f));
-
-        // and the font
-        Font font = new Font("Courier", Font.PLAIN, 8);
-        gfx.setFont(font);
 
         // only relay things out if the page format has changed
         if (!pf.equals(_format)) {

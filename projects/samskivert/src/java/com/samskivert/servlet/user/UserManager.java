@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.4 2001/03/02 07:35:39 mdb Exp $
+// $Id: UserManager.java,v 1.5 2001/05/26 04:37:35 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -150,9 +150,14 @@ public class UserManager
      * response object. If invalid authentication information is provided
      * or some other error occurs, an exception will be thrown.
      *
+     * @param username The username supplied by the user.
+     * @param password The plaintext password supplied by the user.
+     * @param persist If true, the cookie will expire in one month, if
+     * false, the cookie will expire in 24 hours.
+     *
      * @return the user object of the authenticated user.
      */
-    public User login (String username, String password,
+    public User login (String username, String password, boolean persist,
 		       HttpServletResponse rsp)
 	throws SQLException, NoSuchUserException, InvalidPasswordException
     {
@@ -166,11 +171,15 @@ public class UserManager
 	}
 
 	// generate a new session for this user
-	String authcode = _repository.createNewSession(user);
+	String authcode = _repository.createNewSession(user, persist);
 	// stick it into a cookie for their browsing convenience
 	Cookie acookie = new Cookie(USERAUTH_COOKIE, authcode);
 	acookie.setPath("/");
-	acookie.setMaxAge(24*60*60); // expire in two days
+        if (persist) {
+            acookie.setMaxAge(30*24*60*60); // expire in one month
+        } else {
+            acookie.setMaxAge(24*60*60); // expire in 24 hours
+        }
 	rsp.addCookie(acookie);
 
 	return user;

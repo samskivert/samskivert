@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.7 2001/05/26 03:23:22 mdb Exp $
+// $Id: UserRepository.java,v 1.8 2001/05/26 04:37:35 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -207,20 +207,21 @@ public class UserRepository extends MySQLRepository
 
     /**
      * Creates a new session for the specified user and returns the
-     * randomly generated session identifier for that session. Sessions
-     * are set to expire in two days which prevents someone from being
-     * screwed if they log in at 11:59pm, but also prevents them from
-     * leaving their browser authenticated for too long.
+     * randomly generated session identifier for that session. Temporary
+     * sessions are set to expire in two days which prevents someone from
+     * being screwed if they log in at 11:59pm, but also prevents them
+     * from leaving their browser authenticated for too long. Persistent
+     * sessions expire after one month.
      */
-    public String createNewSession (final User user)
+    public String createNewSession (final User user, boolean persist)
 	throws SQLException
     {
 	// generate a random session identifier
 	final String authcode = UserUtil.genAuthCode(user);
 
-	// figure out what 48 hours from now is
+	// figure out when to expire the session
 	Calendar cal = Calendar.getInstance();
-	cal.add(Calendar.DATE, 2);
+	cal.add(Calendar.DATE, persist ? 30 : 2);
 	final Date expires = new Date(cal.getTime().getTime());
 
 	// insert the session into the database
@@ -248,7 +249,7 @@ public class UserRepository extends MySQLRepository
 	    public void invoke () throws SQLException
 	    {
 		_session.execute("delete from sessions where " +
-				 "expires >= CURRENT_DATE()");
+				 "expires <= CURRENT_DATE()");
 	    }
 	});
     }

@@ -1,5 +1,5 @@
 //
-// $Id: IntIntMap.java,v 1.6 2003/03/18 19:50:49 ray Exp $
+// $Id: IntIntMap.java,v 1.7 2003/06/25 22:03:55 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -173,6 +173,22 @@ public class IntIntMap
     public int[] getValues ()
     {
         return toIntArray(false);
+    }
+
+    /**
+     * Returns a string representation of this instance.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer("[");
+        int[] keys = getKeys();
+        for (int ii = 0; ii < keys.length; ii++) {
+            if (ii > 0) {
+                buf.append(", ");
+            }
+            buf.append(keys[ii]).append("->").append(get(keys[ii]));
+        }
+        return buf.append("]").toString();
     }
 
     protected int[] toIntArray (boolean keys)

@@ -1,5 +1,5 @@
 //
-// $Id: ToolTipManager.java,v 1.3 2001/08/28 23:51:48 shaper Exp $
+// $Id: ToolTipManager.java,v 1.4 2001/08/30 21:17:33 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -42,7 +42,7 @@ public class ToolTipManager implements Interval, AncestorListener
 	_lastmove = System.currentTimeMillis();
 	_lastx = _lasty = -1;
 	_fastshow = false;
-	_tipdelay = TIP_INTERVAL;
+	_tipdelay = DEF_TIP_DELAY;
 
 	// register the tip action interval immediately if the
 	// component is already showing on-screen
@@ -243,7 +243,10 @@ public class ToolTipManager implements Interval, AncestorListener
     public void ancestorMoved (AncestorEvent event) { }
 
     /** Delay in milliseconds between intervals. */
-    protected static final int TIP_INTERVAL = 1000;
+    protected static final int TIP_INTERVAL = 200;
+
+    /** Default delay between tip-related actions. */
+    protected static final int DEF_TIP_DELAY = 1000;
 
     /** Action constants. */
     protected static final int A_NONE = 0;

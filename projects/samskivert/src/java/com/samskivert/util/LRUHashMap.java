@@ -1,5 +1,5 @@
 //
-// $Id: LRUHashMap.java,v 1.5 2003/04/27 07:37:32 mdb Exp $
+// $Id: LRUHashMap.java,v 1.6 2003/06/05 18:02:24 ray Exp $
 
 package com.samskivert.util;
 
@@ -172,9 +172,7 @@ public class LRUHashMap implements Map
 
         // updated our computed "size"
         _size += _sizer.computeSize(value);
-        if (result != null) {
-            _size -= _sizer.computeSize(result);
-        }
+        entryRemoved(result);
 //         System.out.println("Added " + value + ": " + _size);
 
         // flush if needed
@@ -193,37 +191,46 @@ public class LRUHashMap implements Map
             return;
         }
 
-        // if we've exceeded our size, remove things until we're back
-        // under the required size; but don't freak out if we have one
-        // *really* big item
-//         int removed = 0;
-        while (_size > _maxSize && size() > 1) {
-            Object key = keySet().iterator().next();
-            remove(key);
-//             removed += _sizer.computeSize(remove(key));
+        // If we've exceeded our size, remove things until we're back
+        // under the required size.
+        if (_size > _maxSize) {
+            // This works because the entrySet iterator of a LinkedHashMap
+            // returns the entries in LRU order
+            Iterator iter = entrySet().iterator();
+            // don't remove the last entry, even if it's too big, because
+            // a cache with nothing in it sucks
+            for (int ii=size(); (ii > 1) && (_size > _maxSize); ii--) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                entryRemoved(entry.getValue());
+                iter.remove();
+            }
         }
-//         if (removed > 0) {
-//             System.out.println("Removed " + removed + ": " + _size);
-//         }
+    }
+
+    /**
+     * Adjust our size to reflect the removal of the specified entry.
+     */
+    protected void entryRemoved (Object entry)
+    {
+        if (entry != null) {
+            _size -= _sizer.computeSize(entry);
+        }
     }
 
     // documentation inherited from interface
     public Object remove (Object key)
     {
         Object removed = _delegate.remove(key);
-        if (removed != null) {
-            _size -= _sizer.computeSize(removed);
-        }
+        entryRemoved(removed);
         return removed;
     }
 
     // documentation inherited from interface
     public void putAll (Map t)
     {
-        Iterator i = t.keySet().iterator();
-        while (i.hasNext()) {
-            Object key = i.next();
-            put(key, t.get(key));
+        for (Iterator iter = t.entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            put(entry.getKey(), entry.getValue());
         }
     }
 

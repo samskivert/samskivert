@@ -1,0 +1,62 @@
+/**
+ * $Id: create_repository.mysql,v 1.1 2000/12/10 07:00:47 mdb Exp $
+ *
+ * Creates the necessary database tables in MySQL for the music repository.
+ */
+
+/**
+ * The entries table contains a row for every entry (album, single, etc.)
+ * in the repository.
+ */
+DROP TABLE IF EXISTS entries;
+CREATE TABLE entries (
+	entryid INTEGER(10) PRIMARY KEY AUTO_INCREMENT,
+	title   VARCHAR(200) NOT NULL,
+	artist  VARCHAR(200) NOT NULL,
+	source  VARCHAR(20) NOT NULL
+);
+
+/**
+ * The songs associated with every entry are all stored in the songs table.
+ */
+DROP TABLE IF EXISTS songs;
+CREATE TABLE songs (
+	songid   INTEGER(10) PRIMARY KEY AUTO_INCREMENT,
+	entryid  INTEGER(10) NOT NULL,
+	position INTEGER(10) NOT NULL,
+	title    VARCHAR(200) NOT NULL,
+	location VARCHAR(200) NOT NULL,
+	duration INTEGER(10) NOT NULL,
+
+	CONSTRAINT fk_songs_entries FOREIGN KEY (entryid) 
+	  REFERENCES entries (entryid) ON DELETE CASCADE
+);
+CREATE INDEX entryid_idx ON songs (entryid);
+
+/**
+ * Categories are generally referred to by their name which is defined in
+ * this table.
+ */
+DROP TABLE IF EXISTS category_names;
+CREATE TABLE category_names (
+	categoryid INTEGER(10) PRIMARY KEY AUTO_INCREMENT,
+	name       VARCHAR(100) NOT NULL,
+
+	UNIQUE (name)
+);
+
+/**
+ * Entries are mapped into one or more categories via this table.
+ */
+DROP TABLE IF EXISTS category_map;
+CREATE TABLE category_map (
+	categoryid INTEGER(10) NOT NULL,
+	entryid    INTEGER(10) NOT NULL,
+
+	CONSTRAINT fk_category_map_category_names FOREIGN KEY (categoryid) 
+	  REFERENCES category_names (categoryid) ON DELETE CASCADE,
+	CONSTRAINT fk_category_map_entries FOREIGN KEY (entryid) 
+	  REFERENCES entries (entryid) ON DELETE CASCADE,
+
+        UNIQUE (categoryid, entryid)
+);

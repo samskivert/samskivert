@@ -1,5 +1,5 @@
 //
-// $Id: Category.java,v 1.1 2000/11/08 06:42:57 mdb Exp $
+// $Id: Category.java,v 1.2 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.repository;
 
@@ -14,4 +14,22 @@ public class Category
 
     /** The name of this category. */
     public String name;
+
+    /** Creates an uninitialized category instance. */
+    public Category ()
+    {
+    }
+
+    /** Creates an initialized category instance. */
+    public Category (int categoryid, String name)
+    {
+        this.categoryid = categoryid;
+        this.name = name;
+    }
+
+    /** Generates a string representation of this instance. */
+    public String toString ()
+    {
+        return name;
+    }
 }

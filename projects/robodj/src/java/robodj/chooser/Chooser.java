@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.12 2003/05/07 17:27:12 mdb Exp $
+// $Id: Chooser.java,v 1.13 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.chooser;
 
@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.StaticConnectionProvider;
@@ -17,6 +18,7 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.PropertiesUtil;
+import com.samskivert.util.RunAnywhere;
 
 import robodj.Log;
 import robodj.repository.Model;
@@ -43,6 +45,15 @@ public class Chooser
     public static void main (String[] args)
     {
         boolean error = false;
+
+//         try {
+//             UIManager.setLookAndFeel(
+//                 RunAnywhere.isLinux() ?
+//                 "com.sun.java.swing.plaf.gtk.GTKLookAndFeel" :
+//                 UIManager.getSystemLookAndFeelClassName());
+//         } catch (Exception e) {
+//             Log.info("Failed to set GTK look and feel: " + e);
+//         }
 
         // loop until the user provides us with a configuration that works
         // or requests to exit

@@ -1,5 +1,5 @@
 //
-// $Id: ButtonUtil.java,v 1.2 2003/05/04 18:16:07 mdb Exp $
+// $Id: ButtonUtil.java,v 1.3 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.util;
 
@@ -23,24 +23,29 @@ import robodj.Log;
  */
 public class ButtonUtil
 {
-    public static ImageIcon getIcon (String iconPath)
+    public static Image getImage (String imagePath)
     {
         try {
-            InputStream imgin = ButtonUtil.class.getResourceAsStream(iconPath);
+            InputStream imgin = ButtonUtil.class.getResourceAsStream(imagePath);
             if (imgin != null) {
-                Image image = ImageIO.read(imgin);
-                return new ImageIcon(image);
+                return ImageIO.read(imgin);
             }
 
         } catch (IOException ioe) {
-            Log.warning("Unable to load icon [path=" + iconPath +
+            Log.warning("Unable to load image [path=" + imagePath +
                         ", error=" + ioe + "].");
 
         } catch (Exception e) {
-            Log.warning("Error loading icon [path=" + iconPath + "].");
+            Log.warning("Error loading image [path=" + imagePath + "].");
             Log.logStackTrace(e);
         }
         return null;
+    }
+
+    public static ImageIcon getIcon (String iconPath)
+    {
+        Image image = getImage(iconPath);
+        return image == null ? null : new ImageIcon(image);
     }
 
     public static JButton createControlButton (

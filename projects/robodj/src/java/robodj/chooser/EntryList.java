@@ -1,5 +1,5 @@
 //
-// $Id: EntryList.java,v 1.13 2003/05/04 18:16:06 mdb Exp $
+// $Id: EntryList.java,v 1.14 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.chooser;
 
@@ -18,35 +18,44 @@ import robodj.Log;
 import robodj.repository.*;
 import robodj.util.ButtonUtil;
 
-public abstract class EntryList extends JScrollPane
+public abstract class EntryList extends JSplitPane
     implements ControllerProvider
 {
     public EntryList ()
     {
-        // create the pane that will hold the buttons
-        GroupLayout gl = new VGroupLayout(GroupLayout.NONE);
-        gl.setOffAxisPolicy(GroupLayout.STRETCH);
-        gl.setJustification(GroupLayout.TOP);
-        gl.setGap(2);
-        _bpanel = new ScrollablePanel() {
-            // make the playlist fit the width of the scrolling viewport
-            public boolean getScrollableTracksViewportWidth () {
-                return true;
-            }
-        };
-        _bpanel.setLayout(gl);
+        super(JSplitPane.VERTICAL_SPLIT);
 
-	// give ourselves a wee bit of a border
-	_bpanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        // set our viewport view
-        setViewportView(_bpanel);
+        setOpaque(false);
+        setDividerLocation(200);
+        setLeftComponent(new JScrollPane(_bpanel = createPanel()));
+        setRightComponent(new JScrollPane(_epanel = createPanel()));
 
         // use a special font for our name buttons
         _titleFont = new Font("Helvetica", Font.BOLD, 14);
 
         // create our controller
         _controller = createController();
+    }
+
+    /**
+     * Creates a panel configured for displaying entries or songs.
+     */
+    protected JPanel createPanel ()
+    {
+        GroupLayout gl = new VGroupLayout(GroupLayout.NONE);
+        gl.setOffAxisPolicy(GroupLayout.STRETCH);
+        gl.setJustification(GroupLayout.TOP);
+        gl.setGap(2);
+        JPanel panel = new ScrollablePanel() {
+            // make the playlist fit the width of the scrolling viewport
+            public boolean getScrollableTracksViewportWidth () {
+                return true;
+            }
+        };
+        panel.setLayout(gl);
+        panel.setOpaque(false);
+	panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        return panel;
     }
 
     public Controller getController ()
@@ -99,25 +108,18 @@ public abstract class EntryList extends JScrollPane
             _bpanel.add(new JLabel(getEmptyString()));
         }
 
-        // reset our scroll position so that we're displaying the top of
-        // the entry list. we'd like to save our scroll position and
-        // restore it when the user clicks "up", but as we're rebuilding
-        // the entry display the scroll bar is still configured for the
-        // old contents and we're not around when it gets configured with
-        // the new contents, so we can't ensure that the scrollbar has
-        // been properly configured before we adjust its position back to
-        // where we were... oh the complication.
-        clearScrollPosition();
+        // reset our scroll position
+        clearScrollPosition((JScrollPane)getLeftComponent());
 
         // we've removed and added components so we need to revalidate
-        revalidate();
-        repaint();
+        SwingUtil.setOpaque(_bpanel, false);
+        SwingUtil.refresh(_bpanel);
     }
 
     protected void populateSong (Entry entry)
     {
         // clear out any existing children
-        _bpanel.removeAll();
+        _epanel.removeAll();
 
         GroupLayout gl = new HGroupLayout(HGroupLayout.STRETCH);
         gl.setJustification(GroupLayout.LEFT);
@@ -128,11 +130,6 @@ public abstract class EntryList extends JScrollPane
         label.setToolTipText(entry.title);
         label.setFont(_titleFont);
         header.add(label);
-
-        // add a button for getting the heck out of here
-        JButton upbtn = ButtonUtil.createControlButton(
-            UP_TIP, "up", ButtonUtil.getIcon(UP_ICON_PATH), true);
-        header.add(upbtn, GroupLayout.FIXED);
 
         // create an edit button
         JButton ebtn = ButtonUtil.createControlButton(
@@ -151,7 +148,7 @@ public abstract class EntryList extends JScrollPane
         int catidx = ModelUtil.getCategoryIndex(Chooser.model, catid);
         catcombo.setSelectedIndex(catidx+1);
 
-	_bpanel.add(header, GroupLayout.FIXED);
+	_epanel.add(header, GroupLayout.FIXED);
 
         // sort the songs by position
         Comparator scomp = new Comparator() {
@@ -167,26 +164,23 @@ public abstract class EntryList extends JScrollPane
 
         // and add buttons for every song
         for (int i = 0; i < entry.songs.length; i++) {
-            _bpanel.add(new SongItem(entry.songs[i], SongItem.BROWSER));
+            _epanel.add(new SongItem(entry.songs[i], SongItem.BROWSER));
         }
 
-        // reset our scroll position so that we're displaying the top of
-        // the song list
-        clearScrollPosition();
-
         // we've removed and added components so we need to revalidate
-        revalidate();
-        repaint();
+        SwingUtil.setOpaque(_epanel, false);
+        SwingUtil.refresh(_epanel);
     }
 
-    protected void clearScrollPosition ()
+    protected void clearScrollPosition (JScrollPane pane)
     {
-        BoundedRangeModel model = getVerticalScrollBar().getModel();
+        BoundedRangeModel model = pane.getVerticalScrollBar().getModel();
         model.setValue(model.getMinimum());
     }
 
     protected Controller _controller;
     protected JPanel _bpanel;
+    protected JPanel _epanel;
 
     protected Font _titleFont;
 

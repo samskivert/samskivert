@@ -1,5 +1,5 @@
 //
-// $Id: CategoryEntryList.java,v 1.2 2003/05/04 18:16:06 mdb Exp $
+// $Id: CategoryEntryList.java,v 1.3 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.chooser;
 
@@ -15,7 +15,18 @@ public class CategoryEntryList extends EntryList
      */
     public CategoryEntryList (int categoryId)
     {
-        _categoryId = categoryId;
+        setCategory(categoryId);
+    }
+
+    /**
+     * Updates our category.
+     */
+    public void setCategory (int categoryId)
+    {
+        if (categoryId != _categoryId) {
+            _categoryId = categoryId;
+            Controller.postAction(this, "refresh");
+        }
     }
 
     // documentation inherited

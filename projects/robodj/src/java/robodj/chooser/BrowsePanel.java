@@ -1,34 +1,48 @@
 //
-// $Id: BrowsePanel.java,v 1.4 2003/05/04 18:16:06 mdb Exp $
+// $Id: BrowsePanel.java,v 1.5 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.chooser;
 
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import com.samskivert.util.CollectionUtil;
+
 import robodj.repository.*;
 
-public class BrowsePanel extends JTabbedPane
+public class BrowsePanel extends JPanel
 {
     public BrowsePanel ()
     {
-        EntryList elist;
-        Category[] cats = Chooser.model.getCategories();
+        setLayout(new BorderLayout(5, 5));
 
-        // stick our tabs along the side and scroll if they don't fit
-        setTabPlacement(LEFT);
-        setTabLayoutPolicy(SCROLL_TAB_LAYOUT);
+        // obtain our categories
+        ArrayList cats = new ArrayList();
+        CollectionUtil.addAll(cats, Chooser.model.getCategories());
+        // add an "Uncategorized" category
+        cats.add(new Category(-1, "Uncategorized"));
 
-        // create a tab for each category
-        for (int i = 0; i < cats.length; i++) {
-            elist = new CategoryEntryList(cats[i].categoryid);
-            String tip = "Browse entries in '" + cats[i].name + "' category.";
-            addTab(cats[i].name, null, elist, tip);
-        }
+        final JList clist = new JList(cats.toArray());
+        clist.getSelectionModel().setSelectionMode(
+            ListSelectionModel.SINGLE_SELECTION);
+        ListSelectionListener lsl = new ListSelectionListener() {
+            public void valueChanged (ListSelectionEvent lse) {
+                Category cat = (Category)clist.getSelectedValue();
+                if (cat != null) {
+                    _category.setCategory(cat.categoryid);
+                }
+            }
+        };
+        clist.getSelectionModel().addListSelectionListener(lsl);
+        add(new JScrollPane(clist), BorderLayout.WEST);
 
-        // and add one for uncategorized entries
-        elist = new CategoryEntryList(-1);
-        addTab("Uncategorized", null, elist,
-               "Browse uncategorized entries.");
-
-        setSelectedIndex(0);
+        add(_category = new CategoryEntryList(-1), BorderLayout.CENTER);
+        clist.setSelectedIndex(cats.size()-1);
     }
+
+    protected CategoryEntryList _category;
 }

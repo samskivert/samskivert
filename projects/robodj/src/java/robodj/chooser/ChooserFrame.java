@@ -1,5 +1,5 @@
 //
-// $Id: ChooserFrame.java,v 1.11 2003/05/04 18:16:06 mdb Exp $
+// $Id: ChooserFrame.java,v 1.12 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.chooser;
 
@@ -17,6 +17,7 @@ import robodj.Log;
 import robodj.Version;
 import robodj.repository.*;
 import robodj.util.ButtonUtil;
+import robodj.util.FancyPanel;
 import robodj.util.RDJPrefs;
 import robodj.util.ServerControl.PlayingListener;
 
@@ -31,16 +32,14 @@ public class ChooserFrame extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // we create a top-level panel to manage everything
-	JPanel top = new JPanel();
 	GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);
 	gl.setOffAxisPolicy(GroupLayout.STRETCH);
-	top.setLayout(gl);
-
-	// give ourselves a wee bit of a border
+	JPanel top = new FancyPanel(gl, ButtonUtil.getImage(BACKGROUND_PATH));
 	top.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // the top of the UI is the browser and the playlist manager
         JTabbedPane tpane = new JTabbedPane();
+        tpane.setBackground(BGCOLOR);
         PlaylistPanel ppanel = new PlaylistPanel();
         String tip = "View and manipulate the playlist.";
         tpane.addTab("Playlist", null, ppanel, tip);
@@ -102,6 +101,13 @@ public class ChooserFrame extends JFrame
 	// now add our top-level panel (we'd not use this if we could set
 	// a border on the content pane returned by the frame... alas)
 	getContentPane().add(top, BorderLayout.CENTER);
+        SwingUtil.applyToHierarchy(top, new SwingUtil.ComponentOp() {
+            public void apply (Component comp) {
+                if (comp instanceof JPanel || comp instanceof JButton) {
+                    ((JComponent) comp).setOpaque(false);
+                }
+            }
+        });
 
         // add ourselves as a playing listener
         Chooser.scontrol.addPlayingListener(this);
@@ -187,6 +193,9 @@ public class ChooserFrame extends JFrame
     protected static final String BACK_ICON_PATH = ICON_ROOT + "back.png";
     protected static final String EXIT_ICON_PATH = ICON_ROOT + "exit.png";
 
+    protected static final String BACKGROUND_PATH =
+        ICON_ROOT + "background.png";
+
     // button tips
     protected static final String PLAY_TIP = "Play";
     protected static final String PAUSE_TIP =
@@ -195,4 +204,7 @@ public class ChooserFrame extends JFrame
     protected static final String SKIP_TIP = "Skip to the next song";
     protected static final String BACK_TIP = "Skip to the previous song";
     protected static final String EXIT_TIP = "Exit";
+
+    // our common background color
+    protected static final Color BGCOLOR = new Color(0x7A719A);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: EntryController.java,v 1.2 2003/05/19 02:53:25 mdb Exp $
+// $Id: EntryController.java,v 1.3 2004/01/26 16:10:55 mdb Exp $
 
 package robodj.chooser;
 
@@ -112,9 +112,8 @@ public abstract class EntryController extends ItemController
             Song song = SongItem.getSong(e.getSource());
             Chooser.scontrol.append(song.entryid, song.songid, song.location);
 
-        } else if (cmd.equals("up")) {
-            // re-read the category beacuse this entry may have been
-            // recategorized
+        } else if (cmd.equals("refresh")) {
+            // re-read the category
             TaskMaster.invokeMethodTask("readEntries", this, this);
 
         } else if (cmd.equals("edit")) {

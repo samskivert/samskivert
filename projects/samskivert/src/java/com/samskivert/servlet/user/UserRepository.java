@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.11 2001/06/07 08:38:47 mdb Exp $
+// $Id: UserRepository.java,v 1.12 2001/06/07 08:40:30 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.apache.regexp.*;
 
 import com.samskivert.Log;
+import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.MySQLRepository;
 import com.samskivert.jdbc.jora.*;
 import com.samskivert.util.IntMap;

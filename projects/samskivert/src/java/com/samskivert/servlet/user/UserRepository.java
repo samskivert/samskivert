@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.24 2002/11/01 00:43:58 mdb Exp $
+// $Id: UserRepository.java,v 1.25 2003/08/15 22:35:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -29,9 +29,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Properties;
-
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
 
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
@@ -137,7 +134,8 @@ public class UserRepository extends JORARepository
 	}
 
 	// check that it's only valid characters
-	if (!_userre.match(username)) {
+	if (!username.matches("^[_A-Za-z0-9]+$")) {
+            Log.info("Mismatch " + username + ".");
 	    throw new InvalidUsernameException("error.invalid_username");
 	}
 
@@ -512,16 +510,6 @@ public class UserRepository extends JORARepository
     }
 
     protected Table _utable;
-
-    /** Used to check usernames for invalid characteres. */
-    protected static RE _userre;
-    static {
-	try {
-	    _userre = new RE("^[_A-Za-z0-9]+$");
-	} catch (RESyntaxException rese) {
-	    Log.warning("Unable to initialize user regexp?! " + rese);
-	}
-    }
 
     /** The minimum allowable length of a username. */
     protected static final int MINIMUM_USERNAME_LENGTH = 3;

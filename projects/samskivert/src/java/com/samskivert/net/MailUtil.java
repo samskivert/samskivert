@@ -1,5 +1,5 @@
 //
-// $Id: MailUtil.java,v 1.5 2002/05/02 01:13:35 shaper Exp $
+// $Id: MailUtil.java,v 1.6 2003/08/15 22:35:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,8 +23,8 @@ package com.samskivert.net;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
+import java.util.regex.PatternSyntaxException;
+import java.util.regex.Pattern;
 
 import com.samskivert.Log;
 
@@ -80,7 +80,7 @@ public class MailUtil
      */
     public static boolean isValidAddress (String address)
     {
-        return _emailre.match(address);
+        return _emailre.matcher(address).matches();
     }
 
     public static void main (String[] args)
@@ -96,13 +96,14 @@ public class MailUtil
     protected static final String EMAIL_REGEX = "^([-A-Za-z0-9_.!%+]+@" +
         "[-a-zA-Z0-9]+(\\.[-a-zA-Z0-9]+)*\\.[-a-zA-Z0-9]+)$";
 
-    /** Used to check email addresses for validity. */
-    protected static RE _emailre;
+    /** A compiled version of our email regular expression. */
+    protected static Pattern _emailre;
     static {
-	try {
-	    _emailre = new RE(EMAIL_REGEX);
-	} catch (RESyntaxException rese) {
-	    Log.warning("Unable to initialize email regexp?! " + rese);
-	}
+        try {
+            _emailre = Pattern.compile(EMAIL_REGEX);
+        } catch (PatternSyntaxException pse) {
+            Log.warning("Unable to initialize email regexp?!");
+            Log.logStackTrace(pse);
+        }
     }
 }

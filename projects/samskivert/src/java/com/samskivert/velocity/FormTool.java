@@ -95,7 +95,7 @@ public class FormTool
      * Creates a text input field with the specified name and the
      * specified extra arguments and the specified value.
      */
-    public String fixedText (String name, String extra, String value)
+    public String fixedText (String name, String extra, Object value)
     {
         return fixedInput("text", name, value, extra);
     }
@@ -347,7 +347,7 @@ public class FormTool
      * parameters but is always the value supplied.
      */
     protected String fixedInput (
-        String type, String name, String value, String extra)
+        String type, String name, Object value, String extra)
     {
         StringBuffer buf = new StringBuffer();
         buf.append("<input type=\"").append(type).append("\"");

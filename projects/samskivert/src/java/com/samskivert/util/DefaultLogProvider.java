@@ -1,5 +1,5 @@
 //
-// $Id: DefaultLogProvider.java,v 1.4 2002/05/31 18:47:05 mdb Exp $
+// $Id: DefaultLogProvider.java,v 1.5 2002/05/31 20:45:26 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -69,8 +69,41 @@ public class DefaultLogProvider implements LogProvider
     protected synchronized String formatEntry (
         String moduleName, int level, String message)
     {
-        return (_format.format(new Date()) + " " +
-                LEVEL_CHARS[level] + " " + moduleName + ": " + message);
+        StringBuffer buf = new StringBuffer();
+        buf.append(_format.format(new Date())).append(" ");
+        if (level == Log.WARNING) {
+            buf.append(BOLD);
+        } else if (level == Log.DEBUG) {
+            buf.append(REVERSE);
+        }
+        buf.append(LEVEL_CHARS[level]).append(" ");
+
+        // let the formatting continue to influence the module name and
+        // then it will be turned off when underlining is turned off
+
+        // if we wrap, we include the module name in the wrapped text
+        int wrapwid = LOG_LINE_LENGTH - buf.length();
+        buf.append(UNDERLINE).append(moduleName).append(PLAIN).append(": ");
+
+        // we'll be wrapping the log lines
+        int remain = message.length(), offset = 0;
+        int linewid = Math.min(LOG_LINE_LENGTH - buf.length(), remain);
+
+        // append the first line
+        buf.append(message.substring(offset, offset+linewid));
+        remain -= linewid;
+        offset += linewid;
+
+        // now append the wrapped lines (if there are any)
+        while (remain > 0) {
+            buf.append("\n").append(GAP);
+            linewid = Math.min(wrapwid, remain);
+            buf.append(message.substring(offset, offset+linewid));
+            remain -= linewid;
+            offset += linewid;
+        }
+
+        return buf.toString();
     }
 
     /** The default log level. */
@@ -84,5 +117,23 @@ public class DefaultLogProvider implements LogProvider
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSSS");
 
     /** Used to tag log messages with their log level. */
-    protected static final String[] LEVEL_CHARS = { "*", "?", "!" };
+    protected static final String[] LEVEL_CHARS = { ".", "?", "!" };
+
+    /** Used to align wrapped log lines. */
+    protected static final String GAP = "                           ";
+
+    /** VT100 formatting code to enabled bold text. */
+    protected static final String BOLD = "\033[1m";
+
+    /** VT100 formatting code to enabled reverse video text. */
+    protected static final String REVERSE = "\033[7m";
+
+    /** VT100 formatting code to enabled underlined text. */
+    protected static final String UNDERLINE = "\033[4m";
+
+    /** VT100 formatting code to revert to plain text. */
+    protected static final String PLAIN = "\033[m";
+
+    /** Maximum log line length. */
+    protected static final int LOG_LINE_LENGTH = 132;
 }

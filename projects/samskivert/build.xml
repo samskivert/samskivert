@@ -71,7 +71,7 @@
     <echo message="Jakarta libraries - http://jakarta.apache.org/"/>
     <echo message="----------------------------------------------"/>
     <available property="jakarta.commons-collections.present"
-     classname="org.apache.commons.collections.FilterIterator"
+     classname="org.apache.commons.collections.CollectionUtils"
      classpathref="classpath"/>
     <echo message="Commons Collections: ${jakarta.commons-collections.present}"/>
 

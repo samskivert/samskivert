@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.5 2002/09/24 06:47:38 mdb Exp $
+// $Id: MultiLineLabel.java,v 1.6 2002/10/04 21:28:23 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -85,6 +85,16 @@ public class MultiLineLabel extends JComponent
     public void setAntiAliased (boolean antialiased)
     {
         _antialiased = antialiased;
+        _dirty = true;
+        repaint();
+    }
+
+    /**
+     * Sets the constraints to be used when laying out the label.
+     */
+    public void setConstraints (int constrain)
+    {
+        _constrain = constrain;
         _dirty = true;
         repaint();
     }

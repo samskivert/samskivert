@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.11 2003/03/30 02:23:39 mdb Exp $
+// $Id: SortableArrayList.java,v 1.12 2003/03/30 02:26:14 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -216,9 +216,7 @@ public class SortableArrayList extends AbstractList
     // documentation inherited from interface
     public void add (int index, Object element)
     {
-        if (index == _size) {
-            add(element);
-        } else if (index >= 0 && index < _size) {
+        if (index >= 0 && index <= _size) {
             _elements = ListUtil.insert(_elements, index, element);
             _size++;
         } else {

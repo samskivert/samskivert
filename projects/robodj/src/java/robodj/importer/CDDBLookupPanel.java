@@ -1,5 +1,5 @@
 //
-// $Id: CDDBLookupPanel.java,v 1.4 2001/06/10 21:32:23 mdb Exp $
+// $Id: CDDBLookupPanel.java,v 1.5 2002/03/03 21:17:03 mdb Exp $
 
 package robodj.importer;
 
@@ -54,31 +54,26 @@ public class CDDBLookupPanel
         add(_spanel);
     }
 
-    public void wasAddedToFrame (ImporterFrame frame)
+    public void wasAddedToFrame (ImporterFrame frame, boolean popped)
     {
 	// keep this for later
 	_frame = frame;
 
 	frame.addControlButton("Cancel", "cancel", this);
+	frame.addControlButton("Back", "back", this);
 	_next = frame.addControlButton("Next...", "next", this);
-	_next.setEnabled(false);
+	_next.setEnabled(popped);
 
-	// create our info task and set it a running
-	Task infoTask = new Task()
-	{
-	    public Object invoke ()
-		throws Exception
-	    {
-		Ripper ripper = new CDParanoiaRipper();
-		return ripper.getTrackInfo();
-	    }
-
-	    public boolean abort ()
-	    {
-		return false;
-	    }
-	};
-	TaskMaster.invokeTask("getinfo", infoTask, this);
+	// if we are being shown for the first time...
+        if (!popped) {
+            // create our info task and set it a running
+            TaskMaster.invokeTask("getinfo", new TaskAdapter() {
+                public Object invoke () throws Exception {
+                    Ripper ripper = new CDParanoiaRipper();
+                    return ripper.getTrackInfo();
+                }
+            }, this);
+        }
     }
 
     public void taskCompleted (String name, Object result)
@@ -141,6 +136,10 @@ public class CDDBLookupPanel
 	if (cmd.equals("cancel")) {
 	    System.exit(0);
 
+	} else if (cmd.equals("back")) {
+            // pop back to the last panel
+            _frame.popPanel();
+
 	} else if (cmd.equals("next")) {
 	    extractEntryAndContinue();
 
@@ -175,7 +174,7 @@ public class CDDBLookupPanel
 	}
 
 	// create the rip panel and pass the entry and info along
-	_frame.setPanel(new RipPanel(_info, entry));
+	_frame.pushPanel(new RipPanel(_info, entry));
     }
 
     protected boolean validate (String value, String errmsg)

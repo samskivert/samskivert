@@ -1,5 +1,5 @@
 //
-// $Id: Importer.java,v 1.9 2002/01/17 18:22:53 mdb Exp $
+// $Id: Importer.java,v 1.10 2002/03/03 21:17:03 mdb Exp $
 
 package robodj.importer;
 
@@ -68,7 +68,7 @@ public class Importer
         // create our frame and first panel
 	ImporterFrame frame = new ImporterFrame();
 	InsertCDPanel panel = new InsertCDPanel();
-	frame.setPanel(panel);
+	frame.pushPanel(panel);
 
         // center the frame in the screen and show it
 	frame.setSize(640, 480);

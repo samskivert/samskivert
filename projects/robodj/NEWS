@@ -1,9 +1,18 @@
-RoboDJ 1.2 (March 02, 2002)
+RoboDJ 1.2 (March 03, 2002)
 
     NEW FEATURES
 
         * (importer) Added support for adding ID3 tags to MP3 files after
           they are encoded.
+
+	* (chooser) Gave the UI a major facelift:
+          - added icons for most buttons;
+          - fixed layout to work more nicely;
+          - made controls reflect actual state of the music daemon (paused
+            versus playing, etc.).
+
+        * (importer) Added ability to back up from the CDDB panel to the
+          "insert CD" panel.
 
 RoboDJ 1.1 (February 22, 2002)
 
@@ -19,4 +28,4 @@ RoboDJ 1.0 (February 21, 2002)
 
     INITIAL RELEASE
 
-$Id: NEWS,v 1.1 2002/03/03 06:21:19 mdb Exp $
+$Id: NEWS,v 1.2 2002/03/03 21:17:03 mdb Exp $

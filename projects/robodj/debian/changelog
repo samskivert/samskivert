@@ -1,3 +1,9 @@
+robodj (1.2-2) unstable; urgency=low
+
+  * Upstream release updated with more features.
+
+ -- Michael Bayne <mdb@samskivert.com>  Sun,  3 Mar 2002 12:59:12 -0800
+
 robodj (1.2-1) unstable; urgency=low
 
   * New upstream release.

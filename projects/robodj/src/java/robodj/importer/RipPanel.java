@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.6 2002/03/03 06:04:56 mdb Exp $
+// $Id: RipPanel.java,v 1.7 2002/03/03 21:17:03 mdb Exp $
 
 package robodj.importer;
 
@@ -350,7 +350,7 @@ public class RipPanel
         protected Ripper.TrackInfo[] _info;
     }
 
-    public void wasAddedToFrame (ImporterFrame frame)
+    public void wasAddedToFrame (ImporterFrame frame, boolean popped)
     {
 	// keep this for later
 	_frame = frame;
@@ -358,11 +358,13 @@ public class RipPanel
         // add our next and cancel buttons
 	_cancel = frame.addControlButton("Cancel", "cancel", this);
 	_next = frame.addControlButton("Next...", "next", this);
-	_next.setEnabled(false);
+	_next.setEnabled(popped);
 
-	// create our info task and set it a running
-	Task ripTask = new RipperTask(_info, _entry);
-  	TaskMaster.invokeTask("convert", ripTask, this);
+        if (!popped) {
+            // create our info task and set it a running
+            Task ripTask = new RipperTask(_info, _entry);
+            TaskMaster.invokeTask("convert", ripTask, this);
+        }
     }
 
     public void taskCompleted (String name, Object result)
@@ -398,7 +400,7 @@ public class RipPanel
 	    System.exit(0);
 
 	} else if (cmd.equals("next")) {
-	    _frame.setPanel(new FinishedPanel(_entry));
+	    _frame.pushPanel(new FinishedPanel(_entry));
 
 	} else {
 	    System.out.println("Unknown action event: " + cmd);

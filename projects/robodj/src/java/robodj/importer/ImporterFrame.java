@@ -1,10 +1,11 @@
 //
-// $Id: ImporterFrame.java,v 1.7 2002/03/03 06:32:12 mdb Exp $
+// $Id: ImporterFrame.java,v 1.8 2002/03/03 21:17:03 mdb Exp $
 
 package robodj.importer;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import javax.swing.*;
 
 import com.samskivert.swing.*;
@@ -41,10 +42,25 @@ public class ImporterFrame extends JFrame
 	getContentPane().add(_top, BorderLayout.CENTER);
     }
 
+    /**
+     * Clears out the panel stack and pushes the specified panel onto the
+     * fresh stack.
+     */
     public void setPanel (ImporterPanel panel)
     {
-	// clear out any old panel
+        _panels.clear();
+        pushPanel(panel);
+    }
+
+    /**
+     * Pushes the specified panel onto the stack (removing the previous
+     * panel and keeping it around in case we want to go back to it.
+     */
+    public void pushPanel (ImporterPanel panel)
+    {
+	// push the current panel onto the stack
 	if (_panel != null) {
+            _panels.add(_panel);
 	    _top.remove(_panel);
 	}
 
@@ -56,11 +72,40 @@ public class ImporterFrame extends JFrame
 	    _panel = panel;
 	    _top.add(_panel, 0);
 	    // let the panel know that it was added
-	    _panel.wasAddedToFrame(this);
+	    _panel.wasAddedToFrame(this, false);
 	}
 
 	// and lay out the new panel
         validate();
+        repaint();
+    }
+
+    /**
+     * Pops back to the previous panel on the stack.
+     */
+    public void popPanel ()
+    {
+        // remove the old panel
+	if (_panel != null) {
+	    _top.remove(_panel);
+	}
+
+	// clear out old control buttons
+	clearControlButtons();
+
+        // now pop the last panel from the stack
+        int pcount = _panels.size();
+        if (pcount > 0) {
+            _panel = (ImporterPanel)_panels.get(pcount-1);
+            _panels.remove(pcount-1);
+            _top.add(_panel, 0);
+	    // let the panel know that it was added
+	    _panel.wasAddedToFrame(this, true);
+        }
+
+        // and lay out the new panel
+        validate();
+        repaint();
     }
 
     public JButton addControlButton (String label, String command,
@@ -72,7 +117,7 @@ public class ImporterFrame extends JFrame
 	_buttonPanel.add(abutton);
         // swing doesn't automatically validate after adding/removing
         // children
-        _buttonPanel.revalidate();
+        _buttonPanel.validate();
 	return abutton;
     }
 
@@ -81,10 +126,12 @@ public class ImporterFrame extends JFrame
 	_buttonPanel.removeAll();
         // swing doesn't automatically validate after adding/removing
         // children
-        _buttonPanel.revalidate();
+        _buttonPanel.validate();
     }
 
     protected ImporterPanel _panel;
     protected JPanel _top;
     protected JPanel _buttonPanel;
+
+    protected ArrayList _panels = new ArrayList();
 }

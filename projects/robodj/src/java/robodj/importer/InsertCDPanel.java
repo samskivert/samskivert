@@ -1,5 +1,5 @@
 //
-// $Id: InsertCDPanel.java,v 1.2 2001/03/21 00:41:03 mdb Exp $
+// $Id: InsertCDPanel.java,v 1.3 2002/03/03 21:17:03 mdb Exp $
 
 package robodj.importer;
 
@@ -33,7 +33,7 @@ public class InsertCDPanel
 	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     }
 
-    public void wasAddedToFrame (ImporterFrame frame)
+    public void wasAddedToFrame (ImporterFrame frame, boolean popped)
     {
 	frame.addControlButton("Cancel", "cancel", this);
 	frame.addControlButton("Next...", "next", this);
@@ -49,7 +49,7 @@ public class InsertCDPanel
 	    System.exit(0);
 
 	} else if (cmd.equals("next")) {
-	    _frame.setPanel(new CDDBLookupPanel());
+	    _frame.pushPanel(new CDDBLookupPanel());
 
 	} else {
 	    System.out.println("Unknown action event: " + cmd);

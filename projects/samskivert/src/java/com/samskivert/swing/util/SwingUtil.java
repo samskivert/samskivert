@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.7 2002/05/13 17:40:15 shaper Exp $
+// $Id: SwingUtil.java,v 1.8 2002/06/05 22:54:53 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -21,6 +21,12 @@
 package com.samskivert.swing.util;
 
 import java.awt.*;
+
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
 
 /**
  * Miscellaneous useful Swing-related utility functions.
@@ -114,5 +120,98 @@ public class SwingUtil
 
         // set our state
         comp.setEnabled(enabled);
+    }
+
+    /**
+     * An interface for validating the text contained within a document.
+     */
+    public static interface DocumentValidator
+    {
+        /**
+         * Should return false if the text is not valid for any reason.
+         */
+        public boolean isValid (String text);
+    }
+
+    /**
+     * Set an active DocumentValidator on the specified text component.
+     * Changes will not and cannot be made (either via user inputs or
+     * direct method manipulation) unless the validator says that the
+     * changes are ok.
+     */
+    public static void setDocumentValidator (
+        JTextComponent comp, DocumentValidator validator)
+    {
+        setDocumentValidator(comp.getDocument(), validator);
+    }
+
+    /**
+     * Set an active DocumentValidator on the specified Document.
+     * Changes will not and cannot be made (either via user inputs or
+     * direct method manipulation) unless the validator says that the
+     * changes are ok.
+     */
+    public static void setDocumentValidator (
+        final Document doc, final DocumentValidator validator)
+    {
+        if (!(doc instanceof AbstractDocument)) {
+            throw new IllegalArgumentException(
+                "Specified document cannot be filtered!");
+        }
+
+        // set up the filter.
+        ((AbstractDocument) doc).setDocumentFilter(new DocumentFilter()
+        {
+            // documentation inherited
+            public void remove (FilterBypass fb, int offset, int length)
+                throws BadLocationException
+            {
+                if (replaceOk(offset, length, "")) {
+                    fb.remove(offset, length);
+                }
+            }
+
+            // documentation inherited
+            public void insertString (
+                FilterBypass fb, int offset, String string, AttributeSet attr)
+                throws BadLocationException
+            {
+                if (replaceOk(offset, 0, string)) {
+                    fb.insertString(offset, string, attr);
+                }
+            }
+
+            // documentation inherited
+            public void replace (
+                FilterBypass fb, int offset, int length, String text,
+                AttributeSet attrs)
+                throws BadLocationException
+            {
+                if (replaceOk(offset, length, text)) {
+                    fb.replace(offset, length, text, attrs);
+                }
+            }
+
+            /**
+             * Convenience for remove/insert/replace to see if the
+             * proposed change is valid.
+             */
+            protected boolean replaceOk (int offset, int length, String text)
+                throws BadLocationException
+            {
+                try {
+                    String current = doc.getText(0, doc.getLength());
+                    String potential = current.substring(0, offset) +
+                                   text + current.substring(offset + length);
+
+                    // validate the potential text.
+                    return validator.isValid(potential);
+
+                } catch (IndexOutOfBoundsException ioobe) {
+                    throw new BadLocationException(
+                        "Bad Location", offset + length);
+                }
+            }
+        });
     }
 }

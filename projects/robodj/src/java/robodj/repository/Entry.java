@@ -1,5 +1,5 @@
 //
-// $Id: Entry.java,v 1.2 2001/06/07 08:37:47 mdb Exp $
+// $Id: Entry.java,v 1.3 2001/07/13 00:10:26 mdb Exp $
 
 package robodj.repository;
 
@@ -32,6 +32,20 @@ public class Entry
 
     /** The songs associated with this entry. */
     public transient Song[] songs;
+
+    /**
+     * Scans the songs array for the song with the specified id and
+     * returns it if found. Returns null otherwise.
+     */
+    public Song getSong (int songid)
+    {
+        for (int i = 0; i < songs.length; i++) {
+            if (songs[i].songid == songid) {
+                return songs[i];
+            }
+        }
+        return null;
+    }
 
     public String toString ()
     {

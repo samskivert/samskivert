@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.10 2002/03/28 21:50:26 mdb Exp $
+// $Id: Config.java,v 1.11 2002/03/28 22:21:06 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -303,6 +303,37 @@ public class Config
 	throws Exception
     {
 	return Class.forName(getValue(name, defcname)).newInstance();
+    }
+
+    /**
+     * Returns a properties file containing all configuration values that
+     * start with the supplied prefix (plus a trailing "." which will be
+     * added if it doesn't already exist). The keys in the sub-properties
+     * file will have had the prefix stripped off.
+     */
+    public Properties getSubProperties (String prefix)
+    {
+        // slap a trailing dot on if necessary
+        if (!prefix.endsWith(".")) {
+            prefix = prefix + ".";
+        }
+
+        // build the sub-properties
+        Properties props = new Properties();
+        Iterator iter = keys();
+        while (iter.hasNext()) {
+            String key = (String)iter.next();
+            if (!key.startsWith(prefix)) {
+                continue;
+            }
+            String value = getValue(key, (String)null);
+            if (value == null) {
+                continue;
+            }
+            props.put(key.substring(prefix.length()), value);
+        }
+
+        return props;
     }
 
     /**

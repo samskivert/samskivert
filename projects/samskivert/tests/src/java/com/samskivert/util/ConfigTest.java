@@ -1,9 +1,10 @@
 //
-// $Id: ConfigTest.java,v 1.2 2002/03/28 21:50:27 mdb Exp $
+// $Id: ConfigTest.java,v 1.3 2002/03/28 22:21:06 mdb Exp $
 
 package com.samskivert.util;
 
 import java.util.Iterator;
+import java.util.Properties;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -43,6 +44,12 @@ public class ConfigTest extends TestCase
 
         Iterator iter = config.keys();
         System.out.println("Keys: " + StringUtil.toString(iter));
+
+        config.setValue("sub.sub3", "three");
+
+        Properties subprops = config.getSubProperties("sub");
+        System.out.println("Sub: " +
+                           StringUtil.toString(subprops.propertyNames()));
     }
 
     public static Test suite ()

@@ -25,6 +25,8 @@ import javax.swing.Timer;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.MouseInputAdapter;
 
+import com.samskivert.Log;
+
 import com.samskivert.swing.event.AncestorAdapter;
 
 /**
@@ -194,12 +196,34 @@ public class DnDManager
     {
         Cursor c = comp.getCursor();
         if (c != _curCursor) {
+            assertComponentCursorCleared();
             _lastComp = comp;
             _oldCursor = comp.isCursorSet() ? c : null;
             comp.setCursor(_curCursor);
         }
     }
 
+    /**
+     * Makes sure the component cursor is cleared.  If it isn't, generates a
+     * warning message and clears it.
+     */
+    protected void assertComponentCursorCleared ()
+    {
+        if (_lastComp != null) {
+            Log.warning("In DnDManager, last component cursor not cleared.");
+            clearComponentCursor();
+        }
+    }
+    
+    protected void assertTopCursorCleared ()
+    {
+        if (_topComp != null) {
+            Log.warning("In DnDManager, top component cursor not cleared.");
+            _topComp.setCursor(_topCursor);
+            _topComp = null;
+        }
+    }
+    
     /**
      * Clear out the component-level cursor.
      */
@@ -210,13 +234,21 @@ public class DnDManager
             _lastComp = null;
         }
     }
-
+    
     /**
      * Are we currently involved in a drag?
      */
     protected boolean isDragging ()
     {
-        return (_source != null);
+        boolean dragging = (_source != null);
+        
+        if (!dragging) {
+            // make sure there's no component/top cursor
+            assertComponentCursorCleared();
+            assertTopCursorCleared();
+        }
+        
+        return dragging;
     }
 
     /**

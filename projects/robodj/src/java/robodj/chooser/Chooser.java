@@ -1,5 +1,5 @@
 //
-// $Id: Chooser.java,v 1.8 2002/02/22 08:36:54 mdb Exp $
+// $Id: Chooser.java,v 1.9 2002/10/14 00:23:41 mdb Exp $
 
 package robodj.chooser;
 
@@ -44,7 +44,7 @@ public class Chooser
             config = ConfigUtil.loadProperties(cpath);
         } catch (IOException ioe) {
             String err = "Unable to load configuration " +
-                "[path=" + cpath + "]: " + ioe;
+                "[path=" + cpath + "]:\n" + ioe.getMessage();
             reportError(err);
             System.exit(-1);
         }
@@ -57,12 +57,16 @@ public class Chooser
             model = new Model(repository);
 
         } catch (IOException ioe) {
-            reportError("Error loading repository config: " + ioe);
+            Log.logStackTrace(ioe);
+            reportError("Error loading repository config:\n" +
+                        ioe.getMessage());
             System.exit(-1);
 
         } catch (PersistenceException pe) {
+            Log.logStackTrace(pe);
+            pe.printStackTrace();
             reportError("Unable to establish communication " +
-                        "with music database: " + pe);
+                        "with database:\n" + pe.getMessage());
             System.exit(-1);
         }
 
@@ -80,8 +84,9 @@ public class Chooser
             // establish a connection with the music server
             scontrol = new ServerControl(mhost, 2500);
         } catch (IOException ioe) {
-            Log.warning("Unable to establish communication with music " +
-                        "server: " + ioe);
+            Log.logStackTrace(ioe);
+            reportError("Unable to establish communication with music " +
+                        "server:\n" + ioe.getMessage());
             System.exit(-1);
         }
 

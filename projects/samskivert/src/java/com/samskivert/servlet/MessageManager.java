@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.7 2003/07/12 04:40:24 mdb Exp $
+// $Id: MessageManager.java,v 1.8 2003/12/11 06:32:38 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -27,6 +27,7 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.Log;
+import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -83,6 +84,24 @@ public class MessageManager
     {
         if (path == null) {
             return "[null message key]";
+        }
+
+        // attempt to determine whether or not this is a compound key
+        int tidx = path.indexOf("|");
+        if (tidx != -1) {
+            String key = path.substring(0, tidx);
+            String argstr = path.substring(tidx+1);
+            String[] args = StringUtil.split(argstr, "|");
+            // unescape and translate the arguments
+            for (int i = 0; i < args.length; i++) {
+                // if the argument is tainted, do no further translation
+                // (it might contain |s or other fun stuff)
+                if (args[i].startsWith(MessageUtil.TAINT_CHAR)) {
+                    args[i] = MessageUtil.unescape(args[i].substring(1));
+                } else {
+                    args[i] = getMessage(req, MessageUtil.unescape(args[i]));
+                }
+            }
         }
 
         // load up the matching resource bundles (the array will contain

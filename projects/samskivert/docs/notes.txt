@@ -5,11 +5,6 @@ Modify JORA such that if it doesn't find a matching public field in the
 persistence object, it looks for getter/setter methods that will handle
 the encoding/decoding of the composite fields during persistification.
 
-Add support to the build system for enabling and disabling packages so
-that people can build just what they want and not have to track down
-support libraries for, say, WebMacro if they don't want the WebMacro
-stuff.
-
 Fix message.properties single quote handling. In messages that have
 translation substitutions ({0}, {1}, etc.), one has to use '' but in plain
 strings they have to use \'. It should be one or the other.

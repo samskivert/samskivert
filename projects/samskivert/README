@@ -20,8 +20,8 @@ following principles:
 
 * Code included in TSP will freely depend on JDK packages available in the
   Java 2 platform and beyond. TSP is initially a repository of software
-  useful for server-side or standalone applications and therefore need not
-  compromise because it needs to function in the JVMs of commonly
+  useful for server-side or stand alone applications and therefore need
+  not compromise because it needs to function in the JVMs of commonly
   available web browsers.
 
 * We are not here to reinvent the wheel, nor to provide a uniform
@@ -51,5 +51,5 @@ when such contributions exist.
 Contact Information
 -------------------
 
-The person primarily reponsible for TSP is Michael Bayne and can be
+The person primarily responsible for TSP is Michael Bayne and can be
 contacted at <mdb@samskivert.com>.

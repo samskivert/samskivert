@@ -1,9 +1,11 @@
 //
-// $Id: RunAnywhere.java,v 1.4 2003/07/12 02:46:03 ray Exp $
+// $Id: RunAnywhere.java,v 1.5 2003/07/29 00:43:54 mdb Exp $
 
 package com.samskivert.util;
 
 import java.awt.event.InputEvent;
+
+import com.samskivert.Log;
 
 /**
  * <cite>Write once, run anywhere.</cite> Well, at least that's what it
@@ -40,6 +42,32 @@ public class RunAnywhere
     }
 
     /**
+     * Returns {@link System#currentTimeMillis}, but works around a bug on
+     * WinXP that causes time to sometimes leap into the past.
+     */
+    public static final long currentTimeMillis ()
+    {
+        long stamp = System.currentTimeMillis();
+
+        // on WinXP the time sometimes seems to leap into the past; here
+        // we do what we can to work around this insanity by simply
+        // stopping time rather than allowing it to go into the past
+        if (stamp < _lastStamp) {
+            // only warn once per time anomaly
+            if (stamp > _lastWarning) {
+                Log.warning("Someone call Einstein! The clock is " +
+                            "running backwards [dt=" +
+                            (stamp - _lastStamp) + "].");
+                _lastWarning = _lastStamp;
+            }
+            stamp = _lastStamp;
+        }
+        _lastStamp = stamp;
+
+        return stamp;
+    }
+
+    /**
      * Returns the timestamp associated with the supplied event except on
      * the Macintosh where it returns {@link System#currentTimeMillis}
      * because {@link InputEvent#getWhen} returns completely incorrect
@@ -48,7 +76,7 @@ public class RunAnywhere
      */
     public static long getWhen (InputEvent event)
     {
-        return (isWindows() || isMacOS()) ? System.currentTimeMillis()
+        return (isWindows() || isMacOS()) ? currentTimeMillis()
                                           : event.getWhen();
     }
 
@@ -63,6 +91,9 @@ public class RunAnywhere
     /** Flag indicating that we're on Linux; initialized when this class
      * is first loaded. */
     protected static boolean _isLinux;
+
+    /** Used to ensure that the timer is sane. */
+    protected static long _lastStamp, _lastWarning;
 
     static {
         try {

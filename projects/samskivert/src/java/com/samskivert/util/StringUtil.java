@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.67 2003/12/17 19:19:25 ray Exp $
+// $Id: StringUtil.java,v 1.68 2004/02/25 13:18:39 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -725,7 +725,7 @@ public class StringUtil
     public static String encode (String s)
     {
         try {
-            return URLEncoder.encode(s, "UTF-8");
+            return (s != null) ? URLEncoder.encode(s, "UTF-8") : null;
         } catch (UnsupportedEncodingException uee) {
             throw new RuntimeException("UTF-8 is unknown in this Java.");
         }
@@ -737,7 +737,7 @@ public class StringUtil
     public static String decode (String s)
     {
         try {
-            return URLDecoder.decode(s, "UTF-8");
+            return (s != null) ? URLDecoder.decode(s, "UTF-8") : null;
         } catch (UnsupportedEncodingException uee) {
             throw new RuntimeException("UTF-8 is unknown in this Java.");
         }

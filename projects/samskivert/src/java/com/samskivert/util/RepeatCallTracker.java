@@ -3,6 +3,8 @@
 
 package com.samskivert.util;
 
+import java.util.Date;
+
 import com.samskivert.Log;
 
 /**
@@ -28,7 +30,8 @@ public class RepeatCallTracker
     public boolean checkCall (String warning)
     {
         if (_firstCall == null) {
-            _firstCall = new Exception("---- First call ----");
+            _firstCall = new Exception(
+                "---- First call (at " + new Date() + ") ----");
             return false;
         }
 

@@ -1,5 +1,5 @@
 //
-// $Id: SortableArrayList.java,v 1.4 2002/06/18 00:48:04 mdb Exp $
+// $Id: SortableArrayList.java,v 1.5 2002/08/12 01:10:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -79,22 +79,8 @@ public class SortableArrayList extends AbstractList
      */
     public int binarySearch (Object key)
     {
-	int low = 0, high = _size-1;
-	while (low <= high) {
-	    int mid = (low + high) >> 1;
-	    Object midVal = _elements[mid];
-	    int cmp = ((Comparable)midVal).compareTo(key);
-	    if (cmp < 0) {
-		low = mid + 1;
-	    } else if (cmp > 0) {
-		high = mid - 1;
-	    } else {
-		return mid; // key found
-            }
-	}
-	return -(low + 1); // key not found.
+        return ArrayUtil.binarySearch(_elements, 0, _size, key);
     }
-
 
     /**
      * Performs a binary search, attempting to locate the specified
@@ -107,20 +93,7 @@ public class SortableArrayList extends AbstractList
      */
     public int binarySearch (Object key, Comparator comp)
     {
-	int low = 0, high = _size-1;
-	while (low <= high) {
-	    int mid = (low + high) >> 1;
-	    Object midVal = _elements[mid];
-	    int cmp = comp.compare(midVal, key);
-	    if (cmp < 0) {
-		low = mid + 1;
-	    } else if (cmp > 0) {
-		high = mid - 1;
-	    } else {
-		return mid; // key found
-            }
-	}
-	return -(low + 1); // key not found.
+        return ArrayUtil.binarySearch(_elements, 0, _size, key, comp);
     }
 
     // documentation inherited from interface

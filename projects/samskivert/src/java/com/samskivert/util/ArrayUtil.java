@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.11 2002/08/10 18:45:27 mdb Exp $
+// $Id: ArrayUtil.java,v 1.12 2002/08/12 01:10:32 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Random;
 
 import com.samskivert.Log;
@@ -191,78 +192,76 @@ public class ArrayUtil
         }
     }
 
-    public static void main (String[] args)
+    /**
+     * Performs a binary search, attempting to locate the specified
+     * object. The array must be sorted for this to operate correctly and
+     * the contents of the array must all implement {@link Comparable}
+     * (and actually be comparable to one another).
+     *
+     * @param array the array of {@link Comparable}s to be searched.
+     * @param offset the index of the first element in the array to be
+     * considered.
+     * @param length the number of elements including and following the
+     * element at <code>offset</code> to consider when searching.
+     * @param key the object to be located.
+     *
+     * @return the index of the object in question or
+     * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
+     * value) if the object was not found in the list.
+     */
+    public static int binarySearch (
+        Object[] array, int offset, int length, Object key)
     {
-        // test reversing an array
-        int[] values = new int[] { 0 };
-        int[] work = (int[])values.clone();
-        reverse(work);
-        Log.info("reverse: " + StringUtil.toString(work));
+	int low = offset, high = offset+length-1;
+	while (low <= high) {
+	    int mid = (low + high) >> 1;
+	    Comparable midVal = (Comparable)array[mid];
+	    int cmp = midVal.compareTo(key);
+	    if (cmp < 0) {
+		low = mid + 1;
+	    } else if (cmp > 0) {
+		high = mid - 1;
+	    } else {
+		return mid; // key found
+            }
+	}
+	return -(low + 1); // key not found.
+    }
 
-        values = new int[] { 0, 1, 2 };
-        work = (int[])values.clone();
-        reverse(work);
-        Log.info("reverse: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        reverse(work, 0, 2);
-        Log.info("reverse first-half: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        reverse(work, 1, 2);
-        Log.info("reverse second-half: " + StringUtil.toString(work));
-
-        values = new int[] { 0, 1, 2, 3, 4 };
-        work = (int[])values.clone();
-        reverse(work, 1, 3);
-        Log.info("reverse middle: " + StringUtil.toString(work));
-
-        values = new int[] { 0, 1, 2, 3 };
-        work = (int[])values.clone();
-        reverse(work);
-        Log.info("reverse even: " + StringUtil.toString(work));
-
-        // test shuffling two elements
-        values = new int[] { 0, 1 };
-        work = (int[])values.clone();
-        shuffle(work, 0, 1);
-        Log.info("first-half shuffle: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        shuffle(work, 1, 1);
-        Log.info("second-half shuffle: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        shuffle(work);
-        Log.info("full shuffle: " + StringUtil.toString(work));
-
-        // test shuffling three elements
-        values = new int[] { 0, 1, 2 };
-        work = (int[])values.clone();
-        shuffle(work, 0, 2);
-        Log.info("first-half shuffle: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        shuffle(work, 1, 2);
-        Log.info("second-half shuffle: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        shuffle(work);
-        Log.info("full shuffle: " + StringUtil.toString(work));
-
-        // test shuffling ten elements
-        values = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        work = (int[])values.clone();
-        shuffle(work, 0, 5);
-        Log.info("first-half shuffle: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        shuffle(work, 5, 5);
-        Log.info("second-half shuffle: " + StringUtil.toString(work));
-
-        work = (int[])values.clone();
-        shuffle(work);
-        Log.info("full shuffle: " + StringUtil.toString(work));
+    /**
+     * Performs a binary search, attempting to locate the specified
+     * object. The array must be in the sort order defined by the supplied
+     * {@link Comparator} for this to operate correctly.
+     *
+     * @param array the array of objects to be searched.
+     * @param offset the index of the first element in the array to be
+     * considered.
+     * @param length the number of elements including and following the
+     * element at <code>offset</code> to consider when searching.
+     * @param key the object to be located.
+     * @param comp the comparator to use when searching.
+     *
+     * @return the index of the object in question or
+     * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
+     * value) if the object was not found in the list.
+     */
+    public static int binarySearch (
+        Object[] array, int offset, int length, Object key, Comparator comp)
+    {
+	int low = offset, high = offset+length-1;
+	while (low <= high) {
+	    int mid = (low + high) >> 1;
+	    Object midVal = array[mid];
+	    int cmp = comp.compare(midVal, key);
+	    if (cmp < 0) {
+		low = mid + 1;
+	    } else if (cmp > 0) {
+		high = mid - 1;
+	    } else {
+		return mid; // key found
+            }
+	}
+	return -(low + 1); // key not found.
     }
 
     /** The random object used when shuffling an array. */

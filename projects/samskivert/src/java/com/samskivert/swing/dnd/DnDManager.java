@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.2 2002/08/20 21:05:10 ray Exp $
+// $Id: DnDManager.java,v 1.3 2002/08/20 22:38:42 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -104,7 +104,7 @@ public class DnDManager
         _source = (DragSource) _draggers.get(_sourceComp);
 
         // make sure the source wants to start a drag.
-        if (!_source.startDrag(_cursors, _data)) {
+        if ((_source == null) || (!_source.startDrag(_cursors, _data))) {
             // if not, reset our start conditions and bail
             reset();
             return;
@@ -166,9 +166,12 @@ public class DnDManager
      */
     protected void mouseExited (MouseEvent event)
     {
-        _lastTarget = null;
         if (_lastComp != null) {
             _lastComp.setCursor(_oldCursor);
+        }
+        if (_lastTarget != null) {
+            _lastTarget.noDrop();
+            _lastTarget = null;
         }
     }
 

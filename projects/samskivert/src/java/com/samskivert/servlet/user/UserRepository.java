@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.26 2003/09/04 02:40:00 eric Exp $
+// $Id: UserRepository.java,v 1.27 2003/09/16 18:37:31 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -236,6 +236,40 @@ public class UserRepository extends JORARepository
     }
 
     /**
+     * Looks up users by userid
+     *
+     * @return the users whom have a user id in the userIds array.
+     */
+    public HashIntMap loadUsersFromId (int[] userIds)
+	throws PersistenceException
+    {
+        // make sure we actually have something to do
+        if (userIds.length == 0) {
+            return new HashIntMap();
+        }
+
+        final String ids = genIdString(userIds);
+
+        return (HashIntMap)execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                // look up the users
+                Cursor ec = _utable.select("where userid in (" + ids + ")");
+
+                User user;
+                HashIntMap data = new HashIntMap();
+                while ((user = (User)ec.next()) != null) {
+                    user.setDirtyMask(_utable.getFieldMask());
+                    data.put(user.userId, user);
+                }
+
+                return data;
+            }
+        });
+    }
+
+    /**
      * Loads up a user record that matches the specified where clause.
      * Returns null if no record matches.
      */
@@ -417,6 +451,45 @@ public class UserRepository extends JORARepository
 	return loadNames(userIds, "realname");
     }
 
+    /**
+     * Returns an array with the real names of every user in the system.
+     * This is for Paul who whined about not knowing who was using Who,
+     * Where, When because he didn't feel like emailing anyone that wasn't
+     * already using it to link up.
+     */
+    public String[] loadAllRealNames ()
+	throws PersistenceException
+    {
+        final ArrayList names = new ArrayList();
+
+	// do the query
+        execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                Statement stmt = _session.connection.createStatement();
+                try {
+                    String query = "select realname from users";
+                    ResultSet rs = stmt.executeQuery(query);
+                    while (rs.next()) {
+                        names.add(rs.getString(1));
+                    }
+
+                    // nothing to return
+                    return null;
+
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+            }
+        });
+
+	// finally construct our result
+	String[] result = new String[names.size()];
+        names.toArray(result);
+	return result;
+    }
+
     protected String[] loadNames (int[] userIds, final String column)
 	throws PersistenceException
     {
@@ -425,14 +498,7 @@ public class UserRepository extends JORARepository
             return new String[0];
         }
 
-	// build up the string we need for the query
-	final StringBuffer ids = new StringBuffer();
-	for (int i = 0; i < userIds.length; i++) {
-	    if (ids.length() > 0) {
-		ids.append(", ");
-	    }
-	    ids.append(userIds[i]);
-	}
+        final String ids = genIdString(userIds);
 
 	final HashIntMap map = new HashIntMap();
 
@@ -471,43 +537,24 @@ public class UserRepository extends JORARepository
 	return result;
     }
 
+
     /**
-     * Returns an array with the real names of every user in the system.
-     * This is for Paul who whined about not knowing who was using Who,
-     * Where, When because he didn't feel like emailing anyone that wasn't
-     * already using it to link up.
+     * Take the passed in int array and create the a string suitable for
+     * using in a SQL set query (I.e., "select foo, from bar where userid
+     * in (genIdString(userIds))"; )
      */
-    public String[] loadAllRealNames ()
-	throws PersistenceException
+    protected String genIdString (int[] userIds)
     {
-        final ArrayList names = new ArrayList();
-
-	// do the query
-        execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
-                throws PersistenceException, SQLException
-            {
-                Statement stmt = _session.connection.createStatement();
-                try {
-                    String query = "select realname from users";
-                    ResultSet rs = stmt.executeQuery(query);
-                    while (rs.next()) {
-                        names.add(rs.getString(1));
-                    }
-
-                    // nothing to return
-                    return null;
-
-                } finally {
-                    JDBCUtil.close(stmt);
-                }
+	// build up the string we need for the query
+	StringBuffer ids = new StringBuffer();
+	for (int i = 0; i < userIds.length; i++) {
+	    if (ids.length() > 0) {
+                ids.append(",");
             }
-        });
+            ids.append(userIds[i]);
+	}
 
-	// finally construct our result
-	String[] result = new String[names.size()];
-        names.toArray(result);
-	return result;
+        return ids.toString();
     }
 
     public static void main (String[] args)

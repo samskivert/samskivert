@@ -1,3 +1,5 @@
+* Release 1.01:
+
 2001-08-13  Michael Bayne  <mdb@bering>
 
 	* code/swing/Controller.java: Added classes to support having
@@ -10,4 +12,4 @@
 
 	* various: Initial release.
 
-$Id: NEWS,v 1.1 2001/08/14 01:14:40 mdb Exp $
+$Id: NEWS,v 1.2 2001/08/14 01:15:52 mdb Exp $

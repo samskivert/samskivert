@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.9 2002/03/28 18:57:34 mdb Exp $
+// $Id: Config.java,v 1.10 2002/03/28 21:50:26 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,78 +23,75 @@ package com.samskivert.util;
 import java.io.IOException;
 
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
+
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import com.samskivert.Log;
 
 /**
  * The config class provides a unified interaface to application
  * configuration information. It takes care of loading properties files
- * from locations in the classpath and binding the properties in those
- * files into the global config namespace. It also provides access to more
- * datatypes than simply strings, handling the parsing of ints as well as
- * int arrays and string arrays.
+ * (done via the classpath) and merging configuration data from multiple
+ * configuration files with the same path (so that users of packages can
+ * override configuration settings for the packages that they use).
  *
- * <p> An application should construct a single instance of
- * <code>Config</code> and use it to access all of its configuration
- * information.
+ * <p> The primary pattern is to create, for each package that shares
+ * configuration information, a singleton class containing a config object
+ * that is configured to load its data from a single configuration
+ * file. For example:
+ *
+ * <pre>
+ * public class FooConfig
+ * {
+ *     public static Config config = new Config("com/fribitz/foo");
+ * }
+ * </pre>
+ *
+ * which would look for <code>com/fribitz/foo.properties</code> in the
+ * classpath and serve up those configuration values when requests were
+ * made from <code>FooConfig.config</code>.
+ *
+ * <p> The config class allows for users to override configuration values
+ * persistently, using the standard Java {@link Preferences} facilities to
+ * maintain the overridden values. If a value is set in a configuration
+ * object, it will remain overridden in between invocations of the
+ * application (and generally leverage the benefits of the pluggable
+ * preferences backends provided by the standard preferences stuff).
  */
 public class Config
 {
     /**
-     * Constructs a new config object which can be used immediately by
-     * binding properties files into the namespace and subsequently
-     * requesting values.
+     * Constructs a new config object which will obtain configuration
+     * information from the specified properties bundle.
      */
-    public Config ()
+    public Config (String path)
     {
-    }
+        // first load up our default prefs
+        try {
+            // append the file suffix onto the path
+            String ppath = path + PROPS_SUFFIX;
 
-    /**
-     * Binds the specified properties file into the namespace with the
-     * specified name. If the properties file in question contains a
-     * property of the name <code>foo.bar</code> and the file is bound
-     * into the namespace under <code>baz</code>, then that property would
-     * be accessed as <code>baz.foo.bar</code>.
-     *
-     * @param name the root name for all properties in this file.
-     * @param path the path to the properties file which must live
-     * somewhere in the classpath. For example: <code>foo/bar/baz</code>
-     * would indicate a file named "foo/bar/baz.properties" living in the
-     * classpath.
-     * @param inherit if true, the properties file will be loaded using
-     * {@link ConfigUtil#loadInheritedProperties} rather than {@link
-     * ConfigUtil#loadProperties}.
-     *
-     * @exception IOException thrown if an error occurrs loading the
-     * properties file (like it doesn't exist or cannot be accessed).
-     */
-    public void bindProperties (String name, String path, boolean inherit)
-        throws IOException
-    {
-        // append the file suffix onto the path
-        path += PROPS_SUFFIX;
-        // load the properties file
-        Properties props = ConfigUtil.loadProperties(path);
-        if (props == null) {
-            throw new IOException("Unable to load properties file: " + path);
+            // load the properties file
+            _props = ConfigUtil.loadProperties(ppath);
+            if (_props == null) {
+                Log.warning("Unable to locate configuration definitions " +
+                            "[path=" + path + "].");
+                _props = new Properties();
+            }
+
+        } catch (IOException ioe) {
+            Log.warning("Unable to load configuration [path=" + path +
+                        ", ioe=" + ioe + "].");
         }
-        // bind the properties instance
-        _props.put(name, props);
-    }
 
-    /**
-     * A backwards compatibility method that does not use inherited
-     * properties loading.
-     *
-     * @see #bindProperties(String,String,boolean)
-     */
-    public void bindProperties (String name, String path)
-        throws IOException
-    {
-        bindProperties(name, path, false);
+        // get a handle on the preferences instance that we'll use to
+        // override values in the properties file
+        _prefs = Preferences.userRoot().node(path);
     }
 
     /**
@@ -105,9 +102,7 @@ public class Config
      * integer, not in proper array specification), a warning message will
      * be logged and the default value will be returned.
      *
-     * @param the fully qualified name of the property (fully qualified
-     * meaning that it contains the namespace identifier as well), for
-     * example: <code>foo.bar.baz</code>.
+     * @param name name of the property.
      * @param defval the value to return if the property is not specified
      * in the config file.
      *
@@ -115,21 +110,28 @@ public class Config
      */
     public int getValue (String name, int defval)
     {
-        String val = resolveProperty(name);
-
-        // if it's not specified, we return the default
-        if (val == null) {
-            return defval;
+        // if there is a value, parse it into an integer
+        String val = _props.getProperty(name);
+        if (val != null) {
+            try {
+                defval = Integer.parseInt(val);
+            } catch (NumberFormatException nfe) {
+                Log.warning("Malformed integer property [name=" + name +
+                            ", value=" + val + "].");
+            }
         }
 
-        // otherwise parse it into an integer
-        try {
-            return Integer.parseInt(val);
-        } catch (NumberFormatException nfe) {
-            Log.warning("Malformed integer property [fqn=" + name +
-                        ", value=" + val + "].");
-            return defval;
-        }
+        // finally look for an overridden value
+        return _prefs.getInt(name, defval);
+    }
+
+    /**
+     * Sets the value of the specified preference, overriding the value
+     * defined in the configuration files shipped with the application.
+     */
+    public void setValue (String name, int value)
+    {
+        _prefs.putInt(name, value);
     }
 
     /**
@@ -137,9 +139,7 @@ public class Config
      * property. If the value is not specified in the associated
      * properties file, the supplied default value is returned instead.
      *
-     * @param the fully qualified name of the property (fully qualified
-     * meaning that it contains the namespace identifier as well), for
-     * example: <code>foo.bar.baz</code>.
+     * @param name the name of the property to be fetched.
      * @param defval the value to return if the property is not specified
      * in the config file.
      *
@@ -147,9 +147,23 @@ public class Config
      */
     public String getValue (String name, String defval)
     {
-        String val = resolveProperty(name);
-        // if it's not specified, we return the default
-        return (val == null) ? defval : val;
+        // if there is a value, parse it into an integer
+        String val = _props.getProperty(name);
+        if (val != null) {
+            defval = val;
+        }
+
+        // finally look for an overridden value
+        return _prefs.get(name, defval);
+    }
+
+    /**
+     * Sets the value of the specified preference, overriding the value
+     * defined in the configuration files shipped with the application.
+     */
+    public void setValue (String name, String value)
+    {
+        _prefs.put(name, value);
     }
 
     /**
@@ -160,9 +174,7 @@ public class Config
      * config value is <code>"false"</code> (case-insensitive), else
      * the return value will be true.
      *
-     * @param the fully qualified name of the property (fully qualified
-     * meaning that it contains the namespace identifier as well), for
-     * example: <code>foo.bar.baz</code>.
+     * @param name the name of the property to be fetched.
      * @param defval the value to return if the property is not specified
      * in the config file.
      *
@@ -170,9 +182,23 @@ public class Config
      */
     public boolean getValue (String name, boolean defval)
     {
-	String val = resolveProperty(name);
-	// if it's not specified, we return the default
-	return (val == null) ? defval : !val.equalsIgnoreCase("false");
+        // if there is a value, parse it into an integer
+        String val = _props.getProperty(name);
+        if (val != null) {
+            defval = !val.equalsIgnoreCase("false");
+        }
+
+        // finally look for an overridden value
+        return _prefs.getBoolean(name, defval);
+    }
+
+    /**
+     * Sets the value of the specified preference, overriding the value
+     * defined in the configuration files shipped with the application.
+     */
+    public void setValue (String name, boolean value)
+    {
+        _prefs.putBoolean(name, value);
     }
 
     /**
@@ -183,9 +209,7 @@ public class Config
      * integer, not in proper array specification), a warning message will
      * be logged and the default value will be returned.
      *
-     * @param the fully qualified name of the property (fully qualified
-     * meaning that it contains the namespace identifier as well), for
-     * example: <code>foo.bar.baz</code>.
+     * @param name the name of the property to be fetched.
      * @param defval the value to return if the property is not specified
      * in the config file.
      *
@@ -193,22 +217,31 @@ public class Config
      */
     public int[] getValue (String name, int[] defval)
     {
-        String val = resolveProperty(name);
+        // look up the value in the configuration file and use that to
+        // look up any overridden value
+        String val = _prefs.get(name, _props.getProperty(name));
+        int[] result = defval;
 
-        // if it's not specified, we return the default
-        if (val == null) {
-            return defval;
-        }
-
-        // otherwise parse it into an array of ints
-        int[] result = StringUtil.parseIntArray(val);
-        if (result == null) {
-            Log.warning("Malformed int array property [fqn=" + name +
-                        ", value=" + val + "].");
-            return defval;
+        // parse it into an array of ints
+        if (val != null) {
+            result = StringUtil.parseIntArray(val);
+            if (result == null) {
+                Log.warning("Malformed int array property [name=" + name +
+                            ", value=" + val + "].");
+                return defval;
+            }
         }
 
         return result;
+    }
+
+    /**
+     * Sets the value of the specified preference, overriding the value
+     * defined in the configuration files shipped with the application.
+     */
+    public void setValue (String name, int[] value)
+    {
+        _prefs.put(name, StringUtil.toString(value, "", ""));
     }
 
     /**
@@ -219,9 +252,7 @@ public class Config
      * integer, not in proper array specification), a warning message will
      * be logged and the default value will be returned.
      *
-     * @param key the fully qualified name of the property (fully qualified
-     * meaning that it contains the namespace identifier as well), for
-     * example: <code>foo.bar.baz</code>.
+     * @param name the name of the property to be fetched.
      * @param defval the value to return if the property is not specified
      * in the config file.
      *
@@ -229,37 +260,44 @@ public class Config
      */
     public String[] getValue (String name, String[] defval)
     {
-        String val = resolveProperty(name);
+        // look up the value in the configuration file and use that to
+        // look up any overridden value
+        String val = _prefs.get(name, _props.getProperty(name));
+        String[] result = defval;
 
-        // if it's not specified, we return the default
-        if (val == null) {
-            return defval;
-        }
-
-        // otherwise parse it into an array of strings
-        String[] result = StringUtil.parseStringArray(val);
-        if (result == null) {
-            Log.warning("Malformed string array property [fqn=" + name +
-                        ", value=" + val + "].");
-            return defval;
+        // parse it into an array of ints
+        if (val != null) {
+            result = StringUtil.parseStringArray(val);
+            if (result == null) {
+                Log.warning("Malformed string array property [name=" + name +
+                            ", value=" + val + "].");
+                return defval;
+            }
         }
 
         return result;
     }
 
     /**
-     * Looks up the specified string-valued configuration entry,
-     * loads the class with that name and instantiates a new instance
-     * of that class, which is returned.
+     * Sets the value of the specified preference, overriding the value
+     * defined in the configuration files shipped with the application.
+     */
+    public void setValue (String name, String[] value)
+    {
+        _prefs.put(name, StringUtil.joinEscaped(value));
+    }
+
+    /**
+     * Looks up the specified string-valued configuration entry, loads the
+     * class with that name and instantiates a new instance of that class,
+     * which is returned.
      *
-     * @param key the fully qualified name of the property (fully qualified
-     * meaning that it contains the namespace identifier as well), for
-     * example: <code>foo.bar.baz</code>.
+     * @param name the name of the property to be fetched.
      * @param defcname the class name to use if the property is not
      * specified in the config file.
      *
-     * @exception Exception thrown if any error occurs while loading
-     * or instantiating the class.
+     * @exception Exception thrown if any error occurs while loading or
+     * instantiating the class.
      */
     public Object instantiateValue (String name, String defcname)
 	throws Exception
@@ -268,125 +306,41 @@ public class Config
     }
 
     /**
-     * Returns the entire properties instance bound to a particular
-     * namespace identifier.
-     *
-     * @return a properties instance that was bound to the specified
-     * namespace identifier or null if nothing is bound to that
-     * identifier.
+     * Returns an iterator that returns all of the configuration keys in
+     * this config object.
      */
-    public Properties getProperties (String name)
+    public Iterator keys ()
     {
-        return (Properties)_props.get(name);
-    }
+        // what with all the complicated business, we just need to take
+        // the brute force approach and enumerate everything up front
+        HashSet matches = new HashSet();
 
-    /**
-     * Returns an iterator that returns all of the configuration keys that
-     * match the specified prefix. The prefix should at least contain a
-     * namespace identifier but can contain further path components to
-     * restrict the iteration. For example: <code>foo</code> would iterate
-     * over every property key in the properties file that was bound to
-     * <code>foo</code>. <code>foo.bar</code> would iterate over every
-     * property key in the <code>foo</code> property file that began with
-     * the string <code>bar</code>.
-     *
-     * <p> If an invalid or non-existent namespace identifier is supplied,
-     * a warning will be logged and an empty iterator.
-     */
-    public Iterator keys (String prefix)
-    {
-        String id = prefix;
-        String key = "";
-
-        // parse the key prefix if one was provided
-        int didx = prefix.indexOf(".");
-        if (didx != -1) {
-            id = prefix.substring(0, didx);
-            key = prefix.substring(didx+1);
+        // add the keys provided in the config files
+        Enumeration defkeys = _props.propertyNames();
+        while (defkeys.hasMoreElements()) {
+            matches.add(defkeys.nextElement());
         }
 
-        Properties props = (Properties)_props.get(id);
-        if (props == null) {
-            Log.warning("No property file bound to top-level name " +
-                        "[name=" + id + ", key=" + key + "].");
-            return new Iterator() {
-                public boolean hasNext () { return false; }
-                public Object next () { return null; }
-                public void remove () { /* do nothing */ };
-            };
-        }
-
-        return new PropertyIterator(key, props.keys());
-    }
-
-    protected static class PropertyIterator implements Iterator
-    {
-        public PropertyIterator (String prefix, Enumeration enum)
-        {
-            _prefix = prefix;
-            _enum = enum;
-            scanToNext();
-        }
-
-        public boolean hasNext ()
-        {
-            return (_next != null);
-        }
-
-        public Object next ()
-        {
-            String next = _next;
-            scanToNext();
-            return next;
-        }
-
-        public void remove ()
-        {
-            // not supported
-        }
-
-        protected void scanToNext ()
-        {
-            // assume that nothing is left
-            _next = null;
-
-            while (_enum.hasMoreElements()) {
-                String next = (String)_enum.nextElement();
-                if (next.startsWith(_prefix)) {
-                    _next = next;
-                    break;
-                }
+        // then add the overridden keys
+        try {
+            String[] keys = _prefs.keys();
+            for (int i = 0; i < keys.length; i++) {
+                matches.add(keys[i]);
             }
+        } catch (BackingStoreException bse) {
+            Log.warning("Unable to enumerate preferences keys " +
+                        "[error=" + bse + "].");
         }
 
-        protected String _prefix;
-        protected Enumeration _enum;
-        protected String _next;
+        return matches.iterator();
     }
 
-    protected String resolveProperty (String name)
-    {
-        int didx = name.indexOf(".");
-        if (didx == -1) {
-            Log.warning("Invalid fully qualified property name " +
-                        "[name=" + name + "].");
-            return null;
-        }
+    /** Contains the default configuration information. */
+    protected Properties _props;
 
-        String id = name.substring(0, didx);
-        String key = name.substring(didx+1);
+    /** Used to maintain configuration overrides. */
+    protected Preferences _prefs;
 
-        Properties props = (Properties)_props.get(id);
-        if (props == null) {
-            Log.warning("No property file bound to top-level name " +
-                        "[name=" + id + ", key=" + key + "].");
-            return null;
-        }
-
-        return props.getProperty(key);
-    }
-
-    protected Hashtable _props = new Hashtable();
-
+    /** The file extension used for configuration files. */
     protected static final String PROPS_SUFFIX = ".properties";
 }

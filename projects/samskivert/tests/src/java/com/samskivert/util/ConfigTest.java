@@ -1,9 +1,7 @@
 //
-// $Id: ConfigTest.java,v 1.1 2002/03/28 18:57:34 mdb Exp $
+// $Id: ConfigTest.java,v 1.2 2002/03/28 21:50:27 mdb Exp $
 
 package com.samskivert.util;
-
-import java.io.IOException;
 
 import java.util.Iterator;
 
@@ -22,44 +20,29 @@ public class ConfigTest extends TestCase
 
     public void runTest ()
     {
-        Config config = new Config();
-        try {
-            config.bindProperties("test", "rsrc/util/test");
+        Config config = new Config("rsrc/util/test");
 
-            System.out.println("test.prop1: " +
-                               config.getValue("test.prop1", 1));
-            System.out.println("test.prop2: " +
-                               config.getValue("test.prop2", "two"));
+        System.out.println("prop1: " + config.getValue("prop1", 1));
+        System.out.println("prop2: " + config.getValue("prop2", "two"));
 
-            int[] ival = new int[] { 1, 2, 3 };
-            ival = config.getValue("test.prop3", ival);
-            System.out.println("test.prop3: " + StringUtil.toString(ival));
+        int[] ival = new int[] { 1, 2, 3 };
+        ival = config.getValue("prop3", ival);
+        System.out.println("prop3: " + StringUtil.toString(ival));
 
-            String[] sval = new String[] { "one", "two", "three" };
-            sval = config.getValue("test.prop4", sval);
-            System.out.println("test.prop4: " + StringUtil.toString(sval));
+        String[] sval = new String[] { "one", "two", "three" };
+        sval = config.getValue("prop4", sval);
+        System.out.println("prop4: " + StringUtil.toString(sval));
 
-            System.out.println("test.prop5: " +
-                               config.getValue("test.prop5", "undefined"));
+        System.out.println("prop5: " + config.getValue("prop5", "undefined"));
 
-            Iterator iter = config.keys("test.prop2");
-            while (iter.hasNext()) {
-                System.out.println(iter.next());
-            }
+        // now set some properties
+        config.setValue("prop1", 15);
+        System.out.println("prop1: " + config.getValue("prop1", 1));
+        config.setValue("prop2", "three");
+        System.out.println("prop2: " + config.getValue("prop2", "two"));
 
-            iter = config.keys("test.prop");
-            while (iter.hasNext()) {
-                System.out.println(iter.next());
-            }
-
-            iter = config.keys("test");
-            while (iter.hasNext()) {
-                System.out.println(iter.next());
-            }
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
-        }
+        Iterator iter = config.keys();
+        System.out.println("Keys: " + StringUtil.toString(iter));
     }
 
     public static Test suite ()

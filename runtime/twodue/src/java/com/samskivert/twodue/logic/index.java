@@ -1,5 +1,5 @@
 //
-// $Id: index.java,v 1.1 2002/11/08 09:14:21 mdb Exp $
+// $Id: index.java,v 1.2 2002/11/08 21:49:17 mdb Exp $
 
 package com.samskivert.twodue.logic;
 
@@ -47,19 +47,18 @@ public class index extends UserLogic
 	    // set the creator from the username of the calling user
 	    Task task = new Task();
 	    task.creator = user.username;
+	    task.notes = ""; // no notes to start
 
 	    // parse our fields
 	    task.summary = ParameterUtil.requireParameter(
-                ctx.getRequest(), "summary", "index.error.missing_summary");
+                ctx.getRequest(), "summary", "task.error.missing_summary");
 	    task.category = ParameterUtil.requireParameter(
-                ctx.getRequest(), "category",
-                "index.error.missing_category");
+                ctx.getRequest(), "category", "task.error.missing_category");
 	    task.complexity = ParameterUtil.requireParameter(
                 ctx.getRequest(), "complexity",
-                "index.error.missing_complexity");
+                "task.error.missing_complexity");
 	    task.priority = ParameterUtil.requireIntParameter(
-                ctx.getRequest(), "priority",
-                "index.error.invalid_priority");
+                ctx.getRequest(), "priority", "task.error.invalid_priority");
 
 	    // insert the task into the repository
             app.getRepository().createTask(task);
@@ -72,7 +71,7 @@ public class index extends UserLogic
         } else if (ParameterUtil.parameterEquals(
                        ctx.getRequest(), "action", "complete")) {
             int taskId = ParameterUtil.requireIntParameter(
-                ctx.getRequest(), "task", "index.error.missing_taskid");
+                ctx.getRequest(), "task", "task.error.missing_taskid");
             app.getRepository().completeTask(taskId, user.username);
 
 	    // let the user know we updated the database
@@ -81,7 +80,7 @@ public class index extends UserLogic
         } else if (ParameterUtil.parameterEquals(
                        ctx.getRequest(), "action", "claim")) {
             int taskId = ParameterUtil.requireIntParameter(
-                ctx.getRequest(), "task", "index.error.missing_taskid");
+                ctx.getRequest(), "task", "task.error.missing_taskid");
             app.getRepository().claimTask(taskId, user.username);
 
 	    // let the user know we updated the database

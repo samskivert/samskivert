@@ -1,5 +1,5 @@
 //
-// $Id: Task.java,v 1.1 2002/11/08 09:14:21 mdb Exp $
+// $Id: Task.java,v 1.2 2002/11/08 21:49:17 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -31,5 +31,5 @@ public class Task
 
     public Date completion;
 
-    public transient ArrayList notes;
+    public String notes;
 }

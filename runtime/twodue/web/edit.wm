@@ -3,49 +3,113 @@
 
 <p>
 
-<form action="index.wm">
-$form.fixedHidden("action", "update")
+<table cellpadding="0" cellspacing="10"> <!-- two colum layout table -->
+<tr><td valign="top">
 
 <table cellpadding="2" cellspacing="0" border="0">
-<tr><td colspan="3" bgcolor="$scolor">&nbsp;<br></td></tr>
+
+#if ($task && $task.completor)
+<form action="edit.wm">
+$form.fixedHidden("action", "reopen")
+<input type="hidden" name="task" value="$task.taskId">
+<tr><td colspan="3" valign="center">
+Task is completed.
+</td></tr>
+<tr><td colspan="3" bgcolor="$scolor" align="right">
+$form.submit("submit", "Reopen")</td></tr>
+<tr><td colspan="3">&nbsp;</td></tr>
+#end
+
+<form action="edit.wm">
+$form.fixedHidden("action", "update")
+<input type="hidden" name="task" value="$task.taskId">
 
 <tr><td colspan="3">Summary:<br>
 <textarea name="summary" rows="5" cols="50">
+#if ($task)
+$task.summary
+#end
 </textarea>
 </td></tr>
 
 <tr><td>Category:<br>
-<font face="courier">
-$form.text("category", "size='10'", "")
-</font></td>
+$form.text("category", "size='10'", $task.category)
+</td>
 
 <td>Complexity:<br>
-<font face="courier">
 <select name="complexity">
-  $form.option("complexity", "1 - Simple hack", "Simple hack", "1 - Simple hack")
-  $form.option("complexity", "2 - Minor feature", "Minor feature", "1 - Simple hack")
-  $form.option("complexity", "3 - Major feature", "Major feature", "1 - Simple hack")
-  $form.option("complexity", "4 - Subsystem", "Subsystem", "1 - Simple hack")
-  $form.option("complexity", "5 - Major refactor", "Major refactor", "1 - Simple hack")
+  $form.option("complexity", "1 - Simple hack", "Simple hack", $task.complexity)
+  $form.option("complexity", "2 - Minor feature", "Minor feature", $task.complexity)
+  $form.option("complexity", "3 - Major feature", "Major feature", $task.complexity)
+  $form.option("complexity", "4 - Subsystem", "Subsystem", $task.complexity)
+  $form.option("complexity", "5 - Major refactor", "Major refactor", $task.complexity)
 </select>
-</font></td>
+</td>
 
 <td>Priority:<br>
-<font face="courier">
 <select name="priority">
-  $form.option("priority", "50", "Urgent", "15")
-  $form.option("priority", "25", "Next release", "15")
-  $form.option("priority", "15", "Soon", "15")
-  $form.option("priority", "10", "Before launch", "15")
-  $form.option("priority", "5", "Post launch", "15")
-  $form.option("priority", "1", "On the list", "15")
+  $form.option("priority", "50", "Urgent", $task.priority)
+  $form.option("priority", "25", "Next release", $task.priority)
+  $form.option("priority", "15", "Soon", $task.priority)
+  $form.option("priority", "10", "Before launch", $task.priority)
+  $form.option("priority", "5", "Post launch", $task.priority)
+  $form.option("priority", "1", "On the list", $task.priority)
 </select>
-</font></td></tr>
+</td></tr>
+
+<tr><td>Creator:<br>
+$form.text("creator", "size='10'", $task.creator)
+</td>
+<td>&nbsp;</td>
+<td>Owner:<br>
+#if ($task.owner)
+$form.text("owner", "size='10'", $task.owner)
+#else
+$form.text("owner", "size='10'", "")
+#end
+</td>
 
 <tr><td colspan="3" align="right" bgcolor="$scolor">
 $form.submit("submit", "Update")</td></tr>
+</form>
 </table>
 
+</td><td valign="top"> <!-- two colum layout table -->
+
+<table cellpadding="2" cellspacing="0" border="0">
+
+<form action="edit.wm">
+$form.fixedHidden("action", "addnote")
+<input type="hidden" name="task" value="$task.taskId">
+
+<tr><td>Add a note:<br>
+<textarea name="note" rows="5" cols="50">
+</textarea>
+</td></tr>
+
+<tr><td align="right" bgcolor="$scolor">
+$form.submit("submit", "Add")</td></tr>
 </form>
+
+<form action="edit.wm">
+$form.fixedHidden("action", "editnotes")
+<input type="hidden" name="task" value="$task.taskId">
+
+<tr><td>Notes:<br>
+<textarea name="notes" rows="10" cols="50">
+#if ($task)
+$task.notes
+#end
+</textarea>
+</td></tr>
+
+<tr><td align="right" bgcolor="$scolor">
+$form.submit("submit", "Update")</td></tr>
+</form>
+
+</table>
+
+</td></tr> <!-- two colum layout table -->
+</table>
 
 #import ("/footer.wm")

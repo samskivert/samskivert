@@ -13,9 +13,9 @@
 
 #foreach ($otask in $otasks)
 #if ($vidx > 0)
-<tr><td colspan="3">&nbsp;</td></tr>
+<tr><td colspan="4">&nbsp;</td></tr>
 #end
-<tr><td colspan="3" align="left" bgcolor="$scolor">$otask.name</td></tr>
+<tr><td colspan="4" align="left" bgcolor="$scolor">$otask.name</td></tr>
 
 #foreach ($task in $otask.tasks)
 <form action="index.wm">
@@ -34,7 +34,9 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 #end
 </td>
 <td>$task.summary</td>
-<td valign="top">$task.category</td></tr>
+<td valign="top">$task.category</td>
+<td valign="top"><a href="edit.wm?task=$task.taskId">
+<img src="images/edit.png" border="0"></a></td></tr>
 </form>
 #end
 #end
@@ -48,10 +50,10 @@ $form.imageSubmit("submit", "", "images/complete.png", "Mark as completed")
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 #foreach ($xtask in $xtasks)
 #if ($vidx > 0)
-<tr><td colspan="3">&nbsp;</td></tr>
+<tr><td colspan="4">&nbsp;</td></tr>
 #end
 <tr bgcolor="$scolor"><td colspan="2" align="left">$xtask.name</td>
-<td>
+<td colspan="2">
 #if ($xtask.pruned > 0)
 <a href="index.wm?expand=$xtask.name">($xtask.pruned ...)</a>
 #else
@@ -70,8 +72,14 @@ $form.fixedHidden("task", "$task.taskId")
 <tr bgcolor="$rowcolor">
 <td>$form.imageSubmit("action", "claim", "images/claim.png", "Claim this task")</td>
 <td>$task.summary &nbsp;
-<span class="small">[$task.creator]</span></td>
+<span class="small">[$task.creator]</span>
+#if (!$string.blank($task.notes))
+&nbsp; <a href="detail.wm?task=$task.taskId">[...]</a>
+#end
+</td>
 <td valign="top">$task.category</td>
+<td valign="top"><a href="edit.wm?task=$task.taskId">
+<img src="images/edit.png" border="0"></a></td>
 </tr>
 </form>
 #end
@@ -99,7 +107,9 @@ $form.fixedHidden("task", "$task.taskId")
 <tr bgcolor="$rowcolor">
 <td valign="top" align="center">$task.completion<br>[$task.completor]</td>
 <td>$task.summary</td>
-<td valign="top">$task.category</td></tr>
+<td valign="top">$task.category</td>
+<td valign="top"><a href="edit.wm?task=$task.taskId">
+<img src="images/edit.png" border="0"></a></td></tr>
 #end
 </table>
 
@@ -117,12 +127,10 @@ $form.fixedHidden("action", "create")
 </td></tr>
 
 <tr><td>Category:<br>
-<font face="courier">
 $form.text("category", "size='10'", "")
-</font></td>
+</td>
 
 <td>Complexity:<br>
-<font face="courier">
 <select name="complexity">
   $form.option("complexity", "1 - Simple hack", "Simple hack", "1 - Simple hack")
   $form.option("complexity", "2 - Minor feature", "Minor feature", "1 - Simple hack")
@@ -130,10 +138,9 @@ $form.text("category", "size='10'", "")
   $form.option("complexity", "4 - Subsystem", "Subsystem", "1 - Simple hack")
   $form.option("complexity", "5 - Major refactor", "Major refactor", "1 - Simple hack")
 </select>
-</font></td>
+</td>
 
 <td>Priority:<br>
-<font face="courier">
 <select name="priority">
   $form.option("priority", "50", "Urgent", "15")
   $form.option("priority", "25", "Next release", "15")
@@ -142,7 +149,7 @@ $form.text("category", "size='10'", "")
   $form.option("priority", "5", "Post launch", "15")
   $form.option("priority", "1", "On the list", "15")
 </select>
-</font></td></tr>
+</td></tr>
 
 <tr><td colspan="3" align="right" bgcolor="$scolor">
 $form.submit("submit", "Create")</td></tr>

@@ -1,5 +1,5 @@
 /**
- * $Id: tasks-schema.sql,v 1.1 2002/11/08 09:14:21 mdb Exp $
+ * $Id: tasks-schema.sql,v 1.2 2002/11/08 21:49:18 mdb Exp $
  *
  * Schema for the Two Due tasks and notes table.
  */
@@ -60,6 +60,11 @@ CREATE TABLE TASKS
      * The time of completion of this task.
      */
     COMPLETION DATE,
+
+    /** 
+     * Free form notes associated with this task.
+     */
+    NOTES TEXT NOT NULL,
 
     /**
      * Defines our table keys.

@@ -1,5 +1,5 @@
 //
-// $Id: TaskRepository.java,v 1.1 2002/11/08 09:14:21 mdb Exp $
+// $Id: TaskRepository.java,v 1.2 2002/11/08 21:49:17 mdb Exp $
 
 package com.samskivert.twodue.data;
 
@@ -75,6 +75,7 @@ public class TaskRepository extends JORARepository
         task.complexity = complexity;
         task.priority = priority;
         task.creator = creator;
+        task.notes = "";
         createTask(task);
         return task;
     }
@@ -102,18 +103,24 @@ public class TaskRepository extends JORARepository
 
     /**
      * Loads up the specified task.
+     *
+     * @return the requested task or null if no tasks exists with that id.
      */
-    public Task loadTask (int taskId)
+    public Task loadTask (final int taskId)
         throws PersistenceException
     {
         return (Task)execute(new Operation () {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                String query = "where COMPLETOR IS NULL AND OWNER IS NULL " +
-                    "ORDER BY CATEGORY, PRIORITY";
-                Cursor tc = _ttable.select(query);
-                return tc.toArrayList();
+                String query = "where TASK_ID = " + taskId;
+                Cursor ec = _ttable.select(query);
+                Task task = (Task)ec.next();
+                if (task != null) {
+                    // call next() again to cause the cursor to close itself
+                    ec.next();
+                }
+                return task;
             }
         });
     }

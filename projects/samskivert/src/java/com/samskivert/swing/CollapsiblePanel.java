@@ -1,5 +1,5 @@
 //
-// $Id: CollapsiblePanel.java,v 1.2 2002/07/09 21:52:02 ray Exp $
+// $Id: CollapsiblePanel.java,v 1.3 2002/07/10 01:53:32 ray Exp $
 
 package com.samskivert.swing;
 
@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.Icon;
+import javax.swing.SwingConstants;
 
 /**
  * A panel that contains a button which will collapse the rest of the content.
@@ -22,8 +24,8 @@ public class CollapsiblePanel extends JPanel
      */
     public CollapsiblePanel (JButton trigger)
     {
+        setTrigger(trigger, null, null);
         setTriggerContainer(trigger);
-        setTrigger(trigger);
     }
 
     /**
@@ -40,12 +42,12 @@ public class CollapsiblePanel extends JPanel
      */
     public CollapsiblePanel ()
     {
-        _gl = new VGroupLayout(VGroupLayout.NONE);
-        _gl.setOffAxisPolicy(VGroupLayout.STRETCH);
-        _gl.setGap(0);
-        _gl.setJustification(VGroupLayout.TOP);
-        _gl.setOffAxisJustification(VGroupLayout.LEFT);
-        setLayout(_gl);
+        VGroupLayout gl = new VGroupLayout(VGroupLayout.NONE);
+        gl.setOffAxisPolicy(VGroupLayout.STRETCH);
+        gl.setGap(0);
+        gl.setJustification(VGroupLayout.TOP);
+        gl.setOffAxisJustification(VGroupLayout.LEFT);
+        setLayout(gl);
     }
 
     /**
@@ -65,10 +67,13 @@ public class CollapsiblePanel extends JPanel
     /**
      * Set the trigger button.
      */
-    public void setTrigger (JButton trigger)
+    public void setTrigger (JButton trigger, Icon collapsed, Icon uncollapsed)
     {
         _trigger = trigger;
-        _text = trigger.getText();
+        _trigger.setHorizontalAlignment(SwingConstants.LEFT);
+        _trigger.setHorizontalTextPosition(SwingConstants.RIGHT);
+        _downIcon = collapsed;
+        _upIcon = uncollapsed;
         _trigger.addActionListener(this);
     }
 
@@ -78,7 +83,7 @@ public class CollapsiblePanel extends JPanel
      */
     public void setGap (int gap)
     {
-        _gl.setGap(gap);
+        ((VGroupLayout) getLayout()).setGap(gap);
         invalidate();
     }
 
@@ -113,21 +118,20 @@ public class CollapsiblePanel extends JPanel
     {
         if (collapse) {
             _content.hide();
-            _trigger.setText("+ " + _text);
+            _trigger.setIcon(_downIcon);
+
         } else {
             _content.show();
-            _trigger.setText("- " + _text);
+            _trigger.setIcon(_upIcon);
         }
+        revalidate();
     }
-
-    /** Our layout. */
-    protected VGroupLayout _gl;
 
     /** The button that triggers collapsion. */
     protected JButton _trigger;
 
-    /** The original text in the button, oh this's gonna have to change. */
-    protected String _text;
+    /** The icons for collapsed and uncollapsed. */
+    protected Icon _upIcon, _downIcon;
 
     /** The who in the what now? */
     protected JPanel _content = new JPanel();

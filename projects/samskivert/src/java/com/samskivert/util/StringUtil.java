@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.48 2002/12/02 22:59:26 mdb Exp $
+// $Id: StringUtil.java,v 1.49 2002/12/29 01:28:45 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -382,6 +382,9 @@ public class StringUtil
 		buf.append(formatter.toString(v[i]));
 	    }
 	    buf.append(closeBox);
+
+	} else if (val instanceof Collection) {
+            listToString(buf, ((Collection)val).iterator(), formatter);
 
 	} else if (val instanceof Enumeration) {
 	    buf.append(openBox);

@@ -1,5 +1,5 @@
 //
-// $Id: MACUtil.java,v 1.3 2003/07/25 22:29:53 eric Exp $
+// $Id: MACUtil.java,v 1.4 2003/07/31 00:59:56 eric Exp $
 
 package com.samskivert.net;
 
@@ -102,10 +102,10 @@ public class MACUtil
         }
     }
 
-    /** Look for 2 hex values in a row followed by a ':' repeated 5 times,
+    /** Look for 2 hex values in a row followed by a ':' or '-' repeated 5 times,
         followed by 2 hex values. */
     protected static Pattern MACRegex =
-        Pattern.compile("((?:\\p{XDigit}{2}+:){5}+\\p{XDigit}{2}+)",
+        Pattern.compile("((?:\\p{XDigit}{2}+[:\\-]){5}+\\p{XDigit}{2}+)",
                         Pattern.CASE_INSENSITIVE);
 
     // TODO maybe we should obfuscate these with rot13 or something so

@@ -1,5 +1,5 @@
 //
-// $Id: ChainUtil.java,v 1.3 2001/07/14 00:55:21 mdb Exp $
+// $Id: ChainUtil.java,v 1.4 2001/07/17 07:18:09 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -115,7 +115,7 @@ public class ChainUtil
         // if we have no parent, we want to insert ourselves as a root
         // class
         if (parent == null || parent.equals(Object.class)) {
-            insertRoot(roots, name, target);
+            insertRoot(roots, name, target, true);
 
         } else {
             String tpkg = pkgFromClass(target.getName());
@@ -125,7 +125,7 @@ public class ChainUtil
             // into the hierarchy as a root class
             if (!tpkg.equals(ppkg)) {
                 String pname = generateName(parent, pkgroot, true);
-                insertRoot(roots, pname, parent);
+                insertRoot(roots, pname, parent, false);
             }
 
             // and now hang ourselves off of our parent class
@@ -196,9 +196,9 @@ public class ChainUtil
     }
 
     protected static boolean insertRoot (ArrayList roots, String name,
-                                         Class root)
+                                         Class root, boolean inpkg)
     {
-        Chain chroot = new Chain(name, root);
+        Chain chroot = new Chain(name, root, inpkg);
         // make sure no chain already exists for this root
         if (!roots.contains(chroot)) {
             roots.add(chroot);

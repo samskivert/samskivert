@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.4 2001/07/17 06:01:08 mdb Exp $
+// $Id: Driver.java,v 1.5 2001/07/17 07:18:09 mdb Exp $
 
 package com.samskivert.viztool;
 
@@ -49,16 +49,24 @@ public class Driver
         if (print) {
             // we use the print system to render things
             PrinterJob job = PrinterJob.getPrinterJob();
-            job.setPrintable(viz);
 
             // pop up a dialog to format our pages
             // PageFormat format = job.pageDialog(job.defaultPage());
             PageFormat format = job.defaultPage();
 
+            // use sensible margins
+            Paper paper = new Paper();
+            paper.setImageableArea(72*0.5, 72*0.5, 72*7.5, 72*10);
+            format.setPaper(paper);
+
             // pop up a dialog to control printing
             job.printDialog();
 
+            // use our configured page format
+            job.setPrintable(viz, format);
+
             try {
+                // invoke the printing process
                 job.print();
             } catch (PrinterException pe) {
                 pe.printStackTrace(System.err);

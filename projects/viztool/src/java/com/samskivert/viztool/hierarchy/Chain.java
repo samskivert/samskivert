@@ -1,5 +1,5 @@
 //
-// $Id: Chain.java,v 1.4 2001/07/17 01:54:19 mdb Exp $
+// $Id: Chain.java,v 1.5 2001/07/17 07:18:09 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -16,10 +16,11 @@ public class Chain implements Element
     /**
      * Constructs a chain with the specified class as its root.
      */
-    public Chain (String name, Class root)
+    public Chain (String name, Class root, boolean inpkg)
     {
         _name = name;
         _root = root;
+        _inpkg = inpkg;
     }
 
     /**
@@ -40,11 +41,91 @@ public class Chain implements Element
     }
 
     /**
+     * Returns true if the class represented by this point in the chain is
+     * in the package we are visualizing, false if it is not.
+     */
+    public boolean inPackage ()
+    {
+        return _inpkg;
+    }
+
+    /**
      * Returns the name of the class that forms the root of this chain.
      */
     public String getRootName ()
     {
         return _root.getName();
+    }
+
+    /**
+     * Returns the names of the interfaces implemented by this class.
+     */
+    public String[] getImplementsNames ()
+    {
+        Class[] ifaces = _root.getInterfaces();
+        String[] names = new String[ifaces.length];
+        String pkg = ChainUtil.pkgFromClass(_root.getName());
+
+        for (int i = 0; i < ifaces.length; i++) {
+            String name = ifaces[i].getName();
+            String ipkg = ChainUtil.pkgFromClass(name);
+            if (pkg.equals(ipkg)) {
+                names[i] = ChainUtil.nameFromClass(name);
+            } else {
+                names[i] = removeOverlap(pkg, name);
+            }
+        }
+
+        return names;
+    }
+
+    protected static String removeOverlap (String pkg, String name)
+    {
+        // strip off package elements until we've eliminated all but one
+        // level of overlap
+        String overlap = "";
+        int didx;
+
+        while ((didx = pkg.indexOf(".", overlap.length()+1)) != -1) {
+            // see if this chunk still overlaps
+            String prefix = pkg.substring(0, didx);
+            if (name.startsWith(prefix)) {
+                overlap = prefix;
+            } else {
+                // we've stopped overlapping, we need to back up one
+                // element and then we're good to go
+                if ((didx = overlap.lastIndexOf(".")) == -1) {
+                    overlap = "";
+                } else {
+                    overlap = overlap.substring(0, didx);
+                }
+                break;
+            }
+        }
+
+        // if there's an overlap, remove it
+        if (overlap.length() > 0) {
+            return ".." + name.substring(overlap.length());
+        } else {
+            return name;
+        }
+    }
+
+    /**
+     * Returns the names of the inner classes declared by this class.
+     */
+    public String[] getDeclaresNames ()
+    {
+        Class[] decls = _root.getDeclaredClasses();
+        String[] names = new String[decls.length];
+
+        for (int i = 0; i < decls.length; i++) {
+            String name = decls[i].getName();
+            int didx = name.indexOf("$");
+            names[i] = (didx == -1) ? name : name.substring(didx+1);
+        }
+
+        return names;
     }
 
     /**
@@ -100,7 +181,11 @@ public class Chain implements Element
      */
     public void addClass (String name, Class child)
     {
-        Chain chain = new Chain(name, child);
+        // we assume that the addition of a derived class is only done for
+        // classes that are in the package we're visualizing. out of
+        // package classes are only included as roots of chains that
+        // subsequently contain classes that are in the package
+        Chain chain = new Chain(name, child, true);
         if (!_children.contains(chain)) {
             _children.add(chain);
         }
@@ -157,6 +242,7 @@ public class Chain implements Element
 
     protected String _name;
     protected Class _root;
+    protected boolean _inpkg;
 
     protected ArrayList _children = new ArrayList();
     protected Rectangle2D _bounds = new Rectangle2D.Double();

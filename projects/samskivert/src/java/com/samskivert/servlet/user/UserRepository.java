@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.27 2003/09/16 18:37:31 eric Exp $
+// $Id: UserRepository.java,v 1.28 2003/09/19 02:14:42 eric Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -87,6 +87,10 @@ public class UserRepository extends JORARepository
 	// create our table object
 	_utable = new Table(
             getUserClass().getName(), "users", session, "userId");
+
+        // create the sites table object
+        _stable = new Table(
+            Site.class.getName(), "sites", session, "siteId");
     }
 
     /**
@@ -327,6 +331,67 @@ public class UserRepository extends JORARepository
         return true;
     }
 
+    /**
+     * Load all the site records
+     */
+    public ArrayList loadAllSites ()
+	throws PersistenceException
+    {
+	return (ArrayList)execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+	    {
+		Cursor c =_stable.selectAll("");
+
+                return c.toArrayList();
+	    }
+	});
+    }
+
+    /**
+     * Load the site id for the passed in SiteName (stringId)
+     */
+    public int loadSiteId (final String stringId)
+	throws PersistenceException
+    {
+        FieldMask mask = _stable.getFieldMask();
+        mask.setModified("stringId");
+        Site site = new Site(stringId);
+
+        return loadSiteByExample(site, mask).siteId;
+    }
+    
+    /**
+     * Load the "Site Name" (stringId) for the give siteId
+     */
+    public String loadSiteName (int siteId)
+	throws PersistenceException
+    {
+        FieldMask mask = _stable.getFieldMask();
+        mask.setModified("siteId");
+        Site site = new Site(siteId);
+
+        return loadSiteByExample(site, mask).stringId;
+    }
+
+    protected Site loadSiteByExample (final Site site, final FieldMask mask)
+        throws PersistenceException
+    {
+	return (Site)execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+	    {
+                Cursor c = _stable.queryByExample(site, mask);
+
+                try {
+                    return c.next();
+                } finally {
+                    c.next(); // clean things up after ourselves
+                }
+	    }
+	});
+    }
+    
     /**
      * 'Delete' the users account such that they can no longer access it,
      * however we do not delete the record from the db.  The name is
@@ -590,6 +655,9 @@ public class UserRepository extends JORARepository
     }
 
     protected Table _utable;
+
+    /** A wrapper that provides access to the sites table. */
+    protected Table _stable;
 
     /** The minimum allowable length of a username. */
     protected static final int MINIMUM_USERNAME_LENGTH = 3;

@@ -1,5 +1,5 @@
 //
-// $Id: MailUtil.java,v 1.8 2004/01/15 17:00:16 eric Exp $
+// $Id: MailUtil.java,v 1.9 2004/01/15 21:41:00 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,11 +22,19 @@ package com.samskivert.net;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import java.util.regex.PatternSyntaxException;
 import java.util.regex.Pattern;
 
 import com.samskivert.Log;
+import com.samskivert.util.StringUtil;
 
 /**
  * The mail util class encapsulates some utility functions related to
@@ -53,6 +61,7 @@ public class MailUtil
      * Note that this method will block until the sendmail process has
      * completed all of its business.
      *
+     * @deprecated Use {@link #deliverMail(String,String,String,String)}.
      * @return true if the mail was delivered successfully, false if not.
      */
     public static boolean deliverMail (String message)
@@ -76,6 +85,60 @@ public class MailUtil
             return (p.waitFor() == 0);
         } catch (InterruptedException ie) {
             return false;
+        }
+    }
+
+    /**
+     * Delivers the supplied mail message using the machine's local mail
+     * SMTP server which must be listening on port 25.
+     *
+     * @exception IOException thrown if an error occurs delivering the
+     * email. See {@link Transport#send} for exceptions that can be thrown
+     * due to response from the SMTP server.
+     */
+    public static void deliverMail (String recipient, String sender,
+                                    String subject, String body)
+        throws IOException
+    {
+        deliverMail(new String[] { recipient }, sender, subject, body);
+    }
+
+    /**
+     * Delivers the supplied mail message using the machine's local mail
+     * SMTP server which must be listening on port 25.
+     *
+     * @exception IOException thrown if an error occurs delivering the
+     * email. See {@link Transport#send} for exceptions that can be thrown
+     * due to response from the SMTP server.
+     */
+    public static void deliverMail (String[] recipients, String sender,
+                                    String subject, String body)
+        throws IOException
+    {
+        if (recipients == null || recipients.length < 1) {
+            throw new IOException("Must specify one or more recipients.");
+        }
+
+        try {
+            Properties props = System.getProperties();
+            props.put("mail.smtp.host", "localhost");
+            Session session = Session.getDefaultInstance(props, null);
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(sender));
+            for (int ii = 0; ii < recipients.length; ii++) {
+                message.addRecipient(Message.RecipientType.TO,
+                                     new InternetAddress(recipients[ii]));
+            }
+            message.setSubject(subject);
+            message.setText(body);
+            Transport.send(message);
+        } catch (Exception e) {
+            String errmsg = "Failure sending mail [from=" + sender +
+                ", to=" + StringUtil.toString(recipients) +
+                ", subject=" + subject + "]";
+            IOException ioe = new IOException(errmsg);
+            ioe.initCause(e);
+            throw ioe;
         }
     }
 
@@ -114,11 +177,12 @@ public class MailUtil
 
     public static void main (String[] args)
     {
-        String msg = "To: eric@threerings.net, eric@radiantenergy.org\n" +
-            "Subject: test\n\n" +
-            "Body of message is here. Yiza!\n";
+        String recipient = "eric@threerings.net";
+        String sender = "mdb@samskivert.com";
+        String subject = "This is a test";
+        String body = "Body of message is here. Yiza!\n";
         try {
-            MailUtil.deliverMail(msg);
+            MailUtil.deliverMail(recipient, sender, subject, body);
         } catch (Exception e) {
             System.err.println("Le Booch Sending Mail [exception=" + e + "].");
         }

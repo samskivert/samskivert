@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.21 2002/05/08 00:25:54 shaper Exp $
+// $Id: UserRepository.java,v 1.22 2002/05/11 20:31:59 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -273,6 +273,11 @@ public class UserRepository extends JORARepository
     public void updateUser (final User user)
 	throws PersistenceException
     {
+        if (!user.getDirtyMask().isModified()) {
+            // nothing doing!
+            return;
+        }
+
 	execute(new Operation () {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException

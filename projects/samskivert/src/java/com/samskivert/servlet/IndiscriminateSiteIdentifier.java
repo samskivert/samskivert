@@ -1,5 +1,5 @@
 //
-// $Id: IndiscriminateSiteIdentifier.java,v 1.1 2001/10/31 23:38:37 mdb Exp $
+// $Id: IndiscriminateSiteIdentifier.java,v 1.2 2001/11/06 04:48:08 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 public class IndiscriminateSiteIdentifier implements SiteIdentifier
 {
     /**
-     * Always returns {@link DEFAULT_SITE_ID} regardless of the
+     * Always returns {@link #DEFAULT_SITE_ID} regardless of the
      * information in the request.
      */
     public int identifySite (HttpServletRequest req)

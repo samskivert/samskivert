@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.16 2001/12/03 09:00:40 mdb Exp $
+// $Id: StringUtil.java,v 1.17 2002/01/17 23:00:38 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -22,6 +22,7 @@ package com.samskivert.util;
 
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -234,6 +235,13 @@ public class StringUtil
             Dimension2D d = (Dimension2D)val;
 	    buf.append(openBox).append(d.getWidth()).append("x");
             buf.append(d.getHeight()).append(closeBox);
+
+	} else if (val instanceof Rectangle2D) {
+            Rectangle2D r = (Rectangle2D)val;
+            buf.append(openBox).append(r.getX()).append(", ");
+            buf.append(r.getY()).append(", ");
+            buf.append(r.getWidth()).append(", ");
+            buf.append(r.getHeight()).append(closeBox);
 
 	} else {
 	    buf.append(val);

@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeAdjust.java,v 1.6 2003/01/15 03:28:17 mdb Exp $
+// $Id: RuntimeAdjust.java,v 1.7 2003/01/15 22:11:18 mdb Exp $
 
 package com.samskivert.util;
 
@@ -201,7 +201,8 @@ public class RuntimeAdjust
         public void propertyChange (PropertyChangeEvent evt)
         {
             _value = ((Integer)evt.getNewValue()).intValue();
-            adjusted(_value, ((Integer)evt.getOldValue()).intValue());
+            Integer oval = (Integer)evt.getOldValue();
+            adjusted(_value, (oval == null ? -1 : oval.intValue()));
             if (_valbox != null) {
                 _valbox.setText("" + _value);
             }

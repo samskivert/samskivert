@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.13 2001/10/24 03:24:36 mdb Exp $
+// $Id: TileUtil.java,v 1.14 2001/11/07 10:39:00 mdb Exp $
 
 package com.threerings.venison;
 
@@ -307,10 +307,26 @@ public class TileUtil implements TileCodes
         }
 
         // if we're here, it's a road or city feature, which we score by
-        // loading up the group and counting its size
+        // loading up the group and counting the number of tiles in it
         List flist = new ArrayList();
         boolean complete = enumerateGroup(tiles, tile, featureIndex, flist);
-        int score = flist.size();
+
+        // we sort the group which will order the tile feature objects by
+        // their tiles, ensuring that features on the same tile are next
+        // to one another, so that we can only count them once
+        Collections.sort(flist);
+
+        // now iterate over the list, counting only unique tiles
+        int score = 0;
+        VenisonTile lastTile = null;
+        int fsize = flist.size();
+        for (int i = 0; i < fsize; i++) {
+            TileFeature feat = (TileFeature)flist.get(i);
+            if (feat.tile != lastTile) {
+                score++;
+                lastTile = feat.tile;
+            }
+        }
 
         // for city groups, we need to add a bonus of one for every tile
         // that contains a shield and mutiply by two if the city is
@@ -598,7 +614,7 @@ public class TileUtil implements TileCodes
     }
 
     /** Used to keep track of actual features on tiles. */
-    protected static final class TileFeature
+    protected static final class TileFeature implements Comparable
     {
         /** The tile that contains the feature. */
         public VenisonTile tile;
@@ -625,6 +641,12 @@ public class TileUtil implements TileCodes
                 return (feat.tile == tile &&
                         feat.featureIndex == featureIndex);
             }
+        }
+
+        /** We sort based on our tiles. */
+        public int compareTo (Object other)
+        {
+            return tile.compareTo(((TileFeature)other).tile);
         }
 
         /** Generate a string representation. */

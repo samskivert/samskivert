@@ -275,6 +275,10 @@ public class DispatcherServlet extends VelocityServlet
         int siteId = ident.identifySite(req);
         ctx.put("__siteid__", new Integer(siteId));
 
+        // put the context path in the context as well to make it easier
+        // to construct full paths
+        ctx.put("context_path", req.getContextPath());
+
 	// then select the template
 	Template tmpl = selectTemplate(siteId, ictx);
 

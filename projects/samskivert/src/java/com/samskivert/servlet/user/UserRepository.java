@@ -1,5 +1,5 @@
 //
-// $Id: UserRepository.java,v 1.6 2001/03/04 06:14:14 mdb Exp $
+// $Id: UserRepository.java,v 1.7 2001/05/26 03:23:22 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -109,6 +109,9 @@ public class UserRepository extends MySQLRepository
     public User loadUser (String username)
 	throws SQLException
     {
+        // make sure our session is established
+        ensureConnection();
+
 	// look up the user
 	Cursor ec = _utable.select("where username = '" + username + "'");
 
@@ -131,6 +134,9 @@ public class UserRepository extends MySQLRepository
     public User loadUser (int userid)
 	throws SQLException
     {
+        // make sure our session is established
+        ensureConnection();
+
 	// look up the user
 	Cursor ec = _utable.select("where userid = " + userid);
 
@@ -153,6 +159,9 @@ public class UserRepository extends MySQLRepository
     public User loadUserBySession (String sessionKey)
 	throws SQLException
     {
+        // make sure our session is established
+        ensureConnection();
+
 	// look up the user
 	Cursor ec = _utable.select("sessions",
 				   "where authcode = '" + sessionKey +
@@ -269,6 +278,9 @@ public class UserRepository extends MySQLRepository
     protected String[] loadNames (int[] userids, String column)
 	throws SQLException
     {
+        // make sure our session is established
+        ensureConnection();
+
         // if userids is zero length, we've got no work to do
         if (userids.length == 0) {
             return new String[0];

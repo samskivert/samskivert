@@ -369,6 +369,7 @@ public abstract class GroupLayout
     {
         JPanel box = new JPanel(new HGroupLayout(NONE, justification));
         box.add(button);
+        box.setOpaque(false);
         return box;
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.7 2002/05/24 21:32:29 mdb Exp $
+// $Id: IntervalManager.java,v 1.8 2002/08/09 23:33:38 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -37,19 +37,20 @@ import com.samskivert.Log;
 public class IntervalManager
 {
     /**
-     * Schedule the intervaled object to get called after an interval.
+     * Schedules the intervaled object to get called after an interval.
      *
      * @param i the intervaled object
-     * @param timout # of ms until interval is up.
-     * @param arg object to be passed when interval expires
+     * @param delay the milliseconds until the interval expires.
+     * @param arg the object to be passed to the interval when the
+     * interval delay expires.
      * @param recur if true, interval gets called every timeout until
-     *              removed.
+     * removed.
      *
      * @return an ID number that will passed to the {@link
      * Interval#intervalExpired} method of i along with arg
      */
-    public static int register (Interval i, long delay, Object arg,
-				boolean recur)
+    public static int register (
+        Interval i, long delay, Object arg, boolean recur)
     {
         IntervalTask task = new IntervalTask(i, arg, recur);
         _hash.put(task.id, task);

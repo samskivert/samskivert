@@ -1,5 +1,5 @@
 //
-// $Id: MethodFinder.java,v 1.3 2001/10/03 02:22:58 mdb Exp $
+// $Id: MethodFinder.java,v 1.4 2001/10/03 03:05:09 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -154,6 +154,18 @@ public class MethodFinder
         }
 
         return (Method) findMemberIn(methodList, parameterTypes);
+    }
+
+    /**
+     * Like {@link #findMethod(String,Class[])} except that it takes the
+     * actual arguments that will be passed to the found method and
+     * creates the array of class objects for you using {@link
+     * ClassUtil#getParameterTypesFrom}.
+     */
+    public Method findMethod (String methodName, Object[] args)
+        throws NoSuchMethodException
+    {
+        return findMethod(methodName, ClassUtil.getParameterTypesFrom(args));
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.24 2002/11/10 04:48:52 ray Exp $
+// $Id: Label.java,v 1.25 2002/11/12 00:37:22 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -182,6 +182,18 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
+     * Instructs the label to attempt to achieve a balance between width
+     * and height that approximates the golden ratio (width ~1.618 times
+     * height).
+     */
+    public void setGoldenLayout ()
+    {
+        // use -1 as an indicator that we should be golden
+        _constraints.width = -1;
+        _constraints.height = -1;
+    }
+
+    /**
      * Sets the target width for this label. Text will be wrapped to fit
      * into this width, forcibly breaking words on character boundaries if
      * a single word is too long to fit into the target width. Calling
@@ -190,6 +202,10 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     public void setTargetWidth (int targetWidth)
     {
+        if (targetWidth <= 0) {
+            throw new IllegalArgumentException(
+                "Invalid target width '" + targetWidth + "'");
+        }
         _constraints.width = targetWidth;
         _constraints.height = 0;
     }
@@ -205,6 +221,10 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     public void setTargetHeight (int targetHeight)
     {
+        if (targetHeight <= 0) {
+            throw new IllegalArgumentException(
+                "Invalid target height '" + targetHeight + "'");
+        }
         _constraints.width = 0;
         _constraints.height = targetHeight;
     }
@@ -253,10 +273,40 @@ public class Label implements SwingConstants, LabelStyleConstants
 
         // if we have a target height, do some processing and convert that
         // into a target width
-        if (_constraints.height > 0) {
+        if (_constraints.height > 0 || _constraints.width == -1) {
+            int targetHeight = _constraints.height;
+
+            // if we're approximating the golden ratio, target a height
+            // that gets us near that ratio, then we can err on the side
+            // of being a bit wider which is generally nicer than being
+            // taller (for those of us that don't speak verticall written
+            // languages, anyway)
+            if (_constraints.width == -1) {
+                TextLayout layout = new TextLayout(textIterator(gfx), frc);
+                Rectangle2D bounds = layout.getBounds();
+
+                int lines = 1;
+                double width = bounds.getWidth()/lines;
+                double height = bounds.getHeight()*lines;
+                double delta = Math.abs(width/height - GOLDEN_RATIO);
+
+                do {
+                    width = bounds.getWidth() / (lines+1);
+                    double nheight = bounds.getHeight() * (lines+1);
+                    double ndelta = Math.abs(width/nheight - GOLDEN_RATIO);
+                    if (delta <= ndelta) {
+                        break;
+                    }
+                    delta = ndelta;
+                    height = nheight;
+                } while (++lines < 200); // cap ourselves at 200 lines
+
+                targetHeight = (int)Math.ceil(height);
+            }
+
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
-            int lines = Math.round(_constraints.height / getHeight(layout));
+            int lines = Math.round(targetHeight / getHeight(layout));
             if (lines > 1) {
                 int targetWidth = (int)Math.round(bounds.getWidth() / lines);
 
@@ -278,7 +328,6 @@ public class Label implements SwingConstants, LabelStyleConstants
             LineBreakMeasurer measurer =
                 new LineBreakMeasurer(textIterator(gfx), frc);
             layouts = computeLines(measurer, _constraints.width, _size, false);
-
         }
 
         // if no constraint, or our constraining height puts us on one line
@@ -358,7 +407,8 @@ public class Label implements SwingConstants, LabelStyleConstants
                     break;
                 }
                 Rectangle2D bounds = layout.getBounds();
-                width = Math.max(width, bounds.getWidth());
+                System.out.println(bounds);
+                width = Math.max(width, bounds.getX() + bounds.getWidth());
                 height += getHeight(layout);
                 layouts.add(new Tuple(layout, bounds));
             }
@@ -428,7 +478,8 @@ public class Label implements SwingConstants, LabelStyleConstants
             Rectangle2D lbounds = _lbounds[i];
             y += layout.getAscent();
 
-            float dx = 0, extra = (float)(_size.width - lbounds.getWidth());
+            float extra = (float)(_size.width - lbounds.getWidth() -
+                                  lbounds.getX());
             switch (_style) {
             case OUTLINE:
                 // if we're outlining, we really have two pixels less space
@@ -447,19 +498,13 @@ public class Label implements SwingConstants, LabelStyleConstants
                 break;
             }
 
+            float rx = x;
             switch (_align) {
-            case -1: dx = layout.isLeftToRight() ? 0 : extra; break;
-            case LEFT: dx = 0; break;
-            case RIGHT: dx = extra; break;
-            case CENTER: dx = extra/2; break;
+            case -1: rx = x + (layout.isLeftToRight() ? 0 : extra); break;
+            case LEFT: break;
+            case RIGHT: rx = x + extra; break;
+            case CENTER: rx = x + extra/2; break;
             }
-
-            // we need to account both for our justification and for the
-            // fiddly business that TextLayouts do wherein they don't
-            // render where you ask them to render, but instead they
-            // render some number of pixels away, which is reported in the
-            // "position" part of their bounds
-            float rx = (float)(x + dx - lbounds.getX());
 
             switch (_style) {
             case OUTLINE:
@@ -557,4 +602,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     /** The color in which to render the text or null if the text should
      * be rendered with the graphics context color. */
     protected Color _textColor = null;
+
+    /** An approximation of the golden ratio. */
+    protected static final double GOLDEN_RATIO = 1.618034;
 }

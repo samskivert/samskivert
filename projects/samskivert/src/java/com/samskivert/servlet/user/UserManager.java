@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.27 2003/11/15 20:15:31 mdb Exp $
+// $Id: UserManager.java,v 1.28 2003/12/05 18:20:30 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -249,6 +249,21 @@ public class UserManager
         // run the user through the authentication gamut
         auth.authenticateUser(user, username, password, persist);
 
+        // give them the necessary cookies and business
+        effectLogin(user, persist, req, rsp);
+
+	return user;
+    }
+
+    /**
+     * If a user is already known to be authenticated for one reason or
+     * other, this method can be used to give them the appropriate
+     * authentication cookies to effect their login.
+     */
+    public void effectLogin (User user, boolean persist,
+                             HttpServletRequest req, HttpServletResponse rsp)
+        throws PersistenceException
+    {
 	// generate a new session for this user
 	String authcode = _repository.createNewSession(user, persist);
 	// stick it into a cookie for their browsing convenience
@@ -264,8 +279,6 @@ public class UserManager
         // session
         acookie.setMaxAge((persist) ? (30*24*60*60) : -1);
 	rsp.addCookie(acookie);
-
-	return user;
     }
 
     /**

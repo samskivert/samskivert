@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.2 2001/11/02 00:57:47 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.3 2003/07/04 20:34:34 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -32,9 +32,14 @@ import com.samskivert.io.PersistenceException;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.DatabaseLiaison;
-import com.samskivert.jdbc.SimpleRepository;
 import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.SimpleRepository;
+
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
+
+import com.samskivert.Log;
 
 /**
  * Accomplishes the process of site identification based on a mapping from
@@ -130,15 +135,15 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 rs = stmt.executeQuery(query);
                 ArrayList mappings = new ArrayList();
                 while (rs.next()) {
-                    SiteMapping mapping = new SiteMapping();
-                    mapping.domain = rs.getString(1);
-                    mapping.siteId = rs.getInt(2);
-                    mappings.add(mapping);
+                    mappings.add(new SiteMapping(rs.getInt(2),
+                                                 rs.getString(1)));
                 }
                 _mappings = mappings;
 
                 // sort the mappings in order of specificity
                 Collections.sort(_mappings);
+//                 Log.info("Loaded site mappings " +
+//                          StringUtil.toString(_mappings) + ".");
 
                 // nothing to return
                 return null;
@@ -160,6 +165,15 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         /** The site identifier for the associated domain. */
         public int siteId;
 
+        public SiteMapping (int siteId, String domain)
+        {
+            this.siteId = siteId;
+            this.domain = domain;
+            byte[] bytes = domain.getBytes();
+            ArrayUtil.reverse(bytes);
+            _rdomain = new String(bytes);
+        }
+
         /**
          * Site mappings sort from most specific (www.yahoo.com) to least
          * specific (yahoo.com).
@@ -168,23 +182,11 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         {
             if (other instanceof SiteMapping) {
                 SiteMapping orec = (SiteMapping)other;
-
-                // if the domains are equal, we're equal
-                if (domain.equals(orec.domain)) {
-                    return 0;
-
-                } else if (domain.endsWith(orec.domain)) {
-                    // if our domain is a subset of their domain, they are
-                    // after us
-                    return 1;
-
-                } else {
-                    return -1;
-                }
-
+                return orec._rdomain.compareTo(_rdomain);
             } else {
                 // no comparablo
-                return -1;
+                return getClass().getName().compareTo(
+                    other.getClass().getName());
             }
         }
 
@@ -193,6 +195,8 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         {
             return "[" + domain + " => " + siteId + "]";
         }
+
+        protected String _rdomain;
     }
 
     /** The repository through which we load up site identifier

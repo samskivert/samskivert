@@ -181,6 +181,19 @@ public class MessageUtil
     }
 
     /**
+     * Decomposes a compound key into its constituent parts. Arguments
+     * that were tainted during composition will remain tainted.
+     */
+    public static String[] decompose (String compoundKey)
+    {
+        String[] args = StringUtil.split(compoundKey, "|");
+        for (int ii = 0; ii < args.length; ii++) {
+            args[ii] = unescape(args[ii]);
+        }
+        return args;
+    }
+
+    /**
      * Returns a fully qualified message key which, when translated by
      * some other bundle, will know to resolve and utilize the supplied
      * bundle to translate this particular key.

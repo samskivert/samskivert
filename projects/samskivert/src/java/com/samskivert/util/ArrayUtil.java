@@ -1,5 +1,5 @@
 //
-// $Id: ArrayUtil.java,v 1.5 2002/05/29 18:00:04 ray Exp $
+// $Id: ArrayUtil.java,v 1.6 2002/07/11 01:33:54 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -29,6 +29,36 @@ import com.samskivert.Log;
  */
 public class ArrayUtil
 {
+    /**
+     * Reverses the elements in the given array.
+     *
+     * @param values the array to reverse.
+     */
+    public static void reverse (int[] values)
+    {
+        reverse(values, 0, values.length);
+    }
+
+    /**
+     * Reverses a subset of elements within the specified array.
+     *
+     * @param values the array containing elements to reverse.
+     * @param offset the index at which to start reversing elements.
+     * @param length the number of elements to reverse.
+     */
+    public static void reverse (int[] values, int offset, int length)
+    {
+        int aidx = offset;
+        int bidx = offset + length - 1;
+        while (bidx > aidx) {
+            int value = values[aidx];
+            values[aidx] = values[bidx];
+            values[bidx] = value;
+            aidx++;
+            bidx--;
+        }
+    }
+
     /**
      * Shuffles the elements in the given array into a random sequence.
      *
@@ -124,9 +154,38 @@ public class ArrayUtil
 
     public static void main (String[] args)
     {
-        // test shuffling two elements
-        int[] values = new int[] { 0, 1 };
+        // test reversing an array
+        int[] values = new int[] { 0 };
         int[] work = (int[])values.clone();
+        reverse(work);
+        Log.info("reverse: " + StringUtil.toString(work));
+
+        values = new int[] { 0, 1, 2 };
+        work = (int[])values.clone();
+        reverse(work);
+        Log.info("reverse: " + StringUtil.toString(work));
+
+        work = (int[])values.clone();
+        reverse(work, 0, 2);
+        Log.info("reverse first-half: " + StringUtil.toString(work));
+
+        work = (int[])values.clone();
+        reverse(work, 1, 2);
+        Log.info("reverse second-half: " + StringUtil.toString(work));
+
+        values = new int[] { 0, 1, 2, 3, 4 };
+        work = (int[])values.clone();
+        reverse(work, 1, 3);
+        Log.info("reverse middle: " + StringUtil.toString(work));
+
+        values = new int[] { 0, 1, 2, 3 };
+        work = (int[])values.clone();
+        reverse(work);
+        Log.info("reverse even: " + StringUtil.toString(work));
+
+        // test shuffling two elements
+        values = new int[] { 0, 1 };
+        work = (int[])values.clone();
         shuffle(work, 0, 1);
         Log.info("first-half shuffle: " + StringUtil.toString(work));
 

@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoader.java,v 1.1 2001/11/05 09:12:31 mdb Exp $
+// $Id: SiteResourceLoader.java,v 1.2 2001/11/05 18:08:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -112,10 +112,29 @@ public class SiteResourceLoader
         HttpServletRequest req, String path)
         throws IOException
     {
-        InputStream stream = null;
+        return getResourceAsStream(_siteIdent.identifySite(req), path);
+    }
 
-        // figure out which site in which we're interested
-        int siteId = _siteIdent.identifySite(req);
+    /**
+     * Loads the specific resource, from the site-specific jar file if one
+     * exists and contains the specified resource, or via the servlet
+     * context. If no resource exists with that path in either location,
+     * null will be returned.
+     *
+     * @param siteId the unique identifer for the site for which we are
+     * loading the resource.
+     * @param path the path to the desired resource.
+     *
+     * @return an input stream via which the resource can be read or null
+     * if no resource could be located with the specified path.
+     *
+     * @exception IOException thrown if an I/O error occurs while loading
+     * a resource.
+     */
+    public InputStream getResourceAsStream (int siteId, String path)
+        throws IOException
+    {
+        InputStream stream = null;
 
         // if we identified a non-default site, we first look for a
         // site-specific resource

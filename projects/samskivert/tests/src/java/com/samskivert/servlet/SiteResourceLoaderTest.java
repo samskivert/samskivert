@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoaderTest.java,v 1.1 2001/11/05 09:12:31 mdb Exp $
+// $Id: SiteResourceLoaderTest.java,v 1.2 2001/11/05 18:08:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -59,27 +59,24 @@ public class SiteResourceLoaderTest extends TestCase
         SiteResourceLoader loader = new SiteResourceLoader(ident, context);
 
         try {
-            testResourceLoader(loader, "defaultout.txt");
-
-            ident.setSiteId(SITE1_ID);
-            testResourceLoader(loader, "site1out.txt");
-
-            ident.setSiteId(SITE2_ID);
-            testResourceLoader(loader, "site2out.txt");
+            testResourceLoader(SiteIdentifier.DEFAULT_SITE_ID,
+                               loader, "defaultout.txt");
+            testResourceLoader(SITE1_ID, loader, "site1out.txt");
+            testResourceLoader(SITE2_ID, loader, "site2out.txt");
 
         } catch (IOException ioe) {
             fail("Error testing resource loader: " + ioe);
         }
     }
 
-    protected void testResourceLoader (SiteResourceLoader loader,
-                                       String compareFile)
+    protected void testResourceLoader (
+        int siteId, SiteResourceLoader loader, String compareFile)
         throws IOException
     {
         StringBuffer gen = new StringBuffer();
-        appendResource(gen, loader, "/header.txt");
-        appendResource(gen, loader, "/body.txt");
-        appendResource(gen, loader, "/footer.txt");
+        appendResource(siteId, gen, loader, "/header.txt");
+        appendResource(siteId, gen, loader, "/body.txt");
+        appendResource(siteId, gen, loader, "/footer.txt");
 
         StringBuffer cmp = new StringBuffer();
         compareFile = "servlet/srl/" + compareFile;
@@ -96,11 +93,11 @@ public class SiteResourceLoaderTest extends TestCase
                      cmp.toString(), gen.toString());
     }
 
-    protected void appendResource (
-        StringBuffer buffer, SiteResourceLoader loader, String path)
+    protected void appendResource (int siteId, StringBuffer buffer,
+                                   SiteResourceLoader loader, String path)
         throws IOException
     {
-        InputStream rin = loader.getResourceAsStream(null, path);
+        InputStream rin = loader.getResourceAsStream(siteId, path);
         if (rin == null) {
             throw new IOException("Unable to load " + path);
         }
@@ -165,27 +162,19 @@ public class SiteResourceLoaderTest extends TestCase
 
     public static class TestSiteIdentifier implements SiteIdentifier
     {
-        public void setSiteId (int siteId)
-        {
-            _siteId = siteId;
-        }
-
         public int identifySite (HttpServletRequest req)
         {
-            return _siteId;
+            return DEFAULT_SITE_ID;
         }
 
         public String getSiteString (int siteId)
         {
-            // we are required to map site ids to strings, however
             switch (siteId) {
             case SITE1_ID: return "site1";
             case SITE2_ID: return "site2";
             default: return DEFAULT_SITE_STRING;
             }
         }
-
-        protected int _siteId = SiteIdentifier.DEFAULT_SITE_ID;
     }
 
     protected static final int SITE1_ID = 1;

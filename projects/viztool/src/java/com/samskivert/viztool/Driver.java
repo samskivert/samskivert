@@ -1,5 +1,5 @@
 //
-// $Id: Driver.java,v 1.9 2001/08/13 23:43:20 mdb Exp $
+// $Id: Driver.java,v 1.10 2001/08/13 23:58:56 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -101,7 +101,7 @@ public class Driver
 
         } else {
             VizFrame frame = new VizFrame(viz);
-            frame.setSize(640, 480);
+            frame.pack();
             SwingUtil.centerWindow(frame);
             frame.setVisible(true);
         }

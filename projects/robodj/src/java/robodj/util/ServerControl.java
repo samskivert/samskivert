@@ -1,5 +1,5 @@
 //
-// $Id: ServerControl.java,v 1.2 2001/07/12 23:06:55 mdb Exp $
+// $Id: ServerControl.java,v 1.3 2001/07/13 00:10:05 mdb Exp $
 
 package robodj.util;
 
@@ -60,6 +60,16 @@ public class ServerControl
     public void remove (int sid)
     {
         sendCommand("REMOVE " + sid);
+    }
+
+    public void skipto (int sid)
+    {
+        sendCommand("SKIPTO " + sid);
+    }
+
+    public String getPlaying ()
+    {
+        return sendCommand("PLAYING");
     }
 
     public String[] getPlaylist ()

@@ -10,6 +10,13 @@
   <property name="build.compiler" value="jikes"/>
   <property name="java.libraries" value="/usr/share/java"/>
 
+  <!-- declare our classpath -->
+  <path id="classpath">
+    <fileset dir="${java.libraries}" includes="**/*.jar"/>
+    <fileset dir="lib" includes="**/*.jar"/>
+    <pathelement location="${deploy.home}/classes"/>
+  </path>
+
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.home}"/>
@@ -29,11 +36,7 @@
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${deploy.home}/classes"
            debug="on" optimize="off" deprecation="off">
-      <classpath>
-        <fileset dir="${java.libraries}" includes="**/*.jar"/>
-        <fileset dir="lib" includes="**/*.jar"/>
-        <pathelement location="${deploy.home}/classes"/>
-      </classpath>
+      <classpath refid="classpath"/>
     </javac>
   </target>
 
@@ -42,11 +45,7 @@
     <javadoc sourcepath="src/java"
              packagenames="com.samskivert.*"
              destdir="${javadoc.home}">
-      <classpath>
-        <fileset dir="${java.libraries}" includes="**/*.jar"/>
-        <fileset dir="lib" includes="**/*.jar"/>
-        <pathelement location="${deploy.home}/classes"/>
-      </classpath>
+      <classpath refid="classpath"/>
     </javadoc>
   </target>
 

@@ -43,8 +43,6 @@ $xcats.clear()
 #set ($id = $task.taskId)
 
 <tr>
-<td><a href="index.wm?action=claim&task=$task.taskId">
-<img src="images/claim.png" border="0" alt="Claim this task"></a></td>
 <td valign="top">$task.summary &nbsp;
 <span class="small">[$task.creator]</span>
 #if (!$string.blank($task.notes))
@@ -65,8 +63,6 @@ $xcats.clear()
 </select>
 </td>
 
-<td valign="top"><a href="edit.wm?task=$task.taskId">
-<img src="images/edit.png" border="0" alt="Edit this task"></a></td>
 </tr>
 #end
 </table>

@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.6 2001/08/29 18:40:26 shaper Exp $
+// $Id: Config.java,v 1.7 2001/10/04 00:24:16 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -263,6 +263,19 @@ public class Config
 	throws Exception
     {
 	return Class.forName(getValue(name, defcname)).newInstance();
+    }
+
+    /**
+     * Returns the entire properties instance bound to a particular
+     * namespace identifier.
+     *
+     * @return a properties instance that was bound to the specified
+     * namespace identifier or null if nothing is bound to that
+     * identifier.
+     */
+    public Properties getProperties (String name)
+    {
+        return (Properties)_props.get(name);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: IntIntMap.java,v 1.1 2001/03/01 18:47:01 mdb Exp $
+// $Id: IntIntMap.java,v 1.2 2001/03/02 05:31:13 mdb Exp $
 
 package com.samskivert.util;
 
@@ -18,7 +18,7 @@ public class IntIntMap
 
     public IntIntMap (int buckets)
     {
-	_buckets = new IntRecord[buckets];
+	_buckets = new Record[buckets];
     }
 
     public IntIntMap ()
@@ -34,17 +34,17 @@ public class IntIntMap
     public synchronized void put (int key, int value)
     {
 	int index = Math.abs(key)%_buckets.length;
-	IntRecord rec = _buckets[index];
+	Record rec = _buckets[index];
 
 	// either we start a new chain
 	if (rec == null) {
-	    _buckets[index] = new IntRecord(key, value);
+	    _buckets[index] = new Record(key, value);
 	    _size++; // we're bigger
 	    return;
 	}
 
 	// or we replace an element in an existing chain
-	IntRecord prev = rec;
+	Record prev = rec;
 	for (; rec != null; rec = rec.next) {
 	    if (rec.key == key) {
 		rec.value = value; // we're not bigger
@@ -54,14 +54,14 @@ public class IntIntMap
 	}
 
 	// or we append it to this chain
-	prev.next = new IntRecord(key, value);
+	prev.next = new Record(key, value);
 	_size++; // we're bigger
     }
 
     public synchronized int get (int key)
     {
 	int index = Math.abs(key)%_buckets.length;
-	for (IntRecord rec = _buckets[index]; rec != null; rec = rec.next) {
+	for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
 	    if (rec.key == key) {
 		return rec.value;
 	    }
@@ -72,7 +72,7 @@ public class IntIntMap
     public boolean contains (int key)
     {
 	int index = Math.abs(key)%_buckets.length;
-	for (IntRecord rec = _buckets[index]; rec != null; rec = rec.next) {
+	for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
 	    if (rec.key == key) {
 		return true;
 	    }
@@ -83,7 +83,7 @@ public class IntIntMap
     public synchronized int remove (int key)
     {
 	int index = Math.abs(key)%_buckets.length;
-	IntRecord rec = _buckets[index];
+	Record rec = _buckets[index];
 
 	// if there's no chain, there's no object
 	if (rec == null) {
@@ -98,7 +98,7 @@ public class IntIntMap
 	}
 
 	// or maybe it's an element further down the chain
-	for (IntRecord prev = rec; rec != null; rec = rec.next) {
+	for (Record prev = rec; rec != null; rec = rec.next) {
 	    if (rec.key == key) {
 		prev.next = rec.next;
 		_size--;
@@ -122,12 +122,79 @@ public class IntIntMap
 
     public Enumeration keys ()
     {
-	return new IntIntMapEnumerator(_buckets, true);
+	return new Enumerator(_buckets, true);
     }
 
     public Enumeration elements ()
     {
-	return new IntIntMapEnumerator(_buckets, false);
+	return new Enumerator(_buckets, false);
+    }
+
+    class Record
+    {
+	public Record next;
+	public int key;
+	public int value;
+
+	public Record (int key, int value)
+	{
+	    this.key = key;
+	    this.value = value;
+	}
+    }
+
+    class Enumerator implements Enumeration
+    {
+	public Enumerator (Record[] buckets, boolean returnKeys)
+	{
+	    _buckets = buckets;
+	    _index = buckets.length;
+	    _returnKeys = returnKeys;
+	}
+
+	public boolean hasMoreElements ()
+	{
+	    // if we're pointing to an entry, we've got more entries
+	    if (_record != null) {
+		return true;
+	    }
+
+	    // search backward through the buckets looking for the next
+	    // non-empty hash chain
+	    while (_index-- > 0) {
+		if ((_record = _buckets[_index]) != null) {
+		    return true;
+		}
+	    }
+
+	    // found no non-empty hash chains, we're done
+	    return false;
+	}
+
+	public Object nextElement ()
+	{
+	    // if we're not pointing to an entry, search for the next
+	    // non-empty hash chain
+	    if (_record == null) {
+		while ((_index-- > 0) &&
+		       ((_record = _buckets[_index]) == null));
+	    }
+
+	    // if we found a record, return it's value and move our record
+	    // reference to it's successor
+	    if (_record != null) {
+		Record r = _record;
+		_record = r.next;
+		return new Integer(_returnKeys ? r.key : r.value);
+	    }
+
+	    throw new NoSuchElementException("IntIntMapEnumerator");
+	}
+
+	private int _index;
+	private Record _record;
+	private Record[] _buckets;
+	private boolean _returnKeys;
     }
 
 //     public static void main (String[] args)
@@ -154,72 +221,6 @@ public class IntIntMap
 //         System.out.println("");
 //     }
 
-    private IntRecord[] _buckets;
+    private Record[] _buckets;
     private int _size;
-}
-
-class IntRecord
-{
-    public IntRecord next;
-    public int key;
-    public int value;
-
-    public IntRecord (int key, int value)
-    {
-	this.key = key;
-	this.value = value;
-    }
-}
-
-class IntIntMapEnumerator implements Enumeration
-{
-    public IntIntMapEnumerator (IntRecord[] buckets, boolean returnKeys)
-    {
-	_buckets = buckets;
-	_index = buckets.length;
-	_returnKeys = returnKeys;
-    }
-
-    public boolean hasMoreElements ()
-    {
-	// if we're pointing to an entry, we've got more entries
-	if (_record != null) {
-	    return true;
-	}
-
-	// search backward through the buckets looking for the next
-	// non-empty hash chain
-	while (_index-- > 0) {
-	    if ((_record = _buckets[_index]) != null) {
-		return true;
-	    }
-	}
-
-	// found no non-empty hash chains, we're done
-	return false;
-    }
-
-    public Object nextElement ()
-    {
-	// if we're not pointing to an entry, search for the next
-	// non-empty hash chain
-	if (_record == null) {
-	    while ((_index-- > 0) && ((_record = _buckets[_index]) == null));
-	}
-
-	// if we found a record, return it's value and move our record
-	// reference to it's successor
-	if (_record != null) {
-	    IntRecord r = _record;
-	    _record = r.next;
-	    return new Integer(_returnKeys ? r.key : r.value);
-	}
-
-	throw new NoSuchElementException("IntIntMapEnumerator");
-    }
-
-    private int _index;
-    private IntRecord _record;
-    private IntRecord[] _buckets;
-    private boolean _returnKeys;
 }

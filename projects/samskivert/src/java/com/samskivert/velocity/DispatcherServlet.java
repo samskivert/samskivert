@@ -1,5 +1,5 @@
 //
-// $Id: DispatcherServlet.java,v 1.2 2001/10/31 09:45:23 mdb Exp $
+// $Id: DispatcherServlet.java,v 1.3 2001/10/31 11:07:55 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -232,6 +232,10 @@ public class DispatcherServlet extends VelocityServlet
                 ictx.put(MSGRESOLVER_KEY, mrslv);
             }
 
+            // create a form tool for use by the template
+            FormTool form = new FormTool(req);
+            ictx.put(FORMTOOL_KEY, form);
+
             // resolve the appropriate logic class for this URI and
             // execute it if it exists
             String path = req.getServletPath();
@@ -366,6 +370,11 @@ public class DispatcherServlet extends VelocityServlet
      * This is the key used to store the message resolver in the context.
      */
     protected static final String MSGRESOLVER_KEY = "i18n";
+
+    /**
+     * This is the key used to store the form tool in the context.
+     */
+    protected static final String FORMTOOL_KEY = "form";
 
     /** The servlet parameter key specifying the application class. */
     protected static final String APP_CLASS_PROPS_KEY = "app_class";

@@ -1,5 +1,5 @@
 //
-// $Id: IntListUtil.java,v 1.1 2001/11/06 02:13:29 mdb Exp $
+// $Id: IntListUtil.java,v 1.2 2002/03/14 03:48:44 mdb Exp $
 
 package com.samskivert.util;
 
@@ -259,6 +259,32 @@ public class IntListUtil
         System.arraycopy(list, index+1, list, index, llength-(index+1));
         list[llength-1] = 0;
         return val;
+    }
+
+    /**
+     * Converts a sparse array (with zero-valued entries) into a compact
+     * array (where all elements contain non-zero values) with ordering
+     * preserved.
+     */
+    public static int[] compact (int[] list)
+    {
+        int llength = list.length, lcount = 0;
+        // count up the non-zero entries
+        for (int i = 0; i < llength; i++) {
+            if (list[i] != 0) {
+                lcount++;
+            }
+        }
+
+        int[] nlist = new int[lcount];
+        int n = 0;
+        for (int i = 0; i < llength; i++) {
+            if (list[i] != 0) {
+                nlist[n++] = list[i];
+            }
+        }
+
+        return nlist;
     }
 
     /**

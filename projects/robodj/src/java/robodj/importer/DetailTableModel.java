@@ -1,5 +1,5 @@
 //
-// $Id: DetailTableModel.java,v 1.3 2001/09/20 20:42:48 mdb Exp $
+// $Id: DetailTableModel.java,v 1.4 2004/01/07 01:57:10 mdb Exp $
 
 package robodj.importer;
 
@@ -124,11 +124,11 @@ public class DetailTableModel
 	    }
 
 	} else {
-	    _title = "";
-	    _artist = "";
+	    _title = "Unknown";
+	    _artist = "Unknown";
 
 	    for (int i = 0; i < _names.length; i++) {
-		_names[i] = "";
+		_names[i] = "Track " + (i+1);
 	    }
 	}
     }

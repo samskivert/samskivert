@@ -1,5 +1,5 @@
 //
-// $Id: TaskMaster.java,v 1.5 2001/08/11 22:43:29 mdb Exp $
+// $Id: TaskMaster.java,v 1.6 2003/05/04 23:35:03 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -172,6 +172,7 @@ public class TaskMaster
         {
             // look up the named method on the source object and invoke it
             Method meth = _source.getClass().getMethod(_name, null);
+            meth.setAccessible(true);
             return meth.invoke(_source, null);
         }
 

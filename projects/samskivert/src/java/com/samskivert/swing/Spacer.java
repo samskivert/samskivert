@@ -1,5 +1,5 @@
 //
-// $Id: Spacer.java,v 1.1 2002/04/30 02:31:09 mdb Exp $
+// $Id: Spacer.java,v 1.2 2003/04/01 11:04:18 ray Exp $
 
 package com.samskivert.swing;
 
@@ -17,7 +17,15 @@ public class Spacer extends JPanel
      */
     public Spacer (int width, int height)
     {
-        setPreferredSize(new Dimension(width, height));
+        this(new Dimension(width, height));
+    }
+
+    /**
+     * Constructs a spacer with the specified width and height.
+     */
+    public Spacer (Dimension d)
+    {
+        setPreferredSize(d);
         setOpaque(false);
     }
 }

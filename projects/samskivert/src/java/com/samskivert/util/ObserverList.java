@@ -1,5 +1,5 @@
 //
-// $Id: ObserverList.java,v 1.2 2002/05/16 22:13:28 mdb Exp $
+// $Id: ObserverList.java,v 1.3 2002/05/20 20:41:47 mdb Exp $
 
 package com.samskivert.util;
 
@@ -24,8 +24,9 @@ import com.samskivert.Log;
  *     final int foo = 19;
  *     final String bar = "yay!";
  *     _observers.apply(new ObserverList.ObserverOp() {
- *         public void apply (Object observer) {
+ *         public boolean apply (Object observer) {
  *             ((MyHappyObserver)observer).foozle(foo, bar);
+ *             return true;
  *         }
  *     });
  * ...
@@ -44,9 +45,10 @@ import com.samskivert.Log;
  *             _bar = bar;
  *         }
  *
- *         public void apply (Object observer)
+ *         public boolean apply (Object observer)
  *         {
  *             ((MyHappyObserver)observer).foozle(_foo, _bar);
+ *             return true;
  *         }
  *
  *         protected int _foo;

@@ -1,5 +1,5 @@
 //
-// $Id: CollectionUtil.java,v 1.4 2002/03/15 18:05:36 shaper Exp $
+// $Id: CollectionUtil.java,v 1.5 2002/04/11 04:11:23 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,9 +20,11 @@
 
 package com.samskivert.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A collection of collection-related utility functions.
@@ -60,6 +62,59 @@ public class CollectionUtil
             col.add(values[ii]);
         }
     }
+
+    /**
+     * Returns a list containing a random selection of elements from the
+     * specified collection. The total number of elements selected will be
+     * equal to <code>count</code>, each element in the source collection
+     * will be selected with equal probability and no element will be
+     * included more than once. The elements in the random subset will
+     * always be included in the order they are returned from the source
+     * collection's iterator.
+     *
+     * <p> Algorithm courtesy of William R. Mahoney, published in
+     * <cite>Dr. Dobbs Journal, February 2002</cite>.
+     *
+     * @exception IllegalArgumentException thrown if the size of the
+     * collection is smaller than the number of elements requested for the
+     * random subset.
+     */
+    public static List selectRandomSubset (Collection col, int count)
+    {
+        int csize = col.size();
+        if (csize < count) {
+            String errmsg = "Cannot select " + count + " elements " +
+                "from a collection of only " + csize + " elements.";
+            throw new IllegalArgumentException(errmsg);
+        }
+
+        ArrayList subset = new ArrayList();
+        Iterator iter = col.iterator();
+        int s = 0;
+
+        for (int k = 0; iter.hasNext(); k++) {
+            Object elem = iter.next();
+
+            // the probability that an element is select for inclusion in
+            // our random subset is proportional to the number of elements
+            // remaining to be checked for inclusion divided by the number
+            // of elements remaining to be included
+            float limit = ((float)(count - s)) / ((float)(csize - k));
+
+            // include the record if our random value is below the limit
+            if (Math.random() < limit) {
+                subset.add(elem);
+
+                // stop looking if we've reached our target size
+                if (++s == count) {
+                    break;
+                }
+            }
+        }
+
+        return subset;
+    }
+
 
     /**
      * If a collection contains only <code>Integer</code> objects, it can

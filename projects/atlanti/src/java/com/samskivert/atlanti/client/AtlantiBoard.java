@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiBoard.java,v 1.7 2001/10/16 09:31:46 mdb Exp $
+// $Id: AtlantiBoard.java,v 1.8 2001/10/17 02:19:54 mdb Exp $
 
 package com.threerings.venison;
 
@@ -7,11 +7,14 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.util.SwingUtil;
+import com.samskivert.util.CollectionUtil;
 
 import com.threerings.presents.dobj.DSet;
 
@@ -45,38 +48,97 @@ public class VenisonBoard
     }
 
     /**
-     * Sets the tiles that are displayed by this board. Causes the board
-     * to recompute its size based on the new tile layout.
+     * Sets the tiles to be displayed by this board. Any previous tiles
+     * are forgotten and the new tiles are initialized according to their
+     * geometry to set up initial claim groups.
      *
-     * @param tiles the set of {@link VenisonTile} objects to be displayed
+     * @param tset the set of {@link VenisonTile} objects to be displayed
      * by this board.
      */
-    public void setTiles (DSet tiles)
+    public void setTiles (DSet tset)
     {
-        // grab the new tiles
-        _tiles = tiles;
+        // clear out our old tiles list
+        _tiles.clear();
 
-        // update our display
-        refreshTiles();
+        // copy the tiles from the set into our local list
+        CollectionUtil.addAll(_tiles, tset.elements());
+
+        // sort the list
+        Collections.sort(_tiles);
+
+        // recompute our desired dimensions and then have our parent
+        // adjust to our changed size
+        computeDimensions();
     }
 
     /**
-     * Instructs the board to refresh its display in case changes have
-     * occurred in the tiles set.
+     * Sets the piecens to be placed on the appropriate tiles of the
+     * board. This should only be done when first entering the game room
+     * and subsequent piecen placement should be done via {@link
+     * #placePiecen}.
      */
-    public void refreshTiles ()
+    public void setPiecens (DSet piecens)
     {
-        // recompute our desired dimensions and then have our parent
-        // adjust to our changed size
-        if (_tiles != null) {
-            computeDimensions();
+        //  just iterate over the set placing each of the piecens in turn
+        Iterator iter = piecens.elements();
+        while (iter.hasNext()) {
+            placePiecen((Piecen)iter.next());
+        }
+    }
+
+    /**
+     * Instructs the board to add the specified tile to the display. The
+     * tile will have its claims inherited accordingly.
+     */
+    public void addTile (VenisonTile tile)
+    {
+        Log.info("Adding tile to board " + tile + ".");
+
+        // if we add a tile that is the same as our most recently placed
+        // tile, leave the placed tile. otherwise clear it out
+        if (!tile.equals(_placedTile)) {
+            _placedTile = null;
         }
 
-        // we may need to revalidate if our dimensions changed
-        revalidate();
+        // add the tile
+        _tiles.add(tile);
 
-        // we also have to repaint in case our dimensions didn't change
-        repaint();
+        // resort the list
+        Collections.sort(_tiles);
+
+        // have the new tile inherit its claim groups
+        TileUtil.inheritClaims(_tiles, tile);
+
+        // recompute our desired dimensions and then have our parent
+        // adjust to our changed size
+        computeDimensions();
+    }
+
+    /**
+     * Places the specified piecen on the appropriate tile and updates
+     * claim groups as necessary.
+     */
+    public void placePiecen (Piecen piecen)
+    {
+        // if we still have a placed tile, we get rid of it
+        _placedTile = null;
+
+        Log.info("Placing " + piecen + ".");
+
+        // locate the tile associated with this piecen
+        int tidx = _tiles.indexOf(piecen);
+        if (tidx != -1) {
+            VenisonTile tile = (VenisonTile)_tiles.get(tidx);
+            // set the piecen on the tile (supplying our tile list so that
+            // the necessary claim group adjustments can be made)
+            tile.setPiecen(piecen, _tiles);
+            // and repaint
+            repaint();
+
+        } else {
+            Log.warning("Requested to place piecen for which we could " +
+                        "find no associated tile! [piecen=" + piecen + "].");
+        }
     }
 
     /**
@@ -103,6 +165,7 @@ public class VenisonBoard
         if (_placingTile != null) {
             updatePlacingInfo(true);
         }
+
         // and repaint
         repaint();
     }
@@ -135,12 +198,10 @@ public class VenisonBoard
         g.translate(_tx, _ty);
 
         // iterate over our tiles, painting each of them
-        if (_tiles != null) {
-            Iterator iter = _tiles.elements();
-            while (iter.hasNext()) {
-                VenisonTile tile = (VenisonTile)iter.next();
-                tile.paint(g2, _origX, _origY);
-            }
+        int tsize = _tiles.size();
+        for (int i = 0; i < tsize; i++) {
+            VenisonTile tile = (VenisonTile)_tiles.get(i);
+            tile.paint(g2, _origX, _origY);
         }
 
         // if we have a placing tile, draw that one as well
@@ -155,8 +216,23 @@ public class VenisonBoard
             g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
         }
 
+        // if we have a recently placed tile, draw that one as well
+        if (_placedTile != null) {
+            // draw the tile
+            _placedTile.paint(g2, _origX, _origY);
+
+            // draw a white rectangle around the placed tile
+            g.setColor(Color.white);
+            int sx = (_placedTile.x + _origX) * TILE_WIDTH;
+            int sy = (_placedTile.y + _origY) * TILE_HEIGHT;
+            g.drawRect(sx, sy, TILE_WIDTH, TILE_HEIGHT);
+        }
+
         // undo our translations
         g.translate(-_tx, -_ty);
+
+        g.setColor(Color.black);
+        g2.draw(getBounds());
     }
 
     /** Called by our adapter when the mouse moves. */
@@ -166,9 +242,50 @@ public class VenisonBoard
         _mouseX = evt.getX() - _tx;
         _mouseY = evt.getY() - _ty;
 
-        // if we have a tile to be placed, update its coordinates
         if (_placingTile != null) {
+            // if we have a tile to be placed, update its coordinates
             if (updatePlacingInfo(false)) {
+                repaint();
+            }
+
+        } else if (_placedTile != null && _placingPiecen) {
+            // if we have a recently placed tile, we're doing piecen
+            // placement; first convert the mouse coords into tile coords
+            int mx = _mouseX - (_placedTile.x + _origX) * TILE_WIDTH;
+            int my = _mouseY - (_placedTile.y + _origY) * TILE_HEIGHT;
+            boolean changed = false;
+
+            // now see if we're inside the placing tile
+            if (mx >= 0 && mx < TILE_WIDTH && my >= 0 && my < TILE_HEIGHT) {
+                int fidx = _placedTile.getFeatureIndex(mx, my);
+
+                // if the feature is not already claimed, we can put a
+                // piece there to indicate that it can be claimed
+                if (_placedTile.claims[fidx] == 0) {
+                    if (_placedTile.piecen == null ||
+                        _placedTile.piecen.featureIndex != fidx) {
+                        Piecen p = new Piecen(Piecen.BLUE, 0, 0, fidx);
+                        _placedTile.setPiecen(p, null);
+                        changed = true;
+                    }
+
+                } else {
+                    // we may need to clear out a piecen since we've moved
+                    if (_placedTile.piecen != null) {
+                        _placedTile.clearPiecen();
+                        changed = true;
+                    }
+                }
+
+            } else {
+                // we may need to clear out a piecen since we've moved
+                if (_placedTile.piecen != null) {
+                    _placedTile.clearPiecen();
+                    changed = true;
+                }
+            }
+
+            if (changed) {
                 repaint();
             }
         }
@@ -185,11 +302,25 @@ public class VenisonBoard
             _placedTile = _placingTile;
             _placingTile = null;
 
+            // inherit claims on the placed tile
+            TileUtil.inheritClaims(_tiles, _placedTile);
+
             // post the action
             Controller.postAction(this, TILE_PLACED);
 
-            // and repaint
-            repaint();
+            // move into placing piecen mode
+            _placingPiecen = true;
+
+            // recompute our dimensions (which will relayout or repaint)
+            computeDimensions();
+
+        } else if (_placingPiecen && _placedTile != null &&
+                   _placedTile.piecen != null) {
+            // clear out placing piecen mode
+            _placingPiecen = false;
+
+            // post the action
+            Controller.postAction(this, PIECEN_PLACED);
         }
     }
 
@@ -219,8 +350,7 @@ public class VenisonBoard
 
             // we also need to recompute the valid orientations for the
             // tile in this new position
-            _validOrients = TileUtil.computeValidOrients(
-                _tiles.elements(), _placingTile);
+            _validOrients = TileUtil.computeValidOrients(_tiles, _placingTile);
 
             // if we've changed positions, clear out our valid placement
             // flag
@@ -290,7 +420,7 @@ public class VenisonBoard
     // documentation inherited
     public Dimension getPreferredSize ()
     {
-        if (_tiles == null) {
+        if (_tiles.size() == 0) {
             return new Dimension(100, 100);
 
         } else {
@@ -300,28 +430,33 @@ public class VenisonBoard
 
     /**
      * Determines how big we want to be based on where the tiles have been
-     * laid out.
+     * laid out. This will cause the component to be re-layed out if the
+     * dimensions change or repainted if not.
      */
     protected void computeDimensions ()
     {
         int maxX = 0, maxY = 0;
         int minX = 0, minY = 0;
 
+        // if we have a recently placed tile, start with that one
+        if (_placedTile != null) {
+            minX = maxX = _placedTile.x;
+            minY = maxY = _placedTile.y;
+        }
+
         // figure out what our boundaries are
-        if (_tiles != null) {
-            Iterator iter = _tiles.elements();
-            while (iter.hasNext()) {
-                VenisonTile tile = (VenisonTile)iter.next();
-                if (tile.x > maxX) {
-                    maxX = tile.x;
-                } else if (tile.x < minX) {
-                    minX = tile.x;
-                }
-                if (tile.y > maxY) {
-                    maxY = tile.y;
-                } else if (tile.y < minY) {
-                    minY = tile.y;
-                }
+        int tsize = _tiles.size();
+        for (int i = 0; i < tsize; i++) {
+            VenisonTile tile = (VenisonTile)_tiles.get(i);
+            if (tile.x > maxX) {
+                maxX = tile.x;
+            } else if (tile.x < minX) {
+                minX = tile.x;
+            }
+            if (tile.y > maxY) {
+                maxY = tile.y;
+            } else if (tile.y < minY) {
+                minY = tile.y;
             }
         }
 
@@ -329,11 +464,25 @@ public class VenisonBoard
         minX -= 1; minY -= 1;
         maxX += 1; maxY += 1;
 
+        // keep track of these to know if we've change dimensions
+        int oldOrigX = _origX, oldOrigY = _origY;
+        int oldWidth = _width, oldHeight = _height;
+
         // now we can compute our width and the origin offset
         _origX = -minX;
         _origY = -minY;
         _width = maxX - minX + 1;
         _height = maxY - minY + 1;
+
+        if (_origX != oldOrigX || _origY != oldOrigY ||
+            oldWidth != _width || oldHeight != _height) {
+            // if the dimensions changed, we need to relayout
+            revalidate();
+
+        } else {
+            // otherwise just repaint
+            repaint();
+        }
     }
 
     /** Test code. */
@@ -348,26 +497,25 @@ public class VenisonBoard
         set.addTile(new VenisonTile(CITY_TWO, false, WEST, -1, 1));
         set.addTile(new VenisonTile(CITY_TWO, false, WEST, -1, -1));
         set.addTile(new VenisonTile(CURVED_ROAD, false, WEST, 0, 2));
-        VenisonTile target =
-            new VenisonTile(DISCONNECTED_CITY_TWO, false, NORTH, 0, 1);
-        set.addTile(target);
+        VenisonTile one = new VenisonTile(TWO_CITY_TWO, false, NORTH, 0, 1);
+        set.addTile(one);
         set.addTile(new VenisonTile(CITY_THREE, false, WEST, 1, 1));
         set.addTile(new VenisonTile(CITY_THREE_ROAD, false, EAST, 1, 2));
         set.addTile(new VenisonTile(CITY_THREE, false, NORTH, -1, 0));
-        set.addTile(new VenisonTile(CITY_FOUR, false, NORTH, -2, 0));
+        VenisonTile two = new VenisonTile(CITY_FOUR, false, NORTH, -2, 0);
+        set.addTile(two);
         board.setTiles(set);
 
         VenisonTile placing = new VenisonTile(CITY_TWO, false, NORTH, 0, 0);
         board.setTileToBePlaced(placing);
 
         // set a feature group to test propagation
-        VenisonTile[] tiles = new VenisonTile[set.size()];
-        Iterator iter = set.elements();
-        for (int i = 0; iter.hasNext(); i++) {
-            tiles[i] = (VenisonTile)iter.next();
-        }
-        Arrays.sort(tiles);
-        TileUtil.setFeatureGroup(tiles, target, 0, 1, 0);
+        List tiles = new ArrayList();
+        CollectionUtil.addAll(tiles, set.elements());
+        Collections.sort(tiles);
+
+        one.setPiecen(new Piecen(Piecen.BLUE, 0, 0, 0), tiles);
+        two.setPiecen(new Piecen(Piecen.BLUE, 0, 0, 0), tiles);
 
         frame.getContentPane().add(board, BorderLayout.CENTER);
         frame.pack();
@@ -389,13 +537,16 @@ public class VenisonBoard
     }
 
     /** A reference to our tile set. */
-    protected DSet _tiles;
+    protected ArrayList _tiles = new ArrayList();
 
     /** The tile currently being placed by the user. */
     protected VenisonTile _placingTile;
 
     /** The last tile being placed by the user. */
     protected VenisonTile _placedTile;
+
+    /** A flag indicating whether or not we're placing a piecen. */
+    protected boolean _placingPiecen = false;
 
     /** Whether or not the current position and orientation of the placing
      * tile is valid. */

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiTile.java,v 1.7 2001/10/16 17:12:32 mdb Exp $
+// $Id: AtlantiTile.java,v 1.8 2001/10/17 02:19:54 mdb Exp $
 
 package com.threerings.venison;
 
@@ -7,16 +7,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import java.util.ArrayList;
-
+import java.util.List;
 import com.samskivert.util.IntTuple;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.DSet;
 
@@ -50,11 +47,11 @@ public class VenisonTile
     public int[] claims;
 
     /** A reference to our static feature descriptions. */
-    public int[] features;
+    public Feature[] features;
 
     /** A reference to the piecen on this tile or null if no piecen has
      * been placed on this tile. */
-    // public Piecen piecen;
+    public Piecen piecen;
 
     /**
      * Constructs a tile with all of the supplied tile information.
@@ -97,20 +94,46 @@ public class VenisonTile
      * @return the index of the matching feature or -1 if no feature
      * matched.
      */
-    public int getFeatureIndex (int featureMask)
+    public int getFeatureIndex (int edgeMask)
     {
         // translate the feature mask into our orientation
-        featureMask = TileUtil.translateMask(featureMask, -orientation);
+        edgeMask = FeatureUtil.translateMask(edgeMask, -orientation);
 
-        for (int i = 0; i < features.length; i += 2) {
-            int fmask = features[i+1];
-            if ((fmask & featureMask) != 0) {
-                return i/2;
+        // look for a feature with a matching edge mask
+        for (int i = 0; i < features.length; i ++) {
+            if ((features[i].edgeMask & edgeMask) != 0) {
+                return i;
             }
         }
 
         // no match
         return -1;
+    }
+
+    /**
+     * Returns the index of the feature that contains the supplied mouse
+     * coordinates (which will have been translated relative to the tile's
+     * origin).
+     *
+     * @return the index of the feature that contains the mouse
+     * coordinates. Some feature should always contain the mouse.
+     */
+    public int getFeatureIndex (int mouseX, int mouseY)
+    {
+        // we search our features in reverse order because road features
+        // overlap grass features geometrically and are known to be
+        // specified after the grass features
+        for (int i = features.length-1; i >= 0; i--) {
+            if (features[i].contains(mouseX, mouseY, orientation)) {
+                return i;
+            }
+        }
+
+        // something is hosed; fake it
+        Log.warning("Didn't find matching feature for mouse coordinates!? " +
+                    "[tile=" + this + ", mx=" + mouseX +
+                    ", my=" + mouseY + "].");
+        return 0;
     }
 
     /**
@@ -122,9 +145,9 @@ public class VenisonTile
      * supplied mask belongs, or zero if no feature matched the supplied
      * mask.
      */
-    public int getFeatureGroup (int featureMask)
+    public int getFeatureGroup (int edgeMask)
     {
-        int fidx = getFeatureIndex(featureMask);
+        int fidx = getFeatureIndex(edgeMask);
         return fidx < 0 ? 0 : claims[fidx];
     }
 
@@ -138,11 +161,67 @@ public class VenisonTile
      */
     public void setFeatureGroup (int featureIndex, int claimGroup)
     {
-        Log.info("Setting feature group [tile=" + this +
-                 ", fidx=" + featureIndex + ", cgroup=" + claimGroup + "].");
+//          Log.info("Setting feature group [tile=" + this +
+//                   ", fidx=" + featureIndex + ", cgroup=" + claimGroup + "].");
+
+        // update the claim group slot for this feature
         claims[featureIndex] = claimGroup;
 
-        // TBD: update the piecen
+        // if we have a piecen placed on the feature identified by this
+        // feature index, we need to update its claim group as well
+        if (piecen != null && piecen.featureIndex == featureIndex) {
+            piecen.claimGroup = claimGroup;
+        }
+    }
+
+    /**
+     * Places the specified piecen on this tile. The {@link
+     * Piecen#featureIndex} field is assumed to be initialized to the
+     * feature index of this tile on which the piecen is to be placed.
+     *
+     * <p> Note that this will call {@link TileUtil#setFeatureGroup} to
+     * propagate the claiming of this feature to all neighboring tiles if
+     * a non-null tiles array is supplied to the function.
+     *
+     * @param piecen the piecen to place on this tile (with an
+     * appropriately configured feature index).
+     * @param tiles a sorted list of all of the tiles on the board that
+     * we can use to propagate our new claim group to all features
+     * connected to this newly claimed feature or null if propagation of
+     * the claim group is not desired at this time.
+     */
+    public void setPiecen (Piecen piecen, List tiles)
+    {
+        // are we sure about that?
+        if (claims[piecen.featureIndex] != 0) {
+            Log.warning("Aiya! Requested to add a piecen to a feature " +
+                        "that has already been claimed [tile=" + this +
+                        ", piecen=" + piecen + "].");
+        }
+
+        // keep a reference to this piecen and configure its position
+        this.piecen = piecen;
+        piecen.x = x;
+        piecen.y = y;
+
+        // assign a brand spanking new claim group to the feature and the
+        // piecen and propagate it to neighboring features
+        if (tiles != null) {
+            int claimGroup = TileUtil.nextClaimGroup();
+            Log.info("Creating claim group [cgroup=" + claimGroup +
+                     ", tile=" + this + ", fidx=" + piecen.featureIndex + "].");
+            TileUtil.setFeatureGroup(
+                tiles, this, piecen.featureIndex, claimGroup, 0);
+        }
+    }
+
+    /**
+     * Clears out any piecen reference that was previously set (does not
+     * clear out its associated claim group, however).
+     */
+    public void clearPiecen ()
+    {
+        piecen = null;
     }
 
     /**
@@ -160,11 +239,6 @@ public class VenisonTile
     {
         int tidx = type-1;
 
-        // create our shapes if we haven't already
-        if (_shapes[tidx][orientation] == null) {
-            createShapes();
-        }
-
         // compute our screen coordinates
         int sx = (x + xoff) * TILE_WIDTH;
         int sy = (y + yoff) * TILE_HEIGHT;
@@ -172,16 +246,16 @@ public class VenisonTile
         // translate to our screen coordinates
         g.translate(sx, sy);
 
-        // draw our shapes using the proper orientation
-        GeneralPath[] paths = _shapes[tidx][orientation];
-        IntTuple[] types = _types[tidx];
-        for (int i = 0; i < paths.length; i++) {
-            if (claims[types[i].right] != 0) {
-                g.setColor(CLAIMED_COLOR_MAP[types[i].left]);
-            } else {
-                g.setColor(COLOR_MAP[types[i].left]);
+        // render our features and piecen
+        for (int i = 0; i < features.length; i++) {
+            // paint the feature
+            features[i].paint(g, orientation, claims[i]);
+
+            // if we have a piecen on this tile, render it as well
+            if (piecen != null && piecen.featureIndex == i) {
+                features[i].paintPiecen(
+                    g, orientation, piecen.color, piecen.claimGroup);
             }
-            g.fill(paths[i]);
         }
 
         // draw a rectangular outline
@@ -205,9 +279,12 @@ public class VenisonTile
      */
     public int compareTo (Object other)
     {
-        // we will either be compared to another tile or to a coordinate
-        // object
-        if (other instanceof VenisonTile) {
+        // we will either be compared to another tile, to a piecen or to a
+        // coordinate object (int tuple)
+        if (other == null) {
+            return -1;
+
+        } else if (other instanceof VenisonTile) {
             VenisonTile tile = (VenisonTile)other;
             return (tile.x == x) ? y - tile.y : x - tile.x;
 
@@ -215,10 +292,20 @@ public class VenisonTile
             IntTuple coord = (IntTuple)other;
             return (coord.left == x) ? y - coord.right : x - coord.left;
 
+        } else if (other instanceof Piecen) {
+            Piecen piecen = (Piecen)other;
+            return (piecen.x == x) ? y - piecen.y : x - piecen.x;
+
         } else {
             // who knows...
             return -1;
         }
+    }
+
+    // documentation inherited
+    public boolean equals (Object other)
+    {
+        return (compareTo(other) == 0);
     }
 
     // documentation inherited
@@ -258,10 +345,10 @@ public class VenisonTile
     {
         if (type > 0) {
             // grab a reference to our feature information
-            features = TileUtil.TILE_FEATURES[type-1];
+            features = FeatureUtil.getTileFeatures(type);
 
             // create our claims array
-            claims = new int[features.length/2];
+            claims = new int[features.length];
 
         } else {
             Log.warning("Requested to init features without valid type " +
@@ -271,118 +358,14 @@ public class VenisonTile
     }
 
     /**
-     * Creates the path objects that describe the shapes that make up this
-     * tile and sticks it into the appropriate slot in the shapes array.
-     */
-    protected void createShapes ()
-    {
-        int tidx = type-1;
-        ArrayList polys = new ArrayList();
-        ArrayList types = new ArrayList();
-
-        // the first feature is the background color
-        Object[] features = (Object[])TileUtil.TILE_FEATURE_GEOMS[tidx];
-        IntTuple base = (IntTuple)features[0];
-
-        // add a polygon containing the whole tile
-        types.add(base);
-        Polygon poly = new Polygon();
-        poly.addPoint(0, 0);
-        poly.addPoint(TILE_WIDTH, 0);
-        poly.addPoint(TILE_WIDTH, TILE_HEIGHT);
-        poly.addPoint(0, TILE_HEIGHT);
-        polys.add(poly);
-
-        // the remainder are tuple/coordinate pairs
-        for (int f = 1; f < features.length; f += 2) {
-            IntTuple ftype = (IntTuple)features[f];
-            int[] coords = (int[])features[f+1];
-
-            // keep track of this shape's type
-            types.add(ftype);
-
-            // if this is a road segment, we need to create a special
-            // polygon
-            if (ftype.left == ROAD) {
-                poly = TileUtil.roadSegmentToPolygon(
-                    coords[0], coords[1], coords[2], coords[3]);
-
-            } else {
-                // otherwise create the polygon directly from the coords
-                poly = new Polygon();
-                for (int c = 0; c < coords.length; c += 2) {
-                    // scale the coords accordingly
-                    int fx = (coords[c] * TILE_WIDTH) / 4;
-                    int fy = (coords[c+1] * TILE_HEIGHT) / 4;
-                    poly.addPoint(fx, fy);
-                }
-            }
-
-            polys.add(poly);
-        }
-
-        // now create general paths from our polygons and convert
-        // everything into the appropriate arrays
-        GeneralPath[] paths = new GeneralPath[polys.size()];
-        for (int i = 0; i < polys.size(); i++) {
-            GeneralPath path = new GeneralPath();
-            path.append(((Polygon)polys.get(i)).getPathIterator(null), false);
-            path.closePath();
-            paths[i] = path;
-        }
-
-        // keep the first one around
-        _shapes[tidx][NORTH] = paths;
-
-        // and rotate it three times to get the other orientations
-        AffineTransform xform = new AffineTransform();
-        for (int o = 1; o < 4; o++) {
-            xform.translate(TILE_WIDTH, 0);
-            xform.rotate(Math.PI/2);
-            GeneralPath[] rpaths = new GeneralPath[paths.length];
-            for (int i = 0; i < paths.length; i++) {
-                rpaths[i] = (GeneralPath)paths[i].clone();
-                rpaths[i].transform(xform);
-            }
-            _shapes[tidx][o] = rpaths;
-        }
-
-        // also fill in the feature type info
-        _types[tidx] = new IntTuple[types.size()];
-        types.toArray(_types[tidx]);
-    }
-
-    /**
      * Generates a string representation of this tile instance.
      */
     public String toString ()
     {
         return "[type=" + type + ", shield=" + hasShield +
             ", orient=" + ORIENT_NAMES[orientation] +
-            ", pos=" + x + "/" + y + "]";
+            ", pos=" + x + "/" + y +
+            ", claims=" + StringUtil.toString(claims) +
+            ", piecen=" + piecen + "]";
     }
-
-    /** Path objects that describe closed shapes which be used to render
-     * the tiles (one for each orientation of each tile type). */
-    protected static GeneralPath[][][] _shapes =
-        new GeneralPath[TILE_TYPES][4][];
-
-    /** The feature type of each shape in shapes array. */
-    protected static IntTuple[][] _types = new IntTuple[TILE_TYPES][];
-
-    /** Maps feature types to colors. */
-    protected static Color[] COLOR_MAP = {
-        Color.red, // CITY
-        Color.green, // GRASS
-        Color.black, // ROAD
-        Color.yellow // CLOISTER
-    };
-
-    /** Maps feature types to colors for claimed features. */
-    protected static Color[] CLAIMED_COLOR_MAP = {
-        Color.red.darker(), // CITY
-        Color.green.darker(), // GRASS
-        Color.black.brighter(), // ROAD
-        Color.yellow.darker(), // CLOISTER
-    };
 }

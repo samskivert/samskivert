@@ -20,10 +20,13 @@ import com.threerings.parlor.util.ParlorContext;
  * The top-level user interface component for the Venison game display.
  */
 public class VenisonPanel
-    extends JPanel implements PlaceView, ControllerProvider
+    extends JPanel implements PlaceView, ControllerProvider, VenisonCodes
 {
     /** A reference to the board that is accessible to the controller. */
     public VenisonBoard board;
+
+    /** A reference to our _noplace button. */
+    public JButton noplace;
 
     /**
      * Constructs a new Venison game display.
@@ -48,6 +51,13 @@ public class VenisonPanel
 
         // add a turn indicator to the side panel
         sidePanel.add(new TurnIndicatorView(), VGroupLayout.FIXED);
+
+        // add a "place nothing" button
+        noplace = new JButton("Place nothing");
+        noplace.setEnabled(false);
+        noplace.setActionCommand(PLACE_NOTHING);
+        noplace.addActionListener(Controller.DISPATCHER);
+        sidePanel.add(noplace, VGroupLayout.FIXED);
 
         // add our side panel to the main display
         add(sidePanel, HGroupLayout.FIXED);

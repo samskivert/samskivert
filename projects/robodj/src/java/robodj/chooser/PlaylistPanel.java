@@ -1,5 +1,5 @@
 //
-// $Id: PlaylistPanel.java,v 1.16 2004/01/26 16:33:40 mdb Exp $
+// $Id: PlaylistPanel.java,v 1.17 2004/01/28 02:36:23 mdb Exp $
 
 package robodj.chooser;
 
@@ -34,6 +34,11 @@ public class PlaylistPanel extends ControlledPanel
         {
             this.entry = entry;
             this.song = song;
+        }
+
+        public String toString ()
+        {
+            return StringUtil.fieldsToString(this);
         }
     }
 

@@ -356,7 +356,7 @@ public abstract class GroupLayout
      */
     public static JPanel makeButtonBox (Justification justification)
     {
-        return new JPanel(new HGroupLayout(NONE, justification));
+        return makeButtonBox(justification, null);
     }
 
     /**
@@ -368,8 +368,10 @@ public abstract class GroupLayout
         Justification justification, JComponent button)
     {
         JPanel box = new JPanel(new HGroupLayout(NONE, justification));
-        box.add(button);
-        box.setOpaque(false);
+        if (button != null) {
+            box.add(button);
+            box.setOpaque(false);
+        }
         return box;
     }
 

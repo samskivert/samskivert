@@ -1,9 +1,11 @@
 //
-// $Id: Application.java,v 1.1 2001/03/04 06:15:39 mdb Exp $
+// $Id: Application.java,v 1.2 2001/03/04 06:25:48 mdb Exp $
 
 package com.samskivert.webmacro;
 
 import javax.servlet.ServletContext;
+import org.webmacro.servlet.WebContext;
+
 import com.samskivert.servlet.MessageManager;
 import com.samskivert.util.StringUtil;
 
@@ -91,6 +93,46 @@ public class Application
         uri = uri.substring(0, uri.length() - FILE_EXTENSION.length());
         // prepend the base package and we're all set
         return _basePkg + uri;
+    }
+
+    /**
+     * A convenience function for translating messages.
+     */
+    public final String translate (WebContext ctx, String msg)
+    {
+        MessageManager msgmgr = getMessageManager();
+        return msgmgr.getMessage(ctx.getRequest(), msg);
+    }
+
+    /**
+     * A convenience function for translating messages.
+     */
+    public final String translate (WebContext ctx, String msg, Object arg)
+    {
+        MessageManager msgmgr = getMessageManager();
+        return msgmgr.getMessage(ctx.getRequest(), msg, new Object[]{ arg });
+    }
+
+    /**
+     * A convenience function for translating messages.
+     */
+    public final String translate (WebContext ctx, String msg, Object arg1,
+                                   Object arg2)
+    {
+        MessageManager msgmgr = getMessageManager();
+        return msgmgr.getMessage(ctx.getRequest(), msg,
+                                 new Object[]{ arg1, arg2 });
+    }
+
+    /**
+     * A convenience function for translating messages.
+     */
+    public final String translate (WebContext ctx, String msg, Object arg1,
+                                   Object arg2, Object arg3)
+    {
+        MessageManager msgmgr = getMessageManager();
+        return msgmgr.getMessage(ctx.getRequest(), msg,
+                                 new Object[]{ arg1, arg2, arg3 });
     }
 
     protected String _baseURI;

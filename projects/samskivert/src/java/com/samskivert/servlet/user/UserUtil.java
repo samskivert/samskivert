@@ -48,26 +48,17 @@ public class UserUtil
      * that would be stored in the user record were the password to be
      * updated via {@link User#setPassword}.
      */
-    public static String encryptPassword (String username, String password)
+    public static String encryptPassword (String password)
     {
-        return encryptPassword(username, password, true);
+        return StringUtil.md5hex(password);
     }
 
     /**
-     * Encrypts the user's password according to our preferred scheme.
-     *
-     * @param username the username of the user whose password is to be
-     * encrypted.
-     * @param password the plaintext of the password to be encrypted.
-     * @param ignoreUserCase true if the username should be uncapitalized
-     * prior to performing the encryption so that future password checks
-     * will work if the user registers as "Bluebeard" but logs in as
-     * "bluebeard".
+     * Encrypts passwords the way we used to.
      */
-    public static String encryptPassword (
-        String username, String password, boolean ignoreUserCase)
+    public static String legacyEncrypt (String username, String password,
+                                        boolean ignoreUserCase)
     {
-        // perhaps we'll not be too (case) sensitive
         if (ignoreUserCase) {
             username = username.toLowerCase();
         }
@@ -77,10 +68,9 @@ public class UserUtil
     public static void main (String[] args)
     {
         if (args.length < 2) {
-            System.err.println("Usage: UserUtil username password");
+            System.err.println("Usage: UserUtil password");
             System.exit(-1);
         }
-        System.out.println("Encrypted password: " +
-                           encryptPassword(args[0], args[1], true));
+        System.out.println("Encrypted password: " + encryptPassword(args[0]));
     }
 }

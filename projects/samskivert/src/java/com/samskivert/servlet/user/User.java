@@ -76,7 +76,17 @@ public class User
      */
     public void setPassword (String password)
     {
-	this.password = UserUtil.encryptPassword(username, password);
+        setPassword(Password.makeFromClear(password));
+    }
+
+    /**
+     * Updates the user's password.
+     *
+     * @param password The user's new password.
+     */
+    public void setPassword (Password password)
+    {
+	this.password = password.getEncrypted();
         _dirty.setModified("password");
     }
 
@@ -99,20 +109,38 @@ public class User
     }
 
     /**
-     * Compares the supplied (unencrypted) password with the password
-     * associated with this user record.
+     * Converts a legacy password.
+     *
+     * @return true if a conversion took place, false if not.
+     */
+    public boolean updateLegacyPassword (String password)
+    {
+        // we may have an old crypt() encrypted password
+        if (this.password.length() == 13) {
+            // check both the case sensitive and insensitive versions for
+            // further legacy reasons
+            if (this.password.equals(
+                    UserUtil.legacyEncrypt(username, password, false)) ||
+                this.password.equals(
+                    UserUtil.legacyEncrypt(username, password, true))) {
+                // update our password with the new encryption method
+                setPassword(password);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Compares the supplied password with the password associated with
+     * this user record.
      *
      * @return true if the passwords match, false if they do not.
      */
-    public boolean passwordsMatch (String password)
+    public boolean passwordsMatch (Password password)
     {
-	String epasswd = UserUtil.encryptPassword(username, password);
-	String oldpasswd = UserUtil.encryptPassword(username, password, false);
-        // because we used to be case sensitive, we have to check both
-        // versions of the encrypted password here for backward
-        // compatibility
-	return (this.password.equals(epasswd) ||
-                this.password.equals(oldpasswd));
+        return this.password.equals(password.getEncrypted());
     }
 
     /**

@@ -92,29 +92,6 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Requests that a new user be created in the repository.
-     *
-     * @param uname the username of the new user to create.
-     * @param pass the (unencrypted) password for the new user.
-     * @param realname the user's real name.
-     * @param email the user's email address.
-     * @param siteId the unique identifier of the site through which this
-     * account is being created. The resulting user will be tracked as
-     * originating from this site for accounting purposes ({@link
-     * SiteIdentifier#DEFAULT_SITE_ID} can be used by systems that don't
-     * desire to perform site tracking.
-     *
-     * @return The userid of the newly created user.
-     */
-    public int createUser (Username uname, String pass, String realname,
-                           String email, int siteId)
-	throws UserExistsException, PersistenceException
-    {
-        return createUser(uname, new Password(uname.getUsername(), pass),
-                          realname, email, siteId);
-    }
-
-    /**
      * Like {@link #createUser(String,String,String,String,int)} except
      * that the supplied password has already been encrypted.
      */
@@ -139,11 +116,11 @@ public class UserRepository extends JORARepository
                                  String realname, String email, int siteId)
     {
 	user.username = name.getUsername();
-	user.password = pass.getEncrypted();
-	user.realname = realname;
-	user.email = email;
+	user.setPassword(pass);
+	user.setRealName(realname);
+	user.setEmail(email);
 	user.created = new Date(System.currentTimeMillis());
-        user.siteId = siteId;
+        user.setSiteId(siteId);
     }
 
     /**
@@ -606,10 +583,12 @@ public class UserRepository extends JORARepository
 	    System.out.println(rep.loadUser("mdb"));
 	    System.out.println(rep.loadUserBySession("auth"));
 
-	    rep.createUser(new Username("samskivert"), "foobar",
+	    rep.createUser(new Username("samskivert"),
+                           Password.makeFromClear("foobar"),
                            "Michael Bayne", "mdb@samskivert.com",
                            SiteIdentifier.DEFAULT_SITE_ID);
-	    rep.createUser(new Username("mdb"), "foobar", "Michael Bayne",
+	    rep.createUser(new Username("mdb"),
+                           Password.makeFromClear("foobar"), "Michael Bayne",
 			   "mdb@samskivert.com",
                            SiteIdentifier.DEFAULT_SITE_ID);
 

@@ -44,6 +44,6 @@ public interface Authenticator
      * the authentication check.
      */
     public void authenticateUser (
-        User user, String username, String password, boolean persist)
+        User user, String username, Password password, boolean persist)
         throws AuthenticationFailedException;
 }

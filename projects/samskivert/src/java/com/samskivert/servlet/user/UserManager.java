@@ -60,7 +60,7 @@ public class UserManager
     {
         // documentation inherited
         public void authenticateUser (
-            User user, String username, String password, boolean persist)
+            User user, String username, Password password, boolean persist)
             throws InvalidPasswordException
         {
             // don't care
@@ -75,7 +75,7 @@ public class UserManager
     {
         // documentation inherited
         public void authenticateUser (
-            User user, String username, String password, boolean persist)
+            User user, String username, Password password, boolean persist)
             throws AuthenticationFailedException
         {
             if (!user.passwordsMatch(password)) {
@@ -224,7 +224,7 @@ public class UserManager
      * or some other error occurs, an exception will be thrown.
      *
      * @param username The username supplied by the user.
-     * @param password The plaintext password supplied by the user.
+     * @param password The password supplied by the user.
      * @param persist If true, the cookie will expire in one month, if
      * false, the cookie will expire at the end of the user's browser
      * session.
@@ -235,7 +235,7 @@ public class UserManager
      *
      * @return the user object of the authenticated user.
      */
-    public User login (String username, String password, boolean persist,
+    public User login (String username, Password password, boolean persist,
                        HttpServletRequest req, HttpServletResponse rsp,
                        Authenticator auth)
 	throws PersistenceException, AuthenticationFailedException
@@ -245,6 +245,13 @@ public class UserManager
 	if (user == null) {
 	    throw new NoSuchUserException("error.no_such_user");
 	}
+
+        // potentially convert the user's legacy password
+        if (password.getCleartext() != null &&
+            user.updateLegacyPassword(password.getCleartext())) {
+            Log.info("Updated legacy password " + user.username + ".");
+            _repository.updateUser(user);
+        }
 
         // run the user through the authentication gamut
         auth.authenticateUser(user, username, password, persist);

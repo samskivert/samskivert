@@ -1,5 +1,5 @@
 //
-// $Id: Label.java,v 1.13 2002/06/21 03:05:13 mdb Exp $
+// $Id: Label.java,v 1.14 2002/06/26 17:27:51 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Michael Bayne
@@ -40,6 +40,7 @@ import java.text.AttributedCharacterIterator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import javax.swing.SwingConstants;
 
@@ -213,6 +214,7 @@ public class Label implements SwingConstants
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = layout.getBounds();
             int lines = Math.round(_constraints.height / getHeight(layout));
+            lines = Math.min(lines, new StringTokenizer(_text).countTokens());
             lines = Math.max(lines, 1);
             int targetWidth = (int)Math.round(bounds.getWidth() / lines);
 

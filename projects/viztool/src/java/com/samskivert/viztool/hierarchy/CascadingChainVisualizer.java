@@ -1,5 +1,5 @@
 //
-// $Id: CascadingChainVisualizer.java,v 1.10 2001/11/30 22:57:31 mdb Exp $
+// $Id: CascadingChainVisualizer.java,v 1.11 2001/12/01 05:28:01 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -28,6 +28,8 @@ import java.awt.geom.*;
 import java.util.ArrayList;
 
 import com.samskivert.viztool.util.FontPicker;
+import com.samskivert.viztool.util.LayoutUtil;
+import com.samskivert.viztool.util.RenderUtil;
 
 /**
  * The cascading chain visualizer lays out chains in the standard
@@ -49,44 +51,38 @@ public class CascadingChainVisualizer
     // docs inherited from interface
     public void layoutChain (Chain chain, Graphics2D gfx)
     {
-        // create a text layout based on the current rendering conditions
-        Font font = chain.getRoot().isInterface() ?
-            FontPicker.getInterfaceFont() : FontPicker.getClassFont();
-        TextLayout layout = new TextLayout(chain.getName(), font,
-                                           gfx.getFontRenderContext());
+        FontRenderContext frc = gfx.getFontRenderContext();
 
         // the header will be the name of this chain surrounded by N
         // points of space and a box
-        Rectangle2D bounds = getTextBox(gfx, layout);
+        Rectangle2D bounds = LayoutUtil.getTextBox(
+            chain.getRoot().isInterface() ? FontPicker.getInterfaceFont() :
+            FontPicker.getClassFont(), frc, chain.getName());
 
         // add our inner classes and interface implementations, but only
         // if we're not an out of package class
         if (chain.inPackage()) {
             String[] impls = chain.getImplementsNames();
-            for (int i = 0; i < impls.length; i++) {
-                bounds = accomodate(bounds, impls[i],
-                                    FontPicker.getImplementsFont(),
-                                    gfx.getFontRenderContext());
-            }
+            bounds = LayoutUtil.accomodate(
+                bounds, FontPicker.getImplementsFont(),
+                frc, LayoutUtil.SUBORDINATE_INSET, impls);
             String[] decls = chain.getDeclaresNames();
-            for (int i = 0; i < decls.length; i++) {
-                bounds = accomodate(bounds, decls[i],
-                                    FontPicker.getDeclaresFont(),
-                                    gfx.getFontRenderContext());
-            }
+            bounds = LayoutUtil.accomodate(
+                bounds, FontPicker.getDeclaresFont(),
+                frc, LayoutUtil.SUBORDINATE_INSET, decls);
         }
 
         double maxwid = bounds.getWidth();
 
         // the children will be below the name of this chain and inset by
         // four points to make space for the connecty lines
-        double x = 2*GAP, y = bounds.getHeight();
+        double x = 2*LayoutUtil.GAP, y = bounds.getHeight();
         ArrayList kids = chain.getChildren();
 
         for (int i = 0; i < kids.size(); i++) {
             Chain kid = (Chain)kids.get(i);
             Rectangle2D kbounds = kid.getBounds();
-            y += GAP; // add the gap
+            y += LayoutUtil.GAP; // add the gap
             kid.setBounds(x, y, kbounds.getWidth(), kbounds.getHeight());
             y += kbounds.getHeight(); // add the dimensions of the kid
             // track max width
@@ -100,79 +96,63 @@ public class CascadingChainVisualizer
         chain.setBounds(cbounds.getX(), cbounds.getY(), maxwid, y);
     }
 
-    protected Rectangle2D accomodate (Rectangle2D bounds, String name,
-                                      Font font, FontRenderContext frc)
-    {
-        TextLayout layout = new TextLayout(name, font, frc);
-        Rectangle2D tbounds = layout.getBounds();
-        bounds.setRect(bounds.getX(), bounds.getY(),
-                       Math.max(bounds.getWidth(), tbounds.getWidth()+INSET),
-                       bounds.getHeight() + tbounds.getHeight());
-        return bounds;
-    }
-
     // docs inherited from interface
     public void renderChain (Chain chain, Graphics2D gfx)
     {
         // figure out where we'll be rendering
         Rectangle2D bounds = chain.getBounds();
-        double x = bounds.getX();
-        double y = bounds.getY();
-
-        // create a text layout based on the current rendering conditions
-        Font font = chain.getRoot().isInterface() ?
-            FontPicker.getInterfaceFont() : FontPicker.getClassFont();
-        TextLayout layout = new TextLayout(chain.getName(), font,
-                                           gfx.getFontRenderContext());
-
-        Rectangle2D tbounds = getTextBox(gfx, layout);
-        double dx = -tbounds.getX(), dy = -tbounds.getY();
-        double maxwid = tbounds.getWidth();
+        double x = bounds.getX() + LayoutUtil.HEADER_BORDER;
+        double y = bounds.getY() + LayoutUtil.HEADER_BORDER;
+        double maxwid = 0;
 
         // draw the name
-        layout.draw(gfx, (float)(x + dx + HEADER_BORDER),
-                    (float)(y + dy + HEADER_BORDER));
+        FontRenderContext frc = gfx.getFontRenderContext();
+        Font font = chain.getRoot().isInterface() ?
+            FontPicker.getInterfaceFont() : FontPicker.getClassFont();
+        Rectangle2D bnds = 
+            RenderUtil.renderString(gfx, frc, font, x, y, chain.getName());
+        maxwid = Math.max(maxwid, bnds.getWidth() +
+                          2*LayoutUtil.HEADER_BORDER);
+        y += bnds.getHeight();
 
         // draw the interface and inner class info, but only if we're not
         // an out of package class
-        double ix = x + HEADER_BORDER + INSET;
-        double iy = y + tbounds.getHeight() - HEADER_BORDER;
-
         if (chain.inPackage()) {
+            // render the implemented interfaces
             String[] impls = chain.getImplementsNames();
-            for (int i = 0; i < impls.length; i++) {
-                TextLayout ilay =
-                    new TextLayout(impls[i], FontPicker.getImplementsFont(),
-                                   gfx.getFontRenderContext());
-                Rectangle2D ibounds = ilay.getBounds();
-                double newwid = ibounds.getWidth() + 2*HEADER_BORDER + INSET;
-                if (newwid > maxwid) {
-                    maxwid = newwid;
-                }
-                ilay.draw(gfx, (float)(ix - ibounds.getX()),
-                          (float)(iy - ibounds.getY()));
-                iy += ibounds.getHeight();
-            }
+            bnds = RenderUtil.renderStrings(
+                gfx, frc, FontPicker.getImplementsFont(),
+                x + LayoutUtil.SUBORDINATE_INSET, y, impls);
+            maxwid = Math.max(maxwid, bnds.getWidth() +
+                              2*LayoutUtil.HEADER_BORDER +
+                              LayoutUtil.SUBORDINATE_INSET);
+            y += bnds.getHeight();
 
+            // render the declared inner classes
             String[] decls = chain.getDeclaresNames();
-            for (int i = 0; i < decls.length; i++) {
-                TextLayout ilay =
-                    new TextLayout(decls[i], FontPicker.getDeclaresFont(),
-                                   gfx.getFontRenderContext());
-                Rectangle2D ibounds = ilay.getBounds();
-                double newwid = ibounds.getWidth() + 2*HEADER_BORDER + INSET;
-                if (newwid > maxwid) {
-                    maxwid = newwid;
-                }
-                ilay.draw(gfx, (float)(ix - ibounds.getX()),
-                          (float)(iy - ibounds.getY()));
-                iy += ibounds.getHeight();
-            }
+            bnds = RenderUtil.renderStrings(
+                gfx, frc, FontPicker.getDeclaresFont(),
+                x + LayoutUtil.SUBORDINATE_INSET, y, decls);
+            maxwid = Math.max(maxwid, bnds.getWidth() +
+                              2*LayoutUtil.HEADER_BORDER +
+                              LayoutUtil.SUBORDINATE_INSET);
+            y += bnds.getHeight();
         }
 
+        // leave a border at the bottom as well
+        y += LayoutUtil.HEADER_BORDER;
+
         // stroke a box that will contain the name
-        tbounds.setRect(x, y, maxwid, iy - y + HEADER_BORDER);
-        gfx.draw(tbounds);
+        Rectangle2D outline = new Rectangle2D.Double(
+            bounds.getX(), bounds.getY(), maxwid, y - bounds.getY());
+        gfx.draw(outline);
+
+        // keep track of the bottom
+        double height = y;
+
+        // reset our top level coords
+        x = bounds.getX();
+        y = bounds.getY();
 
         // render our connecty lines
         ArrayList kids = chain.getChildren();
@@ -180,12 +160,12 @@ public class CascadingChainVisualizer
             GeneralPath path = new GeneralPath();
             Rectangle2D kbounds = ((Chain)kids.get(0)).getBounds();
             double half = kbounds.getX()/2;
-            path.moveTo((float)(x + half), (float)(y + tbounds.getHeight()));
+            path.moveTo((float)(x + half), (float)height);
 
             for (int i = 0; i < kids.size(); i++) {
                 Chain kid = (Chain)kids.get(i);
                 kbounds = kid.getBounds();
-                double ly = y + kbounds.getY() + dy + HEADER_BORDER;
+                double ly = y + kbounds.getY() + 2*LayoutUtil.HEADER_BORDER;
                 path.lineTo((float)(x + half), (float)ly);
                 path.lineTo((float)(x + kbounds.getX()), (float)ly);
                 path.moveTo((float)(x + half), (float)ly);
@@ -206,31 +186,4 @@ public class CascadingChainVisualizer
         // undo our prior translation
         gfx.translate(-x, -y);
     }
-
-    protected static Rectangle2D getTextBox (Graphics2D gfx,
-                                             TextLayout layout)
-    {
-        Rectangle2D bounds = layout.getBounds();
-        // incorporate room for the border in the bounds
-        bounds.setRect(bounds.getX(), bounds.getY(),
-                       bounds.getWidth() + 2*HEADER_BORDER, 
-                       bounds.getHeight() + 2*HEADER_BORDER);
-        return bounds;
-    }
-
-    /**
-     * The number of points surrounding the name of the chain.
-     */
-    protected static final double HEADER_BORDER = 3;
-
-    /**
-     * The number of points of spacing between each child chain.
-     */
-    protected static final double GAP = 4;
-
-    /**
-     * The number of points that interfaces and inner class declarations
-     * are indented.
-     */
-    protected static final double INSET = 3;
 }

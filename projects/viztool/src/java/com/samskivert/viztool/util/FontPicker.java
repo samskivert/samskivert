@@ -1,5 +1,5 @@
 //
-// $Id: FontPicker.java,v 1.3 2001/11/30 22:57:31 mdb Exp $
+// $Id: FontPicker.java,v 1.4 2001/12/01 05:28:01 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -34,7 +34,7 @@ public class FontPicker
      */
     public static void init (boolean printing)
     {
-        int size = printing ? 8 : 10;
+        int size = printing ? 8 : 12;
         _titleFont = new Font("Helvetica", Font.BOLD, size);
         _classFont = new Font("Helvetica", Font.PLAIN, size);
         _ifaceFont = new Font("Helvetica", Font.ITALIC, size);

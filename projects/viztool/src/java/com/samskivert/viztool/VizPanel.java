@@ -1,5 +1,5 @@
 //
-// $Id: VizPanel.java,v 1.7 2001/11/30 22:57:31 mdb Exp $
+// $Id: VizPanel.java,v 1.8 2001/12/01 05:28:01 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -42,14 +42,18 @@ public class VizPanel extends JPanel
         setFont(font);
     }
 
+    public void doLayout ()
+    {
+        super.doLayout();
+        Graphics2D gfx = (Graphics2D)getGraphics();
+        Rectangle2D bounds = getBounds();
+        _viz.layout(gfx, 0, 0, bounds.getWidth(), bounds.getHeight());
+    }
+
     public void paintComponent (Graphics g)
     {
         super.paintComponent(g);
-
-        Graphics2D gfx = (Graphics2D)g;
-        Rectangle2D bounds = getBounds();
-        _viz.layout(gfx, 0, 0, bounds.getWidth(), bounds.getHeight());
-        _viz.paint(gfx, _currentPage);
+        _viz.paint((Graphics2D)g, _currentPage);
     }
 
     public Dimension getPreferredSize ()

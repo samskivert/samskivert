@@ -1,5 +1,5 @@
 //
-// $Id: VizController.java,v 1.3 2001/08/14 00:58:49 mdb Exp $
+// $Id: VizController.java,v 1.4 2001/12/01 05:28:01 mdb Exp $
 // 
 // viztool - a tool for visualizing collections of java classes
 // Copyright (C) 2001 Michael Bayne
@@ -79,20 +79,16 @@ public class VizController extends Controller
         } else if (cmd.equals(PRINT)) {
             // create a pageable to be used by our print job that does the
             // right thing
-            Pageable pable = new Pageable()
-            {
-                public int getNumberOfPages ()
-                {
+            Pageable pable = new Pageable() {
+                public int getNumberOfPages () {
                     return _vpanel.getVisualizer().getPageCount();
                 }
 
-                public PageFormat getPageFormat (int pageIndex)
-                {
+                public PageFormat getPageFormat (int pageIndex) {
                     return _format;
                 }
 
-                public Printable getPrintable (int pageIndex)
-                {
+                public Printable getPrintable (int pageIndex) {
                     return _vpanel.getVisualizer();
                 }
             };

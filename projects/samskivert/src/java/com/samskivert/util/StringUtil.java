@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.14 2001/11/29 06:32:37 mdb Exp $
+// $Id: StringUtil.java,v 1.15 2001/11/29 06:33:56 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -97,9 +97,9 @@ public class StringUtil
     /**
      * Like the single argument {@link #toString(Object)} with the
      * additional function of specifying the characters that are used to
-     * box in list and array types (for example, if "[" and "]" were
+     * box in list and array types. For example, if "[" and "]" were
      * supplied, an int array might be formatted like so: <code>[1, 3,
-     * 5]</code>).
+     * 5]</code>.
      */
     public static String toString (
         Object val, String openBox, String closeBox)
@@ -125,9 +125,9 @@ public class StringUtil
     /**
      * Converts the supplied value to a string and appends it to the
      * supplied string buffer. The specified boxing characters are used to
-     * enclose list and array types (for example, if "[" and "]" were
+     * enclose list and array types. For example, if "[" and "]" were
      * supplied, an int array might be formatted like so: <code>[1, 3,
-     * 5]</code>).
+     * 5]</code>.
      *
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.

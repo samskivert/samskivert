@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceLoader.java,v 1.4 2001/11/06 05:05:28 mdb Exp $
+// $Id: SiteResourceLoader.java,v 1.5 2001/11/06 05:37:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -353,8 +353,8 @@ public class SiteResourceLoader
                     jarFile.close();
                 }
 
-                Log.info("Opening site-specific jar file " +
-                         "[path=" + file + "].");
+//                  Log.info("Opening site-specific jar file " +
+//                           "[path=" + file + "].");
 
                 // and open a new one
                 jarFile = new JarFile(file);

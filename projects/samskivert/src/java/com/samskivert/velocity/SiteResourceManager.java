@@ -1,5 +1,5 @@
 //
-// $Id: SiteResourceManager.java,v 1.2 2001/11/06 05:22:39 mdb Exp $
+// $Id: SiteResourceManager.java,v 1.3 2001/11/06 05:37:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -90,8 +90,6 @@ public class SiteResourceManager extends ResourceManagerImpl
         // attempt to load a site-specific version
         if (resourceKey instanceof SiteResourceKey) {
             SiteResourceKey rkey = (SiteResourceKey)resourceKey;
-            Log.info("Looking for site-specific version of " +
-                     rkey.description() + ".");
 
             // make sure the site we're loading for is not the default
             // site, in which case we want to skip to the second resource
@@ -100,7 +98,6 @@ public class SiteResourceManager extends ResourceManagerImpl
                 // try loading it via the site-specific resource loader
                 try {
                     resolveResource(resource, _siteLoader);
-                    Log.info("Loaded site-specific [key=" + resourceKey + "].");
                 } catch (ResourceNotFoundException rnfe) {
                     // nothing to worry about here
                 }
@@ -111,7 +108,6 @@ public class SiteResourceManager extends ResourceManagerImpl
         // site-specific resource
         if (resource.getData() == null) {
             resolveResource(resource, _contextLoader);
-            Log.info("Loaded default [key=" + resourceKey + "].");
         }
 
         return resource;

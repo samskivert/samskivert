@@ -1,0 +1,394 @@
+//
+// $Id: Repository.java,v 1.1 2000/11/08 06:42:57 mdb Exp $
+
+package robodj.repository;
+
+import java.sql.*;
+import java.util.List;
+import java.util.Properties;
+
+import com.samskivert.util.*;
+import jora.*;
+
+/**
+ * The repository class provides access to the music information
+ * repository which contains information on all of the music registered
+ * with the system (album names, track names, paths to the actual media,
+ * etc.).
+ *
+ * <p> Entries are stored in the repository according to genre. An entry
+ * may be associated with multiple genres.
+ */
+public class Repository
+{
+    /**
+     * Creates the repository and opens the music database. A properties
+     * object should be supplied with the following fields:
+     *
+     * <pre>
+     * driver=[jdbc driver class]
+     * url=[jdbc driver url]
+     * username=[jdbc username]
+     * password=[jdbc password]
+     * </pre>
+     *
+     * @param props a properties object containing the configuration
+     * parameters for the repository.
+     */
+    public Repository (Properties props)
+	throws SQLException
+    {
+	// create our JORA session
+	String dclass =
+	    requireProp(props, "driver", "No driver class specified.");
+	_session = new Session(dclass);
+
+	// connect the session to the database
+	String url =
+	    requireProp(props, "url", "No driver url specified.");
+	String username =
+	    requireProp(props, "username", "No driver username specified.");
+	String password =
+	    requireProp(props, "password", "No driver password specified.");
+	_session.open(url, username, password);
+
+	// set auto-commit to false
+	_session.connection.setAutoCommit(false);
+
+	// create our table objects
+	_etable = new Table(Entry.class.getName(), "entries", _session,
+			    "entryid");
+	_stable = new Table(Song.class.getName(), "songs", _session,
+			    "songid");
+	_ctable = new Table(Category.class.getName(), "categories", _session,
+			    "categoryid");
+	_cmtable = new Table(CategoryMapping.class.getName(), "category_map",
+			     _session, new String[] {"categoryid", "entryid"});
+    }
+
+    protected static String requireProp (Properties props,
+					 String name, String errmsg)
+	throws SQLException
+    {
+	String value = props.getProperty(name);
+	if (StringUtil.blank(value)) {
+	    throw new SQLException(errmsg);
+	}
+	return value;
+    }
+
+    /**
+     * A repository should be shutdown before the calling code disposes of
+     * it. This allows the repository to cleanly terminate the underlying
+     * database services.
+     */
+    public void shutdown ()
+	throws SQLException
+    {
+	_session.close();
+    }
+
+    /**
+     * @return the entry with the specified entry id or null if no entry
+     * with that id exists.
+     */
+    public Entry getEntry (int entryid)
+	throws SQLException
+    {
+	// look up the entry
+	Cursor ec = _etable.select("where entryid = " + entryid);
+
+	// fetch the entry from the cursor
+	Entry entry = (Entry)ec.next();
+
+	if (entry != null) {
+	    // and call next() again to cause the cursor to close itself
+	    ec.next();
+
+	    // load up the songs for this entry
+	    Cursor sc = _stable.select("where entryid = " + entryid);
+	    List slist = sc.toArrayList();
+	    entry.songs = new Song[slist.size()];
+	    slist.toArray(entry.songs);
+	}
+
+	return entry;
+    }
+
+    /**
+     * Inserts a new entry into the table. All fields except the entryid
+     * should contain valid values. The entryid field should be zero. The
+     * songs array should contain song objects for all of the songs
+     * associated with this entry. The entryid field (in the entry object
+     * and the song objects) will be filled in with the entryid of the
+     * newly created entry.
+     */
+    public void insertEntry (Entry entry)
+	throws SQLException
+    {
+	try {
+	    // insert the entry into the entry table
+	    _etable.insert(entry);
+
+	    // update the entryid now that it's known
+	    entry.entryid = lastInsertedId();
+
+	    // and insert all of it's songs into the songs table
+	    if (entry.songs != null) {
+		for (int i = 0; i < entry.songs.length; i++) {
+		    // insert the proper entryid
+		    entry.songs[i].entryid = entry.entryid;
+		    _stable.insert(entry.songs[i]);
+		    // find out what songid was assigned
+		    entry.songs[i].songid = lastInsertedId();
+		}
+	    }
+
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    protected int lastInsertedId ()
+	throws SQLException
+    {
+	// we have to do this by hand. alas all is not roses.
+	Statement stmt = _session.connection.createStatement();
+	ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
+	if (rs.next()) {
+	    return rs.getInt(1);
+	} else {
+	    return -1;
+	}
+    }
+
+    /**
+     * Updates an entry that was previously fetched from the database. The
+     * number of songs in the songs array <em>must not</em> have changed
+     * (the fields of those songs can have changed, however). If you need
+     * to add or remove songs, you should use the specific member
+     * functions for doing that.
+     *
+     * @see addSongToEntry
+     * @see removeSongFromEntry
+     */
+    public void updateEntry (Entry entry)
+	throws SQLException
+    {
+	try {
+	    // update the entry
+	    _etable.update(entry);
+
+	    // and the entry's songs
+	    if (entry.songs != null) {
+		for (int i = 0; i < entry.songs.length; i++) {
+		    _stable.update(entry.songs[i]);
+		}
+	    }
+
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    /**
+     * Removes the entry (and all associated songs) from the database.
+     */
+    public void deleteEntry (Entry entry)
+	throws SQLException
+    {
+	try {
+	    // remove the entry from the entry table and the foreign key
+	    // constraints will automatically remove all of the
+	    // corresponding songs
+	    _etable.delete(entry);
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    /**
+     * Adds the specified song to the specified entry (both in the
+     * database and in the current Java object that represents the
+     * database information). The song should not have a value supplied
+     * for the songid field because it is expected that this song will be
+     * newly added to the database (use updateSong to update an existing
+     * song's information). Upon successful return from this function, the
+     * songid field will be filled in with the songid value assigned to
+     * the newly created song.
+     *
+     * @see updateSong
+     */
+    public void addSongToEntry (Entry entry, Song song)
+	throws SQLException
+    {
+	try {
+	    // fill in the appropriate entry id value
+	    song.entryid = entry.entryid;
+
+	    // and stick the song into the database
+	    _stable.insert(song);
+	    // communicate the songid back to the caller
+	    song.songid = lastInsertedId();
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    /**
+     * Updates the specified song individually. The songid and entryid
+     * parameters should already be set to the appropriate values.
+     */
+    public void updateSong (Song song)
+	throws SQLException
+    {
+	try {
+	    _stable.update(song);
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    /**
+     * Creates a category with the specified name and returns the id of
+     * that new category.
+     */
+    public int createCategory (String name)
+	throws SQLException
+    {
+	try {
+	    Category cat = new Category();
+	    cat.name = name;
+	    _ctable.insert(cat);
+
+	    int categoryid = lastInsertedId();
+	    _session.commit();
+
+	    return categoryid;
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    /**
+     * @return an array of all of the categories that currently exist in
+     * the category table.
+     */
+    public Category[] getCategories ()
+	throws SQLException
+    {
+	Cursor ccur = _ctable.select("");
+	List clist = ccur.toArrayList();
+	Category[] cats = new Category[clist.size()];
+	clist.toArray(cats);
+	return cats;
+    }
+
+    /**
+     * Associates the specified entry with the specified category. An
+     * entry can be mapped into multiple categories.
+     */
+    public void associateEntry (Entry entry, int categoryid)
+	throws SQLException
+    {
+	try {
+	    CategoryMapping map =
+		new CategoryMapping(categoryid, entry.entryid);
+	    _cmtable.insert(map);
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    /**
+     * Disassociates the specified entry from the specified category.
+     */
+    public void disassociateEntry (Entry entry, int categoryid)
+	throws SQLException
+    {
+	try {
+	    CategoryMapping map =
+		new CategoryMapping(categoryid, entry.entryid);
+	    _cmtable.delete(map);
+	    _session.commit();
+
+	} catch (SQLException sqe) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw sqe;
+
+	} catch (RuntimeException rte) {
+	    // back out our changes if something got hosed
+	    _session.rollback();
+	    throw rte;
+	}
+    }
+
+    protected Session _session;
+    protected Table _etable;
+    protected Table _stable;
+    protected Table _ctable;
+    protected Table _cmtable;
+}

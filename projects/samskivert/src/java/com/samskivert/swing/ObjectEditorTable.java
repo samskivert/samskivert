@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEditorTable.java,v 1.1 2004/06/14 01:08:22 ray Exp $
+// $Id: ObjectEditorTable.java,v 1.2 2004/06/14 17:20:04 ray Exp $
 
 package com.samskivert.swing;
 
@@ -24,13 +24,13 @@ import com.samskivert.util.ListUtil;
 import com.samskivert.Log;
 
 /**
- * Allows simple displaying and editable of Objects in a table format.
+ * Allows simple displaying and editing of Objects in a table format.
  */
 public class ObjectEditorTable extends JTable
 {
     /**
      * The default FieldInterpreter, which can be used to customize the
-     * name, values, and editing of a field in a DSet.Entry.
+     * name, values, and editing of a field in an Object.
      *
      * There are a number of ways that the field editing can be customized.
      * A custom renderer (and editor) may be installed on the table, possibly
@@ -170,8 +170,13 @@ public class ObjectEditorTable extends JTable
     }
 
     /**
-     * Add an action listener to this table. Will be notified when objects
-     * are edited.
+     * Add an action listener to this table.
+     *
+     * When any field is changed in the table, an action will be fired with
+     * a {@link CommandEvent}, with source being the table, the command
+     * being the name of the field that was updated, and the argument being
+     * the object that was updated. Note that no event is fired if a field
+     * was edited but the value did not change.
      */
     public void addActionListener (ActionListener listener)
     {
@@ -187,8 +192,7 @@ public class ObjectEditorTable extends JTable
     }
 
     /**
-     * A table model that uses the FieldInterpreter to muck with the data
-     * objects.
+     * A table model that uses the FieldInterpreter to muck with the objects.
      */
     protected AbstractTableModel _model = new AbstractTableModel() {
         /**
@@ -263,11 +267,11 @@ public class ObjectEditorTable extends JTable
         }
     };
 
-    /** The list of fields in the prototypical Entry object. */
+    /** The list of fields in the prototypical object. */
     protected Field[] _fields;
 
     /** An interpreter that is used to massage values in and out of the
-     * entries. */
+     * objects. */
     protected FieldInterpreter _interp;
 
     /** A list of flags corresponding to the _fields (and the table columns)

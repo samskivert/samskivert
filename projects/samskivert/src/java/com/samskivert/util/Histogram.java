@@ -1,5 +1,5 @@
 //
-// $Id: Histogram.java,v 1.3 2002/04/22 21:28:55 shaper Exp $
+// $Id: Histogram.java,v 1.4 2003/04/10 20:50:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -82,6 +82,24 @@ public class Histogram
     public int[] getBuckets ()
     {
         return _buckets;
+    }
+
+    /**
+     * Generates a terse summary of the count and contents of the values
+     * in this histogram.
+     */
+    public String summarize ()
+    {
+        long total = 0;
+        StringBuffer buf = new StringBuffer();
+        buf.append(_count).append(":");
+        for (int ii = 0; ii < _buckets.length; ii++) {
+            if (ii > 0) {
+                buf.append(",");
+            }
+            buf.append(_buckets[ii]);
+        }
+        return buf.toString();
     }
 
     /**

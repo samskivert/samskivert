@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.11 2001/10/17 23:27:52 mdb Exp $
+// $Id: AtlantiManager.java,v 1.12 2001/10/17 23:28:34 mdb Exp $
 
 package com.threerings.venison;
 
@@ -67,10 +67,10 @@ public class VenisonManager
         _tilesInBox = TileUtil.getStandardTileSet();
         Collections.shuffle(_tilesInBox);
 
-        // shave off most of the tiles for the moment
-        while (_tilesInBox.size() > 15) {
-            _tilesInBox.remove(0);
-        }
+//          // shave off most of the tiles for the moment
+//          while (_tilesInBox.size() > 15) {
+//              _tilesInBox.remove(0);
+//          }
 
         // clear out our board tiles
         _tiles.clear();

@@ -466,6 +466,9 @@ public class ListUtil
      */
     public static int size (Object[] list)
     {
+        if (list == null) {
+            return 0;
+        }
         int llength = list.length;
         for (int ii = 0; ii < llength; ii++) {
             if (list[ii] == null) {

@@ -2,6 +2,6 @@
 Name=Lookuplet
 Comment=Look things up on the web and elsewhere
 Exec=lookuplet --activate-goad-server=lookuplet
-Icon=lookuplet.xpm
+Icon=gnome-lookuplet.xpm
 Terminal=0
 Type=Application

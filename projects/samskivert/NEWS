@@ -1,3 +1,526 @@
+* Release 1.1:
+
+2001-12-03  Michael Bayne  <mdb@bering>
+
+	* build.xml:
+	Added a build task for generating a class hierarchy diagram using viztool.
+
+	* src/java/com/samskivert/util/StringUtil.java:
+	Added toString(boolean[]).
+
+2001-11-29  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/xml/ValidatedSetNextRule.java:
+	Added a rule that allows for object validation before it is passed up to
+	its parent. Useful for making sure an object was fully parsed before
+	throwing it into the mix.
+
+	* src/java/com/samskivert/xml/SetNextFieldRule.java:
+	Added toString().
+
+	* src/java/com/samskivert/xml/SetFieldRule.java:
+	Don't skip field setting when the body text is empty because we might want
+	to set an empty array field or something.
+
+	* src/java/com/samskivert/xml/SetNextFieldRule.java:
+	Created a rule like SetNext but that sets the child object into a field of
+	the parent rather than calling a method with the child as an argument.
+
+	* src/java/com/samskivert/util/StringUtil.java:
+	Javadoc edit.
+
+	* src/java/com/samskivert/util/StringUtil.java:
+	Modified toString() so that it can be optionally provided with opening and
+	closing box characters (the parentheses in (0, 1, 2, 3)).
+
+2001-11-26  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/ValueMarshaller.java, src/java/com/samskivert/xml/SetFieldRule.java, src/java/com/samskivert/xml/SetPropertyFieldsRule.java:
+	Moved the value marshalling code out of SetFieldRule and into a separate
+	class. Created a digester rule that sets public fields of objects based on
+	element attributes.
+
+	* src/java/com/samskivert/xml/CallMethodSpecialRule.java:
+	Need to be able to throw an exception in parseAndSet().
+
+	* src/java/com/samskivert/util/Tuple.java:
+	Made Tuple serializable.
+
+	* build.xml:
+	Pass -breakiter to javadoc so it doesn't complain.
+
+	* src/java/com/samskivert/util/HashIntMap.java:
+	Forgot 'implements Serializable'.
+
+	* tests/src/java/com/samskivert/util/HashIntMapTest.java:
+	Created unit test for HashIntMap.
+
+	* src/java/com/samskivert/util/HashIntMap.java:
+	Made HashIntMap serializable and moved test code into a test driver.
+
+	* src/java/com/samskivert/util/Tuple.java:
+	Add equals() and hashCode() implementations that allow a Tuple to be used
+	as a HashMap key.
+
+	* src/java/com/samskivert/util/CompoundIterator.java:
+	Fixed a bug with hasNext().
+
+2001-11-20  Michael Bayne  <mdb@bering>
+
+	* build.xml:
+	Moved the optimization compile parameter into a property to make it easier
+	to change and more obvious.
+
+	* src/java/com/samskivert/velocity/DispatcherServlet.java:
+	We should have been using setProperty() not put() and accordingly we can't
+	set a logger object in the properties, but must set the logger class.
+
+	* src/java/com/samskivert/velocity/ServletContextLogger.java:
+	Be smarter about extracting the servlet context from the application
+	context reference.
+
+	* src/java/com/samskivert/velocity/DispatcherServlet.java, src/java/com/samskivert/velocity/ServletContextLogger.java:
+	Add servlet context logger during servlet initialization phase. Allow
+	servlet context to be specified at construct time to servlet context
+	logger.
+
+	* src/java/com/samskivert/velocity/ServletContextLogger.java:
+	Added a log system implementation that routes log messages to the servlet
+	context so that we don't have to fiddle around with Velocity trying to
+	create velocity.log files in inopportune places that collide with
+	velocity.log files from other Velocity-using applications.
+
+	* src/java/com/samskivert/util/CompoundIterator.java:
+	Created an iterator that iterates over iterators.
+
+2001-11-18  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/StringUtil.java:
+	Added support for toString()ing points and dimensions.
+
+2001-11-17  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/xml/CheckVersionRule.java:
+	Created a rule for checking file format version numbers.
+
+	* src/java/com/samskivert/xml/CallMethodSpecialRule.java:
+	Created an XML Digester rule that allows the calling code to invoke
+	whatever string to argument translations it desires and then call whatever
+	method it wants to on the object on the top of the stack.
+
+	* src/java/com/samskivert/xml/SetFieldRule.java, tests/rsrc/xml/setfieldtest.xml, tests/src/java/com/samskivert/xml/SetFieldRuleTest.java:
+	Created SetFieldRule which allows the XML Digester to set public fields on
+	objects with automatic conversion from a string to the appropriate field
+	type (currently supports int, Integer, String, int[] and String[]).
+
+	* src/java/com/samskivert/xml/package.html:
+	Formatting.
+
+	* tests/build.xml:
+	Require that JUnit forks so that we don't end up with wacky conflicts
+	between xerces.jar loaded by ant and our own copies of an XML parser
+	implementation.
+
+	* src/java/com/samskivert/xml/SimpleParser.java:
+	Added header.
+
+2001-11-10  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/jdbc/SimpleRepository.java:
+	If the connection chokes while we're opening it, we need to let the
+	connection provider know that it's no longer any good.
+
+	* build.xml: OptimizeIt!
+
+2001-11-09  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/xml/SimpleParser.java:
+	Modified simple parser to take either an absolute path to the file being
+	parsed or an input stream.
+
+2001-11-08  Michael Bayne  <mdb@bering>
+
+	* tests/src/java/com/samskivert/servlet/SiteResourceLoaderTest.java:
+	SiteResourceLoader no longer automatically falls back to the servlet
+	context, so we have to simulate that ourselves.
+
+	* tests/build.xml:
+	Don't find anything with Test in it, just anything that ends with Test.
+
+	* src/java/com/samskivert/io/NestableIOException.java, src/java/com/samskivert/xml/SimpleParser.java:
+	Created NestableIOException for things that need to throw an IOException
+	that contains another exception.
+
+	Use NestableIOException in SimpleParser when the parser chokes.
+
+2001-11-06  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/velocity/Application.java, src/java/com/samskivert/velocity/DispatcherServlet.java:
+	Removed some debug logging.
+
+	* src/java/com/samskivert/velocity/Application.java, src/java/com/samskivert/velocity/DispatcherServlet.java, src/java/com/samskivert/velocity/SiteResourceManager.java, src/java/com/samskivert/servlet/MessageManager.java, src/java/com/samskivert/servlet/SiteResourceLoader.java:
+	A crapload of changes: load more stuff from servlet config; message
+	manager now supports site-specific translation messages; application
+	automatically configures Velocity to use things like the
+	SiteResourceManager and the ImportDirective.
+
+	* src/java/com/samskivert/velocity/SiteJarResourceLoader.java:
+	Pass SiteResourceLoader in constructor, changed name to
+	SiteJarResourceLoader, no longer pass fallbackToServletContext argument.
+
+	* src/java/com/samskivert/servlet/SiteResourceLoader.java, src/java/com/samskivert/velocity/SiteResourceManager.java:
+	Commented out some debug log messages.
+
+	* src/java/com/samskivert/servlet/MessageManager.java:
+	Added code to cache resolved resource bundles in the request object so
+	that we don't have to re-resolve the bundle for every single message
+	lookup.
+
+	* src/java/com/samskivert/velocity/SiteResourceManager.java:
+	Activate caching for the time being.
+
+	* src/java/com/samskivert/servlet/SiteResourceLoader.java:
+	Need to explicitly check to make sure the site-specific jar file exists.
+
+	* src/java/com/samskivert/velocity/Application.java, src/java/com/samskivert/velocity/DispatcherServlet.java, src/java/com/samskivert/velocity/ImportDirective.java, src/java/com/samskivert/velocity/ServletContextResourceLoader.java, src/java/com/samskivert/velocity/SiteJarResourceLoader.java, src/java/com/samskivert/velocity/SiteResourceKey.java, src/java/com/samskivert/velocity/SiteResourceManager.java:
+	Many changes to provide site-specific resource loading (we're almost
+	there) and to bring things up to date with some Velocity changes Geir made
+	at my prompting.
+
+	* src/java/com/samskivert/servlet/SiteResourceLoader.java:
+	Added ability to retrieve last modified time of the site-specific jar
+	file.
+
+	* src/java/com/samskivert/servlet/SiteIdentifier.java:
+	Added clarification to documentation indicating the valid range of values
+	for site identifiers.
+
+	* src/java/com/samskivert/servlet/IndiscriminateSiteIdentifier.java:
+	Documentation fix.
+
+	* src/java/com/samskivert/util/IntListUtil.java, tests/src/java/com/samskivert/util/IntListUtilTest.java:
+	Created a version of ListUtil that works with arrays of ints.
+
+	* src/java/com/samskivert/util/ListUtil.java:
+	Clear out the last element of the array when the rest of the array is
+	shifted down to remove an element.
+
+2001-11-05  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/servlet/SiteResourceLoader.java, tests/src/java/com/samskivert/servlet/SiteResourceLoaderTest.java:
+	Added a version of getResourceAsStream() that takes the site identifier
+	for when the site has already been identified.
+
+	* docs/notes.txt: Notes.
+
+	* lib/README:
+	Updated library dependencies.
+
+	* tests/README, tests/build.xml, tests/rsrc/servlet/srl/README, tests/rsrc/servlet/srl/default/body.txt, tests/rsrc/servlet/srl/default/footer.txt, tests/rsrc/servlet/srl/default/header.txt, tests/rsrc/servlet/srl/defaultout.txt, tests/rsrc/servlet/srl/site1.jar, tests/rsrc/servlet/srl/site1out.txt, tests/rsrc/servlet/srl/site2.jar, tests/rsrc/servlet/srl/site2out.txt, src/java/com/samskivert/test/TestUtil.java:
+	Created a testing framework for the samskivert library based on JUnit and
+	ant. The test drivers are located in a separate hierarchy and are built
+	and invoked as a single ant target.
+
+	* src/java/com/samskivert/servlet/SiteResourceLoader.java, tests/src/java/com/samskivert/servlet/SiteResourceLoaderTest.java:
+	Created site resource loader which loads resources based on the site
+	identified from an http request. Also created a unit test driver for the
+	loader.
+
+2001-11-02  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/velocity/DispatcherServlet.java:
+	Geir didn't like velocityWillInit(), so he created initVelocity() which we
+	override when setting the application context.
+
+	* src/java/com/samskivert/velocity/DispatcherServlet.java:
+	Have to set the application context in velocityWillInit() (which I added)
+	so that it's around before Velocity.init() gets called, which happens in
+	super.init().
+
+	* src/java/com/samskivert/velocity/ServletContextResourceLoader.java:
+	Be more robust and log a warning if we're used without first properly
+	setting the servlet context into the application context.
+
+	* src/java/com/samskivert/velocity/DispatcherServlet.java, src/java/com/samskivert/velocity/ServletContextResourceLoader.java:
+	Modified dispatcher servlet to stick servlet context into Velocity's
+	application context and implemented a servlet context resource loader
+	which loads resources via ServletContext.getResourceAsStream().
+
+	* build.xml:
+	Fixed classpath so that things in classes are preferred, things in
+	lib/*.jar are next and things in /usr/share/java/*.jar are last.
+
+	* src/java/com/samskivert/velocity/Application.java:
+	Fixed spelling error: createSiteIdentifier(), not createSiteIdentifer().
+
+	* src/java/com/samskivert/servlet/JDBCTableSiteIdentifier.java:
+	Sort the domain mappings once we've loaded them; fixed a SQL bug; wrote
+	toString() for the mapping object.
+
+2001-11-01  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/servlet/JDBCTableSiteIdentifier.java, src/sql/create_site_tables.mysql:
+	Created a site identifier that reads data from a JDBC table.
+
+	* src/java/com/samskivert/velocity/Application.java, src/java/com/samskivert/velocity/DispatcherServlet.java:
+	Changed preInit() to postInit() in Application so that calls to things
+	like createSiteIdentifier() can happen after the application is
+	initialized and has access to things like connection providers.
+
+	* src/java/com/samskivert/jdbc/Repository.java:
+	Made Operation public because otherwise I can't do something like this:
+
+	public FooRepository
+	    extends SimpleRepository implements SimpleRepository.Operation
+	{
+	}
+
+	which seems wacky to me but I can see how we may not have entered the
+	protected namespace of the extended class while we're processing our
+	interface implementation declarations. Seems a bit like a bug though.
+
+	* src/sql/create_user_tables.mysql:
+	Formatting.
+
+	* src/java/com/samskivert/util/ServiceUnavailableException.java:
+	Created a runtime exception that can be thrown if for some reason a
+	service can't make its services available (like the database is down, or
+	their team lost, or their girlfriend turned out to be a guy).
+
+	* src/java/com/samskivert/velocity/Application.java, src/java/com/samskivert/velocity/DispatcherServlet.java:
+	Applications now create a site identifier at init time which can be used
+	to identify sites in the course of operating the application.
+
+	* src/java/com/samskivert/velocity/FormTool.java:
+	Added action() and submit() which make doing standard things like a hidden
+	form field named "action" and a submit button named "submit" more
+	convenient.
+
+	* src/java/com/samskivert/velocity/FormTool.java:
+	Added support for checkbox form elements.
+
+	* src/java/com/samskivert/velocity/FormTool.java:
+	Extracted common code, added support for password input fields.
+
+	* src/sql/create_user_tables.mysql, src/java/com/samskivert/servlet/user/User.java, src/java/com/samskivert/servlet/user/UserRepository.java:
+	The big name-change ola: userid -> userId, etc. Added siteId to user
+	record (and table).
+
+2001-10-31  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/servlet/IndiscriminateSiteIdentifier.java, src/java/com/samskivert/servlet/SiteIdentifier.java:
+	Created a site identifier interface which is used to determine through
+	which site a particular request originated.
+
+	* src/java/com/samskivert/velocity/DispatcherServlet.java, src/java/com/samskivert/velocity/FormTool.java:
+	Created a form tool for generating form fields that automatically inherit
+	the values from the request parameters. Modified dispatcher servlet to put
+	one in the context for every request.
+
+	* src/java/com/samskivert/velocity/DispatcherServlet.java:
+	Needed a FriendlyException import.
+
+	* src/java/com/samskivert/servlet/util/DataValidationException.java, src/java/com/samskivert/servlet/util/ExceptionMap.java, src/java/com/samskivert/servlet/util/FriendlyException.java, src/java/com/samskivert/servlet/util/HTMLUtil.java, src/java/com/samskivert/servlet/util/ParameterUtil.java, src/java/com/samskivert/velocity/Application.java, src/java/com/samskivert/velocity/DispatcherServlet.java, src/java/com/samskivert/velocity/DummyLogic.java, src/java/com/samskivert/velocity/InvocationContext.java, src/java/com/samskivert/velocity/Logic.java, src/java/com/samskivert/velocity/MessageResolver.java, src/java/com/samskivert/velocity/package.html:
+	Converted my web application framework to work with Velocity and cleaned
+	up some other stuff (removed multiple application support because it was
+	pointless). Moved some general purpose things into servlet.util (still
+	need to modify the WebMacro version of the framework to use the general
+	purpose versions).
+
+	* docs/notes.txt: Notes.
+
+2001-10-29  Michael Bayne  <mdb@bering>
+
+	* docs/notes.txt: Notes.
+
+2001-10-25  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/jdbc/StaticConnectionProvider.java:
+	Better error reporting.
+
+2001-10-18  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/StringUtil.java:
+	Added a version of hexlate() that only prints out the first N bytes.
+
+2001-10-17  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/swing/VGroupLayout.java:
+	Was missing a break in a switch statement.
+
+2001-10-15  Walter Korman  <shaper@bering>
+
+	* src/java/com/samskivert/xml/SimpleParser.java:
+	Created a simple extensible parser class to take care of common
+	character data gathering and file parsing machinations.
+
+2001-10-15  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/IntTuple.java:
+	Created specialization of tuple for holding a pair of ints.
+
+2001-10-09  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/swing/GroupLayoutTest.java, src/java/com/samskivert/swing/HGroupLayout.java, src/java/com/samskivert/swing/VGroupLayout.java:
+	Fixed a bug in the right justification code related to insets handling.
+
+	* src/java/com/samskivert/swing/HGroupLayout.java, src/java/com/samskivert/swing/VGroupLayout.java:
+	Added code to deal with left-over pixels that may occur due to rounding
+	error when the number of free components doesn't divide evenly into the
+	number of pixels they need to occupy.
+
+2001-10-04  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/Config.java:
+	Added getProperties() which allows one to fetch the properties object
+	associated with a particular namespace identifier.
+
+2001-10-03  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/MethodFinder.java:
+	Added a version of findMethod() that takes the arguments themselves rather
+	than the types of the arguments.
+
+	* src/java/com/samskivert/util/ClassUtil.java, src/java/com/samskivert/util/MethodFinder.java:
+	More comment edits.
+
+	* src/java/com/samskivert/swing/Controller.java, src/java/com/samskivert/util/ClassUtil.java, src/java/com/samskivert/util/LoopingThread.java, src/java/com/samskivert/util/MethodFinder.java:
+	Fixed up javadoc comments. Removed some unneeded final declarations in
+	Methodfinder.
+
+	* build.xml:
+	Updated Sun's javadoc URL.
+
+	* src/java/com/samskivert/util/ClassUtil.java, src/java/com/samskivert/util/MethodFinder.java:
+	Adapted code from Paul Holser for looking up a reflected method that
+	matches a certain set of argument types that works the compiler works.
+
+2001-10-02  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/LoopingThread.java:
+	Modified code to handle an exception that propagates up past iterate(). It
+	still causes the thread to exit by default, but it provides a mechanism
+	for overriding that behavior and it logs the exception rather than quietly
+	dying.
+
+2001-09-28  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/jdbc/MySQLLiaison.java:
+	Close the statement that we use to get the last inserted id.
+
+2001-09-27  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/CollectionUtil.java:
+	Added toIntArray() which converts the contents of a collection to an int
+	array.
+
+2001-09-21  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/io/PersistenceException.java, src/java/com/samskivert/jdbc/ConnectionProvider.java, src/java/com/samskivert/jdbc/Repository.java, src/java/com/samskivert/jdbc/SimpleRepository.java, src/java/com/samskivert/jdbc/StaticConnectionProvider.java, src/java/com/samskivert/servlet/user/UserExistsException.java, src/java/com/samskivert/servlet/user/UserManager.java, src/java/com/samskivert/servlet/user/UserRepository.java:
+	Moved PersistenceException into com.samskivert.io because it's not
+	specific to JDBC.
+
+	* src/java/com/samskivert/util/ListUtil.java:
+	Added indexOf() and indexOfEqual().
+
+2001-09-20  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/jdbc/LiaisonRegistry.java, src/java/com/samskivert/jdbc/MySQLLiaison.java:
+	Liaison fixups.
+
+	* src/java/com/samskivert/util/ConfigUtil.java:
+	Throw a FileNotFoundException in loadProperties() if we are unable to
+	locate the properties file in the classpath.
+
+	* src/java/com/samskivert/jdbc/LiaisonRegistry.java:
+	Log a warning if we find that we need to use the default database liaison
+	because that's generally a bad deal.
+
+	* src/java/com/samskivert/jdbc/DatabaseLiaison.java, src/java/com/samskivert/jdbc/DefaultLiaison.java, src/java/com/samskivert/jdbc/LiaisonRegistry.java, src/java/com/samskivert/jdbc/MySQLLiaison.java, src/java/com/samskivert/jdbc/SimpleRepository.java:
+	Finished up liaison stuff.
+
+	* src/java/com/samskivert/jdbc/SimpleRepository.java, src/java/com/samskivert/jdbc/StaticConnectionProvider.java, src/java/com/samskivert/jdbc/jora/Session.java, src/java/com/samskivert/servlet/user/UserExistsException.java, src/java/com/samskivert/servlet/user/UserManager.java, src/java/com/samskivert/servlet/user/UserRepository.java, src/java/com/samskivert/io/PersistenceException.java, src/java/com/samskivert/jdbc/ConnectionProvider.java, src/java/com/samskivert/jdbc/DatabaseLiaison.java, src/java/com/samskivert/jdbc/JORARepository.java, src/java/com/samskivert/jdbc/LiaisonRegistry.java, src/java/com/samskivert/jdbc/MySQLLiaison.java, src/java/com/samskivert/jdbc/MySQLRepository.java, src/java/com/samskivert/jdbc/Repository.java:
+	Serious database services rethink. It's cleaner, more loosely coupled and
+	more extensible now. Whee!
+
+	* docs/notes.txt:
+	Crapload of notes on database services.
+
+	* build.xml:
+	Switch from jarfile= to file=. It's the New Way (tm).
+
+2001-09-15  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/servlet/user/UserRepository.java, src/java/com/samskivert/util/Collections.java, src/java/com/samskivert/util/HashIntMap.java, src/java/com/samskivert/util/IntMap.java, src/java/com/samskivert/util/IntervalManager.java:
+	Reworked IntMap to be a proper Java collection in the style that the
+	java.util collections established. This means that IntMap becomes
+	HashIntMap, IntMap is now an interface that extends the standard Map
+	interface and a new Collections class is provided that allows one to
+	create a synchronized wrapper around an IntMap.
+
+2001-09-14  Walter Korman  <shaper@bering>
+
+	* src/java/com/samskivert/swing/util/SwingUtil.java:
+	Added getPolygon() to return a polygon bounding a given rectangle.
+
+2001-08-30  Walter Korman  <shaper@bering>
+
+	* src/java/com/samskivert/swing/ToolTipManager.java:
+	Separate the tool tip interval frequency from the mouse delay before a
+	tool tip is shown.
+
+2001-08-29  Walter Korman  <shaper@bering>
+
+	* src/java/com/samskivert/util/Config.java:
+	Added support for retrieving boolean configuration values.
+
+2001-08-28  Walter Korman  <shaper@bering>
+
+	* src/java/com/samskivert/swing/ToolTipManager.java, src/java/com/samskivert/swing/ToolTipObserver.java, src/java/com/samskivert/swing/ToolTipProvider.java, src/java/com/samskivert/swing/util/ToolTipUtil.java:
+	Added ToolTipProvider interface, and track and pass along the mouse
+	position associated with tool tip display so that tool tips can be
+	positioned more appropriately within their container.
+
+2001-08-23  Walter Korman  <shaper@bering>
+
+	* src/java/com/samskivert/swing/util/SwingUtil.java:
+	Added drawStringCentered().
+
+	* src/java/com/samskivert/swing/ToolTipManager.java, src/java/com/samskivert/swing/ToolTipObserver.java:
+	Monitor the component's ancestor events so that the tool tip interval
+	can be registered and unregistered based on component visibility.
+
+2001-08-22  Walter Korman  <shaper@bering>
+
+	* src/java/com/samskivert/swing/ToolTipManager.java, src/java/com/samskivert/swing/ToolTipObserver.java:
+	Initial version of classes to support working with tool tips in a more
+	generic, extensible and lightweight fashion than is possible with the
+	current incarnation of Swing tool tips.
+
+2001-08-15  Michael Bayne  <mdb@bering>
+
+	* src/java/com/samskivert/util/StringUtil.java:
+	Added support for enumerations and iterators to toString().
+
+	* build.xml:
+	Pulled more things out into parameters.
+
+	* build.xml:
+	Added dist to the all target.
+
+	* src/java/com/samskivert/util/ListUtil.java:
+	Added testAndAdd() for adding elements only if they are not already in the
+	list. Modified clear...() and remove...() to cope with being passed a null
+	list.
+
+	* src/java/com/samskivert/util/ListUtil.java:
+	Added contains() and containsEqual().
+
+	* src/java/com/samskivert/util/ListUtil.java:
+	Created a class for managing lists of object arrays for those times when
+	you don't want the overhead of a separate object that goes along with
+	ArrayList, and when you don't need strict list ordering.
+
 * Release 1.01:
 
 2001-08-13  Michael Bayne  <mdb@bering>
@@ -12,4 +535,4 @@
 
 	* various: Initial release.
 
-$Id: NEWS,v 1.2 2001/08/14 01:15:52 mdb Exp $
+$Id: NEWS,v 1.3 2001/12/03 09:51:37 mdb Exp $

@@ -77,21 +77,13 @@ public class Queue
     }
 
     /**
-     * Appends the supplied item to the end of the queue.
+     * Appends the supplied item to the end of the queue, and notify a
+     * consumer if and only if the queue was previously empty.
      */
     public synchronized void append (Object item)
     {
-        if (_count == _size) {
-            makeMoreRoom();
-        }
-
-        _items[_end] = item;
-        _end = (_end + 1) % _size;
-        _count++;
-
-        if (_count == 1) {
-            notify();
-        }
+        // only notify if the queue was previously empty
+        append0(item, _count == 0);
     }
 
     /**
@@ -100,22 +92,29 @@ public class Queue
      */
     public synchronized void appendSilent (Object item)
     {
-        if (_count == _size) {
-            makeMoreRoom();
-        }
-        _items[_end] = item;
-        _end = (_end + 1) % _size;
-        _count++;
+        append0(item, false);
     }
 
     /**
-     * Appends an item to the queue and notify any listeners regardless of
+     * Appends an item to the queue and notify a listener regardless of
      * how many items are on the queue. Use this for the last item you
      * append to a queue in a batch via <code>appendSilent</code> because
      * the regular <code>append</code> will think it doesn't need to
      * notify anyone because the queue size isn't zero prior to this add.
+     * You should also use this method if you have mutiple consumers
+     * listening waiting on the queue, to guarantee that one will be woken
+     * for every element added.
      */
     public synchronized void appendLoud (Object item)
+    {
+        append0(item, true);
+    }
+
+    /**
+     * Internal append method. If subclassing queue, be sure to call
+     * this method from inside a synchronized block.
+     */
+    protected void append0 (Object item, boolean notify)
     {
         if (_count == _size) {
             makeMoreRoom();
@@ -123,7 +122,10 @@ public class Queue
         _items[_end] = item;
         _end = (_end + 1) % _size;
         _count++;
-        notify();
+
+        if (notify) {
+            notify();
+        }
     }
 
     /**

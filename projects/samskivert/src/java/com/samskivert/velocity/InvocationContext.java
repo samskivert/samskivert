@@ -1,5 +1,5 @@
 //
-// $Id: InvocationContext.java,v 1.4 2003/10/13 17:40:10 eric Exp $
+// $Id: InvocationContext.java,v 1.5 2003/10/13 17:52:27 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -111,16 +111,19 @@ public class InvocationContext extends VelocityContext
      */
     public String encodeAllParameters ()
     {
+        StringBuffer buf = new StringBuffer();
         Enumeration e = _req.getParameterNames();
-
-        String url = "";
         while (e.hasMoreElements()) {
-            String param = (String)e.nextElement();
-            url += StringUtil.blank(url) ? param : "&" + param;
-            url += "=" + StringUtil.encode(_req.getParameter(param));
+            if (buf.length() > 0) {
+                buf.append('&');
+            }
+            String param = (String) e.nextElement();
+            buf.append(StringUtil.encode(param));
+            buf.append('=');
+            buf.append(StringUtil.encode(_req.getParameter(param)));
         }
 
-        return url;
+        return buf.toString();
     }
     
     protected HttpServletRequest _req;

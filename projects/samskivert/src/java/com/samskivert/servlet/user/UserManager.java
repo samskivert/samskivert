@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.22 2003/10/14 01:49:10 mdb Exp $
+// $Id: UserManager.java,v 1.23 2003/10/14 02:00:01 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -245,12 +245,7 @@ public class UserManager
 	// stick it into a cookie for their browsing convenience
 	Cookie acookie = new Cookie(USERAUTH_COOKIE, authcode);
         // strip the hostname from the server and use that as the domain
-        String domain = req.getServerName();
-        int didx = domain.indexOf(".");
-        if (didx != -1) {
-            domain = domain.substring(didx);
-        }
-        acookie.setDomain(domain);
+        CookieUtil.widenDomain(req, acookie);
 	acookie.setPath("/");
         // expire in one month if persistent, else at the end of the
         // session
@@ -260,6 +255,9 @@ public class UserManager
 	return user;
     }
 
+    /**
+     * Logs the user out.
+     */
     public void logout (HttpServletRequest req, HttpServletResponse rsp)
     {
 	String authcode = CookieUtil.getCookieValue(req, USERAUTH_COOKIE);
@@ -270,7 +268,11 @@ public class UserManager
 	}
 
 	// set them up the bomb
-        CookieUtil.clearCookie(rsp, USERAUTH_COOKIE);
+        Cookie c = new Cookie(USERAUTH_COOKIE, "x");
+        c.setPath("/");
+        c.setMaxAge(0);
+        CookieUtil.widenDomain(req, c);
+        rsp.addCookie(c);
     }
 
     /** The user repository. */

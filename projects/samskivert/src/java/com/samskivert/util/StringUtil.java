@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.26 2002/02/05 22:30:31 mdb Exp $
+// $Id: StringUtil.java,v 1.27 2002/02/06 00:56:57 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -301,7 +301,7 @@ public class StringUtil
                 continue;
             }
 
-            if (written > 1) {
+            if (written > 0) {
                 buf.append(", ");
             }
 

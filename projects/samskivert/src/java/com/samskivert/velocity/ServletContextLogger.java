@@ -1,5 +1,5 @@
 //
-// $Id: ServletContextLogger.java,v 1.5 2002/01/25 04:49:11 mdb Exp $
+// $Id: ServletContextLogger.java,v 1.6 2003/08/05 07:09:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -81,8 +81,10 @@ public class ServletContextLogger implements LogSystem
     // documentation inherited
     public void logVelocityMessage (int level, String message)
     {
-        // log everything for now
-        _sctx.log(message);
+        // log only warning or above for now
+        if (level >= LogSystem.WARN_ID) {
+            _sctx.log(message);
+        }
     }
 
     /** A reference to our servlet context. */

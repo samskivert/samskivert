@@ -1,5 +1,5 @@
 //
-// $Id: FieldMask.java,v 1.5 2003/09/19 00:49:54 ray Exp $
+// $Id: FieldMask.java,v 1.6 2003/09/20 00:04:34 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,6 +23,7 @@ package com.samskivert.jdbc.jora;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -147,6 +148,28 @@ public class FieldMask
         } catch (CloneNotSupportedException cnse) {
             throw new RuntimeException("Oh god, the clones!");
         }
+    }
+
+    // documentation inherited
+    public String toString ()
+    {
+        // return a list of the modified fields
+        StringBuffer buf = new StringBuffer("FieldMask [modified={");
+        boolean added = false;
+        for (Iterator itr=_descripMap.entrySet().iterator(); itr.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) itr.next();
+            if (_modified[((Integer) entry.getValue()).intValue()]) {
+                if (added) {
+                    buf.append(", ");
+                } else {
+                    added = true;
+                }
+                buf.append(entry.getKey());
+            }
+        }
+        buf.append("}]");
+
+        return buf.toString();
     }
 
     /** Modified flags for each field of an object in this table. */

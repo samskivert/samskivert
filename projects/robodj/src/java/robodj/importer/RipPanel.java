@@ -1,5 +1,5 @@
 //
-// $Id: RipPanel.java,v 1.3 2001/03/21 00:41:03 mdb Exp $
+// $Id: RipPanel.java,v 1.4 2001/03/22 02:45:13 mdb Exp $
 
 package robodj.importer;
 
@@ -274,7 +274,7 @@ public class RipPanel
                     int tno = i+1;
 
                     // figure out the necessary paths
-                    String npath = tpath.toString() + tno + ".mp3";
+                    String npath = tpath.toString() + pad(tno) + ".mp3";
                     String opath = createTempPath(tno, "mp3");
 
                     // move the file
@@ -375,6 +375,15 @@ public class RipPanel
 	} else {
 	    System.out.println("Unknown action event: " + cmd);
 	}
+    }
+
+    protected static String pad (int trackno)
+    {
+        if (trackno < 10) {
+            return "0" + trackno;
+        } else {
+            return Integer.toString(trackno);
+        }
     }
 
     protected ImporterFrame _frame;

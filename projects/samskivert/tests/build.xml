@@ -1,9 +1,6 @@
 <!-- build configuration -->
 <project name="samskivert tests" default="test" basedir=".">
 
-  <!-- things you may want to change -->
-  <property name="build.compiler" value="jikes"/>
-
   <!-- we want to access the environment -->
   <property environment="env"/>
   <property name="java.libraries" value="${env.JAVA_LIBS}"/>

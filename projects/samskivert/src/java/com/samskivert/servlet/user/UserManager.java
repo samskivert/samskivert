@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.24 2003/10/14 02:37:53 mdb Exp $
+// $Id: UserManager.java,v 1.25 2003/10/20 00:49:04 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -110,6 +110,9 @@ public class UserManager
     public UserManager (Properties config, ConnectionProvider conprov)
 	throws PersistenceException
     {
+        // save this for later
+        _config = config;
+
 	// create the user repository
 	_repository = createRepository(conprov);
 
@@ -245,7 +248,11 @@ public class UserManager
 	// stick it into a cookie for their browsing convenience
 	Cookie acookie = new Cookie(USERAUTH_COOKIE, authcode);
         // strip the hostname from the server and use that as the domain
-        CookieUtil.widenDomain(req, acookie);
+        // unless configured not to
+        if (!"false".equalsIgnoreCase(
+                _config.getProperty("auth_cookie.strip_hostname"))) {
+            CookieUtil.widenDomain(req, acookie);
+        }
 	acookie.setPath("/");
         // expire in one month if persistent, else at the end of the
         // session
@@ -281,6 +288,9 @@ public class UserManager
         c.setMaxAge(0);
         rsp.addCookie(c);
     }
+
+    /** Our user manager configuration. */
+    protected Properties _config;
 
     /** The user repository. */
     protected UserRepository _repository;

@@ -1,5 +1,5 @@
 //
-// $Id: ParameterUtil.java,v 1.1 2001/10/31 09:44:22 mdb Exp $
+// $Id: ParameterUtil.java,v 1.2 2002/02/13 19:35:50 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -61,8 +61,34 @@ public class ParameterUtil
         HttpServletRequest req, String name, String invalidDataMessage)
 	throws DataValidationException
     {
+	return parseIntParameter(
+            getParameter(req, name, false), invalidDataMessage);
+        
+    }
+
+    /**
+     * Fetches the supplied parameter from the request and converts it to
+     * an integer. If the parameter does not exist, <code>defval</code> is
+     * returned. If the parameter is not a well-formed integer, a data
+     * validation exception is thrown with the supplied message.
+     */
+    public static int getIntParameter (
+        HttpServletRequest req, String name, int defval,
+        String invalidDataMessage)
+	throws DataValidationException
+    {
 	String value = getParameter(req, name, false);
-	try {
+        if (StringUtil.blank(value)) {
+            return defval;
+        }
+        return parseIntParameter(value, invalidDataMessage);
+    }
+
+    protected static int parseIntParameter (
+        String value, String invalidDataMessage)
+        throws DataValidationException
+    {
+        try {
 	    return Integer.parseInt(value);
 	} catch (NumberFormatException nfe) {
 	    throw new DataValidationException(invalidDataMessage);

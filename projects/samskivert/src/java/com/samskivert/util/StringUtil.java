@@ -1,5 +1,5 @@
 //
-// $Id: StringUtil.java,v 1.20 2002/01/30 18:21:14 mdb Exp $
+// $Id: StringUtil.java,v 1.21 2002/02/02 00:03:14 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -23,6 +23,9 @@ package com.samskivert.util;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -257,6 +260,42 @@ public class StringUtil
 	} else {
 	    buf.append(val);
 	}
+    }
+
+    /**
+     * Generates a string representation of the supplied object by calling
+     * {@link #toString} on the contents of its public fields and
+     * prefixing that by the name of the fields. For example:
+     *
+     * <p><code>[itemId=25, itemName=Elvis, itemCoords=(14, 25)]</code>
+     */
+    public static String fieldsToString (Object object)
+    {
+        StringBuffer buf = new StringBuffer("[");
+        Class clazz = object.getClass();
+        Field[] fields = clazz.getFields();
+
+        // we only want non-static, non-final, non-transient fields
+        for (int i = 0; i < fields.length; i++) {
+            int mods = fields[i].getModifiers();
+            if ((mods & Modifier.PUBLIC) == 0 ||
+                (mods & Modifier.STATIC) != 0) {
+                continue;
+            }
+
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+
+            buf.append(fields[i].getName()).append("=");
+            try {
+                toString(buf, fields[i].get(object));
+            } catch (Exception e) {
+                buf.append("<error: " + e + ">");
+            }
+        }
+
+        return buf.append("]").toString();
     }
 
     /**

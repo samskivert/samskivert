@@ -1,5 +1,5 @@
 //
-// $Id: CollapsiblePanel.java,v 1.5 2002/11/12 08:18:36 mdb Exp $
+// $Id: CollapsiblePanel.java,v 1.6 2003/01/11 00:44:53 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -11,6 +11,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Icon;
 import javax.swing.SwingConstants;
+
+import com.samskivert.swing.util.SwingUtil;
 
 /**
  * A panel that contains a button which will collapse the rest of the content.
@@ -132,7 +134,7 @@ public class CollapsiblePanel extends JPanel
             _content.setVisible(true);
             _trigger.setIcon(_upIcon);
         }
-        revalidate();
+        SwingUtil.refresh(this);
     }
 
     /** The button that triggers collapsion. */

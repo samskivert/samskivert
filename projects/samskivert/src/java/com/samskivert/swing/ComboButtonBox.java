@@ -1,5 +1,5 @@
 //
-// $Id: ComboButtonBox.java,v 1.3 2002/03/10 20:28:56 mdb Exp $
+// $Id: ComboButtonBox.java,v 1.4 2003/01/11 00:44:53 shaper Exp $
 
 package com.samskivert.swing;
 
@@ -22,6 +22,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.samskivert.Log;
+import com.samskivert.swing.util.SwingUtil;
 
 /**
  * Used to display a horizontal or vertical array of buttons, out of which
@@ -228,8 +229,7 @@ public class ComboButtonBox extends JPanel
         // remove the buttons in the specified interval
         int start = e.getIndex0(), count = e.getIndex1() - start + 1;
         removeButtons(start, count);
-        revalidate();
-        repaint();
+        SwingUtil.refresh(this);
     }
 
     // documentation inherited from interface
@@ -312,8 +312,7 @@ public class ComboButtonBox extends JPanel
             add(ibut, i);
         }
 
-        revalidate();
-        repaint();
+        SwingUtil.refresh(this);
     }
 
     /**

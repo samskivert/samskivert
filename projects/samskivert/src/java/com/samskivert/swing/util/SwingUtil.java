@@ -1,5 +1,5 @@
 //
-// $Id: SwingUtil.java,v 1.19 2003/01/11 00:40:39 shaper Exp $
+// $Id: SwingUtil.java,v 1.20 2003/01/11 00:44:53 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -40,7 +40,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -478,14 +478,15 @@ public class SwingUtil
     }
 
     /**
-     * Refreshes the supplied panel display.  This should be called after
-     * adding components to or removing components from the panel since
-     * Swing doesn't automatically properly invalidate things for
-     * subsequent re-rendering.
+     * Refreshes the supplied {@link JComponent} to effect a call to
+     * {@link JComponent#revalidate} and {@link JComponent#repaint}, which
+     * is frequently necessary in cases such as adding components to or
+     * removing components from a {@link JPanel} since Swing doesn't
+     * automatically invalidate things for proper re-rendering.
      */
-    public static void refresh (JPanel panel)
+    public static void refresh (JComponent c)
     {
-        panel.revalidate();
-        panel.repaint();
+        c.revalidate();
+        c.repaint();
     }
 }

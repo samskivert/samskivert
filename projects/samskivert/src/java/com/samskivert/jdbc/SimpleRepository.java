@@ -1,5 +1,5 @@
 //
-// $Id: SimpleRepository.java,v 1.8 2004/02/25 13:16:05 mdb Exp $
+// $Id: SimpleRepository.java,v 1.9 2004/05/11 05:43:15 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -24,6 +24,7 @@ import java.sql.*;
 
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.StringUtil;
 
 /**
  * The simple repository should be used for a repository that only needs
@@ -137,8 +138,13 @@ public class SimpleRepository extends Repository
             // retry such failures, try one more time
             if (retryOnTransientFailure &&
                 liaison != null && liaison.isTransientException(sqe)) {
+                // the MySQL JDBC driver has the annoying habit of
+                // including the embedded exception stack trace in the
+                // message of their outer exception; if I want a fucking
+                // stack trace, I'll call printStackTrace() thanksverymuch
+                String msg = StringUtil.split("" + sqe, "\n")[0];
                 Log.info("Transient failure executing operation, " +
-                         "retrying [error=" + sqe + "].");
+                         "retrying [error=" + msg + "].");
                 return execute(op, false);
             }
 

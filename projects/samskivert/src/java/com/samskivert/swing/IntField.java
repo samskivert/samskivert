@@ -1,5 +1,5 @@
 //
-// $Id: IntField.java,v 1.2 2003/11/25 04:08:39 eric Exp $
+// $Id: IntField.java,v 1.3 2003/11/25 16:47:11 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -54,7 +54,7 @@ public class IntField extends JTextField
      */
     public void setValue (int value)
     {
-        setText("" + value);
+        setText(Integer.toString(value));
     }
     
     /**

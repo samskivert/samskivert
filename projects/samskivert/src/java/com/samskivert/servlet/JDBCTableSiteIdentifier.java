@@ -1,5 +1,5 @@
 //
-// $Id: JDBCTableSiteIdentifier.java,v 1.1 2001/11/01 21:34:19 mdb Exp $
+// $Id: JDBCTableSiteIdentifier.java,v 1.2 2001/11/02 00:57:47 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import com.samskivert.io.PersistenceException;
 
@@ -125,7 +126,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 _sites = sites;
 
                 // now load up the domain mappings
-                query = "select domain, siteId from sites";
+                query = "select domain, siteId from domains";
                 rs = stmt.executeQuery(query);
                 ArrayList mappings = new ArrayList();
                 while (rs.next()) {
@@ -135,6 +136,9 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                     mappings.add(mapping);
                 }
                 _mappings = mappings;
+
+                // sort the mappings in order of specificity
+                Collections.sort(_mappings);
 
                 // nothing to return
                 return null;
@@ -182,6 +186,12 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 // no comparablo
                 return -1;
             }
+        }
+
+        /** Returns a string representation of this site mapping. */
+        public String toString ()
+        {
+            return "[" + domain + " => " + siteId + "]";
         }
     }
 

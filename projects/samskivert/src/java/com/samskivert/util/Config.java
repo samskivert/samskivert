@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.3 2001/07/21 00:50:28 shaper Exp $
+// $Id: Config.java,v 1.4 2001/08/08 23:46:00 mdb Exp $
 
 package com.samskivert.util;
 
@@ -43,11 +43,14 @@ public class Config
      * somewhere in the classpath. For example: <code>foo/bar/baz</code>
      * would indicate a file named "foo/bar/baz.properties" living in the
      * classpath.
+     * @param inherit if true, the properties file will be loaded using
+     * {@link ConfigUtil#loadInheritedProperties} rather than {@link
+     * ConfigUtil#loadProperties}.
      *
      * @exception IOException thrown if an error occurrs loading the
      * properties file (like it doesn't exist or cannot be accessed).
      */
-    public void bindProperties (String name, String path)
+    public void bindProperties (String name, String path, boolean inherit)
         throws IOException
     {
         // append the file suffix onto the path
@@ -57,8 +60,20 @@ public class Config
         if (props == null) {
             throw new IOException("Unable to load properties file: " + path);
         }
-        // put it into the hashtable with the specified name
+        // bind the properties instance
         _props.put(name, props);
+    }
+
+    /**
+     * A backwards compatibility method that does not use inherited
+     * properties loading.
+     *
+     * @see #bindProperties(String,String,boolean)
+     */
+    public void bindProperties (String name, String path)
+        throws IOException
+    {
+        bindProperties(name, path, false);
     }
 
     /**

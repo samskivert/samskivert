@@ -1,5 +1,5 @@
 //
-// $Id: MultiLineLabel.java,v 1.6 2002/10/04 21:28:23 shaper Exp $
+// $Id: MultiLineLabel.java,v 1.7 2002/11/12 01:15:19 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2002 Walter Korman
@@ -38,6 +38,12 @@ import com.samskivert.util.StringUtil;
 public class MultiLineLabel extends JComponent
     implements SwingConstants, LabelStyleConstants
 {
+    /** A layout constant used by {@link #setLayout}. */
+    public static final int GOLDEN = HORIZONTAL+VERTICAL+1;
+
+    /** A layout constant used by {@link #setLayout}. */
+    public static final int NONE = GOLDEN+1;
+
     /**
      * Constructs an empty multi line label.
      */
@@ -48,34 +54,37 @@ public class MultiLineLabel extends JComponent
 
     /**
      * Constructs a multi line label that displays the supplied text with
-     * center-alignment.
+     * center-alignment. The default layout is all on one line.
+     *
+     * @see #setLayout
      */
     public MultiLineLabel (String text)
     {
-        this(text, HORIZONTAL, CENTER);
+        this(text, CENTER);
     }
 
     /**
      * Constructs a multi line label that displays the supplied text with
-     * the specified alignment.  The text will be laid out all on one
-     * line.
+     * the specified alignment. The default layout is all on one line.
+     *
+     * @see #setLayout
      */
     public MultiLineLabel (String text, int align)
     {
-        this(text, HORIZONTAL, align);
+        this(text, align, NONE, 0);
     }
 
     /**
      * Constructs a multi line label that displays the supplied text with
-     * the specified constraints and alignment.  Constraints should be one
-     * of {@link #HORIZONTAL}, {@link #VERTICAL}, or <code>-1</code> if no
-     * constraints are desired.
+     * the specified alignment. The default layout is all on one line.
+     *
+     * @see #setLayout
      */
-    public MultiLineLabel (String text, int constrain, int align)
+    public MultiLineLabel (String text, int align, int constrain, int size)
     {
-        _constrain = constrain;
         _label = new Label(text);
         _label.setAlignment(align);
+        noteConstraints(constrain, size);
     }
 
     /**
@@ -91,12 +100,45 @@ public class MultiLineLabel extends JComponent
 
     /**
      * Sets the constraints to be used when laying out the label.
+     *
+     * @param constrain {@link #HORIZONTAL} or {@link #VERTICAL} or {@link
+     * #GOLDEN} if the label should be laid out in a rectangle whose
+     * bounds approximate the golden ratio.
+     * @param size the width or height respectively to be targeted by the
+     * label. This is ignored if <code>constrain</code> is {@link
+     * #GOLDEN}.
      */
-    public void setConstraints (int constrain)
+    public void setLayout (int constrain, int size)
     {
-        _constrain = constrain;
+        noteConstraints(constrain, size);
         _dirty = true;
         repaint();
+    }
+
+    /** Helper function. */
+    protected void noteConstraints (int constrain, int size)
+    {
+        switch (constrain) {
+        case HORIZONTAL:
+            _label.setTargetWidth(size);
+            break;
+
+        case VERTICAL:
+            _label.setTargetHeight(size);
+            break;
+
+        case GOLDEN:
+            _label.setGoldenLayout();
+            break;
+
+        case NONE:
+            // nothing doing
+            break;
+
+        default:
+            throw new IllegalArgumentException(
+                "Invalid constraint orientation " + constrain);
+        }
     }
 
     /**
@@ -194,10 +236,6 @@ public class MultiLineLabel extends JComponent
     {
         super.doLayout();
 
-        switch (_constrain) {
-        case HORIZONTAL: _label.setTargetWidth(getWidth()); break;
-        case VERTICAL: _label.setTargetHeight(getHeight()); break;
-        }
         layoutLabel();
     }
 
@@ -243,9 +281,6 @@ public class MultiLineLabel extends JComponent
 
     /** The label we're displaying. */
     protected Label _label;
-
-    /** The constraints we apply to the label text. */
-    protected int _constrain = HORIZONTAL;
 
     /** The off-axis alignment with which the label is positioned. */
     protected int _offalign;

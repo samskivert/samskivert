@@ -1,7 +1,16 @@
 RoboDJ Notes
 ------------
 
-- Catch database errors after the ripping process and allow use to retry
+- Play a sound when the ripping process is complete (or when an error
+  occurs) because the user may be off doing something in another window
+
+- Catch database errors after the ripping process and allow user to retry
   commit to database after fixing database unavailability.
 
 - Impersonate a registered CDDB client until we can get "approval".
+
+- Have musicd manage the playlist hierarchically so that if we add a whole
+  CD to the playlist, we can remove it in the same way. Also pass the
+  metadata (entryid, songid) to the musicd as well so that we don't have
+  to reverse engineer things when we're displaying the contents of the
+  playlist.

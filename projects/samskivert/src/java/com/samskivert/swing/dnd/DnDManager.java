@@ -1,5 +1,5 @@
 //
-// $Id: DnDManager.java,v 1.5 2002/08/21 17:54:10 mdb Exp $
+// $Id: DnDManager.java,v 1.6 2002/09/06 00:07:40 ray Exp $
 
 package com.samskivert.swing.dnd;
 
@@ -23,6 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.event.AncestorAdapter;
+import com.samskivert.Log;
 
 /**
  * A custom Drag and Drop manager for use within a single JVM. Does what we
@@ -118,14 +119,30 @@ public class DnDManager
             _cursors[1] = java.awt.dnd.DragSource.DefaultMoveNoDrop;
         }
 
+        // start out with the no-drop cursor.
+        _curCursor = _cursors[1];
+
         // install a listener so we know everywhere that the mouse enters
         Toolkit.getDefaultToolkit().addAWTEventListener(this, 
                 AWTEvent.MOUSE_EVENT_MASK);
 
-        // and start out with the no-drop cursor
-        _lastComp = _sourceComp;
-        _oldCursor = _lastComp.getCursor();
-        _lastComp.setCursor(_cursors[1]);
+        // find the top-level window and set the cursor there.
+        for (_topComp = _sourceComp; true; ) {
+            Component c = _topComp.getParent();
+            if (c == null) {
+                break;
+            }
+            _topComp = c;
+        }
+        _topCursor = _topComp.getCursor();
+        _topComp.setCursor(_curCursor);
+
+        // and see if we need to also set the cursor in the current component
+        if (_sourceComp.getCursor() != _curCursor) {
+            _lastComp = _sourceComp;
+            _oldCursor = _lastComp.getCursor();
+            _lastComp.setCursor(_curCursor);
+        }
     }
 
     // documentation inherited from interface AWTEventListener
@@ -151,14 +168,24 @@ public class DnDManager
      */
     protected void mouseEntered (MouseEvent event)
     {
-        Component oldcomp = _lastComp;
-        _lastComp = ((MouseEvent) event).getComponent();
-        _lastTarget = findAppropriateTarget(_lastComp);
-        if (_lastComp != oldcomp) {
-            oldcomp.setCursor(_oldCursor);
-            _oldCursor = _lastComp.getCursor();
+        Component newcomp = ((MouseEvent) event).getComponent();
+        _lastTarget = findAppropriateTarget(newcomp);
+        Cursor newcursor = _cursors[(_lastTarget == null) ? 1 : 0];
+
+        if (newcursor != _curCursor) {
+            // change the top-level feedback cursor.
+            _topComp.setCursor(_curCursor = newcursor);
         }
-        _lastComp.setCursor(_cursors[(_lastTarget == null) ? 1 : 0]);
+
+        // see if need to override the cursor in the component
+        if (newcomp.getCursor() != _curCursor) {
+            _lastComp = newcomp;
+            _oldCursor = _lastComp.getCursor();
+            _lastComp.setCursor(_curCursor);
+        } else {
+            // we don't
+            _lastComp = null;
+        }
     }
 
     /**
@@ -166,9 +193,13 @@ public class DnDManager
      */
     protected void mouseExited (MouseEvent event)
     {
+        // reset the component's custom cursor if it had one
         if (_lastComp != null) {
             _lastComp.setCursor(_oldCursor);
+            _lastComp = null;
         }
+
+        // and if we were over a target, let the target know that we left
         if (_lastTarget != null) {
             _lastTarget.noDrop();
             _lastTarget = null;
@@ -182,12 +213,15 @@ public class DnDManager
     {
         // stop listening to every little event
         Toolkit.getDefaultToolkit().removeAWTEventListener(this);
+
+        // reset cursors
         if (_lastComp != null) {
             _lastComp.setCursor(_oldCursor);
         }
+        _topComp.setCursor(_topCursor);
 
-        // since the release comes with a component of the source,
-        // we use the last enter...
+        // the event.getComponent() will be the source component here (huh..)
+        // so we instead use the last component seen in mouseEnter
         if (_lastTarget != null) {
             _lastTarget.dropCompleted(_source, _data[0]);
             _source.dragCompleted(_lastTarget);
@@ -229,6 +263,9 @@ public class DnDManager
         _data[0] = null;
         _cursors[0] = null;
         _cursors[1] = null;
+        _topComp = null;
+        _topCursor = null;
+        _curCursor = null;
     }
 
     /** A handy helper that removes components when they're no longer in
@@ -248,8 +285,8 @@ public class DnDManager
     /** Our DragSources, indexed by associated component. */
     protected HashMap _draggers = new HashMap();
 
-    /** The original and last component that the mouse was in during a drag. */
-    protected Component _sourceComp, _lastComp;
+    /** The original, last, and top-level components during a drag. */
+    protected Component _sourceComp, _lastComp, _topComp;
 
     /** The source of a drag. */
     protected DragSource _source;
@@ -257,8 +294,14 @@ public class DnDManager
     /** The last target, or null if no last target. */
     protected DropTarget _lastTarget;
 
+    /** The current cursor we're showing the user. */
+    protected Cursor _curCursor;
+
     /** The cursor that used to be set for _lastComp. */
     protected Cursor _oldCursor;
+
+    /** The original top-level cursor. */
+    protected Cursor _topCursor;
 
     /** The accept/reject cursors. */
     protected Cursor[] _cursors = new Cursor[2];

@@ -1,5 +1,5 @@
 //
-// $Id: UserManager.java,v 1.15 2002/05/11 19:20:15 mdb Exp $
+// $Id: UserManager.java,v 1.16 2003/08/07 17:16:56 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -127,7 +127,8 @@ public class UserManager
 		try {
 		    _repository.pruneSessions();
 		} catch (PersistenceException pe) {
-		    Log.warning("Error pruning session table: " + pe);
+		    Log.warning("Error pruning session table.");
+                    Log.logStackTrace(pe);
 		}
 	    }
 	};

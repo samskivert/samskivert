@@ -55,7 +55,7 @@
              bottom="Copyright &#169; 2001 ${copyright.holder}. All Rights Reserved."
              destdir="${javadoc.dir}">
       <classpath refid="classpath"/>
-      <link href="http://java.sun.com/products/jdk/1.3/docs/api"/>
+      <link href="http://java.sun.com/j2se/1.3/docs/api/"/>
     </javadoc>
   </target>
 

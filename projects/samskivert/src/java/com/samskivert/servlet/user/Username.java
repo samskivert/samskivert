@@ -1,5 +1,5 @@
 //
-// $Id: Username.java,v 1.1 2004/01/31 06:38:05 mdb Exp $
+// $Id: Username.java,v 1.2 2004/01/31 06:41:47 mdb Exp $
 
 package com.samskivert.servlet.user;
 
@@ -9,6 +9,15 @@ package com.samskivert.servlet.user;
  */
 public class Username
 {
+    /** The minimum allowable length of a username. */
+    public static final int MINIMUM_USERNAME_LENGTH = 3;
+
+    /** The maximum allowable length of a username. */
+    public static final int MAXIMUM_USERNAME_LENGTH = 12;
+
+    /** The regular expression defining valid names. */
+    public static final String NAME_REGEX = "^[_A-Za-z0-9]+$";
+
     /**
      * Creates a username instance. Usernames must consist only of
      * characters that match the following regular expression:
@@ -17,9 +26,12 @@ public class Username
     public Username (String username)
         throws InvalidUsernameException
     {
-	// check minimum length
+	// check length
 	if (username.length() < MINIMUM_USERNAME_LENGTH) {
 	    throw new InvalidUsernameException("error.username_too_short");
+	}
+	if (username.length() > MAXIMUM_USERNAME_LENGTH) {
+	    throw new InvalidUsernameException("error.username_too_long");
 	}
 
 	// check that it's only valid characters
@@ -43,10 +55,4 @@ public class Username
     }
 
     protected String _username;
-
-    /** The minimum allowable length of a username. */
-    protected static final int MINIMUM_USERNAME_LENGTH = 3;
-
-    /** The regular expression defining valid names. */
-    protected static final String NAME_REGEX = "^[_A-Za-z0-9]+$";
 }

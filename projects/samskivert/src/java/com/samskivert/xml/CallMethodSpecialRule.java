@@ -1,5 +1,5 @@
 //
-// $Id: CallMethodSpecialRule.java,v 1.1 2001/11/17 03:46:48 mdb Exp $
+// $Id: CallMethodSpecialRule.java,v 1.2 2001/11/26 22:17:56 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Walter Korman
@@ -53,7 +53,8 @@ public abstract class CallMethodSpecialRule extends Rule
         parseAndSet(_bodyText, top);
     }
 
-    public abstract void parseAndSet (String bodyText, Object target);
+    public abstract void parseAndSet (String bodyText, Object target)
+        throws Exception;
 
     protected String _bodyText;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: CDParanoiaRipper.java,v 1.3 2000/10/30 22:21:47 mdb Exp $
+// $Id: CDParanoiaRipper.java,v 1.4 2000/12/10 07:01:24 mdb Exp $
 
 package robodj.convert;
 
@@ -43,6 +43,7 @@ public class CDParanoiaRipper implements Ripper
 	    while ((inline = din.readLine()) != null) {
 		// skip blank lines and lines that are in the header
 		if (inline.trim().length() == 0 ||
+		    inline.indexOf("xiph.org") != -1 ||
 		    inline.indexOf("mit.edu") != -1 ||
 		    inline.indexOf("cdparanoia") == 0) {
 		    continue;

@@ -1,5 +1,5 @@
 //
-// $Id: ArrayIntSet.java,v 1.8 2002/05/16 22:42:15 mdb Exp $
+// $Id: ArrayIntSet.java,v 1.9 2002/12/16 01:57:36 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.io.Serializable;
+
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +33,7 @@ import java.util.NoSuchElementException;
  * integers to maintain the contents of the set.
  */
 public class ArrayIntSet extends AbstractSet
-    implements IntSet, Cloneable
+    implements IntSet, Cloneable, Serializable
 {
     // documentation inherited from interface
     public int size ()

@@ -30,8 +30,9 @@
     </copy>
     <mkdir dir="${deploy.dir}/WEB-INF/classes"/>
     <mkdir dir="${deploy.dir}/WEB-INF/lib"/>
+    <!-- copy the library jar files -->
     <copy todir="${deploy.dir}/WEB-INF/lib">
-      <fileset dir="lib"/>
+      <fileset dir="${java.libraries}" includesfile="lib/REQUIRED_LIBS"/>
     </copy>
   </target>
 

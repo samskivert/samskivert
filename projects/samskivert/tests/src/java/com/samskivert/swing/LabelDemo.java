@@ -1,5 +1,5 @@
 //
-// $Id: LabelDemo.java,v 1.7 2002/11/13 23:17:26 mdb Exp $
+// $Id: LabelDemo.java,v 1.8 2002/12/06 22:18:07 mdb Exp $
 
 package com.samskivert.swing;
 
@@ -17,21 +17,26 @@ public class LabelDemo extends JPanel
         Font font = new Font("Courier", Font.PLAIN, 10);
 
         int idx = 0;
-        _labels[idx] = new Label(text);
-        _labels[idx++].setFont(font);
+        _labels[idx] = new Label("Smiling Robert");
+        _labels[idx].setStyle(Label.OUTLINE);
+        _labels[idx].setAlternateColor(Color.lightGray);
+        _labels[idx].setFont(new Font("Dialog", Font.PLAIN, 10));
+        _labels[idx++].setAlignment(Label.CENTER);
 
         _labels[idx] = new Label(text);
         _labels[idx].setFont(font);
-        _labels[idx].setTargetWidth(100);
+        _labels[idx].setTargetWidth(110);
         _labels[idx].setAlignment(Label.RIGHT);
-        _labels[idx].setAlternateColor(Color.white);
+        _labels[idx].setAlternateColor(Color.lightGray);
+        _labels[idx].setStyle(Label.SHADOW);
         _labels[idx++].setFont(new Font("Dialog", Font.PLAIN, 12));
 
         _labels[idx] = new Label(text);
         _labels[idx].setFont(font);
         _labels[idx].setTargetHeight(30);
         _labels[idx].setAlignment(Label.CENTER);
-        _labels[idx].setAlternateColor(Color.white);
+        _labels[idx].setAlternateColor(Color.lightGray);
+        _labels[idx].setStyle(Label.BOLD);
         _labels[idx++].setFont(new Font("Dialog", Font.PLAIN, 12));
 
         _labels[idx] = new Label(text);
@@ -87,7 +92,7 @@ public class LabelDemo extends JPanel
             g2.setColor(Color.white);
             switch (ii) {
             case 0: break;
-            case 1: g2.fillRect(x, y, 100, size.height);
+            case 1: g2.fillRect(x, y, 110, size.height);
             case 2: g2.fillRect(x, y, size.width, 30);
             case 3: break;
             }
@@ -104,15 +109,7 @@ public class LabelDemo extends JPanel
 
     public Dimension getPreferredSize ()
     {
-        // lay out label zero if necessary
-        int width = _labels[0].getSize().width;
-        if (width == 0) {
-            Graphics2D g = (Graphics2D)getGraphics();
-            _labels[0].layout(g);
-            width = _labels[0].getSize().width;
-        }
-
-        return new Dimension(width + 20, 300);
+        return new Dimension(400, 300);
     }
 
     public static void main (String[] args)

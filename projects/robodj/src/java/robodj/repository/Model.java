@@ -1,5 +1,5 @@
 //
-// $Id: Model.java,v 1.5 2001/09/21 03:09:01 mdb Exp $
+// $Id: Model.java,v 1.6 2004/01/28 02:35:39 mdb Exp $
 
 package robodj.repository;
 
@@ -82,6 +82,8 @@ public class Model
             if (entry != null) {
                 _entries.put(entryid, entry);
             }
+        } else if (entry.songs == null) {
+            populateSongs(entry);
         }
         return entry;
     }

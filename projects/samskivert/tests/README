@@ -1,0 +1,42 @@
+samskivert tests
+----------------
+
+This is where all test code for the samskivert library exists. Where
+possible unit tests should be created for all services provided by the
+library. Tests are implemented using JUnit <http://junit.org> where
+applicable and automatically invoked from ant.
+
+Running the tests
+-----------------
+
+First build the main library (by invoking ant in the top-level project
+directory) and then the tests can be built and invoked via ant:
+
+% ant test
+
+which will build and then invoke the test code.
+
+Adding new tests
+----------------
+
+Unit tests are implemented using JUnit which means that they should extend
+junit.framework.TestCase and follow the guidelines outlined here
+<http://junit.sourceforge.net/> for creating test cases.
+
+Test classfiles should be named <foo>Test.java where <foo> is the
+associated class in the samskivert library for which a test is being
+implemented. For example, a test for the
+com.samskivert.servlet.SiteResourceLoader class would be named
+com.samskivert.servlet.SiteResourceLoaderTest.
+
+If multiple test drivers for a single class are desired, they can deviate
+from the prescribed naming scheme but must still end with Test.java so
+that ant will automatically locate and invoke them as part of the build
+process.
+
+Test implementors will want to look at existing tests as a starting point
+and at the test support classes in the com.samskivert.test package (which
+is part of the main samskivert library source tree, not the test source
+tree).
+
+$Id: README,v 1.1 2001/11/05 09:13:25 mdb Exp $

@@ -1,5 +1,5 @@
 //
-// $Id: FileUtil.java,v 1.3 2003/05/27 07:58:08 mdb Exp $
+// $Id: FileUtil.java,v 1.4 2003/08/09 05:26:32 mdb Exp $
 
 package com.samskivert.util;
 
@@ -28,6 +28,20 @@ public class FileUtil
     public static void recursiveClean (File file)
     {
         recursiveWipe(file, false);
+    }
+
+    /**
+     * Replaces <code>ext</code> with the supplied new extention if the
+     * supplied file path ends in <code>ext</code>. Otherwise the new
+     * extension is appended to the whole existing file path.
+     */
+    public static String resuffix (File file, String ext, String newext)
+    {
+        String path = file.getPath();
+        if (path.endsWith(ext)) {
+            path = path.substring(0, path.length()-ext.length());
+        }
+        return path + newext;
     }
 
     /** Helper function. */

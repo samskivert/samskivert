@@ -1,5 +1,5 @@
 #
-# $Id: properties.py,v 1.1 2002/03/17 09:03:06 mdb Exp $
+# $Id: properties.py,v 1.2 2002/03/18 00:30:24 mdb Exp $
 # 
 # lookuplet - a utility for quickly looking up information
 # Copyright (C) 2001-2002 Michael Bayne
@@ -61,6 +61,9 @@ class Properties:
         self.editButton = xmlui.get_widget("edit");
         self.deleteButton = xmlui.get_widget("delete");
         self.bindList = xmlui.get_widget("bindings");
+
+        # make our props panel not destroy itself on close
+        self.propsPanel.close_hides(gtk.TRUE);
 
         # wire up our handlers
         nameFuncMap = {};

@@ -1,5 +1,5 @@
 //
-// $Id: Chain.java,v 1.5 2001/07/17 07:18:09 mdb Exp $
+// $Id: Chain.java,v 1.6 2001/07/24 20:07:33 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -162,8 +162,42 @@ public class Chain implements Element
      * Lays out all of the children of this chain and then requests that
      * the supplied layout manager arrange those children and compute the
      * dimensions of this chain based on all of that information.
+     *
+     * @param gfx the graphics context to use when computing dimensions.
+     * @param cviz the chain visualizer to be used for laying out.
+     * @param width the width in which the chain must fit.
+     * @param height the height in which the chain must fit.
+     *
+     * @return if the chain cannot be laid out in the required dimensions,
+     * branches of the chain will be removed so that it can fit into the
+     * necessary dimensions. A new chain will be created with the
+     * remaining branches which should be laid out itself so that it too
+     * may further prune itself to fit into the necessary dimensions. If
+     * the chain fits into the requested dimensions, null will be
+     * returned.
      */
-    public void layout (Graphics2D gfx, ChainVisualizer cviz)
+    public Chain layout (Graphics2D gfx, ChainVisualizer cviz,
+                         double width, double height)
+    {
+        // lay everything out
+        layout(gfx, cviz);
+
+        // determine if we need to do some pruning (we only deal with
+        // height pruning presently)
+        if (_bounds.getHeight() <= height) {
+            return null;
+        }
+
+        double x = 0, y = 0;
+        Chain oflow = pruneOverflow(x, y, width, height);
+        // if something wigged out and we try to overflow our whole selves
+        // at this point (like this chain is one big fat chain with no
+        // children that doesn't fit into the space) we must punt and
+        // pretend like there's no overflow
+        return (oflow == this) ? null : oflow;
+    }
+
+    protected void layout (Graphics2D gfx, ChainVisualizer cviz)
     {
         // first layout our children
         for (int i = 0; i < _children.size(); i++) {
@@ -173,6 +207,86 @@ public class Chain implements Element
 
         // now lay ourselves out
         cviz.layoutChain(this, gfx);
+    }
+
+    protected Chain pruneOverflow (
+        double x, double y, double width, double height)
+    {
+        // offset our current position by the position of this chain
+        Rectangle2D bounds = getBounds();
+        x += bounds.getX();
+        y += bounds.getY();
+
+        Chain oflow = null;
+
+        for (int i = 0; i < _children.size(); i++) {
+            Chain child = (Chain)_children.get(i);
+
+            // if we've switched to flowing over, just add this chain to
+            // the overflow chain (and remove it from ourselves)
+            if (oflow != null) {
+                _children.remove(i--);
+                oflow._children.add(child);
+                continue;
+            }
+
+            Rectangle2D cbounds = child.getBounds();
+            double cx = cbounds.getX(), cy = cbounds.getY();
+
+            // if this child doesn't fit in the current space, we need to
+            // break it up and overflow the extra nodes
+            if (y + cy + cbounds.getHeight() > height) {
+                Chain coflow = child.pruneOverflow(x, y, width, height);
+
+                // make sure this child claims some sort of overflow (if
+                // it doesn't something is wacked, but we'll try to deal)
+                if (coflow != null) {
+                    // if this entire child is overflowed
+                    if (coflow == child) {
+                        // remove the child from this chain and add it to our
+                        // overflow chain
+                        _children.remove(i--);
+                    }
+                    // regardless, add what we got to the overflow chain
+                    oflow = createOverflowChain();
+                    oflow._children.add(coflow);
+
+                } else {
+                    System.err.println("Overflowing child unable " +
+                                       "to overflow " + child._name + ".");
+                }
+            }
+        }
+
+        // if we have no children (or we overflowed *all* of our children)
+        // then we need to overflow ourselves rather than create a new
+        // chain for overflowing
+        if (_children.size() == 0) {
+            // grab our kids back from the overflow chain
+            if (oflow != null) {
+                _children = oflow._children;
+            }
+            return this;
+
+        } else {
+            // otherwise, adjust our height to just enclose the height of
+            // our last child because we removed some children and changed
+            // our dimensions. this is sort of a hack because it assumes
+            // that the chain visualizer isn't leaving any gap beyond the
+            // bottom of a child chain but it's somewhat safe because if
+            // they did, that gap would accumulate unaesthetically
+            Chain child = (Chain)_children.get(_children.size()-1);
+            Rectangle2D cbounds = child.getBounds();
+            _bounds.setRect(_bounds.getX(), _bounds.getY(), _bounds.getWidth(),
+                            cbounds.getY() + cbounds.getHeight());
+        }
+
+        return oflow;
+    }
+
+    protected Chain createOverflowChain ()
+    {
+        return new Chain(_name, _root, _inpkg);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ChainGroup.java,v 1.7 2001/07/24 18:07:35 mdb Exp $
+// $Id: ChainGroup.java,v 1.8 2001/07/24 20:07:33 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -83,13 +83,6 @@ public class ChainGroup
     public ChainGroup layout (
         Graphics2D gfx, double pageWidth, double pageHeight)
     {
-        // lay out the internal structure of our chains
-        ChainVisualizer clay = new CascadingChainVisualizer();
-        for (int i = 0; i < _roots.size(); i++) {
-            Chain chain = (Chain)_roots.get(i);
-            chain.layout(gfx, clay);
-        }
-
         // we'll need room to incorporate our title
         TextLayout layout = new TextLayout(_pkg, FontPicker.getTitleFont(),
                                            gfx.getFontRenderContext());
@@ -102,6 +95,18 @@ public class ChainGroup
         // keep room for our border and title
         pageWidth -= 2*BORDER;
         pageHeight -= (2*BORDER + titleAscent);
+
+        // lay out the internal structure of our chains
+        ChainVisualizer clay = new CascadingChainVisualizer();
+        for (int i = 0; i < _roots.size(); i++) {
+            Chain chain = (Chain)_roots.get(i);
+            Chain oflow = chain.layout(gfx, clay, pageWidth, pageHeight);
+            // if this chain overflowed when being laid out, add the newly
+            // created root to our list
+            if (oflow != null) {
+                _roots.add(i+1, oflow);
+            }
+        }
 
         // arrange them on the page
         ElementLayout elay = new PackedColumnElementLayout();

@@ -1193,7 +1193,7 @@ public class Table {
                         buildQueryList(buf, comp, i, i+nComponents, mask);
                     } else {
                         if (buf.length() != 0) {
-                            buf.append(",");
+                            buf.append(" AND ");
                         }
                         buf.append(fd.name);
                         buf.append("=?");

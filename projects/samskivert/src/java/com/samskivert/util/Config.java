@@ -1,5 +1,5 @@
 //
-// $Id: Config.java,v 1.16 2002/11/13 07:12:31 ray Exp $
+// $Id: Config.java,v 1.17 2002/11/24 04:51:02 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -36,12 +36,10 @@ import com.samskivert.Log;
 /**
  * The config class provides a unified interaface to application
  * configuration information. It takes care of loading properties files
- * (done via the classpath) and merging configuration data from multiple
- * configuration files with the same path (so that users of packages can
- * override configuration settings for the packages that they use; see
- * {@ConfigUtil#loadInheritedProperties}).
+ * (done via the classpath) and allows for overriding and inheriting of
+ * properties values (see {@link ConfigUtil#loadInheritedProperties}).
  *
- * <p> The primary pattern is to create, for each package that shares
+ * <p> A common pattern is to create, for each package that shares
  * configuration information, a singleton class containing a config object
  * that is configured to load its data from a single configuration
  * file. For example:
@@ -49,20 +47,53 @@ import com.samskivert.Log;
  * <pre>
  * public class FooConfig
  * {
+ *     public static final String FIDDLES = "fiddles";
+ *
  *     public static Config config = new Config("com/fribitz/foo");
  * }
  * </pre>
  *
  * which would look for <code>com/fribitz/foo.properties</code> in the
  * classpath and serve up those configuration values when requests were
- * made from <code>FooConfig.config</code>.
+ * made from <code>FooConfig.config</code>. For example:
  *
- * <p> The config class allows for users to override configuration values
+ * <pre>
+ *     int fiddles = FooConfig.config.getValue(FooConfig.FIDDLES, 0);
+ *     for (int ii = 0; ii < fiddles; ii++) {
+ *         fiddle();
+ *     }
+ * </pre>
+ *
+ * An even better approach involves creating accessors for all defined
+ * configuration properties:
+ *
+ * <pre>
+ * public class FooConfig
+ * {
+ *     public static final String FIDDLES = "fiddles";
+ *
+ *     public static Config config = new Config("com/fribitz/foo");
+ *
+ *     public static int getFiddles ()
+ *     {
+ *         return config.getValue(FIDDLES, FIDDLES_DEFAULT);
+ *     }
+ *
+ *     protected static final int FIDDLES_DEFAULT = 0;
+ * }
+ * </pre>
+ *
+ * This allows the default value for <code>fiddles</code> to be specified
+ * in one place and simplifies life for the caller who can now simply
+ * request <code>FooConfig.getFiddles()</code>.
+ *
+ * <p> The config class allows one to override configuration values
  * persistently, using the standard Java {@link Preferences} facilities to
- * maintain the overridden values. If a value is set in a configuration
- * object, it will remain overridden in between invocations of the
- * application (and generally leverage the benefits of the pluggable
- * preferences backends provided by the standard preferences stuff).
+ * maintain the overridden values. If a property is {@link #setValue}d in
+ * a configuration object, it will remain overridden in between
+ * invocations of the application (leveraging the benefits of the
+ * pluggable preferences backends provided by the standard Java
+ * preferences facilities).
  */
 public class Config
 {

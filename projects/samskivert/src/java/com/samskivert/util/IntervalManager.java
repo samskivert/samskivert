@@ -1,5 +1,5 @@
 //
-// $Id: IntervalManager.java,v 1.8 2002/08/09 23:33:38 shaper Exp $
+// $Id: IntervalManager.java,v 1.9 2003/07/27 17:29:26 ray Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -95,12 +95,23 @@ public class IntervalManager
         }
     }
 
+    /**
+     * Turn on or off logging of all interval firings.
+     */
+    public static void setLogIntervals (boolean log)
+    {
+        _logging = log;
+    }
+
     /** The timer we use to schedule everything. */
     protected static Timer _timer = new Timer(true);
 
     /** Our registered intervals, indexed by id. */
     protected static IntMap _hash =
         Collections.synchronizedIntMap(new HashIntMap());
+
+    /** Whether or not we're logging interval fires. */
+    protected static boolean _logging = false;
 
     /**
      * A class to adapt {@link TimerTask} to the smooth action of {@link
@@ -112,6 +123,7 @@ public class IntervalManager
         protected Interval _i;
         protected Object _arg;
         protected boolean _onetime;
+        protected String _source;
 
         public IntervalTask (Interval i, Object arg, boolean recur)
         {
@@ -119,6 +131,11 @@ public class IntervalManager
             _arg = arg;
             _onetime = !recur;
             id = nextID();
+            try {
+                _source = new Throwable().getStackTrace()[2].toString();
+            } catch (Throwable oopsie) {
+                _source = "<unknown>";
+            }
         }
 
         /**
@@ -128,6 +145,10 @@ public class IntervalManager
          */
         public void run ()
         {
+            if (_logging) {
+                System.err.println("Interval fired [source=" + _source + "]");
+            }
+
             // protect our ass.
             try {
                 _i.intervalExpired(id, _arg);

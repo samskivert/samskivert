@@ -1,5 +1,5 @@
 //
-// $Id: Chain.java,v 1.7 2001/07/24 20:30:53 mdb Exp $
+// $Id: Chain.java,v 1.8 2001/07/24 20:35:46 mdb Exp $
 
 package com.samskivert.viztool.viz;
 
@@ -136,15 +136,32 @@ public class Chain implements Element
     public String[] getDeclaresNames ()
     {
         Class[] decls = _root.getDeclaredClasses();
-        String[] names = new String[decls.length];
+        ArrayList names = new ArrayList();
 
         for (int i = 0; i < decls.length; i++) {
             String name = decls[i].getName();
+
+            // strip off anything up to and including the dollar
             int didx = name.indexOf("$");
-            names[i] = (didx == -1) ? name : name.substring(didx+1);
+            if (didx != -1) {
+                name = name.substring(didx+1);
+            }
+
+            // if this inner class name is a number, it's an anonymous
+            // class and we want to skip it
+            try {
+                Integer.parseInt(name);
+                continue;
+            } catch (NumberFormatException nfe) {
+            }
+
+            // otherwise it passes the test
+            names.add(name);
         }
 
-        return names;
+        String[] anames = new String[names.size()];
+        names.toArray(anames);
+        return anames;
     }
 
     /**

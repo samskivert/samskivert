@@ -1,7 +1,7 @@
 Lookuplet
 ---------
 
-This GNOME applet provides a unified interface for looking things up.
+This GNOME application provides a unified interface for looking things up.
 There are many applications (desktop and web-based) in which you enter
 some text and they return some information based on that text. Examples
 include:
@@ -10,21 +10,36 @@ include:
   * Performing a web search
   * Performing a more specific search (searching Debian packages or on
     freshmeat.net, etc.)
+  * Looking up an address in a mapping service
 
 The lookuplet aims to make all of those services readily accessible in as
 efficient a manner as possible.
 
-A text entry box is provided on the GNOME panel and you simply enter text
-into that box and then press whatever action key combination you have
-defined for a particular service to initiate the lookup. This interface is
-based on the emacs principle of typing as few characters as possible to
-perform tasks that are done frequently. I find myself looking things up in
-various applications all of the time and the overhead of creating a new
-browser window, selecting a bookmark, clicking into the text entry field
-and then pressing submit struck me as tremendously inefficient.
+When invoked, the lookuplet grabs the current selection and sticks it into
+a text field for potential editing. You then press a key combination that
+you have previously configured and the text is sent either as an argument
+to an application or url encoded and substituted into a URL which is then
+opened with your preferred web browser.
+
+This interface is based on the emacs principle of typing as few characters
+as possible to perform tasks that are done frequently. I find myself
+looking things up in various applications all of the time and the overhead
+of creating a new browser window, selecting a bookmark, clicking into the
+text entry field, entering the text and then pressing submit struck me as
+tremendously inefficient.
+
+The expectation is that you'll configure your window manager to launch
+lookuplet at the press of some key combination so that from any
+application, you can simply highlight text, press the lookuplet key
+combination and then press the key combination of your desired service.
+With such a configuration, the process of looking up information becomes
+extremely efficient in terms of key presses and mouse clicks.
+
+The key combinations used by lookuplet and the associated launch
+configuration are maintained via a simple graphical user interface.
 
 Feedback on the program is welcome. Additional information and the latest
-release is available at <http://www.samskivert.com/???URL???>.
+release is available at <http://www.waywardgeeks.org/code/lookuplet/>.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -1,5 +1,5 @@
 //
-// $Id: RequestUtils.java,v 1.6 2003/02/03 03:46:32 mdb Exp $
+// $Id: RequestUtils.java,v 1.7 2003/08/12 22:46:31 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -60,7 +60,7 @@ public class RequestUtils
      */
     public static String getLocation (HttpServletRequest req)
     {
-        StringBuffer rurl = HttpUtils.getRequestURL(req);
+        StringBuffer rurl = req.getRequestURL();
         String qs = req.getQueryString();
         if (qs != null) {
             rurl.append("?").append(qs);
@@ -75,7 +75,7 @@ public class RequestUtils
     public static String rehostLocation (
         HttpServletRequest req, String servername)
     {
-        StringBuffer buf = HttpUtils.getRequestURL(req);
+        StringBuffer buf = req.getRequestURL();
         String csname = req.getServerName();
         int csidx = buf.indexOf(csname);
         if (csidx != -1) {
@@ -95,7 +95,7 @@ public class RequestUtils
      */
     public static String getServletURL (HttpServletRequest req, String path)
     {
-        StringBuffer buf = HttpUtils.getRequestURL(req);
+        StringBuffer buf = req.getRequestURL();
         String sname = req.getServletPath();
         buf.delete(buf.length() - sname.length(), buf.length());
         if (!path.startsWith("/")) {

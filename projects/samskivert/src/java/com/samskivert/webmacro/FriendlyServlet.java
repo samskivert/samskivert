@@ -1,5 +1,5 @@
 //
-// $Id: FriendlyServlet.java,v 1.1 2001/02/13 18:49:41 mdb Exp $
+// $Id: FriendlyServlet.java,v 1.2 2001/02/13 20:00:28 mdb Exp $
 
 package com.samskivert.webmacro;
 
@@ -25,23 +25,41 @@ import org.webmacro.servlet.*;
  * webmacro procedure.
  *
  * <p> The process of mapping exceptions to friendly error messages is
- * done through a properties file loaded via the classpath. The properties
- * file should be named 'exceptionmap.properties' and placed in a
- * directory contained in the classpath of the JVM in which the servlet is
- * executed. The file should contain mappings from exception classes to
- * friendly error messages. For example:
+ * done through a configuration file loaded via the classpath. The file
+ * should be named <code>exceptionmap.properties</code> and placed in the
+ * classpath of the JVM in which the servlet is executed. The file should
+ * contain colon-separated mappings from exception classes to friendly
+ * error messages. For example:
  *
  * <pre>
- * com.samskivert.webmacro.FriendlyException = An error occurred while \
+ * # Exception mappings (lines beginning with # are ignored)
+ * com.samskivert.webmacro.FriendlyException: An error occurred while \
  * processing your request: {m}
- * java.sql.SQLException = The database is currently unavailable. Please \
+ *
+ * # lines ending with \ are continued on the next line
+ * java.sql.SQLException: The database is currently unavailable. Please \
  * try your request again later.
- * java.lang.Exception = An unexpected error occurred while processing \
+ *
+ * java.lang.Exception: An unexpected error occurred while processing \
  * your request. Please try again later.
  * </pre>
  *
  * The message associated with the exception will be substituted into the
- * error string in place of <code>{m}</code>.
+ * error string in place of <code>{m}</code>. The exceptions should be
+ * listed in order of most specific to least specific, for the first
+ * mapping for which the exception to report is an instance of the
+ * exception in the left hand side will be used.
+ *
+ * <em>Note:</em> These exception mappings are used for all servlets
+ * (perhaps some day only for servlets associated with a particular
+ * application identifier). Regardless, this error handling mechanism
+ * should not be used for servlet specific errors. For example, an SQL
+ * exception reporting a duplicate key should probably be caught and
+ * reported specifically by the servlet (it can still leverage the pattern
+ * of inserting the error message into the context as
+ * <code>"error"</code>) rather than relying on the default SQL exception
+ * error message which is not likely to be meaningful for such a
+ * situation.
  */
 public abstract class FriendlyServlet extends WMServlet
 {
@@ -59,6 +77,7 @@ public abstract class FriendlyServlet extends WMServlet
 	try {
 	    populateContext(ctx, tmpl);
 	} catch (Exception e) {
+	    ctx.put(ERROR_KEY, ExceptionMap.getMessage(e));
 	}
 
 	return tmpl;
@@ -87,4 +106,7 @@ public abstract class FriendlyServlet extends WMServlet
      */
     protected abstract void populateContext (WebContext ctx, Template tmpl)
 	throws Exception;
+
+    /** This is the key used in the context for error messages. */
+    protected static final String ERROR_KEY = "error";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AtlantiManager.java,v 1.21 2001/12/18 11:58:53 mdb Exp $
+// $Id: AtlantiManager.java,v 1.22 2002/01/29 23:46:37 mdb Exp $
 
 package com.threerings.venison;
 
@@ -633,7 +633,7 @@ public class VenisonManager
                 // if the player has no free piecens or if there are no
                 // unclaimed features on this tile, we end their turn
                 // straight away
-                int pcount = TileUtil.countPiecens(_tiles, pidx);
+                int pcount = TileUtil.countPiecens(_venobj.piecens, pidx);
                 if (pcount >= PIECENS_PER_PLAYER ||
                     !tile.hasUnclaimedFeature()) {
                     endTurn();

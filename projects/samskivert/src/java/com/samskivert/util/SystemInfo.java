@@ -1,5 +1,5 @@
 //
-// $Id: SystemInfo.java,v 1.2 2003/01/14 22:31:27 shaper Exp $
+// $Id: SystemInfo.java,v 1.3 2003/01/15 01:27:44 shaper Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2003 Walter Korman
@@ -59,6 +59,10 @@ public class SystemInfo
     /** The maximum amount of memory available in kilobytes. */
     public long maxMemory;
 
+    /** Whether the video display is headless or video information is
+     * unavailable. */
+    public boolean isHeadless;
+
     /** The video display bit depth; see {@link DisplayMode}. */
     public int bitDepth;
 
@@ -104,15 +108,23 @@ public class SystemInfo
         maxMemory = rtime.maxMemory() / 1024;
 
         // determine video display information
-        GraphicsEnvironment env =
-            GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = env.getDefaultScreenDevice();
-        DisplayMode mode = gd.getDisplayMode();
-        bitDepth = mode.getBitDepth();
-        refreshRate = mode.getRefreshRate() / 1024;
-        isFullScreen = (gd.getFullScreenWindow() != null);
-        displayWidth = mode.getWidth();
-        displayHeight = mode.getHeight();
+        isHeadless = GraphicsEnvironment.isHeadless();
+        if (!isHeadless) {
+            try {
+                GraphicsEnvironment env =
+                    GraphicsEnvironment.getLocalGraphicsEnvironment();
+                GraphicsDevice gd = env.getDefaultScreenDevice();
+                DisplayMode mode = gd.getDisplayMode();
+                bitDepth = mode.getBitDepth();
+                refreshRate = mode.getRefreshRate() / 1024;
+                isFullScreen = (gd.getFullScreenWindow() != null);
+                displayWidth = mode.getWidth();
+                displayHeight = mode.getHeight();
+
+            } catch (Throwable t) {
+                isHeadless = true;
+            }
+        }
     }
 
     /**
@@ -148,6 +160,10 @@ public class SystemInfo
      */
     public String videoToString ()
     {
+        if (isHeadless) {
+            return "headless or unavailable";
+        }
+
         String sdepth = (bitDepth == -1) ? "unknown bit depth" :
             bitDepth + "-bit";
         String srate = (refreshRate == DisplayMode.REFRESH_RATE_UNKNOWN) ?

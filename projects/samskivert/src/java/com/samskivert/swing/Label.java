@@ -42,6 +42,7 @@ import java.util.HashMap;
 import javax.swing.SwingConstants;
 
 import com.samskivert.Log;
+import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
@@ -321,7 +322,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             // languages, anyway)
             if (_constraints.width == -1) {
                 TextLayout layout = new TextLayout(textIterator(gfx), frc);
-                Rectangle2D bounds = layout.getBounds();
+                Rectangle2D bounds = getBounds(layout);
 
                 int lines = 1;
                 double width = getWidth(bounds)/lines;
@@ -343,7 +344,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             }
 
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
-            Rectangle2D bounds = layout.getBounds();
+            Rectangle2D bounds = getBounds(layout);
             int lines = Math.round(targetHeight / getHeight(layout));
             if (lines > 1) {
                 int targetWidth = (int)Math.round(getWidth(bounds) / lines);
@@ -372,7 +373,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         // then layout on one line and call it good
         if (layouts == null) {
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
-            Rectangle2D bounds = layout.getBounds();
+            Rectangle2D bounds = getBounds(layout);
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)
             _size.setSize(Math.ceil(getWidth(bounds)),
                           Math.ceil(getHeight(layout)));
@@ -427,7 +428,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                 if (layout == null) {
                     break;
                 }
-                Rectangle2D bounds = layout.getBounds();
+                Rectangle2D bounds = getBounds(layout);
                 width = Math.max(width, getWidth(bounds));
                 height += getHeight(layout);
                 layouts.add(new Tuple(layout, bounds));
@@ -566,6 +567,19 @@ public class Label implements SwingConstants, LabelStyleConstants
             width += 1;
         }
         return width;
+    }
+
+    /**
+     * Gets the bounds of the supplied text layout in a way that works
+     * around the various befuckeries that currently happen on the Mac.
+     */
+    protected Rectangle2D getBounds (TextLayout layout)
+    {
+        if (RunAnywhere.isMacOS()) {
+            return layout.getOutline(null).getBounds();
+        } else {
+            return layout.getBounds();
+        }
     }
 
     /**

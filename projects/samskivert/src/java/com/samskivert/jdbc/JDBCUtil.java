@@ -1,5 +1,5 @@
 //
-// $Id: JDBCUtil.java,v 1.6 2004/04/26 02:43:35 mdb Exp $
+// $Id: JDBCUtil.java,v 1.7 2004/04/30 02:38:10 mdb Exp $
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
@@ -138,6 +138,9 @@ public class JDBCUtil
      */
     public static String jigger (String text)
     {
+        if (text == null) {
+            return null;
+        }
         try {
             return new String(text.getBytes("UTF8"), "8859_1");
         } catch (UnsupportedEncodingException uee) {
@@ -151,6 +154,9 @@ public class JDBCUtil
      */
     public static String unjigger (String text)
     {
+        if (text == null) {
+            return null;
+        }
         try {
             return new String(text.getBytes("8859_1"), "UTF8");
         } catch (UnsupportedEncodingException uee) {

@@ -392,6 +392,10 @@ public class ArrayUtil
         // make sure we've something to work with
         if (values == null) {
             throw new IllegalArgumentException("Can't splice a null array.");
+
+        } else if (length == 0) {
+            // we're not splicing anything!
+            return values;
         }
 
         // require that the entire range to remove be within the array bounds
@@ -445,6 +449,10 @@ public class ArrayUtil
         // make sure we've something to work with
         if (values == null) {
             throw new IllegalArgumentException("Can't splice a null array.");
+
+        } else if (length == 0) {
+            // we're not splicing anything!
+            return values;
         }
 
         // require that the entire range to remove be within the array bounds
@@ -498,6 +506,10 @@ public class ArrayUtil
         // make sure we've something to work with
         if (values == null) {
             throw new IllegalArgumentException("Can't splice a null array.");
+
+        } else if (length == 0) {
+            // we're not splicing anything!
+            return values;
         }
 
         // require that the entire range to remove be within the array bounds
@@ -551,6 +563,10 @@ public class ArrayUtil
         // make sure we've something to work with
         if (values == null) {
             throw new IllegalArgumentException("Can't splice a null array.");
+
+        } else if (length == 0) {
+            // we're not splicing anything!
+            return values;
         }
 
         // require that the entire range to remove be within the array bounds
@@ -605,6 +621,10 @@ public class ArrayUtil
         // make sure we've something to work with
         if (values == null) {
             throw new IllegalArgumentException("Can't splice a null array.");
+
+        } else if (length == 0) {
+            // we're not splicing anything!
+            return values;
         }
 
         // require that the entire range to remove be within the array bounds
@@ -659,6 +679,10 @@ public class ArrayUtil
         // make sure we've something to work with
         if (values == null) {
             throw new IllegalArgumentException("Can't splice a null array.");
+
+        } else if (length == 0) {
+            // we're not splicing anything!
+            return values;
         }
 
         // require that the entire range to remove be within the array bounds

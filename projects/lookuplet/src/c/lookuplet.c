@@ -1,11 +1,10 @@
 /**
- * $Id: lookuplet.c,v 1.2 2001/02/24 02:35:20 mdb Exp $
+ * $Id: lookuplet.c,v 1.3 2001/02/24 02:45:18 mdb Exp $
  */
  
 #include <config.h>
 #include <gnome.h>
 
-#include "entry.h"
 #include "querybox.h"
 #include "preferences.h"
 

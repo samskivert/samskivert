@@ -1,5 +1,5 @@
 //
-// $Id: TurnIndicatorView.java,v 1.2 2001/10/18 20:55:05 mdb Exp $
+// $Id: TurnIndicatorView.java,v 1.3 2002/01/29 23:47:03 mdb Exp $
 
 package com.threerings.venison;
 
@@ -120,7 +120,7 @@ public class TurnIndicatorView
 
     protected void updateRemainingTiles ()
     {
-        _countLabel.setText("Tiles remaining: " + (72-_venobj.tiles.size()));
+        _countLabel.setText("Tiles remaining: " + (71-_venobj.tiles.size()));
     }
 
     /** The label displaying whose turn it is. */

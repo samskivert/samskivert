@@ -68,10 +68,11 @@ public class MACUtil
             // 44-45-53-XX-XX-XX - PPP Adaptor
             // 00-53-45-XX-XX-XX - PPP Adaptor
             // 00-E0-06-09-55-66 - Some bogus run of ASUS motherboards
-            // 00-04-4B-80-80-03 - Some nvidia built in lan issues.
-            // 00-03-8A-XX-XX-XX - MiniWAN or AOL software.
+            // 00-04-4B-80-80-03 - Some nvidia built-in lan issues
+            // 00-03-8A-XX-XX-XX - MiniWAN or AOL software
             // 02-03-8A-00-00-11 - Westell Dual (USB/Ethernet) modem
             // FF-FF-FF-FF-FF-FF - Tunnel adapter Teredo
+            // 02-00-4C-4F-4F-50 - MSFT thinger, loopback of some sort
             if (mac.startsWith("44-45-53")) {
                 continue;
             } else if (mac.startsWith("00-53-45-00")) {
@@ -85,6 +86,8 @@ public class MACUtil
             } else if (mac.startsWith("02-03-8A-00-00-11")) {
                 continue;
             } else if (mac.startsWith("FF-FF-FF-FF-FF-FF")) {
+                continue;
+            } else if (mac.startsWith("02-00-4C-4F-4F-50")) {
                 continue;
             }
 

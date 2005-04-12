@@ -33,6 +33,13 @@ import com.samskivert.util.StringUtil;
  */
 public class SimpleRepository extends Repository
 {
+    /** See {@link #setExecutePreCondition}. */
+    public static interface PreCondition
+    {
+        /** See {@link #setExecutePreCondition}. */
+        public boolean validate (String dbident, Operation op);
+    }
+
     /**
      * Creates and initializes a simple repository which will access the
      * database identified by the supplied database identifier.
@@ -83,6 +90,13 @@ public class SimpleRepository extends Repository
         Object rv = null;
         boolean supportsTransactions = false;
         boolean attemptedOperation = false;
+
+        // check our pre-condition
+        if (_precond != null && !_precond.validate(_dbident, op)) {
+            Log.warning("Repository operation failed pre-condition check! " +
+                        "[dbident=" + _dbident + ", op=" + op + "].");
+            Thread.dumpStack();
+        }
 
         try {
             // obtain our database connection and associated goodies
@@ -192,5 +206,19 @@ public class SimpleRepository extends Repository
     {
     }
 
+    /**
+     * Configures an operation that will be invoked prior to the execution
+     * of every database operation to validate whether some pre-condition
+     * is met. This mainly exists for systems that wish to ensure that all
+     * database operations take place on a particular thread (or not on a
+     * particular thread) as database operations are generally slow and
+     * blocking.
+     */
+    public static void setExecutePreCondition (PreCondition condition)
+    {
+        _precond = condition;
+    }
+
     protected String _dbident;
+    protected static PreCondition _precond;
 }

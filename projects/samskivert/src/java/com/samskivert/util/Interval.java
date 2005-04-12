@@ -153,6 +153,12 @@ public abstract class Interval
                         public void run () {
                             safelyExpire(IntervalTask.this);
                         }
+
+                        // to aid in debugging, this run unit reports its
+                        // name as that of the interval.
+                        public String toString () {
+                            return Interval.this.toString();
+                        }
                     };
                 }
                 _runQueue.postRunnable(_runner);

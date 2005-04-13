@@ -23,9 +23,11 @@ package com.samskivert.servlet.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -121,6 +123,39 @@ public class ParameterUtil
             new IntRangeValidator(low, high, invalidDataMessage));
     }
 
+    /**
+     * Fetches all the values from the request with the specified name and
+     * converts them to an IntSet.  If the parameter does not exist or is
+     * not a well-formed integer, a data validation exception is thrown
+     * with the supplied message.
+     */
+    public static ArrayIntSet getIntParameters (
+        HttpServletRequest req, String name, String invalidDataMessage)
+        throws DataValidationException
+    {
+        String[] values = req.getParameterValues(name);
+        ArrayIntSet ints = new ArrayIntSet();
+        for (int ii = 0; values != null && ii < values.length; ii++) {
+            ints.add(parseIntParameter(values[ii], invalidDataMessage));
+        }
+        return ints;
+    }
+
+    /**
+     * Fetches all the values from the request with the specified name and
+     * converts them HashSet. 
+     */
+    public static HashSet getParameters (HttpServletRequest req, String name)
+        throws DataValidationException
+    {
+        String[] values = req.getParameterValues(name);
+        HashSet set = new HashSet();
+        for (int ii = 0; values != null && ii < values.length; ii++) {
+            set.add(values[ii]);
+        }
+        return set;
+    }
+    
     /**
      * Fetches the supplied parameter from the request and converts it to
      * an integer. If the parameter does not exist, <code>defval</code> is

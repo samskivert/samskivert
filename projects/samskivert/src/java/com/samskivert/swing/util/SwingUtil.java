@@ -274,16 +274,26 @@ public class SwingUtil
      */
     public static void applyToHierarchy (Component comp, ComponentOp op)
     {
+        applyToHierarchy(comp, Integer.MAX_VALUE, op);
+    }
+
+    /**
+     * Apply the specified ComponentOp to the supplied component
+     * and then all its descendants, up to the specified maximum depth.
+     */
+    public static void applyToHierarchy (
+        Component comp, int depth, ComponentOp op)
+    {
         if (comp == null) {
             return;
         }
 
         op.apply(comp);
-        if (comp instanceof Container) {
+        if (comp instanceof Container && --depth >= 0) {
             Container c = (Container) comp;
             int ccount = c.getComponentCount();
             for (int ii = 0; ii < ccount; ii++) {
-                applyToHierarchy(c.getComponent(ii), op);
+                applyToHierarchy(c.getComponent(ii), depth, op);
             }
         }
     }

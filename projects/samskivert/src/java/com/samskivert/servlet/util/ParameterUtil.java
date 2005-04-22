@@ -136,6 +136,9 @@ public class ParameterUtil
         String[] values = req.getParameterValues(name);
         ArrayIntSet ints = new ArrayIntSet();
         for (int ii = 0; values != null && ii < values.length; ii++) {
+            if (StringUtil.blank(values[ii])) {
+                continue;
+            }
             ints.add(parseIntParameter(values[ii], invalidDataMessage));
         }
         return ints;
@@ -151,6 +154,9 @@ public class ParameterUtil
         String[] values = req.getParameterValues(name);
         HashSet set = new HashSet();
         for (int ii = 0; values != null && ii < values.length; ii++) {
+            if (StringUtil.blank(values[ii])) {
+                continue;
+            }
             set.add(values[ii]);
         }
         return set;

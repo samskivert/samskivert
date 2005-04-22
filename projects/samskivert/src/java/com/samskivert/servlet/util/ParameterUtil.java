@@ -133,31 +133,33 @@ public class ParameterUtil
         HttpServletRequest req, String name, String invalidDataMessage)
         throws DataValidationException
     {
-        String[] values = req.getParameterValues(name);
         ArrayIntSet ints = new ArrayIntSet();
-        for (int ii = 0; values != null && ii < values.length; ii++) {
-            if (StringUtil.blank(values[ii])) {
-                continue;
+        String[] values = req.getParameterValues(name);
+        if (values != null) {
+            for (int ii = 0; ii < values.length; ii++) {
+                if (!StringUtil.blank(values[ii])) {
+                    ints.add(parseIntParameter(values[ii], invalidDataMessage));
+                }
             }
-            ints.add(parseIntParameter(values[ii], invalidDataMessage));
         }
         return ints;
     }
 
     /**
      * Fetches all the values from the request with the specified name and
-     * converts them HashSet. 
+     * converts them to a HashSet. 
      */
     public static HashSet getParameters (HttpServletRequest req, String name)
         throws DataValidationException
     {
-        String[] values = req.getParameterValues(name);
         HashSet set = new HashSet();
-        for (int ii = 0; values != null && ii < values.length; ii++) {
-            if (StringUtil.blank(values[ii])) {
-                continue;
+        String[] values = req.getParameterValues(name);
+        if (values != null) {
+            for (int ii = 0; ii < values.length; ii++) {
+                if (!StringUtil.blank(values[ii])) {
+                    set.add(values[ii]);
+                }
             }
-            set.add(values[ii]);
         }
         return set;
     }

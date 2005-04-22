@@ -376,6 +376,26 @@ public class JDBCUtil
     }
 
     /**
+     * Removes a column from the specified table.
+     */
+    public static void dropColumn (Connection conn, String table, String cname)
+        throws SQLException
+    {
+        String update = "ALTER TABLE " + table + " DROP COLUMN " + cname;
+
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(update);
+            if (stmt.executeUpdate() == 1) {
+                Log.info("Database index '" + cname + "' removed from " +
+                        "table '" + table + "'.");
+            }
+        } finally {
+            close(stmt);
+        }
+    }
+    
+    /**
      * Removes a named index from the specified table.
      */
     public static void dropIndex (Connection conn, String table, String iname)
@@ -394,7 +414,7 @@ public class JDBCUtil
             close(stmt);
         }
     }
-
+    
     /**
      * Removes the primary key from the specified table.
      */

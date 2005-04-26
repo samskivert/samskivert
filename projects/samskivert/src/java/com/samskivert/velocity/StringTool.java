@@ -105,6 +105,14 @@ public class StringTool
         return StringUtil.truncate(text, length, append);
     }
 
+    /**
+     * Restrict all HTML from the specified String.
+     */
+    public static String restrictHTML (String text)
+    {
+        return StringUtil.restrictHTML(text);
+    }
+    
     /** For formatting percentages. */
     protected NumberFormat _percFormat;
 }

@@ -109,30 +109,31 @@ public class StaticConnectionProvider implements ConnectionProvider
     public void shutdown ()
     {
         // close all of the connections
-        Iterator iter = _conns.keySet().iterator();
+        Iterator iter = _keys.keySet().iterator();
         while (iter.hasNext()) {
-            String ident = (String)iter.next();
-            Connection conn = (Connection)_conns.get(ident);
+            String key = (String)iter.next();
+            Mapping conmap = (Mapping)_keys.get(key);
             try {
-                conn.close();
+                conmap.connection.close();
             } catch (SQLException sqe) {
                 Log.warning("Error shutting down connection " +
-                            "[ident=" + ident + ", err=" + sqe + "].");
+                            "[key=" + key + ", err=" + sqe + "].");
             }
         }
 
-        // clear out the connection table
-        _conns.clear();
+        // clear out our mapping tables
+        _keys.clear();
+        _idents.clear();
     }
 
     // documentation inherited
     public Connection getConnection (String ident)
         throws PersistenceException
     {
-        Connection conn = (Connection)_conns.get(ident);
+        Mapping conmap = (Mapping)_idents.get(ident);
 
         // open the connection if we haven't already
-        if (conn == null) {
+        if (conmap == null) {
             Properties props =
                 PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
 
@@ -146,30 +147,27 @@ public class StaticConnectionProvider implements ConnectionProvider
             err = "No driver password specified [ident=" + ident + "].";
             String password = requireProp(props, "password", err);
 
-            // load up the driver class
-            try {
-                Class.forName(driver);
-            } catch (Exception e) {
-                err = "Error loading driver [ident=" + ident +
-                    ", class=" + driver + "].";
-                throw new PersistenceException(err, e);
-            }
-
-            // create the connection
-            try {
-                conn = DriverManager.getConnection(url, username, password);
-            } catch (SQLException sqe) {
-                err = "Error creating database connection " +
-                    "[ident=" + ident + ", driver=" + driver + ", url=" + url +
-                    ", username=" + username + "].";
-                throw new PersistenceException(err, sqe);
+            // we cache connections by username+url to avoid making more
+            // that one connection to a particular database server
+            String key = username + "@" + url;
+            conmap = (Mapping)_keys.get(key);
+            if (conmap == null) {
+                Log.debug("Creating " + key + " for " + ident + ".");
+                conmap = new Mapping();
+                conmap.key = key;
+                conmap.connection =
+                    openConnection(driver, url, username, password);
+                _keys.put(key, conmap);
+            } else {
+                Log.debug("Reusing " + key + " for " + ident + ".");
             }
 
             // cache the connection
-            _conns.put(ident, conn);
+            conmap.idents.add(ident);
+            _idents.put(ident, conmap);
         }
 
-        return conn;
+        return conmap.connection;
     }
 
     // documentation inherited
@@ -182,20 +180,52 @@ public class StaticConnectionProvider implements ConnectionProvider
     public void connectionFailed (String ident, Connection conn,
                                   SQLException error)
     {
+        Mapping conmap = (Mapping)_idents.get(ident);
+        if (conmap == null) {
+            Log.warning("Unknown connection falied!? [ident=" + ident + "].");
+            return;
+        }
+
         // attempt to close the connection
         try {
-            conn.close();
+            conmap.connection.close();
         } catch (SQLException sqe) {
             Log.warning("Error closing failed connection [ident=" + ident +
                         ", error=" + sqe + "].");
         }
 
-        // and remove it from the cache
-        _conns.remove(ident);
+        // clear it from our mapping tables
+        for (int ii = 0; ii < conmap.idents.size(); ii++) {
+            _idents.remove(conmap.idents.get(ii));
+        }
+        _keys.remove(conmap.key);
     }
 
-    protected static String requireProp (Properties props,
-					 String name, String errmsg)
+    protected Connection openConnection (
+        String driver, String url, String username, String password)
+        throws PersistenceException
+    {
+        // load up the driver class
+        try {
+            Class.forName(driver);
+        } catch (Exception e) {
+            String err = "Error loading driver [class=" + driver + "].";
+            throw new PersistenceException(err, e);
+        }
+
+        // create the connection
+        try {
+            return DriverManager.getConnection(url, username, password);
+        } catch (SQLException sqe) {
+            String err = "Error creating database connection " +
+                "[driver=" + driver + ", url=" + url +
+                ", username=" + username + "].";
+            throw new PersistenceException(err, sqe);
+        }
+    }
+
+    protected static String requireProp (
+        Properties props, String name, String errmsg)
 	throws PersistenceException
     {
 	String value = props.getProperty(name);
@@ -207,11 +237,29 @@ public class StaticConnectionProvider implements ConnectionProvider
 	return value;
     }
 
+    /** Contains information on a particular connection to which any
+     * number of database identifiers can be mapped. */
+    protected static class Mapping
+    {
+        /** The combination of username and JDBC url that uniquely
+         * identifies our database connection. */
+        public String key;
+
+        /** The connection itself. */
+        public Connection connection;
+
+        /** The database identifiers that are mapped to this connection. */
+        public ArrayList idents = new ArrayList();
+    }
+
     /** Our configuration in the form of a properties object. */
     protected Properties _props;
 
-    /** Open database connections. */
-    protected HashMap _conns = new HashMap();
+    /** A mapping from database identifier to connection records. */
+    protected HashMap _idents = new HashMap();
+
+    /** A mapping from connection key to connection records. */
+    protected HashMap _keys = new HashMap();
 
     /** The key used as defaults for the database definitions. */
     protected static final String DEFAULTS_KEY = "default";

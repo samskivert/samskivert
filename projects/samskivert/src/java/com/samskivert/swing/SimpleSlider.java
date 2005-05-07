@@ -30,8 +30,10 @@ public class SimpleSlider extends JPanel
     public SimpleSlider (String label, int min, int max, int value)
     {
         setLayout(new HGroupLayout(HGroupLayout.STRETCH));
+        setOpaque(false);
         add(_label = new JLabel(label), HGroupLayout.FIXED);
         add(_slider = new JSlider(min, max, value));
+        _slider.setOpaque(false);
         _slider.addChangeListener(this);
         add(_value = new JLabel(Integer.toString(min)), HGroupLayout.FIXED);
     }

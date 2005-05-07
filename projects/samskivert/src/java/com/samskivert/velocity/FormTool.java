@@ -312,11 +312,19 @@ public class FormTool
      */
     public String radio (String name, String value)
     {
+        return radio(name, value, null);
+    }
+
+    /**
+     * Creates a radio button with the specified name and value.
+     */
+    public String radio (String name, String value, String defaultValue)
+    {
         StringBuffer buf = new StringBuffer();
         buf.append("<input type=\"radio\"");
         buf.append(" name=\"").append(name).append("\"");
         buf.append(" value=\"").append(value).append("\"");
-        String selectedValue = getValue(name, null);
+        String selectedValue = getValue(name, defaultValue);
         if (value.equals(selectedValue)) {
             buf.append(" checked");
         }

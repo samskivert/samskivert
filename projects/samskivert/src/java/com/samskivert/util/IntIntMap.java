@@ -80,13 +80,8 @@ public class IntIntMap
 
     public int get (int key)
     {
-	int index = Math.abs(key)%_buckets.length;
-	for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
-	    if (rec.key == key) {
-		return rec.value;
-	    }
-	}
-	return -1;
+        Record rec = locateRecord(key);
+        return (rec == null) ? -1 : rec.value;
     }
 
     /**
@@ -96,22 +91,31 @@ public class IntIntMap
      */
     public void increment (int key, int amount)
     {
-        if (contains(key)) {
-            put(key, get(key) + amount);
-        } else {
+        Record rec = locateRecord(key);
+        if (rec == null) {
             put(key, amount);
+        } else {
+            rec.value += amount;
         }
     }
 
     public boolean contains (int key)
     {
+        return (null != locateRecord(key));
+    }
+
+    /**
+     * Internal method to locate the record for the specified key.
+     */
+    protected Record locateRecord (int key)
+    {
 	int index = Math.abs(key)%_buckets.length;
 	for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
 	    if (rec.key == key) {
-		return true;
+                return rec;
 	    }
 	}
-	return false;
+        return null;
     }
 
     public int remove (int key)

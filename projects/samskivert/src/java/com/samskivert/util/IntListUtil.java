@@ -3,6 +3,8 @@
 
 package com.samskivert.util;
 
+import java.util.Arrays;
+
 /**
  * This class manages arrays of ints. Some of those routines mimic the
  * behavior of array lists, others provide other more specialized
@@ -433,6 +435,34 @@ public class IntListUtil
         }
 
         return mins;
+    }
+
+    /**
+     * Normalizes an array of integers from the bounding [min,max] to
+     * [0.0, 1.0]. If min == max, all elements in the returned array
+     * will be 0.5.
+     */
+    public static float[] normalize (int[] values)
+    {
+        // Allocate storage for the normalized array
+        float[] normalized = new float[values.length];
+
+        // Determine the minimum and maximum
+        int min = getMinValue(values);
+        int max = getMaxValue(values);
+        int spread = max - min;
+
+        // If there is no spread, return a flat normalization
+        if (spread == 0) {
+            Arrays.fill(normalized, 0.5f);
+            return normalized;
+        }
+
+        // Normalize each value in the input array
+        for (int i = 0; i < values.length; i++) {
+            normalized[i] = (values[i] - min) / (float) spread;
+        }
+        return normalized;
     }
 
     /**

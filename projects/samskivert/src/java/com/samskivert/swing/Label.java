@@ -124,6 +124,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         } else {
             return false;
         }
+        _layouts = null;
         return true;
     }
 
@@ -134,6 +135,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setFont (Font font)
     {
         _font = font;
+        _layouts = null;
     }
 
     /**
@@ -152,6 +154,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setTextColor (Color color)
     {
         _textColor = color;
+        _layouts = null;
     }
 
     /**
@@ -172,6 +175,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setAlternateColor (Color color)
     {
         _alternateColor = color;
+        _layouts = null;
     }
 
     /**
@@ -191,6 +195,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setAlignment (int align)
     {
         _align = align;
+        _layouts = null;
     }
 
     /**
@@ -201,6 +206,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setStyle (int style)
     {
         _style = style;
+        _layouts = null;
     }
 
     /**
@@ -213,6 +219,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         // use -1 as an indicator that we should be golden
         _constraints.width = -1;
         _constraints.height = -1;
+        _layouts = null;
     }
 
     /**
@@ -230,6 +237,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         }
         _constraints.width = targetWidth;
         _constraints.height = 0;
+        _layouts = null;
     }
 
     /**
@@ -249,6 +257,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         }
         _constraints.width = 0;
         _constraints.height = targetHeight;
+        _layouts = null;
     }
 
     /**
@@ -460,8 +469,8 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         // nothing to do if we haven't been laid out
         if (_layouts == null) {
-            Log.warning("Label requested to render prior to a call " +
-                        "to layout() [text=" + _text + "].");
+            Log.warning("Unlaid-out label asked to render " +
+                        "[text=" + _text + "].");
             return;
         }
 

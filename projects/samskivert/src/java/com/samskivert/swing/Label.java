@@ -104,10 +104,11 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Sets the text to be displayed by this label. This should be
-     * followed eventually by a call to {@link #layout} and ultimately
-     * {@link #render} to render the text. Simply setting the text does
-     * not cause any layout to occur.
+     * Sets the text to be displayed by this label.
+     *
+     * <p> This should be followed by a call to {@link #layout} before a
+     * call is made to {@link #render} as this method invalidates the
+     * layout information.
      *
      * @return true if the text changed as a result of being set, false if
      * the label was already displaying the requested text.
@@ -124,18 +125,22 @@ public class Label implements SwingConstants, LabelStyleConstants
         } else {
             return false;
         }
-        _layouts = null;
+        invalidate("setText");
         return true;
     }
 
     /**
      * Sets the font to be used by this label. If the font is not set, the
      * current font of the graphics context will be used.
+     *
+     * <p> This should be followed by a call to {@link #layout} before a
+     * call is made to {@link #render} as this method invalidates the
+     * layout information.
      */
     public void setFont (Font font)
     {
         _font = font;
-        _layouts = null;
+        invalidate("setFont");
     }
 
     /**
@@ -189,35 +194,47 @@ public class Label implements SwingConstants, LabelStyleConstants
      * SwingConstants#LEFT}, {@link SwingConstants#RIGHT}, or {@link
      * SwingConstants#CENTER}. The default alignment is selected to be
      * appropriate for the locale of the text being rendered.
+     * 
+     * <p> This should be followed by a call to {@link #layout} before a
+     * call is made to {@link #render} as this method invalidates the
+     * layout information.
      */
     public void setAlignment (int align)
     {
         _align = align;
-        _layouts = null;
+        invalidate("setAlignment");
     }
 
     /**
      * Sets the style of the text within the label to one of the styles
      * defined in {@link LabelStyleConstants}. Some styles can be combined
      * together into a mask, ie. <code>BOLD|UNDERLINE</code>.
+     *
+     * <p> This should be followed by a call to {@link #layout} before a
+     * call is made to {@link #render} as this method invalidates the
+     * layout information.
      */
     public void setStyle (int style)
     {
         _style = style;
-        _layouts = null;
+        invalidate("setStyle");
     }
 
     /**
      * Instructs the label to attempt to achieve a balance between width
      * and height that approximates the golden ratio (width ~1.618 times
      * height).
+     *
+     * <p> This should be followed by a call to {@link #layout} before a
+     * call is made to {@link #render} as this method invalidates the
+     * layout information.
      */
     public void setGoldenLayout ()
     {
         // use -1 as an indicator that we should be golden
         _constraints.width = -1;
         _constraints.height = -1;
-        _layouts = null;
+        invalidate("setGoldenLayout");
     }
 
     /**
@@ -226,6 +243,10 @@ public class Label implements SwingConstants, LabelStyleConstants
      * a single word is too long to fit into the target width. Calling
      * this method will annul any previously established target height as
      * we must have one degree of freedom in which to maneuver.
+     *
+     * <p> This should be followed by a call to {@link #layout} before a
+     * call is made to {@link #render} as this method invalidates the
+     * layout information.
      */
     public void setTargetWidth (int targetWidth)
     {
@@ -235,7 +256,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         }
         _constraints.width = targetWidth;
         _constraints.height = 0;
-        _layouts = null;
+        invalidate("setTargetWidth");
     }
 
     /**
@@ -246,6 +267,10 @@ public class Label implements SwingConstants, LabelStyleConstants
      * target height, we simply render ourselves anyway. Calling this
      * method will annul any previously established target width as we
      * must have one degree of freedom in which to maneuver.
+     *
+     * <p> This should be followed by a call to {@link #layout} before a
+     * call is made to {@link #render} as this method invalidates the
+     * layout information.
      */
     public void setTargetHeight (int targetHeight)
     {
@@ -255,7 +280,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         }
         _constraints.width = 0;
         _constraints.height = targetHeight;
-        _layouts = null;
+        invalidate("setTargetHeight");
     }
 
     /**
@@ -467,8 +492,10 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         // nothing to do if we haven't been laid out
         if (_layouts == null) {
-            Log.warning("Unlaid-out label asked to render " +
-                        "[text=" + _text + "].");
+            Log.warning(hashCode() + " Unlaid-out label asked to render " +
+                        "[text=" + _text +
+//                         ", last=" + _invalidator +
+                        "].");
             return;
         }
 
@@ -606,6 +633,16 @@ public class Label implements SwingConstants, LabelStyleConstants
         return height;
     }
 
+    /**
+     * Called when the label is changed in such a way that it must be
+     * relaid out before again being rendered.
+     */
+    protected void invalidate (String where)
+    {
+        _layouts = null;
+//         _invalidator = where;
+    }
+
     /** The text of the label. */
     protected String _text;
 
@@ -647,6 +684,9 @@ public class Label implements SwingConstants, LabelStyleConstants
     /** The color in which to render the text or null if the text should
      * be rendered with the graphics context color. */
     protected Color _textColor = null;
+
+//     /** Used for debugging. */
+//     protected String _invalidator;
 
     /** An approximation of the golden ratio. */
     protected static final double GOLDEN_RATIO = 1.618034;

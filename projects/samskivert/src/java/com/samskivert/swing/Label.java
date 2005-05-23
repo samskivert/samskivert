@@ -154,7 +154,6 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setTextColor (Color color)
     {
         _textColor = color;
-        _layouts = null;
     }
 
     /**
@@ -175,7 +174,6 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setAlternateColor (Color color)
     {
         _alternateColor = color;
-        _layouts = null;
     }
 
     /**

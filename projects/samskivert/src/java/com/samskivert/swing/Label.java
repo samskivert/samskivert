@@ -202,7 +202,6 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void setAlignment (int align)
     {
         _align = align;
-        invalidate("setAlignment");
     }
 
     /**

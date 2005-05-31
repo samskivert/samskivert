@@ -112,7 +112,15 @@ public class StringTool
     {
         return StringUtil.restrictHTML(text);
     }
-    
+
+    /**
+     * Joins the supplied strings with the given separator.
+     */
+    public static String join (String[] values, String sep)
+    {
+        return StringUtil.join(values, sep);
+    }
+
     /** For formatting percentages. */
     protected NumberFormat _percFormat;
 }

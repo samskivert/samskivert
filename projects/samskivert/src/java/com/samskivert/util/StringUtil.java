@@ -189,6 +189,10 @@ public class StringUtil
      */
     public static String restrictHTML (String src, String[] regexes)
     {
+        if (blank(src)) {
+            return src;
+        }
+
         ArrayList list = new ArrayList();
         list.add(src);
         for (int ii=0, nn = regexes.length; ii < nn; ii++) {

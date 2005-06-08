@@ -198,26 +198,26 @@ public class SimpleRepository extends Repository
     }
 
     /**
-     * Executes the supplied update query in this repository, ignoring the
-     * return value.
+     * Executes the supplied update query in this repository, returning
+     * the number of rows modified.
      */
-    protected void update (final String query)
+    protected int update (final String query)
         throws PersistenceException
     {
-        execute(new Operation() {
+        Integer rv = (Integer)execute(new Operation() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 Statement stmt = null;
                 try {
                     stmt = conn.createStatement();
-                    stmt.executeUpdate(query);
+                    return new Integer(stmt.executeUpdate(query));
                 } finally {
                     JDBCUtil.close(stmt);
                 }
-                return null;
             }
         });
+        return rv.intValue();
     }
 
     /**

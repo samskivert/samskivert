@@ -198,6 +198,53 @@ public class SimpleRepository extends Repository
     }
 
     /**
+     * Executes the supplied update query in this repository, ignoring the
+     * return value.
+     */
+    protected void update (final String query)
+        throws PersistenceException
+    {
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                Statement stmt = null;
+                try {
+                    stmt = conn.createStatement();
+                    stmt.executeUpdate(query);
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Executes the supplied update query in this repository, throwing an
+     * exception if the modification count is not equal to the specified
+     * count.
+     */
+    protected void checkedUpdate (final String query, final int count)
+        throws PersistenceException
+    {
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                Statement stmt = null;
+                try {
+                    stmt = conn.createStatement();
+                    JDBCUtil.checkedUpdate(stmt, query, 1);
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
      * Called when we fetch a connection from the provider. This gives
      * derived classes an opportunity to configure whatever internals they
      * might be using with the connection that was fetched.

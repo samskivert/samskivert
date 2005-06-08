@@ -54,6 +54,77 @@ public abstract class JORARepository extends SimpleRepository
     }
 
     /**
+     * Inserts the supplied object into the specified table. The table
+     * must be configured to store items of the supplied type.
+     */
+    protected void insert (final Table table, final Object object)
+        throws PersistenceException
+    {
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                table.insert(object);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Updates the supplied object in the specified table. The table must
+     * be configured to store items of the supplied type.
+     */
+    protected void update (final Table table, final Object object)
+        throws PersistenceException
+    {
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                table.update(object);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Loads a single object from the specified table that matches the
+     * supplied query. <em>Note:</em> the query should match one or zero
+     * records, not more.
+     */
+    protected Object load (final Table table, final String query)
+        throws PersistenceException
+    {
+        return execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                return table.select(query).next();
+            }
+        });
+    }
+
+    /**
+     * First attempts to update the supplied object and if that modifies
+     * zero rows, inserts the object into the specified table. The table
+     * must be configured to store items of the supplied type.
+     */
+    protected void store (final Table table, final Object object)
+        throws PersistenceException
+    {
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                if (table.update(object) == 0) {
+                    table.insert(object);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
      * Updates the specified field in the supplied object (which must
      * correspond to the supplied table).
      */
@@ -90,6 +161,19 @@ public abstract class JORARepository extends SimpleRepository
                 throws SQLException, PersistenceException
             {
                 table.update(object, mask);
+                return null;
+            }
+        });
+    }
+
+    protected void delete (final Table table, final Object object)
+        throws PersistenceException
+    {
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                table.delete(object);
                 return null;
             }
         });

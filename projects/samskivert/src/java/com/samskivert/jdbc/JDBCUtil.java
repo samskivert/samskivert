@@ -128,6 +128,15 @@ public class JDBCUtil
     }
 
     /**
+     * Escapes any single quotes in the supplied text and wraps it in
+     * single quotes to make it safe for embedding into a database query.
+     */
+    public static String escape (String text)
+    {
+        return "'" + StringUtil.replace(text, "'", "\\'") + ",";
+    }
+
+    /**
      * Many databases simply fail to handle Unicode text properly and this
      * routine provides a common workaround which is to represent a UTF-8
      * string as an ISO-8895-1 string. If you don't need to use the

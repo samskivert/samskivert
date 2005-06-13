@@ -128,27 +128,13 @@ public class Invoker extends LoopingThread
         }
 
         try {
+            willInvokeUnit(unit, start);
             if (unit.invoke()) {
                 // if it returned true, we post it to the receiver thread
                 // to invoke the result processing
                 _receiver.postRunnable(unit);
             }
-
-            // track some performance metrics
-            if (PERF_TRACK) {
-                long duration = System.currentTimeMillis() - start;
-                Object key = unit.getClass();
-                recordMetrics(key, duration);
-
-                // report long runners
-                if (duration > 5000L) {
-                    Log.warning("Invoker unit ran for '" + duration + "ms: " +
-                                unit + "' (" + key + ").");
-                } else if (duration > 500L) {
-                    Log.info("Invoker unit ran for '" + duration + "ms: " +
-                             unit + "' (" + key + ").");
-                }
-            }
+            didInvokeUnit(unit, start);
 
         } catch (Throwable t) {
             Log.warning("Invocation unit failed [unit=" + unit + "].");
@@ -168,6 +154,43 @@ public class Invoker extends LoopingThread
                 return false;
             }
         });
+    }
+
+    /**
+     * Called before we process an invoker unit.
+     *
+     * @param unit the unit about to be invoked.
+     * @param start a timestamp recorded immediately before invocation if
+     * {@link #PERF_TRACK} is enabled, 0L otherwise.
+     */
+    protected void willInvokeUnit (Unit unit, long start)
+    {
+    }
+
+    /**
+     * Called before we process an invoker unit.
+     *
+     * @param unit the unit about to be invoked.
+     * @param start a timestamp recorded immediately before invocation if
+     * {@link #PERF_TRACK} is enabled, 0L otherwise.
+     */
+    protected void didInvokeUnit (Unit unit, long start)
+    {
+        // track some performance metrics
+        if (PERF_TRACK) {
+            long duration = System.currentTimeMillis() - start;
+            Object key = unit.getClass();
+            recordMetrics(key, duration);
+
+            // report long runners
+            if (duration > 5000L) {
+                Log.warning("Invoker unit ran for '" + duration + "ms: " +
+                            unit + "' (" + key + ").");
+            } else if (duration > 500L) {
+                Log.info("Invoker unit ran for '" + duration + "ms: " +
+                         unit + "' (" + key + ").");
+            }
+        }
     }
 
     protected void recordMetrics (Object key, long duration)

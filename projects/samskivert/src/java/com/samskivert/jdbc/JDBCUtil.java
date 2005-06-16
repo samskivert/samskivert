@@ -133,7 +133,7 @@ public class JDBCUtil
      */
     public static String escape (String text)
     {
-        return "'" + StringUtil.replace(text, "'", "\\'") + ",";
+        return "'" + StringUtil.replace(text, "'", "\\'") + "'";
     }
 
     /**

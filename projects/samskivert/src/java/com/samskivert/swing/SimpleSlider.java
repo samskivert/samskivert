@@ -3,6 +3,7 @@
 
 package com.samskivert.swing;
 
+import java.awt.BorderLayout;
 import java.awt.Font;
 
 import javax.swing.JLabel;
@@ -11,6 +12,8 @@ import javax.swing.JSlider;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * Displays a slider with a label on the left explaining what the slider
@@ -29,13 +32,14 @@ public class SimpleSlider extends JPanel
      */
     public SimpleSlider (String label, int min, int max, int value)
     {
-        setLayout(new HGroupLayout(HGroupLayout.STRETCH));
+        super(new BorderLayout());
         setOpaque(false);
-        add(_label = new JLabel(label), HGroupLayout.FIXED);
-        add(_slider = new JSlider(min, max, value));
+        add(_label = new JLabel(), BorderLayout.WEST);
+        setLabel(label);
+        add(_slider = new JSlider(min, max, value), BorderLayout.CENTER);
         _slider.setOpaque(false);
         _slider.addChangeListener(this);
-        add(_value = new JLabel(Integer.toString(min)), HGroupLayout.FIXED);
+        add(_value = new JLabel(Integer.toString(value)), BorderLayout.EAST);
     }
 
     /**
@@ -73,6 +77,7 @@ public class SimpleSlider extends JPanel
     public void setLabel (String label)
     {
         _label.setText(label);
+        _label.setVisible(!StringUtil.blank(label));
     }
 
     /**

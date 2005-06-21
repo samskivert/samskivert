@@ -68,6 +68,7 @@ import com.samskivert.swing.event.CommandEvent;
  * the controllers.
  */
 public abstract class Controller
+    implements ActionListener
 {
     /**
      * This action listener can be wired up to any action event generator
@@ -265,6 +266,12 @@ public abstract class Controller
     public boolean handleAction (Component source, String command, Object arg)
     {
         return handleAction(new CommandEvent(source, command, arg));
+    }
+
+    // documentation inherited from interface ActionListener
+    public void actionPerformed (ActionEvent event)
+    {
+        handleAction(event);
     }
 
     /**

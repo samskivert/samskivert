@@ -40,14 +40,6 @@ public class RunAnywhere
     {
         return _isLinux;
     }
-    
-    /**
-     * Returns the string value of the OS version reported by the JVM 
-     */
-    public static final String getOSVersion ()
-    {
-        return _osversion;
-    }
 
     /**
      * Returns {@link System#currentTimeMillis}, but works around a bug on
@@ -99,9 +91,6 @@ public class RunAnywhere
     /** Flag indicating that we're on Linux; initialized when this class
      * is first loaded. */
     protected static boolean _isLinux;
-    
-    /** The version number that our OS reports */
-    protected static String _osversion;
 
     /** Used to ensure that the timer is sane. */
     protected static long _lastStamp, _lastWarning;
@@ -114,8 +103,6 @@ public class RunAnywhere
             _isMacOS = (osname.indexOf("Mac OS") != -1 ||
                         osname.indexOf("MacOS") != -1);
             _isLinux = (osname.indexOf("Linux") != -1);
-            
-            _osversion = System.getProperty("os.version"); 
         } catch (Exception e) {
             // dang, can't grab system properties; we'll just pretend
             // we're not on any of these OSes

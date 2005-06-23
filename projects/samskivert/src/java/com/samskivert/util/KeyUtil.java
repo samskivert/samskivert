@@ -79,14 +79,6 @@ public class KeyUtil
         return (rem == 0 ? prekey : key + (10 - rem));
     }
 
-    public static void main (String[] args) {
-
-      String base = "888888888888888888"; 
-      for (int ii = 0; ii < 10; ii++) {
-        System.out.println(makeLuhnVerifiable(base + ii));
-      }
-    }
-
     /**
      * Return the luhn remainder for the given key.
      *
@@ -106,6 +98,14 @@ public class KeyUtil
         }
 
         return sum % 10;
+    }
+
+    public static void main (String[] args)
+    {
+        String base = "888888888888888888"; 
+        for (int ii = 0; ii < 10; ii++) {
+            System.out.println(makeLuhnVerifiable(base + ii));
+        }
     }
 
     /** Characters used in creating key strings. */

@@ -183,12 +183,10 @@ public class Invoker extends LoopingThread
             recordMetrics(key, duration);
 
             // report long runners
-            if (duration > 5000L) {
-                Log.warning("Really long invoker unit [unit=" + unit +
-                            " (" + key + "), time=" + duration + "ms].");
-            } else if (duration > 500L) {
-                Log.info("Long invoker unit [unit=" + unit +
-                         " (" + key + "), time=" + duration + "ms].");
+            if (duration > 500L) {
+                Log.warning(((duration >= 5000L) ? "Really long" : "Long") +
+                    " invoker unit [unit=" + unit +
+                    " (" + key + "), time=" + duration + "ms].");
             }
         }
     }

@@ -168,7 +168,8 @@ public class MessageManager
 
         if (reportMissing) {
             // if there's no translation for this path, complain about it
-            Log.warning("Missing translation message [path=" + path + "].");
+            Log.warning("Missing translation message [path=" + path +
+                        ", url=" + req.getRequestURL() + "].");
             return path;
         }
 

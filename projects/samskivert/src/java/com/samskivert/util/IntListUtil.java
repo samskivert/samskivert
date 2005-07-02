@@ -440,7 +440,7 @@ public class IntListUtil
     /**
      * Normalizes an array of integers from the bounding [min,max] to
      * [0.0, 1.0]. If min == max, all elements in the returned array
-     * will be 0.5.
+     * will be 1f.
      */
     public static float[] normalize (int[] values)
     {
@@ -454,7 +454,7 @@ public class IntListUtil
 
         // If there is no spread, return a flat normalization
         if (spread == 0) {
-            Arrays.fill(normalized, 0.5f);
+            Arrays.fill(normalized, 1f);
             return normalized;
         }
 

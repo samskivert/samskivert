@@ -46,10 +46,11 @@ public class MessageManager
      *
      * @see java.util.ResourceBundle
      */
-    public MessageManager (String bundlePath)
+    public MessageManager (String bundlePath, Locale deflocale)
     {
-        // keep this for later
+        // keep these for later
         _bundlePath = bundlePath;
+        _deflocale = deflocale;
     }
 
     /**
@@ -169,7 +170,7 @@ public class MessageManager
         if (reportMissing) {
             // if there's no translation for this path, complain about it
             Log.warning("Missing translation message [path=" + path +
-                        ", url=" + req.getRequestURL() + "].");
+                        ", url=" + getURL(req) + "].");
             return path;
         }
 
@@ -184,8 +185,10 @@ public class MessageManager
     {
         // first look to see if we've cached the bundles for this request
         // in the request object
-        ResourceBundle[] bundles = (ResourceBundle[])
-            req.getAttribute(BUNDLE_CACHE_NAME);
+        ResourceBundle[] bundles = null;
+        if (req != null) {
+            bundles = (ResourceBundle[])req.getAttribute(BUNDLE_CACHE_NAME);
+        }
         if (bundles != null) {
             return bundles;
         }
@@ -216,7 +219,7 @@ public class MessageManager
                                    getClass().getClassLoader());
 
         // if we found either or both bundles, cache 'em
-        if (bundles[0] != null || bundles[1] != null) {
+        if (bundles[0] != null || bundles[1] != null && req != null) {
             req.setAttribute(BUNDLE_CACHE_NAME, bundles);
         }
 
@@ -231,31 +234,33 @@ public class MessageManager
         HttpServletRequest req, String bundlePath, ClassLoader loader)
     {
         ResourceBundle bundle = null;
-        Enumeration locales = req.getLocales();
 
-        while (locales.hasMoreElements()) {
-            Locale locale = (Locale)locales.nextElement();
+        if (req != null) {
+            Enumeration locales = req.getLocales();
+            while (locales.hasMoreElements()) {
+                Locale locale = (Locale)locales.nextElement();
 
-            try {
-                // java caches resource bundles, so we don't need to
-                // reinvent the wheel here. however, java also falls back
-                // from a specific bundle to a more general one if it
-                // can't find a specific bundle. that's real nice of it,
-                // but we want first to see whether or not we have exact
-                // matches on any of the preferred locales specified by
-                // the client. if we don't, then we can rely on java's
-                // fallback mechanisms
-                bundle = ResourceBundle.getBundle(
-                    bundlePath, locale, loader);
+                try {
+                    // java caches resource bundles, so we don't need to
+                    // reinvent the wheel here. however, java also falls back
+                    // from a specific bundle to a more general one if it
+                    // can't find a specific bundle. that's real nice of it,
+                    // but we want first to see whether or not we have exact
+                    // matches on any of the preferred locales specified by
+                    // the client. if we don't, then we can rely on java's
+                    // fallback mechanisms
+                    bundle = ResourceBundle.getBundle(
+                        bundlePath, locale, loader);
 
-                // if it's an exact match, off we go
-                if (bundle.getLocale().equals(locale)) {
-                    break;
+                    // if it's an exact match, off we go
+                    if (bundle.getLocale().equals(locale)) {
+                        break;
+                    }
+
+                } catch (MissingResourceException mre) {
+                    // no need to freak out quite yet, see if we have
+                    // something for one of the other preferred locales
                 }
-
-            } catch (MissingResourceException mre) {
-                // no need to freak out quite yet, see if we have
-                // something for one of the other preferred locales
             }
         }
 
@@ -263,25 +268,28 @@ public class MessageManager
         // preferred locales, take their most preferred and let java
         // perform it's fallback logic on that one
         if (bundle == null) {
+            Locale locale = (req == null) ? _deflocale : req.getLocale();
             try {
-                bundle = ResourceBundle.getBundle(
-                    bundlePath, req.getLocale(), loader);
-
+                bundle = ResourceBundle.getBundle(bundlePath, locale, loader);
             } catch (MissingResourceException mre) {
                 // if we were unable even to find a default bundle, we've
                 // got real problems. time to freak out
                 Log.warning("Unable to resolve any message bundle " +
-                            "[req=" + req.getRequestURI() +
-                            ", locale=" + req.getLocale() +
+                            "[req=" + getURL(req) + ", locale=" + locale +
                             ", bundlePath=" + bundlePath +
                             ", classLoader=" + loader +
                             ", siteBundlePath=" + _siteBundlePath +
-                            ", siteLoader=" + _siteLoader +
-                            "].");
+                            ", siteLoader=" + _siteLoader + "].");
             }
         }
 
         return bundle;
+    }
+
+    /** Helper function. */
+    protected String getURL (HttpServletRequest req)
+    {
+        return (req == null) ? "<none>" : req.getRequestURL().toString();
     }
 
     /** The path, relative to the classpath, to our resource bundles. */
@@ -298,6 +306,9 @@ public class MessageManager
     /** The site identifier we use to determine through which site a
      * request was made. */
     protected SiteIdentifier _siteIdent;
+
+    /** The locale to use if we are accessed without an HTTP request. */
+    protected Locale _deflocale;
 
     /** The attribute name that we use for caching resource bundles in
      * request objects. */

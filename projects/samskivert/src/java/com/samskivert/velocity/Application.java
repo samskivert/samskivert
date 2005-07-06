@@ -102,7 +102,7 @@ public class Application
         // instantiate our message manager if the application wants one
         String bundlePath = getInitParameter(config, MESSAGE_BUNDLE_PATH_KEY);
         if (!StringUtil.blank(bundlePath)) {
-            _msgmgr = new MessageManager(bundlePath);
+            _msgmgr = new MessageManager(bundlePath, null);
         }
 
         // if we have a site-specific resource loader, configure the

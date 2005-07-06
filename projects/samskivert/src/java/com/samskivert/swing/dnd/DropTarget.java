@@ -3,6 +3,8 @@
 
 package com.samskivert.swing.dnd;
 
+import java.awt.Point;
+
 /**
  * A drop target is associated with a component and represents a valid
  * place to end a drag and drop.
@@ -29,5 +31,5 @@ public interface DropTarget
     /**
      * Called when the drop is actually executed.
      */
-    public void dropCompleted (DragSource source, Object data);
+    public void dropCompleted (DragSource source, Object data, Point pos);
 }

@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import javax.swing.event.AncestorEvent;
@@ -431,13 +432,17 @@ public class DnDManager
                 return;
             }
 
+            // determine drop location
+            Point pos = SwingUtilities.convertPoint(event.getComponent(),
+                event.getPoint(), _lastComp);
+            
             // reset cursors
             clearComponentCursor();
             _topComp.setCursor(_topCursor);
 
             // get the last target seen...
             if (_lastTarget != null) {
-                _lastTarget.dropCompleted(_source, _data[0]);
+                _lastTarget.dropCompleted(_source, _data[0], pos);
                 _source.dragCompleted(_lastTarget);
             }
             reset();

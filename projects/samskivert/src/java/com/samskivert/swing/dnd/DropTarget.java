@@ -30,6 +30,8 @@ public interface DropTarget
 
     /**
      * Called when the drop is actually executed.
+     *
+     * @param pos the location of the drop in screen coordinates
      */
     public void dropCompleted (DragSource source, Object data, Point pos);
 }

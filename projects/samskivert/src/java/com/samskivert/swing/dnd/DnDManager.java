@@ -432,8 +432,6 @@ public class DnDManager
                 return;
             }
 
-            Component lastComp = _lastComp;
-
             // reset cursors
             clearComponentCursor(); // _lastComp cleared here
             _topComp.setCursor(_topCursor);
@@ -441,8 +439,8 @@ public class DnDManager
             // get the last target seen...
             if (_lastTarget != null) {
                 // determine drop location
-                Point pos = SwingUtilities.convertPoint(event.getComponent(),
-                    event.getPoint(), lastComp);
+                Point pos = event.getPoint();
+                SwingUtilities.convertPointToScreen(pos, event.getComponent());
                 _lastTarget.dropCompleted(_source, _data[0], pos);
                 _source.dragCompleted(_lastTarget);
             }

@@ -41,6 +41,19 @@ public class SimpleRepository extends Repository
     }
 
     /**
+     * Configures an operation that will be invoked prior to the execution
+     * of every database operation to validate whether some pre-condition
+     * is met. This mainly exists for systems that wish to ensure that all
+     * database operations take place on a particular thread (or not on a
+     * particular thread) as database operations are generally slow and
+     * blocking.
+     */
+    public static void setExecutePreCondition (PreCondition condition)
+    {
+        _precond = condition;
+    }
+
+    /**
      * Creates and initializes a simple repository which will access the
      * database identified by the supplied database identifier.
      *
@@ -245,6 +258,45 @@ public class SimpleRepository extends Repository
     }
 
     /**
+     * Instructs MySQL to perform table maintenance on the specified
+     * table.
+     *
+     * @param action <code>analyze</code> recomputes the distribution of
+     * the keys for the specified table. This can help certain joins to be
+     * performed more efficiently. <code>optimize</code> instructs MySQL
+     * to coalesce fragmented records and reclaim space left by deleted
+     * records. This can improve a tables efficiency but can take a long
+     * time to run on large tables.
+     */
+    protected void maintenance (final String action, final String table)
+        throws PersistenceException
+    {
+        execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                Statement stmt = null;
+                try {
+                    stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(action + " table " + table);
+                    while (rs.next()) {
+                        String result = rs.getString("Msg_text");
+                        if (result == null ||
+                            result.indexOf("up to date") == -1) {
+                            Log.info("Table maintenance [" +
+                                     SimpleRepository.toString(rs) + "].");
+                        }
+                    }
+
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
      * Called when we fetch a connection from the provider. This gives
      * derived classes an opportunity to configure whatever internals they
      * might be using with the connection that was fetched.
@@ -254,16 +306,23 @@ public class SimpleRepository extends Repository
     }
 
     /**
-     * Configures an operation that will be invoked prior to the execution
-     * of every database operation to validate whether some pre-condition
-     * is met. This mainly exists for systems that wish to ensure that all
-     * database operations take place on a particular thread (or not on a
-     * particular thread) as database operations are generally slow and
-     * blocking.
+     * Converts a row of a result set to a string, prepending each column
+     * with the column name from the result set metadata.
      */
-    public static void setExecutePreCondition (PreCondition condition)
+    protected static String toString (ResultSet rs)
+        throws SQLException
     {
-        _precond = condition;
+        ResultSetMetaData md = rs.getMetaData();
+        int ccount = md.getColumnCount();
+        StringBuffer buf = new StringBuffer();
+        for (int ii = 1; ii <= ccount; ii++) {
+            if (buf.length() > 0) {
+                buf.append(", ");
+            }
+            buf.append(md.getColumnName(ii)).append("=");
+            buf.append(rs.getObject(ii));
+        }
+        return buf.toString();
     }
 
     protected String _dbident;

@@ -278,11 +278,13 @@ public class SimpleRepository extends Repository
                 Statement stmt = null;
                 try {
                     stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery(action + " table " + table);
+                    ResultSet rs = stmt.executeQuery(
+                        action + " table " + table);
                     while (rs.next()) {
                         String result = rs.getString("Msg_text");
                         if (result == null ||
-                            result.indexOf("up to date") == -1) {
+                            result.indexOf("up to date") == -1 &&
+                            !result.equals("OK")) {
                             Log.info("Table maintenance [" +
                                      SimpleRepository.toString(rs) + "].");
                         }

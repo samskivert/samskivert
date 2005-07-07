@@ -173,6 +173,14 @@ public class Table {
         return new Cursor(this, session, 1, query);
     }
 
+    /** Like {@link #join} but does a straight join with the specified
+     * table. */
+    public final Cursor straightJoin(String table, String condition) {
+	String query = "select " + listOfFields +
+	    " from " + name + " straight_join " + table + " " + condition;
+        return new Cursor(this, session, 1, query);
+    }
+
     /** Select records from database table according to search condition
      *
      * @param condition valid SQL condition expression started with WHERE

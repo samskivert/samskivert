@@ -117,7 +117,10 @@ public class Throttle
     {
         // if the oldest operation was performed less than _period ago, we
         // need to throttle
-        return (timeStamp - _ops[_lastOp]) < _period;
+        long elapsed = timeStamp - _ops[_lastOp];
+        // if negative time elapsed, we must be running on windows.
+        // Let's just cope by not throttling.
+        return (elapsed >= 0 && elapsed < _period);
     }
 
     /**

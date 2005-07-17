@@ -41,7 +41,7 @@ public class ScaledIcon implements Icon
     {
         this(icon,
             Math.min(1f, Math.min(maxWidth / (float) icon.getIconWidth(),
-                                  maxHeight / (float) icon.getIconHeight()));
+                                  maxHeight / (float) icon.getIconHeight())));
     }
 
     // documentation inherited from interface Icon

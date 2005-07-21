@@ -130,10 +130,8 @@ public class ServiceWaiter
                 }
 
                 // if we get here without some sort of response, then
-                // we've timed out and we should freak out
+                // we've timed out
                 if (_success == 0) {
-                    Log.warning("Service waiter timed out.");
-                    Thread.dumpStack();
                     throw new TimeoutException();
                 }
 

@@ -57,17 +57,18 @@ public abstract class JORARepository extends SimpleRepository
      * Inserts the supplied object into the specified table. The table
      * must be configured to store items of the supplied type.
      */
-    protected void insert (final Table table, final Object object)
+    protected int insert (final Table table, final Object object)
         throws PersistenceException
     {
-        execute(new Operation() {
+        Integer iid = (Integer)execute(new Operation() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 table.insert(object);
-                return null;
+                return new Integer(liaison.lastInsertedId(conn));
             }
         });
+        return iid.intValue();
     }
 
     /**

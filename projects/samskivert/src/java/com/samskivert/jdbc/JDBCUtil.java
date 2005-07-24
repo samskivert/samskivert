@@ -137,6 +137,22 @@ public class JDBCUtil
     }
 
     /**
+     * Escapes a list of values, separating the escaped values by
+     * commas. See {@link #escape(String)}.
+     */
+    public static String escape (Object[] values)
+    {
+        StringBuffer buf = new StringBuffer();
+        for (int ii = 0; ii < values.length; ii++) {
+            if (ii > 0) {
+                buf.append(", ");
+            }
+            buf.append(escape(String.valueOf(values[ii])));
+        }
+        return buf.toString();
+    }
+
+    /**
      * Many databases simply fail to handle Unicode text properly and this
      * routine provides a common workaround which is to represent a UTF-8
      * string as an ISO-8895-1 string. If you don't need to use the

@@ -123,6 +123,24 @@ public abstract class JORARepository extends SimpleRepository
     }
 
     /**
+     * Loads a single object from the specified table that matches the
+     * supplied example. <em>Note:</em> the query should match one or zero
+     * records, not more.
+     */
+    protected Object loadByExample (
+        final Table table, final FieldMask mask, final Object example)
+        throws PersistenceException
+    {
+        return execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                return table.queryByExample(example, mask).next();
+            }
+        });
+    }
+
+    /**
      * First attempts to update the supplied object and if that modifies
      * zero rows, inserts the object into the specified table. The table
      * must be configured to store items of the supplied type.

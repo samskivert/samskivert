@@ -182,7 +182,7 @@ public class StaticConnectionProvider implements ConnectionProvider
     {
         Mapping conmap = (Mapping)_idents.get(ident);
         if (conmap == null) {
-            Log.warning("Unknown connection falied!? [ident=" + ident + "].");
+            Log.warning("Unknown connection failed!? [ident=" + ident + "].");
             return;
         }
 

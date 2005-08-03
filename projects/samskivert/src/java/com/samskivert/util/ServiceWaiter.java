@@ -73,7 +73,7 @@ public class ServiceWaiter
     /**
      * Reset the service waiter so that it can be used again.
      */
-    public void reset ()
+    public synchronized void reset ()
     {
         _success = 0;
         _argument = null;
@@ -116,27 +116,31 @@ public class ServiceWaiter
      * @return true if a success response was posted, false if a failure
      * repsonse was posted.
      */
-    public synchronized boolean waitForResponse ()
+    public boolean waitForResponse ()
         throws TimeoutException
     {
-        while (_success == 0) {
-            try {
-                // wait for the response, timing out after a while
-                if (_timeout == NO_TIMEOUT) {
-                    wait();
+        if (_success == 0) {
+            synchronized (this) {
+                while (_success == 0) {
+                    try {
+                        // wait for the response, timing out after a while
+                        if (_timeout == NO_TIMEOUT) {
+                            wait();
 
-                } else {
-                    wait(1000L * _timeout);
+                        } else {
+                            wait(1000L * _timeout);
+                        }
+
+                        // if we get here without some sort of response, then
+                        // we've timed out
+                        if (_success == 0) {
+                            throw new TimeoutException();
+                        }
+
+                    } catch (InterruptedException ie) {
+                        // fall through and wait again
+                    }
                 }
-
-                // if we get here without some sort of response, then
-                // we've timed out
-                if (_success == 0) {
-                    throw new TimeoutException();
-                }
-
-            } catch (InterruptedException ie) {
-                // fall through and wait again
             }
         }
 

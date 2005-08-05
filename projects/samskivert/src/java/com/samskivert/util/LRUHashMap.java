@@ -254,6 +254,15 @@ public class LRUHashMap implements Map
     // documentation inherited from interface
     public void clear ()
     {
+        // notify all values of their removal
+        for (Iterator iter = _delegate.values().iterator(); iter.hasNext(); ) {
+            Object value = iter.next();
+            if (value instanceof LRUItem) {
+                ((LRUItem)value).removedFromMap(this);
+            }
+        }
+
+        // then clear everything out
         _delegate.clear();
         _size = 0;
     }

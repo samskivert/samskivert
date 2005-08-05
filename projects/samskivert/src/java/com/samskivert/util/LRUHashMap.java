@@ -32,6 +32,17 @@ public class LRUHashMap implements Map
     }
 
     /**
+     * Values in the LRU hash map that implement this interface will be
+     * notified when they are removed from the table (either explicitly or
+     * by being replaced with another value or due to being flushed).
+     */
+    public static interface LRUItem
+    {
+        /** Informs this item that it was removed from the map. */
+        public void removedFromMap (LRUHashMap map);
+    }
+
+    /**
      * Construct a LRUHashMap with the specified maximum size. All items
      * in the cache will be considered to have a size of one.
      */
@@ -170,10 +181,13 @@ public class LRUHashMap implements Map
             _seenKeys.add(key);
         }
 
-        // updated our computed "size"
-        _size += _sizer.computeSize(value);
-        entryRemoved(result);
+        // avoid fruitless NOOPs
+        if (result != value) {
+            // updated our computed "size"
+            _size += _sizer.computeSize(value);
+            entryRemoved(result);
 //         System.out.println("Added " + value + ": " + _size);
+        }
 
         // flush if needed
         flush();
@@ -199,7 +213,7 @@ public class LRUHashMap implements Map
             Iterator iter = _delegate.entrySet().iterator();
             // don't remove the last entry, even if it's too big, because
             // a cache with nothing in it sucks
-            for (int ii=size(); (ii > 1) && (_size > _maxSize); ii--) {
+            for (int ii = size(); (ii > 1) && (_size > _maxSize); ii--) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 entryRemoved(entry.getValue());
                 iter.remove();
@@ -214,6 +228,9 @@ public class LRUHashMap implements Map
     {
         if (entry != null) {
             _size -= _sizer.computeSize(entry);
+            if (entry instanceof LRUItem) {
+                ((LRUItem)entry).removedFromMap(this);
+            }
         }
     }
 

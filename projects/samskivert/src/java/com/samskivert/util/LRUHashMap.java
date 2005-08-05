@@ -32,14 +32,14 @@ public class LRUHashMap implements Map
     }
 
     /**
-     * Values in the LRU hash map that implement this interface will be
-     * notified when they are removed from the table (either explicitly or
-     * by being replaced with another value or due to being flushed).
+     * An observer may be registered with a LRU hash map to be notified
+     * when items are removed from the table (either explicitly or by
+     * being replaced with another value or due to being flushed).
      */
-    public static interface LRUItem
+    public static interface RemovalObserver
     {
-        /** Informs this item that it was removed from the map. */
-        public void removedFromMap (LRUHashMap map);
+        /** Informs the observer that this item was removed from the map. */
+        public void removedFromMap (LRUHashMap map, Object item);
     }
 
     /**
@@ -83,6 +83,14 @@ public class LRUHashMap implements Map
     public int getMaxSize ()
     {
         return _maxSize;
+    }
+
+    /**
+     * Configures this hash map with a removal observer.
+     */
+    public void setRemovalObserver (RemovalObserver obs)
+    {
+        _remobs = obs;
     }
 
     /**
@@ -228,8 +236,8 @@ public class LRUHashMap implements Map
     {
         if (entry != null) {
             _size -= _sizer.computeSize(entry);
-            if (entry instanceof LRUItem) {
-                ((LRUItem)entry).removedFromMap(this);
+            if (_remobs != null) {
+                _remobs.removedFromMap(this, entry);
             }
         }
     }
@@ -254,11 +262,11 @@ public class LRUHashMap implements Map
     // documentation inherited from interface
     public void clear ()
     {
-        // notify all values of their removal
-        for (Iterator iter = _delegate.values().iterator(); iter.hasNext(); ) {
-            Object value = iter.next();
-            if (value instanceof LRUItem) {
-                ((LRUItem)value).removedFromMap(this);
+        // notify our removal observer if we have one
+        if (_remobs != null) {
+            for (Iterator iter = _delegate.values().iterator();
+                 iter.hasNext(); ) {
+                _remobs.removedFromMap(this, iter.next());
             }
         }
 
@@ -316,8 +324,12 @@ public class LRUHashMap implements Map
     /** Used to temporarily disable flushing. */
     protected boolean _canFlush = true;
 
+    /** Notified when items are removed from the map, if non-null. */
+    protected RemovalObserver _remobs;
+
     /** Used to compute the size of items in this cache. */
     protected ItemSizer _sizer;
+
     /** Tracking info. */
     protected boolean _tracking;
     protected HashSet _seenKeys;

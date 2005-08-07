@@ -176,8 +176,8 @@ public class UserRepository extends JORARepository
     public User loadUser (String username)
 	throws PersistenceException
     {
-        username = StringUtil.replace(username, "'", "\\'");
-        return loadUserWhere("where username = '" + username + "'");
+        return loadUserWhere("where username = " + 
+            JDBCUtil.escape(username));
     }
 
     /**
@@ -269,8 +269,8 @@ public class UserRepository extends JORARepository
     public ArrayList lookupUsersByEmail (String email)
 	throws PersistenceException
     {
-        final String where = "where email = '" +
-            StringUtil.replace(email, "'", "\\'") + "'";
+        final String where = "where email = " +
+            JDBCUtil.escape(email);
         return (ArrayList) execute(new Operation() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException

@@ -166,16 +166,20 @@ public class StringUtil
             allow.add("<b>"); allow.add("</b>");
             allow.add("<i>"); allow.add("</i>");
             allow.add("<u>"); allow.add("</u>");
-            allow.add("<font [^<>]*[^<>-]>"); allow.add("</font>");
+            allow.add("<font [^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
+                allow.add("</font>");
             allow.add("<br>"); allow.add("</br>");
             allow.add("<p>"); allow.add("</p>");
             allow.add("<hr>"); allow.add("</hr>");
         }
         if (allowImages) {
-            allow.add("<img [^<>]*[^<>-]>"); allow.add("</img>");
+            // Until I find a way to disallow "---", no - can be in a url
+            allow.add("<img [^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
+                allow.add("</img>");
         }
         if (allowLinks) {
-            allow.add("<a href=[^<>]*[^<>-]>"); allow.add("</a>");
+            allow.add("<a href=[^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
+                allow.add("</a>");
         }
 
         String[] regexes = new String[allow.size()];

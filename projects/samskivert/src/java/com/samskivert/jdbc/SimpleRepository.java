@@ -142,9 +142,10 @@ public class SimpleRepository extends Repository
 
 	} catch (SQLException sqe) {
             if (attemptedOperation) {
-                // back out our changes if something got hosed
+                // back out our changes if something got hosed (but not if
+                // the hosage was a result of losing our connection)
                 try {
-                    if (supportsTransactions) {
+                    if (supportsTransactions && !conn.isClosed()) {
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
@@ -181,7 +182,7 @@ public class SimpleRepository extends Repository
 	} catch (PersistenceException pe) {
 	    // back out our changes if something got hosed
             try {
-                if (supportsTransactions) {
+                if (supportsTransactions && !conn.isClosed()) {
                     conn.rollback();
                 }
             } catch (SQLException rbe) {
@@ -193,7 +194,7 @@ public class SimpleRepository extends Repository
 	} catch (RuntimeException rte) {
 	    // back out our changes if something got hosed
             try {
-                if (conn != null && supportsTransactions) {
+                if (conn != null && supportsTransactions && !conn.isClosed()) {
                     conn.rollback();
                 }
             } catch (SQLException rbe) {

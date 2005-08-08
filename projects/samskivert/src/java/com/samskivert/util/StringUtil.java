@@ -1298,7 +1298,17 @@ public class StringUtil
      */
     public static String shortClassName (Class clazz)
     {
-        String name = clazz.getName();
+        return shortClassName(clazz.getName());
+    }
+
+    /**
+     * Returns the supplied class name truncated to one package prior to
+     * the actual class name. For example,
+     * <code>com.samskivert.util.StringUtil</code> would be reported as
+     * <code>util.StringUtil</code>.
+     */
+    public static String shortClassName (String name)
+    {
         int didx = name.lastIndexOf(".");
         if (didx == -1) {
             return name;

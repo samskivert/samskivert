@@ -89,6 +89,14 @@ public class StringTool
     }
 
     /**
+     * Does some simple markup of the supplied text.
+     */
+    public static String simpleFormat (String text)
+    {
+        return HTMLUtil.simpleFormat(text);
+    }
+
+    /**
      * Converts a float to a reasonably formatted string.
      */
     public static String format (float value)

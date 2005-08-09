@@ -20,6 +20,9 @@
 
 package com.samskivert.servlet.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.samskivert.util.StringUtil;
 
 /**
@@ -79,4 +82,65 @@ public class HTMLUtil
         text = StringUtil.replace(text, "\n", "<br>\n");
         return text;
     }
+
+    /**
+     * Does some simple HTML markup, matching bare image URLs and wrapping
+     * them in image tags, matching other URLs and wrapping them in href
+     * tags, and wrapping * prefixed lists into ul-style HTML lists.
+     */
+    public static String simpleFormat (String text)
+    {
+        // first replace the image and other URLs
+        Matcher m = _url.matcher(text);
+        StringBuffer tbuf = new StringBuffer();
+        while (m.find()) {
+            String match = m.group();
+            String lmatch = match.toLowerCase();
+            if (lmatch.endsWith(".png") ||
+                lmatch.endsWith(".jpg") ||
+                lmatch.endsWith(".gif")) {
+                match = "<img src=\"" + match + "\">";
+            } else {
+                match = "<a href=\"" + match + "\">" + match + "</a>";
+            }
+            m.appendReplacement(tbuf, match);
+        }
+        m.appendTail(tbuf);
+
+        // then tackle the *s
+        text = tbuf.toString();
+        m = _star.matcher(text);
+        tbuf.setLength(0);
+        while (m.find()) {
+            String match = m.group();
+            int start = m.start();
+            if (start == 0 || (start >= 2 && text.charAt(start-1) == '\n' &&
+                               text.charAt(start-2) == '\n')) {
+                m.appendReplacement(tbuf, "<ul><li>");
+            } else {
+                m.appendReplacement(tbuf, "<li>");
+            }
+        }
+        m.appendTail(tbuf);
+        text = tbuf.toString();
+
+        // finally close the </ul>s and paragraphy
+        String[] paras = _blank.split(text);
+        tbuf.setLength(0);
+        for (int ii = 0; ii < paras.length; ii++) {
+            String para = paras[ii].trim();
+            if (para.startsWith("<ul>")) {
+                tbuf.append(para).append(" </ul>\n");
+            } else {
+                tbuf.append("<p> ").append(para).append(" </p>\n");
+            }            
+        }
+
+        return tbuf.toString().trim();
+    }
+
+    protected static Pattern _url =
+        Pattern.compile("http://\\S+", Pattern.MULTILINE);
+    protected static Pattern _star = Pattern.compile("^\\*", Pattern.MULTILINE);
+    protected static Pattern _blank = Pattern.compile("^$", Pattern.MULTILINE);
 }

@@ -183,6 +183,13 @@ public class SortableArrayList extends AbstractList
         return target;
     }
 
+    // documentation inherited
+    public void clear ()
+    {
+        _elements = null;
+        _size = 0;
+    }
+
     // documentation inherited from interface
     public boolean add (Object o)
     {

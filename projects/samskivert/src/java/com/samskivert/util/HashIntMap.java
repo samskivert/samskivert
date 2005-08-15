@@ -110,7 +110,7 @@ public class HashIntMap
     {
         for (int i = 0; i < _buckets.length; i++) {
             for (Record r = _buckets[i]; r != null; r = r.next) {
-                if (r.value.equals(o)) {
+                if (ObjectUtil.equals(r.value, o)) {
                     return true;
                 }
             }
@@ -145,11 +145,6 @@ public class HashIntMap
     // documentation inherited
     public Object put (int key, Object value)
     {
-        // disallow null values
-        if (value == null) {
-            throw new IllegalArgumentException();
-        }
-
         // check to see if we've passed our load factor, if so: resize
         checkGrow();
 
@@ -478,7 +473,7 @@ public class HashIntMap
         {
             if (o instanceof Record) {
                 Record or = (Record)o;
-                return (key == or.key) && value.equals(or.value);
+                return (key == or.key) && ObjectUtil.equals(value, or.value);
             } else {
                 return false;
             }

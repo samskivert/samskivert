@@ -15,12 +15,116 @@ import java.util.*;
 public class Collections
 {
     /**
-     * Returns an iterator that iterates over all the elements contained
-     * within the collections within the specified collection.
+     * Returns an Iterator that iterates over all the elements contained
+     * within the Collections within the specified Collection.
+     *
+     * @param metaCollection a collection of either other Collections and/or
+     * of Iterators.
      */
     public static Iterator getMetaIterator (Collection metaCollection)
     {
         return new MetaIterator(metaCollection);
+    }
+
+    /**
+     * Get an Iterator over the supplied Collection that returns the
+     * elements in their natural order.
+     */
+    public static Iterator getSortedIterator (Collection coll)  
+    {
+        return getSortedIterator(coll.iterator(), Comparators.COMPARABLE);
+    }
+
+    /**
+     * Get an Iterator over the supplied Collection that returns the
+     * elements in the order dictated by the supplied Comparator.
+     */
+    public static Iterator getSortedIterator (Collection coll,
+                                              Comparator comparator)
+    {
+        return getSortedIterator(coll.iterator(), comparator);
+    }
+
+    /**
+     * Get an Iterator that returns the same elements returned by
+     * the supplied Iterator, but in their natural order.
+     */
+    public static Iterator getSortedIterator (Iterator itr)
+    {
+        return getSortedIterator(itr, Comparators.COMPARABLE);
+    }
+
+    /**
+     * Get an Iterator that returns the same elements returned by
+     * the supplied Iterator, but in the order dictated by the supplied
+     * Comparator.
+     */
+    public static Iterator getSortedIterator (Iterator itr,
+                                              Comparator comparator)
+    {
+        SortableArrayList list = new SortableArrayList();
+        while (itr.hasNext()) {
+            list.insertSorted(itr.next(), comparator);
+        }
+        return getUnmodifiableIterator(list);
+    }
+
+    /**
+     * Get an Iterator over the supplied Collection that returns
+     * the elements in a completely random order. Normally Iterators
+     * return elements in an undefined order, but it is usually the same
+     * between different invocations as long as the underlying Collection
+     * has not changed. This method mixes things up.
+     */
+    public static Iterator getRandomIterator (Collection c)
+    {
+        return getRandomIterator(c.iterator());
+    }
+
+    /**
+     * Get an Iterator that returns the same elements returned by
+     * the supplied Iterator, but in a completely random order.
+     */
+    public static Iterator getRandomIterator (Iterator itr)
+    {
+        ArrayList list = new ArrayList();
+        CollectionUtil.addAll(list, itr);
+        java.util.Collections.shuffle(list);
+        return getUnmodifiableIterator(list);
+    }
+
+    /**
+     * Get an Iterator that returns the elements in the supplied
+     * Collection but blocks removal.
+     */
+    public static Iterator getUnmodifiableIterator (Collection c)
+    {
+        return getUnmodifiableIterator(c.iterator());
+    }
+
+    /**
+     * Get an iterator that returns the same elements as the supplied
+     * iterator but blocks removal.
+     */
+    public static Iterator getUnmodifiableIterator (final Iterator itr)
+    {
+        return new Iterator() {
+            public boolean hasNext ()
+            {
+                return itr.hasNext();
+            }
+
+            public Object next ()
+            {
+                return itr.next();
+            }
+
+            public void remove ()
+            {
+                throw new UnsupportedOperationException(
+                    "Cannot remove from an UnmodifieableIterator!");
+            }
+        };
     }
 
     /**
@@ -287,7 +391,21 @@ public class Collections
         {
             while ((_current == null) || (!_current.hasNext())) {
                 if (_meta.hasNext()) {
-                    _current = ((Collection) _meta.next()).iterator();
+                    Object o = _meta.next();
+                    if (o instanceof Iterator) {
+                        _current = (Iterator) o;
+                    // TODO: jdk1.5,
+                    // (obsoletes the Collection case, below)
+                    //} else if (o instanceof Iterable) {
+                    //    _current = ((Iterable) o).iterator();
+                    } else if (o instanceof Collection) {
+                        _current = ((Collection) o).iterator();
+                    } else {
+                        throw new IllegalArgumentException(
+                            "MetaIterator must be constructed with a " +
+                            "collection of Iterators or other collections.");
+                    }
+
                 } else {
                     return false;
                 }

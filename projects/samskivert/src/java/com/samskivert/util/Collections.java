@@ -122,7 +122,7 @@ public class Collections
             public void remove ()
             {
                 throw new UnsupportedOperationException(
-                    "Cannot remove from an UnmodifieableIterator!");
+                    "Cannot remove from an UnmodifiableIterator!");
             }
         };
     }

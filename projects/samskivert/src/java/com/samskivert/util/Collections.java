@@ -63,9 +63,8 @@ public class Collections
                                               Comparator comparator)
     {
         SortableArrayList list = new SortableArrayList();
-        while (itr.hasNext()) {
-            list.insertSorted(itr.next(), comparator);
-        }
+        CollectionUtil.addAll(list, itr);
+        list.sort(comparator);
         return getUnmodifiableIterator(list);
     }
 

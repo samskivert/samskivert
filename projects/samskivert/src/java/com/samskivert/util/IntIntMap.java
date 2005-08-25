@@ -20,9 +20,11 @@
 
 package com.samskivert.util;
 
+import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * An int int map is like an int map, but with integers as values as well
@@ -30,8 +32,18 @@ import java.util.NoSuchElementException;
  * to indicate no value, -1 is returned instead. This means that you must
  * be careful if you intend to store -1 as a valid value in the table.
  */
+// 
+// TODO: make this a proper map, perhaps even an extension of HashIntMap
+// or at least share a common abstract ancestor.
 public class IntIntMap
 {
+    public interface Entry extends IntMap.Entry
+    {
+        public int getIntValue ();
+
+        public int setIntValue (int value);
+    }
+
     public final static int DEFAULT_BUCKETS = 64;
 
     public IntIntMap (int buckets)
@@ -158,14 +170,14 @@ public class IntIntMap
 	_size = 0;
     }
 
-    public Iterator keys ()
+    public Interator keys ()
     {
-	return new Interator(true);
+        return new KeyValueInterator(true);
     }
 
-    public Iterator values ()
+    public Interator values ()
     {
-	return new Interator(false);
+        return new KeyValueInterator(false);
     }
 
     /**
@@ -216,7 +228,23 @@ public class IntIntMap
         return ret;
     }
 
-    class Record
+    /**
+     * Get a set of all the entries in this map.
+     */
+    public Set entrySet ()
+    {
+        return new AbstractSet() {
+            public int size () {
+                return _size;
+            }
+
+            public Iterator iterator() {
+                return new EntryIterator();
+            }
+        };
+    }
+
+    class Record implements Entry
     {
 	public Record next;
 	public int key;
@@ -227,15 +255,53 @@ public class IntIntMap
 	    this.key = key;
 	    this.value = value;
 	}
+
+        public Object getKey () {
+            return new Integer(key);
+        }
+
+        public int getIntKey () {
+            return key;
+        }
+
+        public Object getValue () {
+            return new Integer(value);
+        }
+
+        public int getIntValue () {
+            return value;
+        }
+
+        public Object setValue (Object v) {
+            return new Integer(setIntValue(((Integer) v).intValue()));
+        }
+
+        public int setIntValue (int v) {
+            int oldVal = value;
+            value = v;
+            return oldVal;
+        }
+
+        public boolean equals (Object o) {
+            if (o instanceof Entry) {
+                Entry that = (Entry) o;
+                return (this.key == that.getIntKey()) &&
+                    (this.value == that.getIntValue());
+            }
+            return false;
+        }
+
+        public int hashCode () {
+            return key;
+        }
     }
 
-    class Interator implements Iterator
+    class EntryIterator implements Iterator
     {
-	public Interator (boolean returnKeys)
+	public EntryIterator ()
 	{
             this._modCount = IntIntMap.this._modCount;
 	    _index = _buckets.length;
-	    _returnKeys = returnKeys;
 	}
 
         /**
@@ -276,7 +342,7 @@ public class IntIntMap
             if (hasNext()) {
                 _prev = _next;
                 _next = _next.next;
-                return new Integer(_returnKeys ? _prev.key : _prev.value);
+                return _prev;
 
             } else {
                 throw new NoSuchElementException("IntIntMapIterator");
@@ -298,8 +364,29 @@ public class IntIntMap
 
 	private int _index;
 	private Record _next, _prev;
-	private boolean _returnKeys;
         private int _modCount;
+    }
+
+    protected class KeyValueInterator extends EntryIterator
+        implements Interator
+    {
+        public KeyValueInterator (boolean keys)
+        {
+            _keys = keys;
+        }
+
+        public int nextInt ()
+        {
+            Entry entry = (Entry) super.next();
+            return _keys ? entry.getIntKey() : entry.getIntValue();
+        }
+
+        public Object next ()
+        {
+            return new Integer(nextInt());
+        }
+
+        protected boolean _keys;
     }
 
 //     public static void main (String[] args)

@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -37,12 +38,13 @@ import java.util.Set;
  * lookup or insert values. The hash int map is an int map that uses a
  * hashtable mechanism to store its key/value mappings.
  */
-public class HashIntMap
-    extends AbstractMap implements IntMap, Cloneable, Serializable
+public class HashIntMap extends AbstractMap
+    implements IntMap, Cloneable, Serializable
 {
-    public interface Entry extends AbstractMap.Entry
+    public interface Entry extends IntMap.Entry
     {
-        public int getIntKey ();
+        // this interface does nothing,
+        // is included for bass-ackwards compatability
     }
 
     /**
@@ -217,6 +219,21 @@ public class HashIntMap
     }
 
     // documentation inherited
+    public void putAll (Map t)
+    {
+        if (t instanceof IntMap) {
+            // if we can, avoid creating Integer objects while copying
+            for (Iterator itr = t.entrySet().iterator(); itr.hasNext(); ) {
+                IntMap.Entry entry = (IntMap.Entry) itr.next();
+                put(entry.getIntKey(), entry.getValue());
+            }
+
+        } else {
+            super.putAll(t);
+        }
+    }
+
+    // documentation inherited
     public void clear ()
     {
         // abandon all of our hash chains (the joy of garbage collection)
@@ -362,13 +379,92 @@ public class HashIntMap
         protected Record _record, _last;
     }
 
-    /**
-     * Returns an iteration over the keys of this hash int map. The keys
-     * are returned as <code>Integer</code> objects.
-     */
-    public Iterator keys ()
+    protected class IntKeySet extends AbstractSet
+        implements IntSet
     {
-        return keySet().iterator();
+        public Iterator iterator () {
+            return interator();
+        }
+        
+        public Interator interator () {
+            return new Interator () {
+                private Iterator i = entrySet().iterator();
+
+                public boolean hasNext () {
+                    return i.hasNext();
+                }
+
+                public Object next () {
+                    return ((IntMap.Entry) i.next()).getKey();
+                }
+
+                public int nextInt () {
+                    return ((IntMap.Entry) i.next()).getIntKey();
+                }
+
+                public void remove () {
+                    i.remove();
+                }
+            };
+        }
+
+        public int size () {
+            return HashIntMap.this.size();
+        }
+
+        public boolean contains (Object t) {
+            return HashIntMap.this.containsKey(t);
+        }
+
+        public boolean contains (int t) {
+            return HashIntMap.this.containsKey(t);
+        }
+
+        public boolean add (int t) {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean remove (Object o) {
+            return (null != HashIntMap.this.remove(o));
+        }
+
+        public boolean remove (int value) {
+            return (null != HashIntMap.this.remove(value));
+        }
+
+        public int[] toIntArray () {
+            int[] vals = new int[size()];
+            int ii=0;
+            for (Interator intr = interator(); intr.hasNext(); ) {
+                vals[ii++] = intr.nextInt();
+            }
+            return vals;
+        }
+    }
+
+    // documentation inherited from interface IntMap
+    public IntSet intKeySet ()
+    {
+        // damn Sun bastards made the 'keySet' variable with default access,
+        // so we can't share it
+        if (_keySet == null) {
+            _keySet = new IntKeySet();
+        }
+        return _keySet;
+    }
+
+    // documentation inherited
+    public Set keySet ()
+    {
+        return intKeySet();
+    }
+
+    /**
+     * Returns an interation over the keys of this hash int map.
+     */
+    public Interator keys ()
+    {
+        return intKeySet().interator();
     }
 
     /**
@@ -493,6 +589,9 @@ public class HashIntMap
     protected Record[] _buckets;
     protected int _size;
     protected float _loadFactor;
+
+    /** A stateless view of our keys, so we re-use it. */
+    protected transient volatile IntSet _keySet = null;
 
     /** Change this if the fields or inheritance hierarchy ever changes
      * (which is extremely unlikely). We override this because I'm tired

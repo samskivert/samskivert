@@ -32,6 +32,15 @@ import java.util.Map;
 public interface IntMap extends Map
 {
     /**
+     * An IntMap entry (key-value pair). The int key may be retrieved
+     * directly, avoiding the creation of an Integer object.
+     */
+    public interface Entry extends Map.Entry
+    {
+        public int getIntKey ();
+    }
+
+    /**
      * Returns <tt>true</tt> if this map contains a mapping for the
      * specified key.
      *
@@ -75,4 +84,9 @@ public interface IntMap extends Map
      * <tt>null</tt> if there was no mapping for key.
      */
     public Object remove (int key);
+
+    /**
+     * Get a set of all the keys, as an IntSet.
+     */
+    public IntSet intKeySet ();
 }

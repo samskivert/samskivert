@@ -117,7 +117,15 @@ public class ArrayIntSet extends AbstractSet
             }
 
             public void remove () {
-                throw new UnsupportedOperationException();
+                if (_pos == 0) {
+                    throw new IllegalStateException();
+                }
+                // does not correctly return IllegalStateException if
+                // remove() is called twice in a row...
+                System.arraycopy(_values, _pos, _values, _pos - 1,
+                    _size - _pos);
+                _pos--;
+                _values[--_size] = 0;
             }
 
             protected int _pos;

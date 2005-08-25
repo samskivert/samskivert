@@ -237,17 +237,21 @@ public class Collections
 	    synchronized(mutex) {m.clear();}
         }
 
-	private transient Set keySet = null;
+	private transient IntSet keySet = null;
 	private transient Set entrySet = null;
 	private transient Collection values = null;
 
 	public Set keySet() {
+            return intKeySet();
+	}
+
+        public IntSet intKeySet () {
             synchronized(mutex) {
                 if (keySet==null)
-                    keySet = new SynchronizedSet(m.keySet(), mutex);
+                    keySet = new SynchronizedIntSet(m.intKeySet(), mutex);
                 return keySet;
             }
-	}
+        }
 
         public Set entrySet() {
             synchronized(mutex) {
@@ -299,6 +303,44 @@ public class Collections
 	public int hashCode() {
 	    synchronized(mutex) {return c.hashCode();}
         }
+    }
+
+    protected static class SynchronizedIntSet extends SynchronizedSet
+        implements IntSet
+    {
+        SynchronizedIntSet (IntSet s) {
+            super(s);
+            _i = s;
+        }
+
+        SynchronizedIntSet (IntSet s, Object mutex) {
+            super(s, mutex);
+            _i = s;
+        }
+
+        public boolean contains (int value) {
+            synchronized(mutex) {return _i.contains(value);}
+        }
+
+        public boolean add (int value) {
+            synchronized(mutex) {return _i.add(value);}
+        }
+
+        public boolean remove (int value) {
+            synchronized(mutex) {return _i.remove(value);}
+        }
+
+        public Interator interator () {
+            // must be manually sync'd by user
+            return _i.interator();
+        }
+
+        public int[] toIntArray () {
+            synchronized(mutex) {return _i.toIntArray();}
+        }
+
+        /** Pre-casted version of our backing set. */
+        protected IntSet _i;
     }
 
     /**

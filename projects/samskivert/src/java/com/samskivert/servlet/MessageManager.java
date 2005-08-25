@@ -106,9 +106,9 @@ public class MessageManager
                               Object[] args)
     {
         String msg = getMessage(req, path, true);
-        // we may cache message formatters later, but for now just
-        // use the static convenience function
-        return MessageFormat.format(msg, args);
+        // we may cache message formatters later, but for now just use the
+        // static convenience function
+        return MessageFormat.format(MessageUtil.escape(msg), args);
     }
 
     /**

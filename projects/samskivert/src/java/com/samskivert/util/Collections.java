@@ -157,8 +157,41 @@ public class Collections
      *
      * @return a synchronized view of the specified int map.
      */
-    public static IntMap synchronizedIntMap(IntMap m) {
+    public static IntMap synchronizedIntMap (IntMap m) {
 	return new SynchronizedIntMap(m);
+    }
+
+    /**
+     * Returns a synchronized (thread-safe) int set backed by the
+     * specified int set.  In order to guarantee serial access, it is
+     * critical that <strong>all</strong> access to the backing int map is
+     * accomplished through the returned int map.
+     *
+     * <p> It is imperative that the user manually synchronize on the
+     * returned int map when iterating over any of its collection views:
+     *
+     * <pre>
+     *  IntSet s = Collections.synchronizedIntSet(new ArrayIntSet());
+     *      ...
+     *  synchronized(s) {  // Synchronizing on s!
+     *      Interator i = s.interator(); // Must be in synchronized block
+     *      while (i.hasNext())
+     *          foo(i.nextInt());
+     *  }
+     * </pre>
+     *
+     * Failure to follow this advice may result in non-deterministic
+     * behavior.
+     *
+     * <p> The returned set will be serializable if the specified set is
+     * serializable.
+     *
+     * @param s the int set to be "wrapped" in a synchronized int set.
+     *
+     * @return a synchronized view of the specified int set.
+     */
+    public static IntSet synchronizedIntSet (IntSet s) {
+        return new SychronizedIntSet(s);
     }
 
     /**
@@ -339,7 +372,7 @@ public class Collections
             synchronized(mutex) {return _i.toIntArray();}
         }
 
-        /** Pre-casted version of our backing set. */
+        /** Properly casted reference to our backing set. */
         protected IntSet _i;
     }
 

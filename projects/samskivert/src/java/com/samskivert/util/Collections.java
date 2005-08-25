@@ -191,7 +191,7 @@ public class Collections
      * @return a synchronized view of the specified int set.
      */
     public static IntSet synchronizedIntSet (IntSet s) {
-        return new SychronizedIntSet(s);
+        return new SynchronizedIntSet(s);
     }
 
     /**

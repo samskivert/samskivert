@@ -75,6 +75,11 @@ public interface IntSet extends Set
     public boolean remove (int value);
 
     /**
+     * Return an Interator that iterates over the ints in this set.
+     */
+    public Interator interator ();
+
+    /**
      * Returns an array containing all of the elements in this set.  Obeys
      * the general contract of the <tt>Collection.toArray</tt> method.
      *

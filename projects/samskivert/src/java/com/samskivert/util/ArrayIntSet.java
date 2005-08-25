@@ -96,20 +96,24 @@ public class ArrayIntSet extends AbstractSet
         return (binarySearch(value) >= 0);
     }
 
-    // documentation inherited from interface
-    public Iterator iterator ()
+    // documentation inherited from interface IntSet
+    public Interator interator ()
     {
-        return new Iterator() {
+        return new Interator() {
             public boolean hasNext () {
                 return (_pos < _size);
             }
 
-            public Object next () {
+            public int nextInt () {
                 if (_pos == _size) {
                     throw new NoSuchElementException();
                 } else {
-                    return new Integer(_values[_pos++]);
+                    return _values[_pos++];
                 }
+            }
+
+            public Object next () {
+                return new Integer(nextInt());
             }
 
             public void remove () {
@@ -118,6 +122,12 @@ public class ArrayIntSet extends AbstractSet
 
             protected int _pos;
         };
+    }
+
+    // documentation inherited from interface
+    public Iterator iterator ()
+    {
+        return interator();
     }
 
     // documentation inherited from interface

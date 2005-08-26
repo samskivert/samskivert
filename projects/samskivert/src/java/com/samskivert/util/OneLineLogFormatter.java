@@ -56,7 +56,8 @@ public class OneLineLogFormatter extends Formatter
         boolean legacy = (where.indexOf("LoggingLogProvider") != -1);
         if (where != null && !legacy) {
             String logger = record.getLoggerName();
-            if (logger != null && where.startsWith(logger)) {
+            if (logger != null && where.startsWith(logger) &&
+                where.length() > logger.length()) {
                 where = where.substring(logger.length()+1);
             }
         } else {

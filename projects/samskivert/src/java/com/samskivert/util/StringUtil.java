@@ -1377,7 +1377,7 @@ public class StringUtil
         int code = 0;
         for (int ii = 0, uu = 0; ii < value.length(); ii++) {
             char c = Character.toLowerCase(value.charAt(ii));
-            Integer cc = (Integer)_letterToBits.get(Character.valueOf(c));
+            Integer cc = (Integer)_letterToBits.get(c);
             if (cc == null) {
                 continue;
             }
@@ -1406,24 +1406,24 @@ public class StringUtil
 
     /** Maps the 16 most frequent letters in the English language to a
      * number between 0 and 15. Used by {@link #stringCode}. */
-    protected static final HashMap _letterToBits = new HashMap();
+    protected static final HashIntMap _letterToBits = new HashIntMap();
     static {
-        _letterToBits.put(Character.valueOf('e'), Integer.valueOf(0));
-        _letterToBits.put(Character.valueOf('t'), Integer.valueOf(1));
-        _letterToBits.put(Character.valueOf('a'), Integer.valueOf(2));
-        _letterToBits.put(Character.valueOf('o'), Integer.valueOf(3));
-        _letterToBits.put(Character.valueOf('i'), Integer.valueOf(4));
-        _letterToBits.put(Character.valueOf('n'), Integer.valueOf(5));
-        _letterToBits.put(Character.valueOf('s'), Integer.valueOf(6));
-        _letterToBits.put(Character.valueOf('r'), Integer.valueOf(7));
-        _letterToBits.put(Character.valueOf('h'), Integer.valueOf(8));
-        _letterToBits.put(Character.valueOf('l'), Integer.valueOf(9));
-        _letterToBits.put(Character.valueOf('d'), Integer.valueOf(10));
-        _letterToBits.put(Character.valueOf('c'), Integer.valueOf(11));
-        _letterToBits.put(Character.valueOf('u'), Integer.valueOf(12));
-        _letterToBits.put(Character.valueOf('m'), Integer.valueOf(13));
-        _letterToBits.put(Character.valueOf('f'), Integer.valueOf(14));
-        _letterToBits.put(Character.valueOf('p'), Integer.valueOf(15));
+        _letterToBits.put('e', new Integer(0));
+        _letterToBits.put('t', new Integer(1));
+        _letterToBits.put('a', new Integer(2));
+        _letterToBits.put('o', new Integer(3));
+        _letterToBits.put('i', new Integer(4));
+        _letterToBits.put('n', new Integer(5));
+        _letterToBits.put('s', new Integer(6));
+        _letterToBits.put('r', new Integer(7));
+        _letterToBits.put('h', new Integer(8));
+        _letterToBits.put('l', new Integer(9));
+        _letterToBits.put('d', new Integer(10));
+        _letterToBits.put('c', new Integer(11));
+        _letterToBits.put('u', new Integer(12));
+        _letterToBits.put('m', new Integer(13));
+        _letterToBits.put('f', new Integer(14));
+        _letterToBits.put('p', new Integer(15));
         // sorry g, w, y, b, v, k, x, j, q, z
     }
 }

@@ -41,6 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -1345,7 +1346,52 @@ public class StringUtil
         return nname.toString();
     }
 
-    private final static String XLATE = "0123456789abcdef";
+    /**
+     * See {@link #stringCode(String,StringBuffer)}.
+     */
+    public static int stringCode (String value)
+    {
+        return stringCode(value, null);
+    }
+
+    /**
+     * Encodes (case-insensitively) a short English language string into a
+     * semi-unique integer. This is done by selecting the first eight
+     * characters in the string that fall into the set of the 16 most
+     * frequently used characters in the English language and converting
+     * them to a 4 bit value and storing the result into the returned
+     * integer.
+     *
+     * <p> This method is useful for mapping a set of string constants to
+     * a set of unique integers (e.g. mapping an enumerated type to an
+     * integer and back without having to require that the declaration
+     * order of the enumerated type remain constant for all time). The
+     * caller must, of course, ensure that no collisions occur.
+     *
+     * @param value the string to be encoded.
+     * @param encoded if non-null, a string buffer into which the
+     * characters used for the encoding will be recorded.
+     */
+    public static int stringCode (String value, StringBuffer encoded)
+    {
+        int code = 0;
+        for (int ii = 0, uu = 0; ii < value.length(); ii++) {
+            char c = Character.toLowerCase(value.charAt(ii));
+            Integer cc = (Integer)_letterToBits.get(Character.valueOf(c));
+            if (cc == null) {
+                continue;
+            }
+            code += cc.intValue();
+            if (encoded != null) {
+                encoded.append(c);
+            }
+            if (++uu == 8) {
+                break;
+            }
+            code <<= 4;
+        }
+        return code;
+    }
 
     /** Used to easily format floats with sensible defaults. */
     protected static final NumberFormat _ffmt = NumberFormat.getInstance();
@@ -1353,5 +1399,31 @@ public class StringUtil
         _ffmt.setMinimumIntegerDigits(1);
         _ffmt.setMinimumFractionDigits(1);
         _ffmt.setMaximumFractionDigits(2);
+    }
+
+    /** Used by {@link #hexlate} and {@link #unhexlate}. */
+    protected static final String XLATE = "0123456789abcdef";
+
+    /** Maps the 16 most frequent letters in the English language to a
+     * number between 0 and 15. Used by {@link #stringCode}. */
+    protected static final HashMap _letterToBits = new HashMap();
+    static {
+        _letterToBits.put(Character.valueOf('e'), Integer.valueOf(0));
+        _letterToBits.put(Character.valueOf('t'), Integer.valueOf(1));
+        _letterToBits.put(Character.valueOf('a'), Integer.valueOf(2));
+        _letterToBits.put(Character.valueOf('o'), Integer.valueOf(3));
+        _letterToBits.put(Character.valueOf('i'), Integer.valueOf(4));
+        _letterToBits.put(Character.valueOf('n'), Integer.valueOf(5));
+        _letterToBits.put(Character.valueOf('s'), Integer.valueOf(6));
+        _letterToBits.put(Character.valueOf('r'), Integer.valueOf(7));
+        _letterToBits.put(Character.valueOf('h'), Integer.valueOf(8));
+        _letterToBits.put(Character.valueOf('l'), Integer.valueOf(9));
+        _letterToBits.put(Character.valueOf('d'), Integer.valueOf(10));
+        _letterToBits.put(Character.valueOf('c'), Integer.valueOf(11));
+        _letterToBits.put(Character.valueOf('u'), Integer.valueOf(12));
+        _letterToBits.put(Character.valueOf('m'), Integer.valueOf(13));
+        _letterToBits.put(Character.valueOf('f'), Integer.valueOf(14));
+        _letterToBits.put(Character.valueOf('p'), Integer.valueOf(15));
+        // sorry g, w, y, b, v, k, x, j, q, z
     }
 }

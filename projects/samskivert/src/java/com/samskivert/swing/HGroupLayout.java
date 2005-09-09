@@ -105,8 +105,8 @@ public class HGroupLayout extends GroupLayout
         if (_policy == STRETCH) {
 	    if (freecount > 0) {
                 int freewid = b.width - info.fixwid - totgap;
-                defwid = freewid / freecount;
-                freefrac = freewid % freecount;
+                defwid = freewid / info.totweight;
+                freefrac = freewid % info.totweight;
 		totwid = b.width;
 	    } else {
 		totwid = info.fixwid + totgap;
@@ -150,7 +150,11 @@ public class HGroupLayout extends GroupLayout
 	    if (_policy == NONE || isFixed(child)) {
 		newwid = info.dimens[i].width;
 	    } else {
-                newwid = defwid + freefrac;
+                int wid = defwid;
+                if (_policy == STRETCH) {
+                    wid *= getWeight(child);
+                }
+                newwid = wid + freefrac;
                 // clear out the extra pixels the first time they're used
                 freefrac = 0;
             }

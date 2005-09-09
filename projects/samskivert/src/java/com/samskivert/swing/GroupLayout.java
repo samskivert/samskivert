@@ -51,26 +51,25 @@ public abstract class GroupLayout
 
 	/**
 	 * The weight of this component relative to the other components
-	 * in the container.
+	 * in the container. Only valid if the layout policy is STRETCH.
 	 */
 	public int weight = 1;
 
 	/**
-	 * Constructs a new constraints object with the specified
-	 * fixedness and weight.
-	 */
-	public Constraints (boolean fixed)
-	{
-	    this.fixed = fixed;
-	}
-
-	/**
-	 * Constructs a new constraints object with the specified
-	 * fixedness and weight.
+	 * Constructs a new constraints object with the specified weight,
+         * which is only applicable with the STRETCH policy.
 	 */
 	public Constraints (int weight)
 	{
 	    this.weight = weight;
+	}
+
+	/**
+         * This constructor is not public, use the FIXED constant.
+         */
+	protected Constraints (boolean fixed)
+	{
+	    this.fixed = fixed;
 	}
     }
 

@@ -105,8 +105,8 @@ public class VGroupLayout extends GroupLayout
         if (_policy == STRETCH) {
 	    if (freecount > 0) {
                 int freehei = b.height - info.fixhei - totgap;
-                defhei = freehei / freecount;
-                freefrac = freehei % freecount;
+                defhei = freehei / info.totweight;
+                freefrac = freehei % info.totweight;
 		tothei = b.height;
 	    } else {
 		tothei = info.fixhei + totgap;
@@ -150,7 +150,11 @@ public class VGroupLayout extends GroupLayout
 	    if (_policy == NONE || isFixed(child)) {
 		newhei = info.dimens[i].height;
 	    } else {
-                newhei = defhei + freefrac;
+                int hei = defhei;
+                if (_policy == STRETCH) {
+                    hei *= getWeight(child);
+                }
+                newhei = hei + freefrac;
                 // clear out the extra pixels the first time they're used
                 freefrac = 0;
             }

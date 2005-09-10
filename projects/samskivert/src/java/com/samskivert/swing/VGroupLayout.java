@@ -145,16 +145,14 @@ public class VGroupLayout extends GroupLayout
 	    }
 
 	    Component child = parent.getComponent(i);
+            Constraints c = getConstraints(child);
 	    int newwid, newhei;
 
-	    if (_policy == NONE || isFixed(child)) {
+	    if (_policy == NONE || c.isFixed()) {
 		newhei = info.dimens[i].height;
 	    } else {
-                int hei = defhei;
-                if (_policy == STRETCH) {
-                    hei *= getWeight(child);
-                }
-                newhei = hei + freefrac;
+                newhei = freefrac +
+                    ((_policy == STRETCH) ? defhei * c.getWeight() : defhei);
                 // clear out the extra pixels the first time they're used
                 freefrac = 0;
             }

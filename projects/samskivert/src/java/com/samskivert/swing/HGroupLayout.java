@@ -145,16 +145,14 @@ public class HGroupLayout extends GroupLayout
 	    }
 
 	    Component child = parent.getComponent(i);
+            Constraints c = getConstraints(child);
 	    int newwid, newhei;
 
-	    if (_policy == NONE || isFixed(child)) {
+	    if (_policy == NONE || c.isFixed()) {
 		newwid = info.dimens[i].width;
 	    } else {
-                int wid = defwid;
-                if (_policy == STRETCH) {
-                    wid *= getWeight(child);
-                }
-                newwid = wid + freefrac;
+                newwid = freefrac +
+                    ((_policy == STRETCH) ? defwid * c.getWeight() : defwid);
                 // clear out the extra pixels the first time they're used
                 freefrac = 0;
             }

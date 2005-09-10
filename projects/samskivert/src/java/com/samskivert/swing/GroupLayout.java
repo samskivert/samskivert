@@ -41,36 +41,40 @@ public abstract class GroupLayout
      * (specifically receiving the ratio of their weight to the total
      * weight of all of the free components in the container).
      *
-     * <p/> If a constraints object is constructed with fixedness set to
-     * true and with a weight, the weight will be ignored.
+     * To add a component with the fixed constraints, use the FIXED constant.
      */
     public static class Constraints
     {
-	/** Whether or not this component is fixed. */
-	public boolean fixed = false;
-
-	/**
-	 * The weight of this component relative to the other components
-	 * in the container. Only valid if the layout policy is STRETCH.
-	 */
-	public int weight = 1;
-
 	/**
 	 * Constructs a new constraints object with the specified weight,
          * which is only applicable with the STRETCH policy.
 	 */
 	public Constraints (int weight)
 	{
-	    this.weight = weight;
+	    _weight = weight;
 	}
 
-	/**
-         * This constructor is not public, use the FIXED constant.
+        /**
+         * Is this Constraints specifying fixed?
          */
-	protected Constraints (boolean fixed)
-	{
-	    this.fixed = fixed;
-	}
+        public final boolean isFixed ()
+        {
+            return (this == FIXED);
+        }
+
+        /**
+         * Get the weight.
+         */
+        public final int getWeight ()
+        {
+            return _weight;
+        }
+
+	/**
+	 * The weight of this component relative to the other components
+	 * in the container. Only valid if the layout policy is STRETCH.
+	 */
+	protected int _weight = 1;
     }
 
     /** A class used to make our policy constants type-safe. */
@@ -100,7 +104,7 @@ public abstract class GroupLayout
      * fixed and have the default weight of one. This is so commonly used
      * that we create and make this object available here.
      */
-    public final static Constraints FIXED = new Constraints(true);
+    public final static Constraints FIXED = new Constraints(Integer.MIN_VALUE);
 
     /**
      * Do not adjust the widgets on this axis.
@@ -256,32 +260,21 @@ public abstract class GroupLayout
 	// nothing to do here
     }
 
-    protected boolean isFixed (Component child)
+    /**
+     * Get the Constraints for the specified child component.
+     *
+     * @return a Constraints object, never null.
+     */
+    protected Constraints getConstraints (Component child)
     {
-	if (_constraints == null) {
-	    return false;
-	}
+        if (_constraints != null) {
+            Constraints c = (Constraints) _constraints.get(child);
+            if (c != null) {
+                return c;
+            }
+        }
 
-	Constraints c = (Constraints)_constraints.get(child);
-	if (c != null) {
-	    return c.fixed;
-	}
-
-	return false;
-    }
-
-    protected int getWeight (Component child)
-    {
-	if (_constraints == null) {
-	    return 1;
-	}
-
-	Constraints c = (Constraints)_constraints.get(child);
-	if (c != null) {
-	    return c.weight;
-	}
-
-	return 1;
+        return DEFAULT_CONSTRAINTS;
     }
 
     /**
@@ -326,13 +319,14 @@ public abstract class GroupLayout
 		info.maxhei = csize.height;
 	    }
 
-	    if (isFixed(child)) {
+            Constraints c = getConstraints(child);
+	    if (c.isFixed()) {
 		info.fixwid += csize.width;
 		info.fixhei += csize.height;
 		info.numfix++;
 
 	    } else {
-		info.totweight += getWeight(child);
+		info.totweight += c.getWeight();
 
                 if (csize.width > info.maxfreewid) {
                     info.maxfreewid = csize.width;
@@ -489,4 +483,8 @@ public abstract class GroupLayout
     protected static final int MAXIMUM = 2;
 
     protected static final int DEFAULT_GAP = 5;
+
+    /** All children added without a Constraints object are
+     * constrained by this Constraints object. */
+    protected static final Constraints DEFAULT_CONSTRAINTS = new Constraints(1);
 }

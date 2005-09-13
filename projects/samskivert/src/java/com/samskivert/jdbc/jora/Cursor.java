@@ -141,6 +141,21 @@ public class Cursor {
 //        catch (SQLException ex) { session.handleSQLException(ex); }
     }
 
+    /**
+     * Close the Cursor, even if we haven't read all the possible
+     * objects.
+     */
+    public void close ()
+        throws SQLException
+    {
+        if (stmt != null) {
+            stmt.close(); // also automatically closes result
+            result = null;
+            stmt = null;
+        }
+        nTables = 0;
+    }
+
     /** Extracts no more than <I>maxElements</I> records from database and
      *  store them into array. It is possible to extract rest records
      *  by successive next() or toArray() calls. Selected objects should

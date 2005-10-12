@@ -32,33 +32,14 @@ import com.samskivert.Log;
  */
 public abstract class Interval
 {
-    /** This is used to post our interval to a run queue and provides
-     * methods for getting access to the Interval derivation that is
-     * actually going to do the work for profiling and reporting. */
-    public static class RunQueueRunnable implements Runnable
+    /**
+     * An interface that will be implemented by the runnable posted
+     * to a RunQueue that can be used to retrieve the original Interval.
+     */
+    public static interface Runnable extends java.lang.Runnable
     {
-        public RunQueueRunnable (IntervalTask task, Interval interval) {
-            _task = task;
-            _interval = interval;
-        }
-
-        public Interval getInterval () {
-            return _interval;
-        }
-
-        public void run () {
-            _interval.safelyExpire(_task);
-        }
-
-        public String toString () {
-            // to aid in debugging, this run unit reports its name as that
-            // of the interval
-            return _interval.toString();
-        }
-
-        protected IntervalTask _task;
-        protected Interval _interval;
-    };
+        public Interval getInterval ();
+    }
 
     /**
      * Create a simple interval that does not use a RunQueue to run
@@ -175,10 +156,22 @@ public abstract class Interval
         public void run () {
             if (_runQueue == null) {
                 safelyExpire(this);
+
             } else {
                 if (_runner == null) { // lazy initialize _runner
-                    _runner = new RunQueueRunnable(
-                        IntervalTask.this, Interval.this);
+                    _runner = new Runnable() {
+                        public void run () {
+                            safelyExpire(IntervalTask.this);
+                        }
+
+                        public Interval getInterval () {
+                            return Interval.this;
+                        }
+
+                        public String toString () {
+                            return Interval.this.toString();
+                        }
+                    };
                 }
                 _runQueue.postRunnable(_runner);
             }

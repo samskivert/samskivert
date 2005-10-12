@@ -17,7 +17,7 @@ public interface RunQueue
     {
         public void postRunnable (Runnable r)
         {
-            return EventQueue.invokeLater(r);
+            EventQueue.invokeLater(r);
         }
 
         public boolean isDispatchThread ()

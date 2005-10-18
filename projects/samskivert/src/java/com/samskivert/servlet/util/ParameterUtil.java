@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -56,7 +56,6 @@ public class ParameterUtil
 	String value = req.getParameter(name);
         if (value == null) {
             return returnNull ? null : "";
-
         } else {
             return value.trim();
         }
@@ -74,7 +73,6 @@ public class ParameterUtil
     {
 	return parseFloatParameter(
             getParameter(req, name, false), invalidDataMessage);
-        
     }
 
     /**
@@ -89,7 +87,6 @@ public class ParameterUtil
     {
 	return parseIntParameter(
             getParameter(req, name, false), invalidDataMessage);
-        
     }
 
     /**
@@ -147,7 +144,7 @@ public class ParameterUtil
 
     /**
      * Fetches all the values from the request with the specified name and
-     * converts them to a HashSet. 
+     * converts them to a HashSet.
      */
     public static HashSet getParameters (HttpServletRequest req, String name)
         throws DataValidationException
@@ -163,7 +160,18 @@ public class ParameterUtil
         }
         return set;
     }
-    
+
+    /**
+     * Fetches the supplied parameter from the request. If the parameter does
+     * not exist, <code>defval</code> is returned.
+     */
+    public static String getParameter (
+        HttpServletRequest req, String name, String defval)
+    {
+	String value = req.getParameter(name);
+        return StringUtil.blank(value) ? defval : value.trim();
+    }
+
     /**
      * Fetches the supplied parameter from the request and converts it to
      * an integer. If the parameter does not exist, <code>defval</code> is

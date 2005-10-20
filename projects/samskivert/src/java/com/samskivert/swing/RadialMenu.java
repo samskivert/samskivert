@@ -190,6 +190,17 @@ public class RadialMenu
     }
 
     /**
+     * May be called by an item when it changes in a material way.
+     */
+    public void itemUpdated ()
+    {
+        if (_host != null) {
+            layout();
+            repaint();
+        }
+    }
+
+    /**
      * Adds a listener that will be notified when a menu item is
      * selected. When the the menu is popped down, all listeners will be
      * cleared.
@@ -449,7 +460,7 @@ public class RadialMenu
         // deactivate the active item and post a command for it
         if (_activeItem != null) {
             // only process the selection if the item is enabled
-            if (_activeItem.isEnabled(this)) {
+            if (_activeItem.isEnabled(this) && _activeItem.command != null) {
                 // if the item has an overriding argument, use that
                 Object itemArg = _activeItem.argument;
                 Object arg = (itemArg == null) ? _argument : itemArg;

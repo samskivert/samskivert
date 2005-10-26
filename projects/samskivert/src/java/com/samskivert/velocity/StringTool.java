@@ -21,6 +21,7 @@
 package com.samskivert.velocity;
 
 import java.text.NumberFormat;
+import java.util.Calendar;
 
 import com.samskivert.servlet.util.HTMLUtil;
 import com.samskivert.util.StringUtil;
@@ -127,6 +128,17 @@ public class StringTool
     public static String join (String[] values, String sep)
     {
         return StringUtil.join(values, sep);
+    }
+
+    /**
+     * Generates a copyright string for the specified copyright holder from the
+     * specified first year to the current year.
+     */
+    public static String copyright (String holder, int startYear)
+    {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        return "&copy; " + holder + " " + startYear + "-" + year;
     }
 
     /** For formatting percentages. */

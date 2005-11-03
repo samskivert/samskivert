@@ -30,7 +30,7 @@ public class KeyUtil
     /**
      * Convenient function to make a random key of the specified total
      * length, containing length - 1 random digits, that is verifiable
-     * using {@link verifyLuhn}.
+     * using {@link #verifyLuhn}.
      */
     public static String makeVerifiableKey (Random rand, int length)
     {
@@ -69,7 +69,7 @@ public class KeyUtil
     /**
      * Takes a random string of digits and adds the appropriate check
      * digit in order to make the whole string verifyable using {@link
-     * verifyLuhn}.
+     * #verifyLuhn}.
      */
     public static String makeLuhnVerifiable (String key)
     {
@@ -82,8 +82,10 @@ public class KeyUtil
     /**
      * Return the luhn remainder for the given key.
      *
-     * {@see http://www.beachnet.com/~hstiles/cardtype.html }
-     * {@see http://www.google.com/search?q=luhn%20credit%20card }
+     * @see <a href="http://www.beachnet.com/~hstiles/cardtype.html">
+     * Instructions for computing the Lunh remainder</a>
+     * @see <a href="http://www.google.com/search?q=luhn%20credit%20card">
+     * Find more information with Google</a>
      */
     public static int getLuhnRemainder (String key)
     {

@@ -66,6 +66,22 @@ public class SimpleRepository extends Repository
     {
         super(provider);
         _dbident = dbident;
+
+        // give the repository a chance to do any schema migration before
+        // things get further underway
+        try {
+            execute(new Operation() {
+                public Object invoke (Connection conn, DatabaseLiaison liaison)
+                    throws SQLException, PersistenceException
+                {
+                    migrateSchema();
+                    return null;
+                }
+            });
+        } catch (PersistenceException pe) {
+            Log.warning("Failure migrating schema [dbident=" + _dbident + "].");
+            Log.logStackTrace(pe);
+        }
     }
 
     /**
@@ -297,6 +313,19 @@ public class SimpleRepository extends Repository
                 return null;
             }
         });
+    }
+
+    /**
+     * Derived classes can override this method and perform any schema
+     * migration they might need (using the idempotent {@link JDBCUtil} schema
+     * migration methods). This is called during the repository's constructor
+     * and will thus take place before derived classes (like the {@link
+     * JORARepository} introspect on the schema to match it up to associated
+     * Java classes).
+     */
+    protected void migrateSchema ()
+        throws SQLException, PersistenceException
+    {
     }
 
     /**

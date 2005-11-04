@@ -23,7 +23,7 @@ public class IntegerTableCellRenderer extends DefaultTableCellRenderer
     protected void setValue (Object value)
     {
         if ((value instanceof Integer) || (value instanceof Long)) {
-            setText(_nfi.format(value));
+            setText(_nfi.format(value) + " ");
         } else {
             super.setValue(value);
         }

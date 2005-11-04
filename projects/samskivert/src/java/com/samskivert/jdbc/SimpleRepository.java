@@ -74,7 +74,7 @@ public class SimpleRepository extends Repository
                 public Object invoke (Connection conn, DatabaseLiaison liaison)
                     throws SQLException, PersistenceException
                 {
-                    migrateSchema();
+                    migrateSchema(conn, liaison);
                     return null;
                 }
             });
@@ -323,7 +323,7 @@ public class SimpleRepository extends Repository
      * JORARepository} introspect on the schema to match it up to associated
      * Java classes).
      */
-    protected void migrateSchema ()
+    protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
         throws SQLException, PersistenceException
     {
     }

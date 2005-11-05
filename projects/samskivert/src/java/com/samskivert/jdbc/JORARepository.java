@@ -46,6 +46,10 @@ public abstract class JORARepository extends SimpleRepository
     {
         super(provider, dbident);
 
+        // our parent class will have already obtained a database connection
+        // and therefore ended up calling getConnection() which will create our
+        // session, so we can make use of it straight away
+
         // create our tables
         createTables(_session);
     }

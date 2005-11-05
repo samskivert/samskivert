@@ -46,9 +46,6 @@ public abstract class JORARepository extends SimpleRepository
     {
         super(provider, dbident);
 
-        // create our JORA session
-        _session = new Session((Connection)null);
-
         // create our tables
         createTables(_session);
     }
@@ -227,8 +224,12 @@ public abstract class JORARepository extends SimpleRepository
 
     protected void gotConnection (Connection conn)
     {
-        // let our session know about this connection
-        _session.setConnection(conn);
+        // create or update our JORA session
+        if (_session == null) {
+            _session = new Session(conn);
+        } else {
+            _session.setConnection(conn);
+        }
     }
 
     protected Session _session;

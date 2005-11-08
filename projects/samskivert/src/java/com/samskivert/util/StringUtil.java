@@ -54,8 +54,18 @@ public class StringUtil
 {
     /**
      * @return true if the string is null or empty, false otherwise.
+     *
+     * @deprecated use isBlank instead.
      */
     public static boolean blank (String value)
+    {
+        return isBlank(value);
+    }
+
+    /**
+     * @return true if the string is null or empty, false otherwise.
+     */
+    public static boolean isBlank (String value)
     {
         return (value == null || value.trim().length() == 0);
     }

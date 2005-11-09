@@ -134,7 +134,7 @@ public class ParameterUtil
         String[] values = req.getParameterValues(name);
         if (values != null) {
             for (int ii = 0; ii < values.length; ii++) {
-                if (!StringUtil.blank(values[ii])) {
+                if (!StringUtil.isBlank(values[ii])) {
                     ints.add(parseIntParameter(values[ii], invalidDataMessage));
                 }
             }
@@ -153,7 +153,7 @@ public class ParameterUtil
         String[] values = req.getParameterValues(name);
         if (values != null) {
             for (int ii = 0; ii < values.length; ii++) {
-                if (!StringUtil.blank(values[ii])) {
+                if (!StringUtil.isBlank(values[ii])) {
                     set.add(values[ii]);
                 }
             }
@@ -169,7 +169,7 @@ public class ParameterUtil
         HttpServletRequest req, String name, String defval)
     {
 	String value = req.getParameter(name);
-        return StringUtil.blank(value) ? defval : value.trim();
+        return StringUtil.isBlank(value) ? defval : value.trim();
     }
 
     /**
@@ -184,7 +184,7 @@ public class ParameterUtil
 	throws DataValidationException
     {
 	String value = getParameter(req, name, false);
-        if (StringUtil.blank(value)) {
+        if (StringUtil.isBlank(value)) {
             return defval;
         }
         return parseIntParameter(value, invalidDataMessage);
@@ -202,7 +202,7 @@ public class ParameterUtil
 	throws DataValidationException
     {
 	String value = getParameter(req, name, false);
-        if (StringUtil.blank(value)) {
+        if (StringUtil.isBlank(value)) {
             return defval;
         }
         return parseLongParameter(value, invalidDataMessage);
@@ -218,7 +218,7 @@ public class ParameterUtil
 	throws DataValidationException
     {
 	String value = getParameter(req, name, true);
-	if (StringUtil.blank(value)) {
+	if (StringUtil.isBlank(value)) {
 	    throw new DataValidationException(missingDataMessage);
 	}
 	return value;
@@ -271,7 +271,7 @@ public class ParameterUtil
 	throws DataValidationException
     {
 	String value = getParameter(req, name, false);
-        if (StringUtil.blank(value)) {
+        if (StringUtil.isBlank(value)) {
             return null;
         }
         return parseDateParameter(value, invalidDataMessage);
@@ -302,7 +302,7 @@ public class ParameterUtil
     {
         String value = getParameter(req, name, true);
         return (value == null) ? defaultValue :
-            !StringUtil.blank(req.getParameter(name));
+            !StringUtil.isBlank(req.getParameter(name));
     }
 
     /**

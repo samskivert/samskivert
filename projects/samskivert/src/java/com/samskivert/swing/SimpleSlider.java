@@ -77,7 +77,7 @@ public class SimpleSlider extends JPanel
     public void setLabel (String label)
     {
         _label.setText(label);
-        _label.setVisible(!StringUtil.blank(label));
+        _label.setVisible(!StringUtil.isBlank(label));
     }
 
     /**

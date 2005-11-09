@@ -383,7 +383,7 @@ public class RuntimeAdjust
         protected void redisplay ()
         {
             if (_display != null) {
-                _display.setText(StringUtil.blank(_value) ? "(unset)" : _value);
+                _display.setText(StringUtil.isBlank(_value) ? "(unset)" : _value);
             }
         }
 

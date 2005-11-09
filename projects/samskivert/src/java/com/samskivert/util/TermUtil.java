@@ -118,7 +118,7 @@ public class TermUtil
     /** Converts the string to an integer, returning -1 on any error. */
     protected static int safeToInt (String intstr)
     {
-        if (!StringUtil.blank(intstr)) {
+        if (!StringUtil.isBlank(intstr)) {
             try {
                 return Integer.parseInt(intstr);
             } catch (NumberFormatException nfe) {

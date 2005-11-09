@@ -70,7 +70,7 @@ public class LoggingLogProvider
     protected final Logger getLogger (String moduleName)
     {
         Logger logger = Logger.global;
-        if (!StringUtil.blank(moduleName)) {
+        if (!StringUtil.isBlank(moduleName)) {
             logger = (Logger)_loggers.get(moduleName);
             if (logger == null) {
                 _loggers.put(moduleName,

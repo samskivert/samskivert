@@ -349,7 +349,7 @@ public class FormTool
     {
         StringBuffer buf = new StringBuffer();
         buf.append("<textarea name=\"").append(name).append("\"");
-        if (!StringUtil.blank(extra)) {
+        if (!StringUtil.isBlank(extra)) {
             buf.append(" ").append(extra);
         }
         buf.append(">");
@@ -382,7 +382,7 @@ public class FormTool
         buf.append("<input type=\"").append(type).append("\"");
         buf.append(" name=\"").append(name).append("\"");
         buf.append(" value=\"").append(value).append("\"");
-        if (!StringUtil.blank(extra)) {
+        if (!StringUtil.isBlank(extra)) {
             buf.append(" ").append(extra);
         }
         buf.append(">");
@@ -396,7 +396,7 @@ public class FormTool
     protected String getValue (String name, Object defaultValue)
     {
         String value = ParameterUtil.getParameter(_req, name, true);
-        if (StringUtil.blank(value)) {
+        if (StringUtil.isBlank(value)) {
             if (defaultValue == null) {
                 value = "";
             } else {

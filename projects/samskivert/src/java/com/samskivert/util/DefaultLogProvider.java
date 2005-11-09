@@ -46,11 +46,11 @@ public class DefaultLogProvider implements LogProvider
         try {
             // enable vt100 escape codes if requested
             String pstr = System.getProperty("log_vt100");
-            if (!StringUtil.blank(pstr)) {
+            if (!StringUtil.isBlank(pstr)) {
                 _useVT100 = pstr.equalsIgnoreCase("true");
             }
             String wstr = System.getProperty("wrap_log");
-            if (!StringUtil.blank(wstr)) {
+            if (!StringUtil.isBlank(wstr)) {
                 _wrapLog = wstr.equalsIgnoreCase("true");
             }
 

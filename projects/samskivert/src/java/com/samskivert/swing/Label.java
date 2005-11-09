@@ -118,7 +118,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         // the Java text stuff freaks out in a variety of ways if it is
         // asked to deal with the empty string, so we fake blank labels by
         // just using a space
-        if (StringUtil.blank(text)) {
+        if (StringUtil.isBlank(text)) {
             _text = " ";
         } else if (!text.equals(_text)) {
             _text = text;

@@ -42,7 +42,7 @@ public class StringTool
      */
     public static boolean blank (String text)
     {
-        return StringUtil.blank(text);
+        return StringUtil.isBlank(text);
     }
 
     /**

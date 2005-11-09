@@ -124,7 +124,7 @@ public class UserManager
 
         // look up any override to our user auth cookie
         String authCook = config.getProperty("auth_cookie.name");
-        if (!StringUtil.blank(authCook)) {
+        if (!StringUtil.isBlank(authCook)) {
             _userAuthCookie = authCook;
         }
 

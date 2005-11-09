@@ -420,7 +420,7 @@ public class ConfigUtil
         }
 
         // if the root extends another file, resolve that first
-        if (!StringUtil.blank(root._extends)) {
+        if (!StringUtil.isBlank(root._extends)) {
             try {
                 loadInheritedProperties(root._extends, loader, target);
             } catch (FileNotFoundException fnfe) {
@@ -519,7 +519,7 @@ public class ConfigUtil
     protected static String[] parseValues (String line)
     {
         String value = parseValue(line);
-        if (StringUtil.blank(value)) {
+        if (StringUtil.isBlank(value)) {
             return null;
         }
 
@@ -645,13 +645,13 @@ public class ConfigUtil
         public void validate ()
             throws IOException
         {
-            if (StringUtil.blank(_package)) {
+            if (StringUtil.isBlank(_package)) {
                 throw new IOException(
                     "Properties file missing '_package' identifier " + this);
             }
 
             if ((_overrides != null && _overrides.length > 0) &&
-                (!StringUtil.blank(_extends))) {
+                (!StringUtil.isBlank(_extends))) {
                 throw new IOException("Properties file cannot use both " +
                                       "'_overrides' and '_extends' " + this);
             }

@@ -91,7 +91,7 @@ public class SetPropertyFieldsRule extends Rule
         // applicable
 	for (int i = 0; i < attrs.getLength(); i++) {
 	    String lname = attrs.getLocalName(i);
-            if (StringUtil.blank(lname)) {
+            if (StringUtil.isBlank(lname)) {
                 lname = attrs.getQName(i);
             }
 

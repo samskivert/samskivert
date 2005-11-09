@@ -75,7 +75,7 @@ public class RequestUtils
             buf.insert(csidx, servername);
         }
         String query = req.getQueryString();
-        if (!StringUtil.blank(query)) {
+        if (!StringUtil.isBlank(query)) {
             buf.append("?").append(query);
         }
         return buf.toString();

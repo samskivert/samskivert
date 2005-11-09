@@ -95,13 +95,13 @@ public class Application
         // create a site resource loader if the user set up the
         // site-specific jar file path
         String siteJarPath = getInitParameter(config, SITE_JAR_PATH_KEY);
-        if (!StringUtil.blank(siteJarPath)) {
+        if (!StringUtil.isBlank(siteJarPath)) {
             _siteLoader = new SiteResourceLoader(_siteIdent, siteJarPath);
         }
 
         // instantiate our message manager if the application wants one
         String bundlePath = getInitParameter(config, MESSAGE_BUNDLE_PATH_KEY);
-        if (!StringUtil.blank(bundlePath)) {
+        if (!StringUtil.isBlank(bundlePath)) {
             _msgmgr = new MessageManager(bundlePath, null);
         }
 
@@ -111,7 +111,7 @@ public class Application
         if (_msgmgr != null && _siteLoader != null) {
             String siteBundlePath = getInitParameter(
                 config, SITE_MESSAGE_BUNDLE_PATH_KEY);
-            if (!StringUtil.blank(siteBundlePath)) {
+            if (!StringUtil.isBlank(siteBundlePath)) {
                 _msgmgr.activateSiteSpecificMessages(
                     siteBundlePath, _siteLoader, _siteIdent);
 

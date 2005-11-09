@@ -229,7 +229,7 @@ public class StaticConnectionProvider implements ConnectionProvider
 	throws PersistenceException
     {
 	String value = props.getProperty(name);
-	if (StringUtil.blank(value)) {
+	if (StringUtil.isBlank(value)) {
             // augment the error message
             errmsg = "Unable to get connection. " + errmsg;
 	    throw new PersistenceException(errmsg);

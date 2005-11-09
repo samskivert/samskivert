@@ -186,7 +186,7 @@ public class DispatcherServlet extends VelocityServlet
         // load up our application configuration
         try {
             String appcl = config.getInitParameter(APP_CLASS_KEY);
-            if (StringUtil.blank(appcl)) {
+            if (StringUtil.isBlank(appcl)) {
                 _app = new Application();
             } else {
                 Class appclass = Class.forName(appcl);
@@ -196,7 +196,7 @@ public class DispatcherServlet extends VelocityServlet
             // now initialize the applicaiton
             String logicPkg = config.getInitParameter(LOGIC_PKG_KEY);
             _app.init(config, getServletContext(),
-                      StringUtil.blank(logicPkg) ? "" : logicPkg);
+                      StringUtil.isBlank(logicPkg) ? "" : logicPkg);
 
         } catch (Throwable t) {
             Log.warning("Error instantiating application.");

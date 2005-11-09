@@ -57,7 +57,7 @@ public final class Log
         // try setting our default log level for this package
         try {
             String lstr = System.getProperty("log_level:" + moduleName);
-            if (!StringUtil.blank(lstr)) {
+            if (!StringUtil.isBlank(lstr)) {
                 int level = levelFromString(lstr);
                 if (level != -1) {
                     _provider.setLevel(moduleName, level);
@@ -230,7 +230,7 @@ public final class Log
         // now set our log level
         try {
             String lstr = System.getProperty("log_level");
-            if (!StringUtil.blank(lstr)) {
+            if (!StringUtil.isBlank(lstr)) {
                 int level = levelFromString(lstr);
                 if (level != -1) {
                     _provider.setLevel(level);

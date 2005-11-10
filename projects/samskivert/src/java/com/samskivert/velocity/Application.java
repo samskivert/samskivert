@@ -28,8 +28,10 @@ import javax.servlet.ServletContext;
 import org.apache.velocity.app.Velocity;
 
 import com.samskivert.Log;
+import com.samskivert.servlet.HttpErrorException;
 import com.samskivert.servlet.IndiscriminateSiteIdentifier;
 import com.samskivert.servlet.MessageManager;
+import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
 import com.samskivert.util.StringUtil;
@@ -171,6 +173,17 @@ public class Application
      * preparation.
      */
     protected void prepareContext (InvocationContext ctx)
+    {
+    }
+
+    /**
+     * Allows derived application classes to check access in a single location
+     * prior to resolving and dispatching a logic class, if they desire access
+     * control at this level. Alternatively, access control can be performed by
+     * the logic instance.
+     */
+    protected void checkAccess (InvocationContext ctx)
+        throws RedirectException, HttpErrorException
     {
     }
 

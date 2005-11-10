@@ -41,6 +41,7 @@ import org.apache.velocity.app.event.MethodExceptionEventHandler;
 
 import com.samskivert.Log;
 
+import com.samskivert.servlet.HttpErrorException;
 import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
@@ -337,6 +338,9 @@ public class DispatcherServlet extends VelocityServlet
             // allow the application to prepare the context
             _app.prepareContext(ictx);
 
+            // allow the application to do global access control
+            _app.checkAccess(ictx);
+
             // resolve the appropriate logic class for this URI and
             // execute it if it exists
             String path = req.getServletPath();
@@ -347,6 +351,15 @@ public class DispatcherServlet extends VelocityServlet
 
 	} catch (RedirectException re) {
             ictx.getResponse().sendRedirect(re.getRedirectURL());
+            return null;
+
+	} catch (HttpErrorException hee) {
+            String msg = hee.getErrorMessage();
+            if (msg != null) {
+                ictx.getResponse().sendError(hee.getErrorCode(), msg);
+            } else {
+                ictx.getResponse().sendError(hee.getErrorCode());
+            }
             return null;
 
 	} catch (FriendlyException fe) {

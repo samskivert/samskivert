@@ -352,7 +352,7 @@ public class QuickSort
      */
     public static void rsort (ArrayList a)
     {
-        sort(a, Comparators.REVERSE_COMPARABLE);
+        sort(a, java.util.Collections.reverseOrder());
     }
 
     /**

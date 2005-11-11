@@ -61,7 +61,7 @@ public class SortableArrayList extends AbstractList
      */
     public void rsort ()
     {
-        sort(Comparators.REVERSE_COMPARABLE);
+        sort(java.util.Collections.reverseOrder());
     }
 
     /**

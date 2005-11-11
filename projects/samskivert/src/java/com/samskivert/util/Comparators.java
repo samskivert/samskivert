@@ -30,6 +30,8 @@ public class Comparators
     /**
      * A comparator that can be used to reverse the results of another
      * comparator.
+     * TODO: deprecate this when we more globally move to 1.5:
+     * @use java.util.Collections.reverseOrder(Comparator c);
      */
     public static class ReversingComparator implements Comparator
     {
@@ -49,24 +51,49 @@ public class Comparators
 
     /**
      * A comparator that compares {@link Comparable} instances.
+     * Can you believe this isn't defined somewhere in the standard
+     * java libraries?
      */
     public static final Comparator COMPARABLE = new Comparator() {
         public int compare (Object o1, Object o2)
         {
-            if (o1 == o2) {
+            if (o1 == o2) { // catches null == null
                 return 0;
-            }
-            if (o1 == null) {
+            } else if (o1 == null) {
                 return 1;
+            } else if (o2 == null) {
+                return -1;
             }
-            return ((Comparable)o1).compareTo(o2);
+            return ((Comparable)o1).compareTo(o2); // null-free
+        }
+    };
+
+    /**
+     * A comparator that compares the toString() value of all objects
+     * case insensitively.
+     */
+    public static final Comparator LEXICAL_CASE_INSENSITIVE = new Comparator() {
+        public int compare (Object o1, Object o2)
+        {
+            if (o1 == o2) { // catches null == null
+                return 0;
+            } else if (o1 == null) {
+                return 1;
+            } else if (o2 == null) {
+                return -1;
+            }
+            // now that we've filtered all nulls, compare the toString()s
+            return String.CASE_INSENSITIVE_ORDER.compare(
+                o1.toString(), o2.toString());
         }
     };
 
     /**
      * A comparator that imposes a reverse ordering on {@link Comparable}
      * instances.
+     *
+     * @deprecated use java.util.Collections.reverseOrder()
      */
     public static final Comparator REVERSE_COMPARABLE =
-        new ReversingComparator(COMPARABLE);
+        java.util.Collections.reverseOrder();
 }

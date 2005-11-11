@@ -13,6 +13,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.*;
 
+import com.samskivert.util.Comparators;
+
 /**
  * TableSorter is a decorator for TableModels; adding sorting
  * functionality to a supplied TableModel. TableSorter does
@@ -74,17 +76,6 @@ public class TableSorter extends AbstractTableModel {
     public static final int ASCENDING = 1;
 
     private static Directive EMPTY_DIRECTIVE = new Directive(-1, NOT_SORTED);
-
-    public static final Comparator COMPARABLE_COMAPRATOR = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            return ((Comparable) o1).compareTo(o2);
-        }
-    };
-    public static final Comparator LEXICAL_COMPARATOR = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            return o1.toString().compareTo(o2.toString());
-        }
-    };
 
     public static JTable createSortedTable (TableModel model)
     {
@@ -227,9 +218,9 @@ public class TableSorter extends AbstractTableModel {
             return comparator;
         }
         if (Comparable.class.isAssignableFrom(columnType)) {
-            return COMPARABLE_COMAPRATOR;
+            return Comparators.COMPARABLE;
         }
-        return LEXICAL_COMPARATOR;
+        return Comparators.LEXICAL_CASE_INSENSITIVE;
     }
 
     private Row[] getViewToModel() {

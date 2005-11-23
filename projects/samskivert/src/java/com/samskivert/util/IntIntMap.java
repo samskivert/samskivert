@@ -46,14 +46,32 @@ public class IntIntMap
 
     public final static int DEFAULT_BUCKETS = 64;
 
-    public IntIntMap (int buckets)
+    /**
+     * The default load factor.
+     */
+    public final static float DEFAULT_LOAD_FACTOR = 1.75f;
+
+    /**
+     * The shrink factor.
+     * When the number of elements multiplied by this number is less
+     * than the size of the array, we shrink the array by half.
+     */
+    protected static final int SHRINK_FACTOR = 8;
+
+    public IntIntMap (int buckets, float loadFactor)
     {
 	_buckets = new Record[buckets];
+        _loadFactor = loadFactor;
+    }
+
+    public IntIntMap (int buckets)
+    {
+        this(buckets, DEFAULT_LOAD_FACTOR);
     }
 
     public IntIntMap ()
     {
-	this(DEFAULT_BUCKETS);
+	this(DEFAULT_BUCKETS, DEFAULT_LOAD_FACTOR);
     }
 
     public int size ()
@@ -65,7 +83,10 @@ public class IntIntMap
     {
         _modCount++;
 
-	int index = Math.abs(key)%_buckets.length;
+        // check to see if we've passed our load factor, if so: resize
+        checkGrow();
+
+        int index = Math.abs(key)%_buckets.length;
 	Record rec = _buckets[index];
 
 	// either we start a new chain
@@ -133,7 +154,9 @@ public class IntIntMap
     public int remove (int key)
     {
         _modCount++;
-        return removeImpl(key);
+        int removed = removeImpl(key);
+        checkShrink();
+        return removed;
     }
 
     protected int removeImpl (int key)
@@ -168,6 +191,53 @@ public class IntIntMap
 	}
 	// zero out our size
 	_size = 0;
+    }
+
+    /**
+     * Check to see if we want to shrink the table.
+     */
+    protected void checkShrink ()
+    {
+        if ((_buckets.length > DEFAULT_BUCKETS) &&
+            (_size * SHRINK_FACTOR < _buckets.length)) {
+            resizeBuckets(_buckets.length >> 1);
+        }
+    }
+
+    /**
+     * Check to see if we want to grow the table.
+     */
+    protected void checkGrow ()
+    {
+        if (_size > (int) (_buckets.length * _loadFactor)) {
+            resizeBuckets(_buckets.length << 1);
+        }
+    }
+
+    /**
+     * Resize the hashtable.
+     *
+     * @param newsize The new number of buckets to allocate.
+     */
+    protected void resizeBuckets (int newsize)
+    {
+        Record[] oldbuckets = _buckets;
+        _buckets = new Record[newsize];
+
+        // we shuffle the records around without allocating new ones
+        int index = oldbuckets.length;
+        while (index-- > 0) {
+            Record oldrec = oldbuckets[index];
+            while (oldrec != null) {
+                Record newrec = oldrec;
+                oldrec = oldrec.next;
+
+                // always put the newrec at the start of a chain
+                int newdex = Math.abs(newrec.key)%_buckets.length;
+                newrec.next = _buckets[newdex];
+                _buckets[newdex] = newrec;
+            }
+        }
     }
 
     public Interator keys ()
@@ -415,6 +485,8 @@ public class IntIntMap
 
     private Record[] _buckets;
     private int _size;
+
+    protected float _loadFactor;
 
     protected int _modCount = 0;
 }

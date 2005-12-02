@@ -49,8 +49,10 @@ public class FileUtil
     {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
-            for (int ii = 0; ii < files.length; ii++) {
-                recursiveWipe(files[ii], true);
+            if (files != null) {
+                for (int ii = 0; ii < files.length; ii++) {
+                    recursiveWipe(files[ii], true);
+                }
             }
         }
         if (wipeMe) {

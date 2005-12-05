@@ -36,8 +36,13 @@ public abstract class Interval
      * An interface that will be implemented by the runnable posted
      * to a RunQueue that can be used to retrieve the original Interval.
      */
-    public static interface Runnable extends java.lang.Runnable
+    public static interface RunBuddy extends Runnable
     {
+        /**
+         * Retrieve the Interval that is responsible for posting this
+         * RunBuddy to a RunQueue. Most likely used to call toString()
+         * on the Interval for logging purposes.
+         */
         public Interval getInterval ();
     }
 
@@ -159,7 +164,7 @@ public abstract class Interval
 
             } else {
                 if (_runner == null) { // lazy initialize _runner
-                    _runner = new Runnable() {
+                    _runner = new RunBuddy() {
                         public void run () {
                             safelyExpire(IntervalTask.this);
                         }
@@ -178,7 +183,7 @@ public abstract class Interval
         }
 
         /** If we are using a RunQueue, the Runnable we post to it. */
-        protected Runnable _runner;
+        protected RunBuddy _runner;
     }
 
     /** If non-null, the RunQueue used to run the expired() method for each

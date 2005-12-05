@@ -238,7 +238,7 @@ public class FormTool
      * and value. The contents of the parameter of the same name are
      * ignored when creating this element.
      */
-    public String fixedHidden (String name, String value)
+    public String fixedHidden (String name, Object value)
     {
         return fixedInput("hidden", name, value, "");
     }

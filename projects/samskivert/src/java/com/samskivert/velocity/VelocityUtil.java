@@ -3,8 +3,6 @@
 
 package com.samskivert.velocity;
 
-import java.io.File;
-
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeServices;
@@ -51,7 +49,7 @@ public class VelocityUtil
      * something less generic, but that's what {@link VelocityEngine#init}
      * throws.
      */
-    public static VelocityEngine createEngine (File templatePath)
+    public static VelocityEngine createEngine (String templatePath)
         throws Exception
     {
         VelocityEngine ve = new VelocityEngine();

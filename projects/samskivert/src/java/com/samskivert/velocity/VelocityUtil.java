@@ -3,11 +3,15 @@
 
 package com.samskivert.velocity;
 
+import java.io.File;
+
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeServices;
-import org.apache.velocity.runtime.log.LogSystem;
+import org.apache.velocity.runtime.log.LogChute;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+
+import com.samskivert.Log;
 
 /**
  * Handy Velocity-related routines.
@@ -15,19 +19,18 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 public class VelocityUtil
 {
     /**
-     * Creates a {@link VelocityEngine} that is configured to load
-     * templates from the classpath and log using the samskivert logging
-     * classes and not complain about a bunch of pointless stuff that it
-     * generally complains about.
+     * Creates a {@link VelocityEngine} that is configured to load templates
+     * from the classpath and log using the samskivert logging classes and not
+     * complain about a bunch of pointless stuff that it generally complains
+     * about.
      *
-     * @throws Exception if a problem occurs initializing Velocity. We'd
-     * throw something less generic, but that's what
-     * {@link VelocityEngine#init} throws.
+     * @throws Exception if a problem occurs initializing Velocity. We'd throw
+     * something less generic, but that's what {@link VelocityEngine#init}
+     * throws.
      */
     public static VelocityEngine createEngine ()
         throws Exception
     {
-        // initialize velocity which we'll use for templating
         VelocityEngine ve = new VelocityEngine();
         ve.setProperty(VelocityEngine.VM_LIBRARY, "");
         ve.setProperty(VelocityEngine.RESOURCE_LOADER, "classpath");
@@ -38,16 +41,41 @@ public class VelocityUtil
         return ve;
     }
 
+    /**
+     * Creates a {@link VelocityEngine} that is configured to load templates
+     * from the specified path and log using the samskivert logging classes and
+     * not complain about a bunch of pointless stuff that it generally
+     * complains about.
+     *
+     * @throws Exception if a problem occurs initializing Velocity. We'd throw
+     * something less generic, but that's what {@link VelocityEngine#init}
+     * throws.
+     */
+    public static VelocityEngine createEngine (File templatePath)
+        throws Exception
+    {
+        VelocityEngine ve = new VelocityEngine();
+        ve.setProperty(VelocityEngine.VM_LIBRARY, "");
+        ve.setProperty("file.resource.loader.path", templatePath);
+        ve.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, _logger);
+        ve.init();
+        return ve;
+    }
+
     /** Handles logging for Velocity. */
-    protected static LogSystem _logger = new LogSystem() {
-        public void init (RuntimeServices rs) {
+    protected static LogChute _logger = new LogChute() {
+        public void init (RuntimeServices rs) throws Exception {
             // nothing doing
         }
-        public void logVelocityMessage (int level, String message) {
-            // skip anything other than warnings or errors
-            if (level == WARN_ID || level == ERROR_ID) {
-                System.err.println(message);
-            }
+        public void log (int level, String message) {
+            Log.warning(message);
+        }
+        public void log (int level, String message, Throwable t) {
+            Log.warning(message);
+            Log.logStackTrace(t);
+        }
+        public boolean isLevelEnabled (int level) {
+            return (level == WARN_ID || level == ERROR_ID);
         }
     };
 }

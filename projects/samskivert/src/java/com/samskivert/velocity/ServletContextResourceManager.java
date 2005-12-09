@@ -65,14 +65,14 @@ public class ServletContextResourceManager extends ResourceManagerImpl
     }
 
     protected Resource loadResource(
-        Object resourceKey, int resourceType, String encoding)
+        String resourceName, int resourceType, String encoding)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {
         // create a blank new resource
         Resource resource =
-            ResourceFactory.getResource(resourceKey, resourceType);
+            ResourceFactory.getResource(resourceName, resourceType);
         resource.setRuntimeServices(rsvc);
-        resource.setKey(resourceKey);
+        resource.setName(resourceName);
         resource.setEncoding(encoding);
 
         resource.setResourceLoader(_contextLoader);

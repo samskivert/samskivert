@@ -241,6 +241,7 @@ public class DispatcherServlet extends VelocityServlet
                 Log.info("Velocity loading templates from site loader.");
                 props.setProperty(RuntimeSingleton.RESOURCE_MANAGER_CLASS,
                                   SiteResourceManager.class.getName());
+                _usingSiteLoading = true;
             } else {
                 // otherwise use a servlet context resource loader
                 Log.info("Velocity loading templates from servlet context.");
@@ -287,7 +288,9 @@ public class DispatcherServlet extends VelocityServlet
         // context
         SiteIdentifier ident = _app.getSiteIdentifier();
         int siteId = ident.identifySite(req);
-        ctx.put("__siteid__", new Integer(siteId));
+        if (_usingSiteLoading) {
+            ctx.put("__siteid__", new Integer(siteId));
+        }
 
         // put the context path in the context as well to make it easier
         // to construct full paths
@@ -434,13 +437,14 @@ public class DispatcherServlet extends VelocityServlet
     protected Template selectTemplate (int siteId, InvocationContext ctx)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {
-        // create a site resource key based on the template path and the
-        // id of the site through which this request was made
         String path = ctx.getRequest().getServletPath();
-        SiteResourceKey key = new SiteResourceKey(siteId, path);
-
-	// Log.info("Loading template [key=" + key + "].");
-        return RuntimeSingleton.getRuntimeServices().getTemplate(key);
+        if (_usingSiteLoading) {
+            // if we're using site resource loading, we need to prefix the path
+            // with the site identifier
+            path = siteId + ":" + path;
+        }
+	// Log.info("Loading template [path=" + path + "].");
+        return RuntimeSingleton.getRuntimeServices().getTemplate(path);
     }
 
     /**
@@ -492,6 +496,9 @@ public class DispatcherServlet extends VelocityServlet
 
     /** The character set in which serve our responses. */
     protected String _charset;
+
+    /** Set to true if we're using the {@link SiteResourceLoader}. */
+    protected boolean _usingSiteLoading;
 
     /** This is the key used in the context for error messages. */
     protected static final String ERROR_KEY = "error";

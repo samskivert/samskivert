@@ -72,13 +72,13 @@ public class ImportDirective extends Directive
                MethodInvocationException
     {
         // make sure an argument was supplied to the directive
-        if (node.jjtGetChild(0) == null) {
+        if (node.getChild(0) == null) {
             rsvc.error("#import() error :  null argument");
             return false;
         }
 
         // make sure that argument has a value
-        Object value = node.jjtGetChild(0).value(context);
+        Object value = node.getChild(0).value(context);
         if (value == null) {
             rsvc.error("#import() error :  null argument");
             return false;
@@ -109,27 +109,29 @@ public class ImportDirective extends Directive
                 rsvc.getProperty(RuntimeConstants.INPUT_ENCODING);
         }
 
-        // construct the template key based on the desired path and the
-        // site information in the current context. the siteid was shoved
-        // into the context by the dispatcher servlet. this is a hack, i
-        // know, but i couldn't convince the velocity peeps that we should
-        // have access to a request context in places like this
+        // adjust the template path with the site information in the current
+        // context if available. the siteid is shoved into the context by the
+        // dispatcher servlet when we're using the site resource loader. this
+        // is a hack, i know, but i couldn't convince the velocity peeps that
+        // we should have access to a request context in places like this
         Object siteIdVal = context.get("__siteid__");
-        int siteId = SiteIdentifier.DEFAULT_SITE_ID;
-        try {
-            siteId = ((Integer)siteIdVal).intValue();
-        } catch (Exception e) {
-            rsvc.error("#import() error: No siteId information in context.");
+        if (siteIdVal != null) {
+            int siteId = SiteIdentifier.DEFAULT_SITE_ID;
+            try {
+                siteId = ((Integer)siteIdVal).intValue();
+            } catch (Exception e) {
+                rsvc.error("#import() error: No siteId information in context.");
+            }
+            path = siteId + ":" + path;
         }
-        Object tkey = new SiteResourceKey(siteId, path);
 
         // locate the requested template
         Template t = null;
         try {
-            t = rsvc.getTemplate(tkey, encoding);   
+            t = rsvc.getTemplate(path, encoding);   
 
         } catch (ResourceNotFoundException rnfe) {
-            rsvc.error("#import(): cannot find template '" + tkey +
+            rsvc.error("#import(): cannot find template '" + path +
                        "', called from template " +
                        context.getCurrentTemplateName() +
                        " at (" + getLine() + ", " + getColumn() + ")");       	
@@ -137,13 +139,13 @@ public class ImportDirective extends Directive
 
         } catch (ParseErrorException pee) {
             rsvc.error("#import(): syntax error in #import()-ed template '" +
-                       tkey + "', called from template " +
+                       path + "', called from template " +
                        context.getCurrentTemplateName() +
                        " at (" + getLine() + ", " + getColumn() + ")");    
             throw pee;
 
         } catch (Exception e) {	
-            rsvc.error("#import(): Error [path=" + tkey +
+            rsvc.error("#import(): Error [path=" + path +
                        ", error=" + e + "].");
             return false;
         }

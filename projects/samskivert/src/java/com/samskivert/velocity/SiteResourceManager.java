@@ -35,13 +35,8 @@ import com.samskivert.servlet.SiteResourceLoader;
 
 /**
  * A resource manager implementation for Velocity that first loads site
- * specific resources (via the {@link SiteJarResourceLoader}), but falls
- * back to default resources if no site-specific resource loader is
- * available.
- *
- * <p> If this resource manager is to be used, resources must be fetched
- * using {@link SiteResourceKey} objects as keys rather than simple
- * strings.
+ * specific resources (via the {@link SiteJarResourceLoader}), but falls back
+ * to default resources if no site-specific resource loader is available.
  */
 public class SiteResourceManager extends ResourceManagerImpl
 {
@@ -87,37 +82,35 @@ public class SiteResourceManager extends ResourceManagerImpl
     }
 
     protected Resource loadResource(
-        Object resourceKey, int resourceType, String encoding)
+        String resourceName, int resourceType, String encoding)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {
+        SiteKey skey = new SiteKey(resourceName);
+
         // create a blank new resource
         Resource resource =
-            ResourceFactory.getResource(resourceKey, resourceType);
+            ResourceFactory.getResource(skey.path, resourceType);
         resource.setRuntimeServices(rsvc);
-        resource.setKey(resourceKey);
         resource.setEncoding(encoding);
 
         // if the resource was requested using a site resource key, we can
-        // attempt to load a site-specific version
-        if (resourceKey instanceof SiteResourceKey) {
-            SiteResourceKey rkey = (SiteResourceKey)resourceKey;
-
-            // make sure the site we're loading for is not the default
-            // site, in which case we want to skip to the second resource
-            // loader directly
-            if (rkey.getSiteId() != SiteIdentifier.DEFAULT_SITE_ID) {
-                // try loading it via the site-specific resource loader
-                try {
-                    resolveResource(resource, _siteLoader);
-                } catch (ResourceNotFoundException rnfe) {
-                    // nothing to worry about here
-                }
+        // attempt to load a site-specific version; also make sure the site
+        // we're loading for is not the default site, in which case we want to
+        // skip to the second resource loader directly
+        if (skey.siteId != -1 && skey.siteId != SiteIdentifier.DEFAULT_SITE_ID) {
+            // try loading it via the site-specific resource loader
+            try {
+                resource.setName(resourceName);
+                resolveResource(resource, _siteLoader);
+            } catch (ResourceNotFoundException rnfe) {
+                // nothing to worry about here
             }
         }
 
-        // try the servlet context loader if we didn't find a
-        // site-specific resource
+        // try the servlet context loader if we didn't find a site-specific
+        // resource
         if (resource.getData() == null) {
+            resource.setName(skey.path);
             resolveResource(resource, _contextLoader);
         }
 
@@ -135,8 +128,8 @@ public class SiteResourceManager extends ResourceManagerImpl
         resource.touch();
     }
 
-    /** A reference to the servlet context through which we'll load
-     * default resources. */
+    /** A reference to the servlet context through which we'll load default
+     * resources. */
     protected ServletContext _sctx;
 
     /** A reference to the site identifier in use by the application. */

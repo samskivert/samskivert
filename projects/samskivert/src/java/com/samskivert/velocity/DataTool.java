@@ -26,7 +26,7 @@ public class DataTool
      */
     public Object get (Object array, int index)
     {
-        return Array.get(array, index);
+        return (array == null) ? null : Array.get(array, index);
     }
 
     /**
@@ -34,7 +34,7 @@ public class DataTool
      */
     public int length (Object array)
     {
-        return Array.getLength(array);
+        return (array == null) ? 0 : Array.getLength(array);
     }
 
     /**

@@ -66,10 +66,16 @@ public class VelocityUtil
             // nothing doing
         }
         public void log (int level, String message) {
-            Log.warning(message);
+            switch (level) {
+            case ERROR_ID:
+            case WARN_ID: Log.warning(message); break;
+            case INFO_ID: Log.info(message); break;
+            default:
+            case DEBUG_ID: Log.debug(message); break;
+            }
         }
         public void log (int level, String message, Throwable t) {
-            Log.warning(message);
+            log(level, message);
             Log.logStackTrace(t);
         }
         public boolean isLevelEnabled (int level) {

@@ -68,10 +68,15 @@ public class VelocityUtil
         public void log (int level, String message) {
             switch (level) {
             case ERROR_ID:
-            case WARN_ID: Log.warning(message); break;
-            case INFO_ID: Log.info(message); break;
+            case WARN_ID:
+                Log.warning(message);
+                break;
             default:
-            case DEBUG_ID: Log.debug(message); break;
+            case INFO_ID:
+            case DEBUG_ID:
+                // velocity insists on sending info and debug messages even
+                // though isLevelEnabled() returns false
+                break;
             }
         }
         public void log (int level, String message, Throwable t) {

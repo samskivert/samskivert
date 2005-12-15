@@ -273,7 +273,6 @@ public class DispatcherServlet extends VelocityServlet
         throws Exception
     {
         InvocationContext ictx = (InvocationContext)ctx;
-        String errmsg = null;
         Logic logic = null;
 
         // listen for exceptions so that we can report them
@@ -309,6 +308,7 @@ public class DispatcherServlet extends VelocityServlet
         // otherwise massaged by the logic
         rsp.setContentType("text/html; charset=" + _charset);
 
+        Exception error = null;
 	try {
             // insert the application into the context in case the
             // logic or a tool wishes to make use of it
@@ -352,7 +352,19 @@ public class DispatcherServlet extends VelocityServlet
                 logic.invoke(_app, ictx);
             }
 
-	} catch (RedirectException re) {
+        } catch (Exception e) {
+            error = e;
+        }
+
+        // if an error occurred processing the template, allow the application
+        // to convert it to something more appropriate and then handle it
+        String errmsg = null;
+        try {
+            if (error != null) {
+                throw _app.translateException(error);
+            }
+
+        } catch (RedirectException re) {
             ictx.getResponse().sendRedirect(re.getRedirectURL());
             return null;
 

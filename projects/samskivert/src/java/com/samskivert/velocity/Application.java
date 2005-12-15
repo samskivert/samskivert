@@ -188,6 +188,17 @@ public class Application
     }
 
     /**
+     * If an exception propagates up from {@link Logic#invoke}, the application
+     * is given the chance to convert a low-level exception into a {@link
+     * FriendlyException} or a {@link RedirectException} which will be handled
+     * in the normal way.
+     */
+    protected Exception translateException (Exception error)
+    {
+        return error;
+    }
+
+    /**
      * This should be overridden by the application implementation to
      * perform any necessary cleanup.
      */

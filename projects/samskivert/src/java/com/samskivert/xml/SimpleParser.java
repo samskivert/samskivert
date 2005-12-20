@@ -27,7 +27,6 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.samskivert.Log;
-import com.samskivert.io.NestableIOException;
 
 /**
  * The simple parser class provides an extensible object that is
@@ -81,10 +80,10 @@ public class SimpleParser extends DefaultHandler
 	    XMLUtil.parse(this, stream);
 
         } catch (ParserConfigurationException pce) {
-  	    throw new NestableIOException(pce);
+  	    throw (IOException) new IOException().initCause(pce);
 
 	} catch (SAXException saxe) {
-	    throw new NestableIOException(saxe);
+	    throw (IOException) new IOException().initCause(saxe);
 	}
     }
 

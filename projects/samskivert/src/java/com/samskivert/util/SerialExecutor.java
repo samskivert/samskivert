@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import com.samskivert.Log;
 
 /**
- * A simple serial executor, similar to what can be done in java 1.5, only
- * using 1.4 and samskivert-style tasks. This is like RunQueue only slightly
- * more sophisticated. Bloat!
+ * Executes tasks serially, but each one on a separate thread. If a task times
+ * out, the executor will attempt to interrupt the thread and abort the task,
+ * but will abandon the thread in any case after the abort attempt so that
+ * subsequent tasks can be processed. The threads created are daemon threads so
+ * that they will not block the eventual termination of the virtual machine.
  */
 public class SerialExecutor
 {
@@ -29,8 +31,16 @@ public class SerialExecutor
         public boolean merge (ExecutorTask other);
 
         /**
+         * Returns the number of milliseconds after which this task should be
+         * considered a lost cause. If the task times out, {@link #timedOut}
+         * will be called instead of {@link #resultReceived}.
+         */
+        public long getTimeout ();
+
+        /**
          * The portion of the task that will be executed on the executor's
-         * thread.
+         * thread. This method should handle {@link InterruptedException} as
+         * meaning that the task should be aborted.
          */
         public void executeTask ();
 
@@ -40,6 +50,12 @@ public class SerialExecutor
          * task.
          */
         public void resultReceived ();
+
+        /**
+         * This method is called instead of {@link #resultReceived} if the task
+         * does not complete within the requisite time.
+         */
+        public void timedOut ();
     }
 
     /**
@@ -88,9 +104,19 @@ public class SerialExecutor
     {
         _executingNow = !_queue.isEmpty();
         if (_executingNow) {
+            // start up a thread to execute the task in question
             ExecutorTask task = (ExecutorTask) _queue.remove(0);
-            ExecutorThread thread = new ExecutorThread(task);
+            final ExecutorThread thread = new ExecutorThread(task);
             thread.start();
+
+            // start up a timer that will abort this thread after the specified
+            // timeout
+            new Interval() {
+                public void expired () {
+                    // this will NOOP if the task has already completed
+                    thread.abort();
+                }
+            }.schedule(task.getTimeout());
         }
     }
 
@@ -105,22 +131,54 @@ public class SerialExecutor
             _task = task;
         }
 
-        // documentation inherited
+        public synchronized void abort ()
+        {
+            if (_task != null) {
+                final ExecutorTask task = _task;
+                // clear out the task reference which will let the running
+                // thread know to stop if/when executeTask() returns
+                _task = null;
+
+                // let the task know that it timed out
+                _receiver.postRunnable(new Runnable() {
+                    public void run () {
+                        try {
+                            task.timedOut();
+                        } catch (Throwable t) {
+                            Log.logStackTrace(t);
+                        }
+                        checkNext();
+                    }
+                });
+
+                // finally interrupt the thread in hopes of waking it up from
+                // it's hangitude
+                interrupt();
+            }
+        }
+
         public void run ()
         {
+            final ExecutorTask task = _task;
             try {
                 _task.executeTask();
+                synchronized (this) {
+                    if (_task == null) {
+                        // we were aborted, abandon ship
+                        System.err.println("Aborted!");
+                        return;
+                    }
+                    _task = null;
+                }
             } catch (Throwable t) {
-                Log.warning("ExecutorTask choked: " + t);
                 Log.logStackTrace(t);
             }
 
             _receiver.postRunnable(new Runnable() {
                 public void run () {
                     try {
-                        _task.resultReceived();
+                        task.resultReceived();
                     } catch (Throwable t) {
-                        Log.warning("ExecutorTask choked: " + t);
                         Log.logStackTrace(t);
                     }
                     checkNext();
@@ -128,7 +186,6 @@ public class SerialExecutor
             });
         }
 
-        /** The task to execute. */
         protected ExecutorTask _task;
     }
 

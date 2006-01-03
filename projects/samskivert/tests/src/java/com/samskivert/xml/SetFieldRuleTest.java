@@ -66,15 +66,15 @@ public class SetFieldRuleTest extends TestCase
 
         // set up some rules
         digester.addRule("object/intField",
-                         new SetFieldRule(digester, "intField"));
+                         new SetFieldRule("intField"));
         digester.addRule("object/stringField",
-                         new SetFieldRule(digester, "stringField"));
+                         new SetFieldRule("stringField"));
         digester.addRule("object/integerField",
-                         new SetFieldRule(digester, "integerField"));
+                         new SetFieldRule("integerField"));
         digester.addRule("object/intArrayField",
-                         new SetFieldRule(digester, "intArrayField"));
+                         new SetFieldRule("intArrayField"));
         digester.addRule("object/stringArrayField",
-                         new SetFieldRule(digester, "stringArrayField"));
+                         new SetFieldRule("stringArrayField"));
 
         try {
             String xmlpath =

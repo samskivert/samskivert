@@ -31,7 +31,7 @@ public class QuickSortTest extends TestCase
         for (int d = 1; d <= 100; d++) {
             for (int n = 0; n < 100; n++) {
                 a[n] = new Integer(n / d);
-                QuickSort.csort (a, 0, n, comp);
+                QuickSort.sort(a, 0, n, comp);
                 for (int i = 0; i <= n; i++) {
                     assertTrue("Failure for up " + n + "/" + d,
                                a[i].intValue() == i / d);
@@ -45,7 +45,7 @@ public class QuickSortTest extends TestCase
                 for (int i = 0; i <= n; i++) {
                     a[i] = new Integer((n - i) / d);
                 }
-                QuickSort.csort (a, 0, n, comp);
+                QuickSort.sort(a, 0, n, comp);
                 for (int i = 0; i <= n; i++) {
                     assertTrue("Failure for down " + n + "/" + d,
                                a[i].intValue() == i / d);
@@ -61,20 +61,20 @@ public class QuickSortTest extends TestCase
                 a[i] = new Integer(rand(30000));
             }
 
-            QuickSort.csort (a, 0, n, comp);
+            QuickSort.sort(a, 0, n, comp);
             for (int i = 0; i < n; i++) {
                 assertTrue("Failure for random " + n,
                            a[i].intValue() <= a[i+1].intValue());
             }
 
-            QuickSort.csort (a, 0, n, comp);
+            QuickSort.sort(a, 0, n, comp);
             for (int i = 0; i < n; i++) {
                 assertTrue("Failure for random " + n + " (resort)",
                            a[i].intValue() <= a[i+1].intValue());
             }
 
             a[rand(n+1)] = new Integer(rand(30000));
-            QuickSort.csort (a, 0, n, comp);
+            QuickSort.sort(a, 0, n, comp);
             for (int i = 0; i < n; i++) {
                 assertTrue("Failure for random " + n + " (resort 2)",
                            a[i].intValue() <= a[i+1].intValue());

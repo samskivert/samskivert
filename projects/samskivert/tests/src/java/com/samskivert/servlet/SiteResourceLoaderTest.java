@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import org.apache.commons.io.StreamUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.samskivert.test.TestUtil;
 
@@ -78,7 +78,7 @@ public class SiteResourceLoaderTest extends TestCase
         if (cin == null) {
             throw new IOException("Unable to load " + compareFile);
         }
-        cmp.append(StreamUtils.streamAsString(cin));
+        cmp.append(IOUtils.toString(cin));
 
         // Log.info("Loaded resources [cmp=" + compareFile + "]: " + gen);
 
@@ -107,7 +107,7 @@ public class SiteResourceLoaderTest extends TestCase
             rpath = TestUtil.getResourcePath(rpath);
             rin = new FileInputStream(rpath);
         }
-        buffer.append(StreamUtils.streamAsString(rin));
+        buffer.append(IOUtils.toString(rin));
     }
 
     public static Test suite ()

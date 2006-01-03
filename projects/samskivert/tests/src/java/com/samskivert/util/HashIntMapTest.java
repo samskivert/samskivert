@@ -130,6 +130,6 @@ public class HashIntMapTest extends TestCase
     }
 
     protected static final String TEST1 =
-        "(19, 18, 17, 16, 15, 14, 13, 12, 11, 10)";
+        "(15, 16, 14, 19, 11, 18, 12, 17, 13, 10)";
     protected static final String TEST2 = "(11, 10)";
 }

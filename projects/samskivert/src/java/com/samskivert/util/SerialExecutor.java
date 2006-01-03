@@ -101,6 +101,7 @@ public class SerialExecutor
     {
         public ExecutorThread (ExecutorTask task)
         {
+            setDaemon(true);
             _task = task;
         }
 

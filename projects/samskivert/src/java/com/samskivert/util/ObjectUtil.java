@@ -37,6 +37,34 @@ public class ObjectUtil
     }
 
     /**
+     * Returns true if the two supplied exceptions have equal messages and
+     * equal stack traces.
+     */
+    public static boolean equals (Throwable t1, Throwable t2)
+    {
+        if (t1 == t2) {
+            return true;
+        }
+        if (t1 == null || t2 == null) {
+            return false;
+        }
+        if (!equals(t1.getMessage(), t2.getMessage())) {
+            return false;
+        }
+        StackTraceElement[] ste1 = t1.getStackTrace();
+        StackTraceElement[] ste2 = t2.getStackTrace();
+        if (ste1.length != ste2.length) {
+            return false;
+        }
+        for (int ii = 0; ii < ste1.length; ii++) {
+            if (!ste1[ii].equals(ste2[ii])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Dumps the contents of the supplied object instance, listing the
      * class name, hash code and <code>toString()</code> data for each
      * field in the supplied object and then dumps each field in turn.

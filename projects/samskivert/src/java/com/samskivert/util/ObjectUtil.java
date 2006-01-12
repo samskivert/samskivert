@@ -23,6 +23,8 @@ package com.samskivert.util;
 import java.lang.reflect.Field;
 import java.io.PrintStream;
 
+import java.util.Arrays;
+
 /**
  * Utility methods that don't fit anywhere else.
  */
@@ -42,26 +44,10 @@ public class ObjectUtil
      */
     public static boolean equals (Throwable t1, Throwable t2)
     {
-        if (t1 == t2) {
-            return true;
-        }
-        if (t1 == null || t2 == null) {
-            return false;
-        }
-        if (!equals(t1.getMessage(), t2.getMessage())) {
-            return false;
-        }
-        StackTraceElement[] ste1 = t1.getStackTrace();
-        StackTraceElement[] ste2 = t2.getStackTrace();
-        if (ste1.length != ste2.length) {
-            return false;
-        }
-        for (int ii = 0; ii < ste1.length; ii++) {
-            if (!ste1[ii].equals(ste2[ii])) {
-                return false;
-            }
-        }
-        return true;
+        return (t1 == t2) ||
+            ((t1 != null) && (t2 != null) &&
+                equals(t1.getMessage(), t2.getMessage()) &&
+                Arrays.equals(t1.getStackTrace(), t2.getStackTrace()));
     }
 
     /**

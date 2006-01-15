@@ -101,7 +101,7 @@ public abstract class JORARepository extends SimpleRepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.select(query).next();
+                return table.select(query).get();
             }
         });
     }
@@ -118,7 +118,7 @@ public abstract class JORARepository extends SimpleRepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.queryByExample(example).next();
+                return table.queryByExample(example).get();
             }
         });
     }
@@ -136,7 +136,7 @@ public abstract class JORARepository extends SimpleRepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.queryByExample(example, mask).next();
+                return table.queryByExample(example, mask).get();
             }
         });
     }

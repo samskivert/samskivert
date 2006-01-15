@@ -13,6 +13,8 @@ package com.samskivert.jdbc.jora;
 import java.util.*;
 import java.sql.*;
 
+import com.samskivert.Log;
+
 /** Cursor is used for successive access to records fetched by SELECT 
  *  statement. As far as records can be retrived from several derived tables 
  *  (polymorphic form of select), this class can issue several requests
@@ -88,6 +90,29 @@ public class Cursor {
 //  	}
 //  	catch (SQLException ex) { session.handleSQLException(ex); }
 	return null;
+    }
+
+    /**
+     * Returns the first element matched by this cursor or null if no elements
+     * were matched. Checks to ensure that no subsequent elements were matched
+     * by the query, logs a warning if there were spurious additional matches.
+     */
+    public Object get()
+        throws SQLException
+    {
+        Object result = next();
+        if (result != null) {
+            int spurious = 0;
+            while (next() != null) {
+                spurious++;
+            }
+            if (spurious > 0) {
+                Log.warning("Cursor.get() quietly tossed " + spurious +
+                            " spurious additional records. " +
+                            "[query=" + query + "].");
+            }
+        }
+        return result;
     }
 
     /** Update current record pointed by cursor. This method can be called 

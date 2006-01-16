@@ -216,6 +216,10 @@ public class Application
      * application will be required to provide a generic error message to be
      * inserted into the context and should take this opportunity to log the
      * exception.
+     *
+     * <p><em>Note:</em> the string returned by this method will be translated
+     * using the application's message manager before being inserted into the
+     * Velocity context.
      */
     protected String handleException (
         HttpServletRequest req, Logic logic, Exception error)

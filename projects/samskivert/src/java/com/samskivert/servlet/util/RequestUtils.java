@@ -20,6 +20,9 @@
 
 package com.samskivert.servlet.util;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.util.StringUtil;
@@ -94,6 +97,42 @@ public class RequestUtils
             buf.append("/");
         }
         buf.append(path);
+        return buf.toString();
+    }
+
+    /**
+     * Reconstructs the request URL including query parameters. <em>Note:</em>
+     * the output of this method is purely for logging purposes only, thus POST
+     * parameters are shown as if they were GET parameters and parameters are
+     * <em>not</em> URL encoded.
+     */
+    public static String reconstructURL (HttpServletRequest req)
+    {
+        StringBuffer buf = req.getRequestURL();
+        Map map = req.getParameterMap();
+        if (map.size() > 0) {
+            buf.append("?");
+            for (Iterator iter = map.entrySet().iterator(); iter.hasNext(); ) {
+                Map.Entry entry = (Map.Entry)iter.next();
+                buf.append(entry.getKey()).append("=");
+                String[] values = (String[])entry.getValue();
+                if (values.length == 1) {
+                    buf.append(values[0]);
+                } else {
+                    buf.append("(");
+                    for (int ii = 0; ii < values.length; ii++) {
+                        if (ii > 0) {
+                            buf.append(", ");
+                        }
+                        buf.append(values[ii]);
+                    }
+                    buf.append(")");
+                }
+                if (iter.hasNext()) {
+                    buf.append("&");
+                }
+            }
+        }
         return buf.toString();
     }
 }

@@ -36,6 +36,7 @@ import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
 import com.samskivert.servlet.util.ExceptionMap;
+import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -224,8 +225,7 @@ public class Application
     protected String handleException (
         HttpServletRequest req, Logic logic, Exception error)
     {
-        Log.warning("Choked on request [logic=" + logic +
-                    ", req=" + req.getRequestURI() + "].");
+        Log.warning(logic + " failed on: " + RequestUtils.reconstructURL(req));
         Log.logStackTrace(error);
         return ExceptionMap.getMessage(error);
     }

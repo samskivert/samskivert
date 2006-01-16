@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.app.Velocity;
 
@@ -34,6 +35,7 @@ import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
+import com.samskivert.servlet.util.ExceptionMap;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -43,6 +45,16 @@ import com.samskivert.util.StringUtil;
  * represents the web application. The application class is responsible
  * for initializing services that will be used by the application's logic
  * objects as well as cleaning them up when the application is shut down.
+ *
+ * <p><b>Error handling</b><br>
+ * The application provides a common error handling mechanism. The design is to
+ * catch any exceptions thrown by the logic and to convert them into friendly
+ * error messages that are inserted into the invocation context with the key
+ * <code>"error"</code> for easy display in the resulting web page.
+ *
+ * <p> The default process of mapping exceptions to friendly error messages is
+ * done using the {@link ExceptionMap} class. This can be replaced by
+ * overriding {@link #handleException}.
  */
 public class Application
 {
@@ -196,6 +208,22 @@ public class Application
     protected Exception translateException (Exception error)
     {
         return error;
+    }
+
+    /**
+     * If a generic exception propagates up from {@link Logic#invoke} and is
+     * not otherwise converted into a friendly or redirect exception, the
+     * application will be required to provide a generic error message to be
+     * inserted into the context and should take this opportunity to log the
+     * exception.
+     */
+    protected String handleException (
+        HttpServletRequest req, Logic logic, Exception error)
+    {
+        Log.warning("Choked on request [logic=" + logic +
+                    ", req=" + req.getRequestURI() + "].");
+        Log.logStackTrace(error);
+        return ExceptionMap.getMessage(error);
     }
 
     /**

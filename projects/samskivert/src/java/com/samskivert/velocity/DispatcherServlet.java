@@ -46,7 +46,6 @@ import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
-import com.samskivert.servlet.util.ExceptionMap;
 import com.samskivert.servlet.util.FriendlyException;
 
 import com.samskivert.util.ConfigUtil;
@@ -136,19 +135,7 @@ import com.samskivert.util.StringUtil;
  * inserted in the future (ie. if I ever want to use this to develop a
  * cobranded web site).
  *
- * <p><b>Error handling</b><br>
- * The dispatcher servlet provides a common error handling mechanism. The
- * design is to catch any exceptions thrown by the logic and to convert
- * them into friendly error messages that are inserted into the invocation
- * context with the key <code>"error"</code> for easy display in the
- * resulting web page.
- *
- * <p> The process of mapping exceptions to friendly error messages is
- * done using the {@link ExceptionMap} class. Consult its documentation
- * for an explanation of how it works.
- *
  * @see Logic
- * @see ExceptionMap
  */
 public class DispatcherServlet extends VelocityServlet
     implements MethodExceptionEventHandler
@@ -382,10 +369,7 @@ public class DispatcherServlet extends VelocityServlet
             errmsg = fe.getMessage();
 
 	} catch (Exception e) {
-            errmsg = ExceptionMap.getMessage(e);
-            Log.warning("Choked on request [logic=" + logic +
-                        ", req=" + req.getRequestURI() + "].");
-	    Log.logStackTrace(e);
+            errmsg = _app.handleException(req, logic, e);
 	}
 
         // if we have an error message, insert it into the template

@@ -5,6 +5,14 @@ package com.samskivert.velocity;
 
 import java.lang.reflect.Array;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import com.samskivert.util.CollectionUtil;
+
 /**
  * Some helpful methods for dealing with data in velocity.
  */
@@ -51,5 +59,40 @@ public class DataTool
     public double add (double a, double b)
     {
         return a + b;
+    }
+
+    /**
+     * Sorts the supplied list and returns it. The elements <em>must</em>
+     * implement {@link Comparable}.
+     */
+    public List sort (List list)
+    {
+        Collections.sort(list);
+        return list;
+    }
+
+    /**
+     * Copies the data from the supplied collection into a list, sorts it and
+     * returns the list. The elements <em>must</em> implement {@link
+     * Comparable}.
+     */
+    public List sort (Collection data)
+    {
+        ArrayList list = new ArrayList(data);
+        Collections.sort(list);
+        return list;
+    }
+
+    /**
+     * Copies the data from the supplied iterator into a list, sorts it and
+     * returns the list. The elements <em>must</em> implement {@link
+     * Comparable}.
+     */
+    public List sort (Iterator iter)
+    {
+        ArrayList list = new ArrayList();
+        CollectionUtil.addAll(list, iter);
+        Collections.sort(list);
+        return list;
     }
 }

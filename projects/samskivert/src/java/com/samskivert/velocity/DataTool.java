@@ -78,9 +78,7 @@ public class DataTool
      */
     public List sort (Collection data)
     {
-        ArrayList list = new ArrayList(data);
-        Collections.sort(list);
-        return list;
+        return sort(new ArrayList(data));
     }
 
     /**
@@ -92,7 +90,6 @@ public class DataTool
     {
         ArrayList list = new ArrayList();
         CollectionUtil.addAll(list, iter);
-        Collections.sort(list);
-        return list;
+        return sort(list);
     }
 }

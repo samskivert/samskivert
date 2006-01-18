@@ -46,6 +46,15 @@ public class DataTool
     }
 
     /**
+     * Returns the numerator as a percentage of the denominator (100 * num /
+     * denom), handles 0/0 (returns 0), but will div0 on N/0 where N != 0.
+     */
+    public int percent (int num, int denom)
+    {
+        return (num == 0) ? 0 : 100 * num / denom;
+    }
+
+    /**
      * Floating point divide.
      */
     public float div (float a, float b)

@@ -161,7 +161,7 @@ public class DispatcherServlet extends VelocityServlet
     public void destroy ()
     {
         super.destroy();
-	// shutdown our application
+        // shutdown our application
         _app.shutdown();
     }
 
@@ -282,8 +282,19 @@ public class DispatcherServlet extends VelocityServlet
         // to construct full paths
         ctx.put("context_path", req.getContextPath());
 
-	// then select the template
-	Template tmpl = selectTemplate(siteId, ictx);
+        // then select the template
+        Template tmpl = null;
+        try {
+            tmpl = selectTemplate(siteId, ictx);
+        } catch (ResourceNotFoundException rnfe) {
+            // send up a 404.  For some annoying reason, Jetty tells
+            // Apache that all is okay (200) when sending its own custom
+            // error pages, forcing us to use Jetty's custom error page
+            // handling code rather than passing it up the chain to be
+            // dealt with appropriately.
+            ictx.getResponse().sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        }
 
         // assume the request is in the default character set unless it
         // has actually been sensibly supplied by the browser
@@ -296,7 +307,7 @@ public class DispatcherServlet extends VelocityServlet
         rsp.setContentType("text/html; charset=" + _charset);
 
         Exception error = null;
-	try {
+        try {
             // insert the application into the context in case the
             // logic or a tool wishes to make use of it
             ictx.put(APPLICATION_KEY, _app);
@@ -355,7 +366,7 @@ public class DispatcherServlet extends VelocityServlet
             ictx.getResponse().sendRedirect(re.getRedirectURL());
             return null;
 
-	} catch (HttpErrorException hee) {
+        } catch (HttpErrorException hee) {
             String msg = hee.getErrorMessage();
             if (msg != null) {
                 ictx.getResponse().sendError(hee.getErrorCode(), msg);
@@ -364,13 +375,13 @@ public class DispatcherServlet extends VelocityServlet
             }
             return null;
 
-	} catch (FriendlyException fe) {
+        } catch (FriendlyException fe) {
             // grab the error message, we'll deal with it shortly
             errmsg = fe.getMessage();
 
-	} catch (Exception e) {
+        } catch (Exception e) {
             errmsg = _app.handleException(req, logic, e);
-	}
+        }
 
         // if we have an error message, insert it into the template
         if (errmsg != null) {
@@ -380,10 +391,10 @@ public class DispatcherServlet extends VelocityServlet
             if (msgmgr != null) {
                 errmsg = msgmgr.getMessage(req, errmsg);
             }
-	    ictx.put(ERROR_KEY, errmsg);
+            ictx.put(ERROR_KEY, errmsg);
         }
 
-	return tmpl;
+        return tmpl;
     }
 
     /**
@@ -439,7 +450,7 @@ public class DispatcherServlet extends VelocityServlet
             // with the site identifier
             path = siteId + ":" + path;
         }
-	// Log.info("Loading template [path=" + path + "].");
+        // Log.info("Loading template [path=" + path + "].");
         return RuntimeSingleton.getRuntimeServices().getTemplate(path);
     }
 
@@ -452,36 +463,36 @@ public class DispatcherServlet extends VelocityServlet
      */
     protected Logic resolveLogic (String path)
     {
-	// look for a cached logic instance
-	String lclass = _app.generateClass(path);
-	Logic logic = (Logic)_logic.get(lclass);
+        // look for a cached logic instance
+        String lclass = _app.generateClass(path);
+        Logic logic = (Logic)_logic.get(lclass);
 
-	if (logic == null) {
-	    try {
-		Class pcl = Class.forName(lclass);
-		logic = (Logic)pcl.newInstance();
+        if (logic == null) {
+            try {
+                Class pcl = Class.forName(lclass);
+                logic = (Logic)pcl.newInstance();
 
-	    } catch (ClassNotFoundException cnfe) {
+            } catch (ClassNotFoundException cnfe) {
                 // nothing interesting to report
 
-	    } catch (Throwable t) {
-		Log.warning("Unable to instantiate logic for application " +
-                            "[path=" + path + ", lclass=" + lclass + "].");
+            } catch (Throwable t) {
+                Log.warning("Unable to instantiate logic for application " +
+                    "[path=" + path + ", lclass=" + lclass + "].");
                 Log.logStackTrace(t);
-	    }
+            }
 
             // if something failed, use a dummy in it's place so that we
             // don't sit around all day freaking out about our inability
             // to instantiate the proper logic class
             if (logic == null) {
-		logic = new DummyLogic();
+                logic = new DummyLogic();
             }
 
             // cache the resolved logic instance
-	    _logic.put(lclass, logic);
-	}
+            _logic.put(lclass, logic);
+        }
 
-	return logic;
+        return logic;
     }
 
     /** The application being served by this dispatcher servlet. */

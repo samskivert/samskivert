@@ -646,7 +646,6 @@ public class Label implements SwingConstants, LabelStyleConstants
         if (_rawText != null) {
             Matcher m = COLOR_PATTERN.matcher(_rawText);
             int startSeg = 0;
-            int endSeg = 0;
             StringBuffer buf = new StringBuffer();
             Color lastColor = null;
             while (m.find()) {

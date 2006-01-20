@@ -63,13 +63,16 @@ public class Label implements SwingConstants, LabelStyleConstants
     public static final Pattern COLOR_PATTERN =
         Pattern.compile("#([Xx]|[0-9A-Fa-f]{6}+)");
 
+    private static final Pattern ESCAPED_PATTERN =
+        Pattern.compile("#''([Xx]|[0-9A-Fa-f]{6}+)");
+
     /**
      * Filter out any color tags from the specified text.
      */
     public static String filterColors (String txt)
     {
-        return (txt == null) ? null
-                             : COLOR_PATTERN.matcher(txt).replaceAll("");
+        if (txt == null) return null;
+        return COLOR_PATTERN.matcher(txt).replaceAll("");
     }
 
     /**
@@ -78,13 +81,18 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     public static String escapeColors (String txt)
     {
-        StringBuffer buf = new StringBuffer();
-        Matcher m = COLOR_PATTERN.matcher(txt);
-        while (m.find()) {
-            m.appendReplacement(buf, "#''" + m.group(1));
-        }
-        m.appendTail(buf);
-        return buf.toString();
+        if (txt == null) return null;
+        return COLOR_PATTERN.matcher(txt).replaceAll("#''$1");
+    }
+
+    /**
+     * Un-escape special tags so that they again look correct. Called by
+     * rendering components that do not understand the color tags
+     * to filter colors and unescape any escaped colors.
+     */
+    public static String unescapeColors (String txt)
+    {
+        return unescapeColors(filterColors(txt), true);
     }
 
     /**
@@ -92,14 +100,9 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     private static String unescapeColors (String txt, boolean restore)
     {
+        if (txt == null) return null;
         String prefix = restore ? "#" : "%";
-        StringBuffer buf = new StringBuffer();
-        Matcher m = Pattern.compile("#''([Xx]|[0-9A-Fa-f]{6}+)").matcher(txt);
-        while (m.find()) {
-            m.appendReplacement(buf, prefix + m.group(1));
-        }
-        m.appendTail(buf);
-        return buf.toString();
+        return ESCAPED_PATTERN.matcher(txt).replaceAll(prefix + "$1");
     }
 
     /**

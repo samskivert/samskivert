@@ -39,6 +39,9 @@ import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.SwingConstants;
 
 import com.samskivert.Log;
@@ -56,6 +59,49 @@ import com.samskivert.util.Tuple;
  */
 public class Label implements SwingConstants, LabelStyleConstants
 {
+    /** The pattern used to mark the start/end of color blocks. */
+    public static final Pattern COLOR_PATTERN =
+        Pattern.compile("#([Xx]|[0-9A-Fa-f]{6}+)");
+
+    /**
+     * Filter out any color tags from the specified text.
+     */
+    public static String filterColors (String txt)
+    {
+        return (txt == null) ? null
+                             : COLOR_PATTERN.matcher(txt).replaceAll("");
+    }
+
+    /**
+     * Escape any special tags so that they won't be interpreted by the
+     * label.
+     */
+    public static String escapeColors (String txt)
+    {
+        StringBuffer buf = new StringBuffer();
+        Matcher m = COLOR_PATTERN.matcher(txt);
+        while (m.find()) {
+            m.appendReplacement(buf, "#''" + m.group(1));
+        }
+        m.appendTail(buf);
+        return buf.toString();
+    }
+
+    /**
+     * Un-escape escaped tags so that they look as the users intended.
+     */
+    private static String unescapeColors (String txt, boolean restore)
+    {
+        String prefix = restore ? "#" : "%";
+        StringBuffer buf = new StringBuffer();
+        Matcher m = Pattern.compile("#''([Xx]|[0-9A-Fa-f]{6}+)").matcher(txt);
+        while (m.find()) {
+            m.appendReplacement(buf, prefix + m.group(1));
+        }
+        m.appendTail(buf);
+        return buf.toString();
+    }
+
     /**
      * Constructs a blank label.
      */
@@ -119,12 +165,25 @@ public class Label implements SwingConstants, LabelStyleConstants
         // asked to deal with the empty string, so we fake blank labels by
         // just using a space
         if (StringUtil.isBlank(text)) {
-            _text = " ";
-        } else if (!text.equals(_text)) {
-            _text = text;
-        } else {
+            text = " ";
+        }
+
+        // if there is no change then avoid doing anything
+        if (text.equals((_rawText == null) ? _text : _rawText)) {
             return false;
         }
+
+        // _text should contain the text without any tags
+        // _rawText will be null if there are no tags
+        _text = filterColors(text);
+        _rawText = text.equals(_text) ? null : text;
+
+        // if what we were passed contains escaped color tags, unescape them
+        _text = unescapeColors(_text, true);
+        if (_rawText != null) {
+            _rawText = unescapeColors(_rawText, false);
+        }
+
         invalidate("setText");
         return true;
     }
@@ -582,6 +641,42 @@ public class Label implements SwingConstants, LabelStyleConstants
                     TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
         }
         AttributedString text = new AttributedString(_text, map);
+
+        // add any color attributes
+        if (_rawText != null) {
+            Matcher m = COLOR_PATTERN.matcher(_rawText);
+            int startSeg = 0;
+            int endSeg = 0;
+            StringBuffer buf = new StringBuffer();
+            Color lastColor = null;
+            while (m.find()) {
+                startSeg = buf.length();
+                m.appendReplacement(buf, "");
+
+                if (lastColor != null) {
+                    text.addAttribute(TextAttribute.FOREGROUND, lastColor, 
+                        startSeg, buf.length());
+                }
+                String group = m.group(1);
+                if ("x".equalsIgnoreCase(group)) {
+                    lastColor = null;
+                } else {
+                    try {
+                        lastColor = new Color(Integer.parseInt(group, 16));
+                    } catch (NumberFormatException nfe) {
+                        Log.warning("This shouldn't be possible, the regex " +
+                            "is precise [badcolor=" + group + "].");
+                    }
+                }
+            }
+            startSeg = buf.length();
+            m.appendTail(buf);
+            if (lastColor != null) {
+                text.addAttribute(TextAttribute.FOREGROUND, lastColor, 
+                    startSeg, buf.length());
+            }
+        }
+
         return text.getIterator();
     }
 
@@ -644,6 +739,9 @@ public class Label implements SwingConstants, LabelStyleConstants
 
     /** The text of the label. */
     protected String _text;
+
+    /** The raw text, with color tags, or null if there are no color tags. */
+    protected String _rawText;
 
     /** The text style. */
     protected int _style;

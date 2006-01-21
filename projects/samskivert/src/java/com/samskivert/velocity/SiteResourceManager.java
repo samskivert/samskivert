@@ -93,22 +93,16 @@ public class SiteResourceManager extends ResourceManagerImpl
         resource.setRuntimeServices(rsvc);
         resource.setEncoding(encoding);
 
-        // if the resource was requested using a site resource key, we can
-        // attempt to load a site-specific version; also make sure the site
-        // we're loading for is not the default site, in which case we want to
-        // skip to the second resource loader directly
-        if (skey.siteId != -1 && skey.siteId != SiteIdentifier.DEFAULT_SITE_ID) {
-            // try loading it via the site-specific resource loader
-            try {
-                resource.setName(resourceName);
-                resolveResource(resource, _siteLoader);
-            } catch (ResourceNotFoundException rnfe) {
-                // nothing to worry about here
-            }
+        // first try loading it via the site-specific resource loader
+        try {
+            resource.setName(resourceName);
+            resolveResource(resource, _siteLoader);
+        } catch (ResourceNotFoundException rnfe) {
+            // nothing to worry about here
         }
 
-        // try the servlet context loader if we didn't find a site-specific
-        // resource
+        // then try the servlet context loader if we didn't find a
+        // site-specific resource
         if (resource.getData() == null) {
             resource.setName(skey.path);
             resolveResource(resource, _contextLoader);

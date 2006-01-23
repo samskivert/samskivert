@@ -50,7 +50,7 @@ public class HashIntMap extends AbstractMap
     /**
      * The default number of buckets to use for the hash table.
      */
-    public final static int DEFAULT_BUCKETS = 64;
+    public final static int DEFAULT_BUCKETS = 16;
 
     /**
      * The default load factor.
@@ -148,7 +148,7 @@ public class HashIntMap extends AbstractMap
     public Object put (int key, Object value)
     {
         // check to see if we've passed our load factor, if so: resize
-        checkGrow();
+        ensureCapacity(_size + 1);
 
         int index = keyToIndex(key);
         Record rec = _buckets[index];
@@ -245,6 +245,21 @@ public class HashIntMap extends AbstractMap
     }
 
     /**
+     * Ensure that the hash can comfortably hold the specified number
+     * of elements.
+     */
+    public void ensureCapacity (int minCapacity)
+    {
+        int size = _buckets.length;
+        while (minCapacity > (int) (size * _loadFactor)) {
+            size *= 2;
+        }
+        if (size != _buckets.length) {
+            resizeBuckets(size);
+        }
+    }
+
+    /**
      * Turn the specified key into an index.
      */
     protected final int keyToIndex (int key)
@@ -266,16 +281,6 @@ public class HashIntMap extends AbstractMap
         if ((_buckets.length > DEFAULT_BUCKETS) &&
             (_size * SHRINK_FACTOR < _buckets.length)) {
             resizeBuckets(_buckets.length >> 1);
-        }
-    }
-
-    /**
-     * Check to see if we want to grow the table.
-     */
-    protected void checkGrow ()
-    {
-        if (_size > (int) (_buckets.length * _loadFactor)) {
-            resizeBuckets(_buckets.length << 1);
         }
     }
 

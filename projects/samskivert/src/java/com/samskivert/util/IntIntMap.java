@@ -44,7 +44,7 @@ public class IntIntMap
         public int setIntValue (int value);
     }
 
-    public final static int DEFAULT_BUCKETS = 64;
+    public final static int DEFAULT_BUCKETS = 16;
 
     /**
      * The default load factor.
@@ -84,7 +84,7 @@ public class IntIntMap
         _modCount++;
 
         // check to see if we've passed our load factor, if so: resize
-        checkGrow();
+        ensureCapacity(_size + 1);
 
         int index = Math.abs(key)%_buckets.length;
 	Record rec = _buckets[index];
@@ -194,6 +194,20 @@ public class IntIntMap
     }
 
     /**
+     * Ensure that the specified number of elements may be added.
+     */
+    public void ensureCapacity (int minCapacity)
+    {
+        int size = _buckets.length;
+        while (minCapacity > (int) (size * _loadFactor)) {
+            size *= 2;
+        }
+        if (size != _buckets.length) {
+            resizeBuckets(size);
+        }
+    }
+
+    /**
      * Check to see if we want to shrink the table.
      */
     protected void checkShrink ()
@@ -201,16 +215,6 @@ public class IntIntMap
         if ((_buckets.length > DEFAULT_BUCKETS) &&
             (_size * SHRINK_FACTOR < _buckets.length)) {
             resizeBuckets(_buckets.length >> 1);
-        }
-    }
-
-    /**
-     * Check to see if we want to grow the table.
-     */
-    protected void checkGrow ()
-    {
-        if (_size > (int) (_buckets.length * _loadFactor)) {
-            resizeBuckets(_buckets.length << 1);
         }
     }
 

@@ -636,6 +636,7 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     protected AttributedCharacterIterator textIterator (Graphics2D gfx)
     {
+        // first set up any attributes that apply to the entire text
         Font font = (_font == null) ? gfx.getFont() : _font;
         HashMap map = new HashMap();
         map.put(TextAttribute.FONT, font);
@@ -645,20 +646,20 @@ public class Label implements SwingConstants, LabelStyleConstants
         }
         AttributedString text = new AttributedString(_text, map);
 
-        // add any color attributes
+        // add any color attributes for specific segments
         if (_rawText != null) {
             Matcher m = COLOR_PATTERN.matcher(_rawText);
-            int startSeg = 0;
-            StringBuffer buf = new StringBuffer();
+            int startSeg = 0, endSeg = 0;
             Color lastColor = null;
             while (m.find()) {
-                startSeg = buf.length();
-                m.appendReplacement(buf, "");
-
+                // color the segment just passed
+                endSeg += m.start();
                 if (lastColor != null) {
                     text.addAttribute(TextAttribute.FOREGROUND, lastColor, 
-                        startSeg, buf.length());
+                        startSeg, endSeg);
                 }
+
+                // parse the tag: start or end a color
                 String group = m.group(1);
                 if ("x".equalsIgnoreCase(group)) {
                     lastColor = null;
@@ -670,12 +671,18 @@ public class Label implements SwingConstants, LabelStyleConstants
                             "is precise [badcolor=" + group + "].");
                     }
                 }
+
+                // prepare for the next segment
+                startSeg = endSeg;
+                // Subtract the end of the segment from endSeg
+                // so that when we add the start of the next match we have
+                // actually added the length of the characters in between.
+                endSeg -= m.end();
             }
-            startSeg = buf.length();
-            m.appendTail(buf);
+            // apply any final color to the tail segment
             if (lastColor != null) {
                 text.addAttribute(TextAttribute.FOREGROUND, lastColor, 
-                    startSeg, buf.length());
+                    startSeg, _text.length());
             }
         }
 

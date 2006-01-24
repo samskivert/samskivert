@@ -51,12 +51,6 @@ public class IntIntMap
      */
     public final static float DEFAULT_LOAD_FACTOR = 1.75f;
 
-    /**
-     * The shrink factor.
-     * When the number of elements multiplied by this number is less
-     * than the size of the array, we shrink the array by half.
-     */
-    protected static final int SHRINK_FACTOR = 8;
 
     public IntIntMap (int buckets, float loadFactor)
     {
@@ -194,7 +188,9 @@ public class IntIntMap
     }
 
     /**
-     * Ensure that the specified number of elements may be added.
+     * Ensure that the hash can comfortably hold the specified number
+     * of elements. Calling this method is not necessary, but can improve
+     * performance if done prior to adding many elements.
      */
     public void ensureCapacity (int minCapacity)
     {
@@ -213,8 +209,8 @@ public class IntIntMap
     protected void checkShrink ()
     {
         if ((_buckets.length > DEFAULT_BUCKETS) &&
-            (_size * SHRINK_FACTOR < _buckets.length)) {
-            resizeBuckets(_buckets.length >> 1);
+                (_size < (int) (_buckets.length * _loadFactor * .125))) {
+            resizeBuckets(Math.max(DEFAULT_BUCKETS, _buckets.length >> 1));
         }
     }
 

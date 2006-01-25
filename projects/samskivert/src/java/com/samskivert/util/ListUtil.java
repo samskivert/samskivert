@@ -106,7 +106,7 @@ public class ListUtil
         }
 
         // expand the list if necessary
-        if (index >= list.length) {
+        if (index >= llength) {
             list = accomodate(list, index);
         }
 
@@ -226,7 +226,7 @@ public class ListUtil
         }
 
         // expand the list if necessary
-        if (index >= list.length) {
+        if (index >= llength) {
             list = accomodate(list, index);
         }
 
@@ -262,22 +262,7 @@ public class ListUtil
     protected static boolean contains (
         EqualityComparator eqc, Object[] list, Object element)
     {
-        if (element == null) {
-            throw NPE();
-        }
-        if (list == null) {
-            return false;
-        }
-
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            Object elem = list[i];
-            if (eqc.equals(elem, element)) {
-                return true;
-            }
-        }
-
-        return false;
+        return (-1 != indexOf(eqc, list, element));
     }
 
     /**
@@ -329,11 +314,9 @@ public class ListUtil
             throw NPE();
         }
         if (list != null) {
-            int llength = list.length; // no optimizing bastards
-            for (int i = 0; i < llength; i++) {
-                Object elem = list[i];
-                if (eqc.equals(elem, element)) {
-                    return i;
+            for (int ii = 0, nn = list.length; ii < nn; ii++) {
+                if (eqc.equals(list[ii], element)) {
+                    return ii;
                 }
             }
         }
@@ -367,23 +350,13 @@ public class ListUtil
     protected static Object clear (
         EqualityComparator eqc, Object[] list, Object element)
     {
-        if (element == null) {
-            throw NPE();
-        }
-        // nothing to clear from an empty list
-        if (list == null) {
+        int dex = indexOf(eqc, list, element);
+        if (dex == -1) {
             return null;
         }
-
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            Object elem = list[i];
-            if (eqc.equals(elem, element)) {
-                list[i] = null;
-                return elem;
-            }
-        }
-        return null;
+        Object elem = list[dex];
+        list[dex] = null;
+        return elem;
     }
 
     /**
@@ -418,24 +391,7 @@ public class ListUtil
     protected static Object remove (
         EqualityComparator eqc, Object[] list, Object element)
     {
-        if (element == null) {
-            throw NPE();
-        }
-        // nothing to remove from an empty list
-        if (list == null) {
-            return null;
-        }
-
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            Object elem = list[i];
-            if (eqc.equals(elem, element)) {
-                System.arraycopy(list, i+1, list, i, llength-(i+1));
-                list[llength-1] = null;
-                return elem;
-            }
-        }
-        return null;
+        return remove(list, indexOf(eqc, list, element));
     }
 
     /**
@@ -451,7 +407,7 @@ public class ListUtil
     public static Object remove (Object[] list, int index)
     {
         int llength = list.length;
-        if (list == null || llength <= index) {
+        if (list == null || llength <= index || index < 0) {
             return null;
         }
 

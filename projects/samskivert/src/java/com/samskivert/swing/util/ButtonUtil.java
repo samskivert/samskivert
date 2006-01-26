@@ -73,6 +73,7 @@ public class ButtonUtil
             {
                 // get the current value and find out where it is in the list
                 int oldval = config.getValue(property, values[0]);
+                // if it's not even in the list, newidx will be 0
                 int newidx = (1 + IntListUtil.indexOf(values, oldval))
                     % values.length;
                 config.setValue(property, values[newidx]);

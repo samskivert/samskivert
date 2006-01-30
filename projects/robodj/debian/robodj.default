@@ -1,5 +1,0 @@
-MUSICD_HOST=depravity
-MUSICD_PORT=2500
-
-# The first existing directory is used for JAVA_HOME
-JDK_DIRS="/usr/local/jdk1.4 /usr/local/jdk1.3 /usr/lib/j2se/1.3"

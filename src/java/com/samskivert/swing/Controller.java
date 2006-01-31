@@ -199,19 +199,32 @@ public abstract class Controller
      */
     public boolean handleAction (ActionEvent action)
     {
+        Object arg = null;
+        if (action instanceof CommandEvent) {
+            arg = ((CommandEvent)action).getArgument();
+        }
+        return handleAction(action.getSource(), action.getActionCommand(), arg);
+    }
+
+    /**
+     * A version of {@link #handleAction(ActionEvent)} with the parameters
+     * broken out so that it can be used by non-Swing interface toolkits.
+     */
+    public boolean handleAction (Object source, String action, Object arg)
+    {
         Method method = null;
         Object[] args = null;
 
         try {
             // look for the appropriate method
-            String targetName = "handle" + action.getActionCommand();
+            String targetName = "handle" + action;
             Method[] methods = getClass().getMethods();
             int mcount = methods.length;
 
             for (int i = 0; i < mcount; i++) {
                 if (methods[i].getName().equals(targetName)) {
                     // see if we can generate the appropriate arguments
-                    args = generateArguments(methods[i], action);
+                    args = generateArguments(methods[i], source, arg);
                     // if we were able to, go ahead and use this method
                     if (args != null) {
                         method = methods[i];
@@ -222,7 +235,7 @@ public abstract class Controller
 
         } catch (Exception e) {
             Log.warning("Error searching for action handler method " +
-                        "[controller=" + this + ", event=" + action + "].");
+                        "[controller=" + this + ", action=" + action + "].");
             return false;
         }
 
@@ -237,7 +250,7 @@ public abstract class Controller
 
         } catch (Exception e) {
             Log.warning("Error invoking action handler [controller=" + this +
-                        ", event=" + action + "].");
+                        ", action=" + action + "].");
             Log.logStackTrace(e);
             // even though we choked, we still "handled" the action
             return true;
@@ -278,7 +291,8 @@ public abstract class Controller
      * Used by {@link #handleAction} to generate arguments to the action
      * handler method.
      */
-    protected Object[] generateArguments (Method method, ActionEvent action)
+    protected Object[] generateArguments (
+        Method method, Object source, Object argument)
     {
         // figure out what sort of arguments are required by the method
         Class[] atypes = method.getParameterTypes();
@@ -287,19 +301,16 @@ public abstract class Controller
             return new Object[0];
 
         } else if (atypes.length == 1) {
-            return new Object[] { action.getSource() };
+            return new Object[] { source };
 
         } else if (atypes.length == 2) {
-            if (action instanceof CommandEvent) {
-                CommandEvent command = (CommandEvent)action;
-                return new Object[] { action.getSource(),
-                                      command.getArgument() };
+            if (argument != null) {
+                return new Object[] { source, argument };
             }
 
-            Log.warning("Unable to map non-command event to " +
-                        "handler method that requires extra " +
-                        "argument [controller=" + this +
-                        ", action=" + action + "].");
+            Log.warning("Unable to map argumentless event to handler method " +
+                        "that requires an argument [controller=" + this +
+                        ", method=" + method + ", source=" + source + "].");
         }
 
         // we would have handled it, but we couldn't

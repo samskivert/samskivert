@@ -1187,7 +1187,7 @@ public class StringUtil
     public static String[] split (String source, String sep)
     {
         // handle the special case of a zero-component source
-        if (source.matches("\\s*")) {
+        if (isBlank(source)) {
             return new String[0];
         }
         

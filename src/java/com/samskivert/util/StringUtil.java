@@ -1186,6 +1186,11 @@ public class StringUtil
      */
     public static String[] split (String source, String sep)
     {
+        // handle the special case of a zero-component source
+        if (source.matches("\\s*")) {
+            return new String[0];
+        }
+        
         int tcount = 0, tpos = -1, tstart = 0;
 
         // count up the number of tokens

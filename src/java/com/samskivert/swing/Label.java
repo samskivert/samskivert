@@ -644,8 +644,17 @@ public class Label implements SwingConstants, LabelStyleConstants
             map.put(TextAttribute.UNDERLINE,
                     TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
         }
-        AttributedString text = new AttributedString(_text, map);
 
+        AttributedString text = new AttributedString(_text, map);
+        addAttributes(text);
+        return text.getIterator();
+    }
+
+    /**
+     * Add any attributes to the text.
+     */
+    protected void addAttributes (AttributedString text)
+    {
         // add any color attributes for specific segments
         if (_rawText != null) {
             Matcher m = COLOR_PATTERN.matcher(_rawText);
@@ -685,8 +694,6 @@ public class Label implements SwingConstants, LabelStyleConstants
                     startSeg, _text.length());
             }
         }
-
-        return text.getIterator();
     }
 
     /**

@@ -598,6 +598,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                 // using "real" outlines (via TextLayout.getOutline), method
                 textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
+                _mainDraw = false;
                 layout.draw(gfx, rx, y);
                 layout.draw(gfx, rx, y + 1);
                 layout.draw(gfx, rx, y + 2);
@@ -606,18 +607,23 @@ public class Label implements SwingConstants, LabelStyleConstants
                 layout.draw(gfx, rx + 2, y);
                 layout.draw(gfx, rx + 2, y + 1);
                 layout.draw(gfx, rx + 2, y + 2);
+                _mainDraw = true;
                 gfx.setColor(textColor);
                 layout.draw(gfx, rx + 1, y + 1);
 
             } else if ((_style & SHADOW) != 0) {
                 textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
+                _mainDraw = false;
                 layout.draw(gfx, rx, y + 1);
+                _mainDraw = true;
                 gfx.setColor(textColor);
                 layout.draw(gfx, rx + 1, y);
 
             } else if ((_style & BOLD) != 0) {
+                _mainDraw = false;
                 layout.draw(gfx, rx, y);
+                _mainDraw = true;
                 layout.draw(gfx, rx + 1, y);
 
             } else {
@@ -797,6 +803,11 @@ public class Label implements SwingConstants, LabelStyleConstants
     /** The color in which to render the text or null if the text should
      * be rendered with the graphics context color. */
     protected Color _textColor = null;
+
+    /** Will be true only when we're drawing a textlayout for the "main"
+     * portion of the label. If we are in OUTLINE mode, we draw each layout
+     * 9 times: the last one is the only main one. */
+    protected boolean _mainDraw = true;
 
 //     /** Used for debugging. */
 //     protected String _invalidator;

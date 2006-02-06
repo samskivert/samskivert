@@ -285,39 +285,43 @@ public class ArrayIntSet extends AbstractSet
     // documentation inherited from interface
     public boolean containsAll (Collection c)
     {
-        Iterator iter = c.iterator();
-        while (iter.hasNext()) {
-            if (!contains(iter.next())) {
-                return false;
+        if (c instanceof Interable) {
+            Interator inter = ((Interable) c).interator();
+            while (inter.hasNext()) {
+                if (!contains(inter.nextInt())) {
+                    return false;
+                }
             }
+            return true;
+
+        } else {
+            return super.containsAll(c);
         }
-        return true;
     }
 
     // documentation inherited from interface
     public boolean addAll (Collection c)
     {
-        boolean modified = false;
-        if (c instanceof ArrayIntSet) {
-            ArrayIntSet other = (ArrayIntSet)c;
-            for (int ii = 0; ii < other._size; ii++) {
-                modified = (add(other._values[ii]) || modified);
+        if (c instanceof Interable) {
+            Interator inter = ((Interable) c).interator();
+            boolean modified = false;
+            while (inter.hasNext()) {
+                if (add(other._values[ii])) {
+                    modified = true;
+                }
             }
+            return modified;
 
         } else {
-            Iterator iter = c.iterator();
-            while (iter.hasNext()) {
-                modified = (add(iter.next()) || modified);
-            }
+            return super.addAll(c);
         }
-        return modified;
     }
 
     // documentation inherited from interface
     public boolean retainAll (Collection c)
     {
-        if (c instanceof ArrayIntSet) {
-            ArrayIntSet other = (ArrayIntSet)c;
+        if (c instanceof IntSet) {
+            IntSet other = (IntSet)c;
             int removals = 0;
 
             // go through our array sliding all elements in the union
@@ -337,7 +341,7 @@ public class ArrayIntSet extends AbstractSet
             return (removals > 0);
 
         } else {
-            throw new UnsupportedOperationException();
+            return super.retainAll(c);
         }
     }
 
@@ -355,6 +359,8 @@ public class ArrayIntSet extends AbstractSet
             ArrayIntSet other = (ArrayIntSet)o;
             if (other._size == _size) {
                 for (int ii = 0; ii < _size; ii++) {
+                    // we can't use Arrays.equals() because we only want to
+                    // compare the first _size values
                     if (_values[ii] != other._values[ii]) {
                         return false;
                     }
@@ -381,8 +387,7 @@ public class ArrayIntSet extends AbstractSet
     {
         try {
             ArrayIntSet nset = (ArrayIntSet)super.clone();
-            nset._values = new int[_values.length];
-            System.arraycopy(_values, 0, nset._values, 0, _size);
+            nset._values = _values.clone();
             return nset;
 
         } catch (CloneNotSupportedException cnse) {

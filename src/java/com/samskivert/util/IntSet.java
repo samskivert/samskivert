@@ -29,7 +29,7 @@ import java.util.Set;
  * provides all of the standard methods (in which <code>Integer</code>
  * objects will be converted to ints).
  */
-public interface IntSet extends Set
+public interface IntSet extends Set, Interable
 {
     /**
      * Returns <tt>true</tt> if this set contains the specified element.

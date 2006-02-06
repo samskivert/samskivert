@@ -387,7 +387,7 @@ public class ArrayIntSet extends AbstractSet
     {
         try {
             ArrayIntSet nset = (ArrayIntSet)super.clone();
-            nset._values = _values.clone();
+            nset._values = (int[]) _values.clone();
             return nset;
 
         } catch (CloneNotSupportedException cnse) {

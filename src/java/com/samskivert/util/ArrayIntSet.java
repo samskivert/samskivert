@@ -306,7 +306,7 @@ public class ArrayIntSet extends AbstractSet
             Interator inter = ((Interable) c).interator();
             boolean modified = false;
             while (inter.hasNext()) {
-                if (add(other._values[ii])) {
+                if (add(inter.nextInt())) {
                     modified = true;
                 }
             }

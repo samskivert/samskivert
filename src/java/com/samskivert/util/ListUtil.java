@@ -406,8 +406,12 @@ public class ListUtil
      */
     public static Object remove (Object[] list, int index)
     {
+        if (list == null) {
+            return null;
+        }
+
         int llength = list.length;
-        if (list == null || llength <= index || index < 0) {
+        if (llength <= index || index < 0) {
             return null;
         }
 

@@ -37,6 +37,24 @@ import java.util.logging.SimpleFormatter;
  */
 public class OneLineLogFormatter extends Formatter
 {
+    /**
+     * Creates a log formatter that will include the function from which a log
+     * entry was generated.
+     */
+    public OneLineLogFormatter ()
+    {
+        this(true);
+    }
+
+    /**
+     * Creates a log formatter that will optionally include or not include the
+     * function from which a log entry was generated.
+     */
+    public OneLineLogFormatter (boolean showWhere)
+    {
+        _showWhere = showWhere;
+    }
+
     // documentation inherited
     public String format (LogRecord record)
     {
@@ -50,24 +68,26 @@ public class OneLineLogFormatter extends Formatter
 	buf.append(" ");
 	buf.append(record.getLevel().getLocalizedName());
 
-        // append the log method call context
-	buf.append(" ");
-        String where = record.getSourceClassName();
-        boolean legacy = (where.indexOf("LoggingLogProvider") != -1);
-        if (where != null && !legacy) {
-            String logger = record.getLoggerName();
-            if (logger != null && where.startsWith(logger) &&
-                where.length() > logger.length()) {
-                where = where.substring(logger.length()+1);
+        if (_showWhere) {
+            // append the log method call context
+            buf.append(" ");
+            String where = record.getSourceClassName();
+            boolean legacy = (where.indexOf("LoggingLogProvider") != -1);
+            if (where != null && !legacy) {
+                String logger = record.getLoggerName();
+                if (logger != null && where.startsWith(logger) &&
+                    where.length() > logger.length()) {
+                    where = where.substring(logger.length()+1);
+                }
+            } else {
+                where = record.getLoggerName();
             }
-        } else {
-            where = record.getLoggerName();
+            buf.append(where);
+            if (record.getSourceMethodName() != null && !legacy) {
+                buf.append(".");
+                buf.append(record.getSourceMethodName());
+            }
         }
-        buf.append(where);
-	if (record.getSourceMethodName() != null && !legacy) {
-	    buf.append(".");
-	    buf.append(record.getSourceMethodName());
-	}
 
         // append the message itself
 	buf.append(": ");
@@ -95,14 +115,24 @@ public class OneLineLogFormatter extends Formatter
      */
     public static void configureDefaultHandler ()
     {
+        configureDefaultHandler(true);
+    }
+
+    /**
+     * Configures the default logging handler to use an instance of this
+     * formatter when formatting messages.
+     */
+    public static void configureDefaultHandler (boolean showWhere)
+    {
         Logger logger = LogManager.getLogManager().getLogger("");
         Handler[] handlers = logger.getHandlers();
-        OneLineLogFormatter formatter = new OneLineLogFormatter();
+        OneLineLogFormatter formatter = new OneLineLogFormatter(showWhere);
         for (int ii = 0; ii < handlers.length; ii++) {
             handlers[ii].setFormatter(formatter);
         }
     }
 
+    protected boolean _showWhere;
     protected Date _date = new Date();
     protected SimpleDateFormat _format =
         new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");

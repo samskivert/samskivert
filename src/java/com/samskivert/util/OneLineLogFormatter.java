@@ -67,10 +67,10 @@ public class OneLineLogFormatter extends Formatter
         // append the log level
 	buf.append(" ");
 	buf.append(record.getLevel().getLocalizedName());
+        buf.append(" ");
 
         if (_showWhere) {
             // append the log method call context
-            buf.append(" ");
             String where = record.getSourceClassName();
             boolean legacy = (where.indexOf("LoggingLogProvider") != -1);
             if (where != null && !legacy) {
@@ -87,10 +87,10 @@ public class OneLineLogFormatter extends Formatter
                 buf.append(".");
                 buf.append(record.getSourceMethodName());
             }
+            buf.append(": ");
         }
 
         // append the message itself
-	buf.append(": ");
 	buf.append(formatMessage(record));
         buf.append(LINE_SEPARATOR);
 

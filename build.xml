@@ -54,10 +54,10 @@
     <echo message="----------------------------------------------"/>
     <echo message="Jakarta libraries - http://jakarta.apache.org/"/>
     <echo message="----------------------------------------------"/>
-    <available property="jakarta.commons-collections.present"
+    <available property="jakarta.commons-colls.present"
      classname="org.apache.commons.collections.CollectionUtils"
      classpathref="classpath"/>
-    <echo message="Commons Collections: ${jakarta.commons-collections.present}"/>
+    <echo message="Commons Collections: ${jakarta.commons-colls.present}"/>
 
     <available property="jakarta.commons-logging.present"
      classname="org.apache.commons.logging.Log"
@@ -68,6 +68,11 @@
      classname="org.apache.commons.digester.Digester"
      classpathref="classpath"/>
     <echo message="Commons Digester: ${jakarta.commons-digester.present}"/>
+
+    <available property="jakarta.commons-io.present"
+     classname="org.apache.commons.io.IOUtils"
+     classpathref="classpath"/>
+    <echo message="Commons Io: ${jakarta.commons-io.present}"/>
 
     <available property="jakarta.velocity.present"
      classname="org.apache.velocity.Template" classpathref="classpath"/>
@@ -93,6 +98,7 @@
       <and>
         <isset property="build.io"/>
         <isset property="build.util"/>
+        <isset property="jakarta.commons-io.present"/>
       </and>
     </condition>
     <!--<echo message="com.samskivert.jdbc: ${build.jdbc}"/>-->
@@ -127,7 +133,7 @@
       <and>
         <isset property="build.servlet"/>
         <isset property="build.util"/>
-        <isset property="jakarta.commons-collections.present"/>
+        <isset property="jakarta.commons-colls.present"/>
         <isset property="jakarta.velocity.present"/>
         <isset property="servlet2.3.present"/>
       </and>

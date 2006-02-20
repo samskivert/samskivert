@@ -209,50 +209,26 @@ public class JDBCUtil
     }
 
     /**
-     * Loads in the specified schema configuration file. The file data is
-     * loaded as a resource from the classpath. This is used for the
-     * autocreation of repository tables. For example:
-     *
-     * <pre>
-     * if (!JDBCUtil.tableExists(conn, "MONKEYS")) {
-     *     Log.info("Creating monkeys repository schema...");
-     *     JDBCUtil.loadSchema(conn, "src/sql/monkeys.sql");
-     * }
-     * </pre>
+     * Used to programatically create a database table. Does nothing if the
+     * table already exists.
      */
-    public static void loadSchema (Connection conn, String path)
+    public static void createTableIfMissing (
+        Connection conn, String table, String[] definition)
         throws SQLException
     {
-        InputStream schemaIn =
-            JDBCUtil.class.getClassLoader().getResourceAsStream(path);
-        if (schemaIn == null) {
-            throw new SQLException("Unable to load '" + path +
-                                   "' using class loader.");
-        }
-        loadSchema(conn, schemaIn);
-    }
-
-    /**
-     * A version of {@link #loadSchema(Connection,String)} that allows the
-     * caller to obtain the schema data.
-     */
-    public static void loadSchema (Connection conn, InputStream schemaIn)
-        throws SQLException
-    {
-        String schema;
-        try {
-            schema = IOUtils.toString(schemaIn);
-        } catch (Exception e) {
-            String errmsg = "Error reading schema [src=" + schemaIn + "].";
-            throw (SQLException)new SQLException(errmsg).initCause(e);
+        if (tableExists(conn, table)) {
+            return;
         }
 
         Statement stmt = conn.createStatement();
         try {
-            stmt.executeUpdate(schema);
+            stmt.executeUpdate("create table " + table + "(" +
+                               StringUtil.join(definition, ",") + ")");
         } finally {
             close(stmt);
         }
+
+        Log.info("Database table '" + table + "' created.");
     }
 
     /**
@@ -423,8 +399,8 @@ public class JDBCUtil
             close(stmt);
         }
 
-        Log.info("Database column '" + cname + "' added to table '" + table +
-                 "'.");
+        Log.info("Database column '" + cname + "' added to table '" +
+                 table + "'.");
     }
 
     /**
@@ -468,7 +444,7 @@ public class JDBCUtil
             stmt = conn.prepareStatement(update);
             if (stmt.executeUpdate() == 1) {
                 Log.info("Database index '" + cname + "' removed from " +
-                        "table '" + table + "'.");
+                         "table '" + table + "'.");
             }
         } finally {
             close(stmt);
@@ -488,7 +464,7 @@ public class JDBCUtil
             stmt = conn.prepareStatement(update);
             if (stmt.executeUpdate() == 1) {
                 Log.info("Database index '" + iname + "' removed from " +
-                        "table '" + table + "'.");
+                         "table '" + table + "'.");
             }
         } finally {
             close(stmt);
@@ -542,7 +518,7 @@ public class JDBCUtil
             close(stmt);
         }
 
-        Log.info("Database index '" + idx_name + "' added to table '" + table +
-                 "'");
+        Log.info("Database index '" + idx_name + "' added to table '" +
+                 table + "'");
     }
 }

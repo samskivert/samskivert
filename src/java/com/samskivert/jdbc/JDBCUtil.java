@@ -20,8 +20,15 @@
 
 package com.samskivert.jdbc;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import org.apache.commons.io.IOUtils;
 
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
@@ -199,6 +206,53 @@ public class JDBCUtil
     public static String safeJigger (String text)
     {
         return StringUtil.replace(jigger(text), "'", "\\'");
+    }
+
+    /**
+     * Loads in the specified schema configuration file. The file data is
+     * loaded as a resource from the classpath. This is used for the
+     * autocreation of repository tables. For example:
+     *
+     * <pre>
+     * if (!JDBCUtil.tableExists(conn, "MONKEYS")) {
+     *     Log.info("Creating monkeys repository schema...");
+     *     JDBCUtil.loadSchema(conn, "src/sql/monkeys.sql");
+     * }
+     * </pre>
+     */
+    public static void loadSchema (Connection conn, String path)
+        throws SQLException
+    {
+        InputStream schemaIn =
+            JDBCUtil.class.getClassLoader().getResourceAsStream(path);
+        if (schemaIn == null) {
+            throw new SQLException("Unable to load '" + path +
+                                   "' using class loader.");
+        }
+        loadSchema(conn, schemaIn);
+    }
+
+    /**
+     * A version of {@link #loadSchema(Connection,String)} that allows the
+     * caller to obtain the schema data.
+     */
+    public static void loadSchema (Connection conn, InputStream schemaIn)
+        throws SQLException
+    {
+        String schema;
+        try {
+            schema = IOUtils.toString(schemaIn);
+        } catch (Exception e) {
+            String errmsg = "Error reading schema [src=" + schemaIn + "].";
+            throw (SQLException)new SQLException(errmsg).initCause(e);
+        }
+
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.executeUpdate(schema);
+        } finally {
+            close(stmt);
+        }
     }
 
     /**

@@ -21,6 +21,7 @@
 package com.samskivert.jdbc;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.jora.*;
@@ -85,6 +86,22 @@ public abstract class JORARepository extends SimpleRepository
             {
                 table.update(object);
                 return null;
+            }
+        });
+    }
+
+    /**
+     * Loads all objects from the specified table that match the supplied
+     * query.
+     */
+    protected ArrayList loadAll (final Table table, final String query)
+        throws PersistenceException
+    {
+        return (ArrayList)execute(new Operation() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                return table.select(query).toArrayList();
             }
         });
     }

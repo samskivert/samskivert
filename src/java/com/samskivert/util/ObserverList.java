@@ -4,6 +4,7 @@
 package com.samskivert.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import com.samskivert.Log;
@@ -191,7 +192,9 @@ public class ObserverList extends ArrayList
                     remove(_snap[ii]);
                 }
             }
-
+            // clear out the snapshot so its contents can be gc'd
+            Arrays.fill(_snap, null);
+            
         } else if (_policy == FAST_UNSAFE_NOTIFY) {
             int ocount = size();
             for (int ii = ocount-1; ii >= 0; ii--) {

@@ -1338,7 +1338,7 @@ public class StringUtil
 
     /**
      * Converts a name of the form <code>weAreSoCool</code> to a name of
-     * the form <code>we_are_so_cool</code>.
+     * the form <code>WE_ARE_SO_COOL</code>.
      */
     public static String unStudlyName (String name)
     {

@@ -79,7 +79,7 @@ public class CalendarUtil
         // we're going to manipulate end, so let's clone it
         end = (Calendar)end.clone();
 
-        int months = 0;
+        int months = -1;
         do {
             end.add(Calendar.MONTH, -1);
             months++;

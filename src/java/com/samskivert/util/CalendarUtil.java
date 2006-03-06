@@ -23,10 +23,19 @@ public class CalendarUtil
     }
 
     /**
+     * Returns the absolute difference between two longs, which have the
+     * significance of acting as miliseconds since the Epoch.
+     */
+    public static long getTimeBetween (long start, long end)
+    {
+        return Math.abs(start - end);
+    }
+
+    /**
      * Returns the difference between the dates represented by the two
-     * calendars in days, properly accounting for daylight savings time,
-     * leap seconds, etc. The order of the two dates in time does not
-     * matter, the absolute number of days between them will be returned.
+     * calendars in days, properly accounting for daylight savings time, leap
+     * seconds, etc. The order of the two dates in time does not matter, the
+     * absolute number of days between them will be returned.
      *
      * <p> From: http://www.jguru.com/forums/view.jsp?EID=489372
      *
@@ -51,5 +60,31 @@ public class CalendarUtil
             } while (d1.get(Calendar.YEAR) != y2);
         }
         return days;
+    }
+
+    /**
+     * Returns the number of whole months between the dates represented by the
+     * two calendar objects, truncating any remainder. The order of the two
+     * dates in time does not matter, the absolute number of months between
+     * them will be returned.
+     */
+    public static int getMonthsBetween (Calendar start, Calendar end)
+    {
+        if (end.before(start)) {
+            Calendar swap = start;
+            start = end;
+            end = swap;
+        }
+
+        // we're going to manipulate end, so let's clone it
+        end = (Calendar)end.clone();
+
+        int months = 0;
+        do {
+            end.add(Calendar.MONTH, -1);
+            months++;
+        } while (start.before(end));
+
+        return months;
     }
 }

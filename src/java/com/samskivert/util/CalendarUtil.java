@@ -83,7 +83,7 @@ public class CalendarUtil
         do {
             end.add(Calendar.MONTH, -1);
             months++;
-        } while (!end.after(start));
+        } while (!start.after(end));
 
         return months;
     }

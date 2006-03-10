@@ -115,7 +115,7 @@ public class OneLineLogFormatter extends Formatter
      */
     public static void configureDefaultHandler ()
     {
-        configureDefaultHandler(true);
+        configureDefaultHandler(new OneLineLogFormatter(true));
     }
 
     /**
@@ -124,9 +124,17 @@ public class OneLineLogFormatter extends Formatter
      */
     public static void configureDefaultHandler (boolean showWhere)
     {
+        configureDefaultHandler(new OneLineLogFormatter(showWhere));
+    }
+
+    /**
+     * Configures the default logging handler to use an instance of the
+     * specified formatter when formatting messages.
+     */
+    public static void configureDefaultHandler (Formatter formatter)
+    {
         Logger logger = LogManager.getLogManager().getLogger("");
         Handler[] handlers = logger.getHandlers();
-        OneLineLogFormatter formatter = new OneLineLogFormatter(showWhere);
         for (int ii = 0; ii < handlers.length; ii++) {
             handlers[ii].setFormatter(formatter);
         }

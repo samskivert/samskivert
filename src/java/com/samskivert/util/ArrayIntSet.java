@@ -57,7 +57,7 @@ public class ArrayIntSet extends AbstractSet
      */
     public ArrayIntSet ()
     {
-        this(16);
+        this(DEFAULT_CAPACITY);
     }
 
     // documentation inherited from interface
@@ -256,8 +256,20 @@ public class ArrayIntSet extends AbstractSet
     {
         int index = binarySearch(value);
         if (index >= 0) {
-            System.arraycopy(_values, index+1, _values, index, --_size-index);
-            _values[_size] = 0;
+            _size--;
+            if ((_values.length > DEFAULT_CAPACITY) &&
+                    (_size < _values.length/8)) {
+                // if we're using less than 1/8 of our capacity, shrink by half
+                int[] newVals = new int[_values.length/2];
+                System.arraycopy(_values, 0, newVals, 0, index);
+                System.arraycopy(_values, index+1, newVals, index, _size-index);
+                _values = newVals;
+
+            } else {
+                // shift entries past the removed one downwards
+                System.arraycopy(_values, index+1, _values, index, _size-index);
+                _values[_size] = 0;
+            }
             return true;
         }
         return false;
@@ -435,6 +447,9 @@ public class ArrayIntSet extends AbstractSet
 
     /** The number of elements in this set. */
     protected int _size;
+
+    /** The default initial capacity of this set. */
+    protected static final int DEFAULT_CAPACITY = 16;
 
     /** Change this if the fields or inheritance hierarchy ever changes
      * (which is extremely unlikely). We override this because I'm tired

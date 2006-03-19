@@ -213,7 +213,7 @@ public class JDBCUtil
      * table already exists.
      */
     public static void createTableIfMissing (
-        Connection conn, String table, String[] definition)
+        Connection conn, String table, String[] definition, String postamble)
         throws SQLException
     {
         if (tableExists(conn, table)) {
@@ -223,7 +223,8 @@ public class JDBCUtil
         Statement stmt = conn.createStatement();
         try {
             stmt.executeUpdate("create table " + table + "(" +
-                               StringUtil.join(definition, ",") + ")");
+                               StringUtil.join(definition, ",") + ") " +
+                               postamble);
         } finally {
             close(stmt);
         }

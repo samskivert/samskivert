@@ -121,53 +121,6 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Configures the supplied user record with the provided information
-     * in preparation for inserting the record into the database for the
-     * first time.
-     */
-    protected void populateUser (User user, Username name, Password pass,
-                                 String realname, String email, int siteId)
-    {
-	user.username = name.getUsername();
-	user.setPassword(pass);
-	user.setRealName(realname);
-	user.setEmail(email);
-	user.created = new Date(System.currentTimeMillis());
-        user.setSiteId(siteId);
-    }
-
-    /**
-     * Inserts the supplied user record into the user database, assigning
-     * it a userid in the process, which is returned.
-     */
-    protected int insertUser (final User user)
-	throws UserExistsException, PersistenceException
-    {
-        execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
-                throws PersistenceException, SQLException
-            {
-                try {
-		    _utable.insert(user);
-		    // update the userid now that it's known
-		    user.userId = liaison.lastInsertedId(conn);
-                    // nothing to return
-                    return null;
-
-                } catch (SQLException sqe) {
-                    if (liaison.isDuplicateRowException(sqe)) {
-                        throw new UserExistsException("error.user_exists");
-                    } else {
-                        throw sqe;
-                    }
-                }
-            }
-        });
-
-	return user.userId;
-    }
-
-    /**
      * Looks up a user by username.
      *
      * @return the user with the specified user id or null if no user with
@@ -281,29 +234,21 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Loads up a user record that matches the specified where clause.
-     * Returns null if no record matches.
+     * Looks up a list of users that match an arbitrary query. Care should be
+     * taken in constructing these queries as the user table is likely to be
+     * large and a query that does not make use of indices could be very slow.
+     *
+     * @return the users matching the specified query or an empty list if there
+     * are no matches.
      */
-    protected User loadUserWhere (final String whereClause)
+    public ArrayList lookupUsersWhere (final String where)
 	throws PersistenceException
     {
-        return (User)execute(new Operation () {
+        return (ArrayList) execute(new Operation() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                // look up the user
-                Cursor ec = _utable.select(whereClause);
-
-                // fetch the user from the cursor
-                User user = (User)ec.next();
-                if (user != null) {
-                    // call next() again to cause the cursor to close itself
-                    ec.next();
-                    // configure the user record with its field mask
-                    user.setDirtyMask(_utable.getFieldMask());
-                }
-
-                return user;
+                return _utable.select("where " + where).toArrayList();
             }
         });
     }
@@ -511,6 +456,81 @@ public class UserRepository extends JORARepository
 	return result;
     }
 
+    /**
+     * Configures the supplied user record with the provided information
+     * in preparation for inserting the record into the database for the
+     * first time.
+     */
+    protected void populateUser (User user, Username name, Password pass,
+                                 String realname, String email, int siteId)
+    {
+	user.username = name.getUsername();
+	user.setPassword(pass);
+	user.setRealName(realname);
+	user.setEmail(email);
+	user.created = new Date(System.currentTimeMillis());
+        user.setSiteId(siteId);
+    }
+
+    /**
+     * Inserts the supplied user record into the user database, assigning
+     * it a userid in the process, which is returned.
+     */
+    protected int insertUser (final User user)
+	throws UserExistsException, PersistenceException
+    {
+        execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                try {
+		    _utable.insert(user);
+		    // update the userid now that it's known
+		    user.userId = liaison.lastInsertedId(conn);
+                    // nothing to return
+                    return null;
+
+                } catch (SQLException sqe) {
+                    if (liaison.isDuplicateRowException(sqe)) {
+                        throw new UserExistsException("error.user_exists");
+                    } else {
+                        throw sqe;
+                    }
+                }
+            }
+        });
+
+	return user.userId;
+    }
+
+    /**
+     * Loads up a user record that matches the specified where clause.
+     * Returns null if no record matches.
+     */
+    protected User loadUserWhere (final String whereClause)
+	throws PersistenceException
+    {
+        return (User)execute(new Operation () {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                // look up the user
+                Cursor ec = _utable.select(whereClause);
+
+                // fetch the user from the cursor
+                User user = (User)ec.next();
+                if (user != null) {
+                    // call next() again to cause the cursor to close itself
+                    ec.next();
+                    // configure the user record with its field mask
+                    user.setDirtyMask(_utable.getFieldMask());
+                }
+
+                return user;
+            }
+        });
+    }
+
     protected String[] loadNames (int[] userIds, final String column)
 	throws PersistenceException
     {
@@ -558,7 +578,6 @@ public class UserRepository extends JORARepository
 	return result;
     }
 
-
     /**
      * Take the passed in int array and create the a string suitable for
      * using in a SQL set query (I.e., "select foo, from bar where userid
@@ -576,40 +595,6 @@ public class UserRepository extends JORARepository
 	}
 
         return ids.toString();
-    }
-
-    public static void main (String[] args)
-    {
-	Properties props = new Properties();
-	props.put(USER_REPOSITORY_IDENT + ".driver",
-                  "org.gjt.mm.mysql.Driver");
-	props.put(USER_REPOSITORY_IDENT + ".url",
-                  "jdbc:mysql://localhost:3306/samskivert");
-	props.put(USER_REPOSITORY_IDENT + ".username", "www");
-	props.put(USER_REPOSITORY_IDENT + ".password", "Il0ve2PL@Y");
-
-	try {
-            StaticConnectionProvider scp =
-                new StaticConnectionProvider(props);
-	    UserRepository rep = new UserRepository(scp);
-
-	    System.out.println(rep.loadUser("mdb"));
-	    System.out.println(rep.loadUserBySession("auth"));
-
-	    rep.createUser(new Username("samskivert"),
-                           Password.makeFromClear("foobar"),
-                           "Michael Bayne", "mdb@samskivert.com",
-                           SiteIdentifier.DEFAULT_SITE_ID);
-	    rep.createUser(new Username("mdb"),
-                           Password.makeFromClear("foobar"), "Michael Bayne",
-			   "mdb@samskivert.com",
-                           SiteIdentifier.DEFAULT_SITE_ID);
-
-	    scp.shutdown();
-
-	} catch (Throwable t) {
-	    t.printStackTrace(System.err);
-	}
     }
 
     /** A wrapper that provides access to the userstable. */

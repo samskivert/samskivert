@@ -28,6 +28,7 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Properties;
 
 import com.samskivert.io.PersistenceException;
@@ -248,7 +249,13 @@ public class UserRepository extends JORARepository
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                return _utable.select("where " + where).toArrayList();
+                ArrayList users = (ArrayList)
+                    _utable.select("where " + where).toArrayList();
+                for (Iterator iter = users.iterator(); iter.hasNext(); ) {
+                    // configure the user record with its field mask
+                    ((User)iter.next()).setDirtyMask(_utable.getFieldMask());
+                }
+                return users;
             }
         });
     }

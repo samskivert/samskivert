@@ -73,7 +73,7 @@ public class InvocationContext extends VelocityContext
     public Template getTemplate (String path)
         throws Exception
     {
-        String siteId = (String)get("__siteid__");
+        Object siteId = get("__siteid__");
         if (siteId != null) {
             path = siteId + ":" + path;
         }

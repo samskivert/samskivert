@@ -115,14 +115,17 @@ public class IntIntMap
      * Increments the value associated with the specified key by the
      * specified amount. If the key has no previously assigned value, it
      * will be set to the amount specified (as if incrementing from zero).
+     *
+     * @return the incremented value now stored for the key
      */
-    public void increment (int key, int amount)
+    public int increment (int key, int amount)
     {
         Record rec = locateRecord(key);
         if (rec == null) {
             put(key, amount);
+            return amount;
         } else {
-            rec.value += amount;
+            return (rec.value += amount);
         }
     }
 

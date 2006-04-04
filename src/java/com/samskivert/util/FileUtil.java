@@ -3,9 +3,19 @@
 
 package com.samskivert.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import org.apache.commons.io.CopyUtils;
 
 import com.samskivert.Log;
+import com.samskivert.io.StreamUtil;
 
 /**
  * Utility methods for files.
@@ -42,6 +52,65 @@ public class FileUtil
             path = path.substring(0, path.length()-ext.length());
         }
         return path + newext;
+    }
+
+    /**
+     * Unpacks the specified jar file intto the specified target directory.
+     *
+     * @return true if the jar file was successfully unpacked, false if an
+     * error occurred that prevented the unpacking. The error will be logged.
+     */
+    public static boolean unpackJar (JarFile jar, File target)
+    {
+        boolean failure = false;
+        Enumeration entries = jar.entries();
+        while (!failure && entries.hasMoreElements()) {
+            JarEntry entry = (JarEntry)entries.nextElement();
+            File efile = new File(target, entry.getName());
+
+            // if we're unpacking a normal jar file, it will have special path
+            // entries that allow us to create our directories first
+            if (entry.isDirectory()) {
+                if (!efile.exists() && !efile.mkdir()) {
+                    Log.warning("Failed to create jar entry path [jar=" + jar +
+                                ", entry=" + entry + "].");
+                }
+                continue;
+            }
+
+            // but some do not, so we want to ensure that our directories exist
+            // prior to getting down and funky
+            File parent = new File(efile.getParent());
+            if (!parent.exists() && !parent.mkdirs()) {
+                Log.warning("Failed to create jar entry parent [jar=" + jar +
+                            ", parent=" + parent + "].");
+                continue;
+            }
+
+            BufferedOutputStream fout = null;
+            InputStream jin = null;
+            try {
+                fout = new BufferedOutputStream(new FileOutputStream(efile));
+                jin = jar.getInputStream(entry);
+                CopyUtils.copy(jin, fout);
+            } catch (Exception e) {
+                Log.warning("Failure unpacking [jar=" + jar +
+                            ", entry=" + efile + ", error=" + e + "].");
+                failure = true;
+            } finally {
+                StreamUtil.close(jin);
+                StreamUtil.close(fout);
+            }
+        }
+
+        try {
+            jar.close();
+        } catch (Exception e) {
+            Log.warning("Failed to close jar file [jar=" + jar +
+                        ", error=" + e + "].");
+        }
+
+        return !failure;
     }
 
     /** Helper function. */

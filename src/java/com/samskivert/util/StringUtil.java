@@ -123,6 +123,9 @@ public class StringUtil
      */
     public static String sanitize (String source, CharacterValidator validator)
     {
+        if (source == null) {
+            return null;
+        }
         int nn = source.length();
         StringBuffer buf = new StringBuffer(nn);
         for (int ii=0; ii < nn; ii++) {

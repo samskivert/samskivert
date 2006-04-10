@@ -70,7 +70,7 @@ public class SimpleRepository extends Repository
         // give the repository a chance to do any schema migration before
         // things get further underway
         try {
-            execute(new Operation() {
+            execute(new Operation<Object>() {
                 public Object invoke (Connection conn, DatabaseLiaison liaison)
                     throws SQLException, PersistenceException
                 {
@@ -257,7 +257,7 @@ public class SimpleRepository extends Repository
     protected void checkedUpdate (final String query, final int count)
         throws PersistenceException
     {
-        execute(new Operation() {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -287,7 +287,7 @@ public class SimpleRepository extends Repository
     protected void maintenance (final String action, final String table)
         throws PersistenceException
     {
-        execute(new Operation() {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {

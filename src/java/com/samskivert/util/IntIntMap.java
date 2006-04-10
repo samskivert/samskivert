@@ -37,7 +37,7 @@ import java.util.Set;
 // or at least share a common abstract ancestor.
 public class IntIntMap
 {
-    public interface Entry extends IntMap.Entry
+    public interface IntIntEntry extends IntMap.IntEntry<Integer>
     {
         public int getIntValue ();
 
@@ -245,12 +245,12 @@ public class IntIntMap
 
     public Interator keys ()
     {
-        return new KeyValueInterator(true);
+        return new KeyValueInterator(true, new IntEntryIterator());
     }
 
     public Interator values ()
     {
-        return new KeyValueInterator(false);
+        return new KeyValueInterator(false, new IntEntryIterator());
     }
 
     /**
@@ -304,20 +304,20 @@ public class IntIntMap
     /**
      * Get a set of all the entries in this map.
      */
-    public Set entrySet ()
+    public Set<IntIntEntry> entrySet ()
     {
-        return new AbstractSet() {
+        return new AbstractSet<IntIntEntry>() {
             public int size () {
                 return _size;
             }
 
-            public Iterator iterator() {
-                return new EntryIterator();
+            public Iterator<IntIntEntry> iterator() {
+                return new IntEntryIterator();
             }
         };
     }
 
-    class Record implements Entry
+    class Record implements IntIntEntry
     {
 	public Record next;
 	public int key;
@@ -329,7 +329,7 @@ public class IntIntMap
 	    this.value = value;
 	}
 
-        public Object getKey () {
+        public Integer getKey () {
             return new Integer(key);
         }
 
@@ -337,7 +337,7 @@ public class IntIntMap
             return key;
         }
 
-        public Object getValue () {
+        public Integer getValue () {
             return new Integer(value);
         }
 
@@ -345,8 +345,8 @@ public class IntIntMap
             return value;
         }
 
-        public Object setValue (Object v) {
-            return new Integer(setIntValue(((Integer) v).intValue()));
+        public Integer setValue (Integer v) {
+            return new Integer(setIntValue(v.intValue()));
         }
 
         public int setIntValue (int v) {
@@ -356,8 +356,8 @@ public class IntIntMap
         }
 
         public boolean equals (Object o) {
-            if (o instanceof Entry) {
-                Entry that = (Entry) o;
+            if (o instanceof IntIntEntry) {
+                IntIntEntry that = (IntIntEntry) o;
                 return (this.key == that.getIntKey()) &&
                     (this.value == that.getIntValue());
             }
@@ -369,9 +369,9 @@ public class IntIntMap
         }
     }
 
-    class EntryIterator implements Iterator
+    class IntEntryIterator implements Iterator<IntIntEntry>
     {
-	public EntryIterator ()
+	public IntEntryIterator ()
 	{
             this._modCount = IntIntMap.this._modCount;
 	    _index = _buckets.length;
@@ -408,7 +408,7 @@ public class IntIntMap
 	    return false;
 	}
 
-	public Object next ()
+	public IntIntEntry next ()
 	{
 	    // if we're not pointing to an entry, search for the next
 	    // non-empty hash chain
@@ -440,26 +440,38 @@ public class IntIntMap
         private int _modCount;
     }
 
-    protected class KeyValueInterator extends EntryIterator
+    protected class KeyValueInterator
         implements Interator
     {
-        public KeyValueInterator (boolean keys)
+        public KeyValueInterator (boolean keys,  IntEntryIterator eiter)
         {
             _keys = keys;
+            _eiter = eiter;
         }
 
         public int nextInt ()
         {
-            Entry entry = (Entry) super.next();
+            IntIntEntry entry = _eiter.next();
             return _keys ? entry.getIntKey() : entry.getIntValue();
         }
 
-        public Object next ()
+        public boolean hasNext ()
+        {
+            return _eiter.hasNext();
+        }
+
+        public Integer next ()
         {
             return new Integer(nextInt());
         }
 
+        public void remove ()
+        {
+            _eiter.remove();
+        }
+
         protected boolean _keys;
+        protected IntEntryIterator _eiter;
     }
 
 //     public static void main (String[] args)

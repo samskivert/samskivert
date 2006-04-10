@@ -91,8 +91,9 @@ public class TableSorter extends AbstractTableModel {
     private JTableHeader tableHeader;
     private MouseListener mouseListener;
     private TableModelListener tableModelListener;
-    private Map columnComparators = new HashMap();
-    private List sortingColumns = new ArrayList();
+    private Map<Class,Comparator<Object>> columnComparators =
+        new HashMap<Class,Comparator<Object>>();
+    private List<Directive> sortingColumns = new ArrayList<Directive>();
 
     public TableSorter() {
         this.mouseListener = new MouseHandler();
@@ -159,7 +160,7 @@ public class TableSorter extends AbstractTableModel {
 
     private Directive getDirective(int column) {
         for (int i = 0; i < sortingColumns.size(); i++) {
-            Directive directive = (Directive)sortingColumns.get(i);
+            Directive directive = sortingColumns.get(i);
             if (directive.column == column) {
                 return directive;
             }
@@ -203,7 +204,7 @@ public class TableSorter extends AbstractTableModel {
         sortingStatusChanged();
     }
 
-    public void setColumnComparator(Class type, Comparator comparator) {
+    public void setColumnComparator(Class type, Comparator<Object> comparator) {
         if (comparator == null) {
             columnComparators.remove(type);
         } else {
@@ -211,9 +212,9 @@ public class TableSorter extends AbstractTableModel {
         }
     }
 
-    protected Comparator getComparator(int column) {
+    protected Comparator<Object> getComparator(int column) {
         Class columnType = tableModel.getColumnClass(column);
-        Comparator comparator = (Comparator) columnComparators.get(columnType);
+        Comparator<Object> comparator = columnComparators.get(columnType);
         if (comparator != null) {
             return comparator;
         }
@@ -285,19 +286,19 @@ public class TableSorter extends AbstractTableModel {
 
     // Helper classes
     
-    private class Row implements Comparable {
+    private class Row implements Comparable<Row> {
         private int modelIndex;
 
         public Row(int index) {
             this.modelIndex = index;
         }
 
-        public int compareTo(Object o) {
+        public int compareTo(Row orow) {
             int row1 = modelIndex;
-            int row2 = ((Row) o).modelIndex;
+            int row2 = orow.modelIndex;
 
-            for (Iterator it = sortingColumns.iterator(); it.hasNext();) {
-                Directive directive = (Directive) it.next();
+            for (Iterator<Directive> it = sortingColumns.iterator(); it.hasNext();) {
+                Directive directive = it.next();
                 int column = directive.column;
                 Object o1 = tableModel.getValueAt(row1, column);
                 Object o2 = tableModel.getValueAt(row2, column);

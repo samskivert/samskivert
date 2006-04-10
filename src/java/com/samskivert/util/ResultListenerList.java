@@ -6,7 +6,7 @@ package com.samskivert.util;
 /**
  * Multiplexes ResultListener responses to multiple ResultListeners.
  */
-public class ResultListenerList extends ObserverList
+public class ResultListenerList extends ObserverList<ResultListener>
     implements ResultListener
 {
     /**
@@ -31,9 +31,9 @@ public class ResultListenerList extends ObserverList
      */
     public void requestCompleted (final Object result)
     {
-        apply(new ObserverOp() {
-            public boolean apply (Object observer) {
-                ((ResultListener) observer).requestCompleted(result);
+        apply(new ObserverOp<ResultListener>() {
+            public boolean apply (ResultListener observer) {
+                observer.requestCompleted(result);
                 return true;
             }
         });
@@ -45,9 +45,9 @@ public class ResultListenerList extends ObserverList
      */
     public void requestFailed (final Exception cause)
     {
-        apply(new ObserverOp() {
-            public boolean apply (Object observer) {
-                ((ResultListener) observer).requestFailed(cause);
+        apply(new ObserverOp<ResultListener>() {
+            public boolean apply (ResultListener observer) {
+                observer.requestFailed(cause);
                 return true;
             }
         });

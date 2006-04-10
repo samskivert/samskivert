@@ -15,7 +15,7 @@ import java.util.Set;
  * A HashMap with LRU functionality and rudimentary performance tracking
  * facilities.
  */
-public class LRUHashMap implements Map
+public class LRUHashMap<K,V> implements Map<K,V>
 {
     /**
      * Used to return the "size" of a cache item for systems that wish to
@@ -25,10 +25,10 @@ public class LRUHashMap implements Map
      * recently used items will be flushed until the cache is back below
      * its target size.
      */
-    public static interface ItemSizer
+    public static interface ItemSizer<V>
     {
         /** Returns the "size" of the specified object. */
-        public int computeSize (Object item);
+        public int computeSize (V item);
     }
 
     /**
@@ -36,10 +36,10 @@ public class LRUHashMap implements Map
      * when items are removed from the table (either explicitly or by
      * being replaced with another value or due to being flushed).
      */
-    public static interface RemovalObserver
+    public static interface RemovalObserver<K,V>
     {
         /** Informs the observer that this item was removed from the map. */
-        public void removedFromMap (LRUHashMap map, Object item);
+        public void removedFromMap (LRUHashMap<K,V> map, V item);
     }
 
     /**
@@ -56,12 +56,16 @@ public class LRUHashMap implements Map
      * the supplied item sizer which will be used to compute the size of
      * each item.
      */
-    public LRUHashMap (int maxSize, ItemSizer sizer)
+    public LRUHashMap (int maxSize, ItemSizer<V> sizer)
     {
-        _delegate = new LinkedHashMap(
+        _delegate = new LinkedHashMap<K,V>(
             Math.min(1024, Math.max(16, maxSize)), .75f, true);
         _maxSize = maxSize;
-        _sizer = (sizer == null) ? _unitSizer : sizer;
+        _sizer = (sizer == null) ? new ItemSizer<V>() {
+            public int computeSize (V item) {
+                return 1;
+            }
+        } : sizer;
     }
 
     /**
@@ -88,7 +92,7 @@ public class LRUHashMap implements Map
     /**
      * Configures this hash map with a removal observer.
      */
-    public void setRemovalObserver (RemovalObserver obs)
+    public void setRemovalObserver (RemovalObserver<K,V> obs)
     {
         _remobs = obs;
     }
@@ -115,7 +119,7 @@ public class LRUHashMap implements Map
         if (track != _tracking) {
             _tracking = track;
             if (track) {
-                _seenKeys = new HashSet();
+                _seenKeys = new HashSet<K>();
                 _misses = _hits = 0;
 
                 // oh boy, but to properly track we need to clear the hash
@@ -162,9 +166,9 @@ public class LRUHashMap implements Map
     }
 
     // documentation inherited from interface
-    public Object get (Object key)
+    public V get (Object key)
     {
-        Object result = _delegate.get(key);
+        V result = _delegate.get(key);
 
         if (_tracking) {
             if (result == null) {
@@ -181,9 +185,9 @@ public class LRUHashMap implements Map
     }
 
     // documentation inherited from interface
-    public Object put (Object key, Object value)
+    public V put (K key, V value)
     {
-        Object result = _delegate.put(key, value);
+        V result = _delegate.put(key, value);
 
         if (_tracking) {
             _seenKeys.add(key);
@@ -218,11 +222,11 @@ public class LRUHashMap implements Map
         if (_size > _maxSize) {
             // This works because the entrySet iterator of a LinkedHashMap
             // returns the entries in LRU order
-            Iterator iter = _delegate.entrySet().iterator();
+            Iterator<Map.Entry<K,V>> iter = _delegate.entrySet().iterator();
             // don't remove the last entry, even if it's too big, because
             // a cache with nothing in it sucks
             for (int ii = size(); (ii > 1) && (_size > _maxSize); ii--) {
-                Map.Entry entry = (Map.Entry) iter.next();
+                Map.Entry<K,V> entry = iter.next();
                 entryRemoved(entry.getValue());
                 iter.remove();
             }
@@ -232,7 +236,7 @@ public class LRUHashMap implements Map
     /**
      * Adjust our size to reflect the removal of the specified entry.
      */
-    protected void entryRemoved (Object entry)
+    protected void entryRemoved (V entry)
     {
         if (entry != null) {
             _size -= _sizer.computeSize(entry);
@@ -243,18 +247,17 @@ public class LRUHashMap implements Map
     }
 
     // documentation inherited from interface
-    public Object remove (Object key)
+    public V remove (Object key)
     {
-        Object removed = _delegate.remove(key);
+        V removed = _delegate.remove(key);
         entryRemoved(removed);
         return removed;
     }
 
     // documentation inherited from interface
-    public void putAll (Map t)
+    public void putAll (Map<? extends K,? extends V> t)
     {
-        for (Iterator iter = t.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+        for (Map.Entry<? extends K,? extends V> entry : t.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
     }
@@ -264,7 +267,7 @@ public class LRUHashMap implements Map
     {
         // notify our removal observer if we have one
         if (_remobs != null) {
-            for (Iterator iter = _delegate.values().iterator();
+            for (Iterator<V> iter = _delegate.values().iterator();
                  iter.hasNext(); ) {
                 _remobs.removedFromMap(this, iter.next());
             }
@@ -276,21 +279,21 @@ public class LRUHashMap implements Map
     }
 
     // documentation inherited from interface
-    public Set keySet ()
+    public Set<K> keySet ()
     {
         // no modifying except through put() and remove()
         return Collections.unmodifiableSet(_delegate.keySet());
     }
 
     // documentation inherited from interface
-    public Collection values ()
+    public Collection<V> values ()
     {
         // no modifying except through put() and remove()
         return Collections.unmodifiableCollection(_delegate.values());
     }
 
     // documentation inherited from interface
-    public Set entrySet ()
+    public Set<Map.Entry<K,V>> entrySet ()
     {
         // no modifying except through put() and remove()
         return Collections.unmodifiableSet(_delegate.entrySet());
@@ -313,7 +316,7 @@ public class LRUHashMap implements Map
      * reimplement a crapload of stuff so that we can provide our required
      * size tracking support. Yay! I wish we could support code reuse as
      * well as Sun does. */
-    protected LinkedHashMap _delegate;
+    protected LinkedHashMap<K,V> _delegate;
 
     /** The maximum size of this cache. */
     protected int _maxSize;
@@ -325,20 +328,13 @@ public class LRUHashMap implements Map
     protected boolean _canFlush = true;
 
     /** Notified when items are removed from the map, if non-null. */
-    protected RemovalObserver _remobs;
+    protected RemovalObserver<K,V> _remobs;
 
     /** Used to compute the size of items in this cache. */
-    protected ItemSizer _sizer;
+    protected ItemSizer<V> _sizer;
 
     /** Tracking info. */
     protected boolean _tracking;
-    protected HashSet _seenKeys;
+    protected HashSet<K> _seenKeys;
     protected int _hits, _misses;
-
-    /** Used for caches with no item sizer. */
-    protected static final ItemSizer _unitSizer = new ItemSizer() {
-        public int computeSize (Object item) {
-            return 1;
-        }
-    };
 }

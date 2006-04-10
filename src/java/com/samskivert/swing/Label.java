@@ -401,7 +401,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     public void layout (Graphics2D gfx)
     {
         FontRenderContext frc = gfx.getFontRenderContext();
-        ArrayList layouts = null;
+        ArrayList<Tuple<TextLayout,Rectangle2D>> layouts = null;
 
         // if we have a target height, do some processing and convert that
         // into a target width
@@ -470,8 +470,8 @@ public class Label implements SwingConstants, LabelStyleConstants
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)
             _size.setSize(Math.ceil(getWidth(bounds)),
                           Math.ceil(getHeight(layout)));
-            layouts = new ArrayList();
-            layouts.add(new Tuple(layout, bounds));
+            layouts = new ArrayList<Tuple<TextLayout,Rectangle2D>>();
+            layouts.add(new Tuple<TextLayout,Rectangle2D>(layout, bounds));
         }
 
         // create our layouts array
@@ -480,9 +480,9 @@ public class Label implements SwingConstants, LabelStyleConstants
         _lbounds = new Rectangle2D[lcount];
         _leaders = new float[lcount];
         for (int ii = 0; ii < lcount; ii++) {
-            Tuple tup = (Tuple)layouts.get(ii);
-            _layouts[ii] = (TextLayout)tup.left;
-            _lbounds[ii] = (Rectangle2D)tup.right;
+            Tuple<TextLayout,Rectangle2D> tup = layouts.get(ii);
+            _layouts[ii] = tup.left;
+            _lbounds[ii] = tup.right;
             // account for potential leaders
             if (_lbounds[ii].getX() < 0) {
                 _leaders[ii] = (float)-_lbounds[ii].getX();
@@ -498,13 +498,14 @@ public class Label implements SwingConstants, LabelStyleConstants
      * @return an {@link ArrayList} or null if <code>keepWordsWhole</code>
      * was true and the lines could not be layed out in the target width.
      */
-    protected ArrayList computeLines (
+    protected ArrayList<Tuple<TextLayout,Rectangle2D>> computeLines (
         LineBreakMeasurer measurer, int targetWidth, Dimension size,
         boolean keepWordsWhole)
     {
         // start with a size of zero
         double width = 0, height = 0;
-        ArrayList layouts = new ArrayList();
+        ArrayList<Tuple<TextLayout,Rectangle2D>> layouts =
+            new ArrayList<Tuple<TextLayout,Rectangle2D>>();
 
         try {
             // obtain our new dimensions by using a line break iterator to
@@ -524,7 +525,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                 Rectangle2D bounds = getBounds(layout);
                 width = Math.max(width, getWidth(bounds));
                 height += getHeight(layout);
-                layouts.add(new Tuple(layout, bounds));
+                layouts.add(new Tuple<TextLayout,Rectangle2D>(layout, bounds));
             }
 
             // fill in the computed size; for some reason JDK1.3 on Linux
@@ -644,7 +645,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         // first set up any attributes that apply to the entire text
         Font font = (_font == null) ? gfx.getFont() : _font;
-        HashMap map = new HashMap();
+        HashMap<TextAttribute,Object> map = new HashMap<TextAttribute,Object>();
         map.put(TextAttribute.FONT, font);
         if ((_style & UNDERLINE) != 0) {
             map.put(TextAttribute.UNDERLINE,

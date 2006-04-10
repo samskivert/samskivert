@@ -29,7 +29,7 @@ public class Session {
     public Session(String driverClass)
     {
         driver = driverClass;
-        preparedStmtHash = new Hashtable();
+        preparedStmtHash = new Hashtable<String,PreparedStatement>();
 	connectionID = 0;
     }
 
@@ -41,7 +41,7 @@ public class Session {
     public Session(Connection connection)
     {
         connectionID = 0;
-        preparedStmtHash = new Hashtable();
+        preparedStmtHash = new Hashtable<String,PreparedStatement>();
         setConnection(connection);
     }
 
@@ -57,10 +57,9 @@ public class Session {
         if (connection != conn) {
             // clear out our prepared statement hash because we've got a
             // new connection
-	    Enumeration items = preparedStmtHash.elements();
-	    while (items.hasMoreElements()) { 
+            for (PreparedStatement pstmt : preparedStmtHash.values()) {
                 try {
-                    ((PreparedStatement)items.nextElement()).close();
+                    pstmt.close();
                 } catch (SQLException sqe) {
                     Log.warning("Error closing cached prepared statement " +
                                 "[error=" + sqe + "].");
@@ -134,17 +133,13 @@ public class Session {
     public void close()
 	throws SQLException
     { 
-//          try { 
-	    Enumeration items = preparedStmtHash.elements();
-	    while (items.hasMoreElements()) { 
-	        ((PreparedStatement)items.nextElement()).close();
-	    }
-	    preparedStmtHash.clear();
-            if (connection != null) {
-                connection.close();
-            }
-//  	} 
-//  	catch (SQLException ex) { handleSQLException(ex); }
+        for (PreparedStatement pstmt : preparedStmtHash.values()) {
+            pstmt.close();
+        }
+        preparedStmtHash.clear();
+        if (connection != null) {
+            connection.close();
+        }
     }
   
     /**
@@ -197,7 +192,7 @@ public class Session {
 //	} catch(SQLException ex) { handleSQLException(ex); }
     }
 
-    protected String    driver;   // driver class name
-    protected Hashtable preparedStmtHash;
-    protected int       connectionID;
+    protected String driver;   // driver class name
+    protected Hashtable<String,PreparedStatement> preparedStmtHash;
+    protected int connectionID;
 }

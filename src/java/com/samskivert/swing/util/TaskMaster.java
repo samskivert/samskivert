@@ -186,5 +186,6 @@ public class TaskMaster
         protected Object _source;
     }
 
-    protected static Hashtable _tasks = new Hashtable();
+    protected static Hashtable<String,TaskRunner> _tasks =
+        new Hashtable<String,TaskRunner>();
 }

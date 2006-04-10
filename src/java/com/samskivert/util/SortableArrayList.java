@@ -20,77 +20,29 @@
 
 package com.samskivert.util;
 
-import java.io.Serializable;
-
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
-import java.util.RandomAccess;
-
-import java.lang.reflect.Array;
 
 /**
- * Extends the standard Java {@link ArrayList} functionality (which we'd
- * do with normal object extension if those pig fuckers hadn't made the
- * instance variables private) and provides a mechanism ({@link #sort})
- * for sorting the contents of the list that doesn't involve creating two
- * object arrays. Two copies of the elements array are made if you called
- * {@link java.util.Collections#sort}</code> (the first is when {@link
- * #toArray} is called on the collection and the second is when {@link
- * Arrays#sort} clones the supplied array so that it can do a merge sort).
+ * Provides a mechanism ({@link #sort}) for sorting the contents of the list
+ * that doesn't involve creating two object arrays. Two copies of the elements
+ * array are made if you called {@link java.util.Collections#sort}</code> (the
+ * first is when {@link #toArray} is called on the collection and the second is
+ * when {@link Arrays#sort} clones the supplied array so that it can do a merge
+ * sort).
  */
-public class SortableArrayList extends AbstractList
-    implements List, RandomAccess, Cloneable, Serializable
+public class SortableArrayList<T> extends BaseArrayList<T>
 {
-    /**
-     * Sorts the elements in this list using the quick sort algorithm
-     * (which does not involve any object allocation). The elements must
-     * implement {@link Comparable} and all be mutually comparable.
-     */
-    public void sort ()
-    {
-        sort(Comparators.COMPARABLE);
-    }
-
-    /**
-     * Sorts the elements in this list using the quick sort algorithm
-     * according to their reverse natural ordering. The elements must
-     * implement {@link Comparable} and all be mutually comparable.
-     */
-    public void rsort ()
-    {
-        sort(java.util.Collections.reverseOrder());
-    }
-
     /**
      * Sorts the elements in this list with the supplied element
      * comparator using the quick sort algorithm (which does not involve
      * any object allocation). The elements must all be mutually
      * comparable.
      */
-    public void sort (Comparator comp)
+    public void sort (Comparator<T> comp)
     {
         if (_size > 1) {
             QuickSort.sort(_elements, 0, _size-1, comp);
         }
-    }
-
-    /**
-     * Inserts the specified item into the list into a position that
-     * preserves the sorting of the list. The list must be sorted prior to
-     * the call to this method (an empty list built up entirely via calls
-     * to {@link #insertSorted} will be properly sorted). The list must be
-     * entirely comprised of elements that implement {@link Comparable}
-     * and the element being added must implement {@link Comparable} as
-     * well.
-     *
-     * @return the index at which the element was inserted.
-     */
-    public int insertSorted (Object value)
-    {
-        return insertSorted(value, Comparators.COMPARABLE);
     }
 
     /**
@@ -102,30 +54,15 @@ public class SortableArrayList extends AbstractList
      *
      * @return the index at which the element was inserted.
      */
-    public int insertSorted (Object value, Comparator comp)
+    public int insertSorted (T value, Comparator<T> comp)
     {
         int ipos = binarySearch(value, comp);
         if (ipos < 0) {
             ipos = -(ipos+1);
         }
-        _elements = ListUtil.insert(_elements, ipos, value);
+        _elements = (T[])ListUtil.insert(_elements, ipos, value);
         _size++;
         return ipos;
-    }
-
-    /**
-     * Performs a binary search, attempting to locate the specified
-     * object. The array must be sorted for this to operate correctly and
-     * the contents of the array must all implement {@link Comparable}
-     * (and actually be comparable to one another).
-     *
-     * @return the index of the object in question or
-     * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
-     * value) if the object was not found in the list.
-     */
-    public int binarySearch (Object key)
-    {
-        return ArrayUtil.binarySearch(_elements, 0, _size, key);
     }
 
     /**
@@ -137,163 +74,8 @@ public class SortableArrayList extends AbstractList
      * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
      * value) if the object was not found in the list.
      */
-    public int binarySearch (Object key, Comparator comp)
+    public int binarySearch (T key, Comparator<T> comp)
     {
         return ArrayUtil.binarySearch(_elements, 0, _size, key, comp);
     }
-
-    // documentation inherited from interface
-    public int size ()
-    {
-        return _size;
-    }
-
-    // documentation inherited from interface
-    public boolean isEmpty ()
-    {
-        return (_size == 0);
-    }
-
-    // documentation inherited from interface
-    public boolean contains (Object o)
-    {
-        return ListUtil.contains(_elements, o);
-    }
-
-    // documentation inherited from interface
-    public Object[] toArray ()
-    {
-        return toArray(new Object[_size]);
-    }
-
-    // documentation inherited from interface
-    public Object[] toArray (Object[] target)
-    {
-        // create the target array if necessary
-        if (target.length < _size) {
-            target = (Object[])Array.newInstance(
-                target.getClass().getComponentType(), _size);
-        }
-
-        // copy the elements
-        if (_elements != null) {
-            System.arraycopy(_elements, 0, target, 0, _size);
-        }
-
-        return target;
-    }
-
-    // documentation inherited
-    public void clear ()
-    {
-        _elements = null;
-        _size = 0;
-    }
-
-    // documentation inherited from interface
-    public boolean add (Object o)
-    {
-        _elements = ListUtil.add(_elements, _size, o);
-        _size++;
-        return true;
-    }
-
-    // documentation inherited from interface
-    public boolean remove (Object o)
-    {
-        if (ListUtil.remove(_elements, o) != null) {
-            _size--;
-            return true;
-        }
-        return false;
-    }
-
-    // documentation inherited from interface
-    public Object get (int index)
-    {
-        rangeCheck(index, false);
-        return _elements[index];
-    }
-
-    // documentation inherited from interface
-    public Object set (int index, Object element)
-    {
-        rangeCheck(index, false);
-        Object old = _elements[index];
-        _elements[index] = element;
-        return old;
-    }
-
-    // documentation inherited from interface
-    public void add (int index, Object element)
-    {
-        rangeCheck(index, true);
-        _elements = ListUtil.insert(_elements, index, element);
-        _size++;
-    }
-
-    // documentation inherited from interface
-    public Object remove (int index)
-    {
-        rangeCheck(index, false);
-        Object oval = ListUtil.remove(_elements, index);
-        _size--;
-        return oval;
-    }
-
-    // documentation inherited from interface
-    public int indexOf (Object o)
-    {
-        return ListUtil.indexOf(_elements, o);
-    }
-
-//     // documentation inherited from interface
-//     public int lastIndexOf (Object o)
-//     {
-//     }
-
-    /**
-     * Check the range of a passed-in index to make sure it's valid.
-     *
-     * @param insert if true, an index equal to our size is valid.
-     */
-    protected final void rangeCheck (int index, boolean insert)
-    {
-        if ((index < 0) || (insert ? (index > _size) : (index >= _size))) {
-            throw new IndexOutOfBoundsException(
-                "Index: " + index + ", Size: " + _size);
-        }
-    }
-
-    // documentation inherited
-    public Object clone ()
-    {
-        try {
-            Object[] elDup = null;
-            if (_elements != null) {
-                elDup = new Object[_elements.length];
-                System.arraycopy(_elements, 0, elDup, 0, _elements.length);
-            }
-            SortableArrayList dup = (SortableArrayList) super.clone();
-            dup._elements = elDup;
-
-            return dup;
-
-        } catch (CloneNotSupportedException cnse) {
-            com.samskivert.Log.logStackTrace(cnse); // won't happen.
-            return null;
-        }
-    }
-
-    /** The array of elements in our list. */
-    protected Object[] _elements;
-
-    /** The number of elements in our list. */
-    protected int _size;
-
-    /** Change this if the fields or inheritance hierarchy ever changes
-     * (which is extremely unlikely). We override this because I'm tired
-     * of serialized crap not working depending on whether I compiled with
-     * jikes or javac. */
-    private static final long serialVersionUID = 1;
 }

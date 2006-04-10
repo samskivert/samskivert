@@ -157,5 +157,6 @@ public class AbsoluteLayout
         return 0;
     }
 
-    protected HashMap _constraints = new HashMap();
+    protected HashMap<Component,Object> _constraints =
+        new HashMap<Component,Object>();
 }

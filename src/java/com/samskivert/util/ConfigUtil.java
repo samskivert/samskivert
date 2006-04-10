@@ -283,7 +283,7 @@ public class ConfigUtil
 	throws IOException
     {
         // first look for the files in the supplied class loader
-        Enumeration enm = getResources(path, loader);
+        Enumeration<URL> enm = getResources(path, loader);
         if (!enm.hasMoreElements()) {
             // if we couldn't find anything there, try the system class
             // loader (but only if that's not where we were already
@@ -299,7 +299,7 @@ public class ConfigUtil
         }
 
         // stick the matches into an array list so that we can count them
-        ArrayList rsrcs = new ArrayList();
+        ArrayList<URL> rsrcs = new ArrayList<URL>();
         while (enm.hasMoreElements()) {
             rsrcs.add(enm.nextElement());
         }
@@ -327,14 +327,14 @@ public class ConfigUtil
 
         // load up the metadata for the properties files
         PropRecord root = null, crown = null;
-        HashMap map = null;
+        HashMap<String,PropRecord> map = null;
 
         if (rsrcs.size() == 1) {
             // parse the metadata for our only properties file
             root = parseMetaData(path, (URL)rsrcs.get(0));
 
         } else {
-            map = new HashMap();
+            map = new HashMap<String,PropRecord>();
             for (int ii = 0; ii < rsrcs.size(); ii++) {
                 // parse the metadata for this properties file
                 PropRecord record = parseMetaData(path, (URL)rsrcs.get(ii));
@@ -360,9 +360,7 @@ public class ConfigUtil
             }
 
             // now wire up all the records according to the hierarchy
-            Iterator iter = map.values().iterator();
-            while (iter.hasNext()) {
-                PropRecord prec = (PropRecord)iter.next();
+            for (PropRecord prec : map.values()) {
                 if (prec._overrides == null) {
                     // sanity check
                     if (prec != root) {
@@ -377,7 +375,7 @@ public class ConfigUtil
                 // wire this guy up to whomever he overrides
                 for (int ii = 0; ii < prec._overrides.length; ii++) {
                     String ppkg = prec._overrides[ii];
-                    PropRecord parent = (PropRecord)map.get(ppkg);
+                    PropRecord parent = map.get(ppkg);
                     if (parent == null) {
                         throw new IOException("Cannot find parent '" + ppkg +
                                               "' for " + prec);
@@ -387,10 +385,8 @@ public class ConfigUtil
             }
 
             // verify that there is only one crown
-            ArrayList crowns = new ArrayList();
-            iter = map.values().iterator();
-            while (iter.hasNext()) {
-                PropRecord prec = (PropRecord)iter.next();
+            ArrayList<PropRecord> crowns = new ArrayList<PropRecord>();
+            for (PropRecord prec : map.values()) {
                 if (prec.size() == 0) {
                     crowns.add(prec);
                 }
@@ -416,7 +412,7 @@ public class ConfigUtil
                 throw new IOException(errmsg.toString());
             }
 
-            crown = (PropRecord)crowns.get(0);
+            crown = crowns.get(0);
         }
 
         // if the root extends another file, resolve that first
@@ -432,7 +428,8 @@ public class ConfigUtil
 
         // now apply all of the overrides, in the appropriate order
         if (crown != null) {
-            HashMap applied = new HashMap();
+            HashMap<String,PropRecord> applied =
+                new HashMap<String,PropRecord>();
             loadPropertiesOverrides(crown, map, applied, loader, target);
 
         } else {
@@ -451,8 +448,9 @@ public class ConfigUtil
     /** {@link #loadInheritedProperties(String,ClassLoader,Properties)}
      * helper function. */
     protected static void loadPropertiesOverrides (
-        PropRecord prec, HashMap records, HashMap applied,
-        ClassLoader loader, Properties target)
+        PropRecord prec, HashMap<String,PropRecord> records,
+        HashMap<String,PropRecord> applied, ClassLoader loader,
+        Properties target)
         throws IOException
     {
         if (applied.containsKey(prec._package)) {
@@ -462,8 +460,7 @@ public class ConfigUtil
         // first load up properties from all of our parent nodes
         if (prec._overrides != null) {
             for (int ii = 0; ii < prec._overrides.length; ii++) {
-                PropRecord parent = (PropRecord)
-                    records.get(prec._overrides[ii]);
+                PropRecord parent = records.get(prec._overrides[ii]);
                 loadPropertiesOverrides(
                     parent, records, applied, loader, target);
             }
@@ -598,7 +595,7 @@ public class ConfigUtil
 	return loader.getResourceAsStream(togglePath(path));
     }
 
-    protected static Enumeration getResources (
+    protected static Enumeration<URL> getResources (
         String path, ClassLoader loader)
         throws IOException
     {
@@ -609,7 +606,7 @@ public class ConfigUtil
             return null;
         }
         // try the path as is
-	Enumeration enm = loader.getResources(path);
+	Enumeration<URL> enm = loader.getResources(path);
 	if (enm.hasMoreElements()) {
 	    return enm;
 	}
@@ -627,7 +624,7 @@ public class ConfigUtil
     }
 
     /** Used when parsing inherited properties. */
-    protected static final class PropRecord extends ArrayList
+    protected static final class PropRecord extends ArrayList<PropRecord>
     {
         public String _package;
         public String[] _overrides;

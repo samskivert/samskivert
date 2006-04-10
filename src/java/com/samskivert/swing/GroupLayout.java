@@ -212,9 +212,9 @@ public abstract class GroupLayout
 	if (constraints != null) {
 	    if (constraints instanceof Constraints) {
 		if (_constraints == null) {
-		    _constraints = new HashMap();
+		    _constraints = new HashMap<Component,Constraints>();
 		}
-		_constraints.put(comp, constraints);
+		_constraints.put(comp, (Constraints)constraints);
 
 	    } else {
 		throw new RuntimeException("GroupLayout constraints " +
@@ -268,7 +268,7 @@ public abstract class GroupLayout
     protected Constraints getConstraints (Component child)
     {
         if (_constraints != null) {
-            Constraints c = (Constraints) _constraints.get(child);
+            Constraints c = _constraints.get(child);
             if (c != null) {
                 return c;
             }
@@ -476,7 +476,7 @@ public abstract class GroupLayout
     protected Justification _justification = CENTER;
     protected Justification _offjust = CENTER;
 
-    protected HashMap _constraints;
+    protected HashMap<Component,Constraints> _constraints;
 
     protected static final int MINIMUM = 0;
     protected static final int PREFERRED = 1;

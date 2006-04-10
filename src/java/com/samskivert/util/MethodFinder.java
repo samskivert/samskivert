@@ -143,7 +143,7 @@ public class MethodFinder
         // make sure the constructor list is loaded
         maybeLoadMethods();
 
-        List methodList = (List)methodMap.get(methodName);
+        List<Member> methodList = methodMap.get(methodName);
         if (methodList == null) {
             throw new NoSuchMethodException(
                 "No method named " + clazz.getName() + "." + methodName);
@@ -173,14 +173,15 @@ public class MethodFinder
      * member list fed to this method will be either all {@link
      * Constructor} objects or all {@link Method} objects.
      */
-    private Member findMemberIn (List memberList, Class[] parameterTypes)
+    private Member findMemberIn (List<Member> memberList,
+                                 Class[] parameterTypes)
         throws NoSuchMethodException
     {
-        List matchingMembers = new ArrayList();
+        List<Member> matchingMembers = new ArrayList<Member>();
 
-        for (Iterator it = memberList.iterator(); it.hasNext();) {
-            Member member = (Member)it.next();
-            Class[] methodParamTypes = (Class[])paramMap.get(member);
+        for (Iterator<Member> it = memberList.iterator(); it.hasNext();) {
+            Member member = it.next();
+            Class[] methodParamTypes = paramMap.get(member);
 
             // check for exactly equal method signature
             if (Arrays.equals(methodParamTypes, parameterTypes)) {
@@ -213,15 +214,12 @@ public class MethodFinder
      * @exception NoSuchMethodException if there is an ambiguity as to
      * which is most specific.
      */
-    private Member findMostSpecificMemberIn (List memberList)
+    private Member findMostSpecificMemberIn (List<Member> memberList)
         throws NoSuchMethodException
     {
-        List mostSpecificMembers = new ArrayList();
+        List<Member> mostSpecificMembers = new ArrayList<Member>();
 
-        for (Iterator memberIt = memberList.iterator();
-             memberIt.hasNext();) {
-            Member member = (Member)memberIt.next();
-
+        for (Member member : memberList) {
             if (mostSpecificMembers.isEmpty()) {
                 // First guy in is the most specific so far.
                 mostSpecificMembers.add(member);
@@ -232,10 +230,7 @@ public class MethodFinder
 
                 // Is member more specific than everyone in the
                 // most-specific set?
-                for (Iterator specificIt = mostSpecificMembers.iterator();
-                     specificIt.hasNext();) {
-                    Member moreSpecificMember = (Member)specificIt.next();
-
+                for (Member moreSpecificMember : mostSpecificMembers) {
                     if (!memberIsMoreSpecific(member, moreSpecificMember)) {
                         // if the candidate member is not more specific
                         // than this member, then it's not more specific
@@ -288,7 +283,7 @@ public class MethodFinder
     private void maybeLoadConstructors ()
     {
         if (ctorList == null) {
-            ctorList = new ArrayList();
+            ctorList = new ArrayList<Member>();
             Constructor[] ctors = clazz.getConstructors();
             for (int i = 0; i < ctors.length; ++i) {
                 ctorList.add(ctors[i]);
@@ -303,7 +298,7 @@ public class MethodFinder
     private void maybeLoadMethods ()
     {
         if (methodMap == null) {
-            methodMap = new HashMap();
+            methodMap = new HashMap<String,List<Member>>();
             Method[] methods = clazz.getMethods();
 
             for (int i = 0; i < methods.length; ++i) {
@@ -311,10 +306,10 @@ public class MethodFinder
                 String methodName = m.getName();
                 Class[] paramTypes = m.getParameterTypes();
 
-                List list = (List)methodMap.get(methodName);
+                List<Member> list = methodMap.get(methodName);
 
                 if (list == null) {
-                    list = new ArrayList();
+                    list = new ArrayList<Member>();
                     methodMap.put(methodName, list);
                 }
 
@@ -341,8 +336,8 @@ public class MethodFinder
      */
     private boolean memberIsMoreSpecific (Member first, Member second)
     {
-        Class[] firstParamTypes = (Class[])paramMap.get(first);
-        Class[] secondParamTypes = (Class[])paramMap.get(second);
+        Class[] firstParamTypes = paramMap.get(first);
+        Class[] secondParamTypes = paramMap.get(second);
         return ClassUtil.compatibleClasses(
             secondParamTypes, firstParamTypes);
     }
@@ -356,16 +351,16 @@ public class MethodFinder
      * Mapping from method name to the Methods in the target class with
      * that name.
      */
-    private Map methodMap = null;
+    private Map<String,List<Member>> methodMap = null;
 
     /**
      * List of the Constructors in the target class.
      */
-    private List ctorList = null;
+    private List<Member> ctorList = null;
 
     /**
      * Mapping from a Constructor or Method object to the Class objects
      * representing its formal parameters.
      */
-    private Map paramMap = new HashMap();
+    private Map<Member,Class[]> paramMap = new HashMap<Member,Class[]>();
 }

@@ -67,7 +67,7 @@ public class SetPropertyFieldsRule extends Rule
     public void addFieldParser (String property, FieldParser parser)
     {
         if (_parsers == null) {
-            _parsers = new HashMap();
+            _parsers = new HashMap<String,FieldParser>();
         }
         _parsers.put(property, parser);
     }
@@ -115,7 +115,7 @@ public class SetPropertyFieldsRule extends Rule
 
             // look for a custom field parser
             if ((_parsers != null) &&
-                ((parser = (FieldParser)_parsers.get(lname)) != null)) {
+                ((parser = _parsers.get(lname)) != null)) {
                 value = parser.parse(valstr);
             } else {
                 // otherwise use the value marshaller to parse the
@@ -133,6 +133,6 @@ public class SetPropertyFieldsRule extends Rule
     }
     }
 
-    protected HashMap _parsers;
+    protected HashMap<String,FieldParser> _parsers;
     protected boolean _warnNonFields;
 }

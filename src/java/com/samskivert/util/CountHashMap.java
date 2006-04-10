@@ -27,15 +27,15 @@ import java.util.Iterator;
  * This implementation may change, but I find it useful to inherit all
  * the goodness of clear(), keySet(), size(), etc.
  */
-public class CountHashMap extends HashMap
+public class CountHashMap<K> extends HashMap<K,int[]>
 {
     /**
      * Increment the value associated with the specified key, return
      * the new value.
      */
-    public int incrementCount (Object key, int amount)
+    public int incrementCount (K key, int amount)
     {
-        int[] val = (int[]) get(key);
+        int[] val = get(key);
         if (val == null) {
             put(key, val = new int[1]);
         }
@@ -46,9 +46,9 @@ public class CountHashMap extends HashMap
     /**
      * Get the count associated with the specified key.
      */
-    public int getCount (Object key)
+    public int getCount (K key)
     {
-        int[] val = (int[]) get(key);
+        int[] val = get(key);
         return (val == null) ? 0 : val[0];
     }
 
@@ -58,8 +58,8 @@ public class CountHashMap extends HashMap
     public int getTotalCount ()
     {
         int count = 0;
-        for (Iterator itr = values().iterator(); itr.hasNext(); ) {
-            count += ((int[]) itr.next())[0];
+        for (Iterator<int[]> itr = values().iterator(); itr.hasNext(); ) {
+            count += itr.next()[0];
         }
         return count;
     }

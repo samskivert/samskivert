@@ -21,19 +21,19 @@ package com.samskivert.util;
  * Object value = (oidx == -1) ? null : list.get(oidx);
  * </pre>
  */
-public class KeyValue
-    implements Comparable
+public class KeyValue<K extends Comparable<? super K>,V>
+    implements Comparable<KeyValue<K,V>>
 {
     /** The key in this key/value pair. */
-    public Comparable key;
+    public K key;
 
     /** The value in this key/value pair. */
-    public Object value;
+    public V value;
 
     /**
      * Creates a key/value pair with the specified key and value.
      */
-    public KeyValue (Comparable key, Object value)
+    public KeyValue (K key, V value)
     {
         this.key = key;
         this.value = value;
@@ -47,14 +47,10 @@ public class KeyValue
         return key + "=" + value;
     }
 
-    // documentation inherited
+    @SuppressWarnings("unchecked") // documentation inherited
     public boolean equals (Object other)
     {
-        if (other instanceof KeyValue) {
-            return key.equals(((KeyValue)other).key);
-        } else {
-            return false;
-        }
+        return key.equals(((KeyValue<K,V>)other).key);
     }
 
     // documentation inherited
@@ -64,12 +60,8 @@ public class KeyValue
     }
 
     // documentation inherited
-    public int compareTo (Object other)
+    public int compareTo (KeyValue<K,V> other)
     {
-        if (other instanceof KeyValue) {
-            return key.compareTo(((KeyValue)other).key);
-        } else {
-            return getClass().getName().compareTo(other.getClass().getName());
-        }
+        return key.compareTo(other.key);
     }
 }

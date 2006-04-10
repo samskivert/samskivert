@@ -24,7 +24,7 @@ import java.util.Iterator;
  * Can be used as an Iterator, and all Objects returned should be Integer
  * objects, but can also can avoid object creation by calling nextInt().
  */
-public interface Interator extends Iterator
+public interface Interator extends Iterator<Integer>
 {
     /**
      * @return the next int value from this Iterator.

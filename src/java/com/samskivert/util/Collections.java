@@ -15,32 +15,44 @@ import java.util.*;
 public class Collections
 {
     /**
-     * Returns an Iterator that iterates over all the elements contained
-     * within the Collections within the specified Collection.
+     * Returns an Iterator that iterates over all the elements contained within
+     * the Iterators within the specified Collection.
      *
-     * @param metaCollection a collection of either other Collections and/or
-     * of Iterators.
+     * @param metaCollection a collection of Iterators.
      */
-    public static Iterator getMetaIterator (Collection metaCollection)
+    public static <T> Iterator<T> getMetaIterator (
+        Collection<Iterator<T>> metaCollection)
     {
-        return new MetaIterator(metaCollection);
+        return new MetaIterator<T>(metaCollection);
     }
 
     /**
      * Get an Iterator over the supplied Collection that returns the
      * elements in their natural order.
      */
-    public static Iterator getSortedIterator (Collection coll)  
+    public static <T extends Comparable<? super T>>
+        Iterator<T> getSortedIterator (Collection<T> coll)  
     {
-        return getSortedIterator(coll.iterator(), Comparators.COMPARABLE);
+        return getSortedIterator(coll.iterator(), new Comparator<T>() {
+            public int compare (T o1, T o2) {
+                if (o1 == o2) { // catches null == null
+                    return 0;
+                } else if (o1 == null) {
+                    return 1;
+                } else if (o2 == null) {
+                    return -1;
+                }
+                return o1.compareTo(o2); // null-free
+            }
+        });
     }
 
     /**
      * Get an Iterator over the supplied Collection that returns the
      * elements in the order dictated by the supplied Comparator.
      */
-    public static Iterator getSortedIterator (Collection coll,
-                                              Comparator comparator)
+    public static <T> Iterator<T> getSortedIterator (
+        Collection<T> coll, Comparator<T> comparator)
     {
         return getSortedIterator(coll.iterator(), comparator);
     }
@@ -49,9 +61,21 @@ public class Collections
      * Get an Iterator that returns the same elements returned by
      * the supplied Iterator, but in their natural order.
      */
-    public static Iterator getSortedIterator (Iterator itr)
+    public static <T extends Comparable<? super T>>
+        Iterator<T> getSortedIterator (Iterator<T> itr)
     {
-        return getSortedIterator(itr, Comparators.COMPARABLE);
+        return getSortedIterator(itr, new Comparator<T>() {
+            public int compare (T o1, T o2) {
+                if (o1 == o2) { // catches null == null
+                    return 0;
+                } else if (o1 == null) {
+                    return 1;
+                } else if (o2 == null) {
+                    return -1;
+                }
+                return o1.compareTo(o2); // null-free
+            }
+        });
     }
 
     /**
@@ -59,10 +83,10 @@ public class Collections
      * the supplied Iterator, but in the order dictated by the supplied
      * Comparator.
      */
-    public static Iterator getSortedIterator (Iterator itr,
-                                              Comparator comparator)
+    public static <T> Iterator<T> getSortedIterator (
+        Iterator<T> itr, Comparator<T> comparator)
     {
-        SortableArrayList list = new SortableArrayList();
+        SortableArrayList<T> list = new SortableArrayList<T>();
         CollectionUtil.addAll(list, itr);
         list.sort(comparator);
         return getUnmodifiableIterator(list);
@@ -75,7 +99,7 @@ public class Collections
      * between different invocations as long as the underlying Collection
      * has not changed. This method mixes things up.
      */
-    public static Iterator getRandomIterator (Collection c)
+    public static <T> Iterator<T> getRandomIterator (Collection<T> c)
     {
         return getRandomIterator(c.iterator());
     }
@@ -84,9 +108,9 @@ public class Collections
      * Get an Iterator that returns the same elements returned by
      * the supplied Iterator, but in a completely random order.
      */
-    public static Iterator getRandomIterator (Iterator itr)
+    public static <T> Iterator<T> getRandomIterator (Iterator<T> itr)
     {
-        ArrayList list = new ArrayList();
+        ArrayList<T> list = new ArrayList<T>();
         CollectionUtil.addAll(list, itr);
         java.util.Collections.shuffle(list);
         return getUnmodifiableIterator(list);
@@ -96,7 +120,7 @@ public class Collections
      * Get an Iterator that returns the elements in the supplied
      * Collection but blocks removal.
      */
-    public static Iterator getUnmodifiableIterator (Collection c)
+    public static <T> Iterator<T> getUnmodifiableIterator (Collection<T> c)
     {
         return getUnmodifiableIterator(c.iterator());
     }
@@ -105,21 +129,17 @@ public class Collections
      * Get an iterator that returns the same elements as the supplied
      * iterator but blocks removal.
      */
-    public static Iterator getUnmodifiableIterator (final Iterator itr)
+    public static <T> Iterator<T> getUnmodifiableIterator (
+        final Iterator<T> itr)
     {
-        return new Iterator() {
-            public boolean hasNext ()
-            {
+        return new Iterator<T>() {
+            public boolean hasNext () {
                 return itr.hasNext();
             }
-
-            public Object next ()
-            {
+            public T next () {
                 return itr.next();
             }
-
-            public void remove ()
-            {
+            public void remove () {
                 throw new UnsupportedOperationException(
                     "Cannot remove from an UnmodifiableIterator!");
             }
@@ -157,8 +177,8 @@ public class Collections
      *
      * @return a synchronized view of the specified int map.
      */
-    public static IntMap synchronizedIntMap (IntMap m) {
-	return new SynchronizedIntMap(m);
+    public static <V> IntMap<V> synchronizedIntMap (IntMap<V> m) {
+	return new SynchronizedIntMap<V>(m);
     }
 
     /**
@@ -197,12 +217,12 @@ public class Collections
     /**
      * Horked from the Java util class and extended for <code>IntMap</code>.
      */
-    protected static class SynchronizedIntMap implements IntMap
+    protected static class SynchronizedIntMap<V> implements IntMap<V>
     {
-	private IntMap m; // Backing Map
+	private IntMap<V> m; // Backing Map
         private Object mutex; // Object on which to synchronize
 
-	SynchronizedIntMap(IntMap m) {
+	SynchronizedIntMap(IntMap<V> m) {
             if (m == null) {
                 throw new NullPointerException();
             }
@@ -210,7 +230,7 @@ public class Collections
             mutex = this;
         }
 
-	SynchronizedIntMap(IntMap m, Object mutex) {
+	SynchronizedIntMap(IntMap<V> m, Object mutex) {
             if (m == null) {
                 throw new NullPointerException();
             }
@@ -238,31 +258,31 @@ public class Collections
 	    synchronized(mutex) {return m.containsValue(value);}
         }
 
-        public Object get(int key) {
+        public V get(int key) {
 	    synchronized(mutex) {return m.get(key);}
         }
 
-        public Object get(Object key) {
+        public V get(Object key) {
 	    synchronized(mutex) {return m.get(key);}
         }
 
-	public Object put(int key, Object value) {
+	public V put(int key, V value) {
 	    synchronized(mutex) {return m.put(key, value);}
         }
 
-	public Object put(Object key, Object value) {
+	public V put(Integer key, V value) {
 	    synchronized(mutex) {return m.put(key, value);}
         }
 
-	public Object remove(int key) {
+	public V remove(int key) {
 	    synchronized(mutex) {return m.remove(key);}
         }
 
-	public Object remove(Object key) {
+	public V remove(Object key) {
 	    synchronized(mutex) {return m.remove(key);}
         }
 
-	public void putAll(Map map) {
+	public void putAll(Map<? extends Integer,? extends V> map) {
 	    synchronized(mutex) {m.putAll(map);}
         }
 
@@ -271,10 +291,10 @@ public class Collections
         }
 
 	private transient IntSet keySet = null;
-	private transient Set entrySet = null;
-	private transient Collection values = null;
+	private transient Set<Map.Entry<Integer,V>> entrySet = null;
+	private transient Collection<V> values = null;
 
-	public Set keySet() {
+	public Set<Integer> keySet() {
             return intKeySet();
 	}
 
@@ -286,18 +306,25 @@ public class Collections
             }
         }
 
-        public Set entrySet() {
+        public Set<Map.Entry<Integer,V>> entrySet() {
             synchronized(mutex) {
                 if (entrySet==null)
-                    entrySet = new SynchronizedSet(m.entrySet(), mutex);
+                    entrySet = new SynchronizedSet<Map.Entry<Integer,V>>(
+                        m.entrySet(), mutex);
                 return entrySet;
             }
 	}
 
-	public Collection values() {
+        public Set<IntEntry<V>> intEntrySet() {
+            synchronized(mutex) {
+                return new SynchronizedSet<IntEntry<V>>(m.intEntrySet(), mutex);
+            }
+	}
+
+	public Collection<V> values() {
             synchronized(mutex) {
                 if (values==null)
-                    values = new SynchronizedCollection(m.values(), mutex);
+                    values = new SynchronizedCollection<V>(m.values(), mutex);
                 return values;
             }
         }
@@ -321,12 +348,12 @@ public class Collections
      * default access and pointlessly preventing people from properly
      * reusing their code. Yay!
      */
-    protected static class SynchronizedSet
-        extends SynchronizedCollection implements Set {
-	SynchronizedSet(Set s) {
+    protected static class SynchronizedSet<T>
+        extends SynchronizedCollection<T> implements Set<T> {
+	SynchronizedSet(Set<T> s) {
             super(s);
         }
-	SynchronizedSet(Set s, Object mutex) {
+	SynchronizedSet(Set<T> s, Object mutex) {
             super(s, mutex);
         }
 
@@ -338,7 +365,7 @@ public class Collections
         }
     }
 
-    protected static class SynchronizedIntSet extends SynchronizedSet
+    protected static class SynchronizedIntSet extends SynchronizedSet<Integer>
         implements IntSet
     {
         SynchronizedIntSet (IntSet s) {
@@ -382,18 +409,18 @@ public class Collections
      * default access and pointlessly preventing people from properly
      * reusing their code. Yay!
      */
-    protected static class SynchronizedCollection
-        implements Collection {
-	Collection c;	   // Backing Collection
+    protected static class SynchronizedCollection<T>
+        implements Collection<T> {
+	Collection<T> c;   // Backing Collection
 	Object	   mutex;  // Object on which to synchronize
 
-	SynchronizedCollection(Collection c) {
+	SynchronizedCollection(Collection<T> c) {
             if (c==null)
                 throw new NullPointerException();
 	    this.c = c;
             mutex = this;
         }
-	SynchronizedCollection(Collection c, Object mutex) {
+	SynchronizedCollection(Collection<T> c, Object mutex) {
 	    this.c = c;
             this.mutex = mutex;
         }
@@ -410,31 +437,31 @@ public class Collections
 	public Object[] toArray() {
 	    synchronized(mutex) {return c.toArray();}
         }
-	public Object[] toArray(Object[] a) {
+	public <T> T[] toArray(T[] a) {
 	    synchronized(mutex) {return c.toArray(a);}
         }
 
-	public Iterator iterator() {
+	public Iterator<T> iterator() {
             return c.iterator(); // Must be manually synched by user!
         }
 
-	public boolean add(Object o) {
+	public boolean add(T o) {
 	    synchronized(mutex) {return c.add(o);}
         }
 	public boolean remove(Object o) {
 	    synchronized(mutex) {return c.remove(o);}
         }
 
-	public boolean containsAll(Collection coll) {
+	public boolean containsAll(Collection<?> coll) {
 	    synchronized(mutex) {return c.containsAll(coll);}
         }
-	public boolean addAll(Collection coll) {
+	public boolean addAll(Collection<? extends T> coll) {
 	    synchronized(mutex) {return c.addAll(coll);}
         }
-	public boolean removeAll(Collection coll) {
+	public boolean removeAll(Collection<?> coll) {
 	    synchronized(mutex) {return c.removeAll(coll);}
         }
-	public boolean retainAll(Collection coll) {
+	public boolean retainAll(Collection<?> coll) {
 	    synchronized(mutex) {return c.retainAll(coll);}
         }
 	public void clear() {
@@ -447,15 +474,15 @@ public class Collections
 
     /**
      * An iterator that iterates over the union of the iterators provided by a
-     * collection of collections.
+     * collection of iterators.
      */
-    protected static class MetaIterator implements Iterator
+    protected static class MetaIterator<T> implements Iterator<T>
     {
         /**
          * @param collections a Collection containing more Collections
          * whose elements we are to iterate over.
          */
-        public MetaIterator (Collection collections)
+        public MetaIterator (Collection<Iterator<T>> collections)
         {
             _meta = collections.iterator();
         }
@@ -465,21 +492,7 @@ public class Collections
         {
             while ((_current == null) || (!_current.hasNext())) {
                 if (_meta.hasNext()) {
-                    Object o = _meta.next();
-                    if (o instanceof Iterator) {
-                        _current = (Iterator) o;
-                    // TODO: jdk1.5,
-                    // (obsoletes the Collection case, below)
-                    //} else if (o instanceof Iterable) {
-                    //    _current = ((Iterable) o).iterator();
-                    } else if (o instanceof Collection) {
-                        _current = ((Collection) o).iterator();
-                    } else {
-                        throw new IllegalArgumentException(
-                            "MetaIterator must be constructed with a " +
-                            "collection of Iterators or other collections.");
-                    }
-
+                    _current = _meta.next();
                 } else {
                     return false;
                 }
@@ -488,7 +501,7 @@ public class Collections
         }
 
         // documentation inherited from interface Iterator
-        public Object next ()
+        public T next ()
         {
             if (hasNext()) {
                 return _current.next();
@@ -508,9 +521,9 @@ public class Collections
         }
 
         /** The iterator through the collection we were constructed with. */
-        protected Iterator _meta;
+        protected Iterator<Iterator<T>> _meta;
 
         /** The current sub-collection's iterator. */
-        protected Iterator _current;
+        protected Iterator<T> _current;
     }
 }

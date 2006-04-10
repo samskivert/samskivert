@@ -71,10 +71,9 @@ public class LoggingLogProvider
     {
         Logger logger = Logger.global;
         if (!StringUtil.isBlank(moduleName)) {
-            logger = (Logger)_loggers.get(moduleName);
+            logger = _loggers.get(moduleName);
             if (logger == null) {
-                _loggers.put(moduleName,
-                             logger = Logger.getLogger(moduleName));
+                _loggers.put(moduleName, logger = Logger.getLogger(moduleName));
             }
         }
         return logger;
@@ -101,5 +100,5 @@ public class LoggingLogProvider
         }
     }
 
-    protected HashMap _loggers = new HashMap();
+    protected HashMap<String,Logger> _loggers = new HashMap<String,Logger>();
 }

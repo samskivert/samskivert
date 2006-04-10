@@ -130,7 +130,7 @@ public class StaticConnectionProvider implements ConnectionProvider
     public Connection getConnection (String ident)
         throws PersistenceException
     {
-        Mapping conmap = (Mapping)_idents.get(ident);
+        Mapping conmap = _idents.get(ident);
 
         // open the connection if we haven't already
         if (conmap == null) {
@@ -150,7 +150,7 @@ public class StaticConnectionProvider implements ConnectionProvider
             // we cache connections by username+url to avoid making more
             // that one connection to a particular database server
             String key = username + "@" + url;
-            conmap = (Mapping)_keys.get(key);
+            conmap = _keys.get(key);
             if (conmap == null) {
                 Log.debug("Creating " + key + " for " + ident + ".");
                 conmap = new Mapping();
@@ -180,7 +180,7 @@ public class StaticConnectionProvider implements ConnectionProvider
     public void connectionFailed (String ident, Connection conn,
                                   SQLException error)
     {
-        Mapping conmap = (Mapping)_idents.get(ident);
+        Mapping conmap = _idents.get(ident);
         if (conmap == null) {
             Log.warning("Unknown connection failed!? [ident=" + ident + "].");
             return;
@@ -249,17 +249,17 @@ public class StaticConnectionProvider implements ConnectionProvider
         public Connection connection;
 
         /** The database identifiers that are mapped to this connection. */
-        public ArrayList idents = new ArrayList();
+        public ArrayList<String> idents = new ArrayList<String>();
     }
 
     /** Our configuration in the form of a properties object. */
     protected Properties _props;
 
     /** A mapping from database identifier to connection records. */
-    protected HashMap _idents = new HashMap();
+    protected HashMap<String,Mapping> _idents = new HashMap<String,Mapping>();
 
     /** A mapping from connection key to connection records. */
-    protected HashMap _keys = new HashMap();
+    protected HashMap<String,Mapping> _keys = new HashMap<String,Mapping>();
 
     /** The key used as defaults for the database definitions. */
     protected static final String DEFAULTS_KEY = "default";

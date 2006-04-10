@@ -45,13 +45,11 @@ public class LiaisonRegistry
         String url = dmd.getURL();
 
         // see if we already have a liaison mapped for this connection
-        DatabaseLiaison liaison = (DatabaseLiaison)_mappings.get(url);
+        DatabaseLiaison liaison = _mappings.get(url);
 
         if (liaison == null) {
             // scan the list looking for a matching liaison
-            Iterator iter = _liaisons.iterator();
-            while (iter.hasNext()) {
-                DatabaseLiaison candidate = (DatabaseLiaison)iter.next();
+            for (DatabaseLiaison candidate : _liaisons) {
                 if (candidate.matchesURL(url)) {
                     liaison = candidate;
                     break;
@@ -72,7 +70,8 @@ public class LiaisonRegistry
         return liaison;
     }
 
-    protected static void registerLiaisonClass (Class lclass)
+    protected static void registerLiaisonClass (
+        Class<? extends DatabaseLiaison> lclass)
     {
         // create a new instance and stick it on our list
         try {
@@ -83,8 +82,10 @@ public class LiaisonRegistry
         }
     }
 
-    protected static ArrayList _liaisons = new ArrayList();
-    protected static HashMap _mappings = new HashMap();
+    protected static ArrayList<DatabaseLiaison> _liaisons =
+        new ArrayList<DatabaseLiaison>();
+    protected static HashMap<String,DatabaseLiaison> _mappings =
+        new HashMap<String,DatabaseLiaison>();
 
     // register our liaison classes
     static {

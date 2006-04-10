@@ -146,10 +146,11 @@ public class ParameterUtil
      * Fetches all the values from the request with the specified name and
      * converts them to a HashSet.
      */
-    public static HashSet getParameters (HttpServletRequest req, String name)
+    public static HashSet<String> getParameters (
+        HttpServletRequest req, String name)
         throws DataValidationException
     {
-        HashSet set = new HashSet();
+        HashSet<String> set = new HashSet<String>();
         String[] values = req.getParameterValues(name);
         if (values != null) {
             for (int ii = 0; ii < values.length; ii++) {

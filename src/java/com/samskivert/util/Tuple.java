@@ -27,16 +27,16 @@ import java.io.Serializable;
  * It provides hashcode and equality semantics that allow it to be used to
  * combine two objects into a single key (for hashtables, etc.).
  */
-public class Tuple implements Serializable
+public class Tuple<L,R> implements Serializable
 {
     /** The left object. */
-    public Object left;
+    public L left;
 
     /** The right object. */
-    public Object right;
+    public R right;
 
     /** Construct a tuple with the specified two objects. */
-    public Tuple (Object left, Object right)
+    public Tuple (L left, R right)
     {
         this.left = left;
         this.right = right;

@@ -216,6 +216,11 @@ public class DispatcherServlet extends VelocityServlet
                                   "from file '" + INIT_PROPS_KEY + "'.");
         }
 
+        // if we failed to create our application for whatever reason; bail
+        if (_app == null) {
+            return props;
+        }
+
         // let the application set up velocity properties
         _app.configureVelocity(config, props);
 
@@ -270,16 +275,24 @@ public class DispatcherServlet extends VelocityServlet
             ec.addEventHandler(this);
         }
 
-        // obtain the siteid for this request and stuff that into the
-        // context
+        // if our application failed to initialize, fail with a 500 response
+        if (_app == null) {
+            rsp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return null;
+        }
+
+        // obtain the siteid for this request and stuff that into the context
+        int siteId = SiteIdentifier.DEFAULT_SITE_ID;
         SiteIdentifier ident = _app.getSiteIdentifier();
-        int siteId = ident.identifySite(req);
+        if (ident != null) {
+            siteId = ident.identifySite(req);
+        }
         if (_usingSiteLoading) {
             ctx.put("__siteid__", new Integer(siteId));
         }
 
-        // put the context path in the context as well to make it easier
-        // to construct full paths
+        // put the context path in the context as well to make it easier to
+        // construct full paths
         ctx.put("context_path", req.getContextPath());
 
         // then select the template
@@ -287,17 +300,16 @@ public class DispatcherServlet extends VelocityServlet
         try {
             tmpl = selectTemplate(siteId, ictx);
         } catch (ResourceNotFoundException rnfe) {
-            // send up a 404.  For some annoying reason, Jetty tells
-            // Apache that all is okay (200) when sending its own custom
-            // error pages, forcing us to use Jetty's custom error page
-            // handling code rather than passing it up the chain to be
-            // dealt with appropriately.
-            ictx.getResponse().sendError(HttpServletResponse.SC_NOT_FOUND);
+            // send up a 404.  For some annoying reason, Jetty tells Apache
+            // that all is okay (200) when sending its own custom error pages,
+            // forcing us to use Jetty's custom error page handling code rather
+            // than passing it up the chain to be dealt with appropriately.
+            rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
 
-        // assume the request is in the default character set unless it
-        // has actually been sensibly supplied by the browser
+        // assume the request is in the default character set unless it has
+        // actually been sensibly supplied by the browser
         if (req.getCharacterEncoding() == null) {
             req.setCharacterEncoding(_charset);
         }
@@ -308,12 +320,12 @@ public class DispatcherServlet extends VelocityServlet
 
         Exception error = null;
         try {
-            // insert the application into the context in case the
-            // logic or a tool wishes to make use of it
+            // insert the application into the context in case the logic or a
+            // tool wishes to make use of it
             ictx.put(APPLICATION_KEY, _app);
 
-            // if the application provides a message manager, we want
-            // create a translation tool and stuff that into the context
+            // if the application provides a message manager, we want create a
+            // translation tool and stuff that into the context
             MessageManager msgmgr = _app.getMessageManager();
             if (msgmgr != null) {
                 I18nTool i18n = new I18nTool(req, msgmgr);
@@ -342,8 +354,8 @@ public class DispatcherServlet extends VelocityServlet
             // allow the application to do global access control
             _app.checkAccess(ictx);
 
-            // resolve the appropriate logic class for this URI and
-            // execute it if it exists
+            // resolve the appropriate logic class for this URI and execute it
+            // if it exists
             String path = req.getServletPath();
             logic = resolveLogic(path);
             if (logic != null) {
@@ -363,15 +375,15 @@ public class DispatcherServlet extends VelocityServlet
             }
 
         } catch (RedirectException re) {
-            ictx.getResponse().sendRedirect(re.getRedirectURL());
+            rsp.sendRedirect(re.getRedirectURL());
             return null;
 
         } catch (HttpErrorException hee) {
             String msg = hee.getErrorMessage();
             if (msg != null) {
-                ictx.getResponse().sendError(hee.getErrorCode(), msg);
+                rsp.sendError(hee.getErrorCode(), msg);
             } else {
-                ictx.getResponse().sendError(hee.getErrorCode());
+                rsp.sendError(hee.getErrorCode());
             }
             return null;
 
@@ -465,7 +477,7 @@ public class DispatcherServlet extends VelocityServlet
     {
         // look for a cached logic instance
         String lclass = _app.generateClass(path);
-        Logic logic = (Logic)_logic.get(lclass);
+        Logic logic = _logic.get(lclass);
 
         if (logic == null) {
             try {
@@ -499,7 +511,7 @@ public class DispatcherServlet extends VelocityServlet
     protected Application _app;
 
     /** A table of resolved logic instances. */
-    protected HashMap _logic = new HashMap();
+    protected HashMap<String,Logic> _logic = new HashMap<String,Logic>();
 
     /** The character set in which serve our responses. */
     protected String _charset;

@@ -38,18 +38,21 @@ public class Cursor<V>
     public V next ()
 	throws SQLException
     {  
-        // if we closed everything up after the last call to next(),
-        // nTables will be zero here and we should bail immediately
-        if (nTables == 0) {
+//         // if we closed everything up after the last call to next(),
+//         // table will be null here and we should bail immediately
+        if (table == null) {
             return null;
         }
+//         if (nTables == 0) {
+//             return null;
+//         }
 
-        do { 
+//         do { 
             if (result == null) {
-                if (table.isAbstract) {
-                    table = table.derived;
-                    continue;
-                }
+//                 if (table.isAbstract) {
+//                     table = table.derived;
+//                     continue;
+//                 }
                 if (qbeObject != null) { 
                     PreparedStatement qbeStmt;
                     synchronized(session.preparedStmtHash) { 
@@ -81,8 +84,9 @@ public class Cursor<V>
             result.close();
             result = null;
             currObject = null;
-            table = table.derived;
-        } while (--nTables != 0);
+            table = null;
+//             table = table.derived;
+//         } while (--nTables != 0);
 
         if (stmt != null) { 
             stmt.close();
@@ -170,7 +174,7 @@ public class Cursor<V>
             result = null;
             stmt = null;
         }
-        nTables = 0;
+//         nTables = 0;
     }
 
     /** Extracts no more than <I>maxElements</I> records from database and
@@ -186,7 +190,7 @@ public class Cursor<V>
     public ArrayList<V> toArrayList (int maxElements)
 	throws SQLException
     {
-        ArrayList<V> al = new ArrayList(Math.min(maxElements, 100));
+        ArrayList<V> al = new ArrayList<V>(Math.min(maxElements, 100));
         V o;
         while (--maxElements >= 0 && (o = next()) != null) {
             al.add(o);
@@ -217,7 +221,7 @@ public class Cursor<V>
 	}	    
         this.table = table;
 	this.session = session;
-        this.nTables = nTables;
+//         this.nTables = nTables;
         this.query = query;
     }
 
@@ -229,7 +233,7 @@ public class Cursor<V>
 	}	    
         this.table = table;
 	this.session = session;
-	this.nTables = nTables;
+// 	this.nTables = nTables;
         this.like = like;
 	qbeObject = obj;
         qbeMask = mask;
@@ -239,7 +243,7 @@ public class Cursor<V>
   
     private Table<V>  table; 
     private Session   session;
-    private int       nTables;
+//     private int       nTables;
     private ResultSet result;
     private String    query;
     private Statement stmt;

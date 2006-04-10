@@ -35,7 +35,8 @@ public class CollectionUtil
      * Adds all items returned by the enumeration to the supplied
      * collection and returns the supplied collection.
      */
-    public static Collection addAll (Collection col, Enumeration enm)
+    public static <T> Collection<T> addAll (
+        Collection<T> col, Enumeration<T> enm)
     {
         while (enm.hasMoreElements()) {
             col.add(enm.nextElement());
@@ -47,7 +48,7 @@ public class CollectionUtil
      * Adds all items returned by the iterator to the supplied collection
      * and returns the supplied collection.
      */
-    public static Collection addAll (Collection col, Iterator iter)
+    public static <T> Collection<T> addAll (Collection<T> col, Iterator<T> iter)
     {
         while (iter.hasNext()) {
             col.add(iter.next());
@@ -59,7 +60,7 @@ public class CollectionUtil
      * Adds all items in the given object array to the supplied
      * collection and returns the supplied collection.
      */
-    public static Collection addAll (Collection col, Object[] values)
+    public static <T> Collection<T> addAll (Collection<T> col, T[] values)
     {
         for (int ii = 0; ii < values.length; ii++) {
             col.add(values[ii]);
@@ -83,7 +84,7 @@ public class CollectionUtil
      * collection is smaller than the number of elements requested for the
      * random subset.
      */
-    public static List selectRandomSubset (Collection col, int count)
+    public static <T> List<T> selectRandomSubset (Collection<T> col, int count)
     {
         int csize = col.size();
         if (csize < count) {
@@ -92,12 +93,12 @@ public class CollectionUtil
             throw new IllegalArgumentException(errmsg);
         }
 
-        ArrayList subset = new ArrayList();
-        Iterator iter = col.iterator();
+        ArrayList<T> subset = new ArrayList<T>();
+        Iterator<T> iter = col.iterator();
         int s = 0;
 
         for (int k = 0; iter.hasNext(); k++) {
-            Object elem = iter.next();
+            T elem = iter.next();
 
             // the probability that an element is select for inclusion in
             // our random subset is proportional to the number of elements
@@ -121,24 +122,21 @@ public class CollectionUtil
 
 
     /**
-     * If a collection contains only <code>Integer</code> objects, it can
-     * be passed to this function and converted into an int array.
+     * If a collection contains only <code>Integer</code> objects, it can be
+     * passed to this function and converted into an int array.
      *
      * @param col the collection to be converted.
      *
-     * @return an int array containing the contents of the collection (in
-     * the order returned by the collection's iterator). The size of the
-     * array will be equal to the size of the collection.
-     *
-     * @exception ClassCastException thrown if the collection contains
-     * elements that are not instances of <code>Integer</code>.
+     * @return an int array containing the contents of the collection (in the
+     * order returned by the collection's iterator). The size of the array will
+     * be equal to the size of the collection.
      */
-    public static int[] toIntArray (Collection col)
+    public static int[] toIntArray (Collection<Integer> col)
     {
-        Iterator iter = col.iterator();
+        Iterator<Integer> iter = col.iterator();
         int[] array = new int[col.size()];
         for (int i = 0; iter.hasNext(); i++) {
-            array[i] = ((Integer)iter.next()).intValue();
+            array[i] = iter.next().intValue();
         }
         return array;
     }

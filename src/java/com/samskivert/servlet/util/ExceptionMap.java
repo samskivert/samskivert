@@ -80,8 +80,8 @@ public class ExceptionMap
 	if (_keys != null) {
 	    return;
 	} else {
-	    _keys = new ArrayList();
-	    _values = new ArrayList();
+	    _keys = new ArrayList<Class>();
+	    _values = new ArrayList<String>();
 	}
 
 	// first try loading the properties file without a leading slash
@@ -93,14 +93,15 @@ public class ExceptionMap
 	} else {
 	    // otherwise process ye old config file.
 	    try {
-		// we'll do some serious jiggery pokery to leverage the
-		// parsing implementation provided by
-		// java.util.Properties. god bless method overloading
-		Properties loader = new Properties() {
+		// we'll do some serious jiggery pokery to leverage the parsing
+		// implementation provided by java.util.Properties. god bless
+		// method overloading
+                final ArrayList<String> classes = new ArrayList<String>();
+                Properties loader = new Properties() {
 		    public Object put (Object key, Object value)
 		    {
-			_keys.add(key);
-			_values.add(value);
+			classes.add((String)key);
+			_values.add((String)value);
 			return key;
 		    }
 		};
@@ -108,18 +109,17 @@ public class ExceptionMap
 
 		// now cruise through and resolve the exceptions named as
 		// keys and throw out any that don't appear to exist
-		for (int i = 0; i < _keys.size(); i++) {
-		    String exclass = (String)_keys.get(i);
+		for (int i = 0; i < classes.size(); i++) {
+		    String exclass = classes.get(i);
 		    try {
 			Class cl = Class.forName(exclass);
 			// replace the string with the class object
-			_keys.set(i, cl);
+			_keys.add(cl);
 
 		    } catch (Throwable t) {
 			Log.warning("Unable to resolve exception class. " +
 				    "[class=" + exclass +
 				    ", error=" + t + "].");
-			_keys.remove(i);
 			_values.remove(i);
 			i--; // back on up a notch
 		    }
@@ -144,26 +144,18 @@ public class ExceptionMap
     public static String getMessage (Throwable ex)
     {
 	String msg = DEFAULT_ERROR_MSG;
-
 	for (int i = 0; i < _keys.size(); i++) {
-	    Class cl = (Class)_keys.get(i);
+	    Class cl = _keys.get(i);
 	    if (cl.isInstance(ex)) {
-		msg = (String)_values.get(i);
+		msg = _values.get(i);
 		break;
 	    }
 	}
-
 	return StringUtil.replace(msg, MESSAGE_MARKER, ex.getMessage());
     }
 
-    public static void main (String[] args)
-    {
-	ExceptionMap map = new ExceptionMap();
-	System.out.println(ExceptionMap.getMessage(new Exception("Test error")));
-    }
-
-    protected static List _keys;
-    protected static List _values;
+    protected static List<Class> _keys;
+    protected static List<String> _values;
 
     // initialize ourselves
     static { init(); }

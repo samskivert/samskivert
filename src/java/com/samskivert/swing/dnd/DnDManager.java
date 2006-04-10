@@ -260,8 +260,7 @@ public class DnDManager
         DropTarget target;
         while (comp != null) {
             // here we sneakily prevent dropping on the source
-            target = (comp == _sourceComp) ? null
-                                           : (DropTarget) _droppers.get(comp);
+            target = (comp == _sourceComp) ? null : _droppers.get(comp);
             if ((target != null) && comp.isEnabled() &&
                 _source.checkDrop(target) &&
                 target.checkDrop(_source, _data[0])) {
@@ -288,7 +287,7 @@ public class DnDManager
         }
 
         Component parent;
-        Object target;
+        DropTarget target;
         while (true) {
             target = _droppers.get(comp);
             if (target instanceof AutoscrollingDropTarget) {
@@ -391,7 +390,7 @@ public class DnDManager
             }
 
             _sourceComp = me.getComponent();
-            _source = (DragSource) _draggers.get(_sourceComp);
+            _source = _draggers.get(_sourceComp);
 
             // make sure the source wants to start a drag.
             if ((_source == null) || (!_sourceComp.isEnabled()) ||
@@ -550,10 +549,12 @@ public class DnDManager
     };
 
     /** Our DropTargets, indexed by associated Component. */
-    protected HashMap _droppers = new HashMap();
+    protected HashMap<Component,DropTarget> _droppers =
+        new HashMap<Component,DropTarget>();
 
     /** Our DragSources, indexed by associated component. */
-    protected HashMap _draggers = new HashMap();
+    protected HashMap<Component,DragSource> _draggers =
+        new HashMap<Component,DragSource>();
 
     /** The original, last, and top-level components during a drag. */
     protected Component _sourceComp, _lastComp, _topComp;

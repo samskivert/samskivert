@@ -40,10 +40,10 @@ public class ShortestPath
     public interface Graph
     {
         /** Enumerates all nodes in the graph. */
-        public Iterator enumerateNodes ();
+        public Iterator<Object> enumerateNodes ();
 
         /** Returns the list of the edges for the specified node. */
-        public List getEdges (Object node);
+        public List<Object> getEdges (Object node);
 
         /** Returns the weight associated with the supplied edge in the
          * direction established by the supplied starting node. */
@@ -59,18 +59,19 @@ public class ShortestPath
      * assumes that the graph is properly formed and may behave strangely
      * or throw an exception if provided with an invalid graph.
      *
-     * @return a list of the edges that must be followed to traverse from
-     * the starting node to the ending node. This list may be empty if the
-     * graph is improperly formed.
+     * @return a list of the edges that must be followed to traverse from the
+     * starting node to the ending node. This list may be empty if the graph is
+     * improperly formed.
      */
-    public static List compute (Graph graph, Object start, Object end)
+    public static List<Object> compute (Graph graph, Object start, Object end)
     {
-        HashMap nodes = new HashMap();
-        HashSet relaxed = new HashSet();
-        SortableArrayList uptight = new SortableArrayList();
+        HashMap<Object,NodeInfo> nodes = new HashMap<Object,NodeInfo>();
+        HashSet<Object> relaxed = new HashSet<Object>();
+        ComparableArrayList<NodeInfo> uptight =
+            new ComparableArrayList<NodeInfo>();
 
         // initialize our searching info
-        for (Iterator iter = graph.enumerateNodes(); iter.hasNext(); ) {
+        for (Iterator<Object> iter = graph.enumerateNodes(); iter.hasNext(); ) {
             NodeInfo info = new NodeInfo();
             info.node = iter.next();
             if (info.node == start) {
@@ -88,7 +89,7 @@ public class ShortestPath
             // make a note that it is now relaxed
             relaxed.add(info.node);
             // relax its uptight neighbors
-            List edges = graph.getEdges(info.node);
+            List<Object> edges = graph.getEdges(info.node);
             for (int ii = 0, ll = edges.size(); ii < ll; ii++) {
                 Object edge = edges.get(ii);
                 Object onode = graph.getOpposite(edge, info.node);
@@ -110,19 +111,17 @@ public class ShortestPath
         }
 
         // now trace the path from the final node back to the start
-        ArrayList path = new ArrayList();
-        NodeInfo info = (NodeInfo)nodes.get(end);
+        ArrayList<Object> path = new ArrayList<Object>();
+        NodeInfo info = nodes.get(end);
         while (info.edgeTo != null) {
             path.add(0, info.edgeTo);
-            info = (NodeInfo)nodes.get(
-                graph.getOpposite(info.edgeTo, info.node));
+            info = nodes.get(graph.getOpposite(info.edgeTo, info.node));
         }
         return path;
     }
 
     /** Used to maintain information during the shortest path search. */
-    protected static final class NodeInfo
-        implements Comparable
+    protected static final class NodeInfo implements Comparable<NodeInfo>
     {
         /** The node for which we're representing information. */
         public Object node;
@@ -134,9 +133,9 @@ public class ShortestPath
         public Object edgeTo;
 
         /** We order ourselves by the cumulative weight to this node. */
-        public int compareTo (Object o)
+        public int compareTo (NodeInfo o)
         {
-            return ((NodeInfo)o).weightTo - weightTo;
+            return o.weightTo - weightTo;
         }
     }
 }

@@ -25,7 +25,7 @@ public class ValueMarshaller
         throws Exception
     {
         // look up an argument parser for the field type
-        Parser parser = (Parser)_parsers.get(type);
+        Parser parser = _parsers.get(type);
         if (parser == null) {
             String errmsg = "Don't know how to convert strings into " +
                 "values of type '" + type + "'.";
@@ -39,7 +39,7 @@ public class ValueMarshaller
         public Object parse (String source) throws Exception;
     }
 
-    protected static HashMap _parsers;
+    protected static HashMap<Class,Parser> _parsers;
 
     protected static final byte[] BYTE_ARRAY_PROTOTYPE = new byte[0];
     protected static final int[] INT_ARRAY_PROTOTYPE = new int[0];
@@ -47,7 +47,7 @@ public class ValueMarshaller
     protected static final String[] STRING_ARRAY_PROTOTYPE = new String[0];
 
     static {
-        _parsers = new HashMap();
+        _parsers = new HashMap<Class,Parser>();
 
         // we can parse strings
         _parsers.put(String.class, new Parser() {

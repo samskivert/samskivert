@@ -690,16 +690,16 @@ public class Config
      * Returns an iterator that returns all of the configuration keys in
      * this config object.
      */
-    public Iterator keys ()
+    public Iterator<String> keys ()
     {
         // what with all the complicated business, we just need to take
         // the brute force approach and enumerate everything up front
-        HashSet matches = new HashSet();
+        HashSet<String> matches = new HashSet<String>();
 
         // add the keys provided in the config files
         Enumeration defkeys = _props.propertyNames();
         while (defkeys.hasMoreElements()) {
-            matches.add(defkeys.nextElement());
+            matches.add((String)defkeys.nextElement());
         }
 
         // then add the overridden keys

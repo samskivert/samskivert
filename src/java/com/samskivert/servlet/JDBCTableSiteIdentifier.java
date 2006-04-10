@@ -95,7 +95,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         // scan for the mapping that matches the specified domain
         int msize = _mappings.size();
         for (int i = 0; i < msize; i++) {
-            SiteMapping mapping = (SiteMapping)_mappings.get(i);
+            SiteMapping mapping = _mappings.get(i);
             if (serverName.endsWith(mapping.domain)) {
                 return mapping.siteId;
             }
@@ -109,7 +109,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     public String getSiteString (int siteId)
     {
         checkReloadSites();
-        Site site = (Site)_sitesById.get(siteId);
+        Site site = _sitesById.get(siteId);
         return (site == null) ? DEFAULT_SITE_STRING : site.siteString;
     }
 
@@ -117,12 +117,12 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     public int getSiteId (String siteString)
     {
         checkReloadSites();
-        Site site = (Site)_sitesByString.get(siteString);
+        Site site = _sitesByString.get(siteString);
         return (site == null) ? DEFAULT_SITE_ID : site.siteId;
     }
 
     // documentation inherited from interface
-    public Iterator enumerateSites ()
+    public Iterator<Site> enumerateSites ()
     {
         checkReloadSites();
         return _sitesById.values().iterator();
@@ -131,6 +131,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     /**
      * Insert a new site into the site table and into this mapping.
      */
+    @SuppressWarnings("unchecked")
     public Site insertNewSite (String siteString)
         throws PersistenceException
     {
@@ -143,10 +144,11 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         site.siteString = siteString;
         _repo.insertNewSite(site);
 
-        // add it to our two mapping tables,
-        // avoiding causing enumerateSites() to choke
-        HashMap newStrings = (HashMap) _sitesByString.clone();
-        HashIntMap newIds = (HashIntMap) _sitesById.clone();
+        // add it to our two mapping tables, taking care to avoid causing
+        // enumerateSites() to choke
+        HashMap<String,Site> newStrings = (HashMap<String,Site>)
+            _sitesByString.clone();
+        HashIntMap<Site> newIds = (HashIntMap<Site>)_sitesById.clone();
         newIds.put(site.siteId, site);
         newStrings.put(site.siteString, site);
         _sitesByString = newStrings;
@@ -182,7 +184,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
      * Used to load information from the site database.
      */
     protected class SiteIdentifierRepository extends SimpleRepository
-        implements SimpleRepository.Operation
+        implements SimpleRepository.Operation<Object>
     {
         public SiteIdentifierRepository (ConnectionProvider conprov)
         {
@@ -204,8 +206,8 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 // first load up the list of sites
                 String query = "select siteId, siteString from sites";
                 ResultSet rs = stmt.executeQuery(query);
-                HashIntMap sites = new HashIntMap();
-                HashMap strings = new HashMap();
+                HashIntMap<Site> sites = new HashIntMap<Site>();
+                HashMap<String,Site> strings = new HashMap<String,Site>();
                 while (rs.next()) {
                     Site site = new Site(rs.getInt(1), rs.getString(2));
                     sites.put(site.siteId, site);
@@ -217,7 +219,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 // now load up the domain mappings
                 query = "select domain, siteId from domains";
                 rs = stmt.executeQuery(query);
-                ArrayList mappings = new ArrayList();
+                ArrayList<SiteMapping> mappings = new ArrayList<SiteMapping>();
                 while (rs.next()) {
                     mappings.add(new SiteMapping(rs.getInt(2),
                                                  rs.getString(1)));
@@ -243,7 +245,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         public void insertNewSite (final Site site)
             throws PersistenceException
         {
-            execute(new Operation() {
+            execute(new Operation<Object>() {
                 public Object invoke (Connection conn, DatabaseLiaison liaison)
                     throws PersistenceException, SQLException
                 {
@@ -271,7 +273,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     /**
      * Used to track domain to site identifier mappings.
      */
-    protected static class SiteMapping implements Comparable
+    protected static class SiteMapping implements Comparable<SiteMapping>
     {
         /** The domain to match. */
         public String domain;
@@ -292,16 +294,9 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
          * Site mappings sort from most specific (www.yahoo.com) to least
          * specific (yahoo.com).
          */
-        public int compareTo (Object other)
+        public int compareTo (SiteMapping other)
         {
-            if (other instanceof SiteMapping) {
-                SiteMapping orec = (SiteMapping)other;
-                return orec._rdomain.compareTo(_rdomain);
-            } else {
-                // no comparablo
-                return getClass().getName().compareTo(
-                    other.getClass().getName());
-            }
+            return other._rdomain.compareTo(_rdomain);
         }
 
         /** Returns a string representation of this site mapping. */
@@ -319,15 +314,17 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
 
     /** The list of domain to site identifier mappings ordered from most
      * specific domain to least specific. */
-    protected volatile ArrayList _mappings = new ArrayList();
+    protected volatile ArrayList<SiteMapping> _mappings =
+        new ArrayList<SiteMapping>();
 
     /** The mapping from integer site identifiers to string site
      * identifiers. */
-    protected volatile HashIntMap _sitesById = new HashIntMap();
+    protected volatile HashIntMap<Site> _sitesById = new HashIntMap<Site>();
 
     /** The mapping from string site identifiers to integer site
      * identifiers. */
-    protected volatile HashMap _sitesByString = new HashMap();
+    protected volatile HashMap<String,Site> _sitesByString =
+        new HashMap<String,Site>();
 
     /** Used to periodically reload our site data. */
     protected long _lastReload;

@@ -56,7 +56,7 @@ public class MACUtil
     {
         Matcher m = MACRegex.matcher(text);
 
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         while (m.find()) {
             String mac = m.group(1).toUpperCase();
             mac = mac.replace(':', '-');
@@ -94,7 +94,7 @@ public class MACUtil
             list.add(mac);
         }
 
-        return (String[])list.toArray(new String[0]);
+        return list.toArray(new String[0]);
     }
 
     /**

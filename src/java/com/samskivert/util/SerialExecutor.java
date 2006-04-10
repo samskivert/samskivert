@@ -73,7 +73,7 @@ public class SerialExecutor
     public void addTask (ExecutorTask task)
     {
         for (int ii=0, nn=_queue.size(); ii < nn; ii++) {
-            ExecutorTask taskOnQueue = (ExecutorTask) _queue.get(ii);
+            ExecutorTask taskOnQueue = _queue.get(ii);
             if (taskOnQueue.merge(task)) {
                 return;
             }
@@ -105,7 +105,7 @@ public class SerialExecutor
         _executingNow = !_queue.isEmpty();
         if (_executingNow) {
             // start up a thread to execute the task in question
-            ExecutorTask task = (ExecutorTask) _queue.remove(0);
+            ExecutorTask task = _queue.remove(0);
             final ExecutorThread thread = new ExecutorThread(task);
             thread.start();
 
@@ -196,5 +196,5 @@ public class SerialExecutor
     protected boolean _executingNow = false;
 
     /** The queue of tasks to execute. */
-    protected ArrayList _queue = new ArrayList();
+    protected ArrayList<ExecutorTask> _queue = new ArrayList<ExecutorTask>();
 }

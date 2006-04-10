@@ -59,12 +59,12 @@ public class IndiscriminateSiteIdentifier implements SiteIdentifier
     }
 
     // documented inherited from interface
-    public Iterator enumerateSites ()
+    public Iterator<Site> enumerateSites ()
     {
         return _sites.iterator();
     }
 
-    protected static ArrayList _sites = new ArrayList();
+    protected static ArrayList<Site> _sites = new ArrayList<Site>();
     static {
         _sites.add(new Site(DEFAULT_SITE_ID, DEFAULT_SITE_STRING));
     }

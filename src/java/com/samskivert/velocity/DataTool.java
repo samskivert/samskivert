@@ -74,7 +74,7 @@ public class DataTool
      * Sorts the supplied list and returns it. The elements <em>must</em>
      * implement {@link Comparable}.
      */
-    public List sort (List list)
+    public <T extends Comparable<? super T>> List<T> sort (List<T> list)
     {
         Collections.sort(list);
         return list;
@@ -85,9 +85,9 @@ public class DataTool
      * returns the list. The elements <em>must</em> implement {@link
      * Comparable}.
      */
-    public List sort (Collection data)
+    public <T extends Comparable<? super T>> List<T> sort (Collection<T> data)
     {
-        return sort(new ArrayList(data));
+        return sort(new ArrayList<T>(data));
     }
 
     /**
@@ -95,9 +95,9 @@ public class DataTool
      * returns the list. The elements <em>must</em> implement {@link
      * Comparable}.
      */
-    public List sort (Iterator iter)
+    public <T extends Comparable<? super T>> List<T> sort (Iterator<T> iter)
     {
-        ArrayList list = new ArrayList();
+        ArrayList<T> list = new ArrayList<T>();
         CollectionUtil.addAll(list, iter);
         return sort(list);
     }

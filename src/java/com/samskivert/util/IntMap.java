@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An int map is a map that uses integers as keys and provides accessors
@@ -29,13 +30,13 @@ import java.util.Map;
  * and therefore provides all of the standard accessors (for which
  * <code>Integer</code> objects should be supplied as keys).
  */
-public interface IntMap extends Map
+public interface IntMap<V> extends Map<Integer,V>
 {
     /**
-     * An IntMap entry (key-value pair). The int key may be retrieved
-     * directly, avoiding the creation of an Integer object.
+     * An IntMap entry (key-value pair). The int key may be retrieved directly,
+     * avoiding the creation of an Integer object.
      */
-    public interface Entry extends Map.Entry
+    public interface IntEntry<V> extends Entry<Integer,V>
     {
         public int getIntKey ();
     }
@@ -60,7 +61,7 @@ public interface IntMap extends Map
      * @return the value to which this map maps the specified key, or
      * <tt>null</tt> if the map contains no mapping for this key.
      */
-    public Object get (int key);
+    public V get (int key);
 
     /**
      * Associates the specified value with the specified key in this map.
@@ -73,7 +74,7 @@ public interface IntMap extends Map
      * @return previous value associated with specified key, or
      * <tt>null</tt> if there was no mapping for key.
      */
-    public Object put (int key, Object value);
+    public V put (int key, V value);
 
     /**
      * Removes the mapping for this key from this map if present.
@@ -83,10 +84,15 @@ public interface IntMap extends Map
      * @return previous value associated with specified key, or
      * <tt>null</tt> if there was no mapping for key.
      */
-    public Object remove (int key);
+    public V remove (int key);
 
     /**
      * Get a set of all the keys, as an IntSet.
      */
     public IntSet intKeySet ();
+
+    /**
+     * Returns a set of all the map entries.
+     */
+    public Set<IntEntry<V>> intEntrySet ();
 }

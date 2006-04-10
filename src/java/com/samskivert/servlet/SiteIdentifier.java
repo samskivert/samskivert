@@ -86,5 +86,5 @@ public interface SiteIdentifier
      * Returns an enumerator over all {@link Site} mappings known to this
      * SiteIdentifier.
      */
-    public Iterator enumerateSites ();
+    public Iterator<Site> enumerateSites ();
 }

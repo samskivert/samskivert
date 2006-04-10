@@ -59,28 +59,27 @@ public abstract class JORARepository extends SimpleRepository
      * Inserts the supplied object into the specified table. The table
      * must be configured to store items of the supplied type.
      */
-    protected int insert (final Table table, final Object object)
+    protected <T> int insert (final Table<T> table, final T object)
         throws PersistenceException
     {
-        Integer iid = (Integer)execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 table.insert(object);
-                return new Integer(liaison.lastInsertedId(conn));
+                return liaison.lastInsertedId(conn);
             }
         });
-        return iid.intValue();
     }
 
     /**
      * Updates the supplied object in the specified table. The table must
      * be configured to store items of the supplied type.
      */
-    protected void update (final Table table, final Object object)
+    protected <T> void update (final Table<T> table, final T object)
         throws PersistenceException
     {
-        execute(new Operation() {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -94,11 +93,13 @@ public abstract class JORARepository extends SimpleRepository
      * Loads all objects from the specified table that match the supplied
      * query.
      */
-    protected ArrayList loadAll (final Table table, final String query)
+    protected <T> ArrayList<T> loadAll (final Table<T> table,
+                                        final String query)
         throws PersistenceException
     {
-        return (ArrayList)execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<ArrayList<T>>() {
+            public ArrayList<T> invoke (
+                Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 return table.select(query).toArrayList();
@@ -111,11 +112,11 @@ public abstract class JORARepository extends SimpleRepository
      * supplied query. <em>Note:</em> the query should match one or zero
      * records, not more.
      */
-    protected Object load (final Table table, final String query)
+    protected <T> T load (final Table<T> table, final String query)
         throws PersistenceException
     {
-        return execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<T>() {
+            public T invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 return table.select(query).get();
@@ -128,11 +129,11 @@ public abstract class JORARepository extends SimpleRepository
      * supplied example. <em>Note:</em> the query should match one or zero
      * records, not more.
      */
-    protected Object loadByExample (final Table table, final Object example)
+    protected <T> T loadByExample (final Table<T> table, final T example)
         throws PersistenceException
     {
-        return execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<T>() {
+            public T invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 return table.queryByExample(example).get();
@@ -145,12 +146,12 @@ public abstract class JORARepository extends SimpleRepository
      * supplied example. <em>Note:</em> the query should match one or zero
      * records, not more.
      */
-    protected Object loadByExample (
-        final Table table, final FieldMask mask, final Object example)
+    protected <T> T loadByExample (
+        final Table<T> table, final FieldMask mask, final T example)
         throws PersistenceException
     {
-        return execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<T>() {
+            public T invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 return table.queryByExample(example, mask).get();
@@ -163,10 +164,10 @@ public abstract class JORARepository extends SimpleRepository
      * zero rows, inserts the object into the specified table. The table
      * must be configured to store items of the supplied type.
      */
-    protected void store (final Table table, final Object object)
+    protected <T> void store (final Table<T> table, final T object)
         throws PersistenceException
     {
-        execute(new Operation() {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -182,13 +183,13 @@ public abstract class JORARepository extends SimpleRepository
      * Updates the specified field in the supplied object (which must
      * correspond to the supplied table).
      */
-    protected void updateField (
-        final Table table, final Object object, String field)
+    protected <T> void updateField (
+        final Table<T> table, final T object, String field)
         throws PersistenceException
     {
         final FieldMask mask = table.getFieldMask();
         mask.setModified(field);
-        execute(new Operation() {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -202,15 +203,15 @@ public abstract class JORARepository extends SimpleRepository
      * Updates the specified fields in the supplied object (which must
      * correspond to the supplied table).
      */
-    protected void updateFields (
-        final Table table, final Object object, String[] fields)
+    protected <T> void updateFields (
+        final Table<T> table, final T object, String[] fields)
         throws PersistenceException
     {
         final FieldMask mask = table.getFieldMask();
         for (int ii = 0; ii < fields.length; ii++) {
             mask.setModified(fields[ii]);
         }
-        execute(new Operation() {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -220,10 +221,10 @@ public abstract class JORARepository extends SimpleRepository
         });
     }
 
-    protected void delete (final Table table, final Object object)
+    protected <T> void delete (final Table<T> table, final T object)
         throws PersistenceException
     {
-        execute(new Operation() {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {

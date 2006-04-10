@@ -266,7 +266,7 @@ public class CDDB
 
 	} else if (rsp.code == 211 /* inexact matches */) {
 	    // read the matches from the server
-	    ArrayList list = new ArrayList();
+	    ArrayList<Entry> list = new ArrayList<Entry>();
 	    String input = _in.readLine();
 	    System.out.println("...: " + input);
 	    while (!input.equals(CDDBProtocol.TERMINATOR)) {
@@ -349,8 +349,8 @@ public class CDDB
 	detail.category = rsp.message.substring(0, sidx);
 	detail.discid = rsp.message.substring(sidx+1);
 
-	ArrayList tnames = new ArrayList();
-	ArrayList texts = new ArrayList();
+	ArrayList<String> tnames = new ArrayList<String>();
+	ArrayList<String> texts = new ArrayList<String>();
 
 	// now parse the contents
 	String input = _in.readLine();
@@ -439,7 +439,8 @@ public class CDDB
      * supplied index. If the list has no contents at the supplied
      * index, the supplied value becomes the contents at that index.
      */
-    protected final void append (ArrayList list, int index, String value)
+    protected final void append (
+        ArrayList<String> list, int index, String value)
     {
 	// expand the list as necessary
 	while (list.size() <= index) {

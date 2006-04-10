@@ -72,13 +72,13 @@ import com.samskivert.util.StringUtil;
  * these two will give you a useful starting point for determining what is
  * the most appropriate usage for your needs.
  */
-public class ObserverList extends ArrayList
+public class ObserverList<T> extends ArrayList<T>
 {
     /**
      * Instances of this interface are used to apply methods to all
      * observers in a list.
      */
-    public static interface ObserverOp
+    public static interface ObserverOp<T>
     {
         /**
          * Called once for each observer in the list.
@@ -86,7 +86,7 @@ public class ObserverList extends ArrayList
          * @return true if the observer should remain in the list, false
          * if it should be removed in response to this application.
          */
-        public boolean apply (Object observer);
+        public boolean apply (T observer);
     }
 
     /** A notification ordering policy indicating that the observers
@@ -143,7 +143,7 @@ public class ObserverList extends ArrayList
     }
 
     // documentation inherited
-    public boolean add (Object o)
+    public boolean add (T o)
     {
         // make sure we're not violating the list constraints
         if (!_allowDups && contains(o)) {
@@ -159,13 +159,13 @@ public class ObserverList extends ArrayList
     }
 
     // documentation inherited
-    public boolean addAll (Collection c)
+    public boolean addAll (Collection<? extends T> c)
     {
         throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
     }
 
     // documentation inherited
-    public boolean addAll (int index, Collection c)
+    public boolean addAll (int index, Collection<? extends T> c)
     {
         throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
     }
@@ -175,7 +175,7 @@ public class ObserverList extends ArrayList
      * list in a manner conforming to the notification ordering policy
      * specified at construct time.
      */
-    public void apply (ObserverOp obop)
+    public void apply (ObserverOp<T> obop)
     {
         if (_policy == SAFE_IN_ORDER_NOTIFY) {
             // if we have to notify our observers in order, we need to
@@ -188,7 +188,7 @@ public class ObserverList extends ArrayList
             }
             Object[] obs = toArray(_snap);
             for (int ii = 0; ii < ocount; ii++) {
-                if (!checkedApply(obop, _snap[ii])) {
+                if (!checkedApply(obop, (T)_snap[ii])) {
                     remove(_snap[ii]);
                 }
             }
@@ -209,7 +209,7 @@ public class ObserverList extends ArrayList
      * Applies the operation to the observer, catching and logging any
      * exceptions thrown in the process.
      */
-    protected static boolean checkedApply (ObserverOp obop, Object obs)
+    protected static <T> boolean checkedApply (ObserverOp<T> obop, T obs)
     {
         try {
             return obop.apply(obs);
@@ -218,7 +218,6 @@ public class ObserverList extends ArrayList
                         "[op=" + obop +
                         ", obs=" + StringUtil.safeToString(obs) + "].");
             Log.logStackTrace(thrown);
-
             // if they booched it, definitely don't remove them
             return true;
         }

@@ -154,8 +154,8 @@ public class SwingUtil
         Rectangle r, Rectangle bounds, Collection avoidShapes)
     {
         Point origPos = r.getLocation();
-        Comparator comp = createPointComparator(origPos);
-        SortableArrayList possibles = new SortableArrayList();
+        Comparator<Point> comp = createPointComparator(origPos);
+        SortableArrayList<Point> possibles = new SortableArrayList<Point>();
         // we start things off with the passed-in point (adjusted to
         // be inside the bounds, if needed)
         possibles.add(fitRectInRect(r, bounds));
@@ -165,7 +165,7 @@ public class SwingUtil
 
       CHECKPOSSIBLES:
         while (!possibles.isEmpty()) {
-            r.setLocation((Point) possibles.remove(0));
+            r.setLocation(possibles.remove(0));
 
             // make sure the rectangle is in the view and not over a dead area
             if ((!bounds.contains(r)) || dead.intersects(r)) {
@@ -211,17 +211,14 @@ public class SwingUtil
      *
      * Used by positionRect().
      */
-    public static Comparator createPointComparator (Point origin)
+    public static Comparator<Point> createPointComparator (Point origin)
     {
         final int xo = origin.x;
         final int yo = origin.y;
 
-        return new Comparator() {
-            public int compare (Object o1, Object o2)
+        return new Comparator<Point>() {
+            public int compare (Point p1, Point p2)
             {
-                Point p1 = (Point) o1;
-                Point p2 = (Point) o2;
-
                 int x1 = xo - p1.x;
                 int y1 = yo - p1.y;
                 int x2 = xo - p2.x;

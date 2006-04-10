@@ -74,13 +74,6 @@ public class UserRepository extends JORARepository
 	super(provider, USER_REPOSITORY_IDENT);
     }
 
-    // documentation inherited
-    protected void createTables (Session session)
-    {
-	// create our table object
-	_utable = new Table<User>(User.class, "users", session, "userId");
-    }
-
     /**
      * Requests that a new user be created in the repository.
      *
@@ -151,10 +144,10 @@ public class UserRepository extends JORARepository
                 String query = "where authcode = '" + sessionKey +
                     "' AND sessions.userId = users.userId";
                 // look up the user
-                Cursor ec = _utable.select("sessions", query);
+                Cursor<User> ec = _utable.select("sessions", query);
 
                 // fetch the user from the cursor
-                User user = (User)ec.next();
+                User user = ec.next();
                 if (user != null) {
                     // call next() again to cause the cursor to close itself
                     ec.next();
@@ -172,30 +165,29 @@ public class UserRepository extends JORARepository
      *
      * @return the users whom have a user id in the userIds array.
      */
-    public HashIntMap loadUsersFromId (int[] userIds)
+    public HashIntMap<User> loadUsersFromId (int[] userIds)
 	throws PersistenceException
     {
         // make sure we actually have something to do
         if (userIds.length == 0) {
-            return new HashIntMap();
+            return new HashIntMap<User>();
         }
 
         final String ids = genIdString(userIds);
 
-        return execute(new Operation<HashIntMap>() {
-            public HashIntMap invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<HashIntMap<User>>() {
+            public HashIntMap<User> invoke (Connection conn,
+                                            DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                // look up the users
-                Cursor ec = _utable.select("where userid in (" + ids + ")");
-
+                Cursor<User> ec = _utable.select(
+                    "where userid in (" + ids + ")");
                 User user;
-                HashIntMap data = new HashIntMap();
-                while ((user = (User)ec.next()) != null) {
+                HashIntMap<User> data = new HashIntMap<User>();
+                while ((user = ec.next()) != null) {
                     user.setDirtyMask(_utable.getFieldMask());
                     data.put(user.userId, user);
                 }
-
                 return data;
             }
         });
@@ -236,14 +228,15 @@ public class UserRepository extends JORARepository
 	throws PersistenceException
     {
         return execute(new Operation<ArrayList<User>>() {
-            public ArrayList invoke (Connection conn, DatabaseLiaison liaison)
+            public ArrayList<User> invoke (
+                Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                ArrayList<User> users = (ArrayList<User>)
+                ArrayList<User> users =
                     _utable.select("where " + where).toArrayList();
-                for (Iterator iter = users.iterator(); iter.hasNext(); ) {
+                for (User user : users) {
                     // configure the user record with its field mask
-                    ((User)iter.next()).setDirtyMask(_utable.getFieldMask());
+                    user.setDirtyMask(_utable.getFieldMask());
                 }
                 return users;
             }
@@ -416,14 +409,11 @@ public class UserRepository extends JORARepository
 
     /**
      * Returns an array with the real names of every user in the system.
-     * This is for Paul who whined about not knowing who was using Who,
-     * Where, When because he didn't feel like emailing anyone that wasn't
-     * already using it to link up.
      */
     public String[] loadAllRealNames ()
 	throws PersistenceException
     {
-        final ArrayList names = new ArrayList();
+        final ArrayList<String> names = new ArrayList<String>();
 
 	// do the query
         execute(new Operation<Object>() {
@@ -448,9 +438,7 @@ public class UserRepository extends JORARepository
         });
 
 	// finally construct our result
-	String[] result = new String[names.size()];
-        names.toArray(result);
-	return result;
+        return names.toArray(new String[names.size()]);
     }
 
     /**
@@ -512,10 +500,10 @@ public class UserRepository extends JORARepository
                 throws PersistenceException, SQLException
             {
                 // look up the user
-                Cursor ec = _utable.select(whereClause);
+                Cursor<User> ec = _utable.select(whereClause);
 
                 // fetch the user from the cursor
-                User user = (User)ec.next();
+                User user = ec.next();
                 if (user != null) {
                     // call next() again to cause the cursor to close itself
                     ec.next();
@@ -538,7 +526,7 @@ public class UserRepository extends JORARepository
 
         final String ids = genIdString(userIds);
 
-	final HashIntMap map = new HashIntMap();
+	final HashIntMap<String> map = new HashIntMap<String>();
 
 	// do the query
         execute(new Operation<Object>() {
@@ -569,7 +557,7 @@ public class UserRepository extends JORARepository
 	// finally construct our result
 	String[] result = new String[userIds.length];
 	for (int i = 0; i < userIds.length; i++) {
-	    result[i] = (String)map.get(userIds[i]);
+	    result[i] = map.get(userIds[i]);
 	}
 
 	return result;
@@ -594,6 +582,13 @@ public class UserRepository extends JORARepository
         return ids.toString();
     }
 
+    // documentation inherited
+    protected void createTables (Session session)
+    {
+	// create our table object
+	_utable = new Table<User>(User.class, "users", session, "userId");
+    }
+
     /** A wrapper that provides access to the userstable. */
-    protected Table _utable;
+    protected Table<User> _utable;
 }

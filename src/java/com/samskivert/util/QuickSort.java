@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * A class to sort arrays of objects (quickly even)
+ * A class to sort arrays of objects (quickly even).
  */
 public class QuickSort
 {
@@ -32,7 +32,7 @@ public class QuickSort
      * Sorts the supplied array of objects from least to greatest, using
      * the supplied comparator.
      */
-    public static void sort (Object[] a, Comparator comp)
+    public static <T> void sort (T[] a, Comparator<? super T> comp)
     {
 	sort(a, 0, a.length - 1, comp);
     }
@@ -41,7 +41,7 @@ public class QuickSort
      * Sorts the supplied array of comparable objects from least to
      * greatest.
      */
-    public static void sort (Comparable[] a)
+    public static <T extends Comparable<? super T>> void sort (T[] a)
     {
 	sort(a, 0, a.length - 1);
     }
@@ -50,7 +50,7 @@ public class QuickSort
      * Sorts the supplied array of objects from greatest to least, using
      * the supplied comparator.
      */
-    public static void rsort (Object[] a, Comparator comp)
+    public static <T> void rsort (T[] a, Comparator<? super T> comp)
     {
 	rsort(a, 0, a.length - 1, comp);
     }
@@ -59,7 +59,7 @@ public class QuickSort
      * Sorts the supplied array of comparable objects from greatest to
      * least.
      */
-    public static void rsort (Comparable[] a)
+    public static <T extends Comparable<? super T>> void rsort (T[] a)
     {
         rsort(a, 0, a.length - 1);
     }
@@ -76,14 +76,15 @@ public class QuickSort
      * @param comp the comparator to use to establish ordering between
      * elements.
      */
-    public static void sort (Object[] a, int lo0, int hi0, Comparator comp)
+    public static <T> void sort (
+        T[] a, int lo0, int hi0, Comparator<? super T> comp)
     {
         // bail out if we're already done
 	if (hi0 <= lo0) {
             return;
         }
 
-        Object t;
+        T t;
 
         // if this is a two element file, do a simple sort on it
         if (hi0 - lo0 == 1) {
@@ -95,7 +96,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        Object mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0)/2];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -143,14 +144,15 @@ public class QuickSort
      * @param comp the comparator to use to establish ordering between
      * elements.
      */
-    public static void rsort (Object[] a, int lo0, int hi0, Comparator comp)
+    public static <T> void rsort (
+        T[] a, int lo0, int hi0, Comparator<? super T> comp)
     {
         // bail out if we're already done
 	if (hi0 <= lo0) {
             return;
         }
 
-        Object t;
+        T t;
 
         // if this is a two element file, do a simple sort on it
         if (hi0 - lo0 == 1) {
@@ -162,7 +164,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        Object mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0)/2];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -208,14 +210,15 @@ public class QuickSort
      * @param hi0 the index of the highest element to be included in the
      * sort.
      */
-    public static void sort (Comparable[] a, int lo0, int hi0)
+    public static <T extends Comparable<? super T>> void sort (
+        T[] a, int lo0, int hi0)
     {
         // bail out if we're already done
 	if (hi0 <= lo0) {
             return;
         }
 
-        Comparable t;
+        T t;
 
         // if this is a two element file, do a simple sort on it
         if (hi0 - lo0 == 1) {
@@ -227,7 +230,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        Comparable mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0)/2];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -273,14 +276,15 @@ public class QuickSort
      * @param hi0 the index of the highest element to be included in the
      * sort.
      */
-    public static void rsort (Comparable[] a, int lo0, int hi0)
+    public static <T extends Comparable<? super T>> void rsort (
+        T[] a, int lo0, int hi0)
     {
         // bail out if we're already done
 	if (hi0 <= lo0) {
             return;
         }
 
-        Comparable t;
+        T t;
 
         // if this is a two element file, do a simple sort on it
         if (hi0 - lo0 == 1) {
@@ -292,7 +296,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        Comparable mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0)/2];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -332,16 +336,27 @@ public class QuickSort
      * Sort the elements in the specified ArrayList according to their
      * natural order.
      */
-    public static void sort (ArrayList a)
+    public static <T extends Comparable<? super T>> void sort (ArrayList<T> a)
     {
-        sort(a, Comparators.COMPARABLE);
+        sort(a, new Comparator<T>() {
+            public int compare (T o1, T o2) {
+                if (o1 == o2) { // catches null == null
+                    return 0;
+                } else if (o1 == null) {
+                    return 1;
+                } else if (o2 == null) {
+                    return -1;
+                }
+                return o1.compareTo(o2); // null-free
+            }
+        });
     }
 
     /**
      * Sort the elements in the specified ArrayList according to the
      * ordering imposed by the specified Comparator.
      */
-    public static void sort (ArrayList a, Comparator comp)
+    public static <T> void sort (ArrayList<T> a, Comparator<T> comp)
     {
         sort(a, 0, a.size() - 1, comp);
     }
@@ -350,32 +365,44 @@ public class QuickSort
      * Sort the elements in the specified ArrayList according to their
      * reverse natural order.
      */
-    public static void rsort (ArrayList a)
+    public static <T extends Comparable<? super T>> void rsort (ArrayList<T> a)
     {
-        sort(a, java.util.Collections.reverseOrder());
+        sort(a, new Comparator<T>() {
+            public int compare (T o1, T o2) {
+                if (o1 == o2) { // catches null == null
+                    return 0;
+                } else if (o1 == null) {
+                    return -1;
+                } else if (o2 == null) {
+                    return 1;
+                }
+                return o2.compareTo(o1); // null-free
+            }
+        });
     }
 
     /**
      * Sort the elements in the specified ArrayList according to the
      * reverse ordering imposed by the specified Comparator.
      */
-    public static void rsort (ArrayList a, Comparator comp)
+    public static <T> void rsort (ArrayList<T> a, Comparator<T> comp)
     {
-        sort(a, new Comparators.ReversingComparator(comp));
+        sort(a, java.util.Collections.reverseOrder(comp));
     }
 
     /**
      * Sort a subset of the elements in the specified ArrayList according
      * to the ordering imposed by the specified Comparator.
      */
-    public static void sort (ArrayList a, int lo0, int hi0, Comparator comp)
+    public static <T> void sort (
+        ArrayList<T> a, int lo0, int hi0, Comparator<T> comp)
     {
         // bail out if we're already done
 	if (hi0 <= lo0) {
             return;
         }
 
-        Object e1, e2, t;
+        T e1, e2, t;
 
         // if this is a two element file, do a simple sort on it
         if (hi0 - lo0 == 1) {
@@ -390,7 +417,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        Object mid = a.get((lo0 + hi0)/2);
+        T mid = a.get((lo0 + hi0)/2);
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;

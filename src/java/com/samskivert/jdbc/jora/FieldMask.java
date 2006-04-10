@@ -53,7 +53,7 @@ public class FieldMask
     public FieldMask (FieldDescriptor[] descrips)
     {
         // create a mapping from field name to descriptor index
-        _descripMap = new HashMap();
+        _descripMap = new HashMap<String,Integer>();
         int dcount = descrips.length;
         for (int i = 0; i < dcount; i++) {
             _descripMap.put(descrips[i].field.getName(), new Integer(i));
@@ -89,7 +89,7 @@ public class FieldMask
      */
     public final boolean isModified (String fieldName)
     {
-        Integer index = (Integer)_descripMap.get(fieldName);
+        Integer index = _descripMap.get(fieldName);
         if (index == null) {
             String errmsg = "Passed in field not in mask.";
             throw new IllegalArgumentException(errmsg);
@@ -103,14 +103,11 @@ public class FieldMask
      */
     public final boolean onlySubsetModified (Set fieldSet)
     {
-        Iterator itr = _descripMap.keySet().iterator();
-        while (itr.hasNext()) {
-            String field = (String)itr.next();
+        for (String field : _descripMap.keySet()) {
             if (isModified(field) && (!fieldSet.contains(field))) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -119,7 +116,7 @@ public class FieldMask
      */
     public void setModified (String fieldName)
     {
-        Integer index = (Integer)_descripMap.get(fieldName);
+        Integer index = _descripMap.get(fieldName);
         if (index == null) {
             String errmsg = "";
             throw new IllegalArgumentException(errmsg);
@@ -156,9 +153,8 @@ public class FieldMask
         // return a list of the modified fields
         StringBuffer buf = new StringBuffer("FieldMask [modified={");
         boolean added = false;
-        for (Iterator itr=_descripMap.entrySet().iterator(); itr.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) itr.next();
-            if (_modified[((Integer) entry.getValue()).intValue()]) {
+        for (Map.Entry<String,Integer> entry : _descripMap.entrySet()) {
+            if (_modified[entry.getValue().intValue()]) {
                 if (added) {
                     buf.append(", ");
                 } else {
@@ -176,5 +172,5 @@ public class FieldMask
     protected boolean[] _modified;
 
     /** A mapping from field names to field descriptor index. */
-    protected HashMap _descripMap;
+    protected HashMap<String,Integer> _descripMap;
 }

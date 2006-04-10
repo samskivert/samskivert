@@ -184,7 +184,7 @@ public class ObjectEditorTable extends JTable
     /**
      * Set the data to be viewed or edited.
      */
-    public void setData (Collection data)
+    public void setData (Collection<?> data)
     {
         _data.clear();
         _data.addAll(data);
@@ -376,5 +376,5 @@ public class ObjectEditorTable extends JTable
     protected BitSet _editable = new BitSet();
 
     /** The data being edited. */
-    protected ArrayList _data = new ArrayList();
+    protected ArrayList<Object> _data = new ArrayList<Object>();
 }

@@ -51,18 +51,16 @@ public class ClassUtil
      */
     public static Field[] getFields (Class clazz)
     {
-        ArrayList list = new ArrayList();
+        ArrayList<Field> list = new ArrayList<Field>();
         getFields(clazz, list);
-        Field[] fields = new Field[list.size()];
-        list.toArray(fields);
-        return fields;
+        return list.toArray(new Field[list.size()]);
     }
 
     /**
      * Add all the fields of the specifed class (and its ancestors) to the
      * list.
      */
-    public static void getFields (Class clazz, List addTo)
+    public static void getFields (Class clazz, List<Field> addTo)
     {
         // first get the fields of the superclass
         Class pclazz = clazz.getSuperclass();
@@ -129,7 +127,7 @@ public class ClassUtil
      *
      * @return true if compatible, false otherwise.
      */
-    public static boolean compatibleClasses (Class[] lhs, Class[] rhs)
+    public static boolean compatibleClasses (Class<?>[] lhs, Class<?>[] rhs)
     {
         if (lhs.length != rhs.length) {
             return false;
@@ -143,11 +141,10 @@ public class ClassUtil
                     continue;
             }
 
-            if (! lhs[i].isAssignableFrom(rhs[i])) {
-                Class lhsPrimEquiv = primitiveEquivalentOf(lhs[i]);
-                Class rhsPrimEquiv = primitiveEquivalentOf(rhs[i]);
-
-                if (! primitiveIsAssignableFrom(lhsPrimEquiv, rhsPrimEquiv))
+            if (!lhs[i].isAssignableFrom(rhs[i])) {
+                Class<?> lhsPrimEquiv = primitiveEquivalentOf(lhs[i]);
+                Class<?> rhsPrimEquiv = primitiveEquivalentOf(rhs[i]);
+                if (!primitiveIsAssignableFrom(lhsPrimEquiv, rhsPrimEquiv))
                     return false;
             }
         }
@@ -244,19 +241,17 @@ public class ClassUtil
      * wrapper.  If clazz is primitive, returns clazz.  Otherwise,
      * returns null.
      */
-    public static Class primitiveEquivalentOf (Class clazz)
+    public static Class<?> primitiveEquivalentOf (Class clazz)
     {
-        return clazz.isPrimitive() ?
-            clazz : (Class)_objectToPrimitiveMap.get(clazz);
+        return clazz.isPrimitive() ? clazz : _objectToPrimitiveMap.get(clazz);
     }
 
     /**
      * @return the class's object equivalent if the class is a primitive type.
      */
-    public static Class objectEquivalentOf (Class clazz)
+    public static Class<?> objectEquivalentOf (Class clazz)
     {
-        return clazz.isPrimitive() ?
-            (Class) _primitiveToObjectMap.get(clazz) : clazz;
+        return clazz.isPrimitive() ? _primitiveToObjectMap.get(clazz) : clazz;
     }
 
     /**
@@ -273,19 +268,19 @@ public class ClassUtil
      */
     public static boolean primitiveIsAssignableFrom (Class lhs, Class rhs)
     {
-        if (lhs == null || rhs == null)
+        if (lhs == null || rhs == null) {
             return false;
-
-        if (! (lhs.isPrimitive() && rhs.isPrimitive()))
+        }
+        if (!(lhs.isPrimitive() && rhs.isPrimitive())) {
             return false;
-
-        if (lhs.equals(rhs))
+        }
+        if (lhs.equals(rhs)) {
             return true;
-
-        Set wideningSet = (Set)_primitiveWideningsMap.get(rhs);
-        if (wideningSet == null)
+        }
+        Set<Class> wideningSet = _primitiveWideningsMap.get(rhs);
+        if (wideningSet == null) {
             return false;
-
+        }
         return wideningSet.contains(lhs);
     }
 
@@ -293,8 +288,10 @@ public class ClassUtil
      * Mapping from primitive wrapper Classes to their corresponding
      * primitive Classes.
      */
-    private static final Map _objectToPrimitiveMap = new HashMap(13);
-    private static final Map _primitiveToObjectMap = new HashMap(13);
+    private static final Map<Class<?>,Class<?>> _objectToPrimitiveMap =
+        new HashMap<Class<?>,Class<?>>(13);
+    private static final Map<Class<?>,Class<?>> _primitiveToObjectMap =
+        new HashMap<Class<?>,Class<?>>(13);
 
     static {
         _objectToPrimitiveMap.put(Boolean.class, Boolean.TYPE);
@@ -319,10 +316,11 @@ public class ClassUtil
      * Mapping from primitive wrapper Classes to the sets of primitive
      * classes whose instances can be assigned an instance of the first.
      */
-    private static final Map _primitiveWideningsMap = new HashMap(11);
+    private static final Map<Class,Set<Class>> _primitiveWideningsMap =
+        new HashMap<Class,Set<Class>>(11);
 
     static {
-        Set set = new HashSet();
+        Set<Class> set = new HashSet<Class>();
         set.add(Short.TYPE);
         set.add(Integer.TYPE);
         set.add(Long.TYPE);
@@ -330,7 +328,7 @@ public class ClassUtil
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Byte.TYPE, set);
 
-        set = new HashSet();
+        set = new HashSet<Class>();
         set.add(Integer.TYPE);
         set.add(Long.TYPE);
         set.add(Float.TYPE);
@@ -338,18 +336,18 @@ public class ClassUtil
         _primitiveWideningsMap.put(Short.TYPE, set);
         _primitiveWideningsMap.put(Character.TYPE, set);
 
-        set = new HashSet();
+        set = new HashSet<Class>();
         set.add(Long.TYPE);
         set.add(Float.TYPE);
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Integer.TYPE, set);
 
-        set = new HashSet();
+        set = new HashSet<Class>();
         set.add(Float.TYPE);
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Long.TYPE, set);
 
-        set = new HashSet();
+        set = new HashSet<Class>();
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Float.TYPE, set);
     }

@@ -146,25 +146,6 @@ public class Table<T>
         return new Cursor<T>(this, session, 1, query);
     }
 
-    /** Select records from specified and derived database tables
-     *
-     * @param condition valid SQL condition expression started with WHERE
-     *  or empty string if all records should be fetched.
-     */
-    public final Cursor<T> selectAll(String condition) {
-        return new Cursor<T>(this, session, nDerived+1, condition);
-    }
-
-    /** Select records from specified and derived database tables
-     *
-     * @param condition valid SQL condition expression started with WHERE
-     *  or empty string if all records should be fetched.
-     * @param session user database session
-     */
-    public final Cursor<T> selectAll(String condition, Session session) {
-        return new Cursor<T>(this, session, nDerived+1, condition);
-    }
-
     /** Select records from database table using <I>obj</I> object as
      * template.
      *
@@ -245,32 +226,7 @@ public class Table<T>
      */
     public final Cursor<T> queryByLikeExample(
         T obj, Session session, FieldMask mask) {
-        return new Cursor(this, session, 1, obj, mask, true);
-    }
-
-    /** Select records from specified and derived database tables using
-     * <I>obj</I> object as template for selection.  All non-builtin
-     * fields of this object, which are not null, are compared with
-     * correspondent table values.
-     *
-     * @param obj object for construction search condition: selected
-     * objects should match all non-null fields of specified object.
-     */
-    public final Cursor queryAllByExample(T obj) {
-        return new Cursor(this, session, nDerived+1, obj, null, false);
-    }
-
-    /** Select records from specified and derived database tables using
-     * <I>obj</I> object as template for selection.
-     * All non-builtin fields of this object,
-     * which are not null, are compared with correspondent table values.
-     *
-     * @param obj object for construction search condition: selected objects
-     *  should match all non-null fields of specified object.
-     * @param session user database session
-     */
-    public final Cursor queryAllByExample(T obj, Session session) {
-        return new Cursor(this, session, nDerived+1, obj, null, false);
+        return new Cursor<T>(this, session, 1, obj, mask, true);
     }
 
     /** Insert new record in the table. Values of inserted record fields
@@ -639,8 +595,7 @@ public class Table<T>
      */
     public String toString ()
     {
-        return "[isAbstract=" + isAbstract + ", derived=" + derived +
-            ", nDerived=" + nDerived + ", name=" + name +
+        return "[name=" + name +
             ", primaryKeys=" + StringUtil.toString(primaryKeys) + "]";
     }
 
@@ -655,22 +610,20 @@ public class Table<T>
 
     // --- Implementation -----------------------------------------
 
-    /** Is table abstract - not present in database.
-     */
-    protected boolean isAbstract;
-    protected Table   derived;
-    protected int     nDerived;
+//     /** Is table abstract - not present in database.
+//      */
+//     protected boolean isAbstract;
+//     protected Table<?> derived;
 
     protected String  name;
     protected String  listOfFields;
     protected String  qualifiedListOfFields;
     protected String  listOfAssignments;
-    protected Class   cls;
+    protected Class<T> cls;
     protected Session session;
 
     protected boolean mixedCaseConvert = false;
 
-    static private Class serializableClass;
     private   FieldDescriptor[] fields;
     private   FieldMask fMask;
 
@@ -686,10 +639,11 @@ public class Table<T>
     private PreparedStatement deleteStmt;
     private PreparedStatement insertStmt;
 
-    private static Table  allTables;
+//     private static Table<?>  allTables;
     private Constructor<T> constructor;
     private static Method setBypass;
 
+    private static Class serializableClass;
     private static final Object[] bypassFlag = { new Boolean(true) };
     private static final Object[] constructorArgs = {};
 
@@ -709,17 +663,17 @@ public class Table<T>
         name = tableName;
         this.mixedCaseConvert = mixedCaseConvert;
         cls = clazz;
-	isAbstract = tableName == null;
+// 	isAbstract = tableName == null;
 	session = s;
 	primaryKeys = keys;
 	listOfFields = "";
 	qualifiedListOfFields = "";
 	listOfAssignments = "";
 	connectionID = 0;
-	Vector fieldsVector = new Vector();
+	ArrayList<FieldDescriptor> fieldsVector =
+            new ArrayList<FieldDescriptor>();
 	nFields = buildFieldsList(fieldsVector, cls, "");
-	fields = new FieldDescriptor[nFields];
-	fieldsVector.copyInto(fields);
+	fields = fieldsVector.toArray(new FieldDescriptor[nFields]);
         fMask = new FieldMask(fields);
 
 	try {
@@ -749,51 +703,51 @@ public class Table<T>
 		}
 	    }
 	}
-	insertIntoTableHierarchy();
+// 	insertIntoTableHierarchy();
     }
 
-    private final void insertIntoTableHierarchy()
-    {
-	Table t, prev = null;
-	Table after = null;
-	int nChilds = 0;
-	for (t = allTables; t != null; prev = t, t = t.derived) {
-	    if (t.cls.isAssignableFrom(cls)) {
- 	        if (primaryKeys == null && t.primaryKeys != null) {
-		    primaryKeys = t.primaryKeys;
-		    primaryKeyIndices = t.primaryKeyIndices;
-		}
-		if (session == null) {
-		    session = t.session;
-		}
-		t.nDerived += 1;
-		after = t;
-	    } else if (cls.isAssignableFrom(t.cls)) {
-		after = prev;
-		do {
-		    if (cls.isAssignableFrom(t.cls)) {
-		        if (primaryKeys != null && t.primaryKeys == null) {
-			    t.primaryKeys = primaryKeys;
-			    t.primaryKeyIndices = primaryKeyIndices;
-			}
-			if (t.session == null) {
-			    t.session = session;
-			}
-			nChilds += 1;
-		    }
-		} while ((t = t.derived) != null);
-		break;
-	    }
-	}
-	if (after == null) {
-	    derived = allTables;
-	    allTables = this;
-	} else {
-	    derived = after.derived;
-	    after.derived = this;
-	}
-	nDerived = nChilds;
-    }
+//     private final void insertIntoTableHierarchy()
+//     {
+// 	Table<?> t, prev = null;
+// 	Table<?> after = null;
+// 	int nChilds = 0;
+// 	for (t = allTables; t != null; prev = t, t = t.derived) {
+// 	    if (t.cls.isAssignableFrom(cls)) {
+//  	        if (primaryKeys == null && t.primaryKeys != null) {
+// 		    primaryKeys = t.primaryKeys;
+// 		    primaryKeyIndices = t.primaryKeyIndices;
+// 		}
+// 		if (session == null) {
+// 		    session = t.session;
+// 		}
+// 		t.nDerived += 1;
+// 		after = t;
+// 	    } else if (cls.isAssignableFrom(t.cls)) {
+// 		after = prev;
+// 		do {
+// 		    if (cls.isAssignableFrom(t.cls)) {
+// 		        if (primaryKeys != null && t.primaryKeys == null) {
+// 			    t.primaryKeys = primaryKeys;
+// 			    t.primaryKeyIndices = primaryKeyIndices;
+// 			}
+// 			if (t.session == null) {
+// 			    t.session = session;
+// 			}
+// 			nChilds += 1;
+// 		    }
+// 		} while ((t = t.derived) != null);
+// 		break;
+// 	    }
+// 	}
+// 	if (after == null) {
+// 	    derived = allTables;
+// 	    allTables = this;
+// 	} else {
+// 	    derived = after.derived;
+// 	    after.derived = this;
+// 	}
+// 	nDerived = nChilds;
+//     }
 
     private final void checkConnection(Session s) throws SQLException {
         if (connectionID != s.connectionID) {
@@ -822,7 +776,8 @@ public class Table<T>
         }
     }
 
-    private final int buildFieldsList(Vector buf, Class cls, String prefix)
+    private final int buildFieldsList(ArrayList<FieldDescriptor> buf, Class cls,
+                                      String prefix)
     {
 	Field[] f = cls.getDeclaredFields();
 
@@ -854,7 +809,7 @@ public class Table<T>
 		FieldDescriptor fd = new FieldDescriptor(f[i], fullName);
 		int type;
 
-		buf.addElement(fd);
+		buf.add(fd);
 		n += 1;
 
 		String c = fieldClass.getName();

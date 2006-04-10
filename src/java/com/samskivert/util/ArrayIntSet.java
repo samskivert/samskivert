@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
  * Provides an {@link IntSet} implementation using a sorted array of
  * integers to maintain the contents of the set.
  */
-public class ArrayIntSet extends AbstractSet
+public class ArrayIntSet extends AbstractSet<Integer>
     implements IntSet, Cloneable, Serializable
 {
     /**
@@ -112,7 +112,7 @@ public class ArrayIntSet extends AbstractSet
                 }
             }
 
-            public Object next () {
+            public Integer next () {
                 return new Integer(nextInt());
             }
 
@@ -133,7 +133,7 @@ public class ArrayIntSet extends AbstractSet
     }
 
     // documentation inherited from interface
-    public Iterator iterator ()
+    public Iterator<Integer> iterator ()
     {
         return interator();
     }
@@ -145,7 +145,7 @@ public class ArrayIntSet extends AbstractSet
     }
 
     // documentation inherited from interface
-    public Object[] toArray (Object[] a)
+    public Integer[] toArray (Integer[] a)
     {
         for (int i = 0; i < _size; i++) {
             a[i] = new Integer(_values[i]);
@@ -189,9 +189,9 @@ public class ArrayIntSet extends AbstractSet
     }
 
     // documentation inherited from interface
-    public boolean add (Object o)
+    public boolean add (Integer o)
     {
-        return add(((Integer)o).intValue());
+        return add(o.intValue());
     }
 
     // documentation inherited from interface
@@ -312,7 +312,7 @@ public class ArrayIntSet extends AbstractSet
     }
 
     // documentation inherited from interface
-    public boolean addAll (Collection c)
+    public boolean addAll (Collection<? extends Integer> c)
     {
         if (c instanceof Interable) {
             Interator inter = ((Interable) c).interator();
@@ -330,7 +330,7 @@ public class ArrayIntSet extends AbstractSet
     }
 
     // documentation inherited from interface
-    public boolean retainAll (Collection c)
+    public boolean retainAll (Collection<?> c)
     {
         if (c instanceof IntSet) {
             IntSet other = (IntSet)c;

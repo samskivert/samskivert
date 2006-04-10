@@ -468,9 +468,9 @@ public class RadialMenu
                 // notify our listeners that the action is posted
                 final CommandEvent evt = new CommandEvent(
                     _host.getComponent(), _activeItem.command, arg);
-                _actlist.apply(new ObserverList.ObserverOp() {
-                    public boolean apply (Object obs) {
-                        ((ActionListener)obs).actionPerformed(evt);
+                _actlist.apply(new ObserverList.ObserverOp<ActionListener>() {
+                    public boolean apply (ActionListener obs) {
+                        obs.actionPerformed(evt);
                         return true;
                     }
                 });
@@ -495,7 +495,7 @@ public class RadialMenu
 
         // figure out which items are included
         int icount = _items.size();
-        ArrayList items = new ArrayList();
+        ArrayList<RadialMenuItem> items = new ArrayList<RadialMenuItem>();
         for (int i = 0; i < icount; i++) {
             RadialMenuItem item = (RadialMenuItem)_items.get(i);
             if (item.isIncluded(this)) {
@@ -625,7 +625,8 @@ public class RadialMenu
     protected RadialLabelSausage _centerLabel;
 
     /** Our menu items. */
-    protected ArrayList _items = new ArrayList();
+    protected ArrayList<RadialMenuItem> _items =
+        new ArrayList<RadialMenuItem>();
 
     /** The item that has the mouse over it presently, and the default item
      * if we're double clicked. */
@@ -655,6 +656,6 @@ public class RadialMenu
     protected MouseHijacker _hijacker;
 
     /** Maintains a list of action listeners. */
-    protected ObserverList _actlist = new ObserverList(
-        ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<ActionListener> _actlist =
+        new ObserverList<ActionListener>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 }

@@ -1,7 +1,7 @@
 //
 // $Id: RuntimeAdjust.java,v 1.11 2004/02/25 13:20:44 mdb Exp $
 
-package com.samskivert.util;
+package com.samskivert.swing;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -30,10 +30,10 @@ import javax.swing.JTextField;
 import javax.swing.Scrollable;
 
 import com.samskivert.Log;
-import com.samskivert.swing.CollapsiblePanel;
-import com.samskivert.swing.GroupLayout;
-import com.samskivert.swing.MultiLineLabel;
-import com.samskivert.swing.VGroupLayout;
+import com.samskivert.util.ComparableArrayList;
+import com.samskivert.util.Config;
+import com.samskivert.util.ListUtil;
+import com.samskivert.util.StringUtil;
 
 /**
  * Provides a service where named variables can be registered as
@@ -81,7 +81,7 @@ public class RuntimeAdjust
 
         int acount = _adjusts.size();
         for (int ii = 0; ii < acount; ii++) {
-            Adjust adjust = (Adjust)_adjusts.get(ii);
+            Adjust adjust = _adjusts.get(ii);
 
             // create a new library label if necessary
             if (!adjust.getLibrary().equals(library)) {
@@ -461,7 +461,7 @@ public class RuntimeAdjust
 
     /** Base class for type-specific adjustments. */
     protected abstract static class Adjust
-        implements PropertyChangeListener, Comparable
+        implements PropertyChangeListener, Comparable<Adjust>
     {
         public Adjust (String descrip, String name, Config config)
         {
@@ -498,9 +498,9 @@ public class RuntimeAdjust
             return _name.equals(((Adjust)other)._name);
         }
 
-        public int compareTo (Object other)
+        public int compareTo (Adjust other)
         {
-            return _name.compareTo(((Adjust)other)._name);
+            return _name.compareTo(other._name);
         }
 
         public String getName ()
@@ -553,5 +553,6 @@ public class RuntimeAdjust
         protected JPanel _editor;
     }
 
-    protected static SortableArrayList _adjusts = new SortableArrayList();
+    protected static ComparableArrayList<Adjust> _adjusts =
+        new ComparableArrayList<Adjust>();
 }

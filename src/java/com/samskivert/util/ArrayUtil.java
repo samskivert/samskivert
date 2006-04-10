@@ -320,13 +320,13 @@ public class ArrayUtil
      * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
      * value) if the object was not found in the list.
      */
-    public static int binarySearch (
-        Object[] array, int offset, int length, Object key)
+    public static <T extends Comparable<? super T>> int binarySearch (
+        T[] array, int offset, int length, T key)
     {
 	int low = offset, high = offset+length-1;
 	while (low <= high) {
 	    int mid = (low + high) >> 1;
-	    Comparable midVal = (Comparable)array[mid];
+	    T midVal = array[mid];
 	    int cmp = midVal.compareTo(key);
 	    if (cmp < 0) {
 		low = mid + 1;
@@ -356,13 +356,13 @@ public class ArrayUtil
      * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
      * value) if the object was not found in the list.
      */
-    public static int binarySearch (
-        Object[] array, int offset, int length, Object key, Comparator comp)
+    public static <T> int binarySearch (
+        T[] array, int offset, int length, T key, Comparator<T> comp)
     {
 	int low = offset, high = offset+length-1;
 	while (low <= high) {
 	    int mid = (low + high) >> 1;
-	    Object midVal = array[mid];
+	    T midVal = array[mid];
 	    int cmp = comp.compare(midVal, key);
 	    if (cmp < 0) {
 		low = mid + 1;

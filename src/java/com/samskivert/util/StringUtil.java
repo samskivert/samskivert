@@ -175,7 +175,7 @@ public class StringUtil
     {
         // TODO: these regexes should probably be checked to make
         // sure that javascript can't live inside a link
-        ArrayList allow = new ArrayList();
+        ArrayList<String> allow = new ArrayList<String>();
         if (allowFormatting) {
             allow.add("<b>"); allow.add("</b>");
             allow.add("<i>"); allow.add("</i>");
@@ -195,10 +195,7 @@ public class StringUtil
             allow.add("<a href=[^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
                 allow.add("</a>");
         }
-
-        String[] regexes = new String[allow.size()];
-        allow.toArray(regexes);
-        return restrictHTML(src, regexes);
+        return restrictHTML(src, allow.toArray(new String[allow.size()]));
     }
 
     /**
@@ -211,12 +208,12 @@ public class StringUtil
             return src;
         }
 
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         list.add(src);
         for (int ii=0, nn = regexes.length; ii < nn; ii++) {
             Pattern p = Pattern.compile(regexes[ii], Pattern.CASE_INSENSITIVE);
             for (int jj=0; jj < list.size(); jj += 2) {
-                String piece = (String) list.get(jj);
+                String piece = list.get(jj);
                 Matcher m = p.matcher(piece);
                 if (m.find()) {
                     list.set(jj, piece.substring(0, m.start()));
@@ -230,7 +227,7 @@ public class StringUtil
         // odd elements contain stuff that matched a regex
         StringBuffer buf = new StringBuffer();
         for (int jj=0, nn = list.size(); jj < nn; jj++) {
-            String s = (String) list.get(jj);
+            String s = list.get(jj);
             if (jj % 2 == 0) {
                 s = replace(s, "<", "&lt;");
                 s = replace(s, ">", "&gt;");
@@ -1424,7 +1421,8 @@ public class StringUtil
 
     /** Maps the 16 most frequent letters in the English language to a
      * number between 0 and 15. Used by {@link #stringCode}. */
-    protected static final HashIntMap _letterToBits = new HashIntMap();
+    protected static final HashIntMap<Integer> _letterToBits =
+        new HashIntMap<Integer>();
     static {
         _letterToBits.put('e', new Integer(0));
         _letterToBits.put('t', new Integer(1));

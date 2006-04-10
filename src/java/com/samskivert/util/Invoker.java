@@ -193,7 +193,7 @@ public class Invoker extends LoopingThread
 
     protected void recordMetrics (Object key, long duration)
     {
-        UnitProfile prof = (UnitProfile)_tracker.get(key);
+        UnitProfile prof = _tracker.get(key);
         if (prof == null) {
             _tracker.put(key, prof = new UnitProfile());
         }
@@ -232,7 +232,8 @@ public class Invoker extends LoopingThread
     protected RunQueue _receiver;
 
     /** Tracks the counts of invocations by unit's class. */
-    protected HashMap _tracker = new HashMap();
+    protected HashMap<Object,UnitProfile> _tracker =
+        new HashMap<Object,UnitProfile>();
 
     /** The total number of invoker units run since the last report. */
     protected int _unitsRun;

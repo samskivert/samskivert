@@ -26,7 +26,7 @@ import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * If no log provider is registered with the log services, the default
@@ -67,7 +67,7 @@ public class DefaultLogProvider implements LogProvider
     public synchronized void log (
         int level, String moduleName, String message)
     {
-	Integer tlevel = (Integer)_levels.get(moduleName);
+	Integer tlevel = _levels.get(moduleName);
 	if (level >= getLevel(moduleName)) {
 	    System.err.println(formatEntry(moduleName, level, message));
 	}
@@ -76,7 +76,7 @@ public class DefaultLogProvider implements LogProvider
     public synchronized void logStackTrace (
         int level, String moduleName, Throwable t)
     {
-	Integer tlevel = (Integer)_levels.get(moduleName);
+	Integer tlevel = _levels.get(moduleName);
 	if (level >= getLevel(moduleName)) {
 	    System.err.print(formatEntry(moduleName, level, ""));
 	    t.printStackTrace(System.err);
@@ -85,7 +85,7 @@ public class DefaultLogProvider implements LogProvider
 
     public synchronized void setLevel (String moduleName, int level)
     {
-	_levels.put(moduleName, new Integer(level));
+	_levels.put(moduleName, level);
     }
 
     public synchronized void setLevel (int level)
@@ -96,7 +96,7 @@ public class DefaultLogProvider implements LogProvider
 
     public synchronized int getLevel (String moduleName)
     {
-        Integer level = (Integer)_levels.get(moduleName);
+        Integer level = _levels.get(moduleName);
         return (level == null) ? _level : level.intValue();
     }
 
@@ -198,7 +198,7 @@ public class DefaultLogProvider implements LogProvider
     protected int _level = Log.INFO;
 
     /** The levels of each module. */
-    protected Hashtable _levels = new Hashtable();
+    protected HashMap<String,Integer> _levels = new HashMap<String,Integer>();
 
     /** Used to accompany log messages with time stamps. */
     protected SimpleDateFormat _format =

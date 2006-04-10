@@ -69,14 +69,14 @@ public class DebugChords
     public static void registerHook (int modifierMask, int keyCode, Hook hook)
     {
         // store the hooks mapped by key code
-        ArrayList list = (ArrayList)_bindings.get(keyCode);
+        ArrayList<Tuple<Integer,Hook>> list = _bindings.get(keyCode);
         if (list == null) {
-            list = new ArrayList();
+            list = new ArrayList<Tuple<Integer,Hook>>();
             _bindings.put(keyCode, list);
         }
 
         // append the hook and modifier mask to the list
-        list.add(new Tuple(new Integer(modifierMask), hook));
+        list.add(new Tuple<Integer,Hook>(modifierMask, hook));
     }
 
     /**
@@ -91,7 +91,7 @@ public class DebugChords
         }
 
         // bail here if we have no hooks registered for this key code
-        ArrayList list = (ArrayList)_bindings.get(e.getKeyCode());
+        ArrayList<Tuple<Integer,Hook>> list = _bindings.get(e.getKeyCode());
         if (list == null) {
             return false;
         }
@@ -101,16 +101,15 @@ public class DebugChords
         boolean handled = false;
         int hcount = list.size();
         for (int ii = 0; ii < hcount; ii++) {
-            Tuple tup = (Tuple)list.get(ii);
-            int mask = ((Integer)tup.left).intValue();
+            Tuple<Integer,Hook> tup = list.get(ii);
+            int mask = tup.left.intValue();
             if ((e.getModifiersEx() & mask) == mask) {
-                Hook hook = (Hook)tup.right;
                 try {
-                    hook.invoke();
+                    tup.right.invoke();
                     handled = true;
                 } catch (Throwable t) {
                     Log.warning("Hook failed [event=" + e +
-                                ", hook=" + hook + "].");
+                                ", hook=" + tup.right + "].");
                     Log.logStackTrace(t);
                 }
             }
@@ -123,5 +122,6 @@ public class DebugChords
     protected static KeyEventDispatcher _dispatcher;
 
     /** A mapping from key binding to debug code. */
-    protected static HashIntMap _bindings = new HashIntMap();
+    protected static HashIntMap<ArrayList<Tuple<Integer,Hook>>> _bindings =
+        new HashIntMap<ArrayList<Tuple<Integer,Hook>>>();
 }

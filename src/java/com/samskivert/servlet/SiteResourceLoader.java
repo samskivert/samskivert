@@ -155,7 +155,7 @@ public class SiteResourceLoader
         // is concurrently executing
         synchronized (getLock(siteId)) {
             // see if we've already got one
-            ClassLoader loader = (ClassLoader)_loaders.get(siteId);
+            ClassLoader loader = _loaders.get(siteId);
 
             // create one if we've not
             if (loader == null) {
@@ -211,8 +211,7 @@ public class SiteResourceLoader
         throws IOException
     {
         // look up the site resource bundle for this site
-        SiteResourceBundle bundle = (SiteResourceBundle)
-            _bundles.get(siteId);
+        SiteResourceBundle bundle = _bundles.get(siteId);
 
         // if we haven't got one, create one
         if (bundle == null) {
@@ -364,13 +363,14 @@ public class SiteResourceLoader
     protected String _jarPath;
 
     /** We synchronize on a per-site basis. */
-    protected HashIntMap _locks = new HashIntMap();
+    protected HashIntMap<Object> _locks = new HashIntMap<Object>();
 
     /** The table of site-specific jar file information. */
-    protected HashIntMap _bundles = new HashIntMap();
+    protected HashIntMap<SiteResourceBundle> _bundles =
+        new HashIntMap<SiteResourceBundle>();
 
     /** The table of site-specific class loaders. */
-    protected HashIntMap _loaders = new HashIntMap();
+    protected HashIntMap<ClassLoader> _loaders = new HashIntMap<ClassLoader>();
 
     /** The default path to the site-specific jar files. This won't be
      * used without logging a complaint first. */

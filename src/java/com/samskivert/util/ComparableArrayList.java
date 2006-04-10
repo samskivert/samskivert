@@ -84,7 +84,7 @@ public class ComparableArrayList<T extends Comparable<? super T>>
         return ArrayUtil.binarySearch(_elements, 0, _size, key);
     }
 
-    protected Comparator<T> _comp = new Comparator<T>() {
+    protected transient Comparator<T> _comp = new Comparator<T>() {
         public int compare (T o1, T o2) {
             if (o1 == o2) { // catches null == null
                 return 0;

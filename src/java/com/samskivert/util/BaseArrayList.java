@@ -183,4 +183,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
 
     /** The number of elements in our list. */
     protected int _size;
+
+    /** Avoid serialization annoyance. */
+    private static final long serialVersionUID = 1;
 }

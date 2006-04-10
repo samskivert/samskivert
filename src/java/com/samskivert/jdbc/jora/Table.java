@@ -21,11 +21,12 @@ import com.samskivert.util.StringUtil;
  *  SQL statements for extracting, updating and deleting records of the
  *  database table.
  */
-public class Table {
+public class Table<T>
+{
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param className name of Java class
+     * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
      * @param s session, which should be opened before first access to the table
      * @param key table's primary key. This parameter is used in UPDATE/DELETE
@@ -33,44 +34,44 @@ public class Table {
      * @param mixedCaseConvert whether or not to convert mixed case field
      * names into underscore separated uppercase column names.
      */
-    public Table(String className, String tableName, Session s, String key,
+    public Table(Class<T> clazz, String tableName, Session s, String key,
                  boolean mixedCaseConvert) {
 	String[] keys = {key};
-	init(className, tableName, s, keys, mixedCaseConvert);
+	init(clazz, tableName, s, keys, mixedCaseConvert);
     }
 
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param className name of Java class
+     * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
      * @param key table's primary key. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
      * @param s session, which should be opened before first access to the table
      */
-    public Table(String className, String tableName, Session s, String key) {
+    public Table(Class<T> clazz, String tableName, Session s, String key) {
 	String[] keys = {key};
-	init(className, tableName, s, keys, false);
+	init(clazz, tableName, s, keys, false);
     }
 
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param className name of Java class
+     * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
      * @param keys table primary keys. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
      * @param s session, which should be opened before first access to the table
      */
-    public Table(String className, String tableName, Session s, String[] keys)
+    public Table(Class<T> clazz, String tableName, Session s, String[] keys)
     {
-	init(className, tableName, s, keys, false);
+	init(clazz, tableName, s, keys, false);
     }
 
     /** Constructor for table object. Make association between Java class
      *  and database table.
      *
-     * @param className name of Java class
+     * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
      * @param keys table primary keys. This parameter is used in UPDATE/DELETE
      *  operations to locate record in the table.
@@ -78,57 +79,9 @@ public class Table {
      * @param mixedCaseConvert whether or not to convert mixed case field
      * names into underscore separated uppercase column names.
      */
-    public Table(String className, String tableName, Session s, String[] keys,
+    public Table(Class<T> clazz, String tableName, Session s, String[] keys,
                  boolean mixedCaseConvert) {
-	init(className, tableName, s, keys, mixedCaseConvert);
-    }
-
-    /** Constructor for table object. Make association between Java class
-     *  and database table. Name of Java class should be the same as name of
-     *  the database table
-     *
-     * @param className name of Java class, which should be (without
-     *  package prefix) be the same as the name of database table.
-     * @param keys table primary keys. This parameter is used in UPDATE/DELETE
-     *  operations to locate record in the table.
-     * @param s session, which should be opened before first access to the table
-     */
-    public Table(String className, Session s, String[] keys) {
-        init(className, className.substring(className.lastIndexOf('.')+1),
-	     s, keys, false);
-    }
-
-    /** Constructor for table object. Make association between Java class
-     *  and database table. Name of Java class should be the same as name of
-     *  the database table
-     *
-     * @param className name of Java class, which should be (without
-     *  package prefix) be the same as the name of database table.
-     * @param key table primary key. This parameter is used in UPDATE/DELETE
-     *  operations to locate record in the table.
-     * @param s session, which should be opened before first access to the table
-     */
-    public Table(String className, Session s, String key) {
-	String[] keys = {key};
-        init(className, className.substring(className.lastIndexOf('.')+1),
-	     s, keys, false);
-    }
-
-    /** Constructor of table without explicit key specification.
-     *  Specification of key is necessary for update/remove operations.
-     *  If key is not specified, it is inherited from base table (if any).
-     */
-    public Table(String className, Session s) {
-        init(className, className.substring(className.lastIndexOf('.')+1),
-	     s, null, false);
-    }
-
-    /** Constructor of table with "key" and "session" parameters inherited
-     *  from base table.
-     */
-    public Table(String className) {
-        init(className, className.substring(className.lastIndexOf('.')+1),
-	     null, null, false);
+	init(clazz, tableName, s, keys, mixedCaseConvert);
     }
 
     /** Select records from database table according to search condition
@@ -136,10 +89,10 @@ public class Table {
      * @param condition valid SQL condition expression started with WHERE
      *  or empty string if all records should be fetched.
      */
-    public final Cursor select(String condition) {
+    public final Cursor<T> select(String condition) {
 	String query = "select " + listOfFields + " from " + name +
 	    " " + condition;
-        return new Cursor(this, session, 1, query);
+        return new Cursor<T>(this, session, 1, query);
     }
 
     /** Select records from database table according to search condition
@@ -150,10 +103,10 @@ public class Table {
      * include in the SELECT clause.
      * @param condition valid SQL condition expression started with WHERE.
      */
-    public final Cursor select(String tables, String condition) {
+    public final Cursor<T> select(String tables, String condition) {
 	String query = "select " + qualifiedListOfFields +
 	    " from " + name + "," + tables + " " + condition;
-        return new Cursor(this, session, 1, query);
+        return new Cursor<T>(this, session, 1, query);
     }
 
     /** Select records from database table according to search condition
@@ -167,18 +120,18 @@ public class Table {
      * include in the SELECT clause.
      * @param condition valid SQL condition expression started with WHERE.
      */
-    public final Cursor join(String tables, String condition) {
+    public final Cursor<T> join(String tables, String condition) {
 	String query = "select " + listOfFields +
 	    " from " + name + "," + tables + " " + condition;
-        return new Cursor(this, session, 1, query);
+        return new Cursor<T>(this, session, 1, query);
     }
 
     /** Like {@link #join} but does a straight join with the specified
      * table. */
-    public final Cursor straightJoin(String table, String condition) {
+    public final Cursor<T> straightJoin(String table, String condition) {
 	String query = "select " + listOfFields +
 	    " from " + name + " straight_join " + table + " " + condition;
-        return new Cursor(this, session, 1, query);
+        return new Cursor<T>(this, session, 1, query);
     }
 
     /** Select records from database table according to search condition
@@ -187,10 +140,10 @@ public class Table {
      *  or empty string if all records should be fetched.
      * @param session user database session
      */
-    public final Cursor select(String condition, Session session) {
+    public final Cursor<T> select(String condition, Session session) {
 	String query = "select " + listOfFields + " from " + name +
 	    " " + condition;
-        return new Cursor(this, session, 1, query);
+        return new Cursor<T>(this, session, 1, query);
     }
 
     /** Select records from specified and derived database tables
@@ -198,8 +151,8 @@ public class Table {
      * @param condition valid SQL condition expression started with WHERE
      *  or empty string if all records should be fetched.
      */
-    public final Cursor selectAll(String condition) {
-        return new Cursor(this, session, nDerived+1, condition);
+    public final Cursor<T> selectAll(String condition) {
+        return new Cursor<T>(this, session, nDerived+1, condition);
     }
 
     /** Select records from specified and derived database tables
@@ -208,8 +161,8 @@ public class Table {
      *  or empty string if all records should be fetched.
      * @param session user database session
      */
-    public final Cursor selectAll(String condition, Session session) {
-        return new Cursor(this, session, nDerived+1, condition);
+    public final Cursor<T> selectAll(String condition, Session session) {
+        return new Cursor<T>(this, session, nDerived+1, condition);
     }
 
     /** Select records from database table using <I>obj</I> object as
@@ -218,8 +171,8 @@ public class Table {
      * @param obj example object for search: selected objects should match
      * all non-null fields.
      */
-    public final Cursor queryByExample(Object obj) {
-        return new Cursor(this, session, 1, obj, null, false);
+    public final Cursor<T> queryByExample(T obj) {
+        return new Cursor<T>(this, session, 1, obj, null, false);
     }
 
     /** Select records from database table using <I>obj</I> object as
@@ -229,10 +182,10 @@ public class Table {
      * @param mask field mask indicating which fields in the example
      * object should be used when building the query.
      */
-    public final Cursor queryByExample(Object obj, FieldMask mask) {
-        return new Cursor(this, session, 1, obj, mask, false);
+    public final Cursor<T> queryByExample(T obj, FieldMask mask) {
+        return new Cursor<T>(this, session, 1, obj, mask, false);
     }
-    
+
     /** Select records from database table using <I>obj</I> object as
      * template for selection. All non-builtin fields of this object,
      * which are not null, are compared with correspondent table values.
@@ -241,7 +194,7 @@ public class Table {
      * objects should match all non-null fields of specified object.
      * @param session user database session.
      */
-    public final Cursor queryByExample(Object obj, Session session) {
+    public final Cursor<T> queryByExample(T obj, Session session) {
         return queryByExample(obj, session, null);
     }
 
@@ -253,9 +206,9 @@ public class Table {
      * @param mask field mask indicating which fields in the example
      * object should be used when building the query.
      */
-    public final Cursor queryByExample(Object obj, Session session,
-                                       FieldMask mask) {
-        return new Cursor(this, session, 1, obj, mask, false);
+    public final Cursor<T> queryByExample(
+        T obj, Session session, FieldMask mask) {
+        return new Cursor<T>(this, session, 1, obj, mask, false);
     }
 
     /**
@@ -263,8 +216,8 @@ public class Table {
      * matched using 'like' instead of equals, which allows you to send %
      * in to do matching.
      */
-    public final Cursor queryByLikeExample(Object obj) {
-        return new Cursor(this, session, 1, obj, null, true);
+    public final Cursor<T> queryByLikeExample(T obj) {
+        return new Cursor<T>(this, session, 1, obj, null, true);
     }
 
     /**
@@ -272,8 +225,8 @@ public class Table {
      * matched using 'like' instead of equals, which allows you to send %
      * in to do matching.
      */
-    public final Cursor queryByLikeExample(Object obj, FieldMask mask) {
-        return new Cursor(this, session, 1, obj, mask, true);
+    public final Cursor<T> queryByLikeExample(T obj, FieldMask mask) {
+        return new Cursor<T>(this, session, 1, obj, mask, true);
     }
 
     /**
@@ -281,7 +234,7 @@ public class Table {
      * matched using 'like' instead of equals, which allows you to send %
      * in to do matching.
      */
-    public final Cursor queryByLikeExample(Object obj, Session session) {
+    public final Cursor<T> queryByLikeExample(T obj, Session session) {
         return queryByLikeExample(obj, session, null);
     }
 
@@ -290,11 +243,11 @@ public class Table {
      * matched using 'like' instead of equals, which allows you to send %
      * in to do matching.
      */
-    public final Cursor queryByLikeExample(Object obj, Session session,
-                                       FieldMask mask) {
+    public final Cursor<T> queryByLikeExample(
+        T obj, Session session, FieldMask mask) {
         return new Cursor(this, session, 1, obj, mask, true);
     }
-    
+
     /** Select records from specified and derived database tables using
      * <I>obj</I> object as template for selection.  All non-builtin
      * fields of this object, which are not null, are compared with
@@ -303,7 +256,7 @@ public class Table {
      * @param obj object for construction search condition: selected
      * objects should match all non-null fields of specified object.
      */
-    public final Cursor queryAllByExample(Object obj) {
+    public final Cursor queryAllByExample(T obj) {
         return new Cursor(this, session, nDerived+1, obj, null, false);
     }
 
@@ -316,7 +269,7 @@ public class Table {
      *  should match all non-null fields of specified object.
      * @param session user database session
      */
-    public final Cursor queryAllByExample(Object obj, Session session) {
+    public final Cursor queryAllByExample(T obj, Session session) {
         return new Cursor(this, session, nDerived+1, obj, null, false);
     }
 
@@ -325,7 +278,7 @@ public class Table {
      *
      * @param obj object specifing values of inserted record fields
      */
-    public void insert(Object obj)
+    public void insert(T obj)
 	throws SQLException
     {
 	insert(obj, session);
@@ -338,7 +291,7 @@ public class Table {
      * @param obj object specifing values of inserted record fields
      * @param session user database session
      */
-    public synchronized void insert(Object obj, Session session)
+    public synchronized void insert(T obj, Session session)
 	throws SQLException
     {
 	if (session == null) {
@@ -367,7 +320,7 @@ public class Table {
      * @param objects array with objects specifing values of inserted record
      * fields
      */
-    public void insert(Object[] objects)
+    public void insert(T[] objects)
 	throws SQLException
     {
 	insert(objects, session);
@@ -380,7 +333,7 @@ public class Table {
      *                fields
      * @param session user database session
      */
-    public synchronized void insert(Object[] objects, Session session)
+    public synchronized void insert(T[] objects, Session session)
 	throws SQLException
     {
 	if (session == null) {
@@ -408,7 +361,7 @@ public class Table {
 
     /** Returns a field mask that can be configured and used to update
      * subsets of entire objects via calls to {@link
-     * #update(Object,FieldMask)}.
+     * #update(T,FieldMask)}.
      */
     public FieldMask getFieldMask ()
     {
@@ -424,7 +377,7 @@ public class Table {
      *
      * @return number of objects actually updated
      */
-    public int update(Object obj)
+    public int update(T obj)
 	throws SQLException
     {
 	return update(obj, null, session);
@@ -443,7 +396,7 @@ public class Table {
      *
      * @return number of objects actually updated
      */
-    public int update(Object obj, FieldMask mask)
+    public int update(T obj, FieldMask mask)
 	throws SQLException
     {
 	return update(obj, mask, session);
@@ -459,7 +412,7 @@ public class Table {
      *
      * @return number of objects actually updated
      */
-    public synchronized int update(Object obj, Session session)
+    public synchronized int update(T obj, Session session)
 	throws SQLException
     {
         return update(obj, null, session);
@@ -479,7 +432,7 @@ public class Table {
      *
      * @return number of objects actually updated
      */
-    public synchronized int update(Object obj, FieldMask mask, Session session)
+    public synchronized int update(T obj, FieldMask mask, Session session)
 	throws SQLException
     {
         if (primaryKeys == null) {
@@ -530,7 +483,7 @@ public class Table {
      *
      * @return number of objects actually updated
      */
-    public int update(Object[] objects)
+    public int update(T[] objects)
 	throws SQLException
     {
 	return update(objects, session);
@@ -546,7 +499,7 @@ public class Table {
      *
      * @return number of objects actually updated
      */
-    public synchronized int update(Object[] objects, Session session)
+    public synchronized int update(T[] objects, Session session)
 	throws SQLException
     {
         if (primaryKeys == null) {
@@ -587,7 +540,7 @@ public class Table {
      *
      * @return number of objects actually deleted
      */
-    public int delete(Object obj)
+    public int delete(T obj)
 	throws SQLException
     {
 	return delete(obj, session);
@@ -598,7 +551,7 @@ public class Table {
      * @param obj object containing value of primary key.
      * @param session user database session
      */
-    public synchronized int delete(Object obj, Session session)
+    public synchronized int delete(T obj, Session session)
 	throws SQLException
     {
         if (primaryKeys == null) {
@@ -633,7 +586,7 @@ public class Table {
      *
      * @return number of objects actually deleted
      */
-    public int delete(Object[] objects)
+    public int delete(T[] objects)
 	throws SQLException
     {
 	return delete(objects, session);
@@ -645,7 +598,7 @@ public class Table {
      *
      * @return number of objects actually deleted
      */
-    public synchronized int delete(Object[] objects, Session session)
+    public synchronized int delete(T[] objects, Session session)
 	throws SQLException
     {
         if (primaryKeys == null) {
@@ -734,7 +687,7 @@ public class Table {
     private PreparedStatement insertStmt;
 
     private static Table  allTables;
-    private Constructor   constructor;
+    private Constructor<T> constructor;
     private static Method setBypass;
 
     private static final Object[] bypassFlag = { new Boolean(true) };
@@ -750,14 +703,12 @@ public class Table {
     }
 
 
-    private final void init(String className, String tableName, Session s,
+    private final void init(Class<T> clazz, String tableName, Session s,
 			    String[] keys, boolean mixedCaseConvert)
     {
         name = tableName;
         this.mixedCaseConvert = mixedCaseConvert;
-	try {
-	    cls = Class.forName(className);
-	} catch(ClassNotFoundException ex) {throw new NoClassDefFoundError();}
+        cls = clazz;
 	isAbstract = tableName == null;
 	session = s;
 	primaryKeys = keys;
@@ -998,8 +949,9 @@ public class Table {
         return sql.toString();
     }
 
-    protected final Object load(ResultSet result) throws SQLException {
-	Object obj;
+    protected final T load (ResultSet result) throws SQLException
+    {
+	T obj;
         try {
 	    obj = constructor.newInstance(constructorArgs);
 	}
@@ -1012,8 +964,8 @@ public class Table {
 	return obj;
     }
 
-    private final int load(Object obj, int i, int end, int column,
-			    ResultSet result)
+    private final int load (
+        Object obj, int i, int end, int column, ResultSet result)
 	throws SQLException
     {
 	try {
@@ -1039,7 +991,7 @@ public class Table {
     }
 
     protected final int bindUpdateVariables(PreparedStatement pstmt,
-                                            Object            obj,
+                                            T            obj,
                                             FieldMask         mask)
       throws SQLException
     {
@@ -1047,14 +999,14 @@ public class Table {
     }
 
     protected final void bindQueryVariables(PreparedStatement pstmt,
-					    Object            obj,
+					    T            obj,
                                             FieldMask         mask)
        throws SQLException
     {
 	bindQueryVariables(pstmt, obj, 0, nFields, 0, mask);
     }
 
-    protected final void updateVariables(ResultSet result, Object obj)
+    protected final void updateVariables(ResultSet result, T obj)
        throws SQLException
     {
         updateVariables(result, obj, 0, nFields, 0);
@@ -1071,7 +1023,7 @@ public class Table {
         return sql.toString();
     }
 
-    protected final String buildQueryList(Object qbe, FieldMask mask, boolean like)
+    protected final String buildQueryList(T qbe, FieldMask mask, boolean like)
     {
         StringBuffer buf = new StringBuffer();
         buildQueryList(buf, qbe, 0, nFields, mask, like);
@@ -1174,8 +1126,8 @@ public class Table {
 	return column;
     }
 
-    private final void buildQueryList(StringBuffer buf, Object qbe,
-				      int i, int end, FieldMask mask, boolean like)
+    private final void buildQueryList(StringBuffer buf, Object qbe, int i,
+                                      int end, FieldMask mask, boolean like)
     {
 	try {
 	    while (i < end) {

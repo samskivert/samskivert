@@ -74,22 +74,11 @@ public class UserRepository extends JORARepository
 	super(provider, USER_REPOSITORY_IDENT);
     }
 
-    /**
-     * Derived classes that extend the user record with their own
-     * additional information will want to override this method and return
-     * their desired {@link User} derivation.
-     */
-    protected Class getUserClass ()
-    {
-        return User.class;
-    }
-
     // documentation inherited
     protected void createTables (Session session)
     {
 	// create our table object
-	_utable = new Table(
-            getUserClass().getName(), "users", session, "userId");
+	_utable = new Table<User>(User.class, "users", session, "userId");
     }
 
     /**
@@ -155,8 +144,8 @@ public class UserRepository extends JORARepository
     public User loadUserBySession (final String sessionKey)
 	throws PersistenceException
     {
-        return (User)execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<User>() {
+            public User invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
                 String query = "where authcode = '" + sessionKey +
@@ -193,8 +182,8 @@ public class UserRepository extends JORARepository
 
         final String ids = genIdString(userIds);
 
-        return (HashIntMap)execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<HashIntMap>() {
+            public HashIntMap invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
                 // look up the users
@@ -220,13 +209,14 @@ public class UserRepository extends JORARepository
      * @return the user with the specified user id or null if no user with
      * that id exists.
      */
-    public ArrayList lookupUsersByEmail (String email)
+    public ArrayList<User> lookupUsersByEmail (String email)
 	throws PersistenceException
     {
         final String where = "where email = " +
             JDBCUtil.escape(email);
-        return (ArrayList) execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<ArrayList<User>>() {
+            public ArrayList<User> invoke (Connection conn,
+                                           DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
                 return _utable.select(where).toArrayList();
@@ -242,14 +232,14 @@ public class UserRepository extends JORARepository
      * @return the users matching the specified query or an empty list if there
      * are no matches.
      */
-    public ArrayList lookupUsersWhere (final String where)
+    public ArrayList<User> lookupUsersWhere (final String where)
 	throws PersistenceException
     {
-        return (ArrayList) execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<ArrayList<User>>() {
+            public ArrayList invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                ArrayList users = (ArrayList)
+                ArrayList<User> users = (ArrayList<User>)
                     _utable.select("where " + where).toArrayList();
                 for (Iterator iter = users.iterator(); iter.hasNext(); ) {
                     // configure the user record with its field mask
@@ -277,7 +267,7 @@ public class UserRepository extends JORARepository
             return false;
         }
 
-	execute(new Operation () {
+	execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -312,7 +302,7 @@ public class UserRepository extends JORARepository
             return;
         }
 
-	execute(new Operation () {
+	execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -367,7 +357,7 @@ public class UserRepository extends JORARepository
 	final Date expires = new Date(cal.getTime().getTime());
 
 	// insert the session into the database
-	execute(new Operation () {
+	execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -390,7 +380,7 @@ public class UserRepository extends JORARepository
     public void pruneSessions ()
 	throws PersistenceException
     {
-	execute(new Operation () {
+	execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -436,7 +426,7 @@ public class UserRepository extends JORARepository
         final ArrayList names = new ArrayList();
 
 	// do the query
-        execute(new Operation () {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
@@ -486,7 +476,7 @@ public class UserRepository extends JORARepository
     protected int insertUser (final User user)
 	throws UserExistsException, PersistenceException
     {
-        execute(new Operation () {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
@@ -517,8 +507,8 @@ public class UserRepository extends JORARepository
     protected User loadUserWhere (final String whereClause)
 	throws PersistenceException
     {
-        return (User)execute(new Operation () {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<User>() {
+            public User invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
                 // look up the user
@@ -551,7 +541,7 @@ public class UserRepository extends JORARepository
 	final HashIntMap map = new HashIntMap();
 
 	// do the query
-        execute(new Operation () {
+        execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {

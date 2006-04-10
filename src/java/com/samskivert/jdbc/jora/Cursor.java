@@ -21,7 +21,8 @@ import com.samskivert.Log;
  *  to database. Cursor also provides methods for updating/deleting current 
  *  record.
  */
-public class Cursor {
+public class Cursor<V>
+{
     /**
      * A cursor is initially positioned before its first row; the
      * first call to next makes the first row the current row; the
@@ -34,7 +35,7 @@ public class Cursor {
      * @return object constructed from fetched record or null if there
      * are no more rows 
      */
-    public Object next()
+    public V next ()
 	throws SQLException
     {  
         // if we closed everything up after the last call to next(),
@@ -43,52 +44,49 @@ public class Cursor {
             return null;
         }
 
-//        try { 
-            do { 
-	        if (result == null) {
-		    if (table.isAbstract) {
-		        table = table.derived;
-			continue;
-		    }
-		    if (qbeObject != null) { 
-			PreparedStatement qbeStmt;
-			synchronized(session.preparedStmtHash) { 
-			    Object s = session.preparedStmtHash.get(query); 
-			    if (s == null) { 
-				qbeStmt=
-				    session.connection.prepareStatement(query);
-				session.preparedStmtHash.put(query, qbeStmt);
-			    } else { 
-				qbeStmt = (PreparedStatement)s;
-			    }
-			}
-			synchronized(qbeStmt) { 
-			    table.bindQueryVariables(
-                                qbeStmt, qbeObject, qbeMask);
-			    result = qbeStmt.executeQuery();
-			    qbeStmt.clearParameters();
-			}
-		    } else { 
-  		        if (stmt == null) { 
-			    stmt = session.connection.createStatement();
-			}
-			result = stmt.executeQuery(query);
-		    } 
-		}
-		if (result.next()) { 
-		    return currObject = table.load(result);
-		} 
-		result.close();
-		result = null;
-		currObject = null;
-		table = table.derived;
-	    } while (--nTables != 0);
+        do { 
+            if (result == null) {
+                if (table.isAbstract) {
+                    table = table.derived;
+                    continue;
+                }
+                if (qbeObject != null) { 
+                    PreparedStatement qbeStmt;
+                    synchronized(session.preparedStmtHash) { 
+                        Object s = session.preparedStmtHash.get(query); 
+                        if (s == null) { 
+                            qbeStmt=
+                                session.connection.prepareStatement(query);
+                            session.preparedStmtHash.put(query, qbeStmt);
+                        } else { 
+                            qbeStmt = (PreparedStatement)s;
+                        }
+                    }
+                    synchronized(qbeStmt) { 
+                        table.bindQueryVariables(
+                            qbeStmt, qbeObject, qbeMask);
+                        result = qbeStmt.executeQuery();
+                        qbeStmt.clearParameters();
+                    }
+                } else { 
+                    if (stmt == null) { 
+                        stmt = session.connection.createStatement();
+                    }
+                    result = stmt.executeQuery(query);
+                } 
+            }
+            if (result.next()) { 
+                return currObject = table.load(result);
+            } 
+            result.close();
+            result = null;
+            currObject = null;
+            table = table.derived;
+        } while (--nTables != 0);
 
-	    if (stmt != null) { 
-	        stmt.close();
-	    }
-//  	}
-//  	catch (SQLException ex) { session.handleSQLException(ex); }
+        if (stmt != null) { 
+            stmt.close();
+        }
 	return null;
     }
 
@@ -97,10 +95,10 @@ public class Cursor {
      * were matched. Checks to ensure that no subsequent elements were matched
      * by the query, logs a warning if there were spurious additional matches.
      */
-    public Object get()
+    public V get ()
         throws SQLException
     {
-        Object result = next();
+        V result = next();
         if (result != null) {
             int spurious = 0;
             while (next() != null) {
@@ -129,16 +127,13 @@ public class Cursor {
      *  Not all database drivers support update operation with 
      *  cursor. This method will not work with such database drivers.
      */
-    public void update()
+    public void update ()
 	throws SQLException
     {
         if (currObject == null) { 
 	    throw new NoCurrentObjectError();
 	}
-//	try { 
-	    table.updateVariables(result, currObject);
-//	} 
-//        catch (SQLException ex) { session.handleSQLException(ex); }
+        table.updateVariables(result, currObject);
     }
 
     /** Delete current record pointed by cursor. This method can be called 
@@ -154,16 +149,13 @@ public class Cursor {
      *  Not all database drivers support delete operation with cursor. 
      *  This method will not work with such database drivers.
      */
-    public void delete()
+    public void delete ()
 	throws SQLException
     {
         if (currObject == null) { 
 	    throw new NoCurrentObjectError();
 	}
-//	try { 
-	    result.deleteRow();
-//	} 
-//        catch (SQLException ex) { session.handleSQLException(ex); }
+        result.deleteRow();
     }
 
     /**
@@ -184,40 +176,6 @@ public class Cursor {
     /** Extracts no more than <I>maxElements</I> records from database and
      *  store them into array. It is possible to extract rest records
      *  by successive next() or toArray() calls. Selected objects should
-     *  have now components of InputStream, Blob or Clob type, because 
-     *  their data will be not available after fetching next record.
-     * 
-     * @param maxElements limitation for result array size (and also for number
-     *  of fetched records)
-     * @return Array with objects constructed from fetched records.
-     */
-    public Object[] toArray(int maxElements)
-	throws SQLException
-    {
-	Vector v = new Vector(maxElements < 100 ? maxElements : 100);
-	Object o;
-	while (--maxElements >= 0 && (o = next()) != null) { 
-	    v.addElement(o);
-	}
-	Object[] a = new Object[v.size()];
-	v.copyInto(a);
-	return a;
-    }
-
-    /** Store all objects returned by SELECT query into array of Object.
-     *  Selected objects should have now components of InputStream, Blob or 
-     *  Clob type, because their data will be not available after fetching 
-     *  next record.
-     * 
-     * @return Array with objects constructed from fetched records.
-     */
-    public Object[] toArray()
-	throws SQLException
-    { return toArray(Integer.MAX_VALUE); }
-
-    /** Extracts no more than <I>maxElements</I> records from database and
-     *  store them into array. It is possible to extract rest records
-     *  by successive next() or toArray() calls. Selected objects should
      *  have now components of InputStream, Blob or Clob type, because
      *  their data will be not available after fetching next record.
      *
@@ -225,15 +183,15 @@ public class Cursor {
      *  of fetched records)
      * @return List with objects constructed from fetched records.
      */
-    public List toArrayList(int maxElements)
+    public ArrayList<V> toArrayList (int maxElements)
 	throws SQLException
     {
-         ArrayList al = new ArrayList(maxElements < 100 ? maxElements : 100);
-         Object o;
-         while (--maxElements >= 0 && (o = next()) != null) {
-             al.add(o);
-         }
-         return al;
+        ArrayList<V> al = new ArrayList(Math.min(maxElements, 100));
+        V o;
+        while (--maxElements >= 0 && (o = next()) != null) {
+            al.add(o);
+        }
+        return al;
     }
 
     /** Store all objects returned by SELECT query into a list of Object.
@@ -243,13 +201,17 @@ public class Cursor {
      *
      * @return Array with objects constructed from fetched records.
      */
-    public List toArrayList()
+    public ArrayList<V> toArrayList()
 	throws SQLException
-    { return toArrayList(Integer.MAX_VALUE); }
+    {
+        return toArrayList(Integer.MAX_VALUE);
+    }
 
     // Internals 
 
-    protected Cursor(Table table, Session session, int nTables, String query) { 
+    protected Cursor (
+        Table<V> table, Session session, int nTables, String query)
+    {
 	if (session == null) { 
 	    session = ((SessionThread)Thread.currentThread()).session;
 	}	    
@@ -259,8 +221,9 @@ public class Cursor {
         this.query = query;
     }
 
-    protected Cursor(Table table, Session session, int nTables,
-                     Object obj, FieldMask mask, boolean like) { 
+    protected Cursor (Table<V> table, Session session, int nTables, V obj,
+                      FieldMask mask, boolean like)
+    { 
 	if (session == null) { 
 	    session = ((SessionThread)Thread.currentThread()).session;
 	}	    
@@ -274,14 +237,14 @@ public class Cursor {
 	stmt = null;
     }
   
-    private Table     table; 
+    private Table<V>  table; 
     private Session   session;
     private int       nTables;
     private ResultSet result;
     private String    query;
     private Statement stmt;
-    private Object    currObject;
-    private Object    qbeObject;
+    private V         currObject;
+    private V         qbeObject;
     private FieldMask qbeMask;
     private boolean   like;
 }

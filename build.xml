@@ -12,7 +12,6 @@
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/java"/>
   <property name="deploy.dir"  value="dist"/>
-  <property name="dist.jar"    value="${app.name}.jar"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
   <property name="savedoc.dir" value="docs"/>
 
@@ -184,6 +183,7 @@
       <exclude name="com/samskivert/util/**" unless="build.util"/>
       <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
       <exclude name="com/samskivert/xml/**" unless="build.xml"/>
+      <compilerarg value="-Xlint:unchecked"/>
     </javac>
   </target>
 
@@ -227,8 +227,17 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar destfile="${deploy.dir}/${dist.jar}"
+    <jar destfile="${deploy.dir}/${app.name}.jar"
          basedir="${deploy.dir}/classes"/>
+  </target>
+
+  <!-- converts our 1.5 code to a 1.4 compatible format -->
+  <target name="retro" depends="dist">
+    <taskdef name="weave" classpathref="classpath"
+             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
+    <mkdir dir="${deploy.dir}/retro"/>
+    <weave inputjar="${deploy.dir}/${app.name}.jar"
+           outputjar="${deploy.dir}/retro/${app.name}.jar"/>
   </target>
 
   <!-- generate a class hierarchy diagram -->

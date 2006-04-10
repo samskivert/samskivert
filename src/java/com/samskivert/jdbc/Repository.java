@@ -87,7 +87,7 @@ public class Repository
      * as for it to automatically retry an operation if the connection
      * failed for some transient reason.
      */
-    public interface Operation
+    public interface Operation<V>
     {
         /**
          * Invokes code that performs one or more database operations, all
@@ -110,7 +110,7 @@ public class Repository
          * indicative of a basic JDBC failure. The transaction
          * <em>will</em> be rolled back in such cases, however.
          */
-	public Object invoke (Connection conn, DatabaseLiaison liaison)
+	public V invoke (Connection conn, DatabaseLiaison liaison)
             throws SQLException, PersistenceException;
     }
 

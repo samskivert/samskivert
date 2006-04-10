@@ -91,7 +91,7 @@ public class SimpleRepository extends Repository
      *
      * @return whatever value is returned by the invoked operation.
      */
-    protected Object execute (Operation op)
+    protected <V> V execute (Operation<V> op)
 	throws PersistenceException
     {
         return execute(op, true);
@@ -111,12 +111,12 @@ public class SimpleRepository extends Repository
      *
      * @return whatever value is returned by the invoked operation.
      */
-    protected Object execute (Operation op, boolean retryOnTransientFailure)
+    protected <V> V execute (Operation<V> op, boolean retryOnTransientFailure)
 	throws PersistenceException
     {
         Connection conn = null;
         DatabaseLiaison liaison = null;
-        Object rv = null;
+        V rv = null;
         boolean supportsTransactions = false;
         boolean attemptedOperation = false;
 
@@ -234,20 +234,19 @@ public class SimpleRepository extends Repository
     protected int update (final String query)
         throws PersistenceException
     {
-        Integer rv = (Integer)execute(new Operation() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 Statement stmt = null;
                 try {
                     stmt = conn.createStatement();
-                    return new Integer(stmt.executeUpdate(query));
+                    return stmt.executeUpdate(query);
                 } finally {
                     JDBCUtil.close(stmt);
                 }
             }
         });
-        return rv.intValue();
     }
 
     /**

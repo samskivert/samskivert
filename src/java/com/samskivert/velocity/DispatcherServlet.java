@@ -451,7 +451,7 @@ public class DispatcherServlet extends VelocityServlet
             path = siteId + ":" + path;
         }
         // Log.info("Loading template [path=" + path + "].");
-        return RuntimeSingleton.getRuntimeServices().getTemplate(path);
+        return RuntimeSingleton.getTemplate(path);
     }
 
     /**

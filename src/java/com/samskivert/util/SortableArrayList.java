@@ -78,4 +78,10 @@ public class SortableArrayList<T> extends BaseArrayList<T>
     {
         return ArrayUtil.binarySearch(_elements, 0, _size, key, comp);
     }
+
+    /** Change this if the fields or inheritance hierarchy ever changes
+     * (which is extremely unlikely). We override this because I'm tired
+     * of serialized crap not working depending on whether I compiled with
+     * jikes or javac. */
+    private static final long serialVersionUID = 1;
 }

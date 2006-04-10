@@ -183,10 +183,4 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
 
     /** The number of elements in our list. */
     protected int _size;
-
-    /** Change this if the fields or inheritance hierarchy ever changes
-     * (which is extremely unlikely). We override this because I'm tired
-     * of serialized crap not working depending on whether I compiled with
-     * jikes or javac. */
-    private static final long serialVersionUID = 1;
 }

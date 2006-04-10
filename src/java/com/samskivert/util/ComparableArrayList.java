@@ -96,4 +96,10 @@ public class ComparableArrayList<T extends Comparable<? super T>>
             return o1.compareTo(o2); // null-free
         }
     };
+
+    /** Change this if the fields or inheritance hierarchy ever changes
+     * (which is extremely unlikely). We override this because I'm tired
+     * of serialized crap not working depending on whether I compiled with
+     * jikes or javac. */
+    private static final long serialVersionUID = 1;
 }

@@ -50,7 +50,11 @@ public class ComparableArrayList<T extends Comparable<? super T>>
      */
     public void rsort ()
     {
-        sort(java.util.Collections.reverseOrder(_comp));
+        sort(new Comparator<T>() {
+            public int compare (T o1, T o2) {
+                return _comp.compare(o2, o1);
+            }
+        });
     }
 
     /**

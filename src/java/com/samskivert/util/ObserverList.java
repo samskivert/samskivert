@@ -137,7 +137,7 @@ public class ObserverList<T> extends ArrayList<T>
     }
 
     // documentation inherited
-    public void add (int index, Object element)
+    public void add (int index, T element)
     {
         throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
     }

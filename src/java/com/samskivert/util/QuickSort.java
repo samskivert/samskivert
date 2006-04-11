@@ -385,9 +385,13 @@ public class QuickSort
      * Sort the elements in the specified ArrayList according to the
      * reverse ordering imposed by the specified Comparator.
      */
-    public static <T> void rsort (ArrayList<T> a, Comparator<T> comp)
+    public static <T> void rsort (ArrayList<T> a, final Comparator<T> comp)
     {
-        sort(a, java.util.Collections.reverseOrder(comp));
+        sort(a, new Comparator<T>() {
+            public int compare (T o1, T o2) {
+                return comp.compare(o2, o1);
+            }
+        });
     }
 
     /**

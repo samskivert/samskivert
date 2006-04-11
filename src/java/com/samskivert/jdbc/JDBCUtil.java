@@ -353,20 +353,29 @@ public class JDBCUtil
                                      String column)
         throws SQLException
     {
-        boolean matched = false;
-        ResultSet rs = conn.getMetaData().getColumns("", "", table, column);
-
-        while (rs.next()) {
-            String tname = rs.getString("TABLE_NAME");
-            String cname = rs.getString("COLUMN_NAME");
-            int type = rs.getInt("DATA_TYPE");
-            if (tname.equals(table) && cname.equals(column)) {
-                return type;
-            }
+        ResultSet rs = getColumnMetaData(conn, table, column);
+        try {
+            return rs.getInt("DATA_TYPE");
+        } finally {
+            rs.close();
         }
+    }
 
-        throw new SQLException("Table or Column not defined. [table=" + table +
-                               ", col=" + column + "].");
+    /**
+     * Returns the size for the specified column in the specified table. For
+     * char or date types this is the maximum number of characters, for numeric
+     * or decimal types this is the precision.
+     */
+    public static int getColumnSize (Connection conn, String table,
+                                     String column)
+        throws SQLException
+    {
+        ResultSet rs = getColumnMetaData(conn, table, column);
+        try {
+            return rs.getInt("COLUMN_SIZE");
+        } finally {
+            rs.close();
+        }
     }
 
     /**
@@ -521,5 +530,24 @@ public class JDBCUtil
 
         Log.info("Database index '" + idx_name + "' added to table '" +
                  table + "'");
+    }
+
+    /**
+     * Helper function for {@link #getColumnType}, etc.
+     */
+    protected static ResultSet getColumnMetaData (
+        Connection conn, String table, String column)
+        throws SQLException
+    {
+        ResultSet rs = conn.getMetaData().getColumns("", "", table, column);
+        while (rs.next()) {
+            String tname = rs.getString("TABLE_NAME");
+            String cname = rs.getString("COLUMN_NAME");
+            if (tname.equals(table) && cname.equals(column)) {
+                return rs;
+            }
+        }
+        throw new SQLException("Table or Column not defined. [table=" + table +
+                               ", col=" + column + "].");
     }
 }

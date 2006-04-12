@@ -120,7 +120,7 @@ public abstract class JORARepository extends SimpleRepository
                 Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.select(query, auxtable).toArrayList();
+                return table.select(auxtable, query).toArrayList();
             }
         });
     }

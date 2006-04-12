@@ -108,6 +108,24 @@ public abstract class JORARepository extends SimpleRepository
     }
 
     /**
+     * Loads all objects from the specified table that match the supplied
+     * query, joining with the supplied auxiliary table(s).
+     */
+    protected <T> ArrayList<T> loadAll (
+        final Table<T> table, final String auxtable, final String query)
+        throws PersistenceException
+    {
+        return execute(new Operation<ArrayList<T>>() {
+            public ArrayList<T> invoke (
+                Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                return table.select(query, auxtable).toArrayList();
+            }
+        });
+    }
+
+    /**
      * Loads a single object from the specified table that matches the
      * supplied query. <em>Note:</em> the query should match one or zero
      * records, not more.

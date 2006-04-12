@@ -163,18 +163,22 @@ public abstract class JORARepository extends SimpleRepository
      * First attempts to update the supplied object and if that modifies
      * zero rows, inserts the object into the specified table. The table
      * must be configured to store items of the supplied type.
+     *
+     * @return -1 if the object was updated, the last inserted id if it was
+     * inserted.
      */
-    protected <T> void store (final Table<T> table, final T object)
+    protected <T> int store (final Table<T> table, final T object)
         throws PersistenceException
     {
-        execute(new Operation<Object>() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return execute(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 if (table.update(object) == 0) {
                     table.insert(object);
+                    return liaison.lastInsertedId(conn);
                 }
-                return null;
+                return -1;
             }
         });
     }

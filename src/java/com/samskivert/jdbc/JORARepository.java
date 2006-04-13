@@ -76,15 +76,14 @@ public abstract class JORARepository extends SimpleRepository
      * Updates the supplied object in the specified table. The table must
      * be configured to store items of the supplied type.
      */
-    protected <T> void update (final Table<T> table, final T object)
+    protected <T> int update (final Table<T> table, final T object)
         throws PersistenceException
     {
-        executeUpdate(new Operation<Object>() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return executeUpdate(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                table.update(object);
-                return null;
+                return table.update(object);
             }
         });
     }

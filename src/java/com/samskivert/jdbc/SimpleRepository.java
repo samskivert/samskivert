@@ -70,7 +70,7 @@ public class SimpleRepository extends Repository
         // give the repository a chance to do any schema migration before
         // things get further underway
         try {
-            execute(new Operation<Object>() {
+            executeUpdate(new Operation<Object>() {
                 public Object invoke (Connection conn, DatabaseLiaison liaison)
                     throws SQLException, PersistenceException
                 {
@@ -85,7 +85,7 @@ public class SimpleRepository extends Repository
     }
 
     /**
-     * Executes the supplied operation. In the event of a transient
+     * Executes the supplied read-only operation. In the event of a transient
      * failure, the repository will attempt to reestablish the database
      * connection and try the operation again.
      *
@@ -94,7 +94,20 @@ public class SimpleRepository extends Repository
     protected <V> V execute (Operation<V> op)
 	throws PersistenceException
     {
-        return execute(op, true);
+        return execute(op, true, true);
+    }
+
+    /**
+     * Executes the supplied read-write operation. In the event of a transient
+     * failure, the repository will attempt to reestablish the database
+     * connection and try the operation again.
+     *
+     * @return whatever value is returned by the invoked operation.
+     */
+    protected <V> V executeUpdate (Operation<V> op)
+	throws PersistenceException
+    {
+        return execute(op, true, false);
     }
 
     /**
@@ -104,14 +117,16 @@ public class SimpleRepository extends Repository
      * case a call to <code>rollback()</code> is executed on the
      * connection.
      *
-     * @param retryOnTransientFailure if true and the operation fails due
-     * to a transient failure (like losing the connection to the database
-     * or deadlock detection), the connection to the database will be
+     * @param retryOnTransientFailure if true and the operation fails due to a
+     * transient failure (like losing the connection to the database or
+     * deadlock detection), the connection to the database will be
      * reestablished (if necessary) and the operation attempted once more.
+     * @param readOnly whether or not to request a read-only connection.
      *
      * @return whatever value is returned by the invoked operation.
      */
-    protected <V> V execute (Operation<V> op, boolean retryOnTransientFailure)
+    protected <V> V execute (Operation<V> op, boolean retryOnTransientFailure,
+                             boolean readOnly)
 	throws PersistenceException
     {
         Connection conn = null;
@@ -129,7 +144,7 @@ public class SimpleRepository extends Repository
 
         try {
             // obtain our database connection and associated goodies
-            conn = _provider.getConnection(_dbident);
+            conn = _provider.getConnection(_dbident, readOnly);
             liaison = LiaisonRegistry.getLiaison(conn);
 
             // find out if we support transactions
@@ -172,7 +187,7 @@ public class SimpleRepository extends Repository
 
             if (conn != null) {
                 // let the connection provider know that the connection failed
-                _provider.connectionFailed(_dbident, conn, sqe);
+                _provider.connectionFailed(_dbident, readOnly, conn, sqe);
 
                 // clear out the reference so that we don't release it later
                 conn = null;
@@ -189,7 +204,7 @@ public class SimpleRepository extends Repository
                 String msg = StringUtil.split("" + sqe, "\n")[0];
                 Log.info("Transient failure executing operation, " +
                          "retrying [error=" + msg + "].");
-                return execute(op, false);
+                return execute(op, false, readOnly);
             }
 
             String err = "Operation invocation failed";
@@ -222,7 +237,7 @@ public class SimpleRepository extends Repository
         } finally {
             if (conn != null) {
                 // release the database connection
-                _provider.releaseConnection(_dbident, conn);
+                _provider.releaseConnection(_dbident, readOnly, conn);
             }
 	}
     }
@@ -234,7 +249,7 @@ public class SimpleRepository extends Repository
     protected int update (final String query)
         throws PersistenceException
     {
-        return execute(new Operation<Integer>() {
+        return executeUpdate(new Operation<Integer>() {
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -257,7 +272,7 @@ public class SimpleRepository extends Repository
     protected void checkedUpdate (final String query, final int count)
         throws PersistenceException
     {
-        execute(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -287,7 +302,7 @@ public class SimpleRepository extends Repository
     protected void maintenance (final String action, final String table)
         throws PersistenceException
     {
-        execute(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {

@@ -127,13 +127,15 @@ public class StaticConnectionProvider implements ConnectionProvider
     }
 
     // documentation inherited
-    public Connection getConnection (String ident)
+    public Connection getConnection (String ident, boolean readOnly)
         throws PersistenceException
     {
-        Mapping conmap = _idents.get(ident);
+        String mapkey = ident + ":" + readOnly;
+        Mapping conmap = _idents.get(mapkey);
 
         // open the connection if we haven't already
         if (conmap == null) {
+            String[] defaults;
             Properties props =
                 PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
 
@@ -147,9 +149,11 @@ public class StaticConnectionProvider implements ConnectionProvider
             err = "No driver password specified [ident=" + ident + "].";
             String password = requireProp(props, "password", err);
 
-            // we cache connections by username+url to avoid making more
-            // that one connection to a particular database server
-            String key = username + "@" + url;
+            // if this is a read-only connection,
+
+            // we cache connections by username+url+readOnly to avoid making
+            // more that one connection to a particular database server
+            String key = username + "@" + url + ":" + readOnly;
             conmap = _keys.get(key);
             if (conmap == null) {
                 Log.debug("Creating " + key + " for " + ident + ".");
@@ -157,42 +161,53 @@ public class StaticConnectionProvider implements ConnectionProvider
                 conmap.key = key;
                 conmap.connection =
                     openConnection(driver, url, username, password);
+
+                // make the connection read-only to let the JDBC driver know
+                // that it can and should use the read-only mirror(s)
+                if (readOnly) {
+                    try {
+                        conmap.connection.setReadOnly(true);
+                    } catch (SQLException sqe) {
+                        closeConnection(ident, conmap.connection);
+                        err = "Failed to make connection read-only " +
+                            "[key=" + key + ", ident=" + ident + "].";
+                        throw new PersistenceException(err, sqe);
+                    }
+                }
+
                 _keys.put(key, conmap);
             } else {
                 Log.debug("Reusing " + key + " for " + ident + ".");
             }
 
             // cache the connection
-            conmap.idents.add(ident);
-            _idents.put(ident, conmap);
+            conmap.idents.add(mapkey);
+            _idents.put(mapkey, conmap);
         }
 
         return conmap.connection;
     }
 
     // documentation inherited
-    public void releaseConnection (String ident, Connection conn)
+    public void releaseConnection (String ident, boolean readOnly,
+                                   Connection conn)
     {
         // nothing to do here, all is well
     }
 
     // documentation inherited
-    public void connectionFailed (String ident, Connection conn,
-                                  SQLException error)
+    public void connectionFailed (String ident, boolean readOnly,
+                                  Connection conn, SQLException error)
     {
-        Mapping conmap = _idents.get(ident);
+        String mapkey = ident + ":" + readOnly;
+        Mapping conmap = _idents.get(mapkey);
         if (conmap == null) {
             Log.warning("Unknown connection failed!? [ident=" + ident + "].");
             return;
         }
 
         // attempt to close the connection
-        try {
-            conmap.connection.close();
-        } catch (SQLException sqe) {
-            Log.warning("Error closing failed connection [ident=" + ident +
-                        ", error=" + sqe + "].");
-        }
+        closeConnection(ident, conmap.connection);
 
         // clear it from our mapping tables
         for (int ii = 0; ii < conmap.idents.size(); ii++) {
@@ -221,6 +236,16 @@ public class StaticConnectionProvider implements ConnectionProvider
                 "[driver=" + driver + ", url=" + url +
                 ", username=" + username + "].";
             throw new PersistenceException(err, sqe);
+        }
+    }
+
+    protected void closeConnection (String ident, Connection conn)
+    {
+        try {
+            conn.close();
+        } catch (SQLException sqe) {
+            Log.warning("Error closing failed connection [ident=" + ident +
+                        ", error=" + sqe + "].");
         }
     }
 

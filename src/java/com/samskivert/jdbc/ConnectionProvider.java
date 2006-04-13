@@ -48,6 +48,8 @@ public interface ConnectionProvider
      * connection when it is released if appropriate.
      *
      * @param ident the database connection identifier.
+     * @param readOnly whether or not the connection may be to a read-only
+     * mirror of the repository.
      *
      * @return an active JDBC connection (which may have come from a
      * connection pool).
@@ -55,7 +57,7 @@ public interface ConnectionProvider
      * @exception PersistenceException thrown if a problem occurs trying
      * to open the requested connection.
      */
-    public Connection getConnection (String ident)
+    public Connection getConnection (String ident, boolean readOnly)
         throws PersistenceException;
 
     /**
@@ -64,10 +66,13 @@ public interface ConnectionProvider
      *
      * @param ident the database identifier used when obtaining this
      * connection.
+     * @param readOnly the same value that was passed to {@link #getConnection}
+     * to obtain this connection.
      * @param conn the connection to release (back into the pool or to be
      * closed if pooling is not going on).
      */
-    public void releaseConnection (String ident, Connection conn);
+    public void releaseConnection (String ident, boolean readOnly,
+                                   Connection conn);
 
     /**
      * Called by the repository if a failure occurred on the connection.
@@ -77,10 +82,12 @@ public interface ConnectionProvider
      *
      * @param ident the database identifier used when obtaining this
      * connection.
+     * @param readOnly the same value that was passed to {@link #getConnection}
+     * to obtain this connection.
      * @param conn the connection that failed.
      * @param error the error thrown by the connection (which may be used
      * to determine if the connection should be closed or can be reused).
      */
-    public void connectionFailed (String ident, Connection conn,
-                                  SQLException error);
+    public void connectionFailed (String ident, boolean readOnly,
+                                  Connection conn, SQLException error);
 }

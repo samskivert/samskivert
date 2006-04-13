@@ -62,7 +62,7 @@ public abstract class JORARepository extends SimpleRepository
     protected <T> int insert (final Table<T> table, final T object)
         throws PersistenceException
     {
-        return execute(new Operation<Integer>() {
+        return executeUpdate(new Operation<Integer>() {
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -79,7 +79,7 @@ public abstract class JORARepository extends SimpleRepository
     protected <T> void update (final Table<T> table, final T object)
         throws PersistenceException
     {
-        execute(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -188,7 +188,7 @@ public abstract class JORARepository extends SimpleRepository
     protected <T> int store (final Table<T> table, final T object)
         throws PersistenceException
     {
-        return execute(new Operation<Integer>() {
+        return executeUpdate(new Operation<Integer>() {
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -211,7 +211,7 @@ public abstract class JORARepository extends SimpleRepository
     {
         final FieldMask mask = table.getFieldMask();
         mask.setModified(field);
-        execute(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -233,7 +233,7 @@ public abstract class JORARepository extends SimpleRepository
         for (int ii = 0; ii < fields.length; ii++) {
             mask.setModified(fields[ii]);
         }
-        execute(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
@@ -246,7 +246,7 @@ public abstract class JORARepository extends SimpleRepository
     protected <T> void delete (final Table<T> table, final T object)
         throws PersistenceException
     {
-        execute(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {

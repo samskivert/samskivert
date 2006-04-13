@@ -208,19 +208,20 @@ public abstract class JORARepository extends SimpleRepository
     /**
      * Updates the specified field in the supplied object (which must
      * correspond to the supplied table).
+     *
+     * @return the number of rows modified by the update.
      */
-    protected <T> void updateField (
+    protected <T> int updateField (
         final Table<T> table, final T object, String field)
         throws PersistenceException
     {
         final FieldMask mask = table.getFieldMask();
         mask.setModified(field);
-        executeUpdate(new Operation<Object>() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return executeUpdate(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                table.update(object, mask);
-                return null;
+                return table.update(object, mask);
             }
         });
     }
@@ -228,8 +229,10 @@ public abstract class JORARepository extends SimpleRepository
     /**
      * Updates the specified fields in the supplied object (which must
      * correspond to the supplied table).
+     *
+     * @return the number of rows modified by the update.
      */
-    protected <T> void updateFields (
+    protected <T> int updateFields (
         final Table<T> table, final T object, String[] fields)
         throws PersistenceException
     {
@@ -237,25 +240,28 @@ public abstract class JORARepository extends SimpleRepository
         for (int ii = 0; ii < fields.length; ii++) {
             mask.setModified(fields[ii]);
         }
-        executeUpdate(new Operation<Object>() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return executeUpdate(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                table.update(object, mask);
-                return null;
+                return table.update(object, mask);
             }
         });
     }
 
-    protected <T> void delete (final Table<T> table, final T object)
+    /**
+     * Deletes the specified object from the table.
+     *
+     * @return the number of rows deleted.
+     */
+    protected <T> int delete (final Table<T> table, final T object)
         throws PersistenceException
     {
-        executeUpdate(new Operation<Object>() {
-            public Object invoke (Connection conn, DatabaseLiaison liaison)
+        return executeUpdate(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                table.delete(object);
-                return null;
+                return table.delete(object);
             }
         });
     }

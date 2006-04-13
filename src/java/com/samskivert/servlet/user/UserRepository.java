@@ -260,7 +260,7 @@ public class UserRepository extends JORARepository
             return false;
         }
 
-	execute(new Operation<Object>() {
+	executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -295,7 +295,7 @@ public class UserRepository extends JORARepository
             return;
         }
 
-	execute(new Operation<Object>() {
+	executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -350,7 +350,7 @@ public class UserRepository extends JORARepository
 	final Date expires = new Date(cal.getTime().getTime());
 
 	// insert the session into the database
-	execute(new Operation<Object>() {
+	executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -373,7 +373,7 @@ public class UserRepository extends JORARepository
     public void pruneSessions ()
 	throws PersistenceException
     {
-	execute(new Operation<Object>() {
+	executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
 	    {
@@ -464,7 +464,7 @@ public class UserRepository extends JORARepository
     protected int insertUser (final User user)
 	throws UserExistsException, PersistenceException
     {
-        execute(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {

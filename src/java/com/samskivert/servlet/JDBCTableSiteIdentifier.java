@@ -245,7 +245,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         public void insertNewSite (final Site site)
             throws PersistenceException
         {
-            execute(new Operation<Object>() {
+            executeUpdate(new Operation<Object>() {
                 public Object invoke (Connection conn, DatabaseLiaison liaison)
                     throws PersistenceException, SQLException
                 {

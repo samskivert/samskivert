@@ -56,8 +56,11 @@ public abstract class JORARepository extends SimpleRepository
     }
 
     /**
-     * Inserts the supplied object into the specified table. The table
-     * must be configured to store items of the supplied type.
+     * Inserts the supplied object into the specified table. The table must be
+     * configured to store items of the supplied type.
+     *
+     * @return a call to {@link DatabaseLiaison#lastInsertedId} made
+     * immediately following the insert.
      */
     protected <T> int insert (final Table<T> table, final T object)
         throws PersistenceException
@@ -75,6 +78,8 @@ public abstract class JORARepository extends SimpleRepository
     /**
      * Updates the supplied object in the specified table. The table must
      * be configured to store items of the supplied type.
+     *
+     * @return the number of rows modified by the update.
      */
     protected <T> int update (final Table<T> table, final T object)
         throws PersistenceException

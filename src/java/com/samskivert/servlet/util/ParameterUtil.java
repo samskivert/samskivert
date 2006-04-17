@@ -36,6 +36,11 @@ import com.samskivert.util.StringUtil;
  */
 public class ParameterUtil
 {
+    /** A default date that can be placed in fields to communicate the
+     * appropriate format. Is treated the same as the empty string by {@link
+     * #getDateParameter}. */
+    public static final String DATE_TEMPLATE = "YYYY-MM-DD";
+
     /**
      * An interface for validating form parameters.
      */
@@ -261,6 +266,17 @@ public class ParameterUtil
     }
 
     /**
+     * Similar to {@link #requireDateParameter} but returns a SQL date.
+     */
+    public static java.sql.Date requireSQLDateParameter (
+        HttpServletRequest req, String name, String invalidDataMessage)
+	throws DataValidationException
+    {
+        return new java.sql.Date(
+            requireDateParameter(req, name, invalidDataMessage).getTime());
+    }
+
+    /**
      * Fetches the supplied parameter from the request and converts it to
      * a date. The value of the parameter should be a date formatted like
      * so: 2001-12-25. If the parameter does not exist, null is
@@ -272,10 +288,22 @@ public class ParameterUtil
 	throws DataValidationException
     {
 	String value = getParameter(req, name, false);
-        if (StringUtil.isBlank(value)) {
+        if (StringUtil.isBlank(value) ||
+            DATE_TEMPLATE.equalsIgnoreCase(value)) {
             return null;
         }
         return parseDateParameter(value, invalidDataMessage);
+    }
+
+    /**
+     * Similar to {@link #getDateParameter} but returns a SQL date.
+     */
+    public static java.sql.Date getSQLDateParameter (
+        HttpServletRequest req, String name, String invalidDataMessage)
+	throws DataValidationException
+    {
+        Date when = getDateParameter(req, name, invalidDataMessage);
+        return (when == null) ? null : new java.sql.Date(when.getTime());
     }
 
     /**

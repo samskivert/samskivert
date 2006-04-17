@@ -220,9 +220,10 @@ public class StaticConnectionProvider implements ConnectionProvider
         String driver, String url, String username, String password)
         throws PersistenceException
     {
-        // load up the driver class
+        // create an instance of the driver
+        Driver jdriver;
         try {
-            Class.forName(driver);
+            jdriver = (Driver)Class.forName(driver).newInstance();
         } catch (Exception e) {
             String err = "Error loading driver [class=" + driver + "].";
             throw new PersistenceException(err, e);
@@ -230,7 +231,10 @@ public class StaticConnectionProvider implements ConnectionProvider
 
         // create the connection
         try {
-            return DriverManager.getConnection(url, username, password);
+            Properties props = new Properties();
+            props.put("user", username);
+            props.put("password", password);
+            return jdriver.connect(url, props);
         } catch (SQLException sqe) {
             String err = "Error creating database connection " +
                 "[driver=" + driver + ", url=" + url +

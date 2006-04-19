@@ -35,8 +35,8 @@ public class CollectionUtil
      * Adds all items returned by the enumeration to the supplied
      * collection and returns the supplied collection.
      */
-    public static <T> Collection<T> addAll (
-        Collection<T> col, Enumeration<T> enm)
+    public static <E, T extends Collection<E>> T addAll (
+            T col, Enumeration<E> enm)
     {
         while (enm.hasMoreElements()) {
             col.add(enm.nextElement());
@@ -48,7 +48,8 @@ public class CollectionUtil
      * Adds all items returned by the iterator to the supplied collection
      * and returns the supplied collection.
      */
-    public static <T> Collection<T> addAll (Collection<T> col, Iterator<T> iter)
+    public static <E, T extends Collection<E>> T addAll (
+            T col, Iterator<E> iter)
     {
         while (iter.hasNext()) {
             col.add(iter.next());
@@ -60,7 +61,7 @@ public class CollectionUtil
      * Adds all items in the given object array to the supplied
      * collection and returns the supplied collection.
      */
-    public static <T> Collection<T> addAll (Collection<T> col, T[] values)
+    public static <E, T extends Collection<E>> T addAll (T col, E[] values)
     {
         for (int ii = 0; ii < values.length; ii++) {
             col.add(values[ii]);

@@ -136,7 +136,8 @@ public class UserRepository extends JORARepository
     public User loadUserBySession (String sessionKey)
 	throws PersistenceException
     {
-        User user = load(_utable, "where authcode = '" + sessionKey + "' AND " +
+        User user = load(_utable, "sessions",
+                         "where authcode = '" + sessionKey + "' AND " +
                          "sessions.userId = users.userId");
         if (user != null) {
             user.setDirtyMask(_utable.getFieldMask());

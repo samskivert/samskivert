@@ -46,7 +46,7 @@ public class MySQLLiaison implements DatabaseLiaison
 	String msg = sqe.getMessage();
 	return (msg != null &&
                 (msg.indexOf("Lost connection") != -1 ||
-                 msg.indexOf("Communication link failure") != -1 ||
+                 msg.indexOf("link failure") != -1 ||
                  msg.indexOf("Broken pipe") != -1));
     }
 

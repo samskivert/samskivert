@@ -30,7 +30,7 @@ import com.samskivert.jdbc.jora.*;
  * The JORA repository simplifies the process of building persistence
  * services that make use of the JORA object relational mapping package.
  *
- * @see com.samskivert.jdbc.jora.Session
+ * @see com.samskivert.jdbc.jora.Table
  */
 public abstract class JORARepository extends SimpleRepository
 {
@@ -47,17 +47,12 @@ public abstract class JORARepository extends SimpleRepository
     {
         super(provider, dbident);
 
-        // our parent class will have already obtained a database connection
-        // and therefore ended up calling getConnection() which will create our
-        // session, so we can make use of it straight away
-
         // create our tables
-        createTables(_session);
+        createTables();
     }
 
     /**
-     * Inserts the supplied object into the specified table. The table must be
-     * configured to store items of the supplied type.
+     * Inserts the supplied object into the specified table.
      *
      * @return a call to {@link DatabaseLiaison#lastInsertedId} made
      * immediately following the insert.
@@ -69,15 +64,14 @@ public abstract class JORARepository extends SimpleRepository
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                table.insert(object);
+                table.insert(conn, object);
                 return liaison.lastInsertedId(conn);
             }
         });
     }
 
     /**
-     * Updates the supplied object in the specified table. The table must
-     * be configured to store items of the supplied type.
+     * Updates the supplied object in the specified table.
      *
      * @return the number of rows modified by the update.
      */
@@ -88,7 +82,26 @@ public abstract class JORARepository extends SimpleRepository
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.update(object);
+                return table.update(conn, object);
+            }
+        });
+    }
+
+    /**
+     * Updates fields specified by the supplied field mask in the supplied
+     * object in the specified table.
+     *
+     * @return the number of rows modified by the update.
+     */
+    protected <T> int update (final Table<T> table, final T object,
+                              final FieldMask mask)
+        throws PersistenceException
+    {
+        return executeUpdate(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                return table.update(conn, object, mask);
             }
         });
     }
@@ -106,7 +119,7 @@ public abstract class JORARepository extends SimpleRepository
                 Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.select(query).toArrayList();
+                return table.select(conn, query).toArrayList();
             }
         });
     }
@@ -124,7 +137,43 @@ public abstract class JORARepository extends SimpleRepository
                 Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.select(auxtable, query).toArrayList();
+                return table.select(conn, auxtable, query).toArrayList();
+            }
+        });
+    }
+
+    /**
+     * Loads all objects from the specified table that match the supplied
+     * example.
+     */
+    protected <T> ArrayList<T> loadAllByExample (
+        final Table<T> table, final T example)
+        throws PersistenceException
+    {
+        return execute(new Operation<ArrayList<T>>() {
+            public ArrayList<T> invoke (
+                Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                return table.queryByExample(conn, example).toArrayList();
+            }
+        });
+    }
+
+    /**
+     * Loads all objects from the specified table that match the supplied
+     * example.
+     */
+    protected <T> ArrayList<T> loadAllByExample (
+        final Table<T> table, final T example, final FieldMask mask)
+        throws PersistenceException
+    {
+        return execute(new Operation<ArrayList<T>>() {
+            public ArrayList<T> invoke (
+                Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+                {
+                return table.queryByExample(conn, example, mask).toArrayList();
             }
         });
     }
@@ -141,7 +190,25 @@ public abstract class JORARepository extends SimpleRepository
             public T invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.select(query).get();
+                return table.select(conn, query).get();
+            }
+        });
+    }
+
+    /**
+     * Loads a single object from the specified table that matches the supplied
+     * query, joining with the supplied auxiliary table(s). <em>Note:</em> the
+     * query should match one or zero records, not more.
+     */
+    protected <T> T load (
+        final Table<T> table, final String auxtable, final String query)
+        throws PersistenceException
+    {
+        return execute(new Operation<T>() {
+            public T invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                return table.select(conn, auxtable, query).get();
             }
         });
     }
@@ -158,7 +225,7 @@ public abstract class JORARepository extends SimpleRepository
             public T invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.queryByExample(example).get();
+                return table.queryByExample(conn, example).get();
             }
         });
     }
@@ -169,14 +236,14 @@ public abstract class JORARepository extends SimpleRepository
      * records, not more.
      */
     protected <T> T loadByExample (
-        final Table<T> table, final FieldMask mask, final T example)
+        final Table<T> table, final T example, final FieldMask mask)
         throws PersistenceException
     {
         return execute(new Operation<T>() {
             public T invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.queryByExample(example, mask).get();
+                return table.queryByExample(conn, example, mask).get();
             }
         });
     }
@@ -196,8 +263,8 @@ public abstract class JORARepository extends SimpleRepository
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                if (table.update(object) == 0) {
-                    table.insert(object);
+                if (table.update(conn, object) == 0) {
+                    table.insert(conn, object);
                     return liaison.lastInsertedId(conn);
                 }
                 return -1;
@@ -221,7 +288,7 @@ public abstract class JORARepository extends SimpleRepository
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.update(object, mask);
+                return table.update(conn, object, mask);
             }
         });
     }
@@ -244,7 +311,7 @@ public abstract class JORARepository extends SimpleRepository
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.update(object, mask);
+                return table.update(conn, object, mask);
             }
         });
     }
@@ -261,30 +328,14 @@ public abstract class JORARepository extends SimpleRepository
             public Integer invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                return table.delete(object);
+                return table.delete(conn, object);
             }
         });
     }
 
     /**
-     * After the database session is begun, this function will be called
-     * to give the repository implementation the opportunity to create its
-     * table objects.
-     *
-     * @param session the session instance to use when creating your table
-     * instances.
+     * During construction, this function will be called to give the repository
+     * implementation the opportunity to create its table objects.
      */
-    protected abstract void createTables (Session session);
-
-    protected void gotConnection (Connection conn)
-    {
-        // create or update our JORA session
-        if (_session == null) {
-            _session = new Session(conn);
-        } else {
-            _session.setConnection(conn);
-        }
-    }
-
-    protected Session _session;
+    protected abstract void createTables ();
 }

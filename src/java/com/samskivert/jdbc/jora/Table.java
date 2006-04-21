@@ -1,12 +1,22 @@
-//-< Table.java >----------------------------------------------------*--------*
-// JORA                       Version 2.0        (c) 1998  GARRET    *     ?  *
-// (Java Object Relational Adapter)                                  *   /\|  *
-//                                                                   *  /  \  *
-//                          Created:     10-Jun-98    K.A. Knizhnik  * / [] \ *
-//                          Last update: 20-Jun-98    K.A. Knizhnik  * GARRET *
-//-------------------------------------------------------------------*--------*
-// Class representing database table
-//-------------------------------------------------------------------*--------*
+//
+// $Id$
+//
+// samskivert library - useful routines for java programs
+// Copyright (C) 2001-6 Konstantin Knizhnik, Michael Bayne
+// 
+// This library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published
+// by the Free Software Foundation; either version 2.1 of the License, or
+// (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.samskivert.jdbc.jora;
 
@@ -14,579 +24,416 @@ import java.util.*;
 import java.sql.*;
 import java.lang.reflect.*;
 
+import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.util.StringUtil;
 
-/** Table class is used to establish mapping between corteges of database
- *  tables and Java classes. This class is responsible for constructing
- *  SQL statements for extracting, updating and deleting records of the
- *  database table.
+/**
+ * Used to establish mapping between corteges of database tables and Java
+ * classes. This class is responsible for constructing SQL statements for
+ * extracting, updating and deleting records of the database table.
  */
 public class Table<T>
 {
-    /** Constructor for table object. Make association between Java class
-     *  and database table.
+    /**
+     * Constructor for table object. Make association between Java class and
+     * database table.
      *
      * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
-     * @param s session, which should be opened before first access to the table
      * @param key table's primary key. This parameter is used in UPDATE/DELETE
-     *  operations to locate record in the table.
+     * operations to locate record in the table.
      * @param mixedCaseConvert whether or not to convert mixed case field
      * names into underscore separated uppercase column names.
      */
-    public Table(Class<T> clazz, String tableName, Session s, String key,
-                 boolean mixedCaseConvert) {
-	String[] keys = {key};
-	init(clazz, tableName, s, keys, mixedCaseConvert);
-    }
-
-    /** Constructor for table object. Make association between Java class
-     *  and database table.
-     *
-     * @param clazz the class that represents a row entry.
-     * @param tableName name of database table mapped on this Java class
-     * @param key table's primary key. This parameter is used in UPDATE/DELETE
-     *  operations to locate record in the table.
-     * @param s session, which should be opened before first access to the table
-     */
-    public Table(Class<T> clazz, String tableName, Session s, String key) {
-	String[] keys = {key};
-	init(clazz, tableName, s, keys, false);
-    }
-
-    /** Constructor for table object. Make association between Java class
-     *  and database table.
-     *
-     * @param clazz the class that represents a row entry.
-     * @param tableName name of database table mapped on this Java class
-     * @param keys table primary keys. This parameter is used in UPDATE/DELETE
-     *  operations to locate record in the table.
-     * @param s session, which should be opened before first access to the table
-     */
-    public Table(Class<T> clazz, String tableName, Session s, String[] keys)
+    public Table (Class<T> clazz, String tableName, String key,
+                  boolean mixedCaseConvert)
     {
-	init(clazz, tableName, s, keys, false);
+	String[] keys = {key};
+	init(clazz, tableName, keys, mixedCaseConvert);
     }
 
-    /** Constructor for table object. Make association between Java class
-     *  and database table.
+    /**
+     * Constructor for table object. Make association between Java class and
+     * database table.
+     *
+     * @param clazz the class that represents a row entry.
+     * @param tableName name of database table mapped on this Java class
+     * @param key table's primary key. This parameter is used in UPDATE/DELETE
+     * operations to locate record in the table.
+     */
+    public Table (Class<T> clazz, String tableName, String key) {
+	String[] keys = {key};
+	init(clazz, tableName, keys, false);
+    }
+
+    /**
+     * Constructor for table object. Make association between Java class and
+     * database table.
      *
      * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
      * @param keys table primary keys. This parameter is used in UPDATE/DELETE
-     *  operations to locate record in the table.
-     * @param s session, which should be opened before first access to the table
+     * operations to locate record in the table.
+     */
+    public Table (Class<T> clazz, String tableName, String[] keys)
+    {
+	init(clazz, tableName, keys, false);
+    }
+
+    /**
+     * Constructor for table object. Make association between Java class and
+     * database table.
+     *
+     * @param clazz the class that represents a row entry.
+     * @param tableName name of database table mapped on this Java class
+     * @param keys table primary keys. This parameter is used in UPDATE/DELETE
+     * operations to locate record in the table.
      * @param mixedCaseConvert whether or not to convert mixed case field
      * names into underscore separated uppercase column names.
      */
-    public Table(Class<T> clazz, String tableName, Session s, String[] keys,
-                 boolean mixedCaseConvert) {
-	init(clazz, tableName, s, keys, mixedCaseConvert);
+    public Table (Class<T> clazz, String tableName, String[] keys,
+                  boolean mixedCaseConvert)
+    {
+	init(clazz, tableName, keys, mixedCaseConvert);
     }
 
-    /** Select records from database table according to search condition
+    /**
+     * Select records from database table according to search condition
      *
-     * @param condition valid SQL condition expression started with WHERE
-     *  or empty string if all records should be fetched.
+     * @param condition valid SQL condition expression started with WHERE or
+     * empty string if all records should be fetched.
      */
-    public final Cursor<T> select(String condition) {
+    public final Cursor<T> select (Connection conn, String condition)
+    {
 	String query = "select " + listOfFields + " from " + name +
 	    " " + condition;
-        return new Cursor<T>(this, session, 1, query);
+        return new Cursor<T>(this, conn, query);
     }
 
-    /** Select records from database table according to search condition
-     * including the specified (comma separated) extra tables into the
-     * SELECT clause to facilitate a join in determining the key.
+    /**
+     * Select records from database table according to search condition
+     * including the specified (comma separated) extra tables into the SELECT
+     * clause to facilitate a join in determining the key.
      *
-     * @param tables the (comma separated) names of extra tables to
-     * include in the SELECT clause.
+     * @param tables the (comma separated) names of extra tables to include in
+     * the SELECT clause.
      * @param condition valid SQL condition expression started with WHERE.
      */
-    public final Cursor<T> select(String tables, String condition) {
+    public final Cursor<T> select (Connection conn, String tables,
+                                   String condition)
+    {
 	String query = "select " + qualifiedListOfFields +
 	    " from " + name + "," + tables + " " + condition;
-        return new Cursor<T>(this, session, 1, query);
+        return new Cursor<T>(this, conn, query);
     }
 
-    /** Select records from database table according to search condition
-     * including the specified (comma separated) extra tables into the
-     * SELECT clause to facilitate a join in determining the key. To
-     * facilitate situations where data from multiple tables is being
-     * combined into a single object, the fields will not be qualified
-     * with the primary table name.
+    /**
+     * Select records from database table according to search condition
+     * including the specified (comma separated) extra tables into the SELECT
+     * clause to facilitate a join in determining the key. To facilitate
+     * situations where data from multiple tables is being combined into a
+     * single object, the fields will not be qualified with the primary table
+     * name.
      *
-     * @param tables the (comma separated) names of extra tables to
-     * include in the SELECT clause.
+     * @param tables the (comma separated) names of extra tables to include in
+     * the SELECT clause.
      * @param condition valid SQL condition expression started with WHERE.
      */
-    public final Cursor<T> join(String tables, String condition) {
-	String query = "select " + listOfFields +
-	    " from " + name + "," + tables + " " + condition;
-        return new Cursor<T>(this, session, 1, query);
+    public final Cursor<T> join (Connection conn, String tables,
+                                 String condition)
+    {
+        String query = "select " + listOfFields +
+            " from " + name + "," + tables + " " + condition;
+        return new Cursor<T>(this, conn, query);
     }
 
-    /** Like {@link #join} but does a straight join with the specified
-     * table. */
-    public final Cursor<T> straightJoin(String table, String condition) {
+    /**
+     * Like {@link #join} but does a straight join with the specified table.
+     */
+    public final Cursor<T> straightJoin (Connection conn, String table,
+                                         String condition)
+    {
 	String query = "select " + listOfFields +
 	    " from " + name + " straight_join " + table + " " + condition;
-        return new Cursor<T>(this, session, 1, query);
+        return new Cursor<T>(this, conn, query);
     }
 
-    /** Select records from database table according to search condition
+    /**
+     * Select records from database table using <I>obj</I> object as template.
      *
-     * @param condition valid SQL condition expression started with WHERE
-     *  or empty string if all records should be fetched.
-     * @param session user database session
+     * @param obj example object for search: selected objects should match all
+     * non-null fields.
      */
-    public final Cursor<T> select(String condition, Session session) {
-	String query = "select " + listOfFields + " from " + name +
-	    " " + condition;
-        return new Cursor<T>(this, session, 1, query);
+    public final Cursor<T> queryByExample (Connection conn, T obj)
+    {
+        return new Cursor<T>(this, conn, obj, null, false);
     }
 
-    /** Select records from database table using <I>obj</I> object as
-     * template.
-     *
-     * @param obj example object for search: selected objects should match
-     * all non-null fields.
-     */
-    public final Cursor<T> queryByExample(T obj) {
-        return new Cursor<T>(this, session, 1, obj, null, false);
-    }
-
-    /** Select records from database table using <I>obj</I> object as
-     * template for selection.
+    /**
+     * Select records from database table using <I>obj</I> object as template
+     * for selection.
      *
      * @param obj example object for search.
-     * @param mask field mask indicating which fields in the example
-     * object should be used when building the query.
+     * @param mask field mask indicating which fields in the example object
+     * should be used when building the query.
      */
-    public final Cursor<T> queryByExample(T obj, FieldMask mask) {
-        return new Cursor<T>(this, session, 1, obj, mask, false);
-    }
-
-    /** Select records from database table using <I>obj</I> object as
-     * template for selection. All non-builtin fields of this object,
-     * which are not null, are compared with correspondent table values.
-     *
-     * @param obj object for construction search condition: selected
-     * objects should match all non-null fields of specified object.
-     * @param session user database session.
-     */
-    public final Cursor<T> queryByExample(T obj, Session session) {
-        return queryByExample(obj, session, null);
-    }
-
-    /** Select records from database table using <I>obj</I> object as
-     * template for selection.
-     *
-     * @param obj example object for search.
-     * @param session user database session.
-     * @param mask field mask indicating which fields in the example
-     * object should be used when building the query.
-     */
-    public final Cursor<T> queryByExample(
-        T obj, Session session, FieldMask mask) {
-        return new Cursor<T>(this, session, 1, obj, mask, false);
+    public final Cursor<T> queryByExample (Connection conn, T obj,
+                                           FieldMask mask)
+    {
+        return new Cursor<T>(this, conn, obj, mask, false);
     }
 
     /**
      * The same as the queryByExample, but string fields for the obj are
-     * matched using 'like' instead of equals, which allows you to send %
-     * in to do matching.
+     * matched using 'like' instead of equals, which allows you to send % in to
+     * do matching.
      */
-    public final Cursor<T> queryByLikeExample(T obj) {
-        return new Cursor<T>(this, session, 1, obj, null, true);
+    public final Cursor<T> queryByLikeExample (Connection conn, T obj)
+    {
+        return new Cursor<T>(this, conn, obj, null, true);
     }
 
     /**
      * The same as the queryByExample, but string fields for the obj are
-     * matched using 'like' instead of equals, which allows you to send %
-     * in to do matching.
+     * matched using 'like' instead of equals, which allows you to send % in to
+     * do matching.
      */
-    public final Cursor<T> queryByLikeExample(T obj, FieldMask mask) {
-        return new Cursor<T>(this, session, 1, obj, mask, true);
+    public final Cursor<T> queryByLikeExample (Connection conn, T obj,
+                                               FieldMask mask)
+    {
+        return new Cursor<T>(this, conn, obj, mask, true);
     }
 
     /**
-     * The same as the queryByExample, but string fields for the obj are
-     * matched using 'like' instead of equals, which allows you to send %
-     * in to do matching.
-     */
-    public final Cursor<T> queryByLikeExample(T obj, Session session) {
-        return queryByLikeExample(obj, session, null);
-    }
-
-    /**
-     * The same as the queryByExample, but string fields for the obj are
-     * matched using 'like' instead of equals, which allows you to send %
-     * in to do matching.
-     */
-    public final Cursor<T> queryByLikeExample(
-        T obj, Session session, FieldMask mask) {
-        return new Cursor<T>(this, session, 1, obj, mask, true);
-    }
-
-    /** Insert new record in the table. Values of inserted record fields
-     *  are taken from specifed object.
+     * Insert new record in the table.  Values of inserted record fields are
+     * taken from specifed object.
      *
      * @param obj object specifing values of inserted record fields
      */
-    public void insert(T obj)
+    public synchronized void insert (Connection conn, T obj)
 	throws SQLException
     {
-	insert(obj, session);
+        checkUpdateConnection(conn);
+        if (insertStmt == null) {
+            String sql = "insert into " + name + " ("
+                + listOfFields + ") values (?";
+            for (int i = 1; i < nColumns; i++) {
+                sql += ",?";
+            }
+            sql += ")";
+            insertStmt = conn.prepareStatement(sql);
+        }
+        bindUpdateVariables(insertStmt, obj, null);
+        insertStmt.executeUpdate();
+        insertStmt.clearParameters();
     }
 
-    /** Insert new record in the table using specified database session.
-     *  Values of inserted record fields
-     *  are taken from specifed object.
-     *
-     * @param obj object specifing values of inserted record fields
-     * @param session user database session
-     */
-    public synchronized void insert(T obj, Session session)
-	throws SQLException
-    {
-	if (session == null) {
-	    session = ((SessionThread)Thread.currentThread()).session;
-	}
-//        try {
-	    checkConnection(session);
-	    if (insertStmt == null) {
-	        String sql = "insert into " + name + " ("
-                           + listOfFields + ") values (?";
-		for (int i = 1; i < nColumns; i++) {
-                     sql += ",?";
-		}
-		sql += ")";
-	        insertStmt = session.connection.prepareStatement(sql);
-   	    }
-	    bindUpdateVariables(insertStmt, obj, null);
-	    insertStmt.executeUpdate();
-	    insertStmt.clearParameters();
-//	} catch(SQLException ex) { session.handleSQLException(ex); }
-    }
-
-    /** Insert several new records in the table. Values of inserted records
-     *  fields are taken from objects of specified array.
+    /**
+     * Insert several new records in the table. Values of inserted records
+     * fields are taken from objects of specified array.
      *
      * @param objects array with objects specifing values of inserted record
      * fields
      */
-    public void insert(T[] objects)
+    public synchronized void insert (Connection conn, T[] objects)
 	throws SQLException
     {
-	insert(objects, session);
+        checkUpdateConnection(conn);
+        if (insertStmt == null) {
+            String sql = "insert into " + name + " ("
+                + listOfFields + ") values (?";
+            for (int i = 1; i < nColumns; i++) {
+                sql += ",?";
+            }
+            sql += ")";
+            insertStmt = conn.prepareStatement(sql);
+        }
+        for (int i = 0; i < objects.length; i++) {
+            bindUpdateVariables(insertStmt, objects[i], null);
+            insertStmt.addBatch();
+        }
+        insertStmt.executeBatch();
+        insertStmt.clearParameters();
     }
 
-    /** Insert several new records in the table. Values of inserted records
-     *  fields are taken from objects of specified array.
-     *
-     * @param objects array with objects specifing values of inserted record
-     *                fields
-     * @param session user database session
-     */
-    public synchronized void insert(T[] objects, Session session)
-	throws SQLException
-    {
-	if (session == null) {
-	    session = ((SessionThread)Thread.currentThread()).session;
-	}
-//        try {
-	    checkConnection(session);
-	    if (insertStmt == null) {
-	        String sql = "insert into " + name + " ("
-                           + listOfFields + ") values (?";
-		for (int i = 1; i < nColumns; i++) {
-                     sql += ",?";
-		}
-		sql += ")";
-	        insertStmt = session.connection.prepareStatement(sql);
-   	    }
-	    for (int i = 0; i < objects.length; i++) {
-  	        bindUpdateVariables(insertStmt, objects[i], null);
-	        insertStmt.addBatch();
-	    }
-	    insertStmt.executeBatch();
-	    insertStmt.clearParameters();
-//	} catch(SQLException ex) { session.handleSQLException(ex); }
-    }
-
-    /** Returns a field mask that can be configured and used to update
-     * subsets of entire objects via calls to {@link
-     * #update(T,FieldMask)}.
+    /**
+     * Returns a field mask that can be configured and used to update subsets
+     * of entire objects via calls to {@link #update(T,FieldMask)}.
      */
     public FieldMask getFieldMask ()
     {
         return (FieldMask)fMask.clone();
     }
 
-    /** Update record in the table using table's primary key to locate
-     *  record in the table and values of fields of specified object <I>obj</I>
-     *  to alter record fields.
+    /**
+     * Update record in the table using table's primary key to locate record in
+     * the table and values of fields of specified object <I>obj</I> to alter
+     * record fields.
      *
      * @param obj object specifing value of primary key and new values of
-     *  updated record fields
+     * updated record fields
      *
      * @return number of objects actually updated
      */
-    public int update(T obj)
+    public int update (Connection conn, T obj)
 	throws SQLException
     {
-	return update(obj, null, session);
+        return update(conn, obj, null);
     }
 
-    /** Update record in the table using table's primary key to locate
-     *  record in the table and values of fields of specified object <I>obj</I>
-     *  to alter record fields. Only the fields marked as modified in the
-     *  supplied field mask will be updated in the database.
+    /**
+     * Update record in the table using table's primary key to locate record in
+     * the table and values of fields of specified object <I>obj</I> to alter
+     * record fields. Only the fields marked as modified in the supplied field
+     * mask will be updated in the database.
      *
      * @param obj object specifing value of primary key and new values of
-     *  updated record fields
-     * @param mask a {@link FieldMask} instance configured to indicate
-     *  which of the object's fields are modified and should be written to
-     *  the database.
+     * updated record fields
+     * @param mask a {@link FieldMask} instance configured to indicate which of
+     * the object's fields are modified and should be written to the database.
      *
      * @return number of objects actually updated
      */
-    public int update(T obj, FieldMask mask)
+    public synchronized int update (Connection conn, T obj, FieldMask mask)
 	throws SQLException
     {
-	return update(obj, mask, session);
-    }
-
-    /** Update record in the table using table's primary key to locate
-     *  record in the table and values of fields of specified object <I>obj</I>
-     *  to alter record fields.
-     *
-     * @param obj object specifing value of primary key and new values of
-     *  updated record fields
-     * @param session user database session
-     *
-     * @return number of objects actually updated
-     */
-    public synchronized int update(T obj, Session session)
-	throws SQLException
-    {
-        return update(obj, null, session);
-    }
-
-    /** Update record in the table using table's primary key to locate
-     *  record in the table and values of fields of specified object <I>obj</I>
-     *  to alter record fields. Only the fields marked as modified in the
-     *  supplied field mask will be updated in the database.
-     *
-     * @param obj object specifing value of primary key and new values of
-     *  updated record fields
-     * @param mask a {@link FieldMask} instance configured to indicate
-     *  which of the object's fields are modified and should be written to
-     *  the database.
-     * @param session user database session
-     *
-     * @return number of objects actually updated
-     */
-    public synchronized int update(T obj, FieldMask mask, Session session)
-	throws SQLException
-    {
-        if (primaryKeys == null) {
-	    throw new NoPrimaryKeyError(this);
-	}
-	if (session == null) {
-	    session = ((SessionThread)Thread.currentThread()).session;
-	}
 	int nUpdated = 0;
-//        try {
-	    checkConnection(session);
-            PreparedStatement ustmt;
-            // if we have a field mask, we need to create a custom update
-            // statement
-            if (mask != null) {
-                String sql = "update " + name + " set " +
-                    buildListOfAssignments(mask)
+        checkUpdateConnection(conn);
+        PreparedStatement ustmt;
+        // if we have a field mask, we need to create a custom update statement
+        if (mask != null) {
+            String sql = "update " + name + " set " +
+                buildListOfAssignments(mask)
+                + buildUpdateWhere();
+            ustmt = conn.prepareStatement(sql);
+        } else {
+            // otherwise we can use our "full-object-update" statement
+            if (updateStmt == null) {
+                String sql = "update " + name + " set " + listOfAssignments
                     + buildUpdateWhere();
-                ustmt = session.connection.prepareStatement(sql);
-             } else {
-                // otherwise we can use our "full-object-update" statement
-                if (updateStmt == null) {
-                    String sql = "update " + name + " set " + listOfAssignments
-                        + buildUpdateWhere();
-                    updateStmt = session.connection.prepareStatement(sql);
-                }
-                ustmt = updateStmt;
+                updateStmt = conn.prepareStatement(sql);
             }
-            // bind the update variables
-	    int column = bindUpdateVariables(ustmt, obj, mask);
-            // bind the keys
-	    for (int i = 0; i < primaryKeys.length; i++) {
-                int fidx = primaryKeyIndices[i];
-		fields[fidx].bindVariable(ustmt, obj, column+i+1);
-	    }
-	    nUpdated = ustmt.executeUpdate();
-	    ustmt.clearParameters();
-//	} catch(SQLException ex) { session.handleSQLException(ex); }
+            ustmt = updateStmt;
+        }
+        // bind the update variables
+        int column = bindUpdateVariables(ustmt, obj, mask);
+        // bind the keys
+        for (int i = 0; i < primaryKeys.length; i++) {
+            int fidx = primaryKeyIndices[i];
+            fields[fidx].bindVariable(ustmt, obj, column+i+1);
+        }
+        nUpdated = ustmt.executeUpdate();
+        ustmt.clearParameters();
 	return nUpdated;
     }
 
-    /** Update set of records in the table using table's primary key to locate
-     *  record in the table and values of fields of objects from sepecifed
-     *  array <I>objects</I>  to alter record fields.
+    /**
+     * Update set of records in the table using table's primary key to locate
+     * record in the table and values of fields of objects from sepecifed array
+     * <I>objects</I> to alter record fields.
      *
      * @param objects array of objects specifing primiray keys and and new
      * values of updated record fields
      *
      * @return number of objects actually updated
      */
-    public int update(T[] objects)
-	throws SQLException
-    {
-	return update(objects, session);
-    }
-
-    /** Update set of records in the table using table's primary key to locate
-     *  record in the table and values of fields of objects from sepecifed
-     *  array <I>objects</I>  to alter record fields.
-     *
-     * @param objects array of objects specifing primiray keys and and new
-     * values of updated record fields
-     * @param session user database session
-     *
-     * @return number of objects actually updated
-     */
-    public synchronized int update(T[] objects, Session session)
+    public synchronized int update (Connection conn, T[] objects)
 	throws SQLException
     {
         if (primaryKeys == null) {
-	    throw new NoPrimaryKeyError(this);
-	}
-	if (session == null) {
-	    session = ((SessionThread)Thread.currentThread()).session;
+	    throw new IllegalStateException(
+                "No primary key for table " + name + ".");
 	}
 	int nUpdated = 0;
-//        try {
-	    checkConnection(session);
-	    if (updateStmt == null) {
-	        String sql = "update " + name + " set " + listOfAssignments
-                    + buildUpdateWhere();
-		updateStmt = session.connection.prepareStatement(sql);
-	    }
-	    for (int i = 0; i < objects.length; i++) {
- 	        int column = bindUpdateVariables(updateStmt, objects[i], null);
-		for (int j = 0; j < primaryKeys.length; j++) {
-                    int fidx = primaryKeyIndices[j];
-		    fields[fidx].bindVariable(
-                        updateStmt, objects[i], column+1+j);
-		}
-	        updateStmt.addBatch();
-	    }
-	    int rc[] = updateStmt.executeBatch();
-	    for (int k = 0; k < rc.length; k++) {
-		nUpdated += rc[k];
-	    }
-	    updateStmt.clearParameters();
-//	} catch(SQLException ex) { session.handleSQLException(ex); }
+        checkUpdateConnection(conn);
+        if (updateStmt == null) {
+            String sql = "update " + name + " set " + listOfAssignments
+                + buildUpdateWhere();
+            updateStmt = conn.prepareStatement(sql);
+        }
+        for (int i = 0; i < objects.length; i++) {
+            int column = bindUpdateVariables(updateStmt, objects[i], null);
+            for (int j = 0; j < primaryKeys.length; j++) {
+                int fidx = primaryKeyIndices[j];
+                fields[fidx].bindVariable(
+                    updateStmt, objects[i], column+1+j);
+            }
+            updateStmt.addBatch();
+        }
+        int rc[] = updateStmt.executeBatch();
+        for (int k = 0; k < rc.length; k++) {
+            nUpdated += rc[k];
+        }
+        updateStmt.clearParameters();
 	return nUpdated;
     }
 
-    /** Delete record with specified value of primary key from the table.
+    /**
+     * Delete record with specified value of primary key from the table.
      *
      * @param obj object containing value of primary key.
-     *
-     * @return number of objects actually deleted
      */
-    public int delete(T obj)
-	throws SQLException
-    {
-	return delete(obj, session);
-    }
-
-    /** Delete record with specified value of primary key from the table.
-     *
-     * @param obj object containing value of primary key.
-     * @param session user database session
-     */
-    public synchronized int delete(T obj, Session session)
+    public synchronized int delete (Connection conn, T obj)
 	throws SQLException
     {
         if (primaryKeys == null) {
-	    throw new NoPrimaryKeyError(this);
-	}
-	if (session == null) {
-	    session = ((SessionThread)Thread.currentThread()).session;
+	    throw new IllegalStateException(
+                "No primary key for table " + name + ".");
 	}
 	int nDeleted = 0;
-//        try {
-	    checkConnection(session);
-	    if (deleteStmt == null) {
-	        String sql = "delete from " + name +
-		    " where " + primaryKeys[0] + " = ?";
-		for (int i = 1; i < primaryKeys.length; i++) {
-		    sql += " and " + primaryKeys[i] + " = ?";
-		}
-		deleteStmt = session.connection.prepareStatement(sql);
-	    }
-	    for (int i = 0; i < primaryKeys.length; i++) {
-		fields[primaryKeyIndices[i]].bindVariable(deleteStmt, obj,i+1);
-	    }
-	    nDeleted = deleteStmt.executeUpdate();
-	    deleteStmt.clearParameters();
-//	} catch(SQLException ex) { session.handleSQLException(ex); }
+        checkUpdateConnection(conn);
+        if (deleteStmt == null) {
+            String sql = "delete from " + name +
+                " where " + primaryKeys[0] + " = ?";
+            for (int i = 1; i < primaryKeys.length; i++) {
+                sql += " and " + primaryKeys[i] + " = ?";
+            }
+            deleteStmt = conn.prepareStatement(sql);
+        }
+        for (int i = 0; i < primaryKeys.length; i++) {
+            fields[primaryKeyIndices[i]].bindVariable(deleteStmt, obj,i+1);
+        }
+        nDeleted = deleteStmt.executeUpdate();
+        deleteStmt.clearParameters();
 	return nDeleted;
     }
 
-    /** Delete records with specified primary keys from the table.
+    /**
+     * Delete records with specified primary keys from the table.
      *
      * @param objects array of objects containing values of primary key.
      *
      * @return number of objects actually deleted
      */
-    public int delete(T[] objects)
-	throws SQLException
-    {
-	return delete(objects, session);
-    }
-
-    /** Delete records with specified primary keys from the table.
-     *
-     * @param objects array of objects containing values of primary key.
-     *
-     * @return number of objects actually deleted
-     */
-    public synchronized int delete(T[] objects, Session session)
+    public synchronized int delete (Connection conn, T[] objects)
 	throws SQLException
     {
         if (primaryKeys == null) {
-	    throw new NoPrimaryKeyError(this);
-	}
-	if (session == null) {
-	    session = ((SessionThread)Thread.currentThread()).session;
+	    throw new IllegalStateException(
+                "No primary key for table " + name + ".");
 	}
 	int nDeleted = 0;
-//        try {
-	    checkConnection(session);
-	    if (deleteStmt == null) {
-	        String sql = "delete from " + name +
-		    " where " + primaryKeys[0] + " = ?";
-		for (int i = 1; i < primaryKeys.length; i++) {
-		    sql += " and " + primaryKeys[i] + " = ?";
-		}
-		deleteStmt = session.connection.prepareStatement(sql);
-	    }
-	    for (int i = 0; i < objects.length; i++) {
-		for (int j = 0; j < primaryKeys.length; j++) {
-		    fields[primaryKeyIndices[j]].bindVariable(deleteStmt,
-							      objects[i], j+1);
-		}
-		deleteStmt.addBatch();
-	    }
-	    int rc[] = deleteStmt.executeBatch();
-	    for (int k = 0; k < rc.length; k++) {
-		nDeleted += rc[k];
-	    }
-	    deleteStmt.clearParameters();
-//	} catch(SQLException ex) { session.handleSQLException(ex); }
+        checkUpdateConnection(conn);
+        if (deleteStmt == null) {
+            String sql = "delete from " + name +
+                " where " + primaryKeys[0] + " = ?";
+            for (int i = 1; i < primaryKeys.length; i++) {
+                sql += " and " + primaryKeys[i] + " = ?";
+            }
+            deleteStmt = conn.prepareStatement(sql);
+        }
+        for (int i = 0; i < objects.length; i++) {
+            for (int j = 0; j < primaryKeys.length; j++) {
+                fields[primaryKeyIndices[j]].bindVariable(
+                    deleteStmt, objects[i], j+1);
+            }
+            deleteStmt.addBatch();
+        }
+        int rc[] = deleteStmt.executeBatch();
+        for (int k = 0; k < rc.length; k++) {
+            nDeleted += rc[k];
+        }
+        deleteStmt.clearParameters();
 	return nDeleted;
     }
 
@@ -599,99 +446,44 @@ public class Table<T>
             ", primaryKeys=" + StringUtil.toString(primaryKeys) + "]";
     }
 
-    /** Spearator of name components of compound field. For example, if Java
-     *  class constains component "location" of Point class, which
-     *  has two components "x" and "y", then database table should
-     *  have columns "location_x" and "location_y" (if '_' is used
-     *  as separator)
+    /**
+     * Spearator of name components of compound field. For example, if Java
+     * class constains component "location" of Point class, which has two
+     * components "x" and "y", then database table should have columns
+     * "location_x" and "location_y" (if '_' is used as separator).
      */
     public static String fieldSeparator = "_";
 
-
-    // --- Implementation -----------------------------------------
-
-//     /** Is table abstract - not present in database.
-//      */
-//     protected boolean isAbstract;
-//     protected Table<?> derived;
-
-    protected String  name;
-    protected String  listOfFields;
-    protected String  qualifiedListOfFields;
-    protected String  listOfAssignments;
-    protected Class<T> cls;
-    protected Session session;
-
-    protected boolean mixedCaseConvert = false;
-
-    private   FieldDescriptor[] fields;
-    private   FieldMask fMask;
-
-    private   int     nFields;  // length of "fields" array
-    private   int     nColumns; // number of atomic fields in "fields" array
-
-    private   String  primaryKeys[];
-    private   int     primaryKeyIndices[];
-
-    protected int     connectionID;
-
-    private PreparedStatement updateStmt;
-    private PreparedStatement deleteStmt;
-    private PreparedStatement insertStmt;
-
-//     private static Table<?>  allTables;
-    private Constructor<T> constructor;
-    private static Method setBypass;
-
-    private static Class serializableClass;
-    private static final Object[] bypassFlag = { new Boolean(true) };
-    private static final Object[] constructorArgs = {};
-
-    static {
-        try {
-	    serializableClass = Class.forName("java.io.Serializable");
-	    Class c = Class.forName("java.lang.reflect.AccessibleObject");
-	    Class[] param = { Boolean.TYPE };
-	    setBypass = c.getMethod("setAccessible", param);
-        } catch(Exception ex) {}
-    }
-
-
-    private final void init(Class<T> clazz, String tableName, Session s,
-			    String[] keys, boolean mixedCaseConvert)
+    protected final void init (Class<T> clazz, String tableName, String[] keys,
+                               boolean mixedCaseConvert)
     {
         name = tableName;
         this.mixedCaseConvert = mixedCaseConvert;
-        cls = clazz;
-// 	isAbstract = tableName == null;
-	session = s;
+        _rowClass = clazz;
 	primaryKeys = keys;
 	listOfFields = "";
 	qualifiedListOfFields = "";
 	listOfAssignments = "";
-	connectionID = 0;
 	ArrayList<FieldDescriptor> fieldsVector =
             new ArrayList<FieldDescriptor>();
-	nFields = buildFieldsList(fieldsVector, cls, "");
+	nFields = buildFieldsList(fieldsVector, _rowClass, "");
 	fields = fieldsVector.toArray(new FieldDescriptor[nFields]);
         fMask = new FieldMask(fields);
 
 	try {
-	    constructor = cls.getDeclaredConstructor(new Class[0]);
+	    constructor = _rowClass.getDeclaredConstructor(new Class[0]);
 	    setBypass.invoke(constructor, bypassFlag);
 	} catch(Exception ex) {}
 
-	if (keys != null) {
-	    if (keys.length == 0) {
-		throw new NoPrimaryKeyError(this);
-	    }
+	if (keys != null && keys.length > 0) {
 	    primaryKeyIndices = new int[keys.length];
 	    for (int j = keys.length; --j >= 0;) {
 		int i = nFields;
 		while (--i >= 0) {
 		    if (fields[i].name.equals(keys[j])) {
 			if (!fields[i].isAtomic()) {
-			    throw new NoPrimaryKeyError(this);
+			    throw new IllegalArgumentException(
+                                "Non-atomic primary key provided");
 			}
 			primaryKeyIndices[j] = i;
 			break;
@@ -703,71 +495,49 @@ public class Table<T>
 		}
 	    }
 	}
-// 	insertIntoTableHierarchy();
     }
 
-//     private final void insertIntoTableHierarchy()
-//     {
-// 	Table<?> t, prev = null;
-// 	Table<?> after = null;
-// 	int nChilds = 0;
-// 	for (t = allTables; t != null; prev = t, t = t.derived) {
-// 	    if (t.cls.isAssignableFrom(cls)) {
-//  	        if (primaryKeys == null && t.primaryKeys != null) {
-// 		    primaryKeys = t.primaryKeys;
-// 		    primaryKeyIndices = t.primaryKeyIndices;
-// 		}
-// 		if (session == null) {
-// 		    session = t.session;
-// 		}
-// 		t.nDerived += 1;
-// 		after = t;
-// 	    } else if (cls.isAssignableFrom(t.cls)) {
-// 		after = prev;
-// 		do {
-// 		    if (cls.isAssignableFrom(t.cls)) {
-// 		        if (primaryKeys != null && t.primaryKeys == null) {
-// 			    t.primaryKeys = primaryKeys;
-// 			    t.primaryKeyIndices = primaryKeyIndices;
-// 			}
-// 			if (t.session == null) {
-// 			    t.session = session;
-// 			}
-// 			nChilds += 1;
-// 		    }
-// 		} while ((t = t.derived) != null);
-// 		break;
-// 	    }
-// 	}
-// 	if (after == null) {
-// 	    derived = allTables;
-// 	    allTables = this;
-// 	} else {
-// 	    derived = after.derived;
-// 	    after.derived = this;
-// 	}
-// 	nDerived = nChilds;
-//     }
-
-    private final void checkConnection(Session s) throws SQLException {
-        if (connectionID != s.connectionID) {
+    /**
+     * Flushes our insert, update and delete statements if the supplied
+     * connection differs from the one used to prepare them.
+     */
+    protected void checkUpdateConnection (Connection conn)
+        throws SQLException
+    {
+        if (_updateConn != conn) {
 	    if (insertStmt != null) {
-	        insertStmt.close();
+	        JDBCUtil.close(insertStmt);
 	        insertStmt = null;
   	    }
 	    if (updateStmt != null) {
-	        updateStmt.close();
+	        JDBCUtil.close(updateStmt);
 	        updateStmt = null;
 	    }
 	    if (deleteStmt != null) {
-	        deleteStmt.close();
+	        JDBCUtil.close(deleteStmt);
 	        deleteStmt = null;
 	    }
-	    connectionID = s.connectionID;
+            _updateConn = conn;
         }
     }
 
-    private final String convertName (String name)
+    /**
+     * Flushes our cached Cursor prepared statements if the supplied connection
+     * differes from the one used to prepare them.
+     */
+    protected void checkReadConnection (Connection conn)
+        throws SQLException
+    {
+        if (_readConn != conn) {
+            for (PreparedStatement pstmt : preparedStmtHash.values()) {
+                JDBCUtil.close(pstmt);
+            }
+            preparedStmtHash.clear();
+            _readConn = conn;
+        }
+    }
+
+    protected final String convertName (String name)
     {
         if (mixedCaseConvert) {
             return StringUtil.unStudlyName(name);
@@ -776,12 +546,12 @@ public class Table<T>
         }
     }
 
-    private final int buildFieldsList(ArrayList<FieldDescriptor> buf, Class cls,
-                                      String prefix)
+    protected final int buildFieldsList (ArrayList<FieldDescriptor> buf,
+                                       Class _rowClass, String prefix)
     {
-	Field[] f = cls.getDeclaredFields();
+	Field[] f = _rowClass.getDeclaredFields();
 
-	Class superclass = cls;
+	Class superclass = _rowClass;
 	while ((superclass = superclass.getSuperclass()) != null) {
 	    Field[] inheritedFields = superclass.getDeclaredFields();
 	    Field[] allFields = new Field[inheritedFields.length + f.length];
@@ -919,7 +689,7 @@ public class Table<T>
 	return obj;
     }
 
-    private final int load (
+    protected final int load (
         Object obj, int i, int end, int column, ResultSet result)
 	throws SQLException
     {
@@ -988,10 +758,10 @@ public class Table<T>
 	return "select " + listOfFields + " from " + name + buf;
     }
 
-    private final int bindUpdateVariables(PreparedStatement pstmt, Object obj,
-					  int i, int end, int column,
-                                          FieldMask mask)
-      throws SQLException
+    protected final int bindUpdateVariables (
+        PreparedStatement pstmt, Object obj, int i, int end, int column,
+        FieldMask mask)
+        throws SQLException
     {
         try {
 	    while (i < end) {
@@ -1029,9 +799,9 @@ public class Table<T>
 	return column;
     }
 
-    private final int bindQueryVariables(PreparedStatement pstmt, Object obj,
-                                         int i, int end, int column,
-                                         FieldMask mask)
+    protected final int bindQueryVariables (
+        PreparedStatement pstmt, Object obj, int i, int end, int column,
+        FieldMask mask)
         throws SQLException
     {
         try {
@@ -1081,8 +851,9 @@ public class Table<T>
 	return column;
     }
 
-    private final void buildQueryList(StringBuffer buf, Object qbe, int i,
-                                      int end, FieldMask mask, boolean like)
+    protected final void buildQueryList (
+        StringBuffer buf, Object qbe, int i, int end, FieldMask mask,
+        boolean like)
     {
 	try {
 	    while (i < end) {
@@ -1136,9 +907,9 @@ public class Table<T>
 	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
     }
 
-    protected final int updateVariables(ResultSet result, Object obj,
-					 int i, int end, int column)
-      throws SQLException
+    protected final int updateVariables (
+        ResultSet result, Object obj, int i, int end, int column)
+        throws SQLException
     {
         try {
 	    while (i < end) {
@@ -1169,6 +940,48 @@ public class Table<T>
 	return column;
     }
 
+    protected String name;
+    protected String listOfFields;
+    protected String qualifiedListOfFields;
+    protected String listOfAssignments;
+    protected Class<T> _rowClass;
+
+    protected boolean mixedCaseConvert = false;
+
+    protected FieldDescriptor[] fields;
+    protected FieldMask fMask;
+
+    protected int nFields;  // length of "fields" array
+    protected int nColumns; // number of atomic fields in "fields" array
+
+    protected String primaryKeys[];
+    protected int primaryKeyIndices[];
+
+    protected Connection _updateConn, _readConn;
+
+    protected PreparedStatement updateStmt;
+    protected PreparedStatement deleteStmt;
+    protected PreparedStatement insertStmt;
+
+    protected Constructor<T> constructor;
+    protected static Method setBypass;
+
+    protected static Class serializableClass;
+    protected static final Object[] bypassFlag = { new Boolean(true) };
+    protected static final Object[] constructorArgs = {};
+
+    protected Hashtable<String,PreparedStatement> preparedStmtHash =
+        new Hashtable<String,PreparedStatement>();
+
     // used to identify byte[] fields
-    private static final byte[] BYTE_PROTO = new byte[0];
+    protected static final byte[] BYTE_PROTO = new byte[0];
+
+    static {
+        try {
+	    serializableClass = Class.forName("java.io.Serializable");
+	    Class c = Class.forName("java.lang.reflect.AccessibleObject");
+	    Class[] param = { Boolean.TYPE };
+	    setBypass = c.getMethod("setAccessible", param);
+        } catch(Exception ex) {}
+    }
 }

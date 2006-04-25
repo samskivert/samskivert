@@ -16,7 +16,7 @@ package com.samskivert.util;
  * more clearly than the previous paragraph of flowery prose:
  *
  * <pre>
- * public void doSomeStuff (ResultListener listener)
+ * public void doSomeStuff (ResultListener<String> listener)
  * {
  *     Runnable run = new Runnable () {
  *         public void run () {
@@ -34,26 +34,17 @@ package com.samskivert.util;
  *
  * @see IntResultListener
  */
-public interface ResultListener
+public interface ResultListener<T>
 {
     /**
      * Called to communicate that the request succeeded and that the
      * result is available.
      */
-    public void requestCompleted (Object result);
+    public void requestCompleted (T result);
 
     /**
      * Called to communicate that the request failed and to provide the
      * reason for failure.
      */
     public void requestFailed (Exception cause);
-
-    /** Useful when you want to allow optional result listeners but don't
-     * want to have to check before calling. */
-    public static final ResultListener NOOP = new ResultListener() {
-        public void requestCompleted (Object result) {
-        }
-        public void requestFailed (Exception cause) {
-        }
-    };
 }

@@ -47,4 +47,12 @@ public interface ResultListener<T>
      * reason for failure.
      */
     public void requestFailed (Exception cause);
+
+    /** @deprecated This cannot be type safe so don't use it. */
+    public ResultListener<Object> NOOP = new ResultListener<Object>() {
+        public void requestCompleted (Object result) {
+        }
+        public void requestFailed (Exception cause) {
+        }
+    };
 }

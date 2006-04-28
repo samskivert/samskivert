@@ -36,6 +36,15 @@ package com.samskivert.util;
  */
 public interface ResultListener<T>
 {
+    /** A result listener that does nothing for cases where that is an
+     * appropriate behavior. */
+    public static class NOOP<T> implements ResultListener<T> {
+        public void requestCompleted (T result) {
+        }
+        public void requestFailed (Exception cause) {
+        }
+    };
+
     /**
      * Called to communicate that the request succeeded and that the
      * result is available.

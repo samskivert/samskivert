@@ -53,6 +53,19 @@ public class MailUtil
     }
 
     /**
+     * @return a normalized form of the specified email address
+     * (everything after the @ sign is lowercased).
+     */
+    public static String normalizeAddress (String address)
+    {
+        // this algorithm is tolerant of bogus input: if address has no
+        // @ symbol it will cope.
+        int afterAt = address.indexOf('@') + 1;
+        return address.substring(0, afterAt) +
+            address.substring(afterAt).toLowerCase();
+    }
+
+    /**
      * Delivers the supplied mail message using the machine's local mail
      * SMTP server which must be listening on port 25.
      *

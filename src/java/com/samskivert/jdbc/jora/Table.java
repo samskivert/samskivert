@@ -213,19 +213,16 @@ public class Table<T>
     public synchronized void insert (Connection conn, T obj)
 	throws SQLException
     {
-        checkUpdateConnection(conn);
-        if (insertStmt == null) {
-            String sql = "insert into " + name + " ("
-                + listOfFields + ") values (?";
-            for (int i = 1; i < nColumns; i++) {
-                sql += ",?";
-            }
-            sql += ")";
-            insertStmt = conn.prepareStatement(sql);
+        String sql = "insert into " + name +
+            " (" + listOfFields + ") values (?";
+        for (int i = 1; i < nColumns; i++) {
+            sql += ",?";
         }
+        sql += ")";
+        PreparedStatement insertStmt = conn.prepareStatement(sql);
         bindUpdateVariables(insertStmt, obj, null);
         insertStmt.executeUpdate();
-        insertStmt.clearParameters();
+        insertStmt.close();
     }
 
     /**
@@ -238,22 +235,19 @@ public class Table<T>
     public synchronized void insert (Connection conn, T[] objects)
 	throws SQLException
     {
-        checkUpdateConnection(conn);
-        if (insertStmt == null) {
-            String sql = "insert into " + name + " ("
-                + listOfFields + ") values (?";
-            for (int i = 1; i < nColumns; i++) {
-                sql += ",?";
-            }
-            sql += ")";
-            insertStmt = conn.prepareStatement(sql);
+        String sql = "insert into " + name +
+            " (" + listOfFields + ") values (?";
+        for (int i = 1; i < nColumns; i++) {
+            sql += ",?";
         }
+        sql += ")";
+        PreparedStatement insertStmt = conn.prepareStatement(sql);
         for (int i = 0; i < objects.length; i++) {
             bindUpdateVariables(insertStmt, objects[i], null);
             insertStmt.addBatch();
         }
         insertStmt.executeBatch();
-        insertStmt.clearParameters();
+        insertStmt.close();
     }
 
     /**
@@ -298,32 +292,17 @@ public class Table<T>
 	throws SQLException
     {
 	int nUpdated = 0;
-        checkUpdateConnection(conn);
-        PreparedStatement ustmt;
-        // if we have a field mask, we need to create a custom update statement
-        if (mask != null) {
-            String sql = "update " + name + " set " +
-                buildListOfAssignments(mask)
-                + buildUpdateWhere();
-            ustmt = conn.prepareStatement(sql);
-        } else {
-            // otherwise we can use our "full-object-update" statement
-            if (updateStmt == null) {
-                String sql = "update " + name + " set " + listOfAssignments
-                    + buildUpdateWhere();
-                updateStmt = conn.prepareStatement(sql);
-            }
-            ustmt = updateStmt;
-        }
-        // bind the update variables
+        String sql = "update " + name + " set " +
+            (mask != null ? buildListOfAssignments(mask) : listOfAssignments) +
+            buildUpdateWhere();
+        PreparedStatement ustmt = conn.prepareStatement(sql);
         int column = bindUpdateVariables(ustmt, obj, mask);
-        // bind the keys
         for (int i = 0; i < primaryKeys.length; i++) {
             int fidx = primaryKeyIndices[i];
             fields[fidx].bindVariable(ustmt, obj, column+i+1);
         }
         nUpdated = ustmt.executeUpdate();
-        ustmt.clearParameters();
+        ustmt.close();
 	return nUpdated;
     }
 
@@ -344,13 +323,11 @@ public class Table<T>
 	    throw new IllegalStateException(
                 "No primary key for table " + name + ".");
 	}
+
 	int nUpdated = 0;
-        checkUpdateConnection(conn);
-        if (updateStmt == null) {
-            String sql = "update " + name + " set " + listOfAssignments
-                + buildUpdateWhere();
-            updateStmt = conn.prepareStatement(sql);
-        }
+        String sql = "update " + name + " set " + listOfAssignments +
+            buildUpdateWhere();
+        PreparedStatement updateStmt = conn.prepareStatement(sql);
         for (int i = 0; i < objects.length; i++) {
             int column = bindUpdateVariables(updateStmt, objects[i], null);
             for (int j = 0; j < primaryKeys.length; j++) {
@@ -364,7 +341,7 @@ public class Table<T>
         for (int k = 0; k < rc.length; k++) {
             nUpdated += rc[k];
         }
-        updateStmt.clearParameters();
+        updateStmt.close();
 	return nUpdated;
     }
 
@@ -381,20 +358,17 @@ public class Table<T>
                 "No primary key for table " + name + ".");
 	}
 	int nDeleted = 0;
-        checkUpdateConnection(conn);
-        if (deleteStmt == null) {
-            String sql = "delete from " + name +
-                " where " + primaryKeys[0] + " = ?";
-            for (int i = 1; i < primaryKeys.length; i++) {
-                sql += " and " + primaryKeys[i] + " = ?";
-            }
-            deleteStmt = conn.prepareStatement(sql);
+        String sql = "delete from " + name +
+            " where " + primaryKeys[0] + " = ?";
+        for (int i = 1; i < primaryKeys.length; i++) {
+            sql += " and " + primaryKeys[i] + " = ?";
         }
+        PreparedStatement deleteStmt = conn.prepareStatement(sql);
         for (int i = 0; i < primaryKeys.length; i++) {
             fields[primaryKeyIndices[i]].bindVariable(deleteStmt, obj,i+1);
         }
         nDeleted = deleteStmt.executeUpdate();
-        deleteStmt.clearParameters();
+        deleteStmt.close();
 	return nDeleted;
     }
 
@@ -413,15 +387,12 @@ public class Table<T>
                 "No primary key for table " + name + ".");
 	}
 	int nDeleted = 0;
-        checkUpdateConnection(conn);
-        if (deleteStmt == null) {
-            String sql = "delete from " + name +
-                " where " + primaryKeys[0] + " = ?";
-            for (int i = 1; i < primaryKeys.length; i++) {
-                sql += " and " + primaryKeys[i] + " = ?";
-            }
-            deleteStmt = conn.prepareStatement(sql);
+        String sql = "delete from " + name +
+            " where " + primaryKeys[0] + " = ?";
+        for (int i = 1; i < primaryKeys.length; i++) {
+            sql += " and " + primaryKeys[i] + " = ?";
         }
+        PreparedStatement deleteStmt = conn.prepareStatement(sql);
         for (int i = 0; i < objects.length; i++) {
             for (int j = 0; j < primaryKeys.length; j++) {
                 fields[primaryKeyIndices[j]].bindVariable(
@@ -433,7 +404,7 @@ public class Table<T>
         for (int k = 0; k < rc.length; k++) {
             nDeleted += rc[k];
         }
-        deleteStmt.clearParameters();
+        deleteStmt.close();
 	return nDeleted;
     }
 
@@ -495,46 +466,6 @@ public class Table<T>
 		}
 	    }
 	}
-    }
-
-    /**
-     * Flushes our insert, update and delete statements if the supplied
-     * connection differs from the one used to prepare them.
-     */
-    protected void checkUpdateConnection (Connection conn)
-        throws SQLException
-    {
-        if (_updateConn != conn) {
-	    if (insertStmt != null) {
-	        JDBCUtil.close(insertStmt);
-	        insertStmt = null;
-  	    }
-	    if (updateStmt != null) {
-	        JDBCUtil.close(updateStmt);
-	        updateStmt = null;
-	    }
-	    if (deleteStmt != null) {
-	        JDBCUtil.close(deleteStmt);
-	        deleteStmt = null;
-	    }
-            _updateConn = conn;
-        }
-    }
-
-    /**
-     * Flushes our cached Cursor prepared statements if the supplied connection
-     * differes from the one used to prepare them.
-     */
-    protected void checkReadConnection (Connection conn)
-        throws SQLException
-    {
-        if (_readConn != conn) {
-            for (PreparedStatement pstmt : preparedStmtHash.values()) {
-                JDBCUtil.close(pstmt);
-            }
-            preparedStmtHash.clear();
-            _readConn = conn;
-        }
     }
 
     protected final String convertName (String name)
@@ -957,21 +888,12 @@ public class Table<T>
     protected String primaryKeys[];
     protected int primaryKeyIndices[];
 
-    protected Connection _updateConn, _readConn;
-
-    protected PreparedStatement updateStmt;
-    protected PreparedStatement deleteStmt;
-    protected PreparedStatement insertStmt;
-
     protected Constructor<T> constructor;
     protected static Method setBypass;
 
     protected static Class serializableClass;
     protected static final Object[] bypassFlag = { new Boolean(true) };
     protected static final Object[] constructorArgs = {};
-
-    protected Hashtable<String,PreparedStatement> preparedStmtHash =
-        new Hashtable<String,PreparedStatement>();
 
     // used to identify byte[] fields
     protected static final byte[] BYTE_PROTO = new byte[0];

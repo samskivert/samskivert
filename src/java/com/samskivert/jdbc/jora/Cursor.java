@@ -55,19 +55,10 @@ public class Cursor<V>
 
         if (_result == null) {
             if (_qbeObject != null) {
-                PreparedStatement qbeStmt;
-                synchronized (_table.preparedStmtHash) {
-                    qbeStmt = _table.preparedStmtHash.get(_query);
-                    if (qbeStmt == null) {
-                        qbeStmt = _conn.prepareStatement(_query);
-                        _table.preparedStmtHash.put(_query, qbeStmt);
-                    }
-                }
-                synchronized (qbeStmt) {
-                    _table.bindQueryVariables(qbeStmt, _qbeObject, _qbeMask);
-                    _result = qbeStmt.executeQuery();
-                    qbeStmt.clearParameters();
-                }
+                PreparedStatement qbeStmt = _conn.prepareStatement(_query);
+                _table.bindQueryVariables(qbeStmt, _qbeObject, _qbeMask);
+                _result = qbeStmt.executeQuery();
+                _stmt = qbeStmt;
             } else {
                 if (_stmt == null) {
                     _stmt = _conn.createStatement();

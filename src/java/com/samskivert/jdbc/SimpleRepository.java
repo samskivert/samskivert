@@ -142,104 +142,111 @@ public class SimpleRepository extends Repository
             Thread.dumpStack();
         }
 
-        try {
-            // obtain our database connection and associated goodies
-            conn = _provider.getConnection(_dbident, readOnly);
-            liaison = LiaisonRegistry.getLiaison(conn);
+        // obtain our database connection and associated goodies
+        conn = _provider.getConnection(_dbident, readOnly);
 
-            // find out if we support transactions
-            DatabaseMetaData dmd = conn.getMetaData();
-            if (dmd != null) {
-                supportsTransactions = dmd.supportsTransactions();
-            }
+        // make sure that no one else performs a database operation using the
+        // same connection until we're done
+        synchronized (conn) {
+            try {
+                liaison = LiaisonRegistry.getLiaison(conn);
 
-            // turn off auto-commit
-            conn.setAutoCommit(false);
+                // find out if we support transactions
+                DatabaseMetaData dmd = conn.getMetaData();
+                if (dmd != null) {
+                    supportsTransactions = dmd.supportsTransactions();
+                }
 
-            // let derived classes do any got-connection processing
-            gotConnection(conn);
+                // turn off auto-commit
+                conn.setAutoCommit(false);
 
-	    // invoke the operation
-            attemptedOperation = true;
-	    rv = op.invoke(conn, liaison);
+                // let derived classes do any got-connection processing
+                gotConnection(conn);
 
-	    // commit the transaction
-            if (supportsTransactions) {
-                conn.commit();
-            }
+                // invoke the operation
+                attemptedOperation = true;
+                rv = op.invoke(conn, liaison);
 
-            // return the operation result
-            return rv;
+                // commit the transaction
+                if (supportsTransactions) {
+                    conn.commit();
+                }
 
-	} catch (SQLException sqe) {
-            if (attemptedOperation) {
-                // back out our changes if something got hosed (but not if
-                // the hosage was a result of losing our connection)
+                // return the operation result
+                return rv;
+
+            } catch (SQLException sqe) {
+                if (attemptedOperation) {
+                    // back out our changes if something got hosed (but not if
+                    // the hosage was a result of losing our connection)
+                    try {
+                        if (supportsTransactions && !conn.isClosed()) {
+                            conn.rollback();
+                        }
+                    } catch (SQLException rbe) {
+                        Log.warning("Unable to roll back operation " +
+                                    "[err=" + sqe + ", rberr=" + rbe + "].");
+                    }
+                }
+
+                if (conn != null) {
+                    // let the provider know that the connection failed
+                    _provider.connectionFailed(_dbident, readOnly, conn, sqe);
+                    // clear out the reference so that we don't release it later
+                    conn = null;
+                }
+
+                if (!retryOnTransientFailure || liaison == null ||
+                    !liaison.isTransientException(sqe)) {
+                    String err = "Operation invocation failed";
+                    throw new PersistenceException(err, sqe);
+                }
+
+                // the MySQL JDBC driver has the annoying habit of including
+                // the embedded exception stack trace in the message of their
+                // outer exception; if I want a fucking stack trace, I'll call
+                // printStackTrace() thanksverymuch
+                String msg = StringUtil.split("" + sqe, "\n")[0];
+                Log.info("Transient failure executing operation, " +
+                         "retrying [error=" + msg + "].");
+
+            } catch (PersistenceException pe) {
+                // back out our changes if something got hosed
                 try {
                     if (supportsTransactions && !conn.isClosed()) {
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
                     Log.warning("Unable to roll back operation " +
-                                "[origerr=" + sqe + ", rberr=" + rbe + "].");
+                                "[origerr=" + pe + ", rberr=" + rbe + "].");
+                }
+                throw pe;
+
+            } catch (RuntimeException rte) {
+                // back out our changes if something got hosed
+                try {
+                    if (supportsTransactions &&
+                        conn != null && !conn.isClosed()) {
+                        conn.rollback();
+                    }
+                } catch (SQLException rbe) {
+                    Log.warning("Unable to roll back operation " +
+                                "[origerr=" + rte + ", rberr=" + rbe + "].");
+                }
+                throw rte;
+
+            } finally {
+                if (conn != null) {
+                    // release the database connection
+                    _provider.releaseConnection(_dbident, readOnly, conn);
                 }
             }
+        }
 
-            if (conn != null) {
-                // let the connection provider know that the connection failed
-                _provider.connectionFailed(_dbident, readOnly, conn, sqe);
-
-                // clear out the reference so that we don't release it later
-                conn = null;
-            }
-
-            // if this is a transient failure and we've been requested to
-            // retry such failures, try one more time
-            if (retryOnTransientFailure &&
-                liaison != null && liaison.isTransientException(sqe)) {
-                // the MySQL JDBC driver has the annoying habit of
-                // including the embedded exception stack trace in the
-                // message of their outer exception; if I want a fucking
-                // stack trace, I'll call printStackTrace() thanksverymuch
-                String msg = StringUtil.split("" + sqe, "\n")[0];
-                Log.info("Transient failure executing operation, " +
-                         "retrying [error=" + msg + "].");
-                return execute(op, false, readOnly);
-            }
-
-            String err = "Operation invocation failed";
-            throw new PersistenceException(err, sqe);
-
-	} catch (PersistenceException pe) {
-	    // back out our changes if something got hosed
-            try {
-                if (supportsTransactions && !conn.isClosed()) {
-                    conn.rollback();
-                }
-            } catch (SQLException rbe) {
-                Log.warning("Unable to roll back operation " +
-                            "[origerr=" + pe + ", rberr=" + rbe + "].");
-            }
-            throw pe;
-
-	} catch (RuntimeException rte) {
-	    // back out our changes if something got hosed
-            try {
-                if (conn != null && supportsTransactions && !conn.isClosed()) {
-                    conn.rollback();
-                }
-            } catch (SQLException rbe) {
-                Log.warning("Unable to roll back operation " +
-                            "[origerr=" + rte + ", rberr=" + rbe + "].");
-            }
-	    throw rte;
-
-        } finally {
-            if (conn != null) {
-                // release the database connection
-                _provider.releaseConnection(_dbident, readOnly, conn);
-            }
-	}
+        // we'll only fall through here if the above code failed due to a
+        // transient exception (the connection was closed for being idle, for
+        // example) and we've been asked to retry; so let's do so
+        return execute(op, false, readOnly);
     }
 
     /**

@@ -202,7 +202,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         String mapkey = ident + ":" + readOnly;
         Mapping conmap = _idents.get(mapkey);
         if (conmap == null) {
-            Log.warning("Unknown connection failed!? [ident=" + ident + "].");
+            Log.warning("Unknown connection failed!? [key=" + mapkey + "].");
             return;
         }
 

@@ -175,6 +175,7 @@ public class ObserverList<T> extends ArrayList<T>
      * list in a manner conforming to the notification ordering policy
      * specified at construct time.
      */
+    @SuppressWarnings("unchecked")
     public void apply (ObserverOp<T> obop)
     {
         if (_policy == SAFE_IN_ORDER_NOTIFY) {
@@ -184,11 +185,11 @@ public class ObserverList<T> extends ArrayList<T>
             // array during notification don't hose us
             int ocount = size();
             if (_snap == null || _snap.length < ocount) {
-                _snap = new Object[ocount];
+                _snap = (T[])new Object[ocount];
             }
             Object[] obs = toArray(_snap);
             for (int ii = 0; ii < ocount; ii++) {
-                if (!checkedApply(obop, (T)_snap[ii])) {
+                if (!checkedApply(obop, _snap[ii])) {
                     remove(_snap[ii]);
                 }
             }
@@ -231,7 +232,7 @@ public class ObserverList<T> extends ArrayList<T>
 
     /** Used to avoid creating a new snapshot array every time we notify
      * our observers if the size has not changed. */
-    protected Object[] _snap;
+    protected T[] _snap;
 
     /** Message reported for unsupported <code>add()</code> variants. */
     protected static final String UNSUPPORTED_ADD_MESSAGE =

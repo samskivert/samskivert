@@ -252,7 +252,7 @@ public class Table<T>
 
     /**
      * Returns a field mask that can be configured and used to update subsets
-     * of entire objects via calls to {@link #update(T,FieldMask)}.
+     * of entire objects via calls to {@link #update(Connection,T,FieldMask)}.
      */
     public FieldMask getFieldMask ()
     {

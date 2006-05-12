@@ -98,8 +98,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     // documentation inherited
     public boolean containsValue (Object o)
     {
-        for (int ii = 0, ll = _buckets.size(); ii < ll; ii++) {
-            for (Record<V> r = _buckets.get(ii); r != null; r = r.next) {
+        for (int ii = 0, ll = _buckets.length; ii < ll; ii++) {
+            for (Record<V> r = _buckets[ii]; r != null; r = r.next) {
                 if (ObjectUtil.equals(r.value, o)) {
                     return true;
                 }
@@ -118,7 +118,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     public V get (int key)
     {
         int index = keyToIndex(key);
-        for (Record<V> rec = _buckets.get(index); rec != null; rec = rec.next) {
+        for (Record<V> rec = _buckets[index]; rec != null; rec = rec.next) {
             if (rec.key == key) {
                 return rec.value;
             }
@@ -139,11 +139,11 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         ensureCapacity(_size + 1);
 
         int index = keyToIndex(key);
-        Record<V> rec = _buckets.get(index);
+        Record<V> rec = _buckets[index];
 
         // either we start a new chain
         if (rec == null) {
-            _buckets.set(index, new Record<V>(key, value));
+            _buckets[index] = new Record<V>(key, value);
             _size++; // we're bigger
             return null;
         }
@@ -190,10 +190,10 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         Record<V> prev = null;
 
         // go through the chain looking for a match
-        for (Record<V> rec = _buckets.get(index); rec != null; rec = rec.next) {
+        for (Record<V> rec = _buckets[index]; rec != null; rec = rec.next) {
             if (rec.key == key) {
                 if (prev == null) {
-                    _buckets.set(index, rec.next);
+                    _buckets[index] = rec.next;
                 } else {
                     prev.next = rec.next;
                 }
@@ -219,8 +219,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     public void clear ()
     {
         // abandon all of our hash chains (the joy of garbage collection)
-        for (int i = 0; i < _buckets.size(); i++) {
-            _buckets.set(i, null);
+        for (int ii = _buckets.length - 1; ii >= 0; ii--) {
+            _buckets[ii] = null;
         }
         // zero out our size
         _size = 0;
@@ -233,11 +233,11 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
      */
     public void ensureCapacity (int minCapacity)
     {
-        int size = _buckets.size();
+        int size = _buckets.length;
         while (minCapacity > (int) (size * _loadFactor)) {
             size *= 2;
         }
-        if (size != _buckets.size()) {
+        if (size != _buckets.length) {
             resizeBuckets(size);
         }
     }
@@ -253,7 +253,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         key ^=  (key >>> 14);
         key +=  (key << 4);
         key ^=  (key >>> 10);
-        return key & (_buckets.size() - 1);
+        return key & (_buckets.length - 1);
     }
 
     /**
@@ -261,9 +261,9 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
      */
     protected void checkShrink ()
     {
-        if ((_buckets.size() > DEFAULT_BUCKETS) &&
-                (_size < (int) (_buckets.size() * _loadFactor * .125))) {
-            resizeBuckets(Math.max(DEFAULT_BUCKETS, _buckets.size() >> 1));
+        if ((_buckets.length > DEFAULT_BUCKETS) &&
+                (_size < (int) (_buckets.length * _loadFactor * .125))) {
+            resizeBuckets(Math.max(DEFAULT_BUCKETS, _buckets.length >> 1));
         }
     }
 
@@ -274,21 +274,21 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
      */
     protected void resizeBuckets (int newsize)
     {
-        ArrayList<Record<V>> oldbuckets = _buckets;
+        Record<V>[] oldbuckets = _buckets;
         _buckets = createBuckets(newsize);
 
         // we shuffle the records around without allocating new ones
-        int index = oldbuckets.size();
+        int index = oldbuckets.length;
         while (index-- > 0) {
-            Record<V> oldrec = oldbuckets.get(index);
+            Record<V> oldrec = oldbuckets[index];
             while (oldrec != null) {
                 Record<V> newrec = oldrec;
                 oldrec = oldrec.next;
 
                 // always put the newrec at the start of a chain
                 int newdex = keyToIndex(newrec.key);
-                newrec.next = _buckets.get(newdex);
-                _buckets.set(newdex, newrec);
+                newrec.next = _buckets[newdex];
+                _buckets[newdex] = newrec;
             }
         }
     }
@@ -331,7 +331,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             // search backward through the buckets looking for the next
             // non-empty hash chain
             while (_index-- > 0) {
-                if ((_record = _buckets.get(_index)) != null) {
+                if ((_record = _buckets[_index]) != null) {
                     return true;
                 }
             }
@@ -346,7 +346,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             // non-empty hash chain
             if (_record == null) {
                 while ((_index-- > 0) &&
-                       ((_record = _buckets.get(_index)) == null));
+                       ((_record = _buckets[_index]) == null));
             }
 
             // keep track of the last thing we returned
@@ -373,7 +373,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             _last = null;
         }
 
-        protected int _index = _buckets.size();
+        protected int _index = _buckets.length;
         protected Record<V> _record, _last;
     }
 
@@ -489,7 +489,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     // documentation inherited from interface cloneable
     public Object clone ()
     {
-        HashIntMap<V> copy = new HashIntMap<V>(_buckets.size(), _loadFactor);
+        HashIntMap<V> copy = new HashIntMap<V>(_buckets.length, _loadFactor);
         for (IntEntry<V> entry : intEntrySet()) {
             copy.put(entry.getIntKey(), entry.getValue());
         }
@@ -503,7 +503,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         throws IOException
     {
         // write out number of buckets
-        s.writeInt(_buckets.size());
+        s.writeInt(_buckets.length);
         s.writeFloat(_loadFactor);
 
         // write out size (number of mappings)
@@ -533,18 +533,16 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         // read the keys and values
         for (int i=0; i<size; i++) {
             int key = s.readInt();
+            @SuppressWarnings(value={"unchecked"})
             V value = (V)s.readObject();
             put(key, value);
         }
     }
 
-    protected ArrayList<Record<V>> createBuckets (int size)
+    @SuppressWarnings(value={"unchecked"})
+    protected Record<V>[] createBuckets (int size)
     {
-        ArrayList<Record<V>> buckets = new ArrayList<Record<V>>(size);
-        for (int ii = 0; ii < size; ii++) {
-            buckets.add(null);
-        }
-        return buckets;
+        return (Record<V>[]) new Record[size];
     }
 
     protected static class Record<V> implements Entry<Integer,V>, IntEntry<V>
@@ -583,8 +581,12 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
 
         public boolean equals (Object o)
         {
-            Record<V> or = (Record<V>)o;
-            return (key == or.key) && ObjectUtil.equals(value, or.value);
+            if (!(o instanceof IntEntry)) {
+                return false;
+            }
+            IntEntry that = (IntEntry)o;
+            return (this.key == that.getIntKey()) &&
+                ObjectUtil.equals(this.value, that.getValue());
         }
 
         public int hashCode ()
@@ -598,7 +600,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         }
     }
 
-    protected ArrayList<Record<V>> _buckets;
+    protected Record<V>[] _buckets;
     protected int _size;
     protected float _loadFactor;
 

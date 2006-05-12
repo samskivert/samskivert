@@ -124,7 +124,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         }
     }
 
-    // documentation inherited
+    @SuppressWarnings("unchecked") // documentation inherited
     public Set<Map.Entry<K, int[]>> entrySet ()
     {
         // a giant mess of hoop-jumpery so that we can convert each Map.Entry
@@ -191,6 +191,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
 
         public Iterator<Entry<K>> iterator ()
         {
+            @SuppressWarnings("unchecked")
             final Iterator<Map.Entry<K, int[]>> itr = _superset.iterator();
             return new Iterator<Entry<K>>() {
                 public boolean hasNext ()
@@ -198,6 +199,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
                     return itr.hasNext();
                 }
 
+                @SuppressWarnings("unchecked")
                 public Entry<K> next ()
                 {
                     return new CountEntryImpl(itr.next());

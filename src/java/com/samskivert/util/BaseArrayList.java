@@ -63,7 +63,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
         return toArray(new Object[_size]);
     }
 
-    // documentation inherited from interface
+    @SuppressWarnings("unchecked") // documentation inherited from interface
     public <T> T[] toArray (T[] target)
     {
         // create the target array if necessary
@@ -87,7 +87,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
         _size = 0;
     }
 
-    // documentation inherited from interface
+    @SuppressWarnings("unchecked") // documentation inherited from interface
     public boolean add (T o)
     {
         _elements = (T[])ListUtil.add(_elements, _size, o);
@@ -121,7 +121,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
         return old;
     }
 
-    // documentation inherited from interface
+    @SuppressWarnings("unchecked") // documentation inherited from interface
     public void add (int index, T element)
     {
         rangeCheck(index, true);
@@ -129,7 +129,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
         _size++;
     }
 
-    // documentation inherited from interface
+    @SuppressWarnings("unchecked") // documentation inherited from interface
     public T remove (int index)
     {
         rangeCheck(index, false);
@@ -162,13 +162,13 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
         }
     }
 
-    // documentation inherited
+    @SuppressWarnings("unchecked") // documentation inherited
     public Object clone ()
     {
         try {
-            BaseArrayList<T> dup = (BaseArrayList<T>) super.clone();
+            BaseArrayList<T> dup = (BaseArrayList<T>)super.clone();
             if (_elements != null) {
-                dup._elements = (T[]) _elements.clone();
+                dup._elements = (T[])_elements.clone();
             }
             return dup;
 

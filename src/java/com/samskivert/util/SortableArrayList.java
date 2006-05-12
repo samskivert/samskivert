@@ -54,6 +54,7 @@ public class SortableArrayList<T> extends BaseArrayList<T>
      *
      * @return the index at which the element was inserted.
      */
+    @SuppressWarnings("unchecked")
     public int insertSorted (T value, Comparator<T> comp)
     {
         int ipos = binarySearch(value, comp);

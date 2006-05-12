@@ -20,6 +20,7 @@
 
 package com.samskivert.jdbc.jora;
 
+import java.io.Serializable;
 import java.util.*;
 import java.sql.*;
 import java.lang.reflect.*;
@@ -505,7 +506,7 @@ public class Table<T>
 	    if ((f[i].getModifiers()&(Modifier.TRANSIENT|Modifier.STATIC))==0)
 	    {
 		String name = f[i].getName();
-		Class fieldClass = f[i].getType();
+		Class<?> fieldClass = f[i].getType();
 		String fullName = prefix + convertName(name);
 		FieldDescriptor fd = new FieldDescriptor(f[i], fullName);
 		int type;
@@ -891,7 +892,7 @@ public class Table<T>
     protected Constructor<T> constructor;
     protected static Method setBypass;
 
-    protected static Class serializableClass;
+    protected static Class<Serializable> serializableClass;
     protected static final Object[] bypassFlag = { new Boolean(true) };
     protected static final Object[] constructorArgs = {};
 
@@ -900,7 +901,7 @@ public class Table<T>
 
     static {
         try {
-	    serializableClass = Class.forName("java.io.Serializable");
+	    serializableClass = Serializable.class;
 	    Class c = Class.forName("java.lang.reflect.AccessibleObject");
 	    Class[] param = { Boolean.TYPE };
 	    setBypass = c.getMethod("setAccessible", param);

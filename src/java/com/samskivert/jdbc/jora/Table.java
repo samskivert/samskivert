@@ -893,7 +893,7 @@ public class Table<T>
     protected static Method setBypass;
 
     protected static Class<Serializable> serializableClass;
-    protected static final Object[] bypassFlag = { new Boolean(true) };
+    protected static final Object[] bypassFlag = { Boolean.TRUE };
     protected static final Object[] constructorArgs = {};
 
     // used to identify byte[] fields

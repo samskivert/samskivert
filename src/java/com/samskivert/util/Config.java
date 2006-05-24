@@ -203,11 +203,12 @@ public class Config
         Integer oldValue = null;
         if (_prefs.get(name, null) != null ||
             _props.getProperty(name) != null) {
-            oldValue = new Integer(_prefs.getInt(name, getDefValue(name, 0)));
+            oldValue = Integer.valueOf(
+                _prefs.getInt(name, getDefValue(name, 0)));
         }
 
         _prefs.putInt(name, value);
-        _propsup.firePropertyChange(name, oldValue, new Integer(value));
+        _propsup.firePropertyChange(name, oldValue, Integer.valueOf(value));
     }
 
     /**
@@ -255,11 +256,12 @@ public class Config
         Long oldValue = null;
         if (_prefs.get(name, null) != null ||
             _props.getProperty(name) != null) {
-            oldValue = new Long(_prefs.getLong(name, getDefValue(name, 0L)));
+            oldValue = Long.valueOf(
+                _prefs.getLong(name, getDefValue(name, 0L)));
         }
 
         _prefs.putLong(name, value);
-        _propsup.firePropertyChange(name, oldValue, new Long(value));
+        _propsup.firePropertyChange(name, oldValue, Long.valueOf(value));
     }
 
     /**
@@ -307,11 +309,12 @@ public class Config
         Float oldValue = null;
         if (_prefs.get(name, null) != null ||
             _props.getProperty(name) != null) {
-            oldValue = new Float(_prefs.getFloat(name, getDefValue(name, 0f)));
+            oldValue = Float.valueOf(
+                _prefs.getFloat(name, getDefValue(name, 0f)));
         }
 
         _prefs.putFloat(name, value);
-        _propsup.firePropertyChange(name, oldValue, new Float(value));
+        _propsup.firePropertyChange(name, oldValue, Float.valueOf(value));
     }
 
     /**
@@ -388,12 +391,12 @@ public class Config
         Boolean oldValue = null;
         if (_prefs.get(name, null) != null ||
             _props.getProperty(name) != null) {
-            oldValue = new Boolean(
+            oldValue = Boolean.valueOf(
                 _prefs.getBoolean(name, getDefValue(name, false)));
         }
 
         _prefs.putBoolean(name, value);
-        _propsup.firePropertyChange(name, oldValue, new Boolean(value));
+        _propsup.firePropertyChange(name, oldValue, Boolean.valueOf(value));
     }
 
     /**

@@ -46,14 +46,12 @@ public class ExpiringReference<T>
      */
     public T getValue ()
     {
-        if (_value == null) {
-            return null;
-        } else if (System.currentTimeMillis() >= _expires) {
+        // if the value is still around and it's expired, clear it
+        if (_value != null && System.currentTimeMillis() >= _expires) {
             _value = null;
-            return null;
-        } else {
-            return _value;
         }
+        // then return the value (which may be cleared to null by now)
+        return _value;
     }
 
     protected T _value;

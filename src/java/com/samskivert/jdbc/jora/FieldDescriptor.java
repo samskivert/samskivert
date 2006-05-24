@@ -311,32 +311,32 @@ class FieldDescriptor
 
         case tByte:
 	    byte b = result.getByte(column);
-	    field.set(obj, result.wasNull() ? null : new Byte(b));
+	    field.set(obj, result.wasNull() ? null : Byte.valueOf(b));
 	    break;
         case tShort:
 	    short s = result.getShort(column);
-	    field.set(obj, result.wasNull() ? null : new Short(s));
+	    field.set(obj, result.wasNull() ? null : Short.valueOf(s));
 	    break;
         case tInteger:
 	    int i = result.getInt(column);
-	    field.set(obj, result.wasNull() ? null : new Integer(i));
+	    field.set(obj, result.wasNull() ? null : Integer.valueOf(i));
 	    break;
         case tLong:
 	    long l = result.getLong(column);
-	    field.set(obj, result.wasNull() ? null : new Long(l));
+	    field.set(obj, result.wasNull() ? null : Long.valueOf(l));
 	    break;
         case tFloat:
 	    float f = result.getFloat(column);
-	    field.set(obj, result.wasNull() ? null : new Float(f));
+	    field.set(obj, result.wasNull() ? null : Float.valueOf(f));
 	    field.setFloat(obj, result.getFloat(column));
 	    break;
         case tDouble:
 	    double d = result.getDouble(column);
-	    field.set(obj, result.wasNull() ? null : new Double(d));
+	    field.set(obj, result.wasNull() ? null : Double.valueOf(d));
 	    break;
         case tBoolean:
 	    boolean bl = result.getBoolean(column);
-	    field.set(obj, result.wasNull() ? null : new Boolean(bl));
+	    field.set(obj, result.wasNull() ? null : Boolean.valueOf(bl));
 	    break;
 
         case tDecimal:

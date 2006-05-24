@@ -288,7 +288,7 @@ public class DispatcherServlet extends VelocityServlet
             siteId = ident.identifySite(req);
         }
         if (_usingSiteLoading) {
-            ctx.put("__siteid__", new Integer(siteId));
+            ctx.put("__siteid__", Integer.valueOf(siteId));
         }
 
         // put the context path in the context as well to make it easier to

@@ -85,7 +85,7 @@ public class InvocationContext extends VelocityContext
      */
     public void put (String key, int value)
     {
-        put(key, new Integer(value));
+        put(key, Integer.valueOf(value));
     }
 
     /**
@@ -93,7 +93,7 @@ public class InvocationContext extends VelocityContext
      */
     public void put (String key, boolean value)
     {
-        put(key, new Boolean(value));
+        put(key, Boolean.valueOf(value));
     }
 
     /**

@@ -82,7 +82,7 @@ public class MenuUtil
     public static JMenuItem addMenuItem (
         ActionListener l, JMenu menu, String name, int mnem, KeyStroke accel)
     {
-        return addMenuItem(l, menu, name, new Integer(mnem), accel);
+        return addMenuItem(l, menu, name, Integer.valueOf(mnem), accel);
     }
 
     /**
@@ -99,7 +99,7 @@ public class MenuUtil
     public static JMenuItem addMenuItem (
         ActionListener l, JMenu menu, String name, int mnem)
     {
-        return addMenuItem(l, menu, name, new Integer(mnem), null);
+        return addMenuItem(l, menu, name, Integer.valueOf(mnem), null);
     }
 
     /**
@@ -138,7 +138,7 @@ public class MenuUtil
         JMenu menu, String name, int mnem, KeyStroke accel,
         Object target, String callbackName)
     {
-	JMenuItem item = createItem(name, new Integer(mnem), accel);
+	JMenuItem item = createItem(name, Integer.valueOf(mnem), accel);
 	item.addActionListener(new ReflectedAction(target, callbackName));
         menu.add(item);
         return item;

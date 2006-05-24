@@ -1424,22 +1424,22 @@ public class StringUtil
     protected static final HashIntMap<Integer> _letterToBits =
         new HashIntMap<Integer>();
     static {
-        _letterToBits.put('e', new Integer(0));
-        _letterToBits.put('t', new Integer(1));
-        _letterToBits.put('a', new Integer(2));
-        _letterToBits.put('o', new Integer(3));
-        _letterToBits.put('i', new Integer(4));
-        _letterToBits.put('n', new Integer(5));
-        _letterToBits.put('s', new Integer(6));
-        _letterToBits.put('r', new Integer(7));
-        _letterToBits.put('h', new Integer(8));
-        _letterToBits.put('l', new Integer(9));
-        _letterToBits.put('d', new Integer(10));
-        _letterToBits.put('c', new Integer(11));
-        _letterToBits.put('u', new Integer(12));
-        _letterToBits.put('m', new Integer(13));
-        _letterToBits.put('f', new Integer(14));
-        _letterToBits.put('p', new Integer(15));
+        _letterToBits.put('e', Integer.valueOf(0));
+        _letterToBits.put('t', Integer.valueOf(1));
+        _letterToBits.put('a', Integer.valueOf(2));
+        _letterToBits.put('o', Integer.valueOf(3));
+        _letterToBits.put('i', Integer.valueOf(4));
+        _letterToBits.put('n', Integer.valueOf(5));
+        _letterToBits.put('s', Integer.valueOf(6));
+        _letterToBits.put('r', Integer.valueOf(7));
+        _letterToBits.put('h', Integer.valueOf(8));
+        _letterToBits.put('l', Integer.valueOf(9));
+        _letterToBits.put('d', Integer.valueOf(10));
+        _letterToBits.put('c', Integer.valueOf(11));
+        _letterToBits.put('u', Integer.valueOf(12));
+        _letterToBits.put('m', Integer.valueOf(13));
+        _letterToBits.put('f', Integer.valueOf(14));
+        _letterToBits.put('p', Integer.valueOf(15));
         // sorry g, w, y, b, v, k, x, j, q, z
     }
 }

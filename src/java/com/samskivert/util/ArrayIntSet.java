@@ -113,7 +113,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
             }
 
             public Integer next () {
-                return new Integer(nextInt());
+                return Integer.valueOf(nextInt());
             }
 
             public void remove () {
@@ -148,7 +148,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
     public Integer[] toArray (Integer[] a)
     {
         for (int i = 0; i < _size; i++) {
-            a[i] = new Integer(_values[i]);
+            a[i] = Integer.valueOf(_values[i]);
         }
         return a;
     }

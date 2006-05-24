@@ -559,7 +559,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
 
         public Integer getKey ()
         {
-            return new Integer(key);
+            return Integer.valueOf(key);
         }
 
         public int getIntKey ()

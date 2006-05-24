@@ -330,7 +330,7 @@ public class IntIntMap
 	}
 
         public Integer getKey () {
-            return new Integer(key);
+            return Integer.valueOf(key);
         }
 
         public int getIntKey () {
@@ -338,7 +338,7 @@ public class IntIntMap
         }
 
         public Integer getValue () {
-            return new Integer(value);
+            return Integer.valueOf(value);
         }
 
         public int getIntValue () {
@@ -346,7 +346,7 @@ public class IntIntMap
         }
 
         public Integer setValue (Integer v) {
-            return new Integer(setIntValue(v.intValue()));
+            return Integer.valueOf(setIntValue(v.intValue()));
         }
 
         public int setIntValue (int v) {
@@ -462,7 +462,7 @@ public class IntIntMap
 
         public Integer next ()
         {
-            return new Integer(nextInt());
+            return Integer.valueOf(nextInt());
         }
 
         public void remove ()

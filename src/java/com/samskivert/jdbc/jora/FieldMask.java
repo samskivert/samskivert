@@ -56,7 +56,7 @@ public class FieldMask
         _descripMap = new HashMap<String,Integer>();
         int dcount = descrips.length;
         for (int i = 0; i < dcount; i++) {
-            _descripMap.put(descrips[i].field.getName(), new Integer(i));
+            _descripMap.put(descrips[i].field.getName(), Integer.valueOf(i));
         }
         // create our modified flags
         _modified = new boolean[dcount];

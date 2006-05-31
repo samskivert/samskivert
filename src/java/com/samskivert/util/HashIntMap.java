@@ -533,16 +533,16 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         // read the keys and values
         for (int i=0; i<size; i++) {
             int key = s.readInt();
-            @SuppressWarnings(value={"unchecked"})
-            V value = (V)s.readObject();
+            @SuppressWarnings("unchecked") V value = (V)s.readObject();
             put(key, value);
         }
     }
 
-    @SuppressWarnings(value={"unchecked"})
     protected Record<V>[] createBuckets (int size)
     {
-        return (Record<V>[]) new Record[size];
+        @SuppressWarnings("unchecked") Record<V>[] recs =
+            (Record<V>[]) new Record[size];
+        return recs;
     }
 
     protected static class Record<V> implements Entry<Integer,V>, IntEntry<V>

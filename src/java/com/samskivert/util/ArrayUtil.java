@@ -325,7 +325,7 @@ public class ArrayUtil
     {
 	int low = offset, high = offset+length-1;
 	while (low <= high) {
-	    int mid = (low + high) >> 1;
+	    int mid = (low + high) >>> 1;
 	    T midVal = array[mid];
 	    int cmp = midVal.compareTo(key);
 	    if (cmp < 0) {
@@ -361,7 +361,7 @@ public class ArrayUtil
     {
 	int low = offset, high = offset+length-1;
 	while (low <= high) {
-	    int mid = (low + high) >> 1;
+	    int mid = (low + high) >>> 1;
 	    T midVal = array[mid];
 	    int cmp = comp.compare(midVal, key);
 	    if (cmp < 0) {

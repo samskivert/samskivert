@@ -240,7 +240,7 @@ public class ProximityTracker
 	int high = _size-1;
 
 	while (low <= high) {
-	    int mid = (low + high) >> 1;
+	    int mid = (low + high) >>> 1;
 	    int cmp = (_records[mid].x - x);
 
 	    if (cmp < 0) {

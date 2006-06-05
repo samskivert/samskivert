@@ -96,7 +96,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        T mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0) >>> 1];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -164,7 +164,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        T mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0) >>> 1];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -230,7 +230,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        T mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0) >>> 1];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -296,7 +296,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        T mid = a[(lo0 + hi0)/2];
+        T mid = a[(lo0 + hi0) >>> 1];
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;
@@ -421,7 +421,7 @@ public class QuickSort
         }
 
         // the middle element in the array is our partitioning element
-        T mid = a.get((lo0 + hi0)/2);
+        T mid = a.get((lo0 + hi0) >>> 1);
 
         // set up our partitioning boundaries
         int lo = lo0-1, hi = hi0+1;

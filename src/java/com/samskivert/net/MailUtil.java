@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -110,24 +110,14 @@ public class MailUtil
         }
 
         try {
-            Properties props = System.getProperties();
-            if (props.getProperty("mail.smtp.host") == null) {
-                props.put("mail.smtp.host", "localhost");
-            }
-            Session session = Session.getDefaultInstance(props, null);
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(sender));
-            for (int ii = 0; ii < recipients.length; ii++) {
-                message.addRecipient(Message.RecipientType.TO,
-                                     new InternetAddress(recipients[ii]));
-            }
+            MimeMessage message = createEmptyMessage();
             int hcount = (headers == null) ? 0 : headers.length;
             for (int ii = 0; ii < hcount; ii++) {
                 message.addHeader(headers[ii], values[ii]);
             }
-            message.setSubject(subject);
             message.setText(body);
-            Transport.send(message);
+            deliverMail(recipients, sender, subject, message);
+
         } catch (Exception e) {
             String errmsg = "Failure sending mail [from=" + sender +
                 ", to=" + StringUtil.toString(recipients) +
@@ -137,7 +127,46 @@ public class MailUtil
             throw ioe;
         }
     }
-        
+
+    /**
+     * Delivers an already-formed message to the specified recipients.  This
+     *  message can be any mime type including multipart.
+     */
+    public static void deliverMail (String[] recipients, String sender,
+                                    String subject, MimeMessage message)
+        throws IOException
+    {
+        try {
+            message.setFrom(new InternetAddress(sender));
+            for (int ii = 0; ii < recipients.length; ii++) {
+                message.addRecipient(Message.RecipientType.TO,
+                                     new InternetAddress(recipients[ii]));
+            }
+            message.setSubject(subject);
+            Transport.send(message);
+
+        } catch (Exception e) {
+            String errmsg = "Failure sending mail [from=" + sender +
+                ", to=" + StringUtil.toString(recipients) +
+                ", subject=" + subject + "]";
+            IOException ioe = new IOException(errmsg);
+            ioe.initCause(e);
+            throw ioe;
+        }
+    }
+
+    /**
+     * Returns an initialized, but empty message.
+     */
+    public static final MimeMessage createEmptyMessage ()
+    {
+        Properties props = System.getProperties();
+        if (props.getProperty("mail.smtp.host") == null) {
+            props.put("mail.smtp.host", "localhost");
+        }
+        return new MimeMessage(Session.getDefaultInstance(props, null));
+    }
+
     /** Originally formulated by lambert@nas.nasa.gov. */
     protected static final String EMAIL_REGEX = "^([-A-Za-z0-9_.!%+]+@" +
         "[-a-zA-Z0-9]+(\\.[-a-zA-Z0-9]+)*\\.[-a-zA-Z0-9]+)$";

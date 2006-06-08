@@ -22,6 +22,8 @@ package com.samskivert.jdbc;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,6 +41,17 @@ import com.samskivert.util.StringUtil;
  */
 public class JDBCUtil
 {
+    /** Used for {@link #batchQuery}. */
+    public interface BatchProcessor
+    {
+        /**
+         * Called for each row returned during our batch query. Do not advance
+         * the result set, simply query its values with the get methods.
+         */
+        public void process (ResultSet row)
+            throws SQLException;
+    };
+
     /**
      * Closes the supplied JDBC statement and gracefully handles being
      * passed null (by doing nothing).
@@ -114,6 +127,63 @@ public class JDBCUtil
             Log.warning("Statement did not modify expected number of rows " +
                         "[stmt=" + stmt + ", expected=" + expectedCount +
                         ", modified=" + modified + "]");
+        }
+    }
+
+    /**
+     * Issues a query with a potentially large number of keys in batches.
+     * For example, you might have 10,000 ids that you wish to use in an "in"
+     * clause, but don't trust the database to be smart about optimizing that
+     * many keys, so instead you use batchQuery like so:
+     * <pre>
+     *    Collection<Integer> keys = ...;
+     *    String query = "select NAME from USERS where USER_ID in (#KEYS)";
+     *    JDBCUtil.BatchProcessor proc = new JDBCUtil.BatchProcessor() {
+     *        public void process (ResultSet row) {
+     *            String name = rs.getString(1);
+     *            // do whatever with name
+     *        }
+     *    };
+     *    JDBCUtil.batchQuery(conn, query, keys, false, 500, proc);
+     * </pre>
+     *
+     * @param query the SQL query to run for each batch with the string
+     * <code>#KEYS#</code> in the place where the batch of keys should be
+     * substituted.
+     * @param escapeKeys if true, {@link #escape} will be called on each key to
+     * escape any dangerous characters and wrap the key in quotes.
+     * @param batchSize the number of keys at a time to substitute in for
+     * <code>#KEYS#</code>.
+     */
+    public static void batchQuery (
+        Connection conn, String query, Collection<?> keys,
+        boolean escapeKeys, int batchSize, BatchProcessor processor)
+        throws SQLException
+    {
+        Statement stmt = conn.createStatement();
+        try {
+            Iterator<?> itr = keys.iterator();
+            while (itr.hasNext()) {
+                // group one batch of keys together
+                StringBuilder buf = new StringBuilder();
+                for (int ii = 0; ii < batchSize && itr.hasNext(); ii++) {
+                    if (ii > 0) {
+                        buf.append(",");
+                    }
+                    String key = String.valueOf(itr.next());
+                    buf.append(escapeKeys ? escape(key) : key);
+                }
+
+                // issue the query with that batch
+                String squery = query.replace("#KEYS#", buf.toString());
+                ResultSet rs = stmt.executeQuery(squery);
+                while (rs.next()) {
+                    processor.process(rs);
+                }
+            }
+
+        } finally {
+            close(stmt);
         }
     }
 

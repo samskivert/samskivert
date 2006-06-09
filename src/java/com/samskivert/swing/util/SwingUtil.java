@@ -39,6 +39,7 @@ import java.awt.Transparency;
 import java.awt.Window;
 
 import java.awt.geom.Area;
+import java.awt.geom.Point2D;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -209,27 +210,21 @@ public class SwingUtil
      * Create a comparator that compares against the distance from 
      * the specified point.
      *
+     * Note: The comparator will continue to sort by distance from the origin
+     * point, even if the origin point's coordinates are modified after
+     * the comparator is created.
+     *
      * Used by positionRect().
      */
-    public static Comparator<Point> createPointComparator (Point origin)
+    public static <P extends Point2D> Comparator<P> createPointComparator (
+            final P origin)
     {
-        final int xo = origin.x;
-        final int yo = origin.y;
-
-        return new Comparator<Point>() {
-            public int compare (Point p1, Point p2)
+        return new Comparator<P>() {
+            public int compare (P p1, P p2)
             {
-                int x1 = xo - p1.x;
-                int y1 = yo - p1.y;
-                int x2 = xo - p2.x;
-                int y2 = yo - p2.y;
-
-                // since we are dealing with positive integers, we can
-                // omit the Math.sqrt() step for optimization
-                int dist1 = (x1 * x1) + (y1 * y1);
-                int dist2 = (x2 * x2) + (y2 * y2);
-
-                return dist1 - dist2;
+                double dist1 = origin.distance(p1);
+                double dist2 = origin.distance(p2);
+                return (dist1 > dist2) ? 1 : ((dist1 < dist2) ? -1 : 0);
             }
         };
     }

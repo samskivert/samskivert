@@ -16,14 +16,14 @@ public class Collections
 {
     /**
      * Returns an Iterator that iterates over all the elements contained within
-     * the Iterators within the specified Collection.
+     * the Iterators within the specified Iterable.
      *
-     * @param metaCollection a collection of Iterators.
+     * @param metaIterable an iterable of Iterators.
      */
     public static <T> Iterator<T> getMetaIterator (
-        Collection<Iterator<T>> metaCollection)
+        Iterable<Iterator<T>> metaIterable)
     {
-        return new MetaIterator<T>(metaCollection);
+        return new MetaIterator<T>(metaIterable);
     }
 
     /**
@@ -31,7 +31,7 @@ public class Collections
      * elements in their natural order.
      */
     public static <T extends Comparable<? super T>>
-        Iterator<T> getSortedIterator (Collection<T> coll)  
+        Iterator<T> getSortedIterator (Iterable<T> coll)  
     {
         return getSortedIterator(coll.iterator(), new Comparator<T>() {
             public int compare (T o1, T o2) {
@@ -52,7 +52,7 @@ public class Collections
      * elements in the order dictated by the supplied Comparator.
      */
     public static <T> Iterator<T> getSortedIterator (
-        Collection<T> coll, Comparator<T> comparator)
+        Iterable<T> coll, Comparator<T> comparator)
     {
         return getSortedIterator(coll.iterator(), comparator);
     }
@@ -93,13 +93,13 @@ public class Collections
     }
 
     /**
-     * Get an Iterator over the supplied Collection that returns
+     * Get an Iterator over the supplied Iterable that returns
      * the elements in a completely random order. Normally Iterators
      * return elements in an undefined order, but it is usually the same
-     * between different invocations as long as the underlying Collection
+     * between different invocations as long as the underlying Iterable
      * has not changed. This method mixes things up.
      */
-    public static <T> Iterator<T> getRandomIterator (Collection<T> c)
+    public static <T> Iterator<T> getRandomIterator (Iterable<T> c)
     {
         return getRandomIterator(c.iterator());
     }
@@ -118,9 +118,9 @@ public class Collections
 
     /**
      * Get an Iterator that returns the elements in the supplied
-     * Collection but blocks removal.
+     * Iterable but blocks removal.
      */
-    public static <T> Iterator<T> getUnmodifiableIterator (Collection<T> c)
+    public static <T> Iterator<T> getUnmodifiableIterator (Iterable<T> c)
     {
         return getUnmodifiableIterator(c.iterator());
     }
@@ -479,12 +479,12 @@ public class Collections
     protected static class MetaIterator<T> implements Iterator<T>
     {
         /**
-         * @param collections a Collection containing more Collections
+         * @param iterable a Iterable containing more Iterables
          * whose elements we are to iterate over.
          */
-        public MetaIterator (Collection<Iterator<T>> collections)
+        public MetaIterator (Iterable<Iterator<T>> iterable)
         {
-            _meta = collections.iterator();
+            _meta = iterable.iterator();
         }
 
         // documentation inherited from interface Iterator

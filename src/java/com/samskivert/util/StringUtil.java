@@ -659,8 +659,8 @@ public class StringUtil
             StringBuilder buf, Object val, Formatter formatter)
     {
         // get an iterator if this is a collection
-        if (val instanceof Collection) {
-            val = ((Collection)val).iterator();
+        if (val instanceof Iterable) {
+            val = ((Iterable)val).iterator();
         }
 
         String openBox = formatter.getOpenBox();

@@ -44,13 +44,18 @@ public class MessageManager
      * with the supplied path, so it should conform to the naming
      * conventions defined by that class.
      *
+     * @param siteIdent an optional site identifier that can be used to
+     * identify the site via which an http request was made.
+     *
      * @see java.util.ResourceBundle
      */
-    public MessageManager (String bundlePath, Locale deflocale)
+    public MessageManager (String bundlePath, Locale deflocale,
+                           SiteIdentifier siteIdent)
     {
         // keep these for later
         _bundlePath = bundlePath;
         _deflocale = deflocale;
+        _siteIdent = siteIdent;
     }
 
     /**
@@ -64,16 +69,12 @@ public class MessageManager
      * resources.
      * @param siteLoader a site-specific resource loader, properly
      * configured with a site identifier.
-     * @param siteIdent a site identifier that can be used to identify the
-     * site via which an http request was made.
      */
     public void activateSiteSpecificMessages (String siteBundlePath,
-                                              SiteResourceLoader siteLoader,
-                                              SiteIdentifier siteIdent)
+                                              SiteResourceLoader siteLoader)
     {
         _siteBundlePath = siteBundlePath;
         _siteLoader = siteLoader;
-        _siteIdent = siteIdent;
     }
 
     /**
@@ -193,16 +194,20 @@ public class MessageManager
             return bundles;
         }
 
-        // grab our site-specific class loader if we have one
         ClassLoader siteLoader = null;
-        if (_siteLoader != null && _siteIdent != null) {
+        String siteString = null;
+        if (_siteIdent != null) {
             int siteId = _siteIdent.identifySite(req);
-            try {
-                siteLoader = _siteLoader.getSiteClassLoader(siteId);
+            siteString = _siteIdent.getSiteString(siteId);
 
-            } catch (IOException ioe) {
-                Log.warning("Unable to fetch site-specific classloader " +
-                            "[siteId=" + siteId + ", error=" + ioe + "].");
+            // grab our site-specific class loader if we have one
+            if (_siteLoader != null) {
+                try {
+                    siteLoader = _siteLoader.getSiteClassLoader(siteId);
+                } catch (IOException ioe) {
+                    Log.warning("Unable to fetch site-specific classloader " +
+                                "[siteId=" + siteId + ", error=" + ioe + "].");
+                }
             }
         }
 
@@ -211,12 +216,17 @@ public class MessageManager
 
         // first from the site-specific classloader
         if (siteLoader != null) {
-            bundles[0] = resolveBundle(req, _siteBundlePath, siteLoader);
+            bundles[0] = resolveBundle(req, _siteBundlePath, siteLoader, false);
+        } else if (siteString != null) {
+            // or just try prefixing the site string to the normal bundle path
+            // and see if that turns something up
+            bundles[0] = resolveBundle(req, siteString + "_" + _bundlePath,
+                                       getClass().getClassLoader(), true);
         }
 
         // then from the default classloader
-        bundles[1] = resolveBundle(req, _bundlePath,
-                                   getClass().getClassLoader());
+        bundles[1] = resolveBundle(
+            req, _bundlePath, getClass().getClassLoader(), false);
 
         // if we found either or both bundles, cache 'em
         if (bundles[0] != null || bundles[1] != null && req != null) {
@@ -231,7 +241,8 @@ public class MessageManager
      * information provided in the supplied http request object.
      */
     protected ResourceBundle resolveBundle (
-        HttpServletRequest req, String bundlePath, ClassLoader loader)
+        HttpServletRequest req, String bundlePath, ClassLoader loader,
+        boolean silent)
     {
         ResourceBundle bundle = null;
 
@@ -272,14 +283,16 @@ public class MessageManager
             try {
                 bundle = ResourceBundle.getBundle(bundlePath, locale, loader);
             } catch (MissingResourceException mre) {
-                // if we were unable even to find a default bundle, we've
-                // got real problems. time to freak out
-                Log.warning("Unable to resolve any message bundle " +
-                            "[req=" + getURL(req) + ", locale=" + locale +
-                            ", bundlePath=" + bundlePath +
-                            ", classLoader=" + loader +
-                            ", siteBundlePath=" + _siteBundlePath +
-                            ", siteLoader=" + _siteLoader + "].");
+                if (!silent) {
+                    // if we were unable even to find a default bundle, we may
+                    // want to log a warning
+                    Log.warning("Unable to resolve any message bundle " +
+                                "[req=" + getURL(req) + ", locale=" + locale +
+                                ", bundlePath=" + bundlePath +
+                                ", classLoader=" + loader +
+                                ", siteBundlePath=" + _siteBundlePath +
+                                ", siteLoader=" + _siteLoader + "].");
+                }
             }
         }
 

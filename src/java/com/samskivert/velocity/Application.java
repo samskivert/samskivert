@@ -117,7 +117,7 @@ public class Application
         // instantiate our message manager if the application wants one
         String bundlePath = getInitParameter(config, MESSAGE_BUNDLE_PATH_KEY);
         if (!StringUtil.isBlank(bundlePath)) {
-            _msgmgr = new MessageManager(bundlePath, null);
+            _msgmgr = new MessageManager(bundlePath, null, _siteIdent);
         }
 
         // if we have a site-specific resource loader, configure the
@@ -128,7 +128,7 @@ public class Application
                 config, SITE_MESSAGE_BUNDLE_PATH_KEY);
             if (!StringUtil.isBlank(siteBundlePath)) {
                 _msgmgr.activateSiteSpecificMessages(
-                    siteBundlePath, _siteLoader, _siteIdent);
+                    siteBundlePath, _siteLoader);
 
             } else {
                 Log.info("No '" + SITE_MESSAGE_BUNDLE_PATH_KEY + "' " +

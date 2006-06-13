@@ -129,7 +129,7 @@ public class MACUtil
             Process p = Runtime.getRuntime().exec(cmd);
             BufferedReader cin = new BufferedReader(
                 new InputStreamReader(p.getInputStream()));
-            StringBuffer buffer= new StringBuffer();
+            StringBuilder buffer= new StringBuilder();
 
             String line = "";
             while (line != null)

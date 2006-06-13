@@ -39,6 +39,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -99,7 +100,7 @@ public class StringUtil
      */
     public static String capitalize (String s)
     {
-        if (blank(s)) {
+        if (isBlank(s)) {
             return s;
         }
         char c = s.charAt(0);
@@ -127,7 +128,7 @@ public class StringUtil
             return null;
         }
         int nn = source.length();
-        StringBuffer buf = new StringBuffer(nn);
+        StringBuilder buf = new StringBuilder(nn);
         for (int ii=0; ii < nn; ii++) {
             char c = source.charAt(ii);
             if (validator.isValid(c)) {
@@ -143,7 +144,7 @@ public class StringUtil
      */
     public static String sanitize (String source, String charRegex)
     {
-        final StringBuffer buf = new StringBuffer(" ");
+        final StringBuilder buf = new StringBuilder(" ");
         final Matcher matcher = Pattern.compile(charRegex).matcher(buf);
         return sanitize(source, new CharacterValidator() {
             public boolean isValid (char c) {
@@ -204,7 +205,7 @@ public class StringUtil
      */
     public static String restrictHTML (String src, String[] regexes)
     {
-        if (blank(src)) {
+        if (isBlank(src)) {
             return src;
         }
 
@@ -225,7 +226,7 @@ public class StringUtil
 
         // now, the even elements of list contain untrusted text, the
         // odd elements contain stuff that matched a regex
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int jj=0, nn = list.size(); jj < nn; jj++) {
             String s = list.get(jj);
             if (jj % 2 == 0) {
@@ -248,7 +249,7 @@ public class StringUtil
             return source;
         }
 
-        StringBuffer sb = new StringBuffer(source.length() + 32);
+        StringBuilder sb = new StringBuilder(source.length() + 32);
 
         int blength = before.length();
         int start = 0;
@@ -317,11 +318,9 @@ public class StringUtil
      */
     public static String fill (char c, int count)
     {
-        StringBuffer buf = new StringBuffer();
-        for (int ii = 0; ii < count; ii++) {
-            buf.append(c);
-        }
-        return buf.toString();
+        char[] sameChars = new char[count];
+        Arrays.fill(sameChars, c);
+        return new String(sameChars);
     }
 
     /**
@@ -384,7 +383,7 @@ public class StringUtil
      */
     public static String toString (Object val)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         toString(buf, val);
         return buf.toString();
     }
@@ -399,7 +398,7 @@ public class StringUtil
     public static String toString (
         Object val, String openBox, String closeBox)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         toString(buf, val, openBox, closeBox);
         return buf.toString();
     }
@@ -412,7 +411,11 @@ public class StringUtil
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.
      */
-    public static void toString (StringBuffer buf, Object val)
+    public static void toString (StringBuilder buf, Object val)
+    {
+        toString(buf, val, "(", ")");
+    }
+    @Deprecated public static void toString (StringBuffer buf, Object val)
     {
         toString(buf, val, "(", ")");
     }
@@ -429,8 +432,13 @@ public class StringUtil
      * @param openBox the opening box character.
      * @param closeBox the closing box character.
      */
-    public static void toString (StringBuffer buf, Object val,
-                                 String openBox, String closeBox)
+    public static void toString (
+            StringBuilder buf, Object val, String openBox, String closeBox)
+    {
+        toString(buf, val, openBox, closeBox, ", ");
+    }
+    @Deprecated public static void toString (
+            StringBuffer buf, Object val, String openBox, String closeBox)
     {
         toString(buf, val, openBox, closeBox, ", ");
     }
@@ -448,7 +456,7 @@ public class StringUtil
      * @param closeBox the closing box character.
      * @param sep the separator string.
      */
-    public static void toString (StringBuffer buf, Object val,
+    public static void toString (StringBuilder buf, Object val,
                                  String openBox, String closeBox, String sep)
     {
         if (val instanceof byte[]) {
@@ -539,8 +547,8 @@ public class StringUtil
             }
             buf.append(closeBox);
 
-        } else if (val instanceof Collection) {
-            toString(buf, ((Collection)val).iterator(), openBox, closeBox);
+        } else if (val instanceof Iterable) {
+            toString(buf, ((Iterable)val).iterator(), openBox, closeBox);
 
         } else if (val instanceof Iterator) {
             buf.append(openBox);
@@ -587,6 +595,14 @@ public class StringUtil
             buf.append(val);
         }
     }
+    @Deprecated public static void toString (
+            StringBuffer buf, Object val, String openBox, String closeBox,
+            String sep)
+    {
+        StringBuilder sb = new StringBuilder();
+        toString(sb, val, openBox, closeBox, sep);
+        buf.append(sb);
+    }
 
     /**
      * Used to format objects in {@link
@@ -629,7 +645,7 @@ public class StringUtil
      */
     public static String listToString (Object val, Formatter formatter)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         listToString(buf, val, formatter);
         return buf.toString();
     }
@@ -640,7 +656,7 @@ public class StringUtil
      * #listToString(Object,StringUtil.Formatter)} for more details.
      */
     public static void listToString (
-        StringBuffer buf, Object val, Formatter formatter)
+            StringBuilder buf, Object val, Formatter formatter)
     {
         // get an iterator if this is a collection
         if (val instanceof Collection) {
@@ -688,6 +704,13 @@ public class StringUtil
             toString(buf, val);
         }
     }
+    @Deprecated public static void listToString (
+            StringBuffer buf, Object val, Formatter formatter)
+    {
+        StringBuilder sb = new StringBuilder();
+        listToString(sb, val, formatter);
+        buf.append(sb);
+    }
 
     /**
      * Generates a string representation of the supplied object by calling
@@ -707,7 +730,7 @@ public class StringUtil
      */
     public static String fieldsToString (Object object, String sep)
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         fieldsToString(buf, object, sep);
         return buf.append("]").toString();
     }
@@ -723,17 +746,22 @@ public class StringUtil
      * <p>Note: unlike the version of this method that returns a string,
      * enclosing brackets are not included in the output of this method.
      */
-    public static void fieldsToString (StringBuffer buf, Object object)
+    public static void fieldsToString (StringBuilder buf, Object object)
+    {
+        fieldsToString(buf, object, ", ");
+    }
+    @Deprecated public static void fieldsToString (
+            StringBuffer buf, Object object)
     {
         fieldsToString(buf, object, ", ");
     }
 
     /**
-     * Like {@link #fieldsToString(StringBuffer,Object)} except that the
+     * Like {@link #fieldsToString(StringBuilder,Object)} except that the
      * supplied separator will be used between fields.
      */
     public static void fieldsToString (
-        StringBuffer buf, Object object, String sep)
+            StringBuilder buf, Object object, String sep)
     {
         Class clazz = object.getClass();
         Field[] fields = clazz.getFields();
@@ -767,6 +795,13 @@ public class StringUtil
             written++;
         }
     }
+    @Deprecated public static void fieldsToString (
+            StringBuffer buf, Object object, String sep)
+    {
+        StringBuilder sb = new StringBuilder();
+        fieldsToString(sb, object, sep);
+        buf.append(sb);
+    }
 
     /**
      * Formats a pair of coordinates such that positive values are
@@ -776,7 +811,7 @@ public class StringUtil
      */
     public static String coordsToString (int x, int y)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         coordsToString(buf, x, y);
         return buf.toString();
     }
@@ -787,7 +822,7 @@ public class StringUtil
      * prefix.  Examples would look like: <code>+3+4</code>
      * <code>-5+7</code>, etc.
      */
-    public static void coordsToString (StringBuffer buf, int x, int y)
+    public static void coordsToString (StringBuilder buf, int x, int y)
     {
         if (x >= 0) {
             buf.append("+");
@@ -797,6 +832,13 @@ public class StringUtil
             buf.append("+");
         }
         buf.append(y);
+    }
+    @Deprecated public static void coordsToString (
+            StringBuffer buf, int x, int y)
+    {
+        StringBuilder sb = new StringBuilder();
+        coordsToString(sb, x, y);
+        buf.append(sb);
     }
 
     /**
@@ -1156,7 +1198,7 @@ public class StringUtil
     protected static String join (
         Object[] values, String separator, boolean escape)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int vlength = values.length;
         for (int i = 0; i < vlength; i++) {
             if (i > 0) {
@@ -1231,8 +1273,8 @@ public class StringUtil
     public static String toMatrixString (
         int[] values, int colCount, int fieldWidth)
     {
-        StringBuffer buf = new StringBuffer();
-        StringBuffer valbuf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
+        StringBuilder valbuf = new StringBuilder();
 
         for (int i = 0; i < values.length; i++) {
             // format the integer value
@@ -1265,7 +1307,7 @@ public class StringUtil
      */
     public static String intervalToString (long millis)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         boolean started = false;
 
         long days = millis / (24 * 60 * 60 * 1000);
@@ -1343,7 +1385,7 @@ public class StringUtil
     public static String unStudlyName (String name)
     {
         boolean seenLower = false;
-        StringBuffer nname = new StringBuffer();
+        StringBuilder nname = new StringBuilder();
         int nlen = name.length();
         for (int i = 0; i < nlen; i++) {
             char c = name.charAt(i);
@@ -1362,7 +1404,7 @@ public class StringUtil
     }
 
     /**
-     * See {@link #stringCode(String,StringBuffer)}.
+     * See {@link #stringCode(String,StringBuilder)}.
      */
     public static int stringCode (String value)
     {
@@ -1387,7 +1429,7 @@ public class StringUtil
      * @param encoded if non-null, a string buffer into which the
      * characters used for the encoding will be recorded.
      */
-    public static int stringCode (String value, StringBuffer encoded)
+    public static int stringCode (String value, StringBuilder encoded)
     {
         int code = 0;
         for (int ii = 0, uu = 0; ii < value.length(); ii++) {
@@ -1424,22 +1466,10 @@ public class StringUtil
     protected static final HashIntMap<Integer> _letterToBits =
         new HashIntMap<Integer>();
     static {
-        _letterToBits.put('e', Integer.valueOf(0));
-        _letterToBits.put('t', Integer.valueOf(1));
-        _letterToBits.put('a', Integer.valueOf(2));
-        _letterToBits.put('o', Integer.valueOf(3));
-        _letterToBits.put('i', Integer.valueOf(4));
-        _letterToBits.put('n', Integer.valueOf(5));
-        _letterToBits.put('s', Integer.valueOf(6));
-        _letterToBits.put('r', Integer.valueOf(7));
-        _letterToBits.put('h', Integer.valueOf(8));
-        _letterToBits.put('l', Integer.valueOf(9));
-        _letterToBits.put('d', Integer.valueOf(10));
-        _letterToBits.put('c', Integer.valueOf(11));
-        _letterToBits.put('u', Integer.valueOf(12));
-        _letterToBits.put('m', Integer.valueOf(13));
-        _letterToBits.put('f', Integer.valueOf(14));
-        _letterToBits.put('p', Integer.valueOf(15));
+        String mostCommon = "etaoinsrhldcumfp";
+        for (int ii = mostCommon.length() - 1; ii >= 0; ii--) {
+            _letterToBits.put(mostCommon.charAt(ii), Integer.valueOf(ii));
+        }
         // sorry g, w, y, b, v, k, x, j, q, z
     }
 }

@@ -589,7 +589,7 @@ public class Table<T>
 
     protected final String buildListOfAssignments (FieldMask mask)
     {
-        StringBuffer sql = new StringBuffer();
+        StringBuilder sql = new StringBuilder();
         int fcount = fields.length;
 	for (int i = 0; i < fcount; i++) {
             // skip non-modified fields
@@ -672,7 +672,7 @@ public class Table<T>
 
     protected final String buildUpdateWhere()
     {
-        StringBuffer sql = new StringBuffer();
+        StringBuilder sql = new StringBuilder();
         sql.append(" where ").append(primaryKeys[0]).append(" = ?");
         for (int i = 1; i < primaryKeys.length; i++) {
             sql.append(" and ").append(primaryKeys[i]).append(" = ?");
@@ -682,7 +682,7 @@ public class Table<T>
 
     protected final String buildQueryList(T qbe, FieldMask mask, boolean like)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buildQueryList(buf, qbe, 0, nFields, mask, like);
 	if (buf.length() > 0) {
 	    buf.insert(0, " where ");
@@ -784,7 +784,7 @@ public class Table<T>
     }
 
     protected final void buildQueryList (
-        StringBuffer buf, Object qbe, int i, int end, FieldMask mask,
+        StringBuilder buf, Object qbe, int i, int end, FieldMask mask,
         boolean like)
     {
 	try {

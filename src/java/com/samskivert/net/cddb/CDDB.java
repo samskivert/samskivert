@@ -162,7 +162,7 @@ public class CDDB
 	_in.readLine();
 
 	// send a hello request
-	StringBuffer req = new StringBuffer("cddb hello ");
+	StringBuilder req = new StringBuilder("cddb hello ");
 	req.append(username).append(" ");
 	req.append(localhost).append(" ");
 	req.append(CLIENT_NAME).append(" ");
@@ -246,7 +246,7 @@ public class CDDB
 	}
 
 	// construct the query parameter
-	StringBuffer req = new StringBuffer("cddb query ");
+	StringBuilder req = new StringBuilder("cddb query ");
 	req.append(discid).append(" ");
 	req.append(frameOffsets.length).append(" ");
 	for (int i = 0; i < frameOffsets.length; i++) {
@@ -327,7 +327,7 @@ public class CDDB
 	}
 
 	// construct the query
-	StringBuffer req = new StringBuffer("cddb read ");
+	StringBuilder req = new StringBuilder("cddb read ");
 	req.append(category).append(" ");
 	req.append(discid);
 

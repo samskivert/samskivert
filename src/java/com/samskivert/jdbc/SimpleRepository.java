@@ -367,7 +367,7 @@ public class SimpleRepository extends Repository
     {
         ResultSetMetaData md = rs.getMetaData();
         int ccount = md.getColumnCount();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int ii = 1; ii <= ccount; ii++) {
             if (buf.length() > 0) {
                 buf.append(", ");

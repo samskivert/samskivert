@@ -62,7 +62,7 @@ public class SetNextFieldRule extends Rule
      */
     public String toString ()
     {
-        StringBuffer sb = new StringBuffer("SetNextFieldRule[");
+        StringBuilder sb = new StringBuilder("SetNextFieldRule[");
         sb.append("fieldName=");
         sb.append(_fieldName);
         sb.append("]");

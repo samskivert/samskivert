@@ -49,7 +49,7 @@ public class DimenInfo
 
     public String toString ()
     {
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	buf.append("[count=").append(count);
 	buf.append(", totwid=").append(totwid);
 	buf.append(", tothei=").append(tothei);

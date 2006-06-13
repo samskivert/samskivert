@@ -18,7 +18,6 @@
 
 package com.samskivert.util;
 
-import java.lang.StringBuffer;
 import java.util.Random;
 
 /**
@@ -43,7 +42,7 @@ public class KeyUtil
     public static String generateRandomKey (Random rand, int length)
     {
         int numKeyChars = KEY_CHARS.length();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int ii = 0; ii < length; ii++) {
             buf.append(KEY_CHARS.charAt(rand.nextInt(numKeyChars)));
         }

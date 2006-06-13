@@ -40,7 +40,7 @@ public class MessageUtil
      */
     public static String compose (String key, Object[] args)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(key);
         buf.append('|');
         for (int i = 0; i < args.length; i++) {
@@ -87,7 +87,7 @@ public class MessageUtil
             return value;
         }
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int vlength = value.length();
         for (int i = 0; i < vlength; i++) {
             char ch = value.charAt(i);

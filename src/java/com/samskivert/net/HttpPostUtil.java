@@ -54,7 +54,7 @@ public class HttpPostUtil
                     BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getInputStream()));
 
-                    StringBuffer buf = new StringBuffer();
+                    StringBuilder buf = new StringBuilder();
                     for (String s; null != (s = reader.readLine()); ) {
                         buf.append(s);
                     }

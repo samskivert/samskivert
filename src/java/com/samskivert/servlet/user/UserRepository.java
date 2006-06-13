@@ -479,7 +479,7 @@ public class UserRepository extends JORARepository
     protected String genIdString (int[] userIds)
     {
 	// build up the string we need for the query
-	StringBuffer ids = new StringBuffer();
+	StringBuilder ids = new StringBuilder();
 	for (int i = 0; i < userIds.length; i++) {
 	    if (ids.length() > 0) {
                 ids.append(",");

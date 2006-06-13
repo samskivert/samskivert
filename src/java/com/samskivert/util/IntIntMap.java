@@ -275,7 +275,7 @@ public class IntIntMap
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         int[] keys = getKeys();
         for (int ii = 0; ii < keys.length; ii++) {
             if (ii > 0) {

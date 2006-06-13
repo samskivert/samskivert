@@ -99,7 +99,7 @@ public class ValidatedSetNextRule extends Rule
      */
     public String toString ()
     {
-        StringBuffer sb = new StringBuffer("ValidatedSetNextRule[");
+        StringBuilder sb = new StringBuilder("ValidatedSetNextRule[");
         sb.append("methodName=");
         sb.append(_methodName);
         if (_paramType != null) {

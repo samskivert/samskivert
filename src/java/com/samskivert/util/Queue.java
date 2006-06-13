@@ -239,7 +239,7 @@ public class Queue
 
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         buf.append("[count=").append(_count);
         buf.append(", size=").append(_size);

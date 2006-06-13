@@ -151,7 +151,7 @@ public class FieldMask
     public String toString ()
     {
         // return a list of the modified fields
-        StringBuffer buf = new StringBuffer("FieldMask [modified={");
+        StringBuilder buf = new StringBuilder("FieldMask [modified={");
         boolean added = false;
         for (Map.Entry<String,Integer> entry : _descripMap.entrySet()) {
             if (_modified[entry.getValue().intValue()]) {

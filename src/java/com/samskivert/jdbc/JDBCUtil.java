@@ -220,7 +220,7 @@ public class JDBCUtil
      */
     public static String escape (Object[] values)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int ii = 0; ii < values.length; ii++) {
             if (ii > 0) {
                 buf.append(", ");

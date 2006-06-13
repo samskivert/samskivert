@@ -399,7 +399,7 @@ public class ConfigUtil
                 throw new IOException(errmsg);
 
             } else if (crowns.size() > 1) {
-                StringBuffer errmsg = new StringBuffer();
+                StringBuilder errmsg = new StringBuilder();
                 errmsg.append("Multiple top-level properties were found, ");
                 errmsg.append("one definitive top-level file must provide ");
                 errmsg.append("an order for all others:\n");

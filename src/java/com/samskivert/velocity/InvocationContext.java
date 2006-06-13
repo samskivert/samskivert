@@ -115,7 +115,7 @@ public class InvocationContext extends VelocityContext
      */
     public String encodeAllParameters ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         Enumeration e = _req.getParameterNames();
         while (e.hasMoreElements()) {
             if (buf.length() > 0) {

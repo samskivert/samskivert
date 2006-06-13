@@ -45,7 +45,7 @@ public class SimpleParser extends DefaultHandler
     public void endElement (String uri, String localName, String qName)
     {
 	finishElement(uri, localName, qName, _chars.toString().trim());
-        _chars = new StringBuffer();
+        _chars = new StringBuilder();
     }
 
     /**
@@ -76,7 +76,7 @@ public class SimpleParser extends DefaultHandler
     {
 	try {
             // read the XML input stream and construct the scene object
-            _chars = new StringBuffer();
+            _chars = new StringBuilder();
 	    XMLUtil.parse(this, stream);
 
         } catch (ParserConfigurationException pce) {
@@ -125,5 +125,5 @@ public class SimpleParser extends DefaultHandler
     }
 
     /** The character data gathered while parsing. */
-    protected StringBuffer _chars;
+    protected StringBuilder _chars;
 }

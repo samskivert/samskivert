@@ -270,7 +270,7 @@ public class FormTool
      */
     public String fixedCheckbox (String name, boolean value)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<input type=\"checkbox\"");
         buf.append(" name=\"").append(name).append("\"");
         if (value) {
@@ -298,7 +298,7 @@ public class FormTool
     public String fixedOption (
         String name, String value, String item, Object selectedValue)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<option value=\"").append(value).append("\"");
         if (selectedValue.equals(value)) {
             buf.append(" selected");
@@ -320,7 +320,7 @@ public class FormTool
      */
     public String radio (String name, String value, String defaultValue)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<input type=\"radio\"");
         buf.append(" name=\"").append(name).append("\"");
         buf.append(" value=\"").append(value).append("\"");
@@ -347,7 +347,7 @@ public class FormTool
      */
     public String fixedTextarea (String name, String extra, Object value)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<textarea name=\"").append(name).append("\"");
         if (!StringUtil.isBlank(extra)) {
             buf.append(" ").append(extra);
@@ -378,7 +378,7 @@ public class FormTool
     protected String fixedInput (
         String type, String name, Object value, String extra)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<input type=\"").append(type).append("\"");
         buf.append(" name=\"").append(name).append("\"");
         buf.append(" value=\"").append(value).append("\"");

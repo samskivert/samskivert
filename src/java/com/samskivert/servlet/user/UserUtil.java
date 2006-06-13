@@ -34,7 +34,7 @@ public class UserUtil
     public static String genAuthCode (User user)
     {
 	// concatenate a bunch of secret stuff together
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	buf.append(user.password);
 	buf.append(System.currentTimeMillis());
 	buf.append(Math.random());

@@ -178,7 +178,7 @@ public class SystemInfo
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("OS: ").append(osToString()).append("\n");
         buf.append("JVM: ").append(jvmToString()).append("\n");
         buf.append("Memory: ").append(memoryToString()).append("\n");

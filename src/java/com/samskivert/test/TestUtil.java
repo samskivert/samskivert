@@ -55,7 +55,7 @@ public class TestUtil
             testdir = ".";
         }
 
-        StringBuffer rpath = new StringBuffer(testdir);
+        StringBuilder rpath = new StringBuilder(testdir);
         if (!path.startsWith("/")) {
             rpath.append("/");
         }

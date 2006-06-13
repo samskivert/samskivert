@@ -150,22 +150,43 @@ public class MessageManager
             return getMessage(req, key, args);
         }
 
-        // load up the matching resource bundles (the array will contain
-        // the site-specific resources first and the application resources
-        // second); use the locale preferred by the client if possible
+        // load up the matching resource bundles (the array will contain the
+        // site-specific resources first and the application resources second);
+        // use the locale preferred by the client if possible
         ResourceBundle[] bundles = resolveBundles(req);
+        String message = null;
         if (bundles != null) {
             int blength = bundles.length;
-            for (int i = 0; i < blength; i++) {
+            for (int i = 0; message == null && i < blength; i++) {
                 try {
                     if (bundles[i] != null) {
-                        return bundles[i].getString(path);
+                        message = bundles[i].getString(path);
                     }
                 } catch (MissingResourceException mre) {
                     // no complaints, just try the bundle in the enclosing
                     // scope
                 }
             }
+        }
+
+        // if we found a message, check it for embedded message links
+        if (message != null) {
+            int oidx = -1;
+            while ((oidx = message.indexOf("{", oidx+1)) != -1) {
+                int cidx = message.indexOf("}", oidx+1);
+                if (cidx == -1) {
+                    // something's funny, just stop fiddling
+                    break;
+                }
+                String ref = message.substring(oidx+1, cidx);
+                if (ref.length() > 0 && !Character.isDigit(ref.charAt(0))) {
+                    String refmsg = getMessage(req, ref, true);
+                    message = message.substring(0, oidx) +
+                        refmsg + message.substring(cidx+1);
+                    oidx += refmsg.length();
+                }
+            }
+            return message;
         }
 
         if (reportMissing) {

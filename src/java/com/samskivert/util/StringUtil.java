@@ -415,10 +415,6 @@ public class StringUtil
     {
         toString(buf, val, "(", ")");
     }
-    @Deprecated public static void toString (StringBuffer buf, Object val)
-    {
-        toString(buf, val, "(", ")");
-    }
 
     /**
      * Converts the supplied value to a string and appends it to the
@@ -434,11 +430,6 @@ public class StringUtil
      */
     public static void toString (
             StringBuilder buf, Object val, String openBox, String closeBox)
-    {
-        toString(buf, val, openBox, closeBox, ", ");
-    }
-    @Deprecated public static void toString (
-            StringBuffer buf, Object val, String openBox, String closeBox)
     {
         toString(buf, val, openBox, closeBox, ", ");
     }
@@ -595,14 +586,6 @@ public class StringUtil
             buf.append(val);
         }
     }
-    @Deprecated public static void toString (
-            StringBuffer buf, Object val, String openBox, String closeBox,
-            String sep)
-    {
-        StringBuilder sb = new StringBuilder();
-        toString(sb, val, openBox, closeBox, sep);
-        buf.append(sb);
-    }
 
     /**
      * Used to format objects in {@link
@@ -704,13 +687,6 @@ public class StringUtil
             toString(buf, val);
         }
     }
-    @Deprecated public static void listToString (
-            StringBuffer buf, Object val, Formatter formatter)
-    {
-        StringBuilder sb = new StringBuilder();
-        listToString(sb, val, formatter);
-        buf.append(sb);
-    }
 
     /**
      * Generates a string representation of the supplied object by calling
@@ -747,11 +723,6 @@ public class StringUtil
      * enclosing brackets are not included in the output of this method.
      */
     public static void fieldsToString (StringBuilder buf, Object object)
-    {
-        fieldsToString(buf, object, ", ");
-    }
-    @Deprecated public static void fieldsToString (
-            StringBuffer buf, Object object)
     {
         fieldsToString(buf, object, ", ");
     }
@@ -795,13 +766,6 @@ public class StringUtil
             written++;
         }
     }
-    @Deprecated public static void fieldsToString (
-            StringBuffer buf, Object object, String sep)
-    {
-        StringBuilder sb = new StringBuilder();
-        fieldsToString(sb, object, sep);
-        buf.append(sb);
-    }
 
     /**
      * Formats a pair of coordinates such that positive values are
@@ -832,13 +796,6 @@ public class StringUtil
             buf.append("+");
         }
         buf.append(y);
-    }
-    @Deprecated public static void coordsToString (
-            StringBuffer buf, int x, int y)
-    {
-        StringBuilder sb = new StringBuilder();
-        coordsToString(sb, x, y);
-        buf.append(sb);
     }
 
     /**

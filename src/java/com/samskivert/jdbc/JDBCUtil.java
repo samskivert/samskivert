@@ -537,10 +537,11 @@ public class JDBCUtil
     /**
      * Removes a named index from the specified table.
      */
-    public static void dropIndex (Connection conn, String table, String iname)
+    public static void dropIndex (Connection conn, String table,
+                                  String cname, String iname)
         throws SQLException
     {
-        if (!tableContainsIndex(conn, table, iname)) {
+        if (!tableContainsIndex(conn, table, cname, iname)) {
             return;
         }
 

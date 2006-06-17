@@ -111,8 +111,7 @@ public class UserRepository extends JORARepository
     public User loadUser (String username)
 	throws PersistenceException
     {
-        return loadUserWhere("where username = " + 
-            JDBCUtil.escape(username));
+        return loadUserWhere("where username = " + JDBCUtil.escape(username));
     }
 
     /**

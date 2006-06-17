@@ -459,7 +459,7 @@ public class JDBCUtil
                                   String cname, String cdef, String afterCname)
         throws SQLException
     {
-        if (JDBCUtil.tableContainsColumn(conn, table, cname)) {
+        if (tableContainsColumn(conn, table, cname)) {
 //             Log.info("Database table '" + table + "' already has column '" +
 //                      cname + "'.");
             return;
@@ -517,8 +517,11 @@ public class JDBCUtil
     public static void dropColumn (Connection conn, String table, String cname)
         throws SQLException
     {
-        String update = "ALTER TABLE " + table + " DROP COLUMN " + cname;
+        if (!tableContainsColumn(conn, table, cname)) {
+            return;
+        }
 
+        String update = "ALTER TABLE " + table + " DROP COLUMN " + cname;
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(update);
@@ -530,15 +533,18 @@ public class JDBCUtil
             close(stmt);
         }
     }
-    
+
     /**
      * Removes a named index from the specified table.
      */
     public static void dropIndex (Connection conn, String table, String iname)
         throws SQLException
     {
-        String update = "ALTER TABLE " + table + " DROP INDEX " + iname;
+        if (!tableContainsIndex(conn, table, iname)) {
+            return;
+        }
 
+        String update = "ALTER TABLE " + table + " DROP INDEX " + iname;
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(update);
@@ -550,7 +556,7 @@ public class JDBCUtil
             close(stmt);
         }
     }
-    
+
     /**
      * Removes the primary key from the specified table.
      */
@@ -579,7 +585,7 @@ public class JDBCUtil
                                         String cname, String iname)
         throws SQLException
     {
-        if (JDBCUtil.tableContainsIndex(conn, table, cname, iname)) {
+        if (tableContainsIndex(conn, table, cname, iname)) {
 //             Log.info("Database table '" + table + "' already has an index " +
 //                      "on column '" + cname + "'" +
 //                      (iname != null ? " named '" + iname + "'." : "."));

@@ -90,20 +90,37 @@ public class HTMLUtil
      */
     public static String simpleFormat (String text)
     {
-        String[] lines = StringUtil.split(text, "\n");
-        StringBuilder tbuf = new StringBuilder();
+        // first replace the image and other URLs
+        Matcher m = _url.matcher(text);
+        StringBuffer tbuf = new StringBuffer();
+        while (m.find()) {
+            String match = m.group();
+            String lmatch = match.toLowerCase();
+            if (lmatch.endsWith(".png") ||
+                lmatch.endsWith(".jpg") ||
+                lmatch.endsWith(".gif")) {
+                match = "<img src=\"" + match + "\">";
+            } else {
+                match = "<a href=\"" + match + "\">" + match + "</a>";
+            }
+            m.appendReplacement(tbuf, match);
+        }
+        m.appendTail(tbuf);
+
+        // then do our paragraph and list processing
+        String[] lines = StringUtil.split(tbuf.toString(), "\n");
+        StringBuilder lbuf = new StringBuilder();
 
         boolean inpara = false, inlist = false;
-
         for (int ii = 0; ii < lines.length; ii++) {
             String line = lines[ii];
             if (StringUtil.isBlank(lines[ii])) {
                 if (inlist) {
-                    tbuf.append("</ul>");
+                    lbuf.append("</ul>");
                     inlist = false;
                 }
                 if (inpara) {
-                    tbuf.append("</p>\n");
+                    lbuf.append("</p>\n");
                     inpara = false;
                 }
                 continue;
@@ -111,34 +128,32 @@ public class HTMLUtil
 
             if (!inpara) {
                 inpara = true;
-                tbuf.append("<p> ");
+                lbuf.append("<p> ");
             }
 
             if (line.startsWith("*")) {
                 if (inlist) {
-                    tbuf.append("<li>");
+                    lbuf.append("<li>");
                 } else {
-                    tbuf.append("<ul><li>");
+                    lbuf.append("<ul><li>");
                     inlist = true;
                 }
                 line = line.substring(1);
             }
 
-            tbuf.append(line).append("\n");
+            lbuf.append(line).append("\n");
         }
 
         if (inlist) {
-            tbuf.append("</ul>");
+            lbuf.append("</ul>");
         }
         if (inpara) {
-            tbuf.append("</p>\n");
+            lbuf.append("</p>\n");
         }
 
-        return tbuf.toString().trim();
+        return lbuf.toString().trim();
     }
 
     protected static Pattern _url =
         Pattern.compile("http://\\S+", Pattern.MULTILINE);
-    protected static Pattern _star = Pattern.compile("^\\*", Pattern.MULTILINE);
-    protected static Pattern _blank = Pattern.compile("^$", Pattern.MULTILINE);
 }

@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -90,50 +90,48 @@ public class HTMLUtil
      */
     public static String simpleFormat (String text)
     {
-        // first replace the image and other URLs
-        Matcher m = _url.matcher(text);
-        StringBuffer tbuf = new StringBuffer();
-        while (m.find()) {
-            String match = m.group();
-            String lmatch = match.toLowerCase();
-            if (lmatch.endsWith(".png") ||
-                lmatch.endsWith(".jpg") ||
-                lmatch.endsWith(".gif")) {
-                match = "<img src=\"" + match + "\">";
-            } else {
-                match = "<a href=\"" + match + "\">" + match + "</a>";
-            }
-            m.appendReplacement(tbuf, match);
-        }
-        m.appendTail(tbuf);
+        String[] lines = StringUtil.split(text, "\n");
+        StringBuilder tbuf = new StringBuilder();
 
-        // then tackle the *s
-        text = tbuf.toString();
-        m = _star.matcher(text);
-        tbuf.setLength(0);
-        while (m.find()) {
-            String match = m.group();
-            int start = m.start();
-            if (start == 0 || (start >= 2 && text.charAt(start-1) == '\n' &&
-                               text.charAt(start-2) == '\n')) {
-                m.appendReplacement(tbuf, "<ul><li>");
-            } else {
-                m.appendReplacement(tbuf, "<li>");
-            }
-        }
-        m.appendTail(tbuf);
-        text = tbuf.toString();
+        boolean inpara = false, inlist = false;
 
-        // finally close the </ul>s and paragraphy
-        String[] paras = _blank.split(text);
-        tbuf.setLength(0);
-        for (int ii = 0; ii < paras.length; ii++) {
-            String para = paras[ii].trim();
-            if (para.startsWith("<ul>")) {
-                tbuf.append(para).append(" </ul>\n");
-            } else {
-                tbuf.append("<p> ").append(para).append(" </p>\n");
-            }            
+        for (int ii = 0; ii < lines.length; ii++) {
+            String line = lines[ii];
+            if (StringUtil.isBlank(lines[ii])) {
+                if (inlist) {
+                    tbuf.append("</ul>");
+                    inlist = false;
+                }
+                if (inpara) {
+                    tbuf.append("</p>\n");
+                    inpara = false;
+                }
+                continue;
+            }
+
+            if (!inpara) {
+                inpara = true;
+                tbuf.append("<p> ");
+            }
+
+            if (line.startsWith("*")) {
+                if (inlist) {
+                    tbuf.append("<li>");
+                } else {
+                    tbuf.append("<ul><li>");
+                    inlist = true;
+                }
+                line = line.substring(1);
+            }
+
+            tbuf.append(line).append("\n");
+        }
+
+        if (inlist) {
+            tbuf.append("</ul>");
+        }
+        if (inpara) {
+            tbuf.append("</p>\n");
         }
 
         return tbuf.toString().trim();

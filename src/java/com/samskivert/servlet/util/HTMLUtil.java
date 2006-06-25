@@ -20,6 +20,7 @@
 
 package com.samskivert.servlet.util;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -154,6 +155,90 @@ public class HTMLUtil
         return lbuf.toString().trim();
     }
 
+    /**
+     * Restrict all HTML from the specified String.
+     */
+    public static String restrictHTML (String src)
+    {
+        return restrictHTML(src, new String[0]);
+    }
+
+    /**
+     * Restrict HTML except for the specified tags.
+     * 
+     * @param allowFormatting enables &lt;i&gt;, &lt;b&gt;, &lt;u&gt;,
+     *                        &lt;font&gt;, &lt;br&gt;, &lt;p&gt;, and
+     *                        &lt;hr&gt;.
+     * @param allowImages enabled &lt;img ...&gt;.
+     * @param allowLinks enabled &lt;a href ...&gt;.
+     */
+    public static String restrictHTML (String src, boolean allowFormatting,
+        boolean allowImages, boolean allowLinks)
+    {
+        // TODO: these regexes should probably be checked to make
+        // sure that javascript can't live inside a link
+        ArrayList<String> allow = new ArrayList<String>();
+        if (allowFormatting) {
+            allow.add("<b>"); allow.add("</b>");
+            allow.add("<i>"); allow.add("</i>");
+            allow.add("<u>"); allow.add("</u>");
+            allow.add("<font [^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
+                allow.add("</font>");
+            allow.add("<br>"); allow.add("</br>");
+            allow.add("<p>"); allow.add("</p>");
+            allow.add("<hr>"); allow.add("</hr>");
+        }
+        if (allowImages) {
+            // Until I find a way to disallow "---", no - can be in a url
+            allow.add("<img [^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
+                allow.add("</img>");
+        }
+        if (allowLinks) {
+            allow.add("<a href=[^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
+                allow.add("</a>");
+        }
+        return restrictHTML(src, allow.toArray(new String[allow.size()]));
+    }
+
+    /**
+     * Restrict HTML from the specified string except for the specified
+     * regular expressions.
+     */
+    public static String restrictHTML (String src, String[] regexes)
+    {
+        if (StringUtil.isBlank(src)) {
+            return src;
+        }
+
+        ArrayList<String> list = new ArrayList<String>();
+        list.add(src);
+        for (int ii=0, nn = regexes.length; ii < nn; ii++) {
+            Pattern p = Pattern.compile(regexes[ii], Pattern.CASE_INSENSITIVE);
+            for (int jj=0; jj < list.size(); jj += 2) {
+                String piece = list.get(jj);
+                Matcher m = p.matcher(piece);
+                if (m.find()) {
+                    list.set(jj, piece.substring(0, m.start()));
+                    list.add(jj + 1, piece.substring(m.start(), m.end()));
+                    list.add(jj + 2, piece.substring(m.end()));
+                }
+            }
+        }
+
+        // now, the even elements of list contain untrusted text, the
+        // odd elements contain stuff that matched a regex
+        StringBuilder buf = new StringBuilder();
+        for (int jj=0, nn = list.size(); jj < nn; jj++) {
+            String s = list.get(jj);
+            if (jj % 2 == 0) {
+                s = StringUtil.replace(s, "<", "&lt;");
+                s = StringUtil.replace(s, ">", "&gt;");
+            }
+            buf.append(s);
+        }
+        return buf.toString();
+    }
+
     protected static Pattern _url =
-        Pattern.compile("http://\\S+", Pattern.MULTILINE);
+        Pattern.compile("^http://\\S+", Pattern.MULTILINE);
 }

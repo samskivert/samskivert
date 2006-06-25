@@ -119,7 +119,7 @@ public class StringTool
      */
     public static String restrictHTML (String text)
     {
-        return StringUtil.restrictHTML(text);
+        return HTMLUtil.restrictHTML(text);
     }
 
     /**

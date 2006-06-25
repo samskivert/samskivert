@@ -184,9 +184,9 @@ public class HTMLUtil
             allow.add("<u>"); allow.add("</u>");
             allow.add("<font [^\"<>!-]*(\"[^\"<>!-]*\"[^\"<>!-]*)*>");
                 allow.add("</font>");
-            allow.add("<br>"); allow.add("</br>");
+            allow.add("<br>"); allow.add("</br>"); allow.add("<br/>");
             allow.add("<p>"); allow.add("</p>");
-            allow.add("<hr>"); allow.add("</hr>");
+            allow.add("<hr>"); allow.add("</hr>"); allow.add("<hr/>");
         }
         if (allowImages) {
             // Until I find a way to disallow "---", no - can be in a url

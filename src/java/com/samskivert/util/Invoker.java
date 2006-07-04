@@ -116,7 +116,7 @@ public class Invoker extends LoopingThread
     public void iterate ()
     {
         // pop the next item off of the queue
-        Unit unit = (Unit) _queue.get();
+        Unit unit = _queue.get();
 
         long start;
         if (PERF_TRACK) {
@@ -226,7 +226,7 @@ public class Invoker extends LoopingThread
     }
 
     /** The invoker's queue of units to be executed. */
-    protected Queue _queue = new Queue();
+    protected Queue<Unit> _queue = new Queue<Unit>();
 
     /** The result receiver with which we're working. */
     protected RunQueue _receiver;

@@ -17,7 +17,7 @@ public class BasicRunQueue extends LoopingThread
     public BasicRunQueue ()
     {
         super("RunQueue");
-        _queue = new Queue();
+        _queue = new Queue<Runnable>();
     }
     
     // documentation inherited from interface
@@ -35,7 +35,7 @@ public class BasicRunQueue extends LoopingThread
     // documentation inherited
     protected void iterate ()
     {
-        Runnable r = (Runnable) _queue.get();
+        Runnable r = _queue.get();
         try {
             r.run();
 
@@ -56,5 +56,5 @@ public class BasicRunQueue extends LoopingThread
     }
 
     /** The queue of things to run. */
-    protected Queue _queue;
+    protected Queue<Runnable> _queue;
 }

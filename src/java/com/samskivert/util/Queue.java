@@ -26,12 +26,12 @@ package com.samskivert.util;
  * beginning, without the unneccessary System.arraycopy overhead of
  * java.util.Vector.
  */
-public class Queue
+public class Queue<T>
 {
     public Queue (int suggestedSize)
     {
         _size = _suggestedSize = suggestedSize;
-        _items = new Object[_size];
+        _items = newArray(_size);
     }
 
     public Queue ()
@@ -43,7 +43,7 @@ public class Queue
     {
         _count = _start = _end = 0;
         _size = _suggestedSize;
-        _items = new Object[_size];
+        _items = newArray(_size);
     }
 
     public synchronized boolean hasElements ()
@@ -56,7 +56,7 @@ public class Queue
         return _count;
     }
 
-    public synchronized void prepend (Object item)
+    public synchronized void prepend (T item)
     {
         if (_count == _size) {
             makeMoreRoom();
@@ -80,7 +80,7 @@ public class Queue
      * Appends the supplied item to the end of the queue, and notify a
      * consumer if and only if the queue was previously empty.
      */
-    public synchronized void append (Object item)
+    public synchronized void append (T item)
     {
         // only notify if the queue was previously empty
         append0(item, _count == 0);
@@ -90,7 +90,7 @@ public class Queue
      * Appends an item to the queue without notifying anyone. Useful for
      * appending a bunch of items and then waking up the listener.
      */
-    public synchronized void appendSilent (Object item)
+    public synchronized void appendSilent (T item)
     {
         append0(item, false);
     }
@@ -105,7 +105,7 @@ public class Queue
      * listening waiting on the queue, to guarantee that one will be woken
      * for every element added.
      */
-    public synchronized void appendLoud (Object item)
+    public synchronized void appendLoud (T item)
     {
         append0(item, true);
     }
@@ -114,7 +114,7 @@ public class Queue
      * Internal append method. If subclassing queue, be sure to call
      * this method from inside a synchronized block.
      */
-    protected void append0 (Object item, boolean notify)
+    protected void append0 (T item, boolean notify)
     {
         if (_count == _size) {
             makeMoreRoom();
@@ -133,14 +133,14 @@ public class Queue
      * empty. This method will not block waiting for an item to be added
      * to the queue.
      */
-    public synchronized Object getNonBlocking ()
+    public synchronized T getNonBlocking ()
     {
         if (_count == 0) {
             return null;
         }
 
         // pull the object off, and clear our reference to it
-        Object retval = _items[_start];
+        T retval = _items[_start];
         _items[_start] = null;
 
         _start = (_start + 1) % _size;
@@ -166,7 +166,7 @@ public class Queue
      * <code>maxwait</code> milliseconds waiting for an item to be added
      * to the queue if it is empty at the time of invocation.
      */
-    public synchronized Object get (long maxwait)
+    public synchronized T get (long maxwait)
     {
 	if (_count == 0) {
 	    try { wait(maxwait); } catch (InterruptedException e) {}
@@ -185,14 +185,14 @@ public class Queue
      * Gets the next item from the queue, blocking until an item is added
      * to the queue if the queue is empty at time of invocation.
      */
-    public synchronized Object get ()
+    public synchronized T get ()
     {
         while (_count == 0) {
             try { wait(); } catch (InterruptedException e) {}
         }
 
         // pull the object off, and clear our reference to it
-        Object retval = _items[_start];
+        T retval = _items[_start];
         _items[_start] = null;
 
         _start = (_start + 1) % _size;
@@ -207,7 +207,7 @@ public class Queue
 
     private void makeMoreRoom ()
     {
-        Object[] items = new Object[_size * 2];
+        T[] items = newArray(_size * 2);
         System.arraycopy(_items, _start, items, 0, _size - _start);
         System.arraycopy(_items, 0, items, _size - _start, _end);
         _start = 0;
@@ -219,7 +219,7 @@ public class Queue
     // shrink by half
     private void shrink ()
     {
-        Object[] items = new Object[_size / 2];
+        T[] items = newArray(_size / 2);
 
         if (_start > _end) {
             // the data wraps around
@@ -235,6 +235,12 @@ public class Queue
         _start = 0;
         _end = _count;
         _items = items;
+    }
+
+    @SuppressWarnings("unchecked")
+    private T[] newArray (int size)
+    {
+        return (T[])new Object[size];
     }
 
     public String toString ()
@@ -333,7 +339,7 @@ public class Queue
 
     protected final static int MIN_SHRINK_SIZE = 1024;
 
-    protected Object[] _items;
+    protected T[] _items;
     protected int _count = 0;
     protected int _start = 0, _end = 0;
     protected int _suggestedSize, _size = 0;

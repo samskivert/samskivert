@@ -195,5 +195,5 @@ public abstract class Interval
 
     /** The daemon timer used to schedule all Intervals. */
     protected static final Timer _timer =
-        new Timer("samskivert Interval Timer", true);
+        new Timer(/*JDK1.5 "samskivert Interval Timer",*/ true);
 }

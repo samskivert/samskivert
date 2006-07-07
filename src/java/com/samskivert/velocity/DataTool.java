@@ -51,7 +51,7 @@ public class DataTool
      */
     public int percent (int num, int denom)
     {
-        return (num == 0) ? 0 : 100 * num / denom;
+        return (denom == 0) ? 0 : 100 * num / denom;
     }
 
     /**

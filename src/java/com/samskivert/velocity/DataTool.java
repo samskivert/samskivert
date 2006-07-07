@@ -47,11 +47,11 @@ public class DataTool
 
     /**
      * Returns the numerator as a percentage of the denominator (100 * num /
-     * denom), handles 0/0 (returns 0) and returns 0 when denom is 0.
+     * denom), handles 0/0 (returns 0), but will div0 on N/0 where N != 0.
      */
     public int percent (int num, int denom)
     {
-        return (denom == 0) ? 0 : 100 * num / denom;
+        return (num == 0) ? 0 : 100 * num / denom;
     }
 
     /**

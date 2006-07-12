@@ -307,7 +307,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     }
 
     // documentation inherited
-    public Set<IntEntry<V>> intEntrySet()
+    public Set<IntEntry<V>> intEntrySet ()
     {
         return new AbstractSet<IntEntry<V>>() {
             public int size () {

@@ -28,8 +28,8 @@ import com.samskivert.Log;
  * instruct the Java compiler to give public scope to an anonymous inner
  * class rather than default scope. Sigh.
  */
-public class ServiceWaiter
-    implements ResultListener
+public class ServiceWaiter<T>
+    implements ResultListener<T>
 {
     /** Timeout to specify when you don't want a timeout. Use at your own
      * risk. */
@@ -83,7 +83,7 @@ public class ServiceWaiter
      * Marks the request as successful and posts the supplied response
      * argument for perusal by the caller.
      */
-    public synchronized void postSuccess (Object arg)
+    public synchronized void postSuccess (T arg)
     {
         _success = 1;
         _argument = arg;
@@ -91,13 +91,12 @@ public class ServiceWaiter
     }
 
     /**
-     * Marks the request as failed and posts the supplied response
-     * argument for perusal by the caller.
+     * Marks the request as failed.
      */
-    public synchronized void postFailure (Object arg)
+    public synchronized void postFailure (Exception error)
     {
         _success = -1;
-        _argument = arg;
+        _error = error;
         notify();
     }
 
@@ -105,9 +104,17 @@ public class ServiceWaiter
      * Returns the argument posted by the waiter when the response
      * arrived.
      */
-    public Object getArgument ()
+    public T getArgument ()
     {
         return _argument;
+    }
+
+    /**
+     * Returns the exception posted in the event of failure.
+     */
+    public Exception getError ()
+    {
+        return _error;
     }
 
     /**
@@ -148,7 +155,7 @@ public class ServiceWaiter
     }
 
     // documentation inherited from interface ResultListener
-    public void requestCompleted (Object result)
+    public void requestCompleted (T result)
     {
         postSuccess(result);
     }
@@ -156,7 +163,7 @@ public class ServiceWaiter
     // documentation inherited from interface ResultListener
     public void requestFailed (Exception cause)
     {
-        postFailure((cause != null) ? cause.getMessage() : null);
+        postFailure(cause);
     }
 
     /** Whether or not the response succeeded; positive for success,
@@ -165,7 +172,10 @@ public class ServiceWaiter
     protected int _success = 0;
 
     /** The argument posted by the waiter upon receipt of the response. */
-    protected Object _argument;
+    protected T _argument;
+
+    /** The exception posted by the waiter upon failure. */
+    protected Exception _error;
 
     /** How many seconds to wait before giving up the ghost. */
     protected int _timeout;

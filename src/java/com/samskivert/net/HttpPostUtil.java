@@ -32,7 +32,7 @@ public class HttpPostUtil
                                    int timeout)
         throws IOException, ServiceWaiter.TimeoutException
     {
-        final ServiceWaiter waiter = new ServiceWaiter(
+        final ServiceWaiter<String> waiter = new ServiceWaiter<String>(
             (timeout < 0) ? ServiceWaiter.NO_TIMEOUT : timeout);
         Thread tt = new Thread() {
             public void run () {
@@ -71,10 +71,9 @@ public class HttpPostUtil
         tt.start();
 
         if (waiter.waitForResponse()) {
-            return (String) waiter.getArgument();
-
+            return waiter.getArgument();
         } else {
-            throw (IOException) waiter.getArgument();
+            throw (IOException) waiter.getError();
         }
     }
 }

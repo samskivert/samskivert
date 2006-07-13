@@ -6,7 +6,7 @@ package com.samskivert.servlet.util;
 /**
  * Extends the basic ServiceWaiter to be useful for servlets.
  */
-public class ServiceWaiter extends com.samskivert.util.ServiceWaiter
+public class ServiceWaiter<T> extends com.samskivert.util.ServiceWaiter<T>
 {
     /** Timeout to specify when you don't want a timeout. Use at your own
      * risk. */
@@ -41,7 +41,6 @@ public class ServiceWaiter extends com.samskivert.util.ServiceWaiter
     {
         try {
             return waitForResponse();
-
         } catch (TimeoutException te) {
             throw new FriendlyException(friendlyText);
         }

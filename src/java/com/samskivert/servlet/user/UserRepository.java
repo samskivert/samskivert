@@ -42,6 +42,7 @@ import com.samskivert.jdbc.jora.FieldMask;
 import com.samskivert.jdbc.jora.Table;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 
 import com.samskivert.servlet.SiteIdentifier;
 
@@ -276,27 +277,57 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Creates a new session for the specified user and returns the
-     * randomly generated session identifier for that session. Temporary
-     * sessions are set to expire at the end of the user's browser
-     * session. Persistent sessions expire after one month.
+     * Creates a new session for the specified user and returns the randomly
+     * generated session identifier for that session. If a session entry
+     * already exists for the specified user it will be reused.
+     *
+     * <p> Temporary sessions are set to expire in two days (the assumption is
+     * that the browser will be given a non-persistent cookie and we should
+     * prune the session table entry after some reasonable amount of time),
+     * persistent sessions expire after one month.
      */
-    public String createNewSession (final User user, boolean persist)
+    public String registerSession (final User user, boolean persist)
 	throws PersistenceException
     {
-	// generate a random session identifier
-	final String authcode = UserUtil.genAuthCode(user);
-
 	// figure out when to expire the session
 	Calendar cal = Calendar.getInstance();
 	cal.add(Calendar.DATE, persist ? 30 : 2);
 	final Date expires = new Date(cal.getTime().getTime());
 
-	// insert the session into the database
+        // look for an existing session for this user
+        Tuple<Integer,String> session = execute(
+            new Operation<Tuple<Integer,String>>() {
+            public Tuple<Integer,String> invoke (
+                Connection conn, DatabaseLiaison liaison)
+                throws PersistenceException, SQLException
+            {
+                Statement stmt = conn.createStatement();
+                try {
+                    String query = "select sessionId, authcode from sessions " +
+                        "where userId = " + user.userId;
+                    ResultSet rs = stmt.executeQuery(query);
+                    while (rs.next()) {
+                        return new Tuple<Integer,String>(
+                            rs.getInt(1), rs.getString(2));
+                    }
+                    return null;
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+            }
+        });
+
+        // if we found one, update its expires time and reuse it
+        if (session != null) {
+            update("update sessions set expires = '" + expires + "' " +
+                   "where sessionId = " + session.left);
+            return session.right;
+        }
+
+        // otherwise create a new one and insert it into the table
+        String authcode = UserUtil.genAuthCode(user);
         update("insert into sessions (authcode, userId, expires) values('" +
                authcode + "', " + user.userId + ", '" + expires + "')");
-
-	// and let the user know what the session identifier is
 	return authcode;
     }
 

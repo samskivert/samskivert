@@ -269,8 +269,8 @@ public class UserManager
                              HttpServletRequest req, HttpServletResponse rsp)
         throws PersistenceException
     {
-	// generate a new session for this user
-	String authcode = _repository.createNewSession(user, persist);
+	// register a session for this user
+	String authcode = _repository.registerSession(user, persist);
 	// stick it into a cookie for their browsing convenience
 	Cookie acookie = new Cookie(_userAuthCookie, authcode);
         // strip the hostname from the server and use that as the domain

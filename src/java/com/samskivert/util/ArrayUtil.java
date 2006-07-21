@@ -757,6 +757,18 @@ public class ArrayUtil
 
     /**
      * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the last slot.
+     */
+    public static float[] append (float[] values, float value)
+    {
+        float[] nvalues = new float[values.length+1];
+        System.arraycopy(values, 0, nvalues, 0, values.length);
+        nvalues[values.length] = value;
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
      * specified value inserted into the last slot. The type of the values
      * array will be preserved.
      */

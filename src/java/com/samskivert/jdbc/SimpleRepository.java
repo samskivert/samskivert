@@ -59,12 +59,28 @@ public class SimpleRepository extends Repository
      *
      * @param provider the connection provider which will be used to
      * obtain our database connection.
-     * @param dbident the identifier of the database that will be accessed
-     * by this repository.
+     * @param dbident the identifier of the database that will be accessed by
+     * this repository or null if the derived class will call {@link
+     * #configureDatabaseIdent} by hand later.
      */
     public SimpleRepository (ConnectionProvider provider, String dbident)
     {
         super(provider);
+
+        if (dbident != null) {
+            configureDatabaseIdent(dbident);
+        }
+    }
+
+    /**
+     * This is called automatically if a dbident is provided at construct time,
+     * but a derived class can pass null to its constructor and then call this
+     * method itself later if it wishes to obtain its database identifier from
+     * an overridable method which could not otherwise be called at construct
+     * time.
+     */
+    protected void configureDatabaseIdent (String dbident)
+    {
         _dbident = dbident;
 
         // give the repository a chance to do any schema migration before

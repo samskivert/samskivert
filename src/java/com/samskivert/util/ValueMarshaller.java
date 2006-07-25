@@ -77,6 +77,13 @@ public class ValueMarshaller
             }
         });
 
+        // and longs
+        _parsers.put(Long.TYPE, new Parser() {
+            public Object parse (String source) throws Exception {
+                return Long.valueOf(source);
+            }
+        });
+        
         // and floats
         _parsers.put(Float.TYPE, new Parser() {
             public Object parse (String source) throws Exception {

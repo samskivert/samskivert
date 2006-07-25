@@ -1138,7 +1138,6 @@ public class StringUtil
 
         // grab the last token
         tokens[tcount] = source.substring(tstart);
-        tokens[tcount] = replace(tokens[tcount].trim(), "%COMMA%", ",");
 
         return tokens;
     }

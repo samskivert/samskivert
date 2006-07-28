@@ -56,7 +56,7 @@ public abstract class RepositoryListenerUnit<T> extends RepositoryUnit
     }
 
     @Override // from RepositoryUnit
-    public void handleFailure (PersistenceException pe)
+    public void handleFailure (Exception pe)
     {
         _listener.requestFailed(pe);
     }

@@ -32,7 +32,7 @@ public abstract class RepositoryUnit extends Invoker.Unit
     {
         try {
             invokePersist();
-        } catch (PersistenceException pe) {
+        } catch (Exception pe) {
             _error = pe;
         }
         return true;
@@ -62,8 +62,10 @@ public abstract class RepositoryUnit extends Invoker.Unit
 
     /**
      * Called if our persistent actions failed, back on the non-invoker thread.
+     * Note that this may be either a {@link PersistenceException} thrown by
+     * {@link #invokePersist} or a {@link RuntimeException} thrown by same.
      */
-    public abstract void handleFailure (PersistenceException pe);
+    public abstract void handleFailure (Exception pe);
 
-    protected PersistenceException _error;
+    protected Exception _error;
 }

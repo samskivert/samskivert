@@ -277,19 +277,6 @@ public class StringUtil
     }
 
     /**
-     * Get the message in the specified throwable, or the short class
-     * name if there is no message.
-     */
-    public static String getMessage (Throwable t)
-    {
-        String msg = t.getMessage();
-        if (msg == null) {
-            msg = shortClassName(t);
-        }
-        return msg;
-    }
-
-    /**
      * Converts the supplied object to a string. Normally this is
      * accomplished via the object's built in <code>toString()</code>
      * method, but in the case of arrays, <code>toString()</code> is

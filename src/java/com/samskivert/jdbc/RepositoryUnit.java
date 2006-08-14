@@ -27,6 +27,20 @@ import com.samskivert.util.Invoker;
  */
 public abstract class RepositoryUnit extends Invoker.Unit
 {
+    /** The default constructor. */
+    public RepositoryUnit ()
+    {
+    }
+
+    /**
+     * Create a RepositoryUnit which will report the supplied name
+     * in {@link #toString}.
+     */
+    public RepositoryUnit (String name)
+    {
+        super(name);
+    }
+
     // from abstract Invoker.Unit
     public boolean invoke ()
     {

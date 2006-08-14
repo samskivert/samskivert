@@ -37,6 +37,17 @@ public abstract class RepositoryListenerUnit<T> extends RepositoryUnit
     }
 
     /**
+     * Creates a repository listener unit that will report its results to the
+     * supplied result listener and report the supplied name in
+     * {@link #toString}.
+     */
+    public RepositoryListenerUnit (String name, ResultListener<T> listener)
+    {
+        super(name);
+        _listener = listener;
+    }
+
+    /**
      * Called to perform our persistent action and generate our result.
      */
     public abstract T invokePersistResult ()

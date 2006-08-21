@@ -178,13 +178,17 @@ public class ObserverList<T> extends ArrayList<T>
     @SuppressWarnings("unchecked")
     public void apply (ObserverOp<T> obop)
     {
+        int ocount = size();
+        if (ocount == 0) {
+            return;
+        }
         if (_policy == SAFE_IN_ORDER_NOTIFY) {
             // if we have to notify our observers in order, we need to
             // create a snapshot of the observer array at the time we
             // start the notification to ensure that modifications to the
             // array during notification don't hose us
-            int ocount = size();
-            if (_snap == null || _snap.length < ocount) {
+            if (_snap == null || _snap.length < ocount ||
+                    _snap.length > (ocount << 3)) {
                 _snap = (T[])new Object[ocount];
             }
             Object[] obs = toArray(_snap);
@@ -197,7 +201,6 @@ public class ObserverList<T> extends ArrayList<T>
             Arrays.fill(_snap, null);
             
         } else if (_policy == FAST_UNSAFE_NOTIFY) {
-            int ocount = size();
             for (int ii = ocount-1; ii >= 0; ii--) {
                 if (!checkedApply(obop, get(ii))) {
                     remove(ii);

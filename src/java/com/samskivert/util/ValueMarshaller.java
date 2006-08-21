@@ -41,11 +41,6 @@ public class ValueMarshaller
 
     protected static HashMap<Class,Parser> _parsers;
 
-    protected static final byte[] BYTE_ARRAY_PROTOTYPE = new byte[0];
-    protected static final int[] INT_ARRAY_PROTOTYPE = new int[0];
-    protected static final float[] FLOAT_ARRAY_PROTOTYPE = new float[0];
-    protected static final String[] STRING_ARRAY_PROTOTYPE = new String[0];
-
     static {
         _parsers = new HashMap<Class,Parser>();
 
@@ -106,7 +101,7 @@ public class ValueMarshaller
         });
 
         // and byte arrays
-        _parsers.put(BYTE_ARRAY_PROTOTYPE.getClass(), new Parser() {
+        _parsers.put(byte[].class, new Parser() {
             public Object parse (String source) throws Exception {
                 int[] values = StringUtil.parseIntArray(source);
                 int vcount = values.length;
@@ -119,21 +114,21 @@ public class ValueMarshaller
         });
 
         // and int arrays
-        _parsers.put(INT_ARRAY_PROTOTYPE.getClass(), new Parser() {
+        _parsers.put(int[].class, new Parser() {
             public Object parse (String source) throws Exception {
                 return StringUtil.parseIntArray(source);
             }
         });
 
         // and float arrays
-        _parsers.put(FLOAT_ARRAY_PROTOTYPE.getClass(), new Parser() {
+        _parsers.put(float[].class, new Parser() {
             public Object parse (String source) throws Exception {
                 return StringUtil.parseFloatArray(source);
             }
         });
 
         // and string arrays, oh my!
-        _parsers.put(STRING_ARRAY_PROTOTYPE.getClass(), new Parser() {
+        _parsers.put(String[].class, new Parser() {
             public Object parse (String source) throws Exception {
                 return StringUtil.parseStringArray(source);
             }

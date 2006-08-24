@@ -37,35 +37,32 @@ import com.samskivert.Log;
 import com.samskivert.swing.event.CommandEvent;
 
 /**
- * The controller class provides a basis for the separation of user
- * interface code into display code and control code. The display code
- * lives in a panel class (<code>javax.swing.JPanel</code> or something
- * conceptually similar) and the control code lives in an associated
- * controller class.
+ * The controller class provides a basis for the separation of user interface
+ * code into display code and control code. The display code lives in a panel
+ * class (<code>javax.swing.JPanel</code> or something conceptually similar)
+ * and the control code lives in an associated controller class.
  *
  * <p> The controller philosophy is thus: The panel class (and its UI
- * components) convert basic user interface actions into higher level
- * actions that more cleanly encapsulate the action desired by the user
- * and they pass those actions on to their controller. The controller then
- * performs abstract processing based on the users desires and the
- * changing state of the application and calls back to the panel to affect
- * changes to the display.
+ * components) convert basic user interface actions into higher level actions
+ * that more cleanly encapsulate the action desired by the user and they pass
+ * those actions on to their controller. The controller then performs abstract
+ * processing based on the users desires and the changing state of the
+ * application and calls back to the panel to affect changes to the display.
  *
- * <p> Controllers also support the notion of scope. When a panel wishes
- * to post an action, it doesn't do it directly to the controller. Instead
- * it does it using a controller utility function called {@link
- * #postAction}, which searches up the user interface hierarchy looking
- * for a component that implements {@link
- * com.samskivert.swing.ControllerProvider} which it will use to obtain
- * the controller "in scope" for that component. That controller is
- * requested to handle the action, but if it cannot handle the action, the
- * next controller up the chain is located and requested to process the
- * action. In this manner, a hierarchy of controllers (often just two: one
- * application wide and one for whatever particular mode the application
- * is in at the moment) can provide a set of services that are available
- * to all user interface elements in the entire application and in a way
- * that doesn't require tight connectedness between the UI elements and
- * the controllers.
+ * <p> Controllers also support the notion of scope. When a panel wishes to
+ * post an action, it doesn't do it directly to the controller. Instead it does
+ * it using a controller utility function called {@link #postAction}, which
+ * searches up the user interface hierarchy looking for a component that
+ * implements {@link ControllerProvider} which it will use to obtain the
+ * controller "in scope" for that component. That controller is requested to
+ * handle the action, but if it cannot handle the action, the next controller
+ * up the chain is located and requested to process the action.
+ *
+ * <p> In this manner, a hierarchy of controllers (often just two: one
+ * application wide and one for whatever particular mode the application is in
+ * at the moment) can provide a set of services that are available to all user
+ * interface elements in the entire application and in a way that doesn't
+ * require tight connectedness between the UI elements and the controllers.
  */
 public abstract class Controller
     implements ActionListener
@@ -150,49 +147,48 @@ public abstract class Controller
     }
 
     /**
-     * Instructs this controller to process this action event. When an
-     * action is posted by a user interface element, it will be posted to
-     * the controller in closest scope for that element. If that
-     * controller handles the event, it should return true from this
-     * method to indicate that processing should stop. If it cannot handle
-     * the event, it can return false to indicate that the event should be
-     * propagated to the next controller up the chain.
+     * Instructs this controller to process this action event. When an action
+     * is posted by a user interface element, it will be posted to the
+     * controller in closest scope for that element. If that controller handles
+     * the event, it should return true from this method to indicate that
+     * processing should stop. If it cannot handle the event, it can return
+     * false to indicate that the event should be propagated to the next
+     * controller up the chain.
      *
-     * <p> This method will be called on the AWT thread, so the controller
-     * can safely manipulate user interface components while handling an
-     * action. However, this means that action handling cannot block and
-     * should not take an undue amount of time. If the controller needs to
-     * perform complicated, lengthy processing it should do so with a
-     * separate thread, for example via {@link
-     * com.samskivert.swing.util.TaskMaster}.
+     * <p> This method will be called on the AWT thread, so the controller can
+     * safely manipulate user interface components while handling an action.
+     * However, this means that action handling cannot block and should not
+     * take an undue amount of time. If the controller needs to perform
+     * complicated, lengthy processing it should do so with a separate thread,
+     * for example via {@link com.samskivert.swing.util.TaskMaster}.
      *
      * <p> The default implementation of this method will reflect on the
      * controller class, looking for a method that matches the name of the
-     * action event. For example, if the action was "Exit" a method named
-     * "handleExit" would be sought. A handler method must provide one of
-     * three signatures: one accepting no arguments, one including only a
-     * reference to the source object, or one including the source object
-     * and an extra argument (which can be used only if the action event
-     * is an instance of {@link CommandEvent}). For example:
+     * action event. For example, if the action was "exit" a method named
+     * "exit" would be sought. A handler method must provide one of three
+     * signatures: one accepting no arguments, one including only a reference
+     * to the source object, or one including the source object and an extra
+     * argument (which can be used only if the action event is an instance of
+     * {@link CommandEvent}). For example:
      *
      * <pre>
-     * public void handleCancelClicked (Object source);
-     * public void handleTextEntered (Object source, String text);
+     * public void cancelClicked (Object source);
+     * public void textEntered (Object source, String text);
      * </pre>
      *
-     * The arguments to the method can be as specific or as generic as
-     * desired and reflection will perform the appropriate conversions at
-     * runtime. For example, a method could be declared like so:
+     * The arguments to the method can be as specific or as generic as desired
+     * and reflection will perform the appropriate conversions at runtime. For
+     * example, a method could be declared like so:
      *
      * <pre>
-     * public void handleCancelClicked (JButton source);
+     * public void cancelClicked (JButton source);
      * </pre>
      *
-     * One would have to ensure that the only action events generated with
-     * the action command string "CancelClicked" were generated by
-     * <code>JButton</code> instances if such a signature were used.
+     * One would have to ensure that the only action events generated with the
+     * action command string "cancelClicked" were generated by JButton
+     * instances if such a signature were used.
      *
-     * @param action The action to be processed.
+     * @param action the action to be processed.
      *
      * @return true if the action was processed, false if it should be
      * propagated up to the next controller in scope.
@@ -217,12 +213,13 @@ public abstract class Controller
 
         try {
             // look for the appropriate method
-            String targetName = "handle" + action;
             Method[] methods = getClass().getMethods();
             int mcount = methods.length;
 
             for (int i = 0; i < mcount; i++) {
-                if (methods[i].getName().equals(targetName)) {
+                if (methods[i].getName().equals(action) ||
+                    // handle our old style of prepending "handle"
+                    methods[i].getName().equals("handle" + action)) {
                     // see if we can generate the appropriate arguments
                     args = generateArguments(methods[i], source, arg);
                     // if we were able to, go ahead and use this method
@@ -243,7 +240,6 @@ public abstract class Controller
             if (method != null) {
                 method.invoke(this, args);
                 return true;
-
             } else {
                 return false;
             }
@@ -319,13 +315,13 @@ public abstract class Controller
 
     /**
      * Posts the specified action to the nearest controller in scope. The
-     * controller search begins with the source component of the action
-     * and traverses up the component tree looking for a controller to
-     * handle the action. The controller location and action event
-     * processing is guaranteed to take place on the AWT thread regardless
-     * of what thread calls <code>postAction</code> and that processing
-     * will not occur immediately but is instead appended to the AWT event
-     * dispatch queue for processing.
+     * controller search begins with the source component of the action and
+     * traverses up the component tree looking for a controller to handle the
+     * action. The controller location and action event processing is
+     * guaranteed to take place on the AWT thread regardless of what thread
+     * calls <code>postAction</code> and that processing will not occur
+     * immediately but is instead appended to the AWT event dispatch queue for
+     * processing.
      */
     public static void postAction (ActionEvent action)
     {

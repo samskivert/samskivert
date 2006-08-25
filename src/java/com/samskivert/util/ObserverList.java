@@ -136,13 +136,13 @@ public class ObserverList<T> extends ArrayList<T>
         _allowDups = allowDups;
     }
 
-    // documentation inherited
+    @Override
     public void add (int index, T element)
     {
         throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
     }
 
-    // documentation inherited
+    @Override
     public boolean add (T o)
     {
         // make sure we're not violating the list constraints
@@ -158,16 +158,42 @@ public class ObserverList<T> extends ArrayList<T>
         }
     }
 
-    // documentation inherited
+    @Override
     public boolean addAll (Collection<? extends T> c)
     {
         throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
     }
 
-    // documentation inherited
+    @Override
     public boolean addAll (int index, Collection<? extends T> c)
     {
         throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
+    }
+
+    @Override
+    public int indexOf (Object element)
+    {
+        // indexOf and lastIndexOf are implemented using reference equality
+        // so that contains() also uses reference equality.
+        for (int ii = 0, nn = size(); ii < nn; ii++) {
+            if (element == get(ii)) {
+                return ii;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public int lastIndexOf (Object element)
+    {
+        // indexOf and lastIndexOf are implemented using reference equality
+        // so that contains() also uses reference equality.
+        for (int ii = size() - 1; ii >= 0; ii--) {
+            if (element == get(ii)) {
+                return ii;
+            }
+        }
+        return -1;
     }
 
     /**

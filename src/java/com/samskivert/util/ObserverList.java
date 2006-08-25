@@ -196,6 +196,17 @@ public class ObserverList<T> extends ArrayList<T>
         return -1;
     }
 
+    @Override
+    public boolean remove (Object element)
+    {
+        int dex = indexOf(element);
+        if (dex == -1) {
+            return false; // not found
+        }
+        remove(dex);
+        return true;
+    }
+
     /**
      * Applies the supplied observer operation to all observers in the
      * list in a manner conforming to the notification ordering policy

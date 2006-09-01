@@ -81,6 +81,8 @@ public class StringUtil
 
     /**
      * Truncate the specified String if it is longer than maxLength.
+     * The string will be truncated at a position such that it is
+     * maxLength chars long after the addition of the 'append' String.
      *
      * @param append a String to add to the truncated String only after
      * truncation.
@@ -90,7 +92,7 @@ public class StringUtil
         if ((s == null) || (s.length() <= maxLength)) {
             return s;
         } else {
-            return s.substring(0, maxLength) + append;
+            return s.substring(0, maxLength - append.length()) + append;
         }
     }
 

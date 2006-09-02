@@ -613,7 +613,7 @@ public class ArrayUtil
      * which all subsequent values are to be removed.  This must be a
      * valid index within the <code>values</code> array.
      */
-    public static Object[] splice (Object[] values, int offset)
+    public static <T extends Object> T[] splice (T[] values, int offset)
     {
         int length = (values == null) ? 0 : values.length - offset;
         return splice(values, offset, length);
@@ -634,7 +634,8 @@ public class ArrayUtil
      * <code>offset + length</code> must be a valid index within the
      * <code>values</code> array.
      */
-    public static Object[] splice (Object[] values, int offset, int length)
+    public static <T extends Object> T[] splice (
+        T[] values, int offset, int length)
     {
         // make sure we've something to work with
         if (values == null) {
@@ -655,7 +656,8 @@ public class ArrayUtil
         }
 
         // create a new array and populate it with the spliced-in values
-        Object[] nvalues = (Object[])Array.newInstance(
+        @SuppressWarnings("unchecked")
+        T[] nvalues = (T[])Array.newInstance(
             values.getClass().getComponentType(), size - length);
         System.arraycopy(values, 0, nvalues, 0, offset);
         System.arraycopy(values, tstart, nvalues, offset, size - tstart);
@@ -772,9 +774,10 @@ public class ArrayUtil
      * specified value inserted into the last slot. The type of the values
      * array will be preserved.
      */
-    public static Object[] append (Object[] values, Object value)
+    public static <T extends Object> T[] append (T[] values, T value)
     {
-        Object[] nvalues = (Object[])Array.newInstance(
+        @SuppressWarnings("unchecked")
+        T[] nvalues = (T[])Array.newInstance(
             values.getClass().getComponentType(), values.length+1);
         System.arraycopy(values, 0, nvalues, 0, values.length);
         nvalues[values.length] = value;

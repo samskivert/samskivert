@@ -723,14 +723,104 @@ public class ArrayUtil
 
     /**
      * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the specified slot.
+     */
+    public static byte[] insert (byte[] values, byte value, int index)
+    {
+        byte[] nvalues = new byte[values.length+1];
+        if (index > 0) {
+            System.arraycopy(values, 0, nvalues, 0, index);
+        }
+        nvalues[index] = value;
+        if (index < values.length) {
+            System.arraycopy(
+                values, index, nvalues, index+1, values.length-index);
+        }
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the specified slot.
+     */
+    public static short[] insert (short[] values, short value, int index)
+    {
+        short[] nvalues = new short[values.length+1];
+        if (index > 0) {
+            System.arraycopy(values, 0, nvalues, 0, index);
+        }
+        nvalues[index] = value;
+        if (index < values.length) {
+            System.arraycopy(
+                values, index, nvalues, index+1, values.length-index);
+        }
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the specified slot.
+     */
+    public static int[] insert (int[] values, int value, int index)
+    {
+        int[] nvalues = new int[values.length+1];
+        if (index > 0) {
+            System.arraycopy(values, 0, nvalues, 0, index);
+        }
+        nvalues[index] = value;
+        if (index < values.length) {
+            System.arraycopy(
+                values, index, nvalues, index+1, values.length-index);
+        }
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the specified slot.
+     */
+    public static float[] insert (float[] values, float value, int index)
+    {
+        float[] nvalues = new float[values.length+1];
+        if (index > 0) {
+            System.arraycopy(values, 0, nvalues, 0, index);
+        }
+        nvalues[index] = value;
+        if (index < values.length) {
+            System.arraycopy(
+                values, index, nvalues, index+1, values.length-index);
+        }
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
+     * specified value inserted into the specified slot. The type of the values
+     * array will be preserved.
+     */
+    public static <T extends Object> T[] insert (T[] values, T value, int index)
+    {
+        @SuppressWarnings("unchecked")
+        T[] nvalues = (T[])Array.newInstance(
+            values.getClass().getComponentType(), values.length+1);
+        if (index > 0) {
+            System.arraycopy(values, 0, nvalues, 0, index);
+        }
+        nvalues[index] = value;
+        if (index < values.length) {
+            System.arraycopy(
+                values, index, nvalues, index+1, values.length-index);
+        }
+        return nvalues;
+    }
+
+    /**
+     * Creates a new array one larger than the supplied array and with the
      * specified value inserted into the last slot.
      */
     public static byte[] append (byte[] values, byte value)
     {
-        byte[] nvalues = new byte[values.length+1];
-        System.arraycopy(values, 0, nvalues, 0, values.length);
-        nvalues[values.length] = value;
-        return nvalues;
+        return insert(values, value, values.length);
     }
 
     /**
@@ -739,10 +829,7 @@ public class ArrayUtil
      */
     public static short[] append (short[] values, short value)
     {
-        short[] nvalues = new short[values.length+1];
-        System.arraycopy(values, 0, nvalues, 0, values.length);
-        nvalues[values.length] = value;
-        return nvalues;
+        return insert(values, value, values.length);
     }
 
     /**
@@ -751,10 +838,7 @@ public class ArrayUtil
      */
     public static int[] append (int[] values, int value)
     {
-        int[] nvalues = new int[values.length+1];
-        System.arraycopy(values, 0, nvalues, 0, values.length);
-        nvalues[values.length] = value;
-        return nvalues;
+        return insert(values, value, values.length);
     }
 
     /**
@@ -763,10 +847,7 @@ public class ArrayUtil
      */
     public static float[] append (float[] values, float value)
     {
-        float[] nvalues = new float[values.length+1];
-        System.arraycopy(values, 0, nvalues, 0, values.length);
-        nvalues[values.length] = value;
-        return nvalues;
+        return insert(values, value, values.length);
     }
 
     /**
@@ -776,12 +857,7 @@ public class ArrayUtil
      */
     public static <T extends Object> T[] append (T[] values, T value)
     {
-        @SuppressWarnings("unchecked")
-        T[] nvalues = (T[])Array.newInstance(
-            values.getClass().getComponentType(), values.length+1);
-        System.arraycopy(values, 0, nvalues, 0, values.length);
-        nvalues[values.length] = value;
-        return nvalues;
+        return insert(values, value, values.length);
     }
 
     /** The default random object used when shuffling an array. */

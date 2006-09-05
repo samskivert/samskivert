@@ -51,7 +51,7 @@ public class CurrencyTool
      */
     public String dollarsPennies (double value)
     {
-        return CurrencyUtil.dollars(value);
+        return CurrencyUtil.dollarsPennies(value);
     }
 
     /**

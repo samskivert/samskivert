@@ -41,6 +41,24 @@ public class CurrencyTool
     /**
      * Converts a number representing dollars to a currency display string.
      */
+    public String dollars (double value)
+    {
+        return CurrencyUtil.dollars(value);
+    }
+
+    /**
+     * Converts a number representing pennies to a displayable dollars value.
+     */
+    public String dollarsPennies (double value)
+    {
+        return CurrencyUtil.dollars(value);
+    }
+
+    /**
+     * Converts a number representing currency in the requester's locale to a
+     * display string. <em>Note:</em> you probably want to be using {@link
+     * #dollars}.
+     */
     public String currency (double value)
     {
         return CurrencyUtil.currency(value, _req.getLocale());
@@ -48,6 +66,7 @@ public class CurrencyTool
 
     /**
      * Converts a number representing pennies to a currency display string.
+     * <em>Note:</em> you probably want to be using {@link #dollarsPennies}.
      */
     public String currencyPennies (double value)
     {
@@ -55,14 +74,14 @@ public class CurrencyTool
     }
 
     /**
-     * Velocity currently doesn't support floats, so we have to provide
-     * our own support to convert pennies to a dollar amount.
+     * Velocity currently doesn't support floats, so we have to provide our own
+     * support to convert pennies to a dollar amount.
      */
     public String penniesToDollars (int pennies)
     {
         return "" + (pennies / 100.0);
     }
-    
+
     /** The servlet request we are providing currency functionality for. */
     protected HttpServletRequest _req;
 }

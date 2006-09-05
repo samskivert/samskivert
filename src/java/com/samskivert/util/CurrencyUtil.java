@@ -29,8 +29,8 @@ import java.util.Locale;
 public class CurrencyUtil
 {
     /**
-     * Converts a number representing pennies to a currency display string
-     * using the supplied local.
+     * Converts a number representing pennies to a locale-appropriate currency
+     * display string using the supplied local.
      */
     public static String currencyPennies (double value, Locale locale)
     {
@@ -38,33 +38,30 @@ public class CurrencyUtil
     }
 
     /**
-     * Converts a number representing dollars to a currency display string
-     * using the supplied locale.
+     * Converts a number representing currency in the specified locale to a
+     * displayable string.
      */
     public static String currency (double value, Locale locale)
     {
-        NumberFormat numberFormatter =
-            NumberFormat.getCurrencyInstance(locale);
-
-        return currency(value, numberFormatter);
+        return currency(value, NumberFormat.getCurrencyInstance(locale));
     }
 
     /**
-     * Converts a number representing pennies to a currency display string
-     * using the default local.
+     * Converts a number representing pennies to a dollars display string using
+     * the US local.
      */
-    public static String currencyPennies (double value)
+    public static String dollarsPennies (double value)
     {
-        return currency(value / 100.0, _defaultFormatter);
+        return currency(value / 100.0, _dollarFormatter);
     }
 
     /**
      * Converts a number representing dollars to a currency display string
-     * using the default locale.
+     * using the US locale.
      */
-    public static String currency (double value)
+    public static String dollars (double value)
     {
-        return currency(value, _defaultFormatter);
+        return currency(value, _dollarFormatter);
     }
 
     /**
@@ -76,7 +73,7 @@ public class CurrencyUtil
         return nformat.format(value);
     }
 
-    /** A number format for the default local. */
-    protected static NumberFormat _defaultFormatter =
-            NumberFormat.getCurrencyInstance();
+    /** A number format for formatting dollars. */
+    protected static NumberFormat _dollarFormatter =
+        NumberFormat.getCurrencyInstance(Locale.US);
 }

@@ -209,7 +209,7 @@ public class MessageManager
         // in the request object
         ResourceBundle[] bundles = null;
         if (req != null) {
-            bundles = (ResourceBundle[])req.getAttribute(BUNDLE_CACHE_NAME);
+            bundles = (ResourceBundle[])req.getAttribute(getBundleCacheName());
         }
         if (bundles != null) {
             return bundles;
@@ -251,7 +251,7 @@ public class MessageManager
 
         // if we found either or both bundles, cache 'em
         if (bundles[0] != null || bundles[1] != null && req != null) {
-            req.setAttribute(BUNDLE_CACHE_NAME, bundles);
+            req.setAttribute(getBundleCacheName(), bundles);
         }
 
         return bundles;
@@ -326,6 +326,12 @@ public class MessageManager
         return (req == null) ? "<none>" : req.getRequestURL().toString();
     }
 
+    /** Used to cache resolved bundles in a request. */
+    protected String getBundleCacheName ()
+    {
+        return BUNDLE_CACHE_PREFIX + _bundlePath;
+    }
+
     /** The path, relative to the classpath, to our resource bundles. */
     protected String _bundlePath;
 
@@ -346,6 +352,6 @@ public class MessageManager
 
     /** The attribute name that we use for caching resource bundles in
      * request objects. */
-    protected static final String BUNDLE_CACHE_NAME =
-        "com.samskivert.servlet.MessageManager:CachedResourceBundle";
+    protected static final String BUNDLE_CACHE_PREFIX =
+        "com.samskivert.servlet.MessageManager:CachedResourceBundle:";
 }

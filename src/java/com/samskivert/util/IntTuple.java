@@ -24,7 +24,7 @@ package com.samskivert.util;
  * A simple object that holds a reference to two ints.
  */
 public class IntTuple
-    implements Comparable
+    implements Comparable<IntTuple>
 {
     /** The left int. */
     public int left;
@@ -53,14 +53,9 @@ public class IntTuple
     }
 
     // documentation inherited from interface
-    public int compareTo (Object o)
+    public int compareTo (IntTuple ot)
     {
-        if (o instanceof IntTuple) {
-            IntTuple ot = (IntTuple)o;
-            return (left == ot.left) ? (right - ot.right) : (left - ot.left);
-        } else {
-            return hashCode() - o.hashCode();
-        }
+        return (left == ot.left) ? (right - ot.right) : (left - ot.left);
     }
 
     /**

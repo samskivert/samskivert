@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 
 import java.lang.reflect.Method;
 
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
@@ -98,6 +99,70 @@ public abstract class Controller
             Controller.postAction(event);
         }
     };
+
+    /**
+     * Posts the specified action to the nearest controller in scope. The
+     * controller search begins with the source component of the action and
+     * traverses up the component tree looking for a controller to handle the
+     * action. The controller location and action event processing is
+     * guaranteed to take place on the AWT thread regardless of what thread
+     * calls <code>postAction</code> and that processing will not occur
+     * immediately but is instead appended to the AWT event dispatch queue for
+     * processing.
+     */
+    public static void postAction (ActionEvent action)
+    {
+        // slip things onto the event queue for later
+        EventQueue.invokeLater(new ActionInvoker(action));
+    }
+
+    /**
+     * Like {@link #postAction(ActionEvent)} except that it constructs the
+     * action event for you with the supplied source component and string
+     * command. The <code>id</code> of the event will always be set to
+     * zero.
+     */
+    public static void postAction (Component source, String command)
+    {
+        // slip things onto the event queue for later
+        ActionEvent event = new ActionEvent(source, 0, command);
+        EventQueue.invokeLater(new ActionInvoker(event));
+    }
+
+    /**
+     * Like {@link #postAction(ActionEvent)} except that it constructs a
+     * {@link CommandEvent} with the supplied source component, string
+     * command and argument.
+     */
+    public static void postAction (
+        Component source, String command, Object argument)
+    {
+        // slip things onto the event queue for later
+        CommandEvent event = new CommandEvent(source, command, argument);
+        EventQueue.invokeLater(new ActionInvoker(event));
+    }
+
+    /**
+     * Creates a button and configures it with the specified label and action
+     * command and adds {@link #DISPATCHER} as an action listener.
+     */
+    public static JButton createActionButton (String label, String command)
+    {
+        JButton button = new JButton(label);
+        configureAction(button, command);
+        return button;
+    }
+
+    /**
+     * Configures the supplied button with the {@link #DISPATCHER} action
+     * listener and the specified action command (which, if it is a method name
+     * will be looked up dynamically on the matching controller).
+     */
+    public static void configureAction (AbstractButton button, String action)
+    {
+        button.setActionCommand(action);
+        button.addActionListener(DISPATCHER);
+    }
 
     /**
      * Lets this controller know about the panel that it is controlling.
@@ -311,60 +376,6 @@ public abstract class Controller
 
         // we would have handled it, but we couldn't
         return null;
-    }
-
-    /**
-     * Posts the specified action to the nearest controller in scope. The
-     * controller search begins with the source component of the action and
-     * traverses up the component tree looking for a controller to handle the
-     * action. The controller location and action event processing is
-     * guaranteed to take place on the AWT thread regardless of what thread
-     * calls <code>postAction</code> and that processing will not occur
-     * immediately but is instead appended to the AWT event dispatch queue for
-     * processing.
-     */
-    public static void postAction (ActionEvent action)
-    {
-        // slip things onto the event queue for later
-        EventQueue.invokeLater(new ActionInvoker(action));
-    }
-
-    /**
-     * Like {@link #postAction(ActionEvent)} except that it constructs the
-     * action event for you with the supplied source component and string
-     * command. The <code>id</code> of the event will always be set to
-     * zero.
-     */
-    public static void postAction (Component source, String command)
-    {
-        // slip things onto the event queue for later
-        ActionEvent event = new ActionEvent(source, 0, command);
-        EventQueue.invokeLater(new ActionInvoker(event));
-    }
-
-    /**
-     * Like {@link #postAction(ActionEvent)} except that it constructs a
-     * {@link CommandEvent} with the supplied source component, string
-     * command and argument.
-     */
-    public static void postAction (
-        Component source, String command, Object argument)
-    {
-        // slip things onto the event queue for later
-        CommandEvent event = new CommandEvent(source, command, argument);
-        EventQueue.invokeLater(new ActionInvoker(event));
-    }
-
-    /**
-     * Creates a button and configures it with the specified label and
-     * action command and adds {@link #DISPATCHER} as an action listener.
-     */
-    public static JButton createActionButton (String label, String command)
-    {
-        JButton button = new JButton(label);
-        button.setActionCommand(command);
-        button.addActionListener(DISPATCHER);
-        return button;
     }
 
     /**

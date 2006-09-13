@@ -20,11 +20,13 @@
 
 package com.samskivert.util;
 
+import java.io.Serializable;
+
 /**
  * A simple object that holds a reference to two ints.
  */
 public class IntTuple
-    implements Comparable<IntTuple>
+    implements Comparable<IntTuple>, Serializable
 {
     /** The left int. */
     public int left;

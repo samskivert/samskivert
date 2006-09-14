@@ -49,6 +49,10 @@
      classname="javax.xml.parsers.SAXParser" classpathref="classpath"/>
     <echo message="JAXP: ${jaxp.present}"/>
 
+    <available property="javax.persistence.present"
+     classname="javax.persistence.Entity" classpathref="classpath"/>
+    <echo message="Java Persistence: ${javax.persistence.present}"/>
+
     <echo message=""/>
     <echo message="----------------------------------------------"/>
     <echo message="Jakarta libraries - http://jakarta.apache.org/"/>
@@ -100,7 +104,15 @@
         <isset property="jakarta.commons-io.present"/>
       </and>
     </condition>
-    <!--<echo message="com.samskivert.jdbc: ${build.jdbc}"/>-->
+    <echo message="com.samskivert.jdbc: ${build.jdbc}"/>
+
+    <condition property="build.depot">
+      <and>
+        <isset property="build.jdbc"/>
+        <isset property="javax.persistence.present"/>
+      </and>
+    </condition>
+    <echo message="com.samskivert.jdbc.depot: ${build.depot}"/>
 
     <condition property="build.net">
       <and>
@@ -176,6 +188,7 @@
       <classpath refid="classpath"/>
       <exclude name="com/samskivert/io/**" unless="build.io"/>
       <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+      <exclude name="com/samskivert/jdbc/depot/**" unless="build.depot"/>
       <exclude name="com/samskivert/net/**" unless="build.net"/>
       <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
       <exclude name="com/samskivert/swing/**" unless="build.swing"/>

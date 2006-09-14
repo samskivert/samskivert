@@ -192,7 +192,7 @@ public class DepotRepository
 
         public String toWhereClause ()
         {
-            StringBuffer where = new StringBuffer();
+            StringBuilder where = new StringBuilder();
             for (int ii = 0; ii < indices.length; ii++) {
                 if (ii > 0) {
                     where.append(" and ");

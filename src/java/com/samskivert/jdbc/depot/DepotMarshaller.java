@@ -72,7 +72,7 @@ public class DepotMarshaller<T>
         _fields = flist.toArray(new FieldMarshaller[flist.size()]);
 
         // generate our full list of columns for use in queries
-        StringBuffer columns = new StringBuffer();
+        StringBuilder columns = new StringBuilder();
         for (FieldMarshaller fm : _fields) {
             if (columns.length() > 0) {
                 columns.append(",");

@@ -1,12 +1,14 @@
 //
 // $Id: AdjustTestApp.java,v 1.2 2003/01/15 03:24:53 mdb Exp $
 
-package com.samskivert.util;
+package com.samskivert.swing;
 
 import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+
+import com.samskivert.util.Config;
 
 /**
  * Does something extraordinary.

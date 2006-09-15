@@ -33,9 +33,9 @@ public class CollectionUtilTest extends TestCase
             assertTrue("length == 10", subset.size() == 10);
         }
 
-        // test sortable array list insertion
+        // test comparable array list insertion
         Random rand = new Random();
-        SortableArrayList slist = new SortableArrayList();
+        ComparableArrayList slist = new ComparableArrayList();
         for (int ii = 0; ii < 25; ii++) {
             Integer value = new Integer(rand.nextInt(100));
             slist.insertSorted(value);

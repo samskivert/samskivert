@@ -80,7 +80,7 @@ public class MultiLineLabel extends JComponent
      */
     public MultiLineLabel (String text, int align, int constrain, int size)
     {
-        _label = new Label(text);
+        _label = createLabel(text);
         _label.setAlignment(align);
         noteConstraints(constrain, size);
     }
@@ -304,6 +304,14 @@ public class MultiLineLabel extends JComponent
         // go ahead and lay out the label in all cases so that we assume
         // some sort of size
         layoutLabel();
+    }
+
+    /**
+     * Creates the underlying {@link Label} that we use to render our text.
+     */
+    protected Label createLabel (String text)
+    {
+        return new Label(text);
     }
 
     /**

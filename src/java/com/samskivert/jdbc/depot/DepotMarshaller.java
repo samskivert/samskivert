@@ -28,8 +28,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.persistence.Id;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * Handles the marshalling and unmarshalling of persistent instances to JDBC
@@ -50,7 +53,6 @@ public class DepotMarshaller<T>
 
         // introspect on the class and create field marshallers for all of its
         // fields
-        ArrayList<FieldMarshaller> flist = new ArrayList<FieldMarshaller>();
         for (Field field : _pclass.getFields()) {
             // the field must be public, non-static and non-transient
             int mods = field.getModifiers();
@@ -61,25 +63,22 @@ public class DepotMarshaller<T>
             }
 
             FieldMarshaller fm = FieldMarshaller.createMarshaller(field);
-            flist.add(fm);
+            _fields.put(fm.getColumnName(), fm);
 
             // check to see if this is our primary key
-            for (Annotation ann : field.getDeclaredAnnotations()) {
-                System.err.println(
-                    "Annotation " + ann + " (" + ann.getClass() + ")");
+            if (field.getAnnotation(Id.class) != null) {
+                // TODO: handle multiple field primary keys
+                _primaryKey = fm;
             }
         }
-        _fields = flist.toArray(new FieldMarshaller[flist.size()]);
 
         // generate our full list of columns for use in queries
-        StringBuilder columns = new StringBuilder();
-        for (FieldMarshaller fm : _fields) {
-            if (columns.length() > 0) {
-                columns.append(",");
-            }
-            columns.append(fm.getColumnName());
+        _allFields = new String[_fields.size()];
+        int idx = 0;
+        for (FieldMarshaller fm : _fields.values()) {
+            _allFields[idx++] = fm.getColumnName();
         }
-        _fullColumnList = columns.toString();
+        _fullColumnList = StringUtil.join(_allFields, ",");
     }
 
     /**
@@ -93,12 +92,38 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Returns the field name of the primary key for this persistent object
-     * class or null if it did not declare a primary key.
+     * Returns the field/column name of the primary key for this persistent
+     * object class.
+     *
+     * @exception UnsupportedOperationException thrown if this persistent
+     * object class did not define a primary key.
      */
-    public String getPrimaryKey ()
+    public String getPrimaryKeyColumn ()
     {
-        return _primaryKey == null ? null : _primaryKey.getColumnName();
+        if (_primaryKey == null) {
+            throw new UnsupportedOperationException(
+                getClass().getName() + " does not define a primary key");
+        }
+        return _primaryKey.getColumnName();
+    }
+
+    /**
+     * Returns a key configured with the primary key of the supplied object.
+     * Throws an exception if the persistent object did not declare a primary
+     * key.
+     */
+    public DepotRepository.Key getPrimaryKey (Object object)
+    {
+        if (_primaryKey == null) {
+            throw new UnsupportedOperationException(
+                getClass().getName() + " does not define a primary key");
+        }
+        try {
+            return new DepotRepository.Key(_primaryKey.getColumnName(),
+                (Comparable)_primaryKey.getField().get(object));
+        } catch (IllegalAccessException iae) {
+            throw new RuntimeException(iae);
+        }
     }
 
     /**
@@ -119,17 +144,23 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Creates a persistent object from the supplied result set.
+     * Creates a persistent object from the supplied result set. The result set
+     * must have come from a query provided by {@link #createQuery}.
      */
     public T createObject (ResultSet rs)
         throws SQLException
     {
         try {
             T po = (T)_pclass.newInstance();
-            for (int ii = 0; ii < _fields.length; ii++) {
-                _fields[ii].getValue(rs, ii+1, po);
+            for (FieldMarshaller fm : _fields.values()) {
+                fm.getValue(rs, po);
             }
             return po;
+
+        } catch (SQLException sqe) {
+            // pass this on through
+            throw sqe;
+
         } catch (Exception e) {
             String errmsg = "Failed to unmarshall persistent object " +
                 "[pclass=" + _pclass.getName() + "]";
@@ -144,7 +175,36 @@ public class DepotMarshaller<T>
     public PreparedStatement createInsert (Connection conn, Object po)
         throws SQLException
     {
-        return null;
+        try {
+            StringBuilder insert = new StringBuilder();
+            insert.append("insert into ").append(getTableName());
+            insert.append(" (").append(_fullColumnList).append(")");
+            insert.append(" values(");
+            for (int ii = 0; ii < _allFields.length; ii++) {
+                if (ii > 0) {
+                    insert.append(", ");
+                }
+                insert.append("?");
+            }
+            insert.append(")");
+
+            // TODO: handle primary key, nullable fields specially?
+            PreparedStatement pstmt = conn.prepareStatement(insert.toString());
+            int idx = 0;
+            for (String field :  _allFields) {
+                _fields.get(field).setValue(po, pstmt, ++idx);
+            }
+            return pstmt;
+
+        } catch (SQLException sqe) {
+            // pass this on through
+            throw sqe;
+
+        } catch (Exception e) {
+            String errmsg = "Failed to marshall persistent object " +
+                "[pclass=" + _pclass.getName() + "]";
+            throw (SQLException)new SQLException(errmsg).initCause(e);
+        }
     }
 
     /**
@@ -155,20 +215,54 @@ public class DepotMarshaller<T>
         Connection conn, Object po, DepotRepository.Key key)
         throws SQLException
     {
-        return null;
+        return createUpdate(conn, po, key, _allFields);
     }
 
     /**
-     * Binds the specified object to the specified prepared statement.
+     * Creates a statement that will update the supplied persistent object
+     * using the supplied key.
      */
-    public void bindObject (PreparedStatement stmt, Object po)
+    public PreparedStatement createUpdate (
+        Connection conn, Object po, DepotRepository.Key key,
+        String[] modifiedFields)
+        throws SQLException
     {
+        StringBuilder update = new StringBuilder();
+        update.append("update ").append(getTableName()).append(" set ");
+        int idx = 0;
+        for (String field : modifiedFields) {
+            if (idx++ > 0) {
+                update.append(", ");
+            }
+            update.append(field).append(" = ?");
+        }
+        update.append(" where ").append(key.toWhereClause());
+
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(update.toString());
+            idx = 0;
+            for (String field : modifiedFields) {
+                _fields.get(field).setValue(po, pstmt, ++idx);
+            }
+            return pstmt;
+
+        } catch (SQLException sqe) {
+            // pass this on through
+            throw sqe;
+
+        } catch (Exception e) {
+            String errmsg = "Failed to marshall persistent object " +
+                "[pclass=" + _pclass.getName() + "]";
+            throw (SQLException)new SQLException(errmsg).initCause(e);
+        }
     }
 
     protected Class<T> _pclass;
-    protected FieldMarshaller[] _fields;
+    protected HashMap<String, FieldMarshaller> _fields =
+        new HashMap<String, FieldMarshaller>();
 
     protected String _tableName;
     protected FieldMarshaller _primaryKey;
     protected String _fullColumnList;
+    protected String[] _allFields;
 }

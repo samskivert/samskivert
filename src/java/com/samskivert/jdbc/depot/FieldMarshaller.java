@@ -102,7 +102,7 @@ public abstract class FieldMarshaller
      * Reads the specified column from the supplied result set and writes it to
      * the appropriate field of the persistent object.
      */
-    public abstract void getValue (ResultSet rset, int column, Object po)
+    public abstract void getValue (ResultSet rset, Object po)
         throws SQLException, IllegalAccessException;
 
     /**
@@ -111,6 +111,14 @@ public abstract class FieldMarshaller
     public String getColumnName ()
     {
         return _field.getName();
+    }
+
+    /**
+     * Returns the {@link Field} handled by this marshaller.
+     */
+    public Field getField ()
+    {
+        return _field;
     }
 
     protected void init (Field field)
@@ -123,9 +131,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setBoolean(column, _field.getBoolean(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.setBoolean(po, rs.getBoolean(column));
+            _field.setBoolean(po, rs.getBoolean(getColumnName()));
         }
     }
 
@@ -134,9 +142,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setByte(column, _field.getByte(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.setByte(po, rs.getByte(column));
+            _field.setByte(po, rs.getByte(getColumnName()));
         }
     }
 
@@ -145,9 +153,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setShort(column, _field.getShort(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.setShort(po, rs.getShort(column));
+            _field.setShort(po, rs.getShort(getColumnName()));
         }
     }
 
@@ -156,9 +164,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setInt(column, _field.getInt(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.setInt(po, rs.getInt(column));
+            _field.setInt(po, rs.getInt(getColumnName()));
         }
     }
 
@@ -167,9 +175,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setLong(column, _field.getLong(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.setLong(po, rs.getLong(column));
+            _field.setLong(po, rs.getLong(getColumnName()));
         }
     }
 
@@ -178,9 +186,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setFloat(column, _field.getFloat(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.setFloat(po, rs.getFloat(column));
+            _field.setFloat(po, rs.getFloat(getColumnName()));
         }
     }
 
@@ -189,9 +197,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setDouble(column, _field.getDouble(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.setDouble(po, rs.getDouble(column));
+            _field.setDouble(po, rs.getDouble(getColumnName()));
         }
     }
 
@@ -200,9 +208,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             ps.setObject(column, _field.get(po));
         }
-        public void getValue (ResultSet rs, int column, Object po)
+        public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
-            _field.set(po, rs.getObject(column));
+            _field.set(po, rs.getObject(getColumnName()));
         }
     }
 

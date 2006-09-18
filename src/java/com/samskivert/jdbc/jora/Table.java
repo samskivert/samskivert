@@ -99,6 +99,14 @@ public class Table<T>
     }
 
     /**
+     * Returns the SQL name of the table on which we operate.
+     */
+    public String getName ()
+    {
+        return name;
+    }
+
+    /**
      * Select records from database table according to search condition
      *
      * @param condition valid SQL condition expression started with WHERE or

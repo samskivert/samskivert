@@ -51,8 +51,8 @@ public class DepotMarshaller<T>
         _tableName = _pclass.getName();
         _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
 
-        // introspect on the class and create field marshallers for all of its
-        // fields
+        // introspect on the class and create marshallers for persistent fields
+        ArrayList<String> fields = new ArrayList<String>();
         for (Field field : _pclass.getFields()) {
             // the field must be public, non-static and non-transient
             int mods = field.getModifiers();
@@ -64,6 +64,7 @@ public class DepotMarshaller<T>
 
             FieldMarshaller fm = FieldMarshaller.createMarshaller(field);
             _fields.put(fm.getColumnName(), fm);
+            fields.add(fm.getColumnName());
 
             // check to see if this is our primary key
             if (field.getAnnotation(Id.class) != null) {
@@ -72,12 +73,8 @@ public class DepotMarshaller<T>
             }
         }
 
-        // generate our full list of columns for use in queries
-        _allFields = new String[_fields.size()];
-        int idx = 0;
-        for (FieldMarshaller fm : _fields.values()) {
-            _allFields[idx++] = fm.getColumnName();
-        }
+        // generate our full list of fields/columns for use in queries
+        _allFields = fields.toArray(new String[fields.size()]);
         _fullColumnList = StringUtil.join(_allFields, ",");
     }
 
@@ -243,6 +240,46 @@ public class DepotMarshaller<T>
             idx = 0;
             for (String field : modifiedFields) {
                 _fields.get(field).setValue(po, pstmt, ++idx);
+            }
+            return pstmt;
+
+        } catch (SQLException sqe) {
+            // pass this on through
+            throw sqe;
+
+        } catch (Exception e) {
+            String errmsg = "Failed to marshall persistent object " +
+                "[pclass=" + _pclass.getName() + "]";
+            throw (SQLException)new SQLException(errmsg).initCause(e);
+        }
+    }
+
+    /**
+     * Creates a statement that will update the specified set of fields for all
+     * persistent objects that match the supplied key.
+     */
+    public PreparedStatement createPartialUpdate (
+        Connection conn, DepotRepository.Key key,
+        String[] modifiedFields, Object[] modifiedValues)
+        throws SQLException
+    {
+        StringBuilder update = new StringBuilder();
+        update.append("update ").append(getTableName()).append(" set ");
+        int idx = 0;
+        for (String field : modifiedFields) {
+            if (idx++ > 0) {
+                update.append(", ");
+            }
+            update.append(field).append(" = ?");
+        }
+        update.append(" where ").append(key.toWhereClause());
+
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(update.toString());
+            idx = 0;
+            for (Object value : modifiedValues) {
+                // TODO: use the field marshaller?
+                pstmt.setObject(++idx, value);
             }
             return pstmt;
 

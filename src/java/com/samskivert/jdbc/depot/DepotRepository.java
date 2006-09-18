@@ -145,9 +145,23 @@ public class DepotRepository
         return 0;
     }
 
-    protected int update (Object record, String ... modifiedFields)
+    protected int update (final Object record, final String ... modifiedFields)
         throws PersistenceException
     {
+        final DepotMarshaller marsh = getMarshaller(record.getClass());
+        invoke(new Modifier(marsh.getPrimaryKey(record)) {
+            public int invoke (Connection conn)
+                throws SQLException
+            {
+                PreparedStatement stmt = marsh.createUpdate(
+                    conn, record, marsh.getPrimaryKey(record), modifiedFields);
+                try {
+                    return stmt.executeUpdate();
+                } finally {
+                    stmt.close();
+                }
+            }
+        });
         return 0;
     }
 

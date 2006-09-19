@@ -293,7 +293,7 @@ public class JDBCUtil
         Statement stmt = conn.createStatement();
         try {
             stmt.executeUpdate("create table " + table + "(" +
-                               StringUtil.join(definition, ",") + ") " +
+                               StringUtil.join(definition, ", ") + ") " +
                                postamble);
         } finally {
             close(stmt);

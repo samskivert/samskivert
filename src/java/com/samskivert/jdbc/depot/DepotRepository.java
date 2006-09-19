@@ -59,9 +59,7 @@ public class DepotRepository
     {
         final DepotMarshaller<T> marsh = getMarshaller(type);
         return invoke(new Query<T>(key) {
-            public T invoke (Connection conn)
-                throws SQLException, PersistenceException
-            {
+            public T invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createQuery(conn, _key);
                 try {
                     T result = null;
@@ -89,9 +87,7 @@ public class DepotRepository
     {
         final DepotMarshaller<T> marsh = getMarshaller(type);
         return invoke(new Query<ArrayList<T>>(key) {
-            public ArrayList<T> invoke (Connection conn)
-                throws SQLException, PersistenceException
-            {
+            public ArrayList<T> invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createQuery(conn, _key);
                 try {
                     ArrayList<T> results = new ArrayList<T>();
@@ -131,13 +127,11 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
         return invoke(new Modifier(marsh.getPrimaryKey(record)) {
-            public int invoke (Connection conn)
-                throws SQLException
-            {
+            public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createInsert(conn, record);
                 try {
                     int mods = stmt.executeUpdate();
-                    // TODO: assign primary key
+                    marsh.assignPrimaryKey(conn, record);
                     return mods;
                 } finally {
                     stmt.close();
@@ -157,9 +151,7 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
         return invoke(new Modifier(marsh.getPrimaryKey(record)) {
-            public int invoke (Connection conn)
-                throws SQLException
-            {
+            public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(conn, record, _key);
                 try {
                     return stmt.executeUpdate();
@@ -181,9 +173,7 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
         return invoke(new Modifier(marsh.getPrimaryKey(record)) {
-            public int invoke (Connection conn)
-                throws SQLException
-            {
+            public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(
                     conn, record, _key, modifiedFields);
                 try {
@@ -239,9 +229,7 @@ public class DepotRepository
 
         final DepotMarshaller marsh = getMarshaller(type);
         return invoke(new Modifier(key) {
-            public int invoke (Connection conn)
-                throws SQLException
-            {
+            public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createPartialUpdate(
                     conn, _key, fields, values);
                 try {
@@ -313,9 +301,7 @@ public class DepotRepository
 
         final DepotMarshaller marsh = getMarshaller(type);
         return invoke(new Modifier(key) {
-            public int invoke (Connection conn)
-                throws SQLException
-            {
+            public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createLiteralUpdate(
                     conn, _key, fields, values);
                 try {
@@ -341,9 +327,7 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
         return invoke(new Modifier(marsh.getPrimaryKey(record)) {
-            public int invoke (Connection conn)
-                throws SQLException
-            {
+            public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
                     // if our primary key is null or is the integer 0, assume
@@ -360,7 +344,9 @@ public class DepotRepository
                     // if the update modified zero rows or the primary key was
                     // obviously unset, do an insertion
                     stmt = marsh.createInsert(conn, record);
-                    return stmt.executeUpdate();
+                    int mods = stmt.executeUpdate();
+                    marsh.assignPrimaryKey(conn, record);
+                    return mods;
 
                 } finally {
                     stmt.close();
@@ -407,9 +393,7 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = getMarshaller(type);
         return invoke(new Modifier(key) {
-            public int invoke (Connection conn)
-                throws SQLException
-            {
+            public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createDelete(conn, _key);
                 try {
                     return stmt.executeUpdate();
@@ -421,11 +405,21 @@ public class DepotRepository
     }
 
     protected <T> DepotMarshaller<T> getMarshaller (Class<T> type)
+        throws PersistenceException
     {
         @SuppressWarnings("unchecked")DepotMarshaller<T> marshaller =
             (DepotMarshaller<T>)_marshallers.get(type);
         if (marshaller == null) {
             _marshallers.put(type, marshaller = new DepotMarshaller<T>(type));
+            // initialize the marshaller which may create or migrate the table
+            // for its underlying persistent object
+            final DepotMarshaller<T> fm = marshaller;
+            invoke(new Modifier(null) {
+                public int invoke (Connection conn) throws SQLException {
+                    fm.init(conn);
+                    return 0;
+                }
+            });
         }
         return marshaller;
     }
@@ -530,8 +524,7 @@ public class DepotRepository
             return _key;
         }
 
-        public abstract T invoke (Connection conn)
-            throws SQLException, PersistenceException;
+        public abstract T invoke (Connection conn) throws SQLException;
 
         protected Query (Key key)
         {
@@ -543,8 +536,7 @@ public class DepotRepository
 
     protected static abstract class CollectionQuery<T extends Collection>
     {
-        public abstract T invoke (Connection conn)
-            throws SQLException, PersistenceException;
+        public abstract T invoke (Connection conn) throws SQLException;
     }
 
     protected static abstract class Modifier
@@ -554,8 +546,7 @@ public class DepotRepository
             return _key;
         }
 
-        public abstract int invoke (Connection conn)
-            throws SQLException, PersistenceException;
+        public abstract int invoke (Connection conn) throws SQLException;
 
         protected Modifier (Key key)
         {

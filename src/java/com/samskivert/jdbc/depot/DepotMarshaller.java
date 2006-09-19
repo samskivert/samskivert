@@ -26,13 +26,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
+import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * Handles the marshalling and unmarshalling of persistent instances to JDBC
@@ -40,6 +46,12 @@ import com.samskivert.util.StringUtil;
  */
 public class DepotMarshaller<T>
 {
+    /** The name of the private static field that must be defined for all
+     * persistent object classes which is used to handle schema migration. If
+     * automatic schema migration is not desired, define this field and set its
+     * value to -1.  */
+    public static final String SCHEMA_VERSION_FIELD = "SCHEMA_VERSION";
+
     /**
      * Creates a marshaller for the specified persistent object class.
      */
@@ -54,11 +66,23 @@ public class DepotMarshaller<T>
         // introspect on the class and create marshallers for persistent fields
         ArrayList<String> fields = new ArrayList<String>();
         for (Field field : _pclass.getFields()) {
-            // the field must be public, non-static and non-transient
             int mods = field.getModifiers();
+
+            // check for a static constant schema version
+            if ((mods & Modifier.STATIC) != 0 &&
+                field.getName().equals(SCHEMA_VERSION_FIELD)) {
+                try {
+                    _schemaVersion = (Integer)field.get(null);
+                } catch (Exception e) {
+                    log.log(Level.WARNING, "Failed to read schema version " +
+                        "[class=" + _pclass + "].", e);
+                }
+            }
+
+            // the field must be public, non-static and non-transient
             if (((mods & Modifier.PUBLIC) == 0) ||
                 ((mods & Modifier.STATIC) != 0) ||
-                ((mods & Modifier.TRANSIENT) != 0)) {
+                field.getAnnotation(Transient.class) != null) {
                 continue;
             }
 
@@ -76,6 +100,20 @@ public class DepotMarshaller<T>
         // generate our full list of fields/columns for use in queries
         _allFields = fields.toArray(new String[fields.size()]);
         _fullColumnList = StringUtil.join(_allFields, ",");
+
+        // create the SQL used to create and migrate our table
+        _columnDefinitions = new String[_allFields.length];
+        for (int ii = 0; ii < _allFields.length; ii++) {
+            _columnDefinitions[ii] = 
+                _fields.get(_allFields[ii]).getColumnDefinition();
+        }
+        _postamble = ""; // TODO: add annotations for the postamble
+
+        // if we did not find a schema version field, complain
+        if (_schemaVersion < 0) {
+            log.warning("Unable to read " + _pclass.getName() + "." +
+                SCHEMA_VERSION_FIELD + ". Schema migration disabled.");
+        }
     }
 
     /**
@@ -114,6 +152,44 @@ public class DepotMarshaller<T>
     public DepotRepository.Key makePrimaryKey (Comparable value)
     {
         return new DepotRepository.Key(_primaryKey.getColumnName(), value);
+    }
+
+    /**
+     * Initializes the table used by this marshaller. If the table does not
+     * exist, it will be created. If the schema version specified by the
+     * persistent object is newer than the database schema, it will be
+     * migrated.
+     */
+    public void init (Connection conn)
+        throws SQLException
+    {
+        // check to see if our schema version table exists, create it if not
+        JDBCUtil.createTableIfMissing(conn, SCHEMA_VERSION_TABLE,
+            new String[] { "persistentClass VARCHAR(255) NOT NULL",
+                           "version INTEGER NOT NULL" },
+            "");
+
+        // now create the table for our persistent class if it does not exist
+        if (!JDBCUtil.tableExists(conn, getTableName())) {
+            JDBCUtil.createTableIfMissing(
+                conn, getTableName(), _columnDefinitions, _postamble);
+            // TODO: insert current version into version table
+            return;
+        }
+
+        // if schema versioning is disabled, stop now
+        if (_schemaVersion < 0) {
+            return;
+        }
+
+        // otherwise, then make sure the versions match and do some migration
+        // if they don't
+        Statement stmt = conn.createStatement();
+        try {
+            // TODO: magical migration; execute registered migration actions
+        } finally {
+            stmt.close();
+        }
     }
 
     /**
@@ -192,6 +268,49 @@ public class DepotMarshaller<T>
             String errmsg = "Failed to marshall persistent object " +
                 "[pclass=" + _pclass.getName() + "]";
             throw (SQLException)new SQLException(errmsg).initCause(e);
+        }
+    }
+
+    /**
+     * Fills in the primary key just assigned to the supplied persistence
+     * object by the execution of the results of {@link #createInsert}. The
+     * structure of primary key assignment will probably have to change when we
+     * support other databases.
+     */
+    public void assignPrimaryKey (Connection conn, Object po)
+        throws SQLException
+    {
+        // no primary key, no problem!
+        if (_primaryKey == null) {
+            return;
+        }
+
+        // if the primary key is non-numeric, we can't auto-assign it
+        Class<?> ftype = _primaryKey.getField().getType();
+        if (!ftype.equals(Byte.TYPE) && !ftype.equals(Byte.class) &&
+            !ftype.equals(Short.TYPE) && !ftype.equals(Short.class) &&
+            !ftype.equals(Integer.TYPE) && !ftype.equals(Integer.class) &&
+            !ftype.equals(Long.TYPE) && !ftype.equals(Long.class)) {
+            return;
+        }
+
+        // load up the last inserted ID mysql style; eventually this will be
+        // fancier and pluggable
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
+            if (rs.next()) {
+                _primaryKey.getField().set(po, rs.getInt(1));
+            }
+
+        } catch (IllegalAccessException iae) {
+            String errmsg = "Failed to assign primary key " +
+                "[type=" + _pclass + "]";
+            throw (SQLException)new SQLException(errmsg).initCause(iae);
+
+        } finally {
+            JDBCUtil.close(stmt);
         }
     }
 
@@ -320,12 +439,37 @@ public class DepotMarshaller<T>
         return pstmt;
     }
 
+    /** The persistent object class that we manage. */
     protected Class<T> _pclass;
+
+    /** A field marshaller for each persistent field in our object. */
     protected HashMap<String, FieldMarshaller> _fields =
         new HashMap<String, FieldMarshaller>();
 
-    protected String _tableName;
+    /** The field marshaller for our persistent object's primary key or null if
+     * it did not define a primary key. */
     protected FieldMarshaller _primaryKey;
+
+    /** The name of our persistent object table. */
+    protected String _tableName;
+
+    /** The persisent fields of our object, in definition order, separated by
+     * commas for easy use in a select statement. */
     protected String _fullColumnList;
+
+    /** The persisent fields of our object, in definition order. */
     protected String[] _allFields;
+
+    /** The version of our persistent object schema as specified in the class
+     * definition. */
+    protected int _schemaVersion = -1;
+
+    /** Used when creating and migrating our table schema. */
+    protected String[] _columnDefinitions;
+
+    /** Used when creating and migrating our table schema. */
+    protected String _postamble;
+
+    /** The name of the table we use to track schema versions. */
+    protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";
 }

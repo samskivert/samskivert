@@ -29,6 +29,13 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+import com.samskivert.util.StringUtil;
+
 /**
  * Handles the marshalling and unmarshalling of a particular field of a
  * persistent object.
@@ -92,6 +99,30 @@ public abstract class FieldMarshaller
     }
 
     /**
+     * Returns the {@link Field} handled by this marshaller.
+     */
+    public Field getField ()
+    {
+        return _field;
+    }
+
+    /**
+     * Returns the name of the table column used to store this field.
+     */
+    public String getColumnName ()
+    {
+        return _columnName;
+    }
+
+    /**
+     * Returns the SQL used to define this field's column.
+     */
+    public String getColumnDefinition ()
+    {
+        return _columnDefinition;
+    }
+
+    /**
      * Reads the value of our field from the persistent object and sets that
      * value into the specified column of the supplied prepared statement.
      */
@@ -106,24 +137,82 @@ public abstract class FieldMarshaller
         throws SQLException, IllegalAccessException;
 
     /**
-     * Returns the name of the table column used to store this field.
+     * Returns the type used in the SQL column definition for this field.
      */
-    public String getColumnName ()
-    {
-        return _field.getName();
-    }
-
-    /**
-     * Returns the {@link Field} handled by this marshaller.
-     */
-    public Field getField ()
-    {
-        return _field;
-    }
+    public abstract String getColumnType ();
 
     protected void init (Field field)
     {
         _field = field;
+        _columnName = field.getName();
+
+        // read our column metadata from the annotation (if it exists);
+        // annoyingly we can't create a Column instance to read the defaults so
+        // we have to duplicate them here
+        int length = 255;
+        boolean nullable = true;
+        boolean unique = false;
+        Column column = _field.getAnnotation(Column.class);
+        if (column != null) {
+            nullable = column.nullable();
+            unique = column.unique();
+            length = column.length();
+            if (!StringUtil.isBlank(column.name())) {
+                _columnName = column.name();
+            }
+        }
+
+        // create our SQL column definition
+        StringBuilder builder = new StringBuilder();
+        if (column != null && !StringUtil.isBlank(column.columnDefinition())) {
+            builder.append(column.columnDefinition());
+
+        } else {
+            builder.append(getColumnName());
+            String type = getColumnType();
+            builder.append(" ").append(type);
+
+            // if this is a VARCHAR field, add the length
+            if (type.equals("VARCHAR")) {
+                builder.append("(").append(length).append(")");
+            }
+
+            // TODO: handle precision and scale
+
+            // handle nullability and uniqueness
+            if (!nullable) {
+                builder.append(" NOT NULL");
+            }
+            if (unique) {
+                builder.append(" UNIQUE");
+            }
+        }
+
+        // handle primary keyness
+        if (field.getAnnotation(Id.class) != null) {
+            builder.append(" PRIMARY KEY");
+
+            // figure out how we're going to generate our primary key values
+            GeneratedValue gv = field.getAnnotation(GeneratedValue.class);
+            GenerationType strat = GenerationType.AUTO;
+            if (gv != null) {
+                strat = gv.strategy();
+            }
+            switch (strat) {
+            case AUTO:
+            case IDENTITY:
+                builder.append(" AUTO_INCREMENT");
+                break;
+            case SEQUENCE: // TODO
+                throw new IllegalArgumentException(
+                    "TABLE key generation strategy not yet supported.");
+            case TABLE: // TODO
+                throw new IllegalArgumentException(
+                    "TABLE key generation strategy not yet supported.");
+            }
+        }
+
+        _columnDefinition = builder.toString();
     }
 
     protected static class PBooleanMarshaller extends FieldMarshaller {
@@ -134,6 +223,9 @@ public abstract class FieldMarshaller
         public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
             _field.setBoolean(po, rs.getBoolean(getColumnName()));
+        }
+        public String getColumnType () {
+            return "TINYINT";
         }
     }
 
@@ -146,6 +238,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             _field.setByte(po, rs.getByte(getColumnName()));
         }
+        public String getColumnType () {
+            return "TINYINT";
+        }
     }
 
     protected static class PShortMarshaller extends FieldMarshaller {
@@ -156,6 +251,9 @@ public abstract class FieldMarshaller
         public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
             _field.setShort(po, rs.getShort(getColumnName()));
+        }
+        public String getColumnType () {
+            return "SMALLINT";
         }
     }
 
@@ -168,6 +266,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             _field.setInt(po, rs.getInt(getColumnName()));
         }
+        public String getColumnType () {
+            return "INTEGER";
+        }
     }
 
     protected static class PLongMarshaller extends FieldMarshaller {
@@ -178,6 +279,9 @@ public abstract class FieldMarshaller
         public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
             _field.setLong(po, rs.getLong(getColumnName()));
+        }
+        public String getColumnType () {
+            return "BIGINT";
         }
     }
 
@@ -190,6 +294,9 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             _field.setFloat(po, rs.getFloat(getColumnName()));
         }
+        public String getColumnType () {
+            return "FLOAT";
+        }
     }
 
     protected static class PDoubleMarshaller extends FieldMarshaller {
@@ -200,6 +307,9 @@ public abstract class FieldMarshaller
         public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
             _field.setDouble(po, rs.getDouble(getColumnName()));
+        }
+        public String getColumnType () {
+            return "DOUBLE";
         }
     }
 
@@ -212,7 +322,39 @@ public abstract class FieldMarshaller
             throws SQLException, IllegalAccessException {
             _field.set(po, rs.getObject(getColumnName()));
         }
+        public String getColumnType () {
+            Class<?> ftype = _field.getType();
+            if (ftype.equals(Byte.class)) {
+                return "TINYINT";
+            } else if (ftype.equals(Short.class)) {
+                return "SMALLINT";
+            } else if (ftype.equals(Integer.class)) {
+                return "INTEGER";
+            } else if (ftype.equals(Long.class)) {
+                return "BIGINT";
+            } else if (ftype.equals(Float.class)) {
+                return "FLOAT";
+            } else if (ftype.equals(Double.class)) {
+                return "DOUBLE";
+            } else if (ftype.equals(String.class)) {
+                return "VARCHAR";
+            } else if (ftype.equals(Date.class)) {
+                return "DATE";
+            } else if (ftype.equals(Time.class)) {
+                return "DATETIME";
+            } else if (ftype.equals(Timestamp.class)) {
+                return "TIMESTAMP";
+            } else if (ftype.equals(Blob.class)) {
+                return "BLOB";
+            } else if (ftype.equals(Clob.class)) {
+                return "CLOB";
+            } else {
+                throw new IllegalArgumentException(
+                    "Don't know how to create SQL for " + ftype + ".");
+            }
+        }
     }
 
     protected Field _field;
+    protected String _columnName, _columnDefinition;
 }

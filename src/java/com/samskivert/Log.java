@@ -1,8 +1,8 @@
 //
-// $Id: Log.java,v 1.3 2001/08/12 01:34:30 mdb Exp $
+// $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001 Michael Bayne
+// Copyright (C) 2001-2006 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -20,35 +20,21 @@
 
 package com.samskivert;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * A placeholder class that contains a reference to the log object used by
- * the samskivert package. This is a useful pattern to use when using the
- * samskivert logging facilities. One creates a top-level class like this
- * one that instantiates a log object with an name that identifies log
- * messages from that package and then provides static methods that
- * generate log messages using that instance. Then, classes in that
- * package need only import the log wrapper class and can easily use it to
- * generate log messages. For example:
- *
- * <pre>
- * import com.samskivert.Log;
- * // ...
- * Log.warning("All hell is breaking loose!");
- * // ...
- * </pre>
- *
- * @see com.samskivert.util.Log
+ * Contains a reference to the log object used by the samskivert package.
  */
 public class Log
 {
-    /** The static log instance configured for use by this package. */
-    public static com.samskivert.util.Log log =
-	new com.samskivert.util.Log("samskivert");
+    /** We dispatch our log messages through this logger. */
+    public static Logger log = Logger.getLogger("com.samskivert");
 
     /** Convenience function. */
     public static void debug (String message)
     {
-	log.debug(message);
+	log.fine(message);
     }
 
     /** Convenience function. */
@@ -66,6 +52,6 @@ public class Log
     /** Convenience function. */
     public static void logStackTrace (Throwable t)
     {
-	log.logStackTrace(com.samskivert.util.Log.WARNING, t);
+	log.log(Level.WARNING, t.getMessage(), t);
     }
 }

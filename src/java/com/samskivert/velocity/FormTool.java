@@ -80,7 +80,7 @@ public class FormTool
      * input field looking like:
      *
      * <pre>
-     * &lt;input type="text" name="foo" value="bar" size="5" maxLength="8"&gt;
+     * &lt;input type="text" name="foo" value="bar" size="5" maxLength="8"/&gt;
      * </pre>
      *
      * Assuming the <code>foo</code> parameter had no pre-existing value.
@@ -276,7 +276,7 @@ public class FormTool
         if (value) {
             buf.append(" checked");
         }
-        buf.append(">");
+        buf.append("/>");
         return buf.toString();
     }
 
@@ -328,7 +328,7 @@ public class FormTool
         if (value.equals(selectedValue)) {
             buf.append(" checked");
         }
-        buf.append(">");
+        buf.append("/>");
         return buf.toString();
     }
 
@@ -385,7 +385,7 @@ public class FormTool
         if (!StringUtil.isBlank(extra)) {
             buf.append(" ").append(extra);
         }
-        buf.append(">");
+        buf.append("/>");
         return buf.toString();
     }
 

@@ -89,22 +89,6 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Returns the field/column name of the primary key for this persistent
-     * object class.
-     *
-     * @exception UnsupportedOperationException thrown if this persistent
-     * object class did not define a primary key.
-     */
-    public String getPrimaryKeyColumn ()
-    {
-        if (_primaryKey == null) {
-            throw new UnsupportedOperationException(
-                getClass().getName() + " does not define a primary key");
-        }
-        return _primaryKey.getColumnName();
-    }
-
-    /**
      * Returns a key configured with the primary key of the supplied object.
      * Throws an exception if the persistent object did not declare a primary
      * key.
@@ -124,6 +108,15 @@ public class DepotMarshaller<T>
     }
 
     /**
+     * Creates a primary key record for the type of object handled by this
+     * marshaller, using the supplied primary key vlaue.
+     */
+    public DepotRepository.Key makePrimaryKey (Comparable value)
+    {
+        return new DepotRepository.Key(_primaryKey.getColumnName(), value);
+    }
+
+    /**
      * Creates a query for instances of this persistent object type using the
      * supplied key.
      */
@@ -134,9 +127,7 @@ public class DepotMarshaller<T>
         String query = "select " + _fullColumnList + " from " + getTableName() +
             " where " + key.toWhereClause();
         PreparedStatement pstmt = conn.prepareStatement(query);
-        for (int ii = 0; ii < key.indices.length; ii++) {
-            pstmt.setObject(ii+1, key.values[ii]);
-        }
+        key.bindArguments(pstmt, 1);
         return pstmt;
     }
 
@@ -238,9 +229,12 @@ public class DepotMarshaller<T>
         try {
             PreparedStatement pstmt = conn.prepareStatement(update.toString());
             idx = 0;
+            // bind the update arguments
             for (String field : modifiedFields) {
                 _fields.get(field).setValue(po, pstmt, ++idx);
             }
+            // now bind the key arguments
+            key.bindArguments(pstmt, ++idx);
             return pstmt;
 
         } catch (SQLException sqe) {
@@ -274,24 +268,56 @@ public class DepotMarshaller<T>
         }
         update.append(" where ").append(key.toWhereClause());
 
-        try {
-            PreparedStatement pstmt = conn.prepareStatement(update.toString());
-            idx = 0;
-            for (Object value : modifiedValues) {
-                // TODO: use the field marshaller?
-                pstmt.setObject(++idx, value);
-            }
-            return pstmt;
-
-        } catch (SQLException sqe) {
-            // pass this on through
-            throw sqe;
-
-        } catch (Exception e) {
-            String errmsg = "Failed to marshall persistent object " +
-                "[pclass=" + _pclass.getName() + "]";
-            throw (SQLException)new SQLException(errmsg).initCause(e);
+        PreparedStatement pstmt = conn.prepareStatement(update.toString());
+        idx = 0;
+        // bind the update arguments
+        for (Object value : modifiedValues) {
+            // TODO: use the field marshaller?
+            pstmt.setObject(++idx, value);
         }
+        // now bind the key arguments
+        key.bindArguments(pstmt, ++idx);
+        return pstmt;
+    }
+
+    /**
+     * Creates a statement that will update the specified set of fields, using
+     * the supplied literal SQL values, for all persistent objects that match
+     * the supplied key.
+     */
+    public PreparedStatement createLiteralUpdate (
+        Connection conn, DepotRepository.Key key,
+        String[] modifiedFields, Object[] modifiedValues)
+        throws SQLException
+    {
+        StringBuilder update = new StringBuilder();
+        update.append("update ").append(getTableName()).append(" set ");
+        for (int ii = 0; ii < modifiedFields.length; ii++) {
+            if (ii > 0) {
+                update.append(", ");
+            }
+            update.append(modifiedFields[ii]).append(" = ");
+            update.append(modifiedValues[ii]);
+        }
+        update.append(" where ").append(key.toWhereClause());
+
+        PreparedStatement pstmt = conn.prepareStatement(update.toString());
+        key.bindArguments(pstmt, 1);
+        return pstmt;
+    }
+
+    /**
+     * Creates a statement that will delete all rows matching the supplied key.
+     */
+    public PreparedStatement createDelete (
+        Connection conn, DepotRepository.Key key)
+        throws SQLException
+    {
+        String query = "delete from " + getTableName() +
+            " where " + key.toWhereClause();
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        key.bindArguments(pstmt, 1);
+        return pstmt;
     }
 
     protected Class<T> _pclass;

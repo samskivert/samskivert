@@ -20,6 +20,8 @@ public class TestRepository extends DepotRepository
         TestRepository repo = new TestRepository(
             new StaticConnectionProvider("depot.properties"));
 
+        repo.delete(TestRecord.class, 0);
+
         TestRecord record = new TestRecord();
         record.name = "Elvis";
         record.age = 99;
@@ -27,7 +29,11 @@ public class TestRepository extends DepotRepository
         record.lastModified = new Timestamp(System.currentTimeMillis());
 
         repo.insert(record);
+        System.out.println(repo.load(TestRecord.class, record.recordId));
 
+        record.age = 25;
+        record.name = "Bob";
+        repo.update(record, "age");
         System.out.println(repo.load(TestRecord.class, record.recordId));
     }
 

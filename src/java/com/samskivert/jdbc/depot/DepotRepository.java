@@ -42,13 +42,18 @@ public class DepotRepository
         _conprov = conprov;
     }
 
+    /**
+     * Loads the persistent object that matches the specified primary key.
+     */
     protected <T> T load (Class<T> type, Comparable primaryKey)
         throws PersistenceException
     {
-        DepotMarshaller<T> marsh = getMarshaller(type);
-        return load(type, new Key(marsh.getPrimaryKeyColumn(), primaryKey));
+        return load(type, getMarshaller(type).makePrimaryKey(primaryKey));
     }
 
+    /**
+     * Loads the first persistent object that matches the supplied key.
+     */
     protected <T> T load (Class<T> type, Key key)
         throws PersistenceException
     {
@@ -75,6 +80,9 @@ public class DepotRepository
         });
     }
 
+    /**
+     * Loads all persistent objects that match the specified key.
+     */
     protected <T,C extends Collection<T>> Collection<T> findAll (
         Class<T> type, Key key)
         throws PersistenceException
@@ -100,6 +108,10 @@ public class DepotRepository
         });
     }
 
+    /**
+     * Executes and caches the supplied collection query if the supplied key is
+     * not in the cache, returns the existing cached values otherwise.
+     */
     protected <T extends Collection> T findAll (
         String index, Comparable key, CollectionQuery<T> query)
         throws PersistenceException
@@ -107,17 +119,26 @@ public class DepotRepository
         return null;
     }
 
-    protected void insert (final Object record)
+    /**
+     * Inserts the supplied persistent object into the database, assigning its
+     * primary key (if it has one) in the process.
+     *
+     * @return the number of rows modified by this action, this should always
+     * be one.
+     */
+    protected int insert (final Object record)
         throws PersistenceException
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
-        invoke(new Modifier(marsh.getPrimaryKey(record)) {
+        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
             public int invoke (Connection conn)
                 throws SQLException
             {
                 PreparedStatement stmt = marsh.createInsert(conn, record);
                 try {
-                    return stmt.executeUpdate();
+                    int mods = stmt.executeUpdate();
+                    // TODO: assign primary key
+                    return mods;
                 } finally {
                     stmt.close();
                 }
@@ -125,16 +146,21 @@ public class DepotRepository
         });
     }
 
+    /**
+     * Updates all fields of the supplied persistent object, using its primary
+     * key to identify the row to be updated.
+     *
+     * @return the number of rows modified by this action.
+     */
     protected int update (final Object record)
         throws PersistenceException
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
-        invoke(new Modifier(marsh.getPrimaryKey(record)) {
+        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
             public int invoke (Connection conn)
                 throws SQLException
             {
-                PreparedStatement stmt = marsh.createUpdate(
-                    conn, record, marsh.getPrimaryKey(record));
+                PreparedStatement stmt = marsh.createUpdate(conn, record, _key);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -142,19 +168,24 @@ public class DepotRepository
                 }
             }
         });
-        return 0;
     }
 
+    /**
+     * Updates just the specified fields of the supplied persistent object,
+     * using its primary key to identify the row to be updated.
+     *
+     * @return the number of rows modified by this action.
+     */
     protected int update (final Object record, final String ... modifiedFields)
         throws PersistenceException
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
-        invoke(new Modifier(marsh.getPrimaryKey(record)) {
+        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
             public int invoke (Connection conn)
                 throws SQLException
             {
                 PreparedStatement stmt = marsh.createUpdate(
-                    conn, record, marsh.getPrimaryKey(record), modifiedFields);
+                    conn, record, _key, modifiedFields);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -162,54 +193,231 @@ public class DepotRepository
                 }
             }
         });
-        return 0;
     }
 
-    protected <T> int updatePartial (Class<T> type,
-        Comparable primaryKey, Object ... fieldsValues)
+    /**
+     * Updates the specified columns for all persistent objects matching the
+     * supplied primary key.
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param primaryKey the primary key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns
+     * and the values to be assigned, in key, value, key, value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T> int updatePartial (
+        Class<T> type, Comparable primaryKey, Object ... fieldsValues)
         throws PersistenceException
     {
-        return 0;
+        return updatePartial(
+            type, getMarshaller(type).makePrimaryKey(primaryKey), fieldsValues);
     }
 
-    protected <T> int updatePartial (Class<T> type,
-        Key key, Object ... fieldsValues)
+    /**
+     * Updates the specified columns for all persistent objects matching the
+     * supplied key.
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param key the key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns
+     * and the values to be assigned, in key, value, key, value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T> int updatePartial (
+        Class<T> type, Key key, Object ... fieldsValues)
         throws PersistenceException
     {
-        return 0;
+        // separate the arguments into keys and values
+        final String[] fields = new String[fieldsValues.length/2];
+        final Object[] values = new Object[fields.length];
+        for (int ii = 0, idx = 0; ii < fields.length; ii++) {
+            fields[ii] = (String)fieldsValues[idx++];
+            values[ii] = fieldsValues[idx++];
+        }
+
+        final DepotMarshaller marsh = getMarshaller(type);
+        return invoke(new Modifier(key) {
+            public int invoke (Connection conn)
+                throws SQLException
+            {
+                PreparedStatement stmt = marsh.createPartialUpdate(
+                    conn, _key, fields, values);
+                try {
+                    return stmt.executeUpdate();
+                } finally {
+                    stmt.close();
+                }
+            }
+        });
     }
 
-    protected <T> int updateLiteral (Class<T> type,
-        Comparable primaryKey, Object ... fieldsValues)
-    {
-        return 0;
-    }
-
-    protected <T> int updateLiteral (Class<T> type,
-        Key key, Object ... fieldsValues)
-    {
-        return 0;
-    }
-
-    protected int store (Object record)
+    /**
+     * Updates the specified columns for all persistent objects matching the
+     * supplied primary key. The values in this case must be literal SQL to be
+     * inserted into the update statement. In general this is used when you
+     * want to do something like the following:
+     *
+     * <pre>
+     * update FOO set BAR = BAR + 1;
+     * update BAZ set BIF = NOW();
+     * </pre>
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param primaryKey the key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns
+     * and the values to be assigned, in key, literal value, key, literal
+     * value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T> int updateLiteral (
+        Class<T> type, Comparable primaryKey, String ... fieldsValues)
         throws PersistenceException
     {
-        return 0;
+        return updateLiteral(
+            type, getMarshaller(type).makePrimaryKey(primaryKey), fieldsValues);
     }
 
-    protected void delete (Object record)
+    /**
+     * Updates the specified columns for all persistent objects matching the
+     * supplied primary key. The values in this case must be literal SQL to be
+     * inserted into the update statement. In general this is used when you
+     * want to do something like the following:
+     *
+     * <pre>
+     * update FOO set BAR = BAR + 1;
+     * update BAZ set BIF = NOW();
+     * </pre>
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param key the key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns
+     * and the values to be assigned, in key, literal value, key, literal
+     * value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T> int updateLiteral (
+        Class<T> type, Key key, String ... fieldsValues)
         throws PersistenceException
     {
+        // separate the arguments into keys and values
+        final String[] fields = new String[fieldsValues.length/2];
+        final String[] values = new String[fields.length];
+        for (int ii = 0, idx = 0; ii < fields.length; ii++) {
+            fields[ii] = fieldsValues[idx++];
+            values[ii] = fieldsValues[idx++];
+        }
+
+        final DepotMarshaller marsh = getMarshaller(type);
+        return invoke(new Modifier(key) {
+            public int invoke (Connection conn)
+                throws SQLException
+            {
+                PreparedStatement stmt = marsh.createLiteralUpdate(
+                    conn, _key, fields, values);
+                try {
+                    return stmt.executeUpdate();
+                } finally {
+                    stmt.close();
+                }
+            }
+        });
     }
 
-    protected <T> void delete (Class<T> type, Comparable primaryKey)
+    /**
+     * Stores the supplied persisent object in the database. If it has no
+     * primary key assigned (it is null or zero), it will be inserted
+     * directly. Otherwise an update will first be attempted and if that
+     * matches zero rows, the object will be inserted.
+     *
+     * @return the number of rows modified by this action, this should always
+     * be one.
+     */
+    protected int store (final Object record)
         throws PersistenceException
     {
+        final DepotMarshaller marsh = getMarshaller(record.getClass());
+        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
+            public int invoke (Connection conn)
+                throws SQLException
+            {
+                PreparedStatement stmt = null;
+                try {
+                    // if our primary key is null or is the integer 0, assume
+                    // the record has never before been persisted and insert
+                    if (_key != null && !Integer.valueOf(0).equals(_key)) {
+                        stmt = marsh.createUpdate(conn, record, _key);
+                        int mods = stmt.executeUpdate();
+                        if (mods > 0) {
+                            return mods;
+                        }
+                        stmt.close();
+                    }
+
+                    // if the update modified zero rows or the primary key was
+                    // obviously unset, do an insertion
+                    stmt = marsh.createInsert(conn, record);
+                    return stmt.executeUpdate();
+
+                } finally {
+                    stmt.close();
+                }
+            }
+        });
     }
 
-    protected <T> void deleteAll (Class<T> type, Key key)
+    /**
+     * Deletes all persistent objects from the database with a primary key
+     * matching the primary key of the supplied object.
+     *
+     * @return the number of rows deleted by this action.
+     */
+    protected <T> int delete (T record)
         throws PersistenceException
     {
+        @SuppressWarnings("unchecked") Class<T> type =
+            (Class<T>)record.getClass();
+        DepotMarshaller<T> marsh = getMarshaller(type);
+        return deleteAll(type, marsh.getPrimaryKey(record));
+    }
+
+    /**
+     * Deletes all persistent objects from the database with a primary key
+     * matching the supplied primary key.
+     *
+     * @return the number of rows deleted by this action.
+     */
+    protected <T> int delete (Class<T> type, Comparable primaryKey)
+        throws PersistenceException
+    {
+        return deleteAll(type, getMarshaller(type).makePrimaryKey(primaryKey));
+    }
+
+    /**
+     * Deletes all persistent objects from the database that match the supplied
+     * key.
+     *
+     * @return the number of rows deleted by this action.
+     */
+    protected <T> int deleteAll (Class<T> type, Key key)
+        throws PersistenceException
+    {
+        final DepotMarshaller marsh = getMarshaller(type);
+        return invoke(new Modifier(key) {
+            public int invoke (Connection conn)
+                throws SQLException
+            {
+                PreparedStatement stmt = marsh.createDelete(conn, _key);
+                try {
+                    return stmt.executeUpdate();
+                } finally {
+                    stmt.close();
+                }
+            }
+        });
     }
 
     protected <T> DepotMarshaller<T> getMarshaller (Class<T> type)
@@ -295,6 +503,14 @@ public class DepotRepository
             }
             return where.toString();
         }
+
+        public void bindArguments (PreparedStatement stmt, int startIdx)
+            throws SQLException
+        {
+            for (int ii = 0; ii < indices.length; ii++) {
+                stmt.setObject(startIdx++, values[ii]);
+            }
+        }
     }
 
     protected static class Key2 extends Key
@@ -348,18 +564,6 @@ public class DepotRepository
 
         protected Key _key;
     }
-
-//     protected static abstract class InstanceUpdate<T>
-//     {
-//         public void invoke (T object)
-//             throws PersistenceException;
-//     }
-
-//     protected static abstract class CollectionUpdate<T>
-//     {
-//         public void invoke (Collection<T> collection)
-//             throws PersistenceException;
-//     }
 
     protected ConnectionProvider _conprov;
 

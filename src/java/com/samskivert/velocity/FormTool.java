@@ -85,8 +85,7 @@ public class FormTool
      *
      * Assuming the <code>foo</code> parameter had no pre-existing value.
      */
-    public String text (String name, String extra,
-                        Object defaultValue)
+    public String text (String name, String extra, Object defaultValue)
     {
         return input("text", name, extra, defaultValue);
     }
@@ -98,6 +97,17 @@ public class FormTool
     public String fixedText (String name, String extra, Object value)
     {
         return fixedInput("text", name, value, extra);
+    }
+
+    /**
+     * Creates a reset form element.
+     *
+     * @param name the name of the form element (used by JavaScript).
+     * @param value the name that will appear on the button.
+     */
+    public String reset (String name, String value)
+    {
+        return fixedInput("reset", name, value, "");
     }
 
     /**
@@ -260,8 +270,8 @@ public class FormTool
      */
     public String checkbox (String name, boolean defaultValue)
     {
-        return
-            fixedCheckbox(name, ParameterUtil.isSet(_req, name, defaultValue));
+        return fixedCheckbox(
+            name, ParameterUtil.isSet(_req, name, defaultValue));
     }
 
     /**

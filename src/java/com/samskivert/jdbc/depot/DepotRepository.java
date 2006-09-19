@@ -105,17 +105,6 @@ public class DepotRepository
     }
 
     /**
-     * Executes and caches the supplied collection query if the supplied key is
-     * not in the cache, returns the existing cached values otherwise.
-     */
-    protected <T extends Collection> T findAll (
-        String index, Comparable key, CollectionQuery<T> query)
-        throws PersistenceException
-    {
-        return null;
-    }
-
-    /**
      * Inserts the supplied persistent object into the database, assigning its
      * primary key (if it has one) in the process.
      *
@@ -535,7 +524,12 @@ public class DepotRepository
     }
 
     protected static abstract class CollectionQuery<T extends Collection>
+        extends Query<T>
     {
+        public CollectionQuery (Key key) {
+            super(key);
+        }
+
         public abstract T invoke (Connection conn) throws SQLException;
     }
 

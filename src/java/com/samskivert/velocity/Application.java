@@ -36,6 +36,7 @@ import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
 import com.samskivert.servlet.util.ExceptionMap;
+import com.samskivert.servlet.util.FriendlyException;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.StringUtil;
 

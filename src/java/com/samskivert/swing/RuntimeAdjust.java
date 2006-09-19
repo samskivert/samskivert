@@ -32,6 +32,7 @@ import javax.swing.Scrollable;
 import com.samskivert.Log;
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.Config;
+import com.samskivert.util.DebugChords;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 

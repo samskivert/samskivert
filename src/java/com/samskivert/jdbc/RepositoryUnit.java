@@ -22,8 +22,8 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.util.Invoker;
 
 /**
- * Extends the {@link Invoker#Unit} and specializes it for doing database
- * repository manipulation.
+ * Extends the {@link com.samskivert.util.Invoker.Unit} and specializes it for
+ * doing database repository manipulation.
  */
 public abstract class RepositoryUnit extends Invoker.Unit
 {

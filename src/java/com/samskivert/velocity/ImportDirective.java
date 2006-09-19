@@ -40,10 +40,10 @@ import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.util.StringUtil;
 
 /**
- * Pluggable directive that handles the #import() statement in VTL. Import
- * is like #parse() except that it creates a {@link SiteResourceKey} based
- * on information from the current request when fetching the imported
- * template.
+ * Pluggable directive that handles the #import() statement in VTL. Import is
+ * like #parse() except that it creates a compound key
+ * (<code>siteId:template_path</code>) based on information from the current
+ * request when fetching the imported template.
  */
 public class ImportDirective extends Directive
 {

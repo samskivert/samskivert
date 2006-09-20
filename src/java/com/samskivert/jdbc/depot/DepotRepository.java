@@ -29,6 +29,7 @@ import java.util.HashMap;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.DuplicateKeyException;
 
 /**
  * Provides a base for classes that provide access to persistent objects. Also
@@ -442,7 +443,14 @@ public class DepotRepository
             return modifier.invoke(conn);
 
         } catch (SQLException sqe) {
-            throw new PersistenceException("Modifier failure " + modifier, sqe);
+            // convert this exception to a DuplicateKeyException if appropriate
+            String msg = sqe.getMessage();
+            if (msg != null && msg.indexOf("Duplicate entry") != -1) {
+                throw new DuplicateKeyException(msg);
+            } else {
+                throw new PersistenceException(
+                    "Modifier failure " + modifier, sqe);
+            }
 
         } finally {
             _conprov.releaseConnection(getIdent(), false, conn);

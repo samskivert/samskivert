@@ -38,7 +38,7 @@ import javax.persistence.Transient;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.depot.Log.log;
 
 /**
  * Handles the marshalling and unmarshalling of persistent instances to JDBC
@@ -171,6 +171,9 @@ public class DepotMarshaller<T>
 
         // now create the table for our persistent class if it does not exist
         if (!JDBCUtil.tableExists(conn, getTableName())) {
+            log.fine("Creating table " + getTableName() +
+                " (" + StringUtil.join(_columnDefinitions, ", ") + ") " +
+                _postamble);
             JDBCUtil.createTableIfMissing(
                 conn, getTableName(), _columnDefinitions, _postamble);
             // TODO: insert current version into version table

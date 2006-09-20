@@ -194,21 +194,19 @@ public abstract class FieldMarshaller
 
             // figure out how we're going to generate our primary key values
             GeneratedValue gv = field.getAnnotation(GeneratedValue.class);
-            GenerationType strat = GenerationType.AUTO;
             if (gv != null) {
-                strat = gv.strategy();
-            }
-            switch (strat) {
-            case AUTO:
-            case IDENTITY:
-                builder.append(" AUTO_INCREMENT");
-                break;
-            case SEQUENCE: // TODO
-                throw new IllegalArgumentException(
-                    "TABLE key generation strategy not yet supported.");
-            case TABLE: // TODO
-                throw new IllegalArgumentException(
-                    "TABLE key generation strategy not yet supported.");
+                switch (gv.strategy()) {
+                case AUTO:
+                case IDENTITY:
+                    builder.append(" AUTO_INCREMENT");
+                    break;
+                case SEQUENCE: // TODO
+                    throw new IllegalArgumentException(
+                        "TABLE key generation strategy not yet supported.");
+                case TABLE: // TODO
+                    throw new IllegalArgumentException(
+                        "TABLE key generation strategy not yet supported.");
+                }
             }
         }
 

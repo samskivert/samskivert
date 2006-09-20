@@ -52,6 +52,14 @@ public class FormTool
     }
 
     /**
+     * Used to deactivate XHTML generation for "old skool" Java HTML viewer.
+     */
+    public void setUseXHTML (boolean useXHTML)
+    {
+        _closeBrace = useXHTML ? "/>" : ">";
+    }
+
+    /**
      * Creates a text input field with the specified name and no extra
      * arguments or default value.
      *
@@ -286,7 +294,7 @@ public class FormTool
         if (value) {
             buf.append(" checked");
         }
-        buf.append("/>");
+        buf.append(_closeBrace);
         return buf.toString();
     }
 
@@ -338,7 +346,7 @@ public class FormTool
         if (value.equals(selectedValue)) {
             buf.append(" checked");
         }
-        buf.append("/>");
+        buf.append(_closeBrace);
         return buf.toString();
     }
 
@@ -395,7 +403,7 @@ public class FormTool
         if (!StringUtil.isBlank(extra)) {
             buf.append(" ").append(extra);
         }
-        buf.append("/>");
+        buf.append(_closeBrace);
         return buf.toString();
     }
 
@@ -418,4 +426,7 @@ public class FormTool
 
     /** A reference to the servlet request in use by this form tool. */
     protected HttpServletRequest _req;
+
+    /** The string used to close unmatched tags. */
+    protected String _closeBrace = "/>";
 }

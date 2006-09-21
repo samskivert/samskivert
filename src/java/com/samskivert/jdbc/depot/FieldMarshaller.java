@@ -175,7 +175,7 @@ public abstract class FieldMarshaller
             builder.append(" ").append(type);
 
             // if this is a VARCHAR field, add the length
-            if (type.equals("VARCHAR")) {
+            if (type.equals("VARCHAR") || type.equals("VARBINARY")) {
                 builder.append("(").append(length).append(")");
             }
 

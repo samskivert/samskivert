@@ -80,6 +80,15 @@ public class DepotRepository
     }
 
     /**
+     * Loads all persistent objects of the specified type.
+     */
+    protected <T,C extends Collection<T>> Collection<T> findAll (Class<T> type)
+        throws PersistenceException
+    {
+        return findAll(type, null);
+    }
+
+    /**
      * Loads all persistent objects that match the specified key.
      */
     protected <T,C extends Collection<T>> Collection<T> findAll (

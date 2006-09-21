@@ -197,16 +197,20 @@ public class DepotMarshaller<T>
 
     /**
      * Creates a query for instances of this persistent object type using the
-     * supplied key.
+     * supplied key. If null is supplied all instances will be loaded.
      */
     public PreparedStatement createQuery (
         Connection conn, DepotRepository.Key key)
         throws SQLException
     {
-        String query = "select " + _fullColumnList + " from " + getTableName() +
-            " where " + key.toWhereClause();
+        String query = "select " + _fullColumnList + " from " + getTableName();
+        if (key != null) {
+            query += " where " + key.toWhereClause();
+        }
         PreparedStatement pstmt = conn.prepareStatement(query);
-        key.bindArguments(pstmt, 1);
+        if (key != null) {
+            key.bindArguments(pstmt, 1);
+        }
         return pstmt;
     }
 

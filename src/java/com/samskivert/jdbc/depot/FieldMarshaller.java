@@ -55,19 +55,19 @@ public abstract class FieldMarshaller
 
         // primitive types
         if (ftype.equals(Boolean.TYPE)) {
-            marshaller = new PBooleanMarshaller();
+            marshaller = new BooleanMarshaller();
         } else if (ftype.equals(Byte.TYPE)) {
-            marshaller = new PByteMarshaller();
+            marshaller = new ByteMarshaller();
         } else if (ftype.equals(Short.TYPE)) {
-            marshaller = new PShortMarshaller();
+            marshaller = new ShortMarshaller();
         } else if (ftype.equals(Integer.TYPE)) {
-            marshaller = new PIntMarshaller();
+            marshaller = new IntMarshaller();
         } else if (ftype.equals(Long.TYPE)) {
-            marshaller = new PLongMarshaller();
+            marshaller = new LongMarshaller();
         } else if (ftype.equals(Float.TYPE)) {
-            marshaller = new PFloatMarshaller();
+            marshaller = new FloatMarshaller();
         } else if (ftype.equals(Double.TYPE)) {
-            marshaller = new PDoubleMarshaller();
+            marshaller = new DoubleMarshaller();
 
         // "natural" types
         } else if (ftype.equals(Byte.class) ||
@@ -79,7 +79,9 @@ public abstract class FieldMarshaller
             ftype.equals(String.class)) {
             marshaller = new ObjectMarshaller();
 
-        // TODO: byte array, (other array types?)
+        // some primitive array types
+        } else if (ftype.equals(byte[].class)) {
+            marshaller = new ByteArrayMarshaller();
 
         // SQL types
         } else if (ftype.equals(Date.class) ||
@@ -213,7 +215,7 @@ public abstract class FieldMarshaller
         _columnDefinition = builder.toString();
     }
 
-    protected static class PBooleanMarshaller extends FieldMarshaller {
+    protected static class BooleanMarshaller extends FieldMarshaller {
         public void setValue (Object po, PreparedStatement ps, int column)
             throws SQLException, IllegalAccessException {
             ps.setBoolean(column, _field.getBoolean(po));
@@ -227,7 +229,7 @@ public abstract class FieldMarshaller
         }
     }
 
-    protected static class PByteMarshaller extends FieldMarshaller {
+    protected static class ByteMarshaller extends FieldMarshaller {
         public void setValue (Object po, PreparedStatement ps, int column)
             throws SQLException, IllegalAccessException {
             ps.setByte(column, _field.getByte(po));
@@ -241,7 +243,7 @@ public abstract class FieldMarshaller
         }
     }
 
-    protected static class PShortMarshaller extends FieldMarshaller {
+    protected static class ShortMarshaller extends FieldMarshaller {
         public void setValue (Object po, PreparedStatement ps, int column)
             throws SQLException, IllegalAccessException {
             ps.setShort(column, _field.getShort(po));
@@ -255,7 +257,7 @@ public abstract class FieldMarshaller
         }
     }
 
-    protected static class PIntMarshaller extends FieldMarshaller {
+    protected static class IntMarshaller extends FieldMarshaller {
         public void setValue (Object po, PreparedStatement ps, int column)
             throws SQLException, IllegalAccessException {
             ps.setInt(column, _field.getInt(po));
@@ -269,7 +271,7 @@ public abstract class FieldMarshaller
         }
     }
 
-    protected static class PLongMarshaller extends FieldMarshaller {
+    protected static class LongMarshaller extends FieldMarshaller {
         public void setValue (Object po, PreparedStatement ps, int column)
             throws SQLException, IllegalAccessException {
             ps.setLong(column, _field.getLong(po));
@@ -283,7 +285,7 @@ public abstract class FieldMarshaller
         }
     }
 
-    protected static class PFloatMarshaller extends FieldMarshaller {
+    protected static class FloatMarshaller extends FieldMarshaller {
         public void setValue (Object po, PreparedStatement ps, int column)
             throws SQLException, IllegalAccessException {
             ps.setFloat(column, _field.getFloat(po));
@@ -297,7 +299,7 @@ public abstract class FieldMarshaller
         }
     }
 
-    protected static class PDoubleMarshaller extends FieldMarshaller {
+    protected static class DoubleMarshaller extends FieldMarshaller {
         public void setValue (Object po, PreparedStatement ps, int column)
             throws SQLException, IllegalAccessException {
             ps.setDouble(column, _field.getDouble(po));
@@ -350,6 +352,20 @@ public abstract class FieldMarshaller
                 throw new IllegalArgumentException(
                     "Don't know how to create SQL for " + ftype + ".");
             }
+        }
+    }
+
+    protected static class ByteArrayMarshaller extends FieldMarshaller {
+        public void setValue (Object po, PreparedStatement ps, int column)
+            throws SQLException, IllegalAccessException {
+            ps.setBytes(column, (byte[])_field.get(po));
+        }
+        public void getValue (ResultSet rs, Object po)
+            throws SQLException, IllegalAccessException {
+            _field.set(po, rs.getBytes(getColumnName()));
+        }
+        public String getColumnType () {
+            return "VARBINARY";
         }
     }
 

@@ -109,6 +109,14 @@ public abstract class FieldMarshaller
     }
 
     /**
+     * Returns the GeneratedValue annotation on this field, if any.
+     */
+    public GeneratedValue getGeneratedValue ()
+    {
+        return _generatedValue;
+    }
+
+    /**
      * Returns the name of the table column used to store this field.
      */
     public String getColumnName ()
@@ -195,19 +203,19 @@ public abstract class FieldMarshaller
             builder.append(" PRIMARY KEY");
 
             // figure out how we're going to generate our primary key values
-            GeneratedValue gv = field.getAnnotation(GeneratedValue.class);
-            if (gv != null) {
-                switch (gv.strategy()) {
+            _generatedValue = field.getAnnotation(GeneratedValue.class);
+            if (_generatedValue != null) {
+                switch (_generatedValue.strategy()) {
                 case AUTO:
                 case IDENTITY:
                     builder.append(" AUTO_INCREMENT");
                     break;
                 case SEQUENCE: // TODO
                     throw new IllegalArgumentException(
-                        "TABLE key generation strategy not yet supported.");
-                case TABLE: // TODO
-                    throw new IllegalArgumentException(
-                        "TABLE key generation strategy not yet supported.");
+                        "SEQUENCE key generation strategy not yet supported.");
+                case TABLE:
+                    // nothing to do here, it'll be handled later
+                    break;
                 }
             }
         }
@@ -371,4 +379,5 @@ public abstract class FieldMarshaller
 
     protected Field _field;
     protected String _columnName, _columnDefinition;
+    protected GeneratedValue _generatedValue;
 }

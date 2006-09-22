@@ -1,7 +1,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2006 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -18,7 +18,6 @@
 
 package com.samskivert.jdbc.depot;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -32,13 +31,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.util.StringUtil;
 
 import static com.samskivert.jdbc.depot.Log.log;
+
 
 /**
  * Handles the marshalling and unmarshalling of persistent instances to JDBC
@@ -62,6 +64,13 @@ public class DepotMarshaller<T>
         // determine our table name
         _tableName = _pclass.getName();
         _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
+
+        // if the entity defines a new TableGenerator, map that in our static
+        // table as those are shared across all entities
+        TableGenerator generator = pclass.getAnnotation(TableGenerator.class);
+        if (generator != null) {
+            _generators.put(generator.name(), generator);
+        }
 
         // introspect on the class and create marshallers for persistent fields
         ArrayList<String> fields = new ArrayList<String>();
@@ -94,6 +103,45 @@ public class DepotMarshaller<T>
             if (field.getAnnotation(Id.class) != null) {
                 // TODO: handle multiple field primary keys
                 _primaryKey = fm;
+
+                // check if this field defines a new TableGenerator
+                generator = field.getAnnotation(TableGenerator.class);
+                if (generator != null) {
+                    _generators.put(generator.name(), generator);
+                }
+            }
+        }
+
+        // if the entity defines a primary key, figure out how we will be
+        // generating values for it
+        if (_primaryKey != null) {
+            // the primary key must be numeric if we are to auto-assign it
+            Class<?> ftype = _primaryKey.getField().getType();
+            boolean isNumeric = (ftype.equals(Byte.TYPE) ||
+                ftype.equals(Byte.class) || ftype.equals(Short.TYPE) ||
+                ftype.equals(Short.class) || ftype.equals(Integer.TYPE) ||
+                ftype.equals(Integer.class) || ftype.equals(Long.TYPE) ||
+                ftype.equals(Long.class));
+
+            // and it will have to have some sort of annotation
+            GeneratedValue gv = _primaryKey.getGeneratedValue();
+            if (isNumeric && gv != null) {
+                switch(gv.strategy()) {
+                case AUTO:
+                case IDENTITY:
+                    _keyGenerator = new IdentityKeyGenerator();
+                    break;
+
+                case TABLE:
+                    String name = gv.generator();
+                    generator = _generators.get(name);
+                    if (generator == null) {
+                        throw new IllegalArgumentException(
+                            "Unknown generator [generator=" + name + "]");
+                    }
+                    _keyGenerator = new TableKeyGenerator(generator);
+                    break;
+                }
             }
         }
 
@@ -104,7 +152,7 @@ public class DepotMarshaller<T>
         // create the SQL used to create and migrate our table
         _columnDefinitions = new String[_allFields.length];
         for (int ii = 0; ii < _allFields.length; ii++) {
-            _columnDefinitions[ii] = 
+            _columnDefinitions[ii] =
                 _fields.get(_allFields[ii]).getColumnDefinition();
         }
         _postamble = ""; // TODO: add annotations for the postamble
@@ -177,7 +225,10 @@ public class DepotMarshaller<T>
             JDBCUtil.createTableIfMissing(
                 conn, getTableName(), _columnDefinitions, _postamble);
             // TODO: insert current version into version table
-            return;
+        }
+        // if there is a key generator, initialize that too
+        if (_keyGenerator != null) {
+            _keyGenerator.init(conn);
         }
 
         // if schema versioning is disabled, stop now
@@ -280,44 +331,29 @@ public class DepotMarshaller<T>
 
     /**
      * Fills in the primary key just assigned to the supplied persistence
-     * object by the execution of the results of {@link #createInsert}. The
-     * structure of primary key assignment will probably have to change when we
-     * support other databases.
+     * object by the execution of the results of {@link #createInsert}.
      */
-    public void assignPrimaryKey (Connection conn, Object po)
+    public void assignPrimaryKey (
+            Connection conn, Object po, boolean postFactum)
         throws SQLException
     {
-        // no primary key, no problem!
-        if (_primaryKey == null) {
+        // if we have no primary key or no generator, then we're done
+        if (_primaryKey == null || _keyGenerator == null) {
             return;
         }
 
-        // if the primary key is non-numeric, we can't auto-assign it
-        Class<?> ftype = _primaryKey.getField().getType();
-        if (!ftype.equals(Byte.TYPE) && !ftype.equals(Byte.class) &&
-            !ftype.equals(Short.TYPE) && !ftype.equals(Short.class) &&
-            !ftype.equals(Integer.TYPE) && !ftype.equals(Integer.class) &&
-            !ftype.equals(Long.TYPE) && !ftype.equals(Long.class)) {
+        // run this generator either before or after the actual insertion
+        if (_keyGenerator.isPostFactum() != postFactum) {
             return;
         }
 
-        // load up the last inserted ID mysql style; eventually this will be
-        // fancier and pluggable
-        Statement stmt = null;
         try {
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
-            if (rs.next()) {
-                _primaryKey.getField().set(po, rs.getInt(1));
-            }
-
-        } catch (IllegalAccessException iae) {
+            int nextValue = _keyGenerator.nextGeneratedValue(conn);
+            _primaryKey.getField().set(po, nextValue);
+        } catch (Exception e) {
             String errmsg = "Failed to assign primary key " +
                 "[type=" + _pclass + "]";
-            throw (SQLException)new SQLException(errmsg).initCause(iae);
-
-        } finally {
-            JDBCUtil.close(stmt);
+            throw (SQLException) new SQLException(errmsg).initCause(e);
         }
     }
 
@@ -407,6 +443,20 @@ public class DepotMarshaller<T>
     }
 
     /**
+     * Creates a statement that will delete all rows matching the supplied key.
+     */
+    public PreparedStatement createDelete (
+        Connection conn, DepotRepository.Key key)
+        throws SQLException
+    {
+        String query = "delete from " + getTableName() +
+            " where " + key.toWhereClause();
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        key.bindArguments(pstmt, 1);
+        return pstmt;
+    }
+
+    /**
      * Creates a statement that will update the specified set of fields, using
      * the supplied literal SQL values, for all persistent objects that match
      * the supplied key.
@@ -432,22 +482,11 @@ public class DepotMarshaller<T>
         return pstmt;
     }
 
-    /**
-     * Creates a statement that will delete all rows matching the supplied key.
-     */
-    public PreparedStatement createDelete (
-        Connection conn, DepotRepository.Key key)
-        throws SQLException
-    {
-        String query = "delete from " + getTableName() +
-            " where " + key.toWhereClause();
-        PreparedStatement pstmt = conn.prepareStatement(query);
-        key.bindArguments(pstmt, 1);
-        return pstmt;
-    }
-
     /** The persistent object class that we manage. */
     protected Class<T> _pclass;
+
+    /** The name of our persistent object table. */
+    protected String _tableName;
 
     /** A field marshaller for each persistent field in our object. */
     protected HashMap<String, FieldMarshaller> _fields =
@@ -457,8 +496,8 @@ public class DepotMarshaller<T>
      * it did not define a primary key. */
     protected FieldMarshaller _primaryKey;
 
-    /** The name of our persistent object table. */
-    protected String _tableName;
+    /** The generator to use for auto-generating primary key values, or null. */
+    protected KeyGenerator _keyGenerator;
 
     /** The persisent fields of our object, in definition order, separated by
      * commas for easy use in a select statement. */
@@ -476,6 +515,10 @@ public class DepotMarshaller<T>
 
     /** Used when creating and migrating our table schema. */
     protected String _postamble;
+
+    /** A map of name to {@link TableGenerator}, scoped over all classes. */
+    protected static HashMap<String, TableGenerator> _generators =
+        new HashMap<String, TableGenerator>();
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";

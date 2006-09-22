@@ -127,10 +127,11 @@ public class DepotRepository
         final DepotMarshaller marsh = getMarshaller(record.getClass());
         return invoke(new Modifier(marsh.getPrimaryKey(record)) {
             public int invoke (Connection conn) throws SQLException {
+                marsh.assignPrimaryKey(conn, record, false);
                 PreparedStatement stmt = marsh.createInsert(conn, record);
                 try {
                     int mods = stmt.executeUpdate();
-                    marsh.assignPrimaryKey(conn, record);
+                    marsh.assignPrimaryKey(conn, record, true);
                     return mods;
                 } finally {
                     stmt.close();
@@ -342,9 +343,10 @@ public class DepotRepository
 
                     // if the update modified zero rows or the primary key was
                     // obviously unset, do an insertion
+                    marsh.assignPrimaryKey(conn, record, false);
                     stmt = marsh.createInsert(conn, record);
                     int mods = stmt.executeUpdate();
-                    marsh.assignPrimaryKey(conn, record);
+                    marsh.assignPrimaryKey(conn, record, true);
                     return mods;
 
                 } finally {

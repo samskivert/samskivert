@@ -38,9 +38,24 @@ import com.samskivert.jdbc.DuplicateKeyException;
  */
 public class DepotRepository
 {
+    /**
+     * Creates a repository with the supplied connection provider and its own
+     * private persistence context.
+     */
     protected DepotRepository (ConnectionProvider conprov)
     {
+        this(conprov, new PersistenceContext());
+    }
+
+    /**
+     * Creates a repository with the supplied connection provider and
+     * persistence context.
+     */
+    protected DepotRepository (
+        ConnectionProvider conprov, PersistenceContext context)
+    {
         _conprov = conprov;
+        _context = context;
     }
 
     /**
@@ -411,7 +426,8 @@ public class DepotRepository
         @SuppressWarnings("unchecked")DepotMarshaller<T> marshaller =
             (DepotMarshaller<T>)_marshallers.get(type);
         if (marshaller == null) {
-            _marshallers.put(type, marshaller = new DepotMarshaller<T>(type));
+            _marshallers.put(
+                type, marshaller = new DepotMarshaller<T>(type, _context));
             // initialize the marshaller which may create or migrate the table
             // for its underlying persistent object
             final DepotMarshaller<T> fm = marshaller;
@@ -570,7 +586,7 @@ public class DepotRepository
     }
 
     protected ConnectionProvider _conprov;
-
+    protected PersistenceContext _context;
     protected HashMap<Class<?>, DepotMarshaller<?>> _marshallers =
         new HashMap<Class<?>, DepotMarshaller<?>>();
 }

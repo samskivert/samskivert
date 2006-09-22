@@ -41,7 +41,6 @@ import com.samskivert.util.StringUtil;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
-
 /**
  * Handles the marshalling and unmarshalling of persistent instances to JDBC
  * primitives ({@link PreparedStatement} and {@link ResultSet}).
@@ -57,7 +56,7 @@ public class DepotMarshaller<T>
     /**
      * Creates a marshaller for the specified persistent object class.
      */
-    public DepotMarshaller (Class<T> pclass)
+    public DepotMarshaller (Class<T> pclass, PersistenceContext context)
     {
         _pclass = pclass;
 
@@ -69,7 +68,7 @@ public class DepotMarshaller<T>
         // table as those are shared across all entities
         TableGenerator generator = pclass.getAnnotation(TableGenerator.class);
         if (generator != null) {
-            _generators.put(generator.name(), generator);
+            context.tableGenerators.put(generator.name(), generator);
         }
 
         // introspect on the class and create marshallers for persistent fields
@@ -107,7 +106,7 @@ public class DepotMarshaller<T>
                 // check if this field defines a new TableGenerator
                 generator = field.getAnnotation(TableGenerator.class);
                 if (generator != null) {
-                    _generators.put(generator.name(), generator);
+                    context.tableGenerators.put(generator.name(), generator);
                 }
             }
         }
@@ -134,7 +133,7 @@ public class DepotMarshaller<T>
 
                 case TABLE:
                     String name = gv.generator();
-                    generator = _generators.get(name);
+                    generator = context.tableGenerators.get(name);
                     if (generator == null) {
                         throw new IllegalArgumentException(
                             "Unknown generator [generator=" + name + "]");
@@ -226,7 +225,8 @@ public class DepotMarshaller<T>
                 conn, getTableName(), _columnDefinitions, _postamble);
             // TODO: insert current version into version table
         }
-        // if there is a key generator, initialize that too
+
+        // if we have a key generator, initialize that too
         if (_keyGenerator != null) {
             _keyGenerator.init(conn);
         }
@@ -515,10 +515,6 @@ public class DepotMarshaller<T>
 
     /** Used when creating and migrating our table schema. */
     protected String _postamble;
-
-    /** A map of name to {@link TableGenerator}, scoped over all classes. */
-    protected static HashMap<String, TableGenerator> _generators =
-        new HashMap<String, TableGenerator>();
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";

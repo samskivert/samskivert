@@ -14,13 +14,17 @@
   <path id="classpath">
     <pathelement location="../${deploy.dir}/classes"/>
     <pathelement location="${deploy.dir}/classes"/>
-    <fileset dir="../lib" includes="**/*.jar"/>
-    <fileset dir="lib" includes="**/*.jar"/>
+    <fileset dir="../${deploy.dir}/lib" includes="*.jar"/>
+    <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
   </path>
+
+  <!-- import some targets to check dependency availability -->
+  <import file="../depends-incl.xml"/>
 
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${deploy.dir}/classes"/>
     <copy todir="${deploy.dir}/classes">
       <fileset dir="${src.dir}" includes="**/*.properties"/>
@@ -28,6 +32,9 @@
     <mkdir dir="${deploy.dir}/classes/rsrc"/>
     <copy todir="${deploy.dir}/classes/rsrc">
       <fileset dir="rsrc" includes="**/*"/>
+    </copy>
+    <copy todir="${deploy.dir}/lib">
+      <fileset dir="lib" includes="**/*.jar"/>
     </copy>
   </target>
 
@@ -41,6 +48,16 @@
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
            debug="on" optimize="off" deprecation="off">
       <classpath refid="classpath"/>
+      <exclude name="com/samskivert/io/**" unless="build.io"/>
+      <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+      <exclude name="com/samskivert/jdbc/depot/**" unless="build.depot"/>
+      <exclude name="com/samskivert/net/**" unless="build.net"/>
+      <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
+      <exclude name="com/samskivert/swing/**" unless="build.swing"/>
+      <exclude name="com/samskivert/test/**" unless="build.test"/>
+      <exclude name="com/samskivert/util/**" unless="build.util"/>
+      <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
+      <exclude name="com/samskivert/xml/**" unless="build.xml"/>
     </javac>
   </target>
 

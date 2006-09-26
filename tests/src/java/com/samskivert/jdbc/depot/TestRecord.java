@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 import javax.persistence.Id;
+import javax.persistence.Column;
 
 import com.samskivert.util.StringUtil;
 

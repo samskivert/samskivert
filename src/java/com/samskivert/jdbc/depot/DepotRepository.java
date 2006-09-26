@@ -142,11 +142,13 @@ public class DepotRepository
         final DepotMarshaller marsh = getMarshaller(record.getClass());
         return invoke(new Modifier(null) {
             public int invoke (Connection conn) throws SQLException {
-                marsh.assignPrimaryKey(conn, record, false);
+                // update our modifier's key so that it can cache our results
+                updateKey(marsh.assignPrimaryKey(conn, record, false));
                 PreparedStatement stmt = marsh.createInsert(conn, record);
                 try {
                     int mods = stmt.executeUpdate();
-                    marsh.assignPrimaryKey(conn, record, true);
+                    // check again in case we have a post-factum key generator
+                    updateKey(marsh.assignPrimaryKey(conn, record, true));
                     return mods;
                 } finally {
                     stmt.close();
@@ -341,7 +343,8 @@ public class DepotRepository
         throws PersistenceException
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
-        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
+        Key key = marsh.hasPrimaryKey() ? marsh.getPrimaryKey(record) : null;
+        return invoke(new Modifier(key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
@@ -358,10 +361,10 @@ public class DepotRepository
 
                     // if the update modified zero rows or the primary key was
                     // obviously unset, do an insertion
-                    marsh.assignPrimaryKey(conn, record, false);
+                    updateKey(marsh.assignPrimaryKey(conn, record, false));
                     stmt = marsh.createInsert(conn, record);
                     int mods = stmt.executeUpdate();
-                    marsh.assignPrimaryKey(conn, record, true);
+                    updateKey(marsh.assignPrimaryKey(conn, record, true));
                     return mods;
 
                 } finally {
@@ -582,6 +585,13 @@ public class DepotRepository
         protected Modifier (Key key)
         {
             _key = key;
+        }
+
+        protected void updateKey (Key key)
+        {
+            if (key != null) {
+                _key = key;
+            }
         }
 
         protected Key _key;

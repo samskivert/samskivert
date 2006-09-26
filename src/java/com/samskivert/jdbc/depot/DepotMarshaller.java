@@ -340,24 +340,28 @@ public class DepotMarshaller<T>
     /**
      * Fills in the primary key just assigned to the supplied persistence
      * object by the execution of the results of {@link #createInsert}.
+     *
+     * @return the newly assigned primary key or null if the object does not
+     * use primary keys or this is not the right time to assign the key.
      */
-    public void assignPrimaryKey (
+    public DepotRepository.Key assignPrimaryKey (
             Connection conn, Object po, boolean postFactum)
         throws SQLException
     {
         // if we have no primary key or no generator, then we're done
         if (!hasPrimaryKey() || _keyGenerator == null) {
-            return;
+            return null;
         }
 
         // run this generator either before or after the actual insertion
         if (_keyGenerator.isPostFactum() != postFactum) {
-            return;
+            return null;
         }
 
         try {
             int nextValue = _keyGenerator.nextGeneratedValue(conn);
             _primaryKey.getField().set(po, nextValue);
+            return makePrimaryKey(nextValue);
         } catch (Exception e) {
             String errmsg = "Failed to assign primary key " +
                 "[type=" + _pclass + "]";

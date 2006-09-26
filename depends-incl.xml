@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!-- build configuration -->
-<project name="samskivert" default="compile" basedir=".">
+<project name="samskivert-checks" basedir=".">
 
   <!-- checks to see which packages are available -->
   <target name="check-available">

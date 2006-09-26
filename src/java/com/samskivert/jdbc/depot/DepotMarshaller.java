@@ -174,13 +174,21 @@ public class DepotMarshaller<T>
     }
 
     /**
+     * Returns true if our persistent object defines a primary key.
+     */
+    public boolean hasPrimaryKey ()
+    {
+        return (_primaryKey != null);
+    }
+
+    /**
      * Returns a key configured with the primary key of the supplied object.
      * Throws an exception if the persistent object did not declare a primary
      * key.
      */
     public DepotRepository.Key getPrimaryKey (Object object)
     {
-        if (_primaryKey == null) {
+        if (!hasPrimaryKey()) {
             throw new UnsupportedOperationException(
                 getClass().getName() + " does not define a primary key");
         }
@@ -338,7 +346,7 @@ public class DepotMarshaller<T>
         throws SQLException
     {
         // if we have no primary key or no generator, then we're done
-        if (_primaryKey == null || _keyGenerator == null) {
+        if (!hasPrimaryKey() || _keyGenerator == null) {
             return;
         }
 

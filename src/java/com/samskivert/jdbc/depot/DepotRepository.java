@@ -140,7 +140,7 @@ public class DepotRepository
         throws PersistenceException
     {
         final DepotMarshaller marsh = getMarshaller(record.getClass());
-        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
+        return invoke(new Modifier(null) {
             public int invoke (Connection conn) throws SQLException {
                 marsh.assignPrimaryKey(conn, record, false);
                 PreparedStatement stmt = marsh.createInsert(conn, record);
@@ -467,7 +467,9 @@ public class DepotRepository
         // TODO: retry query on transient failure
         Connection conn = _conprov.getConnection(getIdent(), false);
         try {
-            return modifier.invoke(conn);
+            int result = modifier.invoke(conn);
+            // TODO: (optionally) cache the results of the modifier
+            return result;
 
         } catch (SQLException sqe) {
             // convert this exception to a DuplicateKeyException if appropriate

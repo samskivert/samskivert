@@ -138,4 +138,15 @@ public class TransitionRepository extends SimpleRepository
             }
         });
     }
+
+    @Override
+    protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
+        throws SQLException, PersistenceException
+    {
+        JDBCUtil.createTableIfMissing(conn, "TRANSITIONS", new String[] {
+            "CLASS varchar(200) not null",
+            "NAME varchar(50) not null",
+            "APPLIED timestamp not null",
+            "primary key (CLASS, NAME)" }, "");
+    }
 }

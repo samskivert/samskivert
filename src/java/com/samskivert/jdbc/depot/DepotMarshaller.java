@@ -39,6 +39,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
@@ -103,8 +104,10 @@ public class DepotMarshaller<T>
 
             // check to see if this is our primary key
             if (field.getAnnotation(Id.class) != null) {
-                // TODO: handle multiple field primary keys
-                _primaryKey = fm;
+                if (_pkColumns == null) {
+                    _pkColumns = new ArrayList<FieldMarshaller>();
+                }
+                _pkColumns.add(fm);
 
                 // check if this field defines a new TableGenerator
                 generator = field.getAnnotation(TableGenerator.class);
@@ -114,20 +117,39 @@ public class DepotMarshaller<T>
             }
         }
 
-        // if the entity defines a primary key, figure out how we will be
-        // generating values for it
-        if (_primaryKey != null) {
-            // the primary key must be numeric if we are to auto-assign it
-            Class<?> ftype = _primaryKey.getField().getType();
-            boolean isNumeric = (ftype.equals(Byte.TYPE) ||
-                ftype.equals(Byte.class) || ftype.equals(Short.TYPE) ||
-                ftype.equals(Short.class) || ftype.equals(Integer.TYPE) ||
-                ftype.equals(Integer.class) || ftype.equals(Long.TYPE) ||
-                ftype.equals(Long.class));
+        // if the entity defines a single-columnar primary key, figure out if
+        // we will be generating values for it
+        if (_pkColumns != null) {
+            GeneratedValue gv = null;
+            FieldMarshaller keyField = null;
+            // loop over fields to see if there's a @GeneratedValue at all
+            for (FieldMarshaller field : _pkColumns) {
+                gv = field.getGeneratedValue();
+                if (gv != null) {
+                    keyField = field;
+                    break;
+                }
+            }
 
-            // and it will have to have some sort of annotation
-            GeneratedValue gv = _primaryKey.getGeneratedValue();
-            if (isNumeric && gv != null) {
+            if (keyField != null) {
+                // and if there is, make sure we've a single-column id
+                if (_pkColumns.size() > 1) {
+                    throw new IllegalArgumentException(
+                        "Cannot use @GeneratedValue on multiple-column @Id's");
+                }
+
+                // the primary key must be numeric if we are to auto-assign it
+                Class<?> ftype = keyField.getField().getType();
+                boolean isNumeric = (ftype.equals(Byte.TYPE) ||
+                    ftype.equals(Byte.class) || ftype.equals(Short.TYPE) ||
+                    ftype.equals(Short.class) || ftype.equals(Integer.TYPE) ||
+                    ftype.equals(Integer.class) || ftype.equals(Long.TYPE) ||
+                    ftype.equals(Long.class));
+                if (!isNumeric) {
+                    throw new IllegalArgumentException(
+                        "Cannot use @GeneratedValue on non-numeric column");
+                }
+
                 switch(gv.strategy()) {
                 case AUTO:
                 case IDENTITY:
@@ -157,6 +179,16 @@ public class DepotMarshaller<T>
             _columnDefinitions[ii] =
                 _fields.get(_allFields[ii]).getColumnDefinition();
         }
+        // add the primary key, if we have one
+        if (hasPrimaryKey()) {
+            String[] indices = new String[_pkColumns.size()];
+            for (int ii = 0; ii < indices.length; ii ++) {
+                indices[ii] = _pkColumns.get(i).getColumnName();
+            }
+            _columnDefinitions = ArrayUtil.append(
+                _columnDefinitions,
+                "PRIMARY KEY (" + StringUtil.join(indices, ", ") + ")");
+        }
         _postamble = ""; // TODO: add annotations for the postamble
 
         // if we did not find a schema version field, complain
@@ -181,7 +213,7 @@ public class DepotMarshaller<T>
      */
     public boolean hasPrimaryKey ()
     {
-        return (_primaryKey != null);
+        return (_pkColumns != null);
     }
 
     /**
@@ -196,8 +228,12 @@ public class DepotMarshaller<T>
                 getClass().getName() + " does not define a primary key");
         }
         try {
-            return new DepotRepository.Key(_primaryKey.getColumnName(),
-                (Comparable)_primaryKey.getField().get(object));
+            Comparable[] values = new Comparable[_pkColumns.size()];
+            for (int ii = 0; ii < _pkColumns.size(); ii++) {
+                FieldMarshaller field = _pkColumns.get(ii);
+                values[ii] = (Comparable) field.getField().get(object);
+            }
+            return makePrimaryKey(values);
         } catch (IllegalAccessException iae) {
             throw new RuntimeException(iae);
         }
@@ -207,9 +243,23 @@ public class DepotMarshaller<T>
      * Creates a primary key record for the type of object handled by this
      * marshaller, using the supplied primary key vlaue.
      */
-    public DepotRepository.Key makePrimaryKey (Comparable value)
+    public DepotRepository.Key makePrimaryKey (Comparable... values)
     {
-        return new DepotRepository.Key(_primaryKey.getColumnName(), value);
+        if (!hasPrimaryKey()) {
+            throw new UnsupportedOperationException(
+                getClass().getName() + " does not define a primary key");
+        }
+        if (values.length != _pkColumns.size()) {
+            throw new IllegalArgumentException(
+                "Argument count (" + values.length + ") must match " +
+                "primary key size (" + _pkColumns.size() + ")");
+        }
+        String[] indices = new String[_pkColumns.size()];
+        for (int ii = 0; ii < _pkColumns.size(); ii++) {
+            FieldMarshaller field = _pkColumns.get(ii);
+            indices[ii] = field.getColumnName();
+        }
+        return new DepotRepository.Key(indices, values);
     }
 
     /**
@@ -403,7 +453,7 @@ public class DepotMarshaller<T>
 
         try {
             int nextValue = _keyGenerator.nextGeneratedValue(conn);
-            _primaryKey.getField().set(po, nextValue);
+            _pkColumns.get(0).getField().set(po, nextValue);
             return makePrimaryKey(nextValue);
         } catch (Exception e) {
             String errmsg = "Failed to assign primary key " +
@@ -579,9 +629,9 @@ public class DepotMarshaller<T>
     protected HashMap<String, FieldMarshaller> _fields =
         new HashMap<String, FieldMarshaller>();
 
-    /** The field marshaller for our persistent object's primary key or null if
-     * it did not define a primary key. */
-    protected FieldMarshaller _primaryKey;
+    /** The field marshallers for our persistent object's primary key columns
+     * or null if it did not define a primary key. */
+    protected ArrayList<FieldMarshaller> _pkColumns;
 
     /** The generator to use for auto-generating primary key values, or null. */
     protected KeyGenerator _keyGenerator;

@@ -200,8 +200,6 @@ public abstract class FieldMarshaller
 
         // handle primary keyness
         if (field.getAnnotation(Id.class) != null) {
-            builder.append(" PRIMARY KEY");
-
             // figure out how we're going to generate our primary key values
             _generatedValue = field.getAnnotation(GeneratedValue.class);
             if (_generatedValue != null) {

@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.logging.Level;
 
 import javax.persistence.GeneratedValue;
@@ -37,6 +39,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import static com.samskivert.jdbc.depot.Log.log;
@@ -227,11 +230,11 @@ public class DepotMarshaller<T>
         // now create the table for our persistent class if it does not exist
         if (!JDBCUtil.tableExists(conn, getTableName())) {
             log.fine("Creating table " + getTableName() +
-                " (" + StringUtil.join(_columnDefinitions, ", ") + ") " +
-                _postamble);
+                     " (" + StringUtil.join(_columnDefinitions, ", ") + ") " +
+                     _postamble);
             JDBCUtil.createTableIfMissing(
                 conn, getTableName(), _columnDefinitions, _postamble);
-            // TODO: insert current version into version table
+            updateVersion(conn, 1);
         }
 
         // if we have a key generator, initialize that too
@@ -244,14 +247,54 @@ public class DepotMarshaller<T>
             return;
         }
 
-        // otherwise, then make sure the versions match and do some migration
-        // if they don't
-        Statement stmt = conn.createStatement();
-        try {
-            // TODO: magical migration; execute registered migration actions
-        } finally {
-            stmt.close();
+        // make sure the versions match
+        int currentVersion = readVersion(conn);
+        if (currentVersion == _schemaVersion) {
+            return;
         }
+
+        log.info("Migrating " + getTableName() + " from " + currentVersion +
+                 " to " + _schemaVersion + "...");
+
+        // otherwise try to migrate the schema; doing column additions
+        // magically and running any registered hand-migrations
+        DatabaseMetaData meta = conn.getMetaData();
+        ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
+        HashSet<String> columns = new HashSet<String>();
+        while (rs.next()) {
+            columns.add(rs.getString("COLUMN_NAME"));
+        }
+
+        for (FieldMarshaller fmarsh : _fields.values()) {
+            if (columns.contains(fmarsh.getColumnName())) {
+                continue;
+            }
+
+            // otherwise add the column
+            String coldef = fmarsh.getColumnDefinition();
+            String query = "alter table " + getTableName() +
+                " add column " + coldef;
+
+            // try to add it to the appropriate spot
+            int fidx = ListUtil.indexOf(_allFields, fmarsh.getColumnName());
+            if (fidx == 0) {
+                query += " first";
+            } else {
+                query += " after " + _allFields[fidx-1];
+            }
+
+            log.info("Adding column to " + getTableName() + ": " + coldef);
+            Statement stmt = conn.createStatement();
+            try {
+                stmt.executeUpdate(query);
+            } finally {
+                stmt.close();
+            }
+        }
+
+        // TODO: run any registered hand migrations
+
+        updateVersion(conn, _schemaVersion);
     }
 
     /**
@@ -492,6 +535,36 @@ public class DepotMarshaller<T>
         PreparedStatement pstmt = conn.prepareStatement(update.toString());
         key.bindArguments(pstmt, 1);
         return pstmt;
+    }
+
+    protected void updateVersion (Connection conn, int version)
+        throws SQLException
+    {
+        String query = (version == 1) ?
+            "insert into " + SCHEMA_VERSION_TABLE +
+            " values('" + getTableName() + "', " + version + ")" :
+            "update " + SCHEMA_VERSION_TABLE + " set version = " + version +
+            " where persistentClass = '" + getTableName() + "'";
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.executeUpdate(query);
+        } finally {
+            stmt.close();
+        }
+    }
+
+    protected int readVersion (Connection conn)
+        throws SQLException
+    {
+        String query = "select version from " + SCHEMA_VERSION_TABLE +
+            " where persistentClass = '" + getTableName() + "'";
+        Statement stmt = conn.createStatement();
+        try {
+            ResultSet rs = stmt.executeQuery(query);
+            return (rs.next()) ?  rs.getInt(1) : 1;
+        } finally {
+            stmt.close();
+        }
     }
 
     /** The persistent object class that we manage. */

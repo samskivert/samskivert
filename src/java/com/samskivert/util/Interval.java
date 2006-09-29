@@ -100,7 +100,8 @@ public abstract class Interval
     public final void schedule (long initialDelay, long repeatDelay)
     {
         cancel();
-        TimerTask task = _task = new IntervalTask();
+        TimerTask task = new IntervalTask();
+        _task = task;
 
         if (repeatDelay == 0L) {
             _timer.schedule(task, initialDelay);

@@ -1,6 +1,6 @@
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001-2006 Michael Bayne
+// Copyright (C) 2001-2006 Michael Bayne, Pär Winzell
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -183,7 +183,7 @@ public class DepotMarshaller<T>
         if (hasPrimaryKey()) {
             String[] indices = new String[_pkColumns.size()];
             for (int ii = 0; ii < indices.length; ii ++) {
-                indices[ii] = _pkColumns.get(i).getColumnName();
+                indices[ii] = _pkColumns.get(ii).getColumnName();
             }
             _columnDefinitions = ArrayUtil.append(
                 _columnDefinitions,

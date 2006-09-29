@@ -540,14 +540,16 @@ public class DepotMarshaller<T>
     protected void updateVersion (Connection conn, int version)
         throws SQLException
     {
-        String query = (version == 1) ?
-            "insert into " + SCHEMA_VERSION_TABLE +
-            " values('" + getTableName() + "', " + version + ")" :
-            "update " + SCHEMA_VERSION_TABLE + " set version = " + version +
+        String update = "update " + SCHEMA_VERSION_TABLE +
+            " set version = " + version +
             " where persistentClass = '" + getTableName() + "'";
+        String insert = "insert into " + SCHEMA_VERSION_TABLE +
+            " values('" + getTableName() + "', " + version + ")";
         Statement stmt = conn.createStatement();
         try {
-            stmt.executeUpdate(query);
+            if (stmt.executeUpdate(update) == 0) {
+                stmt.executeUpdate(insert);
+            }
         } finally {
             stmt.close();
         }

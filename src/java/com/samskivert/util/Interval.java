@@ -47,6 +47,20 @@ public abstract class Interval
     }
 
     /**
+     * Clears out the {@link Timer} currently being used to schedule
+     * intervals. This method is normally not needed as a single timer thread
+     * can be used for the lifetime of the VM, but in certain situations (in
+     * applets) the timer thread will be forcibly killed when the applet is
+     * destroyed but the classes will not be unloaded. In that case, the applet
+     * should call this method in its own destroy method. A new timer thread
+     * will then be created the next time an interval is scheduled.
+     */
+    public static synchronized void shutdown ()
+    {
+        _timer = null;
+    }
+
+    /**
      * Create a simple interval that does not use a RunQueue to run
      * the expired() method.
      */
@@ -104,9 +118,9 @@ public abstract class Interval
         _task = task;
 
         if (repeatDelay == 0L) {
-            _timer.schedule(task, initialDelay);
+            getTimer().schedule(task, initialDelay);
         } else {
-            _timer.scheduleAtFixedRate(task, initialDelay, repeatDelay);
+            getTimer().scheduleAtFixedRate(task, initialDelay, repeatDelay);
         }
     }
 
@@ -153,6 +167,14 @@ public abstract class Interval
         }
     }
 
+    protected static synchronized Timer getTimer ()
+    {
+        if (_timer == null) {
+            _timer = new Timer(/*JDK1.5 "samskivert Interval Timer",*/ true);
+        }
+        return _timer;
+    }
+
     /**
      * The task that schedules actually runs the interval.
      */
@@ -194,7 +216,6 @@ public abstract class Interval
     /** The task that actually schedules our execution with the static Timer. */
     protected volatile TimerTask _task;
 
-    /** The daemon timer used to schedule all Intervals. */
-    protected static final Timer _timer =
-        new Timer(/*JDK1.5 "samskivert Interval Timer",*/ true);
+    /** The daemon timer used to schedule all intervals. */
+    protected static Timer _timer;
 }

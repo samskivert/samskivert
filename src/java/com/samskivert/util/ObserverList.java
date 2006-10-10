@@ -139,23 +139,15 @@ public class ObserverList<T> extends ArrayList<T>
     @Override
     public void add (int index, T element)
     {
-        throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
+        if (!isDuplicate(element)) {
+            super.add(index, element);
+        }
     }
 
     @Override
-    public boolean add (T o)
+    public boolean add (T element)
     {
-        // make sure we're not violating the list constraints
-        if (!_allowDups && contains(o)) {
-            Log.warning("Observer attempted to observe list it's already " +
-                        "observing! [obs=" + o + "].");
-            Thread.dumpStack();
-            return false;
-
-        } else {
-            // go ahead and add the observer
-            return super.add(o);
-        }
+        return isDuplicate(element) ? false : super.add(element);
     }
 
     @Override
@@ -244,6 +236,23 @@ public class ObserverList<T> extends ArrayList<T>
                 }
             }
         }
+    }
+
+    /**
+     * Returns true and issues a warning if this list does not allow duplicates
+     * and the supplied observer is already in the list. Returns false if the
+     * supplied observer is not a duplicate.
+     */
+    protected boolean isDuplicate (T obs)
+    {
+        // make sure we're not violating the list constraints
+        if (!_allowDups && contains(obs)) {
+            Log.warning("Observer attempted to observe list it's already " +
+                        "observing! [obs=" + obs + "].");
+            Thread.dumpStack();
+            return true;
+        }
+        return false;
     }
 
     /**

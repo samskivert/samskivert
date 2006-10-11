@@ -93,6 +93,38 @@ public class PropertiesUtil
     }
 
     /**
+     * Returns a filtered version of the specified properties that first
+     * looks for a property starting with the given prefix, then looks for
+     * a property without the prefix.  For example, passing the prefix "alt"
+     * and using the following properties:
+     *
+     * <pre>
+     * alt.texture = sand.png
+     * lighting = off
+     * </pre>
+     *
+     * ...would return "sand.png" for the property "texture" and "off" for
+     * the property "lighting".  Unlike {@link #getSubProperties}, the object
+     * returned by this method references, rather than copies, the underlying
+     * properties.  Only the {@link Properties#getProperty} methods are
+     * guaranteed to work correctly on the returned object.
+     */
+    public static Properties getFilteredProperties (
+        final Properties source, String prefix)
+    {
+        final String dprefix = prefix + ".";
+        return new Properties() {
+            public String getProperty (String key) {
+                return getProperty(key, null);
+            }
+            public String getProperty (String key, String defaultValue) {
+                return source.getProperty(dprefix + key,
+                    source.getProperty(key, defaultValue));
+            }
+        };
+    }
+    
+    /**
      * A helper function used by the {@link #getSubProperties} methods.
      */
     protected static void extractSubProperties (

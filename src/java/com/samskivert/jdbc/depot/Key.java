@@ -31,15 +31,22 @@ public class Key
     public String[] indices;
     public Comparable[] values;
 
+    public Key (String index, Comparable value)
+    {
+        this(new String[] { index }, new Comparable[] { value });
+    }
+
+    public Key (String index1, Comparable value1,
+                String index2, Comparable value2)
+    {
+        this(new String[] { index1, index2 },
+             new Comparable[] { value1, value2 });
+    }
+
     public Key (String[] indices, Comparable[] values)
     {
         this.indices = indices;
         this.values = values;
-    }
-
-    public Key (String index, Comparable value)
-    {
-        this(new String[] { index }, new Comparable[] { value });
     }
 
     public String toWhereClause ()

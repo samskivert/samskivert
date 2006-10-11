@@ -31,7 +31,6 @@ import java.util.HashMap;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
-import com.samskivert.jdbc.DuplicateKeyException;
 
 /**
  * Provides a base for classes that provide access to persistent objects. Also
@@ -46,18 +45,15 @@ public class DepotRepository
      */
     protected DepotRepository (ConnectionProvider conprov)
     {
-        this(conprov, new PersistenceContext());
+        _ctx = new PersistenceContext(getClass().getName(), conprov);
     }
 
     /**
-     * Creates a repository with the supplied connection provider and
-     * persistence context.
+     * Creates a repository with the supplied persistence context.
      */
-    protected DepotRepository (
-        ConnectionProvider conprov, PersistenceContext context)
+    protected DepotRepository (PersistenceContext context)
     {
-        _conprov = conprov;
-        _context = context;
+        _ctx = context;
     }
 
     /**
@@ -66,7 +62,7 @@ public class DepotRepository
     protected <T> T load (Class<T> type, Comparable primaryKey)
         throws PersistenceException
     {
-        return load(type, getMarshaller(type).makePrimaryKey(primaryKey));
+        return load(type, _ctx.getMarshaller(type).makePrimaryKey(primaryKey));
     }
 
     /**
@@ -75,8 +71,8 @@ public class DepotRepository
     protected <T> T load (Class<T> type, Key key)
         throws PersistenceException
     {
-        final DepotMarshaller<T> marsh = getMarshaller(type);
-        return invoke(new Query<T>(key) {
+        final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
+        return _ctx.invoke(new Query<T>(key) {
             public T invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createQuery(conn, _key);
                 try {
@@ -112,8 +108,8 @@ public class DepotRepository
         Class<T> type, Key key)
         throws PersistenceException
     {
-        final DepotMarshaller<T> marsh = getMarshaller(type);
-        return invoke(new Query<ArrayList<T>>(key) {
+        final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
+        return _ctx.invoke(new Query<ArrayList<T>>(key) {
             public ArrayList<T> invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createQuery(conn, _key);
                 try {
@@ -141,8 +137,8 @@ public class DepotRepository
     protected int insert (final Object record)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = getMarshaller(record.getClass());
-        return invoke(new Modifier(null) {
+        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
+        return _ctx.invoke(new Modifier(null) {
             public int invoke (Connection conn) throws SQLException {
                 // update our modifier's key so that it can cache our results
                 updateKey(marsh.assignPrimaryKey(conn, record, false));
@@ -168,8 +164,8 @@ public class DepotRepository
     protected int update (final Object record)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = getMarshaller(record.getClass());
-        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
+        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
+        return _ctx.invoke(new Modifier(marsh.getPrimaryKey(record)) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(conn, record, _key);
                 try {
@@ -190,8 +186,8 @@ public class DepotRepository
     protected int update (final Object record, final String ... modifiedFields)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = getMarshaller(record.getClass());
-        return invoke(new Modifier(marsh.getPrimaryKey(record)) {
+        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
+        return _ctx.invoke(new Modifier(marsh.getPrimaryKey(record)) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(
                     conn, record, _key, modifiedFields);
@@ -220,7 +216,8 @@ public class DepotRepository
         throws PersistenceException
     {
         return updatePartial(
-            type, getMarshaller(type).makePrimaryKey(primaryKey), fieldsValues);
+            type, _ctx.getMarshaller(type).makePrimaryKey(primaryKey),
+            fieldsValues);
     }
 
     /**
@@ -246,8 +243,8 @@ public class DepotRepository
             values[ii] = fieldsValues[idx++];
         }
 
-        final DepotMarshaller marsh = getMarshaller(type);
-        return invoke(new Modifier(key) {
+        final DepotMarshaller marsh = _ctx.getMarshaller(type);
+        return _ctx.invoke(new Modifier(key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createPartialUpdate(
                     conn, _key, fields, values);
@@ -284,7 +281,8 @@ public class DepotRepository
         throws PersistenceException
     {
         return updateLiteral(
-            type, getMarshaller(type).makePrimaryKey(primaryKey), fieldsValues);
+            type, _ctx.getMarshaller(type).makePrimaryKey(primaryKey),
+            fieldsValues);
     }
 
     /**
@@ -318,8 +316,8 @@ public class DepotRepository
             values[ii] = fieldsValues[idx++];
         }
 
-        final DepotMarshaller marsh = getMarshaller(type);
-        return invoke(new Modifier(key) {
+        final DepotMarshaller marsh = _ctx.getMarshaller(type);
+        return _ctx.invoke(new Modifier(key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createLiteralUpdate(
                     conn, _key, fields, values);
@@ -344,9 +342,9 @@ public class DepotRepository
     protected int store (final Object record)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = getMarshaller(record.getClass());
+        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
         Key key = marsh.hasPrimaryKey() ? marsh.getPrimaryKey(record) : null;
-        return invoke(new Modifier(key) {
+        return _ctx.invoke(new Modifier(key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
@@ -387,7 +385,7 @@ public class DepotRepository
     {
         @SuppressWarnings("unchecked") Class<T> type =
             (Class<T>)record.getClass();
-        DepotMarshaller<T> marsh = getMarshaller(type);
+        DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
         return deleteAll(type, marsh.getPrimaryKey(record));
     }
 
@@ -400,7 +398,8 @@ public class DepotRepository
     protected <T> int delete (Class<T> type, Comparable primaryKey)
         throws PersistenceException
     {
-        return deleteAll(type, getMarshaller(type).makePrimaryKey(primaryKey));
+        return deleteAll(
+            type, _ctx.getMarshaller(type).makePrimaryKey(primaryKey));
     }
 
     /**
@@ -412,8 +411,8 @@ public class DepotRepository
     protected <T> int deleteAll (Class<T> type, Key key)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = getMarshaller(type);
-        return invoke(new Modifier(key) {
+        final DepotMarshaller marsh = _ctx.getMarshaller(type);
+        return _ctx.invoke(new Modifier(key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createDelete(conn, _key);
                 try {
@@ -423,146 +422,6 @@ public class DepotRepository
                 }
             }
         });
-    }
-
-    protected <T> DepotMarshaller<T> getMarshaller (Class<T> type)
-        throws PersistenceException
-    {
-        @SuppressWarnings("unchecked")DepotMarshaller<T> marshaller =
-            (DepotMarshaller<T>)_marshallers.get(type);
-        if (marshaller == null) {
-            _marshallers.put(
-                type, marshaller = new DepotMarshaller<T>(type, _context));
-            // initialize the marshaller which may create or migrate the table
-            // for its underlying persistent object
-            final DepotMarshaller<T> fm = marshaller;
-            invoke(new Modifier(null) {
-                public int invoke (Connection conn) throws SQLException {
-                    fm.init(conn);
-                    return 0;
-                }
-            });
-        }
-        return marshaller;
-    }
-
-    protected <T> T invoke (Query<T> query)
-        throws PersistenceException
-    {
-        // TODO: check the cache using query.getKey()
-
-        // TODO: retry query on transient failure
-        Connection conn = _conprov.getConnection(getIdent(), true);
-        try {
-            return query.invoke(conn);
-
-        } catch (SQLException sqe) {
-            throw new PersistenceException("Query failure " + query, sqe);
-
-        } finally {
-            _conprov.releaseConnection(getIdent(), true, conn);
-        }
-    }
-
-    protected int invoke (Modifier modifier)
-        throws PersistenceException
-    {
-        // TODO: invalidate the cache using the modifier's key
-
-        // TODO: retry query on transient failure
-        Connection conn = _conprov.getConnection(getIdent(), false);
-        try {
-            int result = modifier.invoke(conn);
-            // TODO: (optionally) cache the results of the modifier
-            return result;
-
-        } catch (SQLException sqe) {
-            // convert this exception to a DuplicateKeyException if appropriate
-            String msg = sqe.getMessage();
-            if (msg != null && msg.indexOf("Duplicate entry") != -1) {
-                throw new DuplicateKeyException(msg);
-            } else {
-                throw new PersistenceException(
-                    "Modifier failure " + modifier, sqe);
-            }
-
-        } finally {
-            _conprov.releaseConnection(getIdent(), false, conn);
-        }
-    }
-
-    /**
-     * Returns the identifier to be used when obtaining JDBC connections from
-     * our connection provider. The default implementation uses the class name
-     * of this repository.
-     */
-    protected String getIdent ()
-    {
-        return getClass().getName();
-    }
-
-    protected static class Key
-    {
-        public String[] indices;
-        public Comparable[] values;
-
-        public Key (String[] indices, Comparable[] values)
-        {
-            this.indices = indices;
-            this.values = values;
-        }
-
-        public Key (String index, Comparable value)
-        {
-            this(new String[] { index }, new Comparable[] { value });
-        }
-
-        public String toWhereClause ()
-        {
-            StringBuilder where = new StringBuilder();
-            for (int ii = 0; ii < indices.length; ii++) {
-                if (ii > 0) {
-                    where.append(" and ");
-                }
-                where.append(indices[ii]).append(" = ?");
-            }
-            return where.toString();
-        }
-
-        public void bindArguments (PreparedStatement stmt, int startIdx)
-            throws SQLException
-        {
-            for (int ii = 0; ii < indices.length; ii++) {
-                stmt.setObject(startIdx++, values[ii]);
-            }
-        }
-    }
-
-    protected static class Key2 extends Key
-    {
-        public Key2 (String index1, Comparable value1,
-            String index2, Comparable value2)
-        {
-            super(new String[] { index1, index2 },
-                new Comparable[] { value1, value2 });
-        }
-    }
-
-    protected static abstract class Query<T>
-    {
-        public Key getKey ()
-        {
-            return _key;
-        }
-
-        public abstract T invoke (Connection conn) throws SQLException;
-
-        protected Query (Key key)
-        {
-            _key = key;
-        }
-
-        protected Key _key;
     }
 
     protected static abstract class CollectionQuery<T extends Collection>
@@ -575,32 +434,5 @@ public class DepotRepository
         public abstract T invoke (Connection conn) throws SQLException;
     }
 
-    protected static abstract class Modifier
-    {
-        public Key getKey ()
-        {
-            return _key;
-        }
-
-        public abstract int invoke (Connection conn) throws SQLException;
-
-        protected Modifier (Key key)
-        {
-            _key = key;
-        }
-
-        protected void updateKey (Key key)
-        {
-            if (key != null) {
-                _key = key;
-            }
-        }
-
-        protected Key _key;
-    }
-
-    protected ConnectionProvider _conprov;
-    protected PersistenceContext _context;
-    protected HashMap<Class<?>, DepotMarshaller<?>> _marshallers =
-        new HashMap<Class<?>, DepotMarshaller<?>>();
+    protected PersistenceContext _ctx;
 }

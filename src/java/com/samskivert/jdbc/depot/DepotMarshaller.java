@@ -223,7 +223,7 @@ public class DepotMarshaller<T>
      * Throws an exception if the persistent object did not declare a primary
      * key.
      */
-    public DepotRepository.Key getPrimaryKey (Object object)
+    public Key getPrimaryKey (Object object)
     {
         if (!hasPrimaryKey()) {
             throw new UnsupportedOperationException(
@@ -245,7 +245,7 @@ public class DepotMarshaller<T>
      * Creates a primary key record for the type of object handled by this
      * marshaller, using the supplied primary key vlaue.
      */
-    public DepotRepository.Key makePrimaryKey (Comparable... values)
+    public Key makePrimaryKey (Comparable... values)
     {
         if (!hasPrimaryKey()) {
             throw new UnsupportedOperationException(
@@ -261,7 +261,7 @@ public class DepotMarshaller<T>
             FieldMarshaller field = _pkColumns.get(ii);
             indices[ii] = field.getColumnName();
         }
-        return new DepotRepository.Key(indices, values);
+        return new Key(indices, values);
     }
 
     /**
@@ -354,8 +354,7 @@ public class DepotMarshaller<T>
      * Creates a query for instances of this persistent object type using the
      * supplied key. If null is supplied all instances will be loaded.
      */
-    public PreparedStatement createQuery (
-        Connection conn, DepotRepository.Key key)
+    public PreparedStatement createQuery (Connection conn, Key key)
         throws SQLException
     {
         String query = "select " + _fullColumnList + " from " + getTableName();
@@ -440,8 +439,7 @@ public class DepotMarshaller<T>
      * @return the newly assigned primary key or null if the object does not
      * use primary keys or this is not the right time to assign the key.
      */
-    public DepotRepository.Key assignPrimaryKey (
-            Connection conn, Object po, boolean postFactum)
+    public Key assignPrimaryKey (Connection conn, Object po, boolean postFactum)
         throws SQLException
     {
         // if we have no primary key or no generator, then we're done
@@ -469,8 +467,7 @@ public class DepotMarshaller<T>
      * Creates a statement that will update the supplied persistent object
      * using the supplied key.
      */
-    public PreparedStatement createUpdate (
-        Connection conn, Object po, DepotRepository.Key key)
+    public PreparedStatement createUpdate (Connection conn, Object po, Key key)
         throws SQLException
     {
         return createUpdate(conn, po, key, _allFields);
@@ -481,8 +478,7 @@ public class DepotMarshaller<T>
      * using the supplied key.
      */
     public PreparedStatement createUpdate (
-        Connection conn, Object po, DepotRepository.Key key,
-        String[] modifiedFields)
+        Connection conn, Object po, Key key, String[] modifiedFields)
         throws SQLException
     {
         StringBuilder update = new StringBuilder();
@@ -523,7 +519,7 @@ public class DepotMarshaller<T>
      * persistent objects that match the supplied key.
      */
     public PreparedStatement createPartialUpdate (
-        Connection conn, DepotRepository.Key key,
+        Connection conn, Key key,
         String[] modifiedFields, Object[] modifiedValues)
         throws SQLException
     {
@@ -553,8 +549,7 @@ public class DepotMarshaller<T>
     /**
      * Creates a statement that will delete all rows matching the supplied key.
      */
-    public PreparedStatement createDelete (
-        Connection conn, DepotRepository.Key key)
+    public PreparedStatement createDelete (Connection conn, Key key)
         throws SQLException
     {
         String query = "delete from " + getTableName() +
@@ -570,7 +565,7 @@ public class DepotMarshaller<T>
      * the supplied key.
      */
     public PreparedStatement createLiteralUpdate (
-        Connection conn, DepotRepository.Key key,
+        Connection conn, Key key,
         String[] modifiedFields, Object[] modifiedValues)
         throws SQLException
     {

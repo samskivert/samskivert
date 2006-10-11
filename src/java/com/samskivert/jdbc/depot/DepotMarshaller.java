@@ -317,7 +317,8 @@ public class DepotMarshaller<T>
             columns.add(rs.getString("COLUMN_NAME"));
         }
 
-        for (FieldMarshaller fmarsh : _fields.values()) {
+        for (String fname : _allFields) {
+            FieldMarshaller fmarsh = _fields.get(fname);
             if (columns.contains(fmarsh.getColumnName())) {
                 continue;
             }

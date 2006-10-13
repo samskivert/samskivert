@@ -5,79 +5,79 @@
 
   <!-- checks to see which packages are available -->
   <target name="check-available">
-    <echo message="The packages required for building are listed below."/>
-    <echo message="A package followed by 'true' indicates that the package"/>
-    <echo message="is present. One followed by '${package.present}' indicates"/>
-    <echo message="that it was not found. Jar files can be placed into the"/>
-    <echo message="lib/ directory or copied into dist/lib if samskivert is"/>
-    <echo message="being built as a part of a larger project."/>
+    <echo>The packages required for building are listed below. A package</echo>
+    <echo>followed by 'true' indicates that the package ispresent. One</echo>
+    <echo>followed by '${package.present}' indicates that it was not</echo>
+    <echo>found. Jar files can be placed into the lib/ directory or</echo>
+    <echo>copied into dist/lib if samskivert isbeing built as a part of a</echo>
+    <echo>larger project.</echo>
 
-    <echo message=""/>
-    <echo message="------------------------------------------"/>
-    <echo message="Standard extensions - http://java.sun.com/"/>
-    <echo message="------------------------------------------"/>
+    <echo></echo>
+    <echo>------------------------------------------</echo>
+    <echo>Standard extensions - http://java.sun.com/</echo>
+    <echo>------------------------------------------</echo>
     <available property="servlet2.3.present"
      classname="javax.servlet.Servlet" classpathref="classpath"/>
-    <echo message="Servlet 2.3: ${servlet2.3.present}"/>
+    <echo>Servlet 2.3: ${servlet2.3.present}</echo>
     <available property="mail.present"
      classname="javax.mail.Transport" classpathref="classpath"/>
-    <echo message="Java Mail: ${mail.present}"/>
+    <echo>Java Mail: ${mail.present}</echo>
 
     <available property="sax.present"
      classname="org.xml.sax.SAXException" classpathref="classpath"/>
-    <echo message="SAX: ${sax.present}"/>
+    <echo>SAX: ${sax.present}</echo>
 
     <available property="jaxp.present"
      classname="javax.xml.parsers.SAXParser" classpathref="classpath"/>
-    <echo message="JAXP: ${jaxp.present}"/>
+    <echo>JAXP: ${jaxp.present}</echo>
 
     <available property="javax.persistence.present"
      classname="javax.persistence.Entity" classpathref="classpath"/>
-    <echo message="Java Persistence: ${javax.persistence.present}"/>
+    <echo>Java Persistence: ${javax.persistence.present}</echo>
 
-    <echo message=""/>
-    <echo message="----------------------------------------------"/>
-    <echo message="Jakarta libraries - http://jakarta.apache.org/"/>
-    <echo message="----------------------------------------------"/>
+    <echo></echo>
+    <echo>----------------------------------------------</echo>
+    <echo>Jakarta libraries - http://jakarta.apache.org/</echo>
+    <echo>----------------------------------------------</echo>
     <available property="jakarta.commons-colls.present"
      classname="org.apache.commons.collections.CollectionUtils"
      classpathref="classpath"/>
-    <echo message="Commons Collections: ${jakarta.commons-colls.present}"/>
+    <echo>Commons Collections: ${jakarta.commons-colls.present}</echo>
 
     <available property="jakarta.commons-logging.present"
      classname="org.apache.commons.logging.Log"
      classpathref="classpath"/>
-    <echo message="Commons Logging: ${jakarta.commons-logging.present}"/>
+    <echo>Commons Logging: ${jakarta.commons-logging.present}</echo>
 
     <available property="jakarta.commons-digester.present"
      classname="org.apache.commons.digester.Digester"
      classpathref="classpath"/>
-    <echo message="Commons Digester: ${jakarta.commons-digester.present}"/>
+    <echo>Commons Digester: ${jakarta.commons-digester.present}</echo>
 
     <available property="jakarta.commons-io.present"
      classname="org.apache.commons.io.IOUtils"
      classpathref="classpath"/>
-    <echo message="Commons Io: ${jakarta.commons-io.present}"/>
+    <echo>Commons Io: ${jakarta.commons-io.present}</echo>
 
     <available property="jakarta.velocity.present"
      classname="org.apache.velocity.Template" classpathref="classpath"/>
-    <echo message="Velocity: ${jakarta.velocity.present}"/>
+    <echo>Velocity: ${jakarta.velocity.present}</echo>
   </target>
 
   <!-- combines package availability into build controls -->
   <target name="compute-builds" depends="check-available">
-    <echo message="The packages that will be built are listed below. One"/>
-    <echo message="followed by 'true' indicates that it will be built. One"/>
-    <echo message="followed by '${build.package}' indicates that it will"/>
-    <echo message="not be built. If a package is not being built, one or"/>
-    <echo message="more of its dependencies could not be located."/>
+    <echo>The packages that will be built are listed below. One followed</echo>
+    <echo>by 'true' indicates that it will be built. One followed by</echo>
+    <echo>'${build.package}' indicates that it will not be built. If a </echo>
+    <echo>package is not being built, one or more of its dependencies</echo>
+    <echo>could not be located.</echo>
 
-    <echo message=""/>
+    <echo></echo>
     <property name="build.util" value="true"/>
-    <!--<echo message="com.samskivert.util: ${build.util}"/>-->
+    <!--<echo>com.samskivert.util: ${build.util}</echo>-->
 
     <property name="build.io" value="true"/>
-    <!--<echo message="com.samskivert.io: ${build.io}"/>-->
+    <!--<echo>com.samskivert.io: ${build.io}</echo>-->
 
     <condition property="build.jdbc">
       <and>
@@ -86,7 +86,7 @@
         <isset property="jakarta.commons-io.present"/>
       </and>
     </condition>
-    <echo message="com.samskivert.jdbc: ${build.jdbc}"/>
+    <echo>com.samskivert.jdbc: ${build.jdbc}</echo>
 
     <condition property="build.depot">
       <and>
@@ -94,7 +94,7 @@
         <isset property="javax.persistence.present"/>
       </and>
     </condition>
-    <echo message="com.samskivert.jdbc.depot: ${build.depot}"/>
+    <echo>com.samskivert.jdbc.depot: ${build.depot}</echo>
 
     <condition property="build.net">
       <and>
@@ -102,7 +102,7 @@
         <isset property="mail.present"/>
       </and>
     </condition>
-    <echo message="com.samskivert.net: ${build.net}"/>
+    <echo>com.samskivert.net: ${build.net}</echo>
 
     <condition property="build.servlet">
       <and>
@@ -112,15 +112,15 @@
         <isset property="servlet2.3.present"/>
       </and>
     </condition>
-    <echo message="com.samskivert.servlet: ${build.servlet}"/>
+    <echo>com.samskivert.servlet: ${build.servlet}</echo>
 
     <condition property="build.swing">
       <isset property="build.util"/>
     </condition>
-    <echo message="com.samskivert.swing: ${build.swing}"/>
+    <echo>com.samskivert.swing: ${build.swing}</echo>
 
     <property name="build.test" value="true"/>
-    <echo message="com.samskivert.test: ${build.test}"/>
+    <echo>com.samskivert.test: ${build.test}</echo>
 
     <condition property="build.velocity">
       <and>
@@ -131,7 +131,7 @@
         <isset property="servlet2.3.present"/>
       </and>
     </condition>
-    <echo message="com.samskivert.velocity: ${build.velocity}"/>
+    <echo>com.samskivert.velocity: ${build.velocity}</echo>
 
     <condition property="build.xml">
       <and>
@@ -143,7 +143,7 @@
         <isset property="sax.present"/>
       </and>
     </condition>
-    <echo message="com.samskivert.xml: ${build.xml}"/>
+    <echo>com.samskivert.xml: ${build.xml}</echo>
   </target>
 
 </project>

@@ -36,4 +36,4 @@ build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.4 2001/11/05 09:18:10 mdb Exp $
+$Id$

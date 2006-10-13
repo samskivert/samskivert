@@ -172,11 +172,23 @@ public class DepotMarshaller<T>
         // generate our full list of fields/columns for use in queries
         _allFields = fields.toArray(new String[fields.size()]);
 
-        // create the SQL used to create and migrate our table
+        // figure out the list of fields that correspond to actual table columns and create the SQL
+        // used to create and migrate our table
+        _columnFields = new String[_allFields.length];
         _columnDefinitions = new String[_allFields.length];
+        int jj = 0;
         for (int ii = 0; ii < _allFields.length; ii++) {
-            _columnDefinitions[ii] = _fields.get(_allFields[ii]).getColumnDefinition();
+            // include all persistent non-computed fields
+            String colDef = _fields.get(_allFields[ii]).getColumnDefinition();
+            if (colDef != null) {
+                _columnFields[jj] = _allFields[ii];
+                _columnDefinitions[jj] = colDef;
+                jj ++;
+            }
         }
+        _columnFields = ArrayUtil.splice(_columnFields, jj);
+        _columnDefinitions = ArrayUtil.splice(_columnDefinitions, jj);
+
         // add the primary key, if we have one
         if (hasPrimaryKey()) {
             String[] indices = new String[_pkColumns.size()];
@@ -306,7 +318,7 @@ public class DepotMarshaller<T>
             columns.add(rs.getString("COLUMN_NAME"));
         }
 
-        for (String fname : _allFields) {
+        for (String fname : _columnFields) {
             FieldMarshaller fmarsh = _fields.get(fname);
             if (columns.contains(fmarsh.getColumnName())) {
                 continue;
@@ -372,9 +384,9 @@ public class DepotMarshaller<T>
         try {
             StringBuilder insert = new StringBuilder();
             insert.append("insert into ").append(getTableName());
-            insert.append(" (").append(StringUtil.join(_allFields, ","));
+            insert.append(" (").append(StringUtil.join(_columnFields, ","));
             insert.append(")").append(" values(");
-            for (int ii = 0; ii < _allFields.length; ii++) {
+            for (int ii = 0; ii < _columnFields.length; ii++) {
                 if (ii > 0) {
                     insert.append(", ");
                 }
@@ -385,7 +397,7 @@ public class DepotMarshaller<T>
             // TODO: handle primary key, nullable fields specially?
             PreparedStatement pstmt = conn.prepareStatement(insert.toString());
             int idx = 0;
-            for (String field :  _allFields) {
+            for (String field :  _columnFields) {
                 _fields.get(field).setValue(po, pstmt, ++idx);
             }
             return pstmt;
@@ -437,7 +449,7 @@ public class DepotMarshaller<T>
     public PreparedStatement createUpdate (Connection conn, Object po, Key key)
         throws SQLException
     {
-        return createUpdate(conn, po, key, _allFields);
+        return createUpdate(conn, po, key, _columnFields);
     }
 
     /**
@@ -598,6 +610,9 @@ public class DepotMarshaller<T>
 
     /** The persisent fields of our object, in definition order. */
     protected String[] _allFields;
+
+    /** The fields of our object with directly corresponding table columns. */
+    protected String[] _columnFields;
 
     /** The version of our persistent object schema as specified in the class
      * definition. */

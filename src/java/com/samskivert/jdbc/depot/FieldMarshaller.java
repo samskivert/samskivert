@@ -172,6 +172,12 @@ public abstract class FieldMarshaller
             }
         }
 
+        // if this field is @Computed, it has no SQL definition
+        if (field.getAnnotation(Computed.class) != null) {
+            _columnDefinition = null;
+            return;
+        }
+
         // create our SQL column definition
         StringBuilder builder = new StringBuilder();
         if (column != null && !StringUtil.isBlank(column.columnDefinition())) {

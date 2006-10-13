@@ -63,6 +63,7 @@ public class FieldOverrideClause
     public void appendClause (Query query, StringBuilder builder)
     {
         _override.appendExpression(query, builder);
+        builder.append(" as ").append(_field);
     }
 
     // from QueryClause

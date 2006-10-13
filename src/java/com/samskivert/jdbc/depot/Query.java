@@ -91,7 +91,7 @@ public abstract class Query<T>
             throw new RuntimeException("createQuery() called with _mainClass == null");
         }
 
-        DepotMarshaller mainMarshaller = _classMap.get(_mainType);
+        DepotMarshaller<?> mainMarshaller = _classMap.get(_mainType);
         String[] fields = mainMarshaller._allFields;
         StringBuilder query = new StringBuilder("select ");
         for (int ii = 0; ii < fields.length; ii ++) {
@@ -101,8 +101,11 @@ public abstract class Query<T>
             FieldOverrideClause clause = _disMap.get(fields[ii]);
             if (clause != null) {
                 clause.appendClause(this, query);
-            } else {
+            } else if (mainMarshaller._fields.get(fields[ii]).getColumnDefinition() != null) {
                 query.append("T.").append(fields[ii]);
+            } else {
+                throw new SQLException(
+                    "Computed field must be overridden [field=" + fields[ii] + "]");
             }
         }
         query.append("   from " + mainMarshaller.getTableName() + " as T ");

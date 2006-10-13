@@ -397,7 +397,7 @@ public class DepotMarshaller<T>
             // TODO: handle primary key, nullable fields specially?
             PreparedStatement pstmt = conn.prepareStatement(insert.toString());
             int idx = 0;
-            for (String field :  _columnFields) {
+            for (String field : _columnFields) {
                 _fields.get(field).setValue(po, pstmt, ++idx);
             }
             return pstmt;

@@ -37,7 +37,7 @@
     <copy todir="${deploy.dir}/classes">
       <fileset dir="${src.dir}" includes="**/*.properties"/>
     </copy>
-    <copy todir="${deploy.dir}/lib">
+    <copy todir="${deploy.dir}/lib" flatten="true">
       <fileset refid="samskivert.libs"/>
     </copy>
   </target>

@@ -21,6 +21,7 @@
 package com.samskivert.jdbc.depot;
 
 import java.util.HashMap;
+
 import javax.persistence.TableGenerator;
 
 import java.sql.Connection;
@@ -36,8 +37,7 @@ import com.samskivert.jdbc.DuplicateKeyException;
 public class PersistenceContext
 {
     /** Map {@link TableGenerator} instances by name. */
-    public HashMap<String, TableGenerator> tableGenerators =
-        new HashMap<String, TableGenerator>();
+    public HashMap<String, TableGenerator> tableGenerators = new HashMap<String, TableGenerator>();
 
     /**
      * Creates a persistence context that will use the supplied provider to
@@ -80,6 +80,7 @@ public class PersistenceContext
     /**
      * Invokes a non-modifying query and returns its result.
      */
+    @SuppressWarnings("unchecked")
     public <T> T invoke (Query<T> query)
         throws PersistenceException
     {

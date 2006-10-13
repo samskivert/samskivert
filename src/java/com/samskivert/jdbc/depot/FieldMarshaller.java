@@ -39,16 +39,15 @@ import javax.persistence.Id;
 import com.samskivert.util.StringUtil;
 
 /**
- * Handles the marshalling and unmarshalling of a particular field of a
- * persistent object.
+ * Handles the marshalling and unmarshalling of a particular field of a persistent object.
  *
  * @see DepotMarshaller
  */
 public abstract class FieldMarshaller
 {
     /**
-     * Creates and returns a field marshaller for the specified field. Throws
-     * an exception if the field in question cannot be marshalled.
+     * Creates and returns a field marshaller for the specified field. Throws an exception if the
+     * field in question cannot be marshalled.
      */
     public static FieldMarshaller createMarshaller (Field field)
     {
@@ -158,9 +157,8 @@ public abstract class FieldMarshaller
         _field = field;
         _columnName = field.getName();
 
-        // read our column metadata from the annotation (if it exists);
-        // annoyingly we can't create a Column instance to read the defaults so
-        // we have to duplicate them here
+        // read our column metadata from the annotation (if it exists); annoyingly we can't create
+        // a Column instance to read the defaults so we have to duplicate them here
         int length = 255;
         boolean nullable = true;
         boolean unique = false;

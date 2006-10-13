@@ -97,17 +97,15 @@ public class TableKeyGenerator implements KeyGenerator
 
             ResultSet rs = stmt.executeQuery();
             if (!rs.next()) {
-                throw new SQLException(
-                    "Failed to find next primary key value [table=" + _table +
-                    ", column=" + _valueColumnName +
-                    ", where=" + _pkColumnName + "=" + _pkColumnValue + "]");
+                throw new SQLException("Failed to find next primary key value [table=" + _table +
+                                       ", column=" + _valueColumnName +
+                                       ", where=" + _pkColumnName + "=" + _pkColumnValue + "]");
             }
             int val = rs.getInt(1);
             JDBCUtil.close(stmt);
 
-            stmt = conn.prepareStatement(
-                "UPDATE " + _table + " SET " + _valueColumnName + " = ? " +
-                "WHERE " + _pkColumnName + " = ?");
+            stmt = conn.prepareStatement("UPDATE " + _table + " SET " + _valueColumnName + " = ? " +
+                                         "WHERE " + _pkColumnName + " = ?");
             stmt.setInt(1, val + _allocationSize);
             stmt.setString(2, _pkColumnValue);
             stmt.executeUpdate();
@@ -118,8 +116,11 @@ public class TableKeyGenerator implements KeyGenerator
         }
     }
 
-    /** Convenience function to return a value or a default fallback. */
-    protected static String defStr (String value, String def) {
+    /**
+     * Convenience function to return a value or a default fallback.
+     */
+    protected static String defStr (String value, String def)
+    {
         if (value == null || value.trim().length() == 0) {
             return def;
         }

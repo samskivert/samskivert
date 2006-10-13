@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -18,23 +18,38 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.jdbc.depot;
+package com.samskivert.jdbc.depot.expression;
 
-import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import com.samskivert.jdbc.depot.Query;
+
 /**
- * Defines the interface to our primary key generators.
+ * An expression for things we don't support natively, e.g. COUNT(*).
  */
-public interface KeyGenerator
+public class LiteralExpression
+    implements SQLExpression
 {
-    /** If true, this key generator will be run after the insert statement, if false, it will be
-     * run before. */
-    public boolean isPostFactum ();
+    public LiteralExpression (String text)
+    {
+        super();
+        _text = text;
+    }
 
-    /** Prepares the generator for operation. */
-    public void init (Connection conn) throws SQLException;
+    // from SQLExpression
+    public void appendExpression (Query query, StringBuilder builder)
+    {
+        builder.append(_text);
+    }
 
-    /** Fetch/generate the next primary key value. */
-    public int nextGeneratedValue (Connection conn) throws SQLException;
+    // from SQLExpression
+    public int bindArguments (PreparedStatement pstmt, int argIdx)
+        throws SQLException
+    {
+        return argIdx;
+    }
+
+    /** The literal text of this expression, e.g. COUNT(*) */
+    protected String _text;
 }

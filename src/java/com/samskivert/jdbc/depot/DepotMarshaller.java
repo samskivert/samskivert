@@ -41,6 +41,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.depot.expression.ColumnExpression;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -48,15 +49,14 @@ import com.samskivert.util.StringUtil;
 import static com.samskivert.jdbc.depot.Log.log;
 
 /**
- * Handles the marshalling and unmarshalling of persistent instances to JDBC
- * primitives ({@link PreparedStatement} and {@link ResultSet}).
+ * Handles the marshalling and unmarshalling of persistent instances to JDBC primitives ({@link
+ * PreparedStatement} and {@link ResultSet}).
  */
 public class DepotMarshaller<T>
 {
-    /** The name of the private static field that must be defined for all
-     * persistent object classes which is used to handle schema migration. If
-     * automatic schema migration is not desired, define this field and set its
-     * value to -1.  */
+    /** The name of a private static field that must be defined for all persistent object classes.
+     * It is used to handle schema migration. If automatic schema migration is not desired, define
+     * this field and set its value to -1. */
     public static final String SCHEMA_VERSION_FIELD = "SCHEMA_VERSION";
 
     /**
@@ -70,8 +70,8 @@ public class DepotMarshaller<T>
         _tableName = _pclass.getName();
         _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
 
-        // if the entity defines a new TableGenerator, map that in our static
-        // table as those are shared across all entities
+        // if the entity defines a new TableGenerator, map that in our static table as those are
+        // shared across all entities
         TableGenerator generator = pclass.getAnnotation(TableGenerator.class);
         if (generator != null) {
             context.tableGenerators.put(generator.name(), generator);
@@ -83,8 +83,7 @@ public class DepotMarshaller<T>
             int mods = field.getModifiers();
 
             // check for a static constant schema version
-            if ((mods & Modifier.STATIC) != 0 &&
-                field.getName().equals(SCHEMA_VERSION_FIELD)) {
+            if ((mods & Modifier.STATIC) != 0 && field.getName().equals(SCHEMA_VERSION_FIELD)) {
                 try {
                     _schemaVersion = (Integer)field.get(null);
                 } catch (Exception e) {
@@ -94,8 +93,7 @@ public class DepotMarshaller<T>
             }
 
             // the field must be public, non-static and non-transient
-            if (((mods & Modifier.PUBLIC) == 0) ||
-                ((mods & Modifier.STATIC) != 0) ||
+            if (((mods & Modifier.PUBLIC) == 0) || ((mods & Modifier.STATIC) != 0) ||
                 field.getAnnotation(Transient.class) != null) {
                 continue;
             }
@@ -119,8 +117,8 @@ public class DepotMarshaller<T>
             }
         }
 
-        // if the entity defines a single-columnar primary key, figure out if
-        // we will be generating values for it
+        // if the entity defines a single-columnar primary key, figure out if we will be generating
+        // values for it
         if (_pkColumns != null) {
             GeneratedValue gv = null;
             FieldMarshaller keyField = null;
@@ -142,11 +140,11 @@ public class DepotMarshaller<T>
 
                 // the primary key must be numeric if we are to auto-assign it
                 Class<?> ftype = keyField.getField().getType();
-                boolean isNumeric = (ftype.equals(Byte.TYPE) ||
-                    ftype.equals(Byte.class) || ftype.equals(Short.TYPE) ||
-                    ftype.equals(Short.class) || ftype.equals(Integer.TYPE) ||
-                    ftype.equals(Integer.class) || ftype.equals(Long.TYPE) ||
-                    ftype.equals(Long.class));
+                boolean isNumeric = (
+                    ftype.equals(Byte.TYPE) || ftype.equals(Byte.class) ||
+                    ftype.equals(Short.TYPE) || ftype.equals(Short.class) ||
+                    ftype.equals(Integer.TYPE) || ftype.equals(Integer.class) ||
+                    ftype.equals(Long.TYPE) || ftype.equals(Long.class));
                 if (!isNumeric) {
                     throw new IllegalArgumentException(
                         "Cannot use @GeneratedValue on non-numeric column");
@@ -173,13 +171,11 @@ public class DepotMarshaller<T>
 
         // generate our full list of fields/columns for use in queries
         _allFields = fields.toArray(new String[fields.size()]);
-        _fullColumnList = StringUtil.join(_allFields, ",");
 
         // create the SQL used to create and migrate our table
         _columnDefinitions = new String[_allFields.length];
         for (int ii = 0; ii < _allFields.length; ii++) {
-            _columnDefinitions[ii] =
-                _fields.get(_allFields[ii]).getColumnDefinition();
+            _columnDefinitions[ii] = _fields.get(_allFields[ii]).getColumnDefinition();
         }
         // add the primary key, if we have one
         if (hasPrimaryKey()) {
@@ -188,22 +184,20 @@ public class DepotMarshaller<T>
                 indices[ii] = _pkColumns.get(ii).getColumnName();
             }
             _columnDefinitions = ArrayUtil.append(
-                _columnDefinitions,
-                "PRIMARY KEY (" + StringUtil.join(indices, ", ") + ")");
+                _columnDefinitions, "PRIMARY KEY (" + StringUtil.join(indices, ", ") + ")");
         }
         _postamble = ""; // TODO: add annotations for the postamble
 
         // if we did not find a schema version field, complain
         if (_schemaVersion < 0) {
-            log.warning("Unable to read " + _pclass.getName() + "." +
-                SCHEMA_VERSION_FIELD + ". Schema migration disabled.");
+            log.warning("Unable to read " + _pclass.getName() + "." + SCHEMA_VERSION_FIELD +
+                        ". Schema migration disabled.");
         }
     }
 
     /**
-     * Returns the name of the table in which persistence instances of this
-     * class are stored. By default this is the classname of the persistent
-     * object without the package.
+     * Returns the name of the table in which persistence instances of this class are stored. By
+     * default this is the classname of the persistent object without the package.
      */
     public String getTableName ()
     {
@@ -219,9 +213,8 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Returns a key configured with the primary key of the supplied object.
-     * Throws an exception if the persistent object did not declare a primary
-     * key.
+     * Returns a key configured with the primary key of the supplied object.  Throws an exception
+     * if the persistent object did not declare a primary key.
      */
     public Key getPrimaryKey (Object object)
     {
@@ -242,8 +235,8 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Creates a primary key record for the type of object handled by this
-     * marshaller, using the supplied primary key vlaue.
+     * Creates a primary key record for the type of object handled by this marshaller, using the
+     * supplied primary key value.
      */
     public Key makePrimaryKey (Comparable... values)
     {
@@ -253,39 +246,35 @@ public class DepotMarshaller<T>
         }
         if (values.length != _pkColumns.size()) {
             throw new IllegalArgumentException(
-                "Argument count (" + values.length + ") must match " +
-                "primary key size (" + _pkColumns.size() + ")");
+                "Argument count (" + values.length + ") must match primary key size (" +
+                _pkColumns.size() + ")");
         }
-        String[] indices = new String[_pkColumns.size()];
+        ColumnExpression[] columns = new ColumnExpression[_pkColumns.size()];
         for (int ii = 0; ii < _pkColumns.size(); ii++) {
             FieldMarshaller field = _pkColumns.get(ii);
-            indices[ii] = field.getColumnName();
+            columns[ii] = new ColumnExpression(_pclass, field.getColumnName());
         }
-        return new Key(indices, values);
+        return new Key(columns, values);
     }
 
     /**
-     * Initializes the table used by this marshaller. If the table does not
-     * exist, it will be created. If the schema version specified by the
-     * persistent object is newer than the database schema, it will be
-     * migrated.
+     * Initializes the table used by this marshaller. If the table does not exist, it will be
+     * created. If the schema version specified by the persistent object is newer than the database
+     * schema, it will be migrated.
      */
     public void init (Connection conn)
         throws SQLException
     {
         // check to see if our schema version table exists, create it if not
         JDBCUtil.createTableIfMissing(conn, SCHEMA_VERSION_TABLE,
-            new String[] { "persistentClass VARCHAR(255) NOT NULL",
-                           "version INTEGER NOT NULL" },
-            "");
+                                      new String[] { "persistentClass VARCHAR(255) NOT NULL",
+                                                     "version INTEGER NOT NULL" }, "");
 
         // now create the table for our persistent class if it does not exist
         if (!JDBCUtil.tableExists(conn, getTableName())) {
-            log.fine("Creating table " + getTableName() +
-                     " (" + StringUtil.join(_columnDefinitions, ", ") + ") " +
-                     _postamble);
-            JDBCUtil.createTableIfMissing(
-                conn, getTableName(), _columnDefinitions, _postamble);
+            log.fine("Creating table " + getTableName() + " (" +
+                     StringUtil.join(_columnDefinitions, ", ") + ") " + _postamble);
+            JDBCUtil.createTableIfMissing(conn, getTableName(), _columnDefinitions, _postamble);
             updateVersion(conn, 1);
         }
 
@@ -305,11 +294,11 @@ public class DepotMarshaller<T>
             return;
         }
 
-        log.info("Migrating " + getTableName() + " from " + currentVersion +
-                 " to " + _schemaVersion + "...");
+        log.info("Migrating " + getTableName() + " from " +
+                 currentVersion + " to " + _schemaVersion + "...");
 
-        // otherwise try to migrate the schema; doing column additions
-        // magically and running any registered hand-migrations
+        // otherwise try to migrate the schema; doing column additions magically and running any
+        // registered hand-migrations
         DatabaseMetaData meta = conn.getMetaData();
         ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
         HashSet<String> columns = new HashSet<String>();
@@ -325,8 +314,7 @@ public class DepotMarshaller<T>
 
             // otherwise add the column
             String coldef = fmarsh.getColumnDefinition();
-            String query = "alter table " + getTableName() +
-                " add column " + coldef;
+            String query = "alter table " + getTableName() + " add column " + coldef;
 
             // try to add it to the appropriate spot
             int fidx = ListUtil.indexOf(_allFields, fmarsh.getColumnName());
@@ -351,26 +339,8 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Creates a query for instances of this persistent object type using the
-     * supplied key. If null is supplied all instances will be loaded.
-     */
-    public PreparedStatement createQuery (Connection conn, Key key)
-        throws SQLException
-    {
-        String query = "select " + _fullColumnList + " from " + getTableName();
-        if (key != null) {
-            query += " where " + key.toWhereClause();
-        }
-        PreparedStatement pstmt = conn.prepareStatement(query);
-        if (key != null) {
-            key.bindArguments(pstmt, 1);
-        }
-        return pstmt;
-    }
-
-    /**
-     * Creates a persistent object from the supplied result set. The result set
-     * must have come from a query provided by {@link #createQuery}.
+     * Creates a persistent object from the supplied result set. The result set must have come from
+     * a query provided by {@link #createQuery}.
      */
     public T createObject (ResultSet rs)
         throws SQLException
@@ -387,15 +357,14 @@ public class DepotMarshaller<T>
             throw sqe;
 
         } catch (Exception e) {
-            String errmsg = "Failed to unmarshall persistent object " +
-                "[pclass=" + _pclass.getName() + "]";
+            String errmsg = "Failed to unmarshall persistent object [pclass=" +
+                _pclass.getName() + "]";
             throw (SQLException)new SQLException(errmsg).initCause(e);
         }
     }
 
     /**
-     * Creates a statement that will insert the supplied persistent object into
-     * the database.
+     * Creates a statement that will insert the supplied persistent object into the database.
      */
     public PreparedStatement createInsert (Connection conn, Object po)
         throws SQLException
@@ -403,8 +372,8 @@ public class DepotMarshaller<T>
         try {
             StringBuilder insert = new StringBuilder();
             insert.append("insert into ").append(getTableName());
-            insert.append(" (").append(_fullColumnList).append(")");
-            insert.append(" values(");
+            insert.append(" (").append(StringUtil.join(_allFields, ","));
+            insert.append(")").append(" values(");
             for (int ii = 0; ii < _allFields.length; ii++) {
                 if (ii > 0) {
                     insert.append(", ");
@@ -426,18 +395,18 @@ public class DepotMarshaller<T>
             throw sqe;
 
         } catch (Exception e) {
-            String errmsg = "Failed to marshall persistent object " +
-                "[pclass=" + _pclass.getName() + "]";
+            String errmsg = "Failed to marshall persistent object [pclass=" +
+                _pclass.getName() + "]";
             throw (SQLException)new SQLException(errmsg).initCause(e);
         }
     }
 
     /**
-     * Fills in the primary key just assigned to the supplied persistence
-     * object by the execution of the results of {@link #createInsert}.
+     * Fills in the primary key just assigned to the supplied persistence object by the execution
+     * of the results of {@link #createInsert}.
      *
-     * @return the newly assigned primary key or null if the object does not
-     * use primary keys or this is not the right time to assign the key.
+     * @return the newly assigned primary key or null if the object does not use primary keys or
+     * this is not the right time to assign the key.
      */
     public Key assignPrimaryKey (Connection conn, Object po, boolean postFactum)
         throws SQLException
@@ -457,15 +426,13 @@ public class DepotMarshaller<T>
             _pkColumns.get(0).getField().set(po, nextValue);
             return makePrimaryKey(nextValue);
         } catch (Exception e) {
-            String errmsg = "Failed to assign primary key " +
-                "[type=" + _pclass + "]";
+            String errmsg = "Failed to assign primary key [type=" + _pclass + "]";
             throw (SQLException) new SQLException(errmsg).initCause(e);
         }
     }
 
     /**
-     * Creates a statement that will update the supplied persistent object
-     * using the supplied key.
+     * Creates a statement that will update the supplied persistent object using the supplied key.
      */
     public PreparedStatement createUpdate (Connection conn, Object po, Key key)
         throws SQLException
@@ -490,7 +457,7 @@ public class DepotMarshaller<T>
             }
             update.append(field).append(" = ?");
         }
-        update.append(" where ").append(key.toWhereClause());
+        update.append(" where "); key.appendClause(null, update);
 
         try {
             PreparedStatement pstmt = conn.prepareStatement(update.toString());
@@ -515,12 +482,11 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Creates a statement that will update the specified set of fields for all
-     * persistent objects that match the supplied key.
+     * Creates a statement that will update the specified set of fields for all persistent objects
+     * that match the supplied key.
      */
     public PreparedStatement createPartialUpdate (
-        Connection conn, Key key,
-        String[] modifiedFields, Object[] modifiedValues)
+        Connection conn, Key key, String[] modifiedFields, Object[] modifiedValues)
         throws SQLException
     {
         StringBuilder update = new StringBuilder();
@@ -532,7 +498,7 @@ public class DepotMarshaller<T>
             }
             update.append(field).append(" = ?");
         }
-        update.append(" where ").append(key.toWhereClause());
+        update.append(" where "); key.appendClause(null, update);
 
         PreparedStatement pstmt = conn.prepareStatement(update.toString());
         idx = 0;
@@ -552,21 +518,19 @@ public class DepotMarshaller<T>
     public PreparedStatement createDelete (Connection conn, Key key)
         throws SQLException
     {
-        String query = "delete from " + getTableName() +
-            " where " + key.toWhereClause();
-        PreparedStatement pstmt = conn.prepareStatement(query);
+        StringBuilder query = new StringBuilder("delete from " + getTableName() + " where ");
+        key.appendClause(null, query);
+        PreparedStatement pstmt = conn.prepareStatement(query.toString());
         key.bindArguments(pstmt, 1);
         return pstmt;
     }
 
     /**
-     * Creates a statement that will update the specified set of fields, using
-     * the supplied literal SQL values, for all persistent objects that match
-     * the supplied key.
+     * Creates a statement that will update the specified set of fields, using the supplied literal
+     * SQL values, for all persistent objects that match the supplied key.
      */
     public PreparedStatement createLiteralUpdate (
-        Connection conn, Key key,
-        String[] modifiedFields, Object[] modifiedValues)
+        Connection conn, Key key, String[] modifiedFields, Object[] modifiedValues)
         throws SQLException
     {
         StringBuilder update = new StringBuilder();
@@ -578,7 +542,7 @@ public class DepotMarshaller<T>
             update.append(modifiedFields[ii]).append(" = ");
             update.append(modifiedValues[ii]);
         }
-        update.append(" where ").append(key.toWhereClause());
+        update.append(" where "); key.appendClause(null, update);
 
         PreparedStatement pstmt = conn.prepareStatement(update.toString());
         key.bindArguments(pstmt, 1);
@@ -589,8 +553,7 @@ public class DepotMarshaller<T>
         throws SQLException
     {
         String update = "update " + SCHEMA_VERSION_TABLE +
-            " set version = " + version +
-            " where persistentClass = '" + getTableName() + "'";
+            " set version = " + version + " where persistentClass = '" + getTableName() + "'";
         String insert = "insert into " + SCHEMA_VERSION_TABLE +
             " values('" + getTableName() + "', " + version + ")";
         Statement stmt = conn.createStatement();
@@ -624,8 +587,7 @@ public class DepotMarshaller<T>
     protected String _tableName;
 
     /** A field marshaller for each persistent field in our object. */
-    protected HashMap<String, FieldMarshaller> _fields =
-        new HashMap<String, FieldMarshaller>();
+    protected HashMap<String, FieldMarshaller> _fields = new HashMap<String, FieldMarshaller>();
 
     /** The field marshallers for our persistent object's primary key columns
      * or null if it did not define a primary key. */
@@ -633,10 +595,6 @@ public class DepotMarshaller<T>
 
     /** The generator to use for auto-generating primary key values, or null. */
     protected KeyGenerator _keyGenerator;
-
-    /** The persisent fields of our object, in definition order, separated by
-     * commas for easy use in a select statement. */
-    protected String _fullColumnList;
 
     /** The persisent fields of our object, in definition order. */
     protected String[] _allFields;

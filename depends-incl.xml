@@ -9,8 +9,8 @@
     <echo message="A package followed by 'true' indicates that the package"/>
     <echo message="is present. One followed by '${package.present}' indicates"/>
     <echo message="that it was not found. Jar files can be placed into the"/>
-    <echo message="lib/ directory or placed in the directory referenced"/>
-    <echo message="by your JAVA_LIBS environment variable."/>
+    <echo message="lib/ directory or copied into dist/lib if samskivert is"/>
+    <echo message="being built as a part of a larger project."/>
 
     <echo message=""/>
     <echo message="------------------------------------------"/>

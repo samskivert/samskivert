@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!-- declares the libraries needed to build samskivert -->
+<project name="library-dependencies">
+  <fileset dir="${projects.root}" id="samskivert.libs">
+    <include name="${libs.dir}/commons-collections.jar"/>
+    <include name="${libs.dir}/commons-digester.jar"/>
+    <include name="${libs.dir}/commons-io.jar"/>
+    <include name="${libs.dir}/commons-logging.jar"/>
+    <include name="${libs.dir}/ejb3-persistence.jar"/>
+    <include name="${libs.dir}/junit-3.7.jar"/>
+    <include name="${libs.dir}/mail.jar"/>
+    <include name="${libs.dir}/servlet-2.3.jar"/>
+    <include name="${libs.dir}/velocity-1.5-dev.jar"/>
+  </fileset>
+</project>

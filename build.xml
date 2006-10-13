@@ -10,10 +10,12 @@
   <property name="copyright.holder" value="Michael Bayne"/>
 
   <!-- things you probably don't want to change -->
-  <property name="src.dir"     value="src/java"/>
-  <property name="deploy.dir"  value="dist"/>
-  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
-  <property name="savedoc.dir" value="docs"/>
+  <property name="src.dir"       value="src/java"/>
+  <property name="deploy.dir"    value="dist"/>
+  <property name="javadoc.dir"   value="${deploy.dir}/docs"/>
+  <property name="savedoc.dir"   value="docs"/>
+  <property name="projects.root" value="."/>
+  <property name="libs.dir"      value="lib"/>
 
   <!-- declare our classpath business -->
   <path id="classpath">
@@ -21,7 +23,8 @@
     <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
   </path>
 
-  <!-- import some targets to check dependency availability -->
+  <!-- import some targets to enumerate and check dependency availability -->
+  <import file="libs-incl.xml"/>
   <import file="depends-incl.xml"/>
 
   <!-- prepares the application directories -->
@@ -35,14 +38,20 @@
       <fileset dir="${src.dir}" includes="**/*.properties"/>
     </copy>
     <copy todir="${deploy.dir}/lib">
-      <fileset dir="lib" includes="**/*.jar"/>
+      <fileset refid="samskivert.libs"/>
     </copy>
   </target>
 
-  <!-- cleans out the installed application -->
+  <!-- cleans out the intermediate build files -->
   <target name="clean">
-    <delete dir="${deploy.dir}"/>
+    <delete dir="${deploy.dir}/classes"/>
+    <delete dir="${deploy.dir}/docs"/>
     <ant dir="tests" target="clean"/>
+  </target>
+
+  <!-- wipes the entire build directory clean -->
+  <target name="distclean" depends="clean">
+    <delete dir="${deploy.dir}"/>
   </target>
 
   <!-- build the java class files -->

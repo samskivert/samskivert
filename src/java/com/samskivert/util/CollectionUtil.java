@@ -32,8 +32,8 @@ import java.util.List;
 public class CollectionUtil
 {
     /**
-     * Adds all items returned by the enumeration to the supplied
-     * collection and returns the supplied collection.
+     * Adds all items returned by the enumeration to the supplied collection
+     * and returns the supplied collection.
      */
     public static <E, T extends Collection<E>> T addAll (
             T col, Enumeration<E> enm)
@@ -45,8 +45,8 @@ public class CollectionUtil
     }
 
     /**
-     * Adds all items returned by the iterator to the supplied collection
-     * and returns the supplied collection.
+     * Adds all items returned by the iterator to the supplied collection and
+     * returns the supplied collection.
      */
     public static <E, T extends Collection<E>> T addAll (
             T col, Iterator<E> iter)
@@ -58,13 +58,16 @@ public class CollectionUtil
     }
 
     /**
-     * Adds all items in the given object array to the supplied
-     * collection and returns the supplied collection.
+     * Adds all items in the given object array to the supplied collection and
+     * returns the supplied collection. If the supplied array is null, nothing
+     * is added to the collection.
      */
     public static <E, T extends Collection<E>> T addAll (T col, E[] values)
     {
-        for (int ii = 0; ii < values.length; ii++) {
-            col.add(values[ii]);
+        if (values != null) {
+            for (int ii = 0; ii < values.length; ii++) {
+                col.add(values[ii]);
+            }
         }
         return col;
     }
@@ -72,18 +75,16 @@ public class CollectionUtil
     /**
      * Returns a list containing a random selection of elements from the
      * specified collection. The total number of elements selected will be
-     * equal to <code>count</code>, each element in the source collection
-     * will be selected with equal probability and no element will be
-     * included more than once. The elements in the random subset will
-     * always be included in the order they are returned from the source
-     * collection's iterator.
+     * equal to <code>count</code>, each element in the source collection will
+     * be selected with equal probability and no element will be included more
+     * than once. The elements in the random subset will always be included in
+     * the order they are returned from the source collection's iterator.
      *
      * <p> Algorithm courtesy of William R. Mahoney, published in
      * <cite>Dr. Dobbs Journal, February 2002</cite>.
      *
-     * @exception IllegalArgumentException thrown if the size of the
-     * collection is smaller than the number of elements requested for the
-     * random subset.
+     * @exception IllegalArgumentException thrown if the size of the collection
+     * is smaller than the number of elements requested for the random subset.
      */
     public static <T> List<T> selectRandomSubset (Collection<T> col, int count)
     {
@@ -101,10 +102,10 @@ public class CollectionUtil
         for (int k = 0; iter.hasNext(); k++) {
             T elem = iter.next();
 
-            // the probability that an element is select for inclusion in
-            // our random subset is proportional to the number of elements
-            // remaining to be checked for inclusion divided by the number
-            // of elements remaining to be included
+            // the probability that an element is select for inclusion in our
+            // random subset is proportional to the number of elements
+            // remaining to be checked for inclusion divided by the number of
+            // elements remaining to be included
             float limit = ((float)(count - s)) / ((float)(csize - k));
 
             // include the record if our random value is below the limit

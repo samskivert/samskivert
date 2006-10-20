@@ -20,12 +20,22 @@
 
 package com.samskivert.jdbc.depot;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Marks a field as computed, meaning it's ignored for schema purposes, it does not directly
  * correspond to a column in a table, and thus its value must be overridden in the {@link Query}.
- * 
- * TODO: Add fieldDefinition="count (*)" or somesuch.
  */
+@Retention(value=RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
 public @interface Computed
 {
+    /** If this value is false, the field is not populated by Depot at all. */
+    boolean required() default true;
+    
+    /** A non-empty value here is taken as literal SQL and used to populate the computed field. */
+    String fieldDefinition() default "";
 }

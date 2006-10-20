@@ -110,6 +110,14 @@ public abstract class FieldMarshaller
     }
 
     /**
+     * Returns the Computed annotation on this field, if any.
+     */
+    public Computed getComputed ()
+    {
+        return _computed;
+    }
+    
+    /**
      * Returns the GeneratedValue annotation on this field, if any.
      */
     public GeneratedValue getGeneratedValue ()
@@ -172,8 +180,9 @@ public abstract class FieldMarshaller
             }
         }
 
+        _computed = field.getAnnotation(Computed.class);
         // if this field is @Computed, it has no SQL definition
-        if (field.getAnnotation(Computed.class) != null) {
+        if (_computed != null) {
             _columnDefinition = null;
             return;
         }
@@ -383,5 +392,6 @@ public abstract class FieldMarshaller
 
     protected Field _field;
     protected String _columnName, _columnDefinition;
+    protected Computed _computed;
     protected GeneratedValue _generatedValue;
 }

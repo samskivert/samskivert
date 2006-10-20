@@ -94,18 +94,37 @@ public abstract class Query<T>
         DepotMarshaller<?> mainMarshaller = _classMap.get(_mainType);
         String[] fields = mainMarshaller._allFields;
         StringBuilder query = new StringBuilder("select ");
+        boolean skip = true;
         for (int ii = 0; ii < fields.length; ii ++) {
-            if (ii > 0) {
+            if (!skip) {
                 query.append(", ");
             }
+            skip = false;
+
             FieldOverrideClause clause = _disMap.get(fields[ii]);
             if (clause != null) {
                 clause.appendClause(this, query);
-            } else if (mainMarshaller._fields.get(fields[ii]).getColumnDefinition() != null) {
+                continue;
+            }
+
+            Computed computed = mainMarshaller._fields.get(fields[ii]).getComputed(); 
+            if (computed == null) {
+                // if it's neither overridden nor computed, it's a standard field
                 query.append("T.").append(fields[ii]);
+                continue;
+            }
+
+            // check if the computed field has a literal SQL definition
+            if (computed.fieldDefinition().length() > 0) {
+                query.append(computed.fieldDefinition() + " as " + fields[ii]);
+
+            } else if (!computed.required()) {
+                // or if we can simply ignore the field
+                skip = true;
+
             } else {
                 throw new SQLException(
-                    "Computed field must be overridden [field=" + fields[ii] + "]");
+                    "@Computed(required) field without definition [field=" + fields[ii] + "]");
             }
         }
         query.append("   from " + mainMarshaller.getTableName() + " as T ");

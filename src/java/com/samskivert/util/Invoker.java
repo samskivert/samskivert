@@ -122,7 +122,9 @@ public class Invoker extends LoopingThread
         if (PERF_TRACK) {
             // record the time spent on the queue as a special unit
             start = System.currentTimeMillis();
-            _unitsRun++;
+            synchronized (this) {
+                _unitsRun++;
+            }
             // record the time spent on the queue as a special unit
             recordMetrics("queue_wait_time", start - unit.queueStamp);
         }

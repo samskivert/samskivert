@@ -5,74 +5,74 @@
 
   <!-- checks to see which packages are available -->
   <target name="check-available">
-    <echo>The packages required for building are listed below. A package</echo>
-    <echo>followed by 'true' indicates that the package ispresent. One</echo>
-    <echo>followed by '${package.present}' indicates that it was not</echo>
-    <echo>found. Jar files can be placed into the lib/ directory or</echo>
-    <echo>copied into dist/lib if samskivert isbeing built as a part of a</echo>
-    <echo>larger project.</echo>
+    <echo level="info">The packages required for building are listed below. A package</echo>
+    <echo level="info">followed by 'true' indicates that the package ispresent. One</echo>
+    <echo level="info">followed by '${package.present}' indicates that it was not</echo>
+    <echo level="info">found. Jar files can be placed into the lib/ directory or</echo>
+    <echo level="info">copied into dist/lib if samskivert isbeing built as a part of a</echo>
+    <echo level="info">larger project.</echo>
 
-    <echo></echo>
-    <echo>------------------------------------------</echo>
-    <echo>Standard extensions - http://java.sun.com/</echo>
-    <echo>------------------------------------------</echo>
+    <echo level="info"></echo>
+    <echo level="info">------------------------------------------</echo>
+    <echo level="info">Standard extensions - http://java.sun.com/</echo>
+    <echo level="info">------------------------------------------</echo>
     <available property="servlet2.3.present"
      classname="javax.servlet.Servlet" classpathref="classpath"/>
-    <echo>Servlet 2.3: ${servlet2.3.present}</echo>
+    <echo level="info">Servlet 2.3: ${servlet2.3.present}</echo>
     <available property="mail.present"
      classname="javax.mail.Transport" classpathref="classpath"/>
-    <echo>Java Mail: ${mail.present}</echo>
+    <echo level="info">Java Mail: ${mail.present}</echo>
 
     <available property="sax.present"
      classname="org.xml.sax.SAXException" classpathref="classpath"/>
-    <echo>SAX: ${sax.present}</echo>
+    <echo level="info">SAX: ${sax.present}</echo>
 
     <available property="jaxp.present"
      classname="javax.xml.parsers.SAXParser" classpathref="classpath"/>
-    <echo>JAXP: ${jaxp.present}</echo>
+    <echo level="info">JAXP: ${jaxp.present}</echo>
 
     <available property="javax.persistence.present"
      classname="javax.persistence.Entity" classpathref="classpath"/>
-    <echo>Java Persistence: ${javax.persistence.present}</echo>
+    <echo level="info">Java Persistence: ${javax.persistence.present}</echo>
 
-    <echo></echo>
-    <echo>----------------------------------------------</echo>
-    <echo>Jakarta libraries - http://jakarta.apache.org/</echo>
-    <echo>----------------------------------------------</echo>
+    <echo level="info"></echo>
+    <echo level="info">----------------------------------------------</echo>
+    <echo level="info">Jakarta libraries - http://jakarta.apache.org/</echo>
+    <echo level="info">----------------------------------------------</echo>
     <available property="jakarta.commons-colls.present"
      classname="org.apache.commons.collections.CollectionUtils"
      classpathref="classpath"/>
-    <echo>Commons Collections: ${jakarta.commons-colls.present}</echo>
+    <echo level="info">Commons Collections: ${jakarta.commons-colls.present}</echo>
 
     <available property="jakarta.commons-logging.present"
      classname="org.apache.commons.logging.Log"
      classpathref="classpath"/>
-    <echo>Commons Logging: ${jakarta.commons-logging.present}</echo>
+    <echo level="info">Commons Logging: ${jakarta.commons-logging.present}</echo>
 
     <available property="jakarta.commons-digester.present"
      classname="org.apache.commons.digester.Digester"
      classpathref="classpath"/>
-    <echo>Commons Digester: ${jakarta.commons-digester.present}</echo>
+    <echo level="info">Commons Digester: ${jakarta.commons-digester.present}</echo>
 
     <available property="jakarta.commons-io.present"
      classname="org.apache.commons.io.IOUtils"
      classpathref="classpath"/>
-    <echo>Commons Io: ${jakarta.commons-io.present}</echo>
+    <echo level="info">Commons Io: ${jakarta.commons-io.present}</echo>
 
     <available property="jakarta.velocity.present"
      classname="org.apache.velocity.Template" classpathref="classpath"/>
-    <echo>Velocity: ${jakarta.velocity.present}</echo>
+    <echo level="info">Velocity: ${jakarta.velocity.present}</echo>
   </target>
 
   <!-- combines package availability into build controls -->
   <target name="compute-builds" depends="check-available">
-    <echo>The packages that will be built are listed below. One followed</echo>
-    <echo>by 'true' indicates that it will be built. One followed by</echo>
-    <echo>'${build.package}' indicates that it will not be built. If a </echo>
-    <echo>package is not being built, one or more of its dependencies</echo>
-    <echo>could not be located.</echo>
+    <echo level="info">The packages that will be built are listed below. One followed</echo>
+    <echo level="info">by 'true' indicates that it will be built. One followed by</echo>
+    <echo level="info">'${build.package}' indicates that it will not be built. If a </echo>
+    <echo level="info">package is not being built, one or more of its dependencies</echo>
+    <echo level="info">could not be located.</echo>
 
-    <echo></echo>
+    <echo level="info"></echo>
     <property name="build.util" value="true"/>
     <!--<echo>com.samskivert.util: ${build.util}</echo>-->
 

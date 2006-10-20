@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -43,7 +43,7 @@ public class Key
 
     public Key (String index, Comparable value)
     {
-        this(new ColumnExpression(null, index), value);
+        this(new ColumnExpression(index), value);
     }
 
     public Key (ColumnExpression column, Comparable value)
@@ -53,9 +53,28 @@ public class Key
 
     public Key (String index1, Comparable value1, String index2, Comparable value2)
     {
-        this(new ColumnExpression[] { new ColumnExpression(null, index1),
-                                      new ColumnExpression(null, index2) },
+        this(new ColumnExpression[] { new ColumnExpression(index1),
+                                      new ColumnExpression(index2) },
              new Comparable[] { value1, value2 });
+    }
+
+    public Key (String index1, Comparable value1, String index2, Comparable value2,
+                String index3, Comparable value3)
+    {
+        this(new ColumnExpression[] { new ColumnExpression(index1),
+                                      new ColumnExpression(index2),
+                                      new ColumnExpression(index3) },
+             new Comparable[] { value1, value2, value3 });
+    }
+
+    public Key (String[] columns, Comparable[] values)
+    {
+        ColumnExpression[] colExp = new ColumnExpression[columns.length];
+        for (int ii = 0; ii < columns.length; ii ++) {
+            colExp[ii] = new ColumnExpression(columns[ii]);
+        }
+        this.columns = colExp;
+        this.values = values;
     }
 
     public Key (ColumnExpression[] columns, Comparable[] values)
@@ -63,7 +82,7 @@ public class Key
         this.columns = columns;
         this.values = values;
     }
-    
+
     public List<Class> getClassSet() {
         return Arrays.asList(new Class[] { });
     }

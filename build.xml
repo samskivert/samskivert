@@ -38,7 +38,7 @@
       <fileset dir="${src.dir}" includes="**/*.properties"/>
     </copy>
     <copy todir="${deploy.dir}/lib" flatten="true">
-      <fileset refid="samskivert.libs"/>
+      <fileset refid="${app.name}.libs"/>
     </copy>
   </target>
 

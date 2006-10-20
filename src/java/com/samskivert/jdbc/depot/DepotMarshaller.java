@@ -360,6 +360,9 @@ public class DepotMarshaller<T>
         try {
             T po = (T)_pclass.newInstance();
             for (FieldMarshaller fm : _fields.values()) {
+                if (fm.getComputed() != null && !fm.getComputed().required()) {
+                    continue;
+                }
                 fm.getValue(rs, po);
             }
             return po;

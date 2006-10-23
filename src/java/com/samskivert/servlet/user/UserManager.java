@@ -84,8 +84,8 @@ public class UserManager
     }
 
     /**
-     * Constructs a user manager and prepares it for operation. Presently
-     * the user manager requires the following configuration information:
+     * Prepares this user manager it for operation. Presently the user manager
+     * requires the following configuration information:
      *
      * <ul>
      * <li><code>login_url</code>: Should be set to the URL to which to
@@ -106,7 +106,7 @@ public class UserManager
      * @param conprov the database connection provider that will be used
      * to obtain a connection to the user database.
      */
-    public UserManager (Properties config, ConnectionProvider conprov)
+    public void init (Properties config, ConnectionProvider conprov)
 	throws PersistenceException
     {
         // save this for later

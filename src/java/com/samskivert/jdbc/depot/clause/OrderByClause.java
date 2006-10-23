@@ -48,6 +48,7 @@ public class OrderByClause
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
+        builder.append(" order by ");
         for (int ii = 0; ii < _values.length; ii++) {
             if (ii > 0) {
                 builder.append(", ");

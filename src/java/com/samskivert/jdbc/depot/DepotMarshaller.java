@@ -472,7 +472,7 @@ public class DepotMarshaller<T>
             }
             update.append(field).append(" = ?");
         }
-        update.append(" where "); key.appendClause(null, update);
+        key.appendClause(null, update);
 
         try {
             PreparedStatement pstmt = conn.prepareStatement(update.toString());
@@ -513,7 +513,7 @@ public class DepotMarshaller<T>
             }
             update.append(field).append(" = ?");
         }
-        update.append(" where "); key.appendClause(null, update);
+        key.appendClause(null, update);
 
         PreparedStatement pstmt = conn.prepareStatement(update.toString());
         idx = 0;
@@ -533,7 +533,7 @@ public class DepotMarshaller<T>
     public PreparedStatement createDelete (Connection conn, Key key)
         throws SQLException
     {
-        StringBuilder query = new StringBuilder("delete from " + getTableName() + " where ");
+        StringBuilder query = new StringBuilder("delete from " + getTableName());
         key.appendClause(null, query);
         PreparedStatement pstmt = conn.prepareStatement(query.toString());
         key.bindArguments(pstmt, 1);
@@ -557,7 +557,7 @@ public class DepotMarshaller<T>
             update.append(modifiedFields[ii]).append(" = ");
             update.append(modifiedValues[ii]);
         }
-        update.append(" where "); key.appendClause(null, update);
+        key.appendClause(null, update);
 
         PreparedStatement pstmt = conn.prepareStatement(update.toString());
         key.bindArguments(pstmt, 1);

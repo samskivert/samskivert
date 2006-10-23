@@ -89,6 +89,7 @@ public class Key
 
     public void appendClause (Query query, StringBuilder builder)
     {
+        builder.append(" where ");
         for (int ii = 0; ii < columns.length; ii++) {
             if (ii > 0) {
                 builder.append(" and ");

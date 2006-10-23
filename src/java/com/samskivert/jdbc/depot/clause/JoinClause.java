@@ -51,6 +51,7 @@ public class JoinClause
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
+        builder.append(" inner join " );
         String jAbbrev = query.getTableAbbreviation(_joinClass);
         builder.append(query.getTableName(_joinClass) + " as " + jAbbrev + " on T." +
                        _primaryColumn + " = " + jAbbrev + "." + _joinColumn);

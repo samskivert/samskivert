@@ -58,20 +58,20 @@ public class DepotRepository
     /**
      * Loads the persistent object that matches the specified primary key.
      */
-    protected <T> T load (Class<T> type, Comparable primaryKey)
+    protected <T> T load (Class<T> type, Comparable primaryKey, QueryClause... clauses)
         throws PersistenceException
     {
-        return load(type, _ctx.getMarshaller(type).makePrimaryKey(primaryKey));
+        return load(type, _ctx.getMarshaller(type).makePrimaryKey(primaryKey), clauses);
     }
 
     /**
      * Loads the first persistent object that matches the supplied key.
      */
-    protected <T> T load (Class<T> type, Key key)
+    protected <T> T load (Class<T> type, Key key, QueryClause... clauses)
         throws PersistenceException
     {
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        return _ctx.invoke(new Query<T>(_ctx, type, key) {
+        return _ctx.invoke(new Query<T>(_ctx, type, key, clauses) {
             public T invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = createQuery(conn);
                 try {

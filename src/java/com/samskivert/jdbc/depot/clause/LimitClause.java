@@ -48,7 +48,7 @@ public class LimitClause
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
-        builder.append("? offset ?");
+        builder.append(" limit ? offset ? ");
     }
 
     // from QueryClause

@@ -33,6 +33,7 @@ import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.clause.FieldOverrideClause;
+import com.samskivert.jdbc.depot.clause.ForUpdateClause;
 import com.samskivert.jdbc.depot.clause.GroupByClause;
 import com.samskivert.jdbc.depot.clause.JoinClause;
 import com.samskivert.jdbc.depot.clause.LimitClause;
@@ -130,24 +131,22 @@ public abstract class Query<T>
         query.append("   from " + mainMarshaller.getTableName() + " as T ");
 
         for (JoinClause clause : _joinClauses) {
-            query.append(" inner join " );
             clause.appendClause(this, query);
         }
         if (_key != null) {
-            query.append(" where ");
             _key.appendClause(this, query);
         }
         if (_groupBy != null) {
-            query.append(" group by ");
             _groupBy.appendClause(this, query);
         }
         if (_orderBy != null) {
-            query.append(" order by ");
             _orderBy.appendClause(this, query);
         }
         if (_limit != null) {
-            query.append(" limit ");
             _limit.appendClause(this, query);
+        }
+        if (_forUpdate != null) {
+            _forUpdate.appendClause(this, query);
         }
 
         PreparedStatement pstmt = conn.prepareStatement(query.toString());
@@ -163,6 +162,9 @@ public abstract class Query<T>
         }
         if (_limit != null) {
             argIdx = _limit.bindArguments(pstmt, argIdx);
+        }
+        if (_forUpdate != null) {
+            argIdx = _forUpdate.bindArguments(pstmt, argIdx);
         }
 
         return pstmt;
@@ -215,6 +217,13 @@ public abstract class Query<T>
                         "Query can't contain multiple Limit clauses.");
                 }
                 _limit = (LimitClause) clause;
+
+            } else if (clause instanceof ForUpdateClause) {
+                if (_forUpdate != null) {
+                    throw new IllegalArgumentException(
+                        "Query can't contain multiple For Update clauses.");
+                }
+                _forUpdate = (ForUpdateClause) clause;
             }
         }
         _classMap = new HashMap<Class, DepotMarshaller>();
@@ -251,4 +260,7 @@ public abstract class Query<T>
 
     /** The limit clause, if any. */
     protected LimitClause _limit;
+    
+    /** The For Update clause, if any. */
+    protected ForUpdateClause _forUpdate;
 }

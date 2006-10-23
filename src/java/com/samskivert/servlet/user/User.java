@@ -153,6 +153,15 @@ public class User
     }
 
     /**
+     * Returns true if this user is an admin, false otherwise. The default
+     * implementation does not track admin status and always returns false.
+     */
+    public boolean isAdmin ()
+    {
+        return false;
+    }
+
+    /**
      * Called by the repository to find out which fields have been
      * modified since the object was loaded.
      */

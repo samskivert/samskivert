@@ -55,7 +55,7 @@ public abstract class Interval
      * should call this method in its own destroy method. A new timer thread
      * will then be created the next time an interval is scheduled.
      */
-    public static synchronized void shutdown ()
+    public static synchronized void resetTimer ()
     {
         _timer = null;
     }

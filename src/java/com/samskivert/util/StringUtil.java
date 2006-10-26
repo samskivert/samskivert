@@ -58,6 +58,7 @@ public class StringUtil
      *
      * @deprecated use isBlank instead.
      */
+    @Deprecated
     public static boolean blank (String value)
     {
         return isBlank(value);

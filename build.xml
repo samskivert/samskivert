@@ -70,7 +70,9 @@
       <exclude name="com/samskivert/util/**" unless="build.util"/>
       <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
       <exclude name="com/samskivert/xml/**" unless="build.xml"/>
-      <compilerarg value="-Xlint:unchecked"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <compilerarg value="-Xlint:-deprecation"/>
     </javac>
   </target>
 

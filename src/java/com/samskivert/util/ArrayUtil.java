@@ -803,6 +803,20 @@ public class ArrayUtil
         return insert(values, value, values.length);
     }
 
+    /**
+     * Creates a new array that contains the contents of the first parameter
+     * array followed by those of the second.
+     */
+    public static <T extends Object> T[] concatenate (T[] v1, T[] v2)
+    {
+        @SuppressWarnings("unchecked")
+        T[] values = (T[])Array.newInstance(v1.getClass().getComponentType(),
+            v1.length + v2.length);
+        System.arraycopy(v1, 0, values, 0, v1.length);
+        System.arraycopy(v2, 0, values, v1.length, v2.length);
+        return values;
+    }
+    
     /** The default random object used when shuffling an array. */
     protected static Random _rnd = new Random();
 }

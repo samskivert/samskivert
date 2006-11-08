@@ -85,18 +85,7 @@ public class PersistenceContext
         throws PersistenceException
     {
         // TODO: check the cache using query.getKey()
-
-        // TODO: retry query on transient failure
-        Connection conn = _conprov.getConnection(_ident, true);
-        try {
-            return query.invoke(conn);
-
-        } catch (SQLException sqe) {
-            throw new PersistenceException("Query failure " + query, sqe);
-
-        } finally {
-            _conprov.releaseConnection(_ident, true, conn);
-        }
+        return (T) invoke(query, null, true);
     }
 
     /**
@@ -107,26 +96,76 @@ public class PersistenceContext
     {
         // TODO: invalidate the cache using the modifier's key
 
-        // TODO: retry query on transient failure
-        Connection conn = _conprov.getConnection(_ident, false);
+        int result = (Integer) invoke(null, modifier, true);
+        // TODO: (optionally) cache the results of the modifier
+        return result;
+    }
+
+    /**
+     * Internal invoke method that takes care of transient retries
+     * for both queries and modifiers.
+     */
+    protected <T> Object invoke (
+        Query<T> query, Modifier modifier, boolean retryOnTransientFailure)
+        throws PersistenceException
+    {
+        boolean isReadOnlyQuery = (query != null);
+        Connection conn = _conprov.getConnection(_ident, isReadOnlyQuery);
         try {
-            int result = modifier.invoke(conn);
-            // TODO: (optionally) cache the results of the modifier
-            return result;
+            if (isReadOnlyQuery) {
+                // if this becomes more complex than this single statement,
+                // then this should turn into a method call that contains
+                // the complexity
+                return query.invoke(conn);
+
+            } else {
+                // if this becomes more complex than this single statement,
+                // then this should turn into a method call that contains
+                // the complexity
+                return modifier.invoke(conn);
+            }
 
         } catch (SQLException sqe) {
-            // convert this exception to a DuplicateKeyException if appropriate
-            String msg = sqe.getMessage();
-            if (msg != null && msg.indexOf("Duplicate entry") != -1) {
-                throw new DuplicateKeyException(msg);
+
+            if (!isReadOnlyQuery) {
+                // convert this exception to a DuplicateKeyException if
+                // appropriate
+                String msg = sqe.getMessage();
+                if (msg != null && msg.indexOf("Duplicate entry") != -1) {
+                    throw new DuplicateKeyException(msg);
+                }
+            }
+
+            if (retryOnTransientFailure && isTransientException(sqe)) {
+                Log.info("Transient failure executing operation, " +
+                    "retrying [error=" + sqe + "].");
+
             } else {
-                throw new PersistenceException(
-                    "Modifier failure " + modifier, sqe);
+                String msg = isReadOnlyQuery ? "Query failure " + query
+                                             : "Modifier failure " + modifier;
+                throw new PersistenceException(msg, sqe);
             }
 
         } finally {
-            _conprov.releaseConnection(_ident, false, conn);
+            _conprov.releaseConnection(_ident, isReadOnlyQuery, conn);
         }
+
+        // if we got here, we want to retry a transient failure
+        return invoke(query, modifier, false);
+    }
+
+    /**
+     * Check whether the specified exception is a transient failure
+     * that can be retried.
+     */
+    protected boolean isTransientException (SQLException sqe)
+    {
+        // TODO: this is MySQL specific. This was snarfed from MySQLLiaison.
+        String msg = sqe.getMessage();
+        return (msg != null &&
+            (msg.indexOf("Lost connection") != -1 ||
+             msg.indexOf("link failure") != -1 ||
+             msg.indexOf("Broken pipe") != -1));
     }
 
     protected String _ident;

@@ -27,27 +27,41 @@ import java.util.Collection;
 import com.samskivert.jdbc.depot.Query;
 
 /**
- * Represents a piece or modifier of an SQL query.
+ *  Represents a LIMIT/OFFSET clause, for pagination.
  */
-public interface QueryClause
+public class Limit
+    implements QueryClause
 {
-    /**
-     * Return a set of all persistent classes referenced by this clause.  Null may be returned if
-     * no classes are rererenced.
-     */
-    public Collection<Class> getClassSet ();
-    
-    /**
-     * Construct the SQL form of this query clause. The implementor is expected to call methods
-     * on the Query object to e.g. resolve current table abbreviations associated with classes.
-     */
-    public void appendClause (Query query, StringBuilder builder);
+    public Limit (int offset, int count)
+    {
+        _offset = offset;
+        _count = count;
+    }
 
-    /**
-     * Bind any objects that were referenced in the generated SQL.  For each ? that appears in the
-     * SQL, precisely one parameter must be claimed and bound in this method, and argIdx
-     * incremented and returned.
-     */
+    // from QueryClause
+    public Collection<Class> getClassSet ()
+    {
+        return null;
+    }
+
+    // from QueryClause
+    public void appendClause (Query query, StringBuilder builder)
+    {
+        builder.append(" limit ? offset ? ");
+    }
+
+    // from QueryClause
     public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException;
+        throws SQLException
+    {
+        pstmt.setObject(argIdx++, _count);
+        pstmt.setObject(argIdx++, _offset);
+        return argIdx;
+    }
+
+    /** The first row of the result set to return. */
+    protected int _offset;
+
+    /** The number of rows, at most, to return. */
+    protected int _count;
 }

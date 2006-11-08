@@ -31,6 +31,8 @@ import java.util.Collection;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.clause.Where;
+import com.samskivert.util.ArrayUtil;
 
 /**
  * Provides a base for classes that provide access to persistent objects. Also defines the
@@ -61,17 +63,18 @@ public class DepotRepository
     protected <T> T load (Class<T> type, Comparable primaryKey, QueryClause... clauses)
         throws PersistenceException
     {
-        return load(type, _ctx.getMarshaller(type).makePrimaryKey(primaryKey), clauses);
+        clauses = ArrayUtil.append(clauses, _ctx.getMarshaller(type).makePrimaryKey(primaryKey));
+        return load(type, clauses);
     }
 
     /**
      * Loads the first persistent object that matches the supplied key.
      */
-    protected <T> T load (Class<T> type, Key key, QueryClause... clauses)
+    protected <T> T load (Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        return _ctx.invoke(new Query<T>(_ctx, type, key, clauses) {
+        return _ctx.invoke(new Query<T>(_ctx, type, clauses) {
             public T invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = createQuery(conn);
                 try {
@@ -92,23 +95,14 @@ public class DepotRepository
     }
 
     /**
-     * Loads all persistent objects of the specified type.
-     */
-    protected <T,C extends Collection<T>> Collection<T> findAll (Class<T> type)
-        throws PersistenceException
-    {
-        return findAll(type, null);
-    }
-
-    /**
      * Loads all persistent objects that match the specified key.
      */
     protected <T,C extends Collection<T>> Collection<T> findAll (
-        Class<T> type, Key key, QueryClause... clauses)
+        Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        return _ctx.invoke(new Query<ArrayList<T>>(_ctx, type, key, clauses) {
+        return _ctx.invoke(new Query<ArrayList<T>>(_ctx, type, clauses) {
             public ArrayList<T> invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = createQuery(conn);
                 try {
@@ -130,8 +124,7 @@ public class DepotRepository
      * Inserts the supplied persistent object into the database, assigning its primary key (if it
      * has one) in the process.
      *
-     * @return the number of rows modified by this action, this should always
-     * be one.
+     * @return the number of rows modified by this action, this should always be one.
      */
     protected int insert (final Object record)
         throws PersistenceException
@@ -182,7 +175,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected int update (final Object record, final String ... modifiedFields)
+    protected int update (final Object record, final String... modifiedFields)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
@@ -208,7 +201,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updatePartial (Class<T> type, Comparable primaryKey, Object ... fieldsValues)
+    protected <T> int updatePartial (Class<T> type, Comparable primaryKey, Object... fieldsValues)
         throws PersistenceException
     {
         return updatePartial(
@@ -225,7 +218,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updatePartial (Class<T> type, Key key, Object ... fieldsValues)
+    protected <T> int updatePartial (Class<T> type, Where key, Object... fieldsValues)
         throws PersistenceException
     {
         // separate the arguments into keys and values
@@ -266,7 +259,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updateLiteral (Class<T> type, Comparable primaryKey, String ... fieldsValues)
+    protected <T> int updateLiteral (Class<T> type, Comparable primaryKey, String... fieldsValues)
         throws PersistenceException
     {
         return updateLiteral(
@@ -290,7 +283,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updateLiteral (Class<T> type, Key key, String ... fieldsValues)
+    protected <T> int updateLiteral (Class<T> type, Where key, String... fieldsValues)
         throws PersistenceException
     {
         // separate the arguments into keys and values
@@ -387,7 +380,7 @@ public class DepotRepository
      *
      * @return the number of rows deleted by this action.
      */
-    protected <T> int deleteAll (Class<T> type, Key key)
+    protected <T> int deleteAll (Class<T> type, Where key)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(type);

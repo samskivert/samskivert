@@ -22,39 +22,26 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collection;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.Query;
 
 /**
- *  Represents a JOIN -- currently just an INNER one.
+ *  Represents a FOR UPDATE clause.
  */
-public class JoinClause
+public class ForUpdate
     implements QueryClause
 {
-    public JoinClause (String pCol, Class joinClass, String jCol)
-        throws PersistenceException
-    {
-        super();
-        _primaryColumn = pCol;
-        _joinClass = joinClass;
-        _joinColumn = jCol;
-    }
-
     // from QueryClause
-    public Collection<Class> getClassSet () {
-        return Arrays.asList(new Class[] { _joinClass });
+    public Collection<Class> getClassSet ()
+    {
+        return null;
     }
 
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
-        builder.append(" inner join " );
-        String jAbbrev = query.getTableAbbreviation(_joinClass);
-        builder.append(query.getTableName(_joinClass) + " as " + jAbbrev + " on T." +
-                       _primaryColumn + " = " + jAbbrev + "." + _joinColumn);
+        builder.append(" for update ");
     }
 
     // from QueryClause
@@ -63,13 +50,4 @@ public class JoinClause
     {
         return argIdx;
     }
-
-    /** The column on which to join. */
-    protected String _primaryColumn;
-
-    /** The class of the table we're to join against. */
-    protected Class _joinClass;
-
-    /** The column we're joining against. */
-    protected String _joinColumn;
 }

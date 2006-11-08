@@ -18,55 +18,38 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.jdbc.depot.clause;
+package com.samskivert.jdbc.depot.expression;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
 
 import com.samskivert.jdbc.depot.Query;
-import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
- *  Represents a GROUP BY clause.
+ * An expression for things we don't support natively, e.g. COUNT(*).
  */
-public class GroupByClause
-    implements QueryClause
+public class LiteralExp
+    implements SQLExpression
 {
-    public GroupByClause (SQLExpression... values)
+    public LiteralExp (String text)
     {
         super();
-        _values = values;
+        _text = text;
     }
 
-    // from QueryClause
-    public Collection<Class> getClassSet ()
+    // from SQLExpression
+    public void appendExpression (Query query, StringBuilder builder)
     {
-        return null;
+        builder.append(_text);
     }
 
-    // from QueryClause
-    public void appendClause (Query query, StringBuilder builder)
-    {
-        builder.append(" group by ");
-        for (int ii = 0; ii < _values.length; ii++) {
-            if (ii > 0) {
-                builder.append(", ");
-            }
-            _values[ii].appendExpression(query, builder);
-        }
-    }
-
-    // from QueryClause
+    // from SQLExpression
     public int bindArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        for (int ii = 0; ii < _values.length; ii++) {
-            argIdx = _values[ii].bindArguments(pstmt, argIdx);
-        }
         return argIdx;
     }
 
-    /** The expressions that are generated for the clause. */
-    protected SQLExpression[] _values;
+    /** The literal text of this expression, e.g. COUNT(*) */
+    protected String _text;
 }

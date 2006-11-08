@@ -25,18 +25,17 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
- *  Represents a LIMIT/OFFSET clause, for pagination.
+ *  Represents an ORDER BY clause.
  */
-public class LimitClause
+public class OrderBy
     implements QueryClause
 {
-    public LimitClause (int offset, int count)
+    public OrderBy (SQLExpression... values)
     {
-        super();
-        _offset = offset;
-        _count = count;
+        _values = values;
     }
 
     // from QueryClause
@@ -48,21 +47,29 @@ public class LimitClause
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
-        builder.append(" limit ? offset ? ");
+        builder.append(" order by ");
+        for (int ii = 0; ii < _values.length; ii++) {
+            if (ii > 0) {
+                builder.append(", ");
+            }
+            _values[ii].appendExpression(query, builder);
+        }
+        builder.append(_ascending ? " ASC" : " DESC");
     }
 
     // from QueryClause
     public int bindArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        pstmt.setObject(argIdx++, _count);
-        pstmt.setObject(argIdx++, _offset);
+        for (int ii = 0; ii < _values.length; ii++) {
+            argIdx = _values[ii].bindArguments(pstmt, argIdx);
+        }
         return argIdx;
     }
-    
-    /** The first row of the result set to return. */
-    protected int _offset;
 
-    /** The number of rows, at most, to return. */
-    protected int _count;
+    /** The expressions that are generated for the clause. */
+    protected SQLExpression[] _values;
+
+    /** Whether the ordering is to be ascending rather than descending. */
+    protected boolean _ascending;
 }

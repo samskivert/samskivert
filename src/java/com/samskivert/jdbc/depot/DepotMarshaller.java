@@ -27,12 +27,14 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 import javax.persistence.GeneratedValue;
@@ -41,7 +43,8 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import com.samskivert.jdbc.JDBCUtil;
-import com.samskivert.jdbc.depot.expression.ColumnExpression;
+import com.samskivert.jdbc.depot.clause.Where;
+import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -66,9 +69,13 @@ public class DepotMarshaller<T>
     {
         _pclass = pclass;
 
-        // determine our table name
-        _tableName = _pclass.getName();
-        _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
+        // see if this is a computed entity
+        Computed computed = pclass.getAnnotation(Computed.class);
+        if (computed == null) {
+            // if not, this class has a corresponding SQL table
+            _tableName = _pclass.getName();
+            _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
+        }
 
         // if the entity defines a new TableGenerator, map that in our static table as those are
         // shared across all entities
@@ -172,8 +179,13 @@ public class DepotMarshaller<T>
         // generate our full list of fields/columns for use in queries
         _allFields = fields.toArray(new String[fields.size()]);
 
-        // figure out the list of fields that correspond to actual table columns and create the SQL
-        // used to create and migrate our table
+        // if we're a computed entity, stop here
+        if (_tableName == null) {
+            return;
+        }
+
+        // figure out the list of fields that correspond to actual table columns and generate the
+        // SQL used to create and migrate our table (unless we're a computed entity)
         _columnFields = new String[_allFields.length];
         _columnDefinitions = new String[_allFields.length];
         int jj = 0;
@@ -261,10 +273,10 @@ public class DepotMarshaller<T>
                 "Argument count (" + values.length + ") must match primary key size (" +
                 _pkColumns.size() + ")");
         }
-        ColumnExpression[] columns = new ColumnExpression[_pkColumns.size()];
+        ColumnExp[] columns = new ColumnExp[_pkColumns.size()];
         for (int ii = 0; ii < _pkColumns.size(); ii++) {
             FieldMarshaller field = _pkColumns.get(ii);
-            columns[ii] = new ColumnExpression(_pclass, field.getColumnName());
+            columns[ii] = new ColumnExp(_pclass, field.getColumnName());
         }
         return new Key(columns, values);
     }
@@ -277,6 +289,11 @@ public class DepotMarshaller<T>
     public void init (Connection conn)
         throws SQLException
     {
+        // if we have no table (i.e. we're a computed entity), we have nothing to create
+        if (getTableName() == null) {
+            return;
+        }
+
         // check to see if our schema version table exists, create it if not
         JDBCUtil.createTableIfMissing(conn, SCHEMA_VERSION_TABLE,
                                       new String[] { "persistentClass VARCHAR(255) NOT NULL",
@@ -358,10 +375,22 @@ public class DepotMarshaller<T>
         throws SQLException
     {
         try {
-            T po = (T)_pclass.newInstance();
+            // first, build a set of the fields that we actually received
+            Set<String> fields = new HashSet<String>();
+            ResultSetMetaData metadata = rs.getMetaData();
+            for (int ii = 1; ii <= metadata.getColumnCount(); ii ++) {
+               fields.add(metadata.getColumnName(ii));
+            }
+
+            // then create and populate the persistent object
+            T po = _pclass.newInstance();
             for (FieldMarshaller fm : _fields.values()) {
-                if (fm.getComputed() != null && !fm.getComputed().required()) {
-                    continue;
+                if (!fields.contains(fm.getField().getName())) {
+                    // this field was not in the result set, make sure that's OK
+                    if (fm.getComputed() != null && !fm.getComputed().required()) {
+                        continue;
+                    }
+                    throw new SQLException("ResultSet missing field: " + fm.getField().getName());
                 }
                 fm.getValue(rs, po);
             }
@@ -384,6 +413,8 @@ public class DepotMarshaller<T>
     public PreparedStatement createInsert (Connection conn, Object po)
         throws SQLException
     {
+        requireNotComputed("insert rows into");
+
         try {
             StringBuilder insert = new StringBuilder();
             insert.append("insert into ").append(getTableName());
@@ -449,7 +480,7 @@ public class DepotMarshaller<T>
     /**
      * Creates a statement that will update the supplied persistent object using the supplied key.
      */
-    public PreparedStatement createUpdate (Connection conn, Object po, Key key)
+    public PreparedStatement createUpdate (Connection conn, Object po, Where key)
         throws SQLException
     {
         return createUpdate(conn, po, key, _columnFields);
@@ -460,9 +491,11 @@ public class DepotMarshaller<T>
      * using the supplied key.
      */
     public PreparedStatement createUpdate (
-        Connection conn, Object po, Key key, String[] modifiedFields)
+        Connection conn, Object po, Where key, String[] modifiedFields)
         throws SQLException
     {
+        requireNotComputed("update rows in");
+
         StringBuilder update = new StringBuilder();
         update.append("update ").append(getTableName()).append(" set ");
         int idx = 0;
@@ -501,9 +534,11 @@ public class DepotMarshaller<T>
      * that match the supplied key.
      */
     public PreparedStatement createPartialUpdate (
-        Connection conn, Key key, String[] modifiedFields, Object[] modifiedValues)
+        Connection conn, Where key, String[] modifiedFields, Object[] modifiedValues)
         throws SQLException
     {
+        requireNotComputed("update rows in");
+
         StringBuilder update = new StringBuilder();
         update.append("update ").append(getTableName()).append(" set ");
         int idx = 0;
@@ -530,9 +565,11 @@ public class DepotMarshaller<T>
     /**
      * Creates a statement that will delete all rows matching the supplied key.
      */
-    public PreparedStatement createDelete (Connection conn, Key key)
+    public PreparedStatement createDelete (Connection conn, Where key)
         throws SQLException
     {
+        requireNotComputed("delete rows from");
+
         StringBuilder query = new StringBuilder("delete from " + getTableName());
         key.appendClause(null, query);
         PreparedStatement pstmt = conn.prepareStatement(query.toString());
@@ -545,9 +582,11 @@ public class DepotMarshaller<T>
      * SQL values, for all persistent objects that match the supplied key.
      */
     public PreparedStatement createLiteralUpdate (
-        Connection conn, Key key, String[] modifiedFields, Object[] modifiedValues)
+        Connection conn, Where key, String[] modifiedFields, Object[] modifiedValues)
         throws SQLException
     {
+        requireNotComputed("update rows in");
+
         StringBuilder update = new StringBuilder();
         update.append("update ").append(getTableName()).append(" set ");
         for (int ii = 0; ii < modifiedFields.length; ii++) {
@@ -592,6 +631,15 @@ public class DepotMarshaller<T>
             return (rs.next()) ?  rs.getInt(1) : 1;
         } finally {
             stmt.close();
+        }
+    }
+
+    protected void requireNotComputed (String action)
+        throws SQLException
+    {
+        if (getTableName() == null) {
+            throw new IllegalArgumentException(
+                "Can't " + action + " computed entities [class=" + _pclass + "]");
         }
     }
 

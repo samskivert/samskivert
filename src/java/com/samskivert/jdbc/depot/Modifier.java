@@ -23,19 +23,16 @@ package com.samskivert.jdbc.depot;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.samskivert.jdbc.depot.clause.Where;
+
 /**
  * Encapsulates a modification of persistent objects.
  */
 public abstract class Modifier
 {
-    public Key getKey ()
-    {
-        return _key;
-    }
-
     public abstract int invoke (Connection conn) throws SQLException;
 
-    protected Modifier (Key key)
+    protected Modifier (Where key)
     {
         _key = key;
     }
@@ -47,5 +44,5 @@ public abstract class Modifier
         }
     }
 
-    protected Key _key;
+    protected Where _key;
 }

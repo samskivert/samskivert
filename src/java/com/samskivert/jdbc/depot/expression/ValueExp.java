@@ -26,45 +26,30 @@ import java.sql.SQLException;
 import com.samskivert.jdbc.depot.Query;
 
 /**
- * An expression identifying a column of a class, e.g. GameRecord.itemId. If no class is given, no
- * disambiguation occurs in the generated SQL.
+ * A Java value that is bound as a parameter to the query, e.g. 1 or 'abc'. 
  */
-public class ColumnExpression
+public class ValueExp
     implements SQLExpression
 {
-    public ColumnExpression (String column)
+    public ValueExp (Comparable _value)
     {
-        this(null, column);
-    }
-
-    public ColumnExpression (Class c, String column)
-    {
-        super();
-        _class = c;
-        _column = column;
+        this._value = _value;
     }
 
     // from SQLExpression
     public void appendExpression (Query query, StringBuilder builder)
     {
-        if (_class == null || query == null) {
-            builder.append(_column);
-        } else {
-            String tRef = query.getTableAbbreviation(_class);
-            builder.append(tRef).append(".").append(_column);
-        }
+        builder.append("?");
     }
 
     // from SQLExpression
     public int bindArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
+        pstmt.setObject(argIdx ++, _value);
         return argIdx;
     }
 
-    /** The table that hosts the column we reference, or null. */
-    protected Class _class;
-
-    /** The name of the column we reference. */
-    protected String _column;
+    /** The value to be bound to the SQL parameters. */
+    protected Comparable _value;
 }

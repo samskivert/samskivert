@@ -18,38 +18,15 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.jdbc.depot.expression;
+package com.samskivert.jdbc.depot.operator;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
- * An expression for things we don't support natively, e.g. COUNT(*).
+ * A common interface for operator hierarchies in SQL. The main purpose of breaking this out from
+ * SQLExpression is to capture the recursive nature of e.g. the logical operators, which work on
+ * other SQLOperators but not general SQLExpressions.
  */
-public class LiteralExpression
-    implements SQLExpression
+public interface SQLOperator extends SQLExpression
 {
-    public LiteralExpression (String text)
-    {
-        super();
-        _text = text;
-    }
-
-    // from SQLExpression
-    public void appendExpression (Query query, StringBuilder builder)
-    {
-        builder.append(_text);
-    }
-
-    // from SQLExpression
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
-    {
-        return argIdx;
-    }
-
-    /** The literal text of this expression, e.g. COUNT(*) */
-    protected String _text;
 }

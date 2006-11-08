@@ -25,13 +25,19 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
- *  Represents a FOR UPDATE clause.
+ *  Represents a GROUP BY clause.
  */
-public class ForUpdateClause
+public class GroupBy
     implements QueryClause
 {
+    public GroupBy (SQLExpression... values)
+    {
+        _values = values;
+    }
+
     // from QueryClause
     public Collection<Class> getClassSet ()
     {
@@ -41,13 +47,25 @@ public class ForUpdateClause
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
-        builder.append(" for update ");
+        builder.append(" group by ");
+        for (int ii = 0; ii < _values.length; ii++) {
+            if (ii > 0) {
+                builder.append(", ");
+            }
+            _values[ii].appendExpression(query, builder);
+        }
     }
 
     // from QueryClause
     public int bindArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
+        for (int ii = 0; ii < _values.length; ii++) {
+            argIdx = _values[ii].bindArguments(pstmt, argIdx);
+        }
         return argIdx;
     }
+
+    /** The expressions that are generated for the clause. */
+    protected SQLExpression[] _values;
 }

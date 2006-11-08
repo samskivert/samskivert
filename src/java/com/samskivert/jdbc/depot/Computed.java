@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * correspond to a column in a table, and thus its value must be overridden in the {@link Query}.
  */
 @Retention(value=RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.TYPE })
 public @interface Computed
 {
     /** If this value is false, the field is not populated by Depot at all. */

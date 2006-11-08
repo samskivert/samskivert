@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006 Michael Bayne, Pär Winzell
+// Copyright (C) 2006 Michael Bayne
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -22,55 +22,44 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.List;
 
 import com.samskivert.jdbc.depot.Query;
-import com.samskivert.jdbc.depot.expression.SQLExpression;
+import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.operator.SQLOperator;
 
 /**
- *  Represents an ORDER BY clause.
+ * Represents a where clause: the condition can be any comparison operator or logical combination
+ * thereof.
  */
-public class OrderByClause
+public class Where
     implements QueryClause
 {
-    public OrderByClause (SQLExpression... values)
+    public Where (SQLOperator condition)
     {
-        super();
-        _values = values;
+        _condition = condition;
     }
-    
+
     // from QueryClause
-    public Collection<Class> getClassSet ()
+    public List<Class> getClassSet()
     {
-        return null;
+        return Arrays.asList(new Class[] { });
     }
 
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
-        builder.append(" order by ");
-        for (int ii = 0; ii < _values.length; ii++) {
-            if (ii > 0) {
-                builder.append(", ");
-            }
-            _values[ii].appendExpression(query, builder);
-        }
-        builder.append(_ascending ? " ASC" : " DESC");
+        builder.append(" where ");
+        _condition.appendExpression(query, builder);
     }
 
     // from QueryClause
     public int bindArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        for (int ii = 0; ii < _values.length; ii++) {
-            argIdx = _values[ii].bindArguments(pstmt, argIdx);
-        }
-        return argIdx;
+        return _condition.bindArguments(pstmt, argIdx);
     }
-    
-    /** The expressions that are generated for the clause. */
-    protected SQLExpression[] _values;
 
-    /** Whether the ordering is to be ascending rather than descending. */
-    protected boolean _ascending;
+    protected SQLOperator _condition;
 }

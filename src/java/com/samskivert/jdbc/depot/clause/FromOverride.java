@@ -22,32 +22,51 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 
+import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.Query;
 
 /**
- * Represents a piece or modifier of an SQL query.
+ *  Completely overrides the FROM clause, if it exists.
  */
-public interface QueryClause
+public class FromOverride
+    implements QueryClause
 {
-    /**
-     * Return a set of all persistent classes referenced by this clause.  Null may be returned if
-     * no classes are rererenced.
-     */
-    public Collection<Class> getClassSet ();
-    
-    /**
-     * Construct the SQL form of this query clause. The implementor is expected to call methods
-     * on the Query object to e.g. resolve current table abbreviations associated with classes.
-     */
-    public void appendClause (Query query, StringBuilder builder);
+    public FromOverride (Class... fromClasses)
+        throws PersistenceException
+    {
+        _fromClasses = fromClasses;
+    }
 
-    /**
-     * Bind any objects that were referenced in the generated SQL.  For each ? that appears in the
-     * SQL, precisely one parameter must be claimed and bound in this method, and argIdx
-     * incremented and returned.
-     */
+    // from QueryClause
+    public Collection<Class> getClassSet ()
+    {
+        return Arrays.asList(_fromClasses);
+    }
+
+    // from QueryClause
+    public void appendClause (Query query, StringBuilder builder)
+    {
+        builder.append(" from " );
+        for (int ii = 0; ii < _fromClasses.length; ii++) {
+            if (ii > 0) {
+                builder.append(", ");
+            }
+            builder.append(query.getTableName(_fromClasses[ii])).
+                append(" as ").
+                append(query.getTableAbbreviation(_fromClasses[ii]));
+        }
+    }
+
+    // from QueryClause
     public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException;
+        throws SQLException
+    {
+        return argIdx;
+    }
+
+    /** The classes of the tables we're selecting from. */
+    protected Class[] _fromClasses;
 }

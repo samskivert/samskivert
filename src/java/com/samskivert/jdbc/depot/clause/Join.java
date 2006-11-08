@@ -22,60 +22,66 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.Query;
-import com.samskivert.jdbc.depot.expression.SQLExpression;
+import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.operator.SQLOperator;
+import com.samskivert.jdbc.depot.operator.Conditionals.*;
 
 /**
- * Redirects one field of the persistent object we're creating from its default associated column
- * to a general {@link SQLExpression}.
- * 
- * Thus the select portion of a query can include a reference to a different column in a different
- * table through a {@link ColumnExpression}, or a literal expression such as COUNT(*) through a
- * {@link LiteralExpression}.
- */ 
-public class FieldOverrideClause
+ *  Represents a JOIN -- currently just an INNER one.
+ */
+public class Join
     implements QueryClause
 {
-    public FieldOverrideClause (String field, SQLExpression override)
+    public Join (Class pClass, String pCol, Class joinClass, String jCol)
         throws PersistenceException
     {
-        super();
-        _field = field;
-        _override = override;
+        _joinClass = joinClass;
+        _joinCondition = new Equals(new ColumnExp(joinClass, jCol), new ColumnExp(pClass, pCol));
     }
 
-    /** The field we're overriding. The Query object uses this for indexing. */
-    public String getField ()
+    public Join (ColumnExp primary, ColumnExp join)
+        throws PersistenceException
     {
-        return _field;
+        _joinClass = join.pClass;
+        _joinCondition = new Equals(primary, join);
+    }
+
+    public Join (Class joinClass, SQLOperator joinCondition)
+    {
+        _joinClass = joinClass;
+        _joinCondition = joinCondition;
     }
 
     // from QueryClause
     public Collection<Class> getClassSet ()
     {
-        return null;
+        return Arrays.asList(new Class[] { _joinClass });
     }
 
     // from QueryClause
     public void appendClause (Query query, StringBuilder builder)
     {
-        _override.appendExpression(query, builder);
-        builder.append(" as ").append(_field);
+        builder.append(" inner join " );
+        builder.append(query.getTableName(_joinClass)).append(" as ");
+        builder.append(query.getTableAbbreviation(_joinClass)).append(" on ");
+        _joinCondition.appendExpression(query, builder);
     }
 
     // from QueryClause
     public int bindArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        return argIdx;
+        return _joinCondition.bindArguments(pstmt, argIdx);
     }
-    
-    /** The name of the field on the persistent object to override. */
-    protected String _field;
 
-    /** The overriding expression. */
-    protected SQLExpression _override;
+    /** The class of the table we're to join against. */
+    protected Class _joinClass;
+
+    /** The condition used to join in the new table. */
+    protected SQLOperator _joinCondition;
 }

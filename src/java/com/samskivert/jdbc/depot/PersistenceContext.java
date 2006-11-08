@@ -28,8 +28,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.samskivert.io.PersistenceException;
+
+import com.samskivert.util.StringUtil;
+
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.DuplicateKeyException;
+
 
 /**
  * Defines a scope in which global annotations are shared.
@@ -126,7 +130,6 @@ public class PersistenceContext
             }
 
         } catch (SQLException sqe) {
-
             if (!isReadOnlyQuery) {
                 // convert this exception to a DuplicateKeyException if
                 // appropriate
@@ -136,9 +139,18 @@ public class PersistenceContext
                 }
             }
 
+            // let the provider know that the connection failed
+            _conprov.connectionFailed(_ident, isReadOnlyQuery, conn, sqe);
+            conn = null;
+
             if (retryOnTransientFailure && isTransientException(sqe)) {
+                // the MySQL JDBC driver has the annoying habit of including
+                // the embedded exception stack trace in the message of their
+                // outer exception; if I want a fucking stack trace, I'll call
+                // printStackTrace() thanksverymuch
+                String msg = StringUtil.split(String.valueOf(sqe), "\n")[0];
                 Log.info("Transient failure executing operation, " +
-                    "retrying [error=" + sqe + "].");
+                    "retrying [error=" + msg + "].");
 
             } else {
                 String msg = isReadOnlyQuery ? "Query failure " + query

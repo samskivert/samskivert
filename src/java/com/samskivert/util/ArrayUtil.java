@@ -22,6 +22,7 @@ package com.samskivert.util;
 
 import java.lang.reflect.Array;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Random;
 
@@ -815,6 +816,23 @@ public class ArrayUtil
         System.arraycopy(v1, 0, values, 0, v1.length);
         System.arraycopy(v2, 0, values, v1.length, v2.length);
         return values;
+    }
+    
+    /**
+     * Similar to {@link Collection#toArray}, this method copies the contents
+     * of the first parameter to the second, creating a new array of the same
+     * type if the destination array is too small to hold the contents of the
+     * source.
+     */
+    public static <S extends Object, T extends S> T[] copy (
+        S[] values, T[] store)
+    {
+        @SuppressWarnings("unchecked")
+        T[] dest = (store.length >= values.length) ? store :
+            (T[])Array.newInstance(store.getClass().getComponentType(),
+                values.length);
+        System.arraycopy(values, 0, dest, 0, values.length);
+        return dest;
     }
     
     /** The default random object used when shuffling an array. */

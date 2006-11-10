@@ -278,8 +278,9 @@ public class FormTool
      */
     public String checkbox (String name, boolean defaultValue)
     {
+        String value = getParameter(name);
         return fixedCheckbox(
-            name, ParameterUtil.isSet(_req, name, defaultValue));
+            name, (value == null) ? defaultValue : !value.equals(""));
     }
 
     /**
@@ -413,7 +414,7 @@ public class FormTool
      */
     protected String getValue (String name, Object defaultValue)
     {
-        String value = ParameterUtil.getParameter(_req, name, true);
+        String value = getParameter(name);
         if (StringUtil.isBlank(value)) {
             if (defaultValue == null) {
                 value = "";
@@ -422,6 +423,14 @@ public class FormTool
             }
         }
         return HTMLUtil.entify(value);
+    }
+
+    /**
+     * Returns value of the specified query parameter or null if it is not set.
+     */
+    protected String getParameter (String name)
+    {
+        return ParameterUtil.getParameter(_req, name, true);
     }
 
     /** A reference to the servlet request in use by this form tool. */

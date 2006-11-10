@@ -20,19 +20,21 @@
 
 package com.samskivert.velocity;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Locale;
 
 import junit.framework.TestCase;
-
-import org.apache.commons.io.IOUtils;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+
+import com.samskivert.servlet.MessageManager;
 
 /**
  * An abstract base class for easily testing Velocity templates.
@@ -68,7 +70,7 @@ public abstract class VelocityTestCase extends TestCase
         // first simply evaluate all of the templates
         for (String template : getTemplates()) {
             try {
-                evaluateTemplate(template);
+                testParse(template);
             } catch (Exception e) {
                 fail("Failed to process " + template + ": " + e);
             }
@@ -77,14 +79,14 @@ public abstract class VelocityTestCase extends TestCase
         // then try to actually merge them with a context
         for (String template : getTemplates()) {
             try {
-                mergeTemplate(template);
+                testMerge(template);
             } catch (Exception e) {
                 fail("Failed to process " + template + ": " + e);
             }
         }
     }
 
-    protected void evaluateTemplate (String template)
+    protected void testParse (String template)
         throws Exception
     {
         InputStream tempin = 
@@ -100,36 +102,63 @@ public abstract class VelocityTestCase extends TestCase
         }
     }
 
-    protected void mergeTemplate (String template)
+    protected void testMerge (String template)
         throws Exception
     {
-        // first load our golden output
-        String goldpath = getGoldenFilePath(template);
-        InputStream goldin =
-            getClass().getClassLoader().getResourceAsStream(goldpath);
-        if (goldin == null) {
-            // if there is no golden template, we don't test this file
-            return;
-        }
-        String goldtext = IOUtils.toString(goldin);
-
         // clear out any previous logging output
         _logbuf.getBuffer().setLength(0);
 
-        // now generate the test output
-        VelocityContext context = new VelocityContext();
-        populateContext(template, context);
-        StringWriter writer = new StringWriter();
-        _engine.mergeTemplate(template, context, writer);
+        // populate the context with useful bits
+        VelocityContext ctx = new VelocityContext();
+        populateContext(template, ctx);
 
-        // now compare the two
-        String output = "Template output incorrect [template=" + template +
-            ", golden=" + goldpath + "].";
+        // now merge the template
+        StringWriter writer = new StringWriter();
+        _engine.mergeTemplate(template, ctx, writer);
+
+        // if there was any logging output, the test failed
         String logout = _logbuf.toString();
         if (logout.length() > 0) {
-            output = output + "\n" + logout;
+            fail("Template merge failed '" + template + "'.\n" + logout);
         }
-        assertEquals(output, goldtext, writer.toString());
+    }
+
+    /**
+     * Called before parsing each template to populate the context as needed
+     * for the template in question. The default implementation adds some
+     * standard bits provided by {@link DispatcherServlet}.
+     */
+    protected void populateContext (String template, VelocityContext ctx)
+    {
+        ctx.put("context_path", "/test");
+
+        // populate the context with various standard tools
+        MessageManager msgmgr = getMessageManager();
+        if (msgmgr != null) {
+            ctx.put(DispatcherServlet.I18NTOOL_KEY, new I18nTool(null, msgmgr) {
+                protected Locale getLocale () {
+                    return Locale.getDefault();
+                }
+            });
+        }
+        ctx.put(DispatcherServlet.FORMTOOL_KEY, new FormTool(null) {
+            protected String getParameter (String name) {
+                return null;
+            }
+        });
+        ctx.put(DispatcherServlet.STRINGTOOL_KEY, new StringTool());
+        ctx.put(DispatcherServlet.DATATOOL_KEY, new DataTool());
+        ctx.put(DispatcherServlet.CURRENCYTOOL_KEY,
+                new CurrencyTool(Locale.getDefault()));
+    }
+
+    /**
+     * If the tests require translation, this method must return a message
+     * manager configured appropriately.
+     */
+    protected MessageManager getMessageManager ()
+    {
+        return null;
     }
 
     /**
@@ -137,25 +166,6 @@ public abstract class VelocityTestCase extends TestCase
      * classpath.
      */
     protected abstract String[] getTemplates ();
-
-    /**
-     * Called before parsing each template to populate the context as needed
-     * for the template in question. The default implementation adds nothing to
-     * the context.
-     */
-    protected void populateContext (String template, VelocityContext context)
-    {
-    }
-
-    /**
-     * Returns the path (resolved via the classloader) of the golden file
-     * against which to compare the output of the supplied template. The
-     * default simply appends .test to the path.
-     */
-    protected String getGoldenFilePath (String template)
-    {
-        return template + ".test";
-    }
 
     /** Accumulates logging to a buffer for later reporting. */
     protected LogChute _logger = new LogChute() {

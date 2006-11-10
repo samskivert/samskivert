@@ -345,7 +345,7 @@ public class DispatcherServlet extends VelocityServlet
             ictx.put(DATATOOL_KEY, datatool);
 
             // create a curreny tool set up to use the correct locale
-            CurrencyTool ctool = new CurrencyTool(req);
+            CurrencyTool ctool = new CurrencyTool(req.getLocale());
             ictx.put(CURRENCYTOOL_KEY, ctool);
 
             // allow the application to prepare the context

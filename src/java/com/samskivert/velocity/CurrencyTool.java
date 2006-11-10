@@ -20,7 +20,7 @@
 
 package com.samskivert.velocity;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Locale;
 
 import com.samskivert.util.CurrencyUtil;
 
@@ -33,9 +33,9 @@ public class CurrencyTool
      * Creates a new CurrencyTool which will used the supplied request to
      * look up the locale with which to do currency formatting in.
      */
-    public CurrencyTool (HttpServletRequest req)
+    public CurrencyTool (Locale locale)
     {
-        _req = req;
+        _locale = locale;
     }
 
     /**
@@ -61,7 +61,7 @@ public class CurrencyTool
      */
     public String currency (double value)
     {
-        return CurrencyUtil.currency(value, _req.getLocale());
+        return CurrencyUtil.currency(value, _locale);
     }
 
     /**
@@ -70,7 +70,7 @@ public class CurrencyTool
      */
     public String currencyPennies (double value)
     {
-        return CurrencyUtil.currencyPennies(value, _req.getLocale());
+        return CurrencyUtil.currencyPennies(value, _locale);
     }
 
     /**
@@ -82,6 +82,6 @@ public class CurrencyTool
         return "" + (pennies / 100.0);
     }
 
-    /** The servlet request we are providing currency functionality for. */
-    protected HttpServletRequest _req;
+    /** The locale in which we are providing currency functionality. */
+    protected Locale _locale;
 }

@@ -24,6 +24,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.servlet.MessageManager;
@@ -117,7 +118,7 @@ public class I18nTool
         if (when == null) {
             return format;
         }
-        SimpleDateFormat fmt = new SimpleDateFormat(format, _req.getLocale());
+        SimpleDateFormat fmt = new SimpleDateFormat(format, getLocale());
         return fmt.format(when);
     }
 
@@ -154,7 +155,13 @@ public class I18nTool
         if (when == null) {
             return "<!" + arg + ">";
         }
-        return DateFormat.getDateInstance(style, _req.getLocale()).format(when);
+        return DateFormat.getDateInstance(style, getLocale()).format(when);
+    }
+
+    /** Returns the locale associated with this request. */
+    protected Locale getLocale ()
+    {
+        return _req.getLocale();
     }
 
     /** Converts an argument to a {@link Date} if possible. */

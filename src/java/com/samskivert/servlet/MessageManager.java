@@ -179,6 +179,12 @@ public class MessageManager
                     break;
                 }
                 String ref = message.substring(oidx+1, cidx);
+                // avoid trivial infinite recursion
+                if (ref.equals(path)) {
+                    throw new IllegalStateException(
+                        "Illegal self-referential message " + path + " = " +
+                        message + ".");
+                }
                 if (ref.length() > 0 && !Character.isDigit(ref.charAt(0))) {
                     String refmsg = getMessage(req, ref, true);
                     message = message.substring(0, oidx) +

@@ -22,8 +22,10 @@ package com.samskivert.velocity;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.Locale;
 
 import junit.framework.TestCase;
@@ -97,7 +99,7 @@ public abstract class VelocityTestCase extends TestCase
 
         // parse the template
         if (!_engine.evaluate(new VelocityContext(), new StringWriter(),
-                              template, tempin)) {
+                              template, new InputStreamReader(tempin))) {
             fail("Template parsing failed '" + template + "'.");
         }
     }
@@ -165,7 +167,7 @@ public abstract class VelocityTestCase extends TestCase
      * Returns an array of template paths which will be resolved on the
      * classpath.
      */
-    protected abstract String[] getTemplates ();
+    protected abstract Collection<String> getTemplates ();
 
     /** Accumulates logging to a buffer for later reporting. */
     protected LogChute _logger = new LogChute() {

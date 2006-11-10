@@ -30,8 +30,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.commons.io.IOUtils;
-
 import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;

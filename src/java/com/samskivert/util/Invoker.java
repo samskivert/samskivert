@@ -101,6 +101,16 @@ public class Invoker extends LoopingThread
     }
 
     /**
+     * Configures the duration after which an invoker unit will be considered
+     * "long". When they complete, long units have a warning message
+     * logged. The default long threshold is 500 milliseconds.
+     */
+    public void setLongThresholds (long longThreshold)
+    {
+        _longThreshold = longThreshold;
+    }
+
+    /**
      * Posts a unit to this invoker for subsequent invocation on the
      * invoker's thread.
      */
@@ -185,10 +195,11 @@ public class Invoker extends LoopingThread
             recordMetrics(key, duration);
 
             // report long runners
-            if (duration > 500L) {
-                Log.warning(((duration >= 5000L) ? "Really long" : "Long") +
-                    " invoker unit [unit=" + unit +
-                    " (" + key + "), time=" + duration + "ms].");
+            if (duration > _longThreshold) {
+                String howLong = (duration >= 10*_longThreshold) ?
+                    "Really long" : "Long";
+                Log.warning(howLong + " invoker unit [unit=" + unit +
+                            " (" + key + "), time=" + duration + "ms].");
             }
         }
     }
@@ -239,6 +250,10 @@ public class Invoker extends LoopingThread
 
     /** The total number of invoker units run since the last report. */
     protected int _unitsRun;
+
+    /** The duration of time after which we consider a unit to be delinquent
+     * and log a warning. */
+    protected long _longThreshold = 500L;
 
     /** Whether or not to track invoker unit performance. */
     protected static final boolean PERF_TRACK = true;

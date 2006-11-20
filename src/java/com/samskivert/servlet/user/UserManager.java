@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -33,6 +33,7 @@ import com.samskivert.servlet.util.CookieUtil;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.Interval;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 
 /**
  * The user manager provides easy access to user objects for servlets. It
@@ -143,17 +144,6 @@ public class UserManager
         _pruner.schedule(SESSION_PRUNE_INTERVAL, true);
     }
 
-    /**
-     * Called by the user manager to create the user repository. Derived
-     * classes can override this and create a specialized repository if
-     * they so desire.
-     */
-    protected UserRepository createRepository (ConnectionProvider conprov)
-        throws PersistenceException
-    {
-        return new UserRepository(conprov);
-    }
-
     public void shutdown ()
     {
 	// cancel our session table pruning thread
@@ -179,12 +169,16 @@ public class UserManager
     public User loadUser (HttpServletRequest req)
 	throws PersistenceException
     {
-	String authcode = CookieUtil.getCookieValue(req, _userAuthCookie);
-	if (authcode != null) {
-	    return _repository.loadUserBySession(authcode);
-	} else {
-	    return null;
-	}
+	return loadUser(CookieUtil.getCookieValue(req, _userAuthCookie));
+    }
+
+    /**
+     * Loads up a user based on the supplied session authentication token.
+     */
+    public User loadUser (String authcode)
+	throws PersistenceException
+    {
+        return (authcode == null) ? null : _repository.loadUserBySession(authcode);
     }
 
     /**
@@ -200,8 +194,8 @@ public class UserManager
 	throws PersistenceException, RedirectException
     {
 	User user = loadUser(req);
-	// if no user was loaded, we need to redirect these fine people to
-	// the login page
+	// if no user was loaded, we need to redirect these fine people to the
+	// login page
 	if (user == null) {
 	    // first construct the redirect URL
             String eurl = RequestUtils.getLocationEncoded(req);
@@ -212,24 +206,23 @@ public class UserManager
     }
 
     /**
-     * Attempts to authenticate the requester and initiate an
-     * authenticated session for them. An authenticated session involves
-     * their receiving a cookie that proves them to be authenticated and
-     * an entry in the session database being created that maps their
-     * information to their userid. If this call completes, the session
-     * was established and the proper cookies were set in the supplied
-     * response object. If invalid authentication information is provided
-     * or some other error occurs, an exception will be thrown.
+     * Attempts to authenticate the requester and initiate an authenticated
+     * session for them. An authenticated session involves their receiving a
+     * cookie that proves them to be authenticated and an entry in the session
+     * database being created that maps their information to their userid. If
+     * this call completes, the session was established and the proper cookies
+     * were set in the supplied response object. If invalid authentication
+     * information is provided or some other error occurs, an exception will be
+     * thrown.
      *
      * @param username The username supplied by the user.
      * @param password The password supplied by the user.
-     * @param persist If true, the cookie will expire in one month, if
-     * false, the cookie will expire at the end of the user's browser
-     * session.
+     * @param persist If true, the cookie will expire in one month, if false,
+     * the cookie will expire at the end of the user's browser session.
      * @param req The request via which the login page was loaded.
      * @param rsp The response in which the cookie is to be set.
-     * @param auth The authenticator used to check whether the user should
-     * be authenticated.
+     * @param auth The authenticator used to check whether the user should be
+     * authenticated.
      *
      * @return the user object of the authenticated user.
      */
@@ -258,6 +251,47 @@ public class UserManager
         effectLogin(user, persist, req, rsp);
 
 	return user;
+    }
+
+    /**
+     * Attempts to authenticate the requester and initiate an authenticated
+     * session for them. A session token will be assigned to the user and
+     * returned along with the associated {@link User} record. It is assumed
+     * that the client will maintain the session token via its own means.
+     *
+     * @param username The username supplied by the user.
+     * @param password The password supplied by the user.
+     * @param persist If true, the cookie will expire in one month, if false,
+     * the cookie will expire at the end of the user's browser session.
+     * @param auth The authenticator used to check whether the user should be
+     * authenticated.
+     *
+     * @return the user object of the authenticated user.
+     */
+    public Tuple<User,String> login (String username, Password password,
+                                     boolean persist, Authenticator auth)
+	throws PersistenceException, AuthenticationFailedException
+    {
+	// load up the requested user
+	User user = _repository.loadUser(username);
+	if (user == null) {
+	    throw new NoSuchUserException("error.no_such_user");
+	}
+
+        // potentially convert the user's legacy password
+        if (password != null && password.getCleartext() != null &&
+            user.updateLegacyPassword(password.getCleartext())) {
+            Log.info("Updated legacy password " + user.username + ".");
+            _repository.updateUser(user);
+        }
+
+        // run the user through the authentication gamut
+        auth.authenticateUser(user, username, password, persist);
+
+	// register a session for this user
+	String authcode = _repository.registerSession(user, persist);
+
+	return new Tuple<User,String>(user, authcode);
     }
 
     /**
@@ -311,6 +345,17 @@ public class UserManager
         c.setPath("/");
         c.setMaxAge(0);
         rsp.addCookie(c);
+    }
+
+    /**
+     * Called by the user manager to create the user repository. Derived
+     * classes can override this and create a specialized repository if
+     * they so desire.
+     */
+    protected UserRepository createRepository (ConnectionProvider conprov)
+        throws PersistenceException
+    {
+        return new UserRepository(conprov);
     }
 
     /** Our user manager configuration. */

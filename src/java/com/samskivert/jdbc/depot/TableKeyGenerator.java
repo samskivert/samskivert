@@ -25,7 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.persistence.TableGenerator;
+import com.samskivert.jdbc.depot.annotation.TableGenerator;
 
 import com.samskivert.jdbc.JDBCUtil;
 

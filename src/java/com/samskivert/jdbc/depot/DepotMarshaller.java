@@ -37,10 +37,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
+import com.samskivert.jdbc.depot.annotation.Computed;
+import com.samskivert.jdbc.depot.annotation.GeneratedValue;
+import com.samskivert.jdbc.depot.annotation.Id;
+import com.samskivert.jdbc.depot.annotation.TableGenerator;
+import com.samskivert.jdbc.depot.annotation.Transient;
 
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.Where;

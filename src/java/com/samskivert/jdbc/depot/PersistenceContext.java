@@ -22,7 +22,7 @@ package com.samskivert.jdbc.depot;
 
 import java.util.HashMap;
 
-import javax.persistence.TableGenerator;
+import com.samskivert.jdbc.depot.annotation.TableGenerator;
 
 import java.sql.Connection;
 import java.sql.SQLException;

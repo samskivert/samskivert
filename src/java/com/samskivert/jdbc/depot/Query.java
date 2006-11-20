@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.ForUpdate;
 import com.samskivert.jdbc.depot.clause.FromOverride;

@@ -31,10 +31,11 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.samskivert.jdbc.depot.annotation.Column;
+import com.samskivert.jdbc.depot.annotation.Computed;
+import com.samskivert.jdbc.depot.annotation.GeneratedValue;
+import com.samskivert.jdbc.depot.annotation.GenerationType;
+import com.samskivert.jdbc.depot.annotation.Id;
 
 import com.samskivert.util.StringUtil;
 

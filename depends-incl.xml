@@ -31,10 +31,6 @@
      classname="javax.xml.parsers.SAXParser" classpathref="classpath"/>
     <echo level="info">JAXP: ${jaxp.present}</echo>
 
-    <available property="javax.persistence.present"
-     classname="javax.persistence.Entity" classpathref="classpath"/>
-    <echo level="info">Java Persistence: ${javax.persistence.present}</echo>
-
     <echo level="info"></echo>
     <echo level="info">----------------------------------------------</echo>
     <echo level="info">Jakarta libraries - http://jakarta.apache.org/</echo>
@@ -87,14 +83,6 @@
       </and>
     </condition>
     <echo>com.samskivert.jdbc: ${build.jdbc}</echo>
-
-    <condition property="build.depot">
-      <and>
-        <isset property="build.jdbc"/>
-        <isset property="javax.persistence.present"/>
-      </and>
-    </condition>
-    <echo>com.samskivert.jdbc.depot: ${build.depot}</echo>
 
     <condition property="build.net">
       <and>

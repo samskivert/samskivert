@@ -430,6 +430,24 @@ public class JDBCUtil
     }
 
     /**
+     * Determines whether or not the specified column accepts null values.
+     *
+     * @return true if the column accepts null values, false if it does not
+     * (or its nullability is unknown)
+     */
+    public static boolean isColumnNullable (Connection conn, String table,
+                                            String column)
+        throws SQLException
+    {
+        ResultSet rs = getColumnMetaData(conn, table, column);
+        try {
+            return rs.getString("IS_NULLABLE").equals("YES");
+        } finally {
+            rs.close();
+        }
+    }
+    
+    /**
      * Returns the size for the specified column in the specified table. For
      * char or date types this is the maximum number of characters, for numeric
      * or decimal types this is the precision.

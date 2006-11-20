@@ -21,6 +21,9 @@
 package com.samskivert.jdbc.depot;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import java.sql.Blob;
 import java.sql.Clob;
@@ -92,6 +95,10 @@ public abstract class FieldMarshaller
             ftype.equals(Blob.class) ||
             ftype.equals(Clob.class)) {
             marshaller = new ObjectMarshaller();
+
+        // special Enum types
+        } else if (ByteEnum.class.isAssignableFrom(ftype)) {
+            marshaller = new ByteEnumMarshaller(ftype);
 
         } else {
             throw new IllegalArgumentException(
@@ -169,7 +176,7 @@ public abstract class FieldMarshaller
         // read our column metadata from the annotation (if it exists); annoyingly we can't create
         // a Column instance to read the defaults so we have to duplicate them here
         int length = 255;
-        boolean nullable = true;
+        boolean nullable = false;
         boolean unique = false;
         Column column = _field.getAnnotation(Column.class);
         if (column != null) {
@@ -389,6 +396,40 @@ public abstract class FieldMarshaller
         public String getColumnType () {
             return "VARBINARY";
         }
+    }
+
+    protected static class ByteEnumMarshaller extends FieldMarshaller {
+        public ByteEnumMarshaller (Class clazz) {
+            try {
+                _factmeth = clazz.getMethod("fromByte", new Class[] { Byte.TYPE });
+            } catch (Exception e) {
+                throw new IllegalArgumentException(
+                    "Could not locate fromByte() method on enum field " + _field.getType() + ".");
+            }
+            if (!Modifier.isPublic(_factmeth.getModifiers()) ||
+                !Modifier.isStatic(_factmeth.getModifiers())) {
+                throw new IllegalArgumentException(
+                    _field.getType() + ".fromByte() must be public and static.");
+            }
+        }
+
+        public void setValue (Object po, PreparedStatement ps, int column)
+            throws SQLException, IllegalAccessException {
+            ps.setInt(column, ((ByteEnum)_field.get(po)).toByte());
+        }
+        public void getValue (ResultSet rs, Object po)
+            throws SQLException, IllegalAccessException {
+            try {
+                _field.set(po, _factmeth.invoke(null, rs.getInt(getColumnName())));
+            } catch (InvocationTargetException ite) {
+                throw new RuntimeException(ite);
+            }
+        }
+        public String getColumnType () {
+            return "TINYINT";
+        }
+
+        protected Method _factmeth;
     }
 
     protected Field _field;

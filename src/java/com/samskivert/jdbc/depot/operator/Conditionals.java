@@ -39,6 +39,11 @@ public abstract class Conditionals
     public static class IsNull
         implements SQLOperator
     {
+        public IsNull (String pColumn)
+        {
+            this(new ColumnExp(null, pColumn));
+        }
+
         public IsNull (Class pClass, String pColumn)
         {
             this(new ColumnExp(pClass, pColumn));
@@ -69,6 +74,11 @@ public abstract class Conditionals
     /** The SQL '=' operator. */
     public static class Equals extends BinaryOperator
     {
+        public Equals (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
         public Equals (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -90,6 +100,11 @@ public abstract class Conditionals
     public static class In
         implements SQLOperator
     {
+        public In (String pColumn, Comparable... values)
+        {
+            this(new ColumnExp(null, pColumn), values);
+        }
+
         public In (Class pClass, String pColumn, Comparable... values)
         {
             this(new ColumnExp(pClass, pColumn), values);

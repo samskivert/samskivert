@@ -420,7 +420,7 @@ public abstract class FieldMarshaller
         public void getValue (ResultSet rs, Object po)
             throws SQLException, IllegalAccessException {
             try {
-                _field.set(po, _factmeth.invoke(null, rs.getInt(getColumnName())));
+                _field.set(po, _factmeth.invoke(null, rs.getByte(getColumnName())));
             } catch (InvocationTargetException ite) {
                 throw new RuntimeException(ite);
             }

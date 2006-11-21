@@ -35,6 +35,37 @@ import com.samskivert.jdbc.depot.expression.ValueExp;
  */
 public abstract class Conditionals
 {
+    /** The SQL 'is null' operator. */
+    public static class IsNull
+        implements SQLOperator
+    {
+        public IsNull (Class pClass, String pColumn)
+        {
+            this(new ColumnExp(pClass, pColumn));
+        }
+
+        public IsNull (ColumnExp column)
+        {
+            _column = column;
+        }
+
+        // from SQLExpression
+        public void appendExpression (Query query, StringBuilder builder)
+        {
+            _column.appendExpression(query, builder);
+            builder.append(" is null");
+        }
+
+        // from SQLExpression
+        public int bindArguments (PreparedStatement pstmt, int argIdx)
+            throws SQLException
+        {
+            return argIdx;
+        }
+
+        protected ColumnExp _column;
+    }
+
     /** The SQL '=' operator. */
     public static class Equals extends BinaryOperator
     {

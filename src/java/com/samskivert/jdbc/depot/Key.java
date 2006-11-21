@@ -22,8 +22,10 @@ package com.samskivert.jdbc.depot;
 
 import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 import com.samskivert.jdbc.depot.operator.Conditionals.Equals;
+import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
 import com.samskivert.jdbc.depot.operator.Logic.And;
 import com.samskivert.jdbc.depot.operator.SQLOperator;
 
@@ -80,7 +82,8 @@ public class Key extends Where
     {
         SQLOperator[] comparisons = new Equals[columns.length];
         for (int ii = 0; ii < columns.length; ii ++) {
-            comparisons[ii] = new Equals(columns[ii], new ValueExp(values[ii]));
+            comparisons[ii] = (values[ii] == null) ?
+                new IsNull(columns[ii]) : new Equals(columns[ii], new ValueExp(values[ii]));
         }
         return new And(comparisons);
     }

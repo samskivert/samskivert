@@ -80,7 +80,7 @@ public class Key extends Where
 
     protected static SQLOperator toCondition (ColumnExp[] columns, Comparable[] values)
     {
-        SQLOperator[] comparisons = new Equals[columns.length];
+        SQLOperator[] comparisons = new SQLOperator[columns.length];
         for (int ii = 0; ii < columns.length; ii ++) {
             comparisons[ii] = (values[ii] == null) ?
                 new IsNull(columns[ii]) : new Equals(columns[ii], new ValueExp(values[ii]));

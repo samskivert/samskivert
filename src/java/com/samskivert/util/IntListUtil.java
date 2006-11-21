@@ -484,6 +484,36 @@ public class IntListUtil
     }
 
     /**
+     * Covnerts an array of primitives to an array of objects.
+     */
+    public static Integer[] box (int[] list)
+    {
+        if (list == null) {
+            return null;
+        }
+        Integer[] boxed = new Integer[list.length];
+        for (int ii = 0; ii < list.length; ii++) {
+            boxed[ii] = list[ii];
+        }
+        return boxed;
+    }
+
+    /**
+     * Converts an array of Integer objects to an array of primitives.
+     */
+    public static int[] unbox (Integer[] list)
+    {
+        if (list == null) {
+            return null;
+        }
+        int[] unboxed = new int[list.length];
+        for (int ii = 0; ii < list.length; ii++) {
+            unboxed[ii] = list[ii];
+        }
+        return unboxed;
+    }
+
+    /**
      * The size of a list to create if we have to create one entirely
      * from scratch rather than just expand it.
      */

@@ -165,6 +165,9 @@ public abstract class Query<T>
 
         PreparedStatement pstmt = conn.prepareStatement(query.toString());
         int argIdx = 1;
+        for (Join clause : _joinClauses) {
+            argIdx = clause.bindArguments(pstmt, argIdx);
+        }
         if (_where != null) {
             argIdx = _where.bindArguments(pstmt, argIdx);
         }

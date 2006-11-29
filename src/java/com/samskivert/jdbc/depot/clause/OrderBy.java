@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
@@ -33,29 +34,45 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 public class OrderBy
     implements QueryClause
 {
+    /** Indicates the order of the clause. */
+    public enum Order { ASC, DESC };
+
     /**
-     * Creates and returns an ascending order by clause on the supplied expressions.
+     * Creates and returns an ascending order by clause on the supplied column.
      */
-    public static OrderBy ascending (SQLExpression... values)
+    public static OrderBy ascending (String column)
     {
-        OrderBy clause = new OrderBy(values);
-        clause._ascending = true;
-        return clause;
+        return ascending(new ColumnExp(null, column));
     }
 
     /**
-     * Creates and returns a descending order by clause on the supplied expressions.
+     * Creates and returns a descending order by clause on the supplied column.
      */
-    public static OrderBy descending (SQLExpression... values)
+    public static OrderBy descending (String column)
     {
-        OrderBy clause = new OrderBy(values);
-        clause._ascending = false;
-        return clause;
+        return descending(new ColumnExp(null, column));
     }
 
-    public OrderBy (SQLExpression... values)
+    /**
+     * Creates and returns an ascending order by clause on the supplied expression.
+     */
+    public static OrderBy ascending (SQLExpression value)
+    {
+        return new OrderBy(new SQLExpression[] { value } , new Order[] { Order.ASC });
+    }
+
+    /**
+     * Creates and returns a descending order by clause on the supplied expression.
+     */
+    public static OrderBy descending (SQLExpression value)
+    {
+        return new OrderBy(new SQLExpression[] { value }, new Order[] { Order.DESC });
+    }
+
+    public OrderBy (SQLExpression[] values, Order[] orders)
     {
         _values = values;
+        _orders = orders;
     }
 
     // from QueryClause
@@ -73,8 +90,8 @@ public class OrderBy
                 builder.append(", ");
             }
             _values[ii].appendExpression(query, builder);
+            builder.append(" ").append(_orders[ii]);
         }
-        builder.append(_ascending ? " ASC" : " DESC");
     }
 
     // from QueryClause
@@ -90,6 +107,6 @@ public class OrderBy
     /** The expressions that are generated for the clause. */
     protected SQLExpression[] _values;
 
-    /** Whether the ordering is to be ascending rather than descending. */
-    protected boolean _ascending;
+    /** Whether the ordering is to be ascending or descending. */
+    protected Order[] _orders;
 }

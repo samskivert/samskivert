@@ -33,6 +33,26 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 public class OrderBy
     implements QueryClause
 {
+    /**
+     * Creates and returns an ascending order by clause on the supplied expressions.
+     */
+    public static OrderBy ascending (SQLExpression... values)
+    {
+        OrderBy clause = new OrderBy(values);
+        clause._ascending = true;
+        return clause;
+    }
+
+    /**
+     * Creates and returns a descending order by clause on the supplied expressions.
+     */
+    public static OrderBy descending (SQLExpression... values)
+    {
+        OrderBy clause = new OrderBy(values);
+        clause._ascending = false;
+        return clause;
+    }
+
     public OrderBy (SQLExpression... values)
     {
         _values = values;

@@ -66,7 +66,6 @@ public abstract class Logic
         }
     }
 
-
     /**
      * Represents the truth negation of another conditon.
      */

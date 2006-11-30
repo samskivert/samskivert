@@ -96,6 +96,56 @@ public abstract class Conditionals
         }
     }
 
+    /** The SQL '<' operator. */
+    public static class LessThan extends BinaryOperator
+    {
+        public LessThan (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
+        public LessThan (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public LessThan (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        protected String operator()
+        {
+            return "<";
+        }
+    }
+
+    /** The SQL '>' operator. */
+    public static class GreaterThan extends BinaryOperator
+    {
+        public GreaterThan (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
+        public GreaterThan (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public GreaterThan (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        protected String operator()
+        {
+            return ">";
+        }
+    }
+
     /** The SQL 'in (...)' operator. */
     public static class In
         implements SQLOperator

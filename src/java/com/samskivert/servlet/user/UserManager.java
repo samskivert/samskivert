@@ -36,9 +36,8 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 /**
- * The user manager provides easy access to user objects for servlets. It
- * takes care of cookie management involved in login, logout and loading a
- * user record during an authenticated session.
+ * The user manager provides easy access to user objects for servlets. It takes care of cookie
+ * management involved in login, logout and loading a user record during an authenticated session.
  */
 public class UserManager
 {
@@ -51,16 +50,14 @@ public class UserManager
         new PasswordAuthenticator();
 
     /**
-     * A totally insecure authenticator that authenticates any user.
-     * <em>Note:</em> Applications that make use of this authenticator
-     * should make sure the user has already been authenticated through
-     * some other means.
+     * A totally insecure authenticator that authenticates any user.  <em>Note:</em> Applications
+     * that make use of this authenticator should make sure the user has already been authenticated
+     * through some other means.
      */
     public static class InsecureAuthenticator implements Authenticator
     {
         // documentation inherited
-        public void authenticateUser (
-            User user, String username, Password password, boolean persist)
+        public void authenticateUser (User user, String username, Password password)
             throws InvalidPasswordException
         {
             // don't care
@@ -68,14 +65,13 @@ public class UserManager
     }
 
     /**
-     * An authenticator that requires that the user-supplied password
-     * match the actual user password.
+     * An authenticator that requires that the user-supplied password match the actual user
+     * password.
      */
     public static class PasswordAuthenticator implements Authenticator
     {
         // documentation inherited
-        public void authenticateUser (
-            User user, String username, Password password, boolean persist)
+        public void authenticateUser (User user, String username, Password password)
             throws AuthenticationFailedException
         {
             if (!user.passwordsMatch(password)) {
@@ -85,27 +81,25 @@ public class UserManager
     }
 
     /**
-     * Prepares this user manager it for operation. Presently the user manager
-     * requires the following configuration information:
+     * Prepares this user manager it for operation. Presently the user manager requires the
+     * following configuration information:
      *
      * <ul>
-     * <li><code>login_url</code>: Should be set to the URL to which to
-     * redirect a requester if they are required to login before accessing
-     * the requested page. For example:
+     * <li><code>login_url</code>: Should be set to the URL to which to redirect a requester if
+     * they are required to login before accessing the requested page. For example:
      *
      * <pre>
      * login_url = /usermgmt/login.ajsp?return=%R
      * </pre>
      *
-     * The <code>%R</code> will be replaced with the URL encoded URL the
-     * user is currently requesting (complete with query parameters) so
-     * that the login code can redirect the user back to this request once
-     * they are authenticated.
+     * The <code>%R</code> will be replaced with the URL encoded URL the user is currently
+     * requesting (complete with query parameters) so that the login code can redirect the user
+     * back to this request once they are authenticated.
      * </ul>
      *
      * @param config the user manager configuration properties.
-     * @param conprov the database connection provider that will be used
-     * to obtain a connection to the user database.
+     * @param conprov the database connection provider that will be used to obtain a connection to
+     * the user database.
      */
     public void init (Properties config, ConnectionProvider conprov)
 	throws PersistenceException
@@ -119,8 +113,7 @@ public class UserManager
 	// fetch the login URL from the properties
 	_loginURL = config.getProperty("login_url");
 	if (_loginURL == null) {
-	    Log.warning("No login_url supplied in user manager config. " +
-			"Authentication won't work.");
+	    Log.warning("No login_url supplied in user manager config. Authentication won't work.");
 	}
 
         // look up any override to our user auth cookie
@@ -159,12 +152,11 @@ public class UserManager
     }
 
     /**
-     * Fetches the necessary authentication information from the http
-     * request and loads the user identified by that information.
+     * Fetches the necessary authentication information from the http request and loads the user
+     * identified by that information.
      *
-     * @return the user associated with the request or null if no user was
-     * associated with the request or if the authentication information is
-     * bogus.
+     * @return the user associated with the request or null if no user was associated with the
+     * request or if the authentication information is bogus.
      */
     public User loadUser (HttpServletRequest req)
 	throws PersistenceException
@@ -182,11 +174,10 @@ public class UserManager
     }
 
     /**
-     * Fetches the necessary authentication information from the http
-     * request and loads the user identified by that information. If no
-     * user could be loaded (because the requester is not authenticated),
-     * a redirect exception will be thrown to redirect the user to the
-     * login page specified in the user manager configuration.
+     * Fetches the necessary authentication information from the http request and loads the user
+     * identified by that information. If no user could be loaded (because the requester is not
+     * authenticated), a redirect exception will be thrown to redirect the user to the login page
+     * specified in the user manager configuration.
      *
      * @return the user associated with the request.
      */
@@ -206,29 +197,25 @@ public class UserManager
     }
 
     /**
-     * Attempts to authenticate the requester and initiate an authenticated
-     * session for them. An authenticated session involves their receiving a
-     * cookie that proves them to be authenticated and an entry in the session
-     * database being created that maps their information to their userid. If
-     * this call completes, the session was established and the proper cookies
-     * were set in the supplied response object. If invalid authentication
-     * information is provided or some other error occurs, an exception will be
-     * thrown.
+     * Attempts to authenticate the requester and initiate an authenticated session for them. An
+     * authenticated session involves their receiving a cookie that proves them to be authenticated
+     * and an entry in the session database being created that maps their information to their
+     * userid. If this call completes, the session was established and the proper cookies were set
+     * in the supplied response object. If invalid authentication information is provided or some
+     * other error occurs, an exception will be thrown.
      *
      * @param username The username supplied by the user.
      * @param password The password supplied by the user.
-     * @param persist If true, the cookie will expire in one month, if false,
-     * the cookie will expire at the end of the user's browser session.
+     * @param persist If true, the cookie will expire in one month, if false, the cookie will
+     * expire at the end of the user's browser session.
      * @param req The request via which the login page was loaded.
      * @param rsp The response in which the cookie is to be set.
-     * @param auth The authenticator used to check whether the user should be
-     * authenticated.
+     * @param auth The authenticator used to check whether the user should be authenticated.
      *
      * @return the user object of the authenticated user.
      */
     public User login (String username, Password password, boolean persist,
-                       HttpServletRequest req, HttpServletResponse rsp,
-                       Authenticator auth)
+                       HttpServletRequest req, HttpServletResponse rsp, Authenticator auth)
 	throws PersistenceException, AuthenticationFailedException
     {
 	// load up the requested user
@@ -245,31 +232,29 @@ public class UserManager
         }
 
         // run the user through the authentication gamut
-        auth.authenticateUser(user, username, password, persist);
+        auth.authenticateUser(user, username, password);
 
         // give them the necessary cookies and business
-        effectLogin(user, persist, req, rsp);
+        effectLogin(user, persist ? PERSIST_EXPIRE_DAYS : NON_PERSIST_EXPIRE_DAYS, req, rsp);
 
 	return user;
     }
 
     /**
-     * Attempts to authenticate the requester and initiate an authenticated
-     * session for them. A session token will be assigned to the user and
-     * returned along with the associated {@link User} record. It is assumed
-     * that the client will maintain the session token via its own means.
+     * Attempts to authenticate the requester and initiate an authenticated session for them. A
+     * session token will be assigned to the user and returned along with the associated {@link
+     * User} record. It is assumed that the client will maintain the session token via its own
+     * means.
      *
-     * @param username The username supplied by the user.
-     * @param password The password supplied by the user.
-     * @param persist If true, the cookie will expire in one month, if false,
-     * the cookie will expire at the end of the user's browser session.
-     * @param auth The authenticator used to check whether the user should be
-     * authenticated.
+     * @param username the username supplied by the user.
+     * @param password the password supplied by the user.
+     * @param expires the number of days in which this session should expire.
+     * @param auth the authenticator used to check whether the user should be authenticated.
      *
      * @return the user object of the authenticated user.
      */
-    public Tuple<User,String> login (String username, Password password,
-                                     boolean persist, Authenticator auth)
+    public Tuple<User,String> login (
+        String username, Password password, int expires, Authenticator auth)
 	throws PersistenceException, AuthenticationFailedException
     {
 	// load up the requested user
@@ -286,37 +271,33 @@ public class UserManager
         }
 
         // run the user through the authentication gamut
-        auth.authenticateUser(user, username, password, persist);
+        auth.authenticateUser(user, username, password);
 
 	// register a session for this user
-	String authcode = _repository.registerSession(user, persist);
+	String authcode = _repository.registerSession(user, expires);
 
 	return new Tuple<User,String>(user, authcode);
     }
 
     /**
-     * If a user is already known to be authenticated for one reason or
-     * other, this method can be used to give them the appropriate
-     * authentication cookies to effect their login.
+     * If a user is already known to be authenticated for one reason or other, this method can be
+     * used to give them the appropriate authentication cookies to effect their login.
+     *
+     * @param expires the number of days in which to expire the session cookie, 0 means expire at
+     * the end of the browser session.
      */
-    public void effectLogin (User user, boolean persist,
-                             HttpServletRequest req, HttpServletResponse rsp)
+    public void effectLogin (
+        User user, int expires, HttpServletRequest req, HttpServletResponse rsp)
         throws PersistenceException
     {
-	// register a session for this user
-	String authcode = _repository.registerSession(user, persist);
-	// stick it into a cookie for their browsing convenience
+	String authcode = _repository.registerSession(user, Math.max(expires, 1));
 	Cookie acookie = new Cookie(_userAuthCookie, authcode);
-        // strip the hostname from the server and use that as the domain
-        // unless configured not to
-        if (!"false".equalsIgnoreCase(
-                _config.getProperty("auth_cookie.strip_hostname"))) {
+        // strip the hostname from the server and use that as the domain unless configured not to
+        if (!"false".equalsIgnoreCase(_config.getProperty("auth_cookie.strip_hostname"))) {
             CookieUtil.widenDomain(req, acookie);
         }
 	acookie.setPath("/");
-        // expire in one month if persistent, else at the end of the
-        // session
-        acookie.setMaxAge((persist) ? (30*24*60*60) : -1);
+        acookie.setMaxAge((expires > 0) ? (expires*24*60*60) : -1);
 	rsp.addCookie(acookie);
     }
 
@@ -378,4 +359,10 @@ public class UserManager
 
     /** Prune the session table every hour. */
     protected static final long SESSION_PRUNE_INTERVAL = 60L * 60L * 1000L;
+
+    /** Indicates how long (in days) that a "persisting" session token should last. */
+    protected static final int PERSIST_EXPIRE_DAYS = 30;
+
+    /** Indicates how long (in days) that a "non-persisting" session token should last. */
+    protected static final int NON_PERSIST_EXPIRE_DAYS = 1;
 }

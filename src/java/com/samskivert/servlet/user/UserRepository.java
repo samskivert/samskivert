@@ -47,24 +47,21 @@ import com.samskivert.util.Tuple;
 import com.samskivert.servlet.SiteIdentifier;
 
 /**
- * Interfaces with the RDBMS in which the user information is stored. The
- * user repository encapsulates the creating, loading and management of
- * users and sessions.
+ * Interfaces with the RDBMS in which the user information is stored. The user repository
+ * encapsulates the creating, loading and management of users and sessions.
  */
 public class UserRepository extends JORARepository
 {
     /**
-     * The database identifier used to obtain a connection from our
-     * connection provider. The value is <code>userdb</code> which you'll
-     * probably need to know to provide the proper configuration to your
-     * connection provider.
+     * The database identifier used to obtain a connection from our connection provider. The value
+     * is <code>userdb</code> which you'll probably need to know to provide the proper
+     * configuration to your connection provider.
      */
     public static final String USER_REPOSITORY_IDENT = "userdb";
 
     /**
-     * Creates the repository and opens the user database. The database
-     * identifier used to fetch our database connection is documented by
-     * {@link #USER_REPOSITORY_IDENT}.
+     * Creates the repository and opens the user database. The database identifier used to fetch
+     * our database connection is documented by {@link #USER_REPOSITORY_IDENT}.
      *
      * @param provider the database connection provider.
      */
@@ -81,16 +78,15 @@ public class UserRepository extends JORARepository
      * @param password the password for the new user.
      * @param realname the user's real name.
      * @param email the user's email address.
-     * @param siteId the unique identifier of the site through which this
-     * account is being created. The resulting user will be tracked as
-     * originating from this site for accounting purposes ({@link
-     * SiteIdentifier#DEFAULT_SITE_ID} can be used by systems that don't
-     * desire to perform site tracking.
+     * @param siteId the unique identifier of the site through which this account is being
+     * created. The resulting user will be tracked as originating from this site for accounting
+     * purposes ({@link SiteIdentifier#DEFAULT_SITE_ID} can be used by systems that don't desire to
+     * perform site tracking.
      *
      * @return The userid of the newly created user.
      */
-    public int createUser (Username username, Password password,
-                           String realname, String email, int siteId)
+    public int createUser (
+        Username username, Password password, String realname, String email, int siteId)
 	throws UserExistsException, PersistenceException
     {
 	// create a new user object...
@@ -106,8 +102,7 @@ public class UserRepository extends JORARepository
     /**
      * Looks up a user by username.
      *
-     * @return the user with the specified user id or null if no user with
-     * that id exists.
+     * @return the user with the specified user id or null if no user with that id exists.
      */
     public User loadUser (String username)
 	throws PersistenceException
@@ -118,8 +113,7 @@ public class UserRepository extends JORARepository
     /**
      * Looks up a user by userid.
      *
-     * @return the user with the specified user id or null if no user with
-     * that id exists.
+     * @return the user with the specified user id or null if no user with that id exists.
      */
     public User loadUser (int userId)
 	throws PersistenceException
@@ -130,15 +124,14 @@ public class UserRepository extends JORARepository
     /**
      * Looks up a user by a session identifier.
      *
-     * @return the user associated with the specified session or null of
-     * no session exists with the supplied identifier.
+     * @return the user associated with the specified session or null of no session exists with the
+     * supplied identifier.
      */
     public User loadUserBySession (String sessionKey)
 	throws PersistenceException
     {
-        User user = load(_utable, "sessions",
-                         "where authcode = '" + sessionKey + "' AND " +
-                         "sessions.userId = users.userId");
+        User user = load(_utable, "sessions", "where authcode = '" + sessionKey + "' " +
+                         "AND sessions.userId = users.userId");
         if (user != null) {
             user.setDirtyMask(_utable.getFieldMask());
         }
@@ -165,12 +158,10 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Lookup a user by email address, something that is not efficient and
-     * should really only be done by site admins attempting to look up a
-     * user record.
+     * Lookup a user by email address, something that is not efficient and should really only be
+     * done by site admins attempting to look up a user record.
      *
-     * @return the user with the specified user id or null if no user with
-     * that id exists.
+     * @return the user with the specified user id or null if no user with that id exists.
      */
     public ArrayList<User> lookupUsersByEmail (String email)
 	throws PersistenceException
@@ -179,12 +170,11 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Looks up a list of users that match an arbitrary query. Care should be
-     * taken in constructing these queries as the user table is likely to be
-     * large and a query that does not make use of indices could be very slow.
+     * Looks up a list of users that match an arbitrary query. Care should be taken in constructing
+     * these queries as the user table is likely to be large and a query that does not make use of
+     * indices could be very slow.
      *
-     * @return the users matching the specified query or an empty list if there
-     * are no matches.
+     * @return the users matching the specified query or an empty list if there are no matches.
      */
     public ArrayList<User> lookupUsersWhere (final String where)
 	throws PersistenceException
@@ -198,13 +188,12 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Updates a user that was previously fetched from the repository.
-     * Only fields that have been modified since it was loaded will be
-     * written to the database and those fields will subsequently be
-     * marked clean once again.
+     * Updates a user that was previously fetched from the repository.  Only fields that have been
+     * modified since it was loaded will be written to the database and those fields will
+     * subsequently be marked clean once again.
      *
-     * @return true if the record was updated, false if the update was
-     * skipped because no fields in the user record were modified.
+     * @return true if the record was updated, false if the update was skipped because no fields in
+     * the user record were modified.
      */
     public boolean updateUser (final User user)
 	throws PersistenceException
@@ -218,19 +207,16 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * 'Delete' the users account such that they can no longer access it,
-     * however we do not delete the record from the db.  The name is
-     * changed such that the original name has XX=FOO if the name were FOO
-     * originally.  If we have to lop off any of the name to get our
-     * prefix to fit we use a minus sign instead of a equals side.  The
-     * password field is set to be the empty string so that no one can log
-     * in (since nothing hashes to the empty string.  We also make sure
-     * their email address no longer works, so in case we don't ignore
-     * 'deleted' users when we do the sql to get emailaddresses for the mass
-     * mailings we still won't spam delete folk.  We leave the emailaddress
-     * intact exect for the @ sign which gets turned to a #, so that we can
-     * see what their email was incase it was an accidently deletion and we
-     * have to verify through email.
+     * 'Delete' the users account such that they can no longer access it, however we do not delete
+     * the record from the db.  The name is changed such that the original name has XX=FOO if the
+     * name were FOO originally.  If we have to lop off any of the name to get our prefix to fit we
+     * use a minus sign instead of a equals side.  The password field is set to be the empty string
+     * so that no one can log in (since nothing hashes to the empty string.  We also make sure
+     * their email address no longer works, so in case we don't ignore 'deleted' users when we do
+     * the sql to get emailaddresses for the mass mailings we still won't spam delete folk.  We
+     * leave the emailaddress intact exect for the @ sign which gets turned to a #, so that we can
+     * see what their email was incase it was an accidently deletion and we have to verify through
+     * email.
      */
     public void deleteUser (final User user)
 	throws PersistenceException
@@ -259,8 +245,7 @@ public class UserRepository extends JORARepository
                 String oldName = user.username;
                 for (int ii = 0; ii < 100; ii++) {
                     try {
-                        user.username = StringUtil.truncate(
-                            ii + "=" + oldName, 24);
+                        user.username = StringUtil.truncate(ii + "=" + oldName, 24);
                         _utable.update(conn, user, mask);
                         return null; // nothing to return
                     } catch (SQLException se) {
@@ -277,38 +262,27 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Creates a new session for the specified user and returns the randomly
-     * generated session identifier for that session. If a session entry
-     * already exists for the specified user it will be reused.
+     * Creates a new session for the specified user and returns the randomly generated session
+     * identifier for that session. If a session entry already exists for the specified user it
+     * will be reused.
      *
-     * <p> Temporary sessions are set to expire in two days (the assumption is
-     * that the browser will be given a non-persistent cookie and we should
-     * prune the session table entry after some reasonable amount of time),
-     * persistent sessions expire after one month.
+     * @param expireDays the number of days in which the session token should expire.
      */
-    public String registerSession (final User user, boolean persist)
+    public String registerSession (User user, int expireDays)
 	throws PersistenceException
     {
-	// figure out when to expire the session
-	Calendar cal = Calendar.getInstance();
-	cal.add(Calendar.DATE, persist ? 30 : 2);
-	final Date expires = new Date(cal.getTime().getTime());
-
         // look for an existing session for this user
-        Tuple<Integer,String> session = execute(
-            new Operation<Tuple<Integer,String>>() {
-            public Tuple<Integer,String> invoke (
-                Connection conn, DatabaseLiaison liaison)
+        final String query = "select sessionId, authcode from sessions " +
+            "where userId = " + user.userId;
+        Tuple<Integer,String> session = execute(new Operation<Tuple<Integer,String>>() {
+            public Tuple<Integer,String> invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
                 Statement stmt = conn.createStatement();
                 try {
-                    String query = "select sessionId, authcode from sessions " +
-                        "where userId = " + user.userId;
                     ResultSet rs = stmt.executeQuery(query);
                     while (rs.next()) {
-                        return new Tuple<Integer,String>(
-                            rs.getInt(1), rs.getString(2));
+                        return new Tuple<Integer,String>(rs.getInt(1), rs.getString(2));
                     }
                     return null;
                 } finally {
@@ -316,6 +290,11 @@ public class UserRepository extends JORARepository
                 }
             }
         });
+
+	// figure out when to expire the session
+	Calendar cal = Calendar.getInstance();
+	cal.add(Calendar.DATE, expireDays);
+        Date expires = new Date(cal.getTime().getTime());
 
         // if we found one, update its expires time and reuse it
         if (session != null) {
@@ -326,9 +305,27 @@ public class UserRepository extends JORARepository
 
         // otherwise create a new one and insert it into the table
         String authcode = UserUtil.genAuthCode(user);
-        update("insert into sessions (authcode, userId, expires) values('" +
-               authcode + "', " + user.userId + ", '" + expires + "')");
+        update("insert into sessions (authcode, userId, expires) values('" + authcode + "', " +
+               user.userId + ", '" + expires + "')");
 	return authcode;
+    }
+
+    /**
+     * Validates that the supplied session key is still valid and if so, refreshes it for the
+     * specified number of days.
+     *
+     * @return true if the session was located and refreshed, false if it no longer exists.
+     */
+    public boolean refreshSession (String sessionKey, int expireDays)
+        throws PersistenceException
+    {
+	Calendar cal = Calendar.getInstance();
+	cal.add(Calendar.DATE, expireDays);
+        Date expires = new Date(cal.getTime().getTime());
+
+        // attempt to update an existing session row, returning true if we found and updated it
+        return (update("update sessions set expires = '" + expires + "' " +
+                       "where sessionId = " + sessionKey) == 1);
     }
 
     /**
@@ -341,9 +338,8 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Loads the usernames of the users identified by the supplied user
-     * ids and returns them in an array. If any users do not exist, their
-     * slot in the array will contain a null.
+     * Loads the usernames of the users identified by the supplied user ids and returns them in an
+     * array. If any users do not exist, their slot in the array will contain a null.
      */
     public String[] loadUserNames (int[] userIds)
 	throws PersistenceException
@@ -352,9 +348,8 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Loads the real names of the users identified by the supplied user
-     * ids and returns them in an array. If any users do not exist, their
-     * slot in the array will contain a null.
+     * Loads the real names of the users identified by the supplied user ids and returns them in an
+     * array. If any users do not exist, their slot in the array will contain a null.
      */
     public String[] loadRealNames (int[] userIds)
 	throws PersistenceException
@@ -397,12 +392,11 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Configures the supplied user record with the provided information
-     * in preparation for inserting the record into the database for the
-     * first time.
+     * Configures the supplied user record with the provided information in preparation for
+     * inserting the record into the database for the first time.
      */
-    protected void populateUser (User user, Username name, Password pass,
-                                 String realname, String email, int siteId)
+    protected void populateUser (
+        User user, Username name, Password pass, String realname, String email, int siteId)
     {
 	user.username = name.getUsername();
 	user.setPassword(pass);
@@ -413,8 +407,8 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Inserts the supplied user record into the user database, assigning
-     * it a userid in the process, which is returned.
+     * Inserts the supplied user record into the user database, assigning it a userid in the
+     * process, which is returned.
      */
     protected int insertUser (final User user)
 	throws UserExistsException, PersistenceException
@@ -444,8 +438,8 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Loads up a user record that matches the specified where clause.  Returns
-     * null if no record matches.
+     * Loads up a user record that matches the specified where clause.  Returns null if no record
+     * matches.
      */
     protected User loadUserWhere (String where)
 	throws PersistenceException
@@ -474,8 +468,7 @@ public class UserRepository extends JORARepository
             {
                 Statement stmt = conn.createStatement();
                 try {
-                    String query = "select userId, " + column +
-                        " from users " +
+                    String query = "select userId, " + column + " from users " +
                         "where userId in (" + ids + ")";
                     ResultSet rs = stmt.executeQuery(query);
                     while (rs.next()) {
@@ -502,9 +495,8 @@ public class UserRepository extends JORARepository
     }
 
     /**
-     * Take the passed in int array and create the a string suitable for using
-     * in a SQL set query (I.e., "select foo, from bar where userid in
-     * (genIdString(userIds))"; )
+     * Take the passed in int array and create the a string suitable for using in a SQL set query
+     * (I.e., "select foo, from bar where userid in (genIdString(userIds))"; )
      */
     protected String genIdString (int[] userIds)
     {

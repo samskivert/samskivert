@@ -37,13 +37,10 @@ public interface Authenticator
      * repository against which the user-supplied data is to be checked.
      * @param username the username supplied by the user.
      * @param password the plaintext password supplied by the user.
-     * @param persist if true, the cookie will expire in one month, if
-     * false, the cookie will expire in 24 hours.
      *
      * @throws AuthenticationFailedException if the user failed to pass
      * the authentication check.
      */
-    public void authenticateUser (
-        User user, String username, Password password, boolean persist)
+    public void authenticateUser (User user, String username, Password password)
         throws AuthenticationFailedException;
 }

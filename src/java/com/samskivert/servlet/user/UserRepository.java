@@ -325,7 +325,7 @@ public class UserRepository extends JORARepository
 
         // attempt to update an existing session row, returning true if we found and updated it
         return (update("update sessions set expires = '" + expires + "' " +
-                       "where sessionId = " + sessionKey) == 1);
+                       "where sessionId = " + JDBCUtil.escape(sessionKey)) == 1);
     }
 
     /**

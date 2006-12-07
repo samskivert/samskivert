@@ -271,7 +271,7 @@ public class JDBCUtil
         throws SQLException
     {
         if (tableExists(conn, table)) {
-            return true;
+            return false;
         }
 
         Statement stmt = conn.createStatement();

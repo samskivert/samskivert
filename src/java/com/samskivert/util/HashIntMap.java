@@ -481,7 +481,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
      * Returns an iteration over the elements (values) of this hash int
      * map.
      */
-    public Iterator elements ()
+    public Iterator<V> elements ()
     {
         return values().iterator();
     }

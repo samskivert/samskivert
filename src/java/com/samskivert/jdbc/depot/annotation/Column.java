@@ -62,4 +62,11 @@ public @interface Column
      * The column length. (Applies to String and byte[] columns.)
      */
     int length () default 255;
+
+    /**
+     * The SQL literal value to be used when defining this column's default value. The value must
+     * be quoted and escaped if it is not a SQL primitive datatype. For example:
+     * <code>'2006-01-01'</code> or <code>25</code> or <code>NULL</code>.
+     */
+    String defaultValue () default "";
 }

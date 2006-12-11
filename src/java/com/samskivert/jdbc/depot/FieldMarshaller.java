@@ -178,11 +178,13 @@ public abstract class FieldMarshaller
         int length = 255;
         boolean nullable = false;
         boolean unique = false;
+        String defval = "";
         Column column = _field.getAnnotation(Column.class);
         if (column != null) {
             nullable = column.nullable();
             unique = column.unique();
             length = column.length();
+            defval = column.defaultValue();
             if (!StringUtil.isBlank(column.name())) {
                 _columnName = column.name();
             }
@@ -218,6 +220,11 @@ public abstract class FieldMarshaller
             }
             if (unique) {
                 builder.append(" UNIQUE");
+            }
+
+            // append the default value if one was specified
+            if (defval.length() > 0) {
+                builder.append(" DEFAULT ").append(defval);
             }
         }
 

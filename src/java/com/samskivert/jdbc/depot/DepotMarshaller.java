@@ -361,6 +361,21 @@ public class DepotMarshaller<T>
             } finally {
                 stmt.close();
             }
+
+            // if the column is a TIMESTAMP column, we need to run a special query to update all
+            // existing rows to the current time because MySQL annoyingly assigns them a default
+            // value of "0000-00-00 00:00:00" regardless of whether we explicitly provide a
+            // "DEFAULT" value for the column or not
+            if (coldef.toLowerCase().indexOf(" timestamp") != -1) {
+                query = "update " + getTableName() + " set " + fmarsh.getColumnName() + " = NOW()";
+                log.info("Assigning current time to TIMESTAMP column: " + query);
+                stmt = conn.createStatement();
+                try {
+                    stmt.executeUpdate(query);
+                } finally {
+                    stmt.close();
+                }
+            }
         }
 
         // TODO: run any registered hand migrations

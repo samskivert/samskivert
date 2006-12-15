@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import com.samskivert.jdbc.depot.Query;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
-import com.samskivert.jdbc.depot.expression.ValueExp;
+import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 
 /**
  * A convenient container for implementations of conditional operators.  Classes that value brevity
@@ -195,47 +195,5 @@ public abstract class Conditionals
 
         protected ColumnExp _column;
         protected Comparable[] _values;
-    }
-
-    /**
-     * Does the real work for simple binary operators such as Equals.
-     */
-    protected abstract static class BinaryOperator implements SQLOperator
-    {
-        public BinaryOperator (SQLExpression lhs, SQLExpression rhs)
-        {
-            _lhs = lhs;
-            _rhs = rhs;
-        }
-
-        public BinaryOperator (SQLExpression lhs, Comparable rhs)
-        {
-            this(lhs, new ValueExp(rhs));
-        }
-
-        // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
-        {
-            _lhs.appendExpression(query, builder);
-            builder.append(operator());
-            _rhs.appendExpression(query, builder);
-        }
-
-        // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
-        {
-            argIdx = _lhs.bindArguments(pstmt, argIdx);
-            argIdx = _rhs.bindArguments(pstmt, argIdx);
-            return argIdx;
-        }
-
-        /**
-         * Returns the string representation of the operator.
-         */
-        protected abstract String operator();
-
-        protected SQLExpression _lhs;
-        protected SQLExpression _rhs;
     }
 }

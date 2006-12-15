@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
 
 /**
  * A convenient container for implementations of logical operators.  Classes that value brevity
@@ -94,48 +95,5 @@ public abstract class Logic
         }
 
         protected SQLOperator _condition;
-    }
-
-    /**
-     * Represents an operator with any number of operands.
-     */
-    protected abstract static class MultiOperator
-        implements SQLOperator
-    {
-        public MultiOperator (SQLOperator... conditions)
-        {
-            super();
-            _conditions = conditions;
-        }
-
-        // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
-        {
-            for (int ii = 0; ii < _conditions.length; ii++) {
-                if (ii > 0) {
-                    builder.append(" ").append(operator()).append(" ");
-                }
-                builder.append("(");
-                _conditions[ii].appendExpression(query, builder);
-                builder.append(")");
-            }
-        }
-
-        // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
-        {
-            for (int ii = 0; ii < _conditions.length; ii++) {
-                argIdx = _conditions[ii].bindArguments(pstmt, argIdx);
-            }
-            return argIdx;
-        }
-
-        /**
-         * Returns the text infix to be used to join expressions together.
-         */
-        protected abstract String operator ();
-
-        protected SQLOperator[] _conditions;
     }
 }

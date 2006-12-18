@@ -217,7 +217,7 @@ public class JDBCUtil
 
     /**
      * Many databases simply fail to handle Unicode text properly and this routine provides a
-     * common workaround which is to represent a UTF-8 string as an ISO-8895-1 string. If you don't
+     * common workaround which is to represent a UTF-8 string as an ISO-8859-1 string. If you don't
      * need to use the database's collation routines, this allows you to do pretty much exactly
      * what you want at the expense of having to jigger and dejigger every goddamned string that
      * might contain multibyte characters every time you access the database. Three cheers for

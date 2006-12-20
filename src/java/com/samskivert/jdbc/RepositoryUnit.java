@@ -22,8 +22,8 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.util.Invoker;
 
 /**
- * Extends the {@link com.samskivert.util.Invoker.Unit} and specializes it for
- * doing database repository manipulation.
+ * Extends the {@link com.samskivert.util.Invoker.Unit} and specializes it for doing database
+ * repository manipulation.
  */
 public abstract class RepositoryUnit extends Invoker.Unit
 {
@@ -33,8 +33,7 @@ public abstract class RepositoryUnit extends Invoker.Unit
     }
 
     /**
-     * Create a RepositoryUnit which will report the supplied name
-     * in {@link #toString}.
+     * Create a RepositoryUnit which will report the supplied name in {@link #toString}.
      */
     public RepositoryUnit (String name)
     {
@@ -66,18 +65,17 @@ public abstract class RepositoryUnit extends Invoker.Unit
      * Called to perform our persistent actions.
      */
     public abstract void invokePersist ()
-        throws PersistenceException;
+        throws Exception;
 
     /**
-     * Called if our persistent actions have succeeded, back on the non-invoker
-     * thread.
+     * Called if our persistent actions have succeeded, back on the non-invoker thread.
      */
     public abstract void handleSuccess ();
 
     /**
-     * Called if our persistent actions failed, back on the non-invoker thread.
-     * Note that this may be either a {@link PersistenceException} thrown by
-     * {@link #invokePersist} or a {@link RuntimeException} thrown by same.
+     * Called if our persistent actions failed, back on the non-invoker thread.  Note that this may
+     * be either an {@link Exception} thrown by {@link #invokePersist} or a {@link
+     * RuntimeException} thrown by same.
      */
     public abstract void handleFailure (Exception pe);
 

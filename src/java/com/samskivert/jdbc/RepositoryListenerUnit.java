@@ -22,14 +22,13 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.util.ResultListener;
 
 /**
- * Extends the {@link RepositoryUnit} and integrates with a {@link
- * ResultListener}.
+ * Extends the {@link RepositoryUnit} and integrates with a {@link ResultListener}.
  */
 public abstract class RepositoryListenerUnit<T> extends RepositoryUnit
 {
     /**
-     * Creates a repository listener unit that will report its results to the
-     * supplied result listener.
+     * Creates a repository listener unit that will report its results to the supplied result
+     * listener.
      */
     public RepositoryListenerUnit (ResultListener<T> listener)
     {
@@ -37,9 +36,8 @@ public abstract class RepositoryListenerUnit<T> extends RepositoryUnit
     }
 
     /**
-     * Creates a repository listener unit that will report its results to the
-     * supplied result listener and report the supplied name in
-     * {@link #toString}.
+     * Creates a repository listener unit that will report its results to the supplied result
+     * listener and report the supplied name in {@link #toString}.
      */
     public RepositoryListenerUnit (String name, ResultListener<T> listener)
     {
@@ -51,11 +49,11 @@ public abstract class RepositoryListenerUnit<T> extends RepositoryUnit
      * Called to perform our persistent action and generate our result.
      */
     public abstract T invokePersistResult ()
-        throws PersistenceException;
+        throws Exception;
 
     @Override // from RepositoryUnit
     public void invokePersist ()
-        throws PersistenceException
+        throws Exception
     {
         _result = invokePersistResult();
     }

@@ -27,6 +27,8 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
@@ -189,6 +191,29 @@ public class DepotRepository
                 }
             }
         });
+    }
+
+    /**
+     * Updates the specified columns for all persistent objects matching the supplied primary key.
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param primaryKey the primary key to match in the update.
+     * @param fieldsValues an mapping from the names of the fields/columns ti the values to be
+     * assigned.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T> int updatePartial (Class<T> type, Comparable primaryKey,
+                                     HashMap<String,Object> updates)
+        throws PersistenceException
+    {
+        Object[] fieldsValues = new Object[updates.size()*2];
+        int idx = 0;
+        for (Map.Entry<String,Object> entry : updates.entrySet()) {
+            fieldsValues[idx++] = entry.getKey();
+            fieldsValues[idx++] = entry.getValue();
+        }
+        return updatePartial(type, primaryKey, fieldsValues);
     }
 
     /**

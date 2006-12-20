@@ -41,7 +41,7 @@ public class TableKeyGenerator implements KeyGenerator
         _pkColumnValue = defStr(annotation.pkColumnValue(), "default");
         _valueColumnName = defStr(annotation.valueColumnName(), "value");
         _allocationSize = annotation.allocationSize();
-        _initialValue = _allocationSize > 0 ? _allocationSize : 1;
+        _initialValue = annotation.initialValue();
     }
 
     // from interface KeyGenerator
@@ -72,9 +72,8 @@ public class TableKeyGenerator implements KeyGenerator
 
             JDBCUtil.close(stmt);
             stmt = null;
-            stmt = conn.prepareStatement(
-                "INSERT INTO " + _table + " SET " + _pkColumnName + " = ?, " +
-                _valueColumnName + " = ? ");
+            stmt = conn.prepareStatement("INSERT INTO " + _table + " SET " +
+                                         _pkColumnName + " = ?, " + _valueColumnName + " = ?");
             stmt.setString(1, _pkColumnValue);
             stmt.setInt(2, _initialValue);
             stmt.executeUpdate();

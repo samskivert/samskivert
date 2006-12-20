@@ -27,7 +27,6 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.samskivert.io.PersistenceException;
@@ -204,7 +203,7 @@ public class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T> int updatePartial (Class<T> type, Comparable primaryKey,
-                                     HashMap<String,Object> updates)
+                                     Map<String,Object> updates)
         throws PersistenceException
     {
         Object[] fieldsValues = new Object[updates.size()*2];

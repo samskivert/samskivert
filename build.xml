@@ -46,7 +46,6 @@
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
-    <ant dir="tests" target="clean"/>
   </target>
 
   <!-- wipes the entire build directory clean -->
@@ -113,15 +112,33 @@
   <!-- a target for rebuilding everything -->
   <target name="all" depends="clean,prepare,compile,javadoc,dist"/>
 
-  <!-- builds the various tests -->
-  <target name="tests">
-    <ant dir="tests" target="test"/>
+  <!-- runs our unit tests -->
+  <target name="tests" depends="prepare,compile" description="Runs unit tests.">
+    <taskdef name="unit" classpathref="classpath"
+      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
+      <classpath>
+        <pathelement location="${deploy.dir}/classes"/>
+        <pathelement location="${basedir}"/> <!-- for rsrc/ -->
+        <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
+        <fileset dir="lib/test" includes="*.jar"/>
+      </classpath>
+      <sysproperty key="test_dir" value="${basedir}"/>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.dir}">
+          <include name="**/tests/**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </unit>
   </target>
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile,tests">
     <jar destfile="${deploy.dir}/${app.name}.jar"
-         basedir="${deploy.dir}/classes"/>
+         basedir="${deploy.dir}/classes">
+      <exclude name="**/tests/**" unless="build.io"/>
+    </jar>
   </target>
 
   <!-- converts our 1.5 code to a 1.4 compatible format -->

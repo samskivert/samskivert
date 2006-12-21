@@ -137,7 +137,7 @@
   <target name="dist" depends="prepare,compile,tests">
     <jar destfile="${deploy.dir}/${app.name}.jar"
          basedir="${deploy.dir}/classes">
-      <exclude name="**/tests/**" unless="build.io"/>
+      <exclude name="**/tests/**"/>
     </jar>
   </target>
 

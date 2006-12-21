@@ -196,4 +196,45 @@ public abstract class Conditionals
         protected ColumnExp _column;
         protected Comparable[] _values;
     }
+
+    /** The MySQL 'match (...) against (...)' operator. */
+    public static class Match
+        implements SQLOperator
+    {
+        public Match (String query, String... pColumns)
+        {
+            _query = query;
+            _columns = new ColumnExp[pColumns.length];
+            for (int ii = 0; ii < pColumns.length; ii++) {
+                _columns[ii] = new ColumnExp(null, pColumns[ii]);
+            }
+        }
+
+        public Match (String query, ColumnExp... columns)
+        {
+            _query = query;
+            _columns = columns;
+        }
+
+        // from SQLExpression
+        public void appendExpression (Query query, StringBuilder builder)
+        {
+            builder.append("match(");
+            for (ColumnExp column : _columns) {
+                column.appendExpression(query, builder);
+            }
+            builder.append(") against (?)");
+        }
+
+        // from SQLExpression
+        public int bindArguments (PreparedStatement pstmt, int argIdx)
+            throws SQLException
+        {
+            pstmt.setString(argIdx++, _query);
+            return argIdx;
+        }
+
+        protected String _query;
+        protected ColumnExp[] _columns;
+    }
 }

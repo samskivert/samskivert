@@ -115,7 +115,7 @@
 
   <!-- builds the various tests -->
   <target name="tests">
-    <ant dir="tests" target="compile"/>
+    <ant dir="tests" target="test"/>
   </target>
 
   <!-- builds our distribution files (war and jar) -->

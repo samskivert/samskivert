@@ -6,7 +6,6 @@
   <property name="junit.fork"     value="true"/>
 
   <!-- things you probably don't want to change -->
-  <property name="test.dir"   value="."/>
   <property name="src.dir"    value="src/java"/>
   <property name="deploy.dir" value="dist"/>
 
@@ -67,9 +66,9 @@
   <target name="test" depends="compile" description="Run tests.">
     <taskdef name="unit" classpathref="classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
-    <unit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
+    <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
       <classpath refid="classpath"/>
-      <sysproperty key="test_dir" value="${test.dir}"/>
+      <sysproperty key="test_dir" value="${basedir}"/>
       <formatter type="brief" usefile="false"/>
       <batchtest>
         <fileset dir="${src.dir}">

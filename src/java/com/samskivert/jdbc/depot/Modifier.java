@@ -22,6 +22,7 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import com.samskivert.jdbc.depot.clause.Where;
 
@@ -30,6 +31,27 @@ import com.samskivert.jdbc.depot.clause.Where;
  */
 public abstract class Modifier
 {
+    /** A simple modifier that executes a single SQL statement. No cache flushing is done as a
+     * result of this operation. */
+    public static class Simple extends Modifier
+    {
+        public Simple (String query) {
+            super(null);
+            _query = query;
+        }
+
+        public int invoke (Connection conn) throws SQLException {
+            Statement stmt = conn.createStatement();
+            try {
+                return stmt.executeUpdate(_query);
+            } finally {
+                stmt.close();
+            }
+        }
+
+        protected String _query;
+    }
+
     public abstract int invoke (Connection conn) throws SQLException;
 
     protected Modifier (Where key)

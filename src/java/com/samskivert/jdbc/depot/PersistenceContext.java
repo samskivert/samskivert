@@ -57,26 +57,48 @@ public class PersistenceContext
     }
 
     /**
-     * Returns the marshaller for the specified persistent object class,
-     * creating and initializing it if necessary.
+     * Registers a migration for the specified entity class.
+     *
+     * <p> This method must be called <b>before</b> an Entity is used by any repository. Thus you
+     * should register all migrations immediately after creating your persistence context or if you
+     * are careful to ensure that your Entities are only used by a single repository, you can
+     * register your migrations in the constructor for that repository.
+     *
+     * <p> Note that the migration process is as follows:
+     *
+     * <ul><li> Note the difference between the entity's declared version and the version recorded
+     * in the database.
+     * <li> Run all registered pre-migrations
+     * <li> Perform all default migrations (column additions and removals)
+     * <li> Run all registered post-migrations </ul>
+     * 
+     * Thus you must either be prepared for the entity to be at <b>any</b> version prior to your
+     * migration target version because we may start up, find the schema at version 1 and the
+     * Entity class at version 8 and do all "standard" migrations in one fell swoop. So if a column
+     * got added in version 2 and renamed in version 6 and your migration was registered for
+     * version 6 to do that migration, it must be prepared for the column not to exist at all.
+     *
+     * <p> If you want a completely predictable migration process, never use the default migrations
+     * and register a pre-migration for every single schema migration and they will then be
+     * guaranteed to be run in registration order and with predictable pre- and post-conditions.
+     */
+    public <T> void registerMigration (Class<T> type, EntityMigration migration)
+    {
+        getRawMarshaller(type).registerMigration(migration);
+    }
+
+    /**
+     * Returns the marshaller for the specified persistent object class, creating and initializing
+     * it if necessary.
      */
     public <T> DepotMarshaller<T> getMarshaller (Class<T> type)
         throws PersistenceException
     {
-        @SuppressWarnings("unchecked") DepotMarshaller<T> marshaller =
-            (DepotMarshaller<T>)_marshallers.get(type);
-        if (marshaller == null) {
-            _marshallers.put(
-                type, marshaller = new DepotMarshaller<T>(type, this));
-            // initialize the marshaller which may create or migrate the table
-            // for its underlying persistent object
-            final DepotMarshaller<T> fm = marshaller;
-            invoke(new Modifier(null) {
-                public int invoke (Connection conn) throws SQLException {
-                    fm.init(conn);
-                    return 0;
-                }
-            });
+        DepotMarshaller<T> marshaller = getRawMarshaller(type);
+        if (!marshaller.isInitialized()) {
+            // initialize the marshaller which may create or migrate the table for its underlying
+            // persistent object
+            marshaller.init(this);
         }
         return marshaller;
     }
@@ -103,6 +125,20 @@ public class PersistenceContext
         int result = (Integer) invoke(null, modifier, true);
         // TODO: (optionally) cache the results of the modifier
         return result;
+    }
+
+    /**
+     * Looks up and creates, but does not initialize, the marshaller for the specified Entity
+     * type.
+     */
+    protected <T> DepotMarshaller<T> getRawMarshaller (Class<T> type)
+    {
+        @SuppressWarnings("unchecked") DepotMarshaller<T> marshaller =
+            (DepotMarshaller<T>)_marshallers.get(type);
+        if (marshaller == null) {
+            _marshallers.put(type, marshaller = new DepotMarshaller<T>(type, this));
+        }
+        return marshaller;
     }
 
     /**

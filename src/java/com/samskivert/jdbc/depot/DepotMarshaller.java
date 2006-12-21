@@ -21,7 +21,6 @@
 package com.samskivert.jdbc.depot;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -37,6 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
+import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.annotation.Entity;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
@@ -101,7 +101,8 @@ public class DepotMarshaller<T>
             int mods = field.getModifiers();
 
             // check for a static constant schema version
-            if ((mods & Modifier.STATIC) != 0 && field.getName().equals(SCHEMA_VERSION_FIELD)) {
+            if (java.lang.reflect.Modifier.isStatic(mods) &&
+                field.getName().equals(SCHEMA_VERSION_FIELD)) {
                 try {
                     _schemaVersion = (Integer)field.get(null);
                 } catch (Exception e) {
@@ -111,7 +112,8 @@ public class DepotMarshaller<T>
             }
 
             // the field must be public, non-static and non-transient
-            if (((mods & Modifier.PUBLIC) == 0) || ((mods & Modifier.STATIC) != 0) ||
+            if (!java.lang.reflect.Modifier.isPublic(mods) ||
+                java.lang.reflect.Modifier.isStatic(mods) ||
                 field.getAnnotation(Transient.class) != null) {
                 continue;
             }
@@ -292,104 +294,12 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Initializes the table used by this marshaller. If the table does not exist, it will be
-     * created. If the schema version specified by the persistent object is newer than the database
-     * schema, it will be migrated.
+     * Returns true if this marshaller has been initialized ({@link #init} has been called), its
+     * migrations run and it is ready for operation. False otherwise.
      */
-    public void init (Connection conn)
-        throws SQLException
+    public boolean isInitialized ()
     {
-        // if we have no table (i.e. we're a computed entity), we have nothing to create
-        if (getTableName() == null) {
-            return;
-        }
-
-        // check to see if our schema version table exists, create it if not
-        JDBCUtil.createTableIfMissing(conn, SCHEMA_VERSION_TABLE,
-                                      new String[] { "persistentClass VARCHAR(255) NOT NULL",
-                                                     "version INTEGER NOT NULL" }, "");
-
-        // now create the table for our persistent class if it does not exist
-        if (!JDBCUtil.tableExists(conn, getTableName())) {
-            log.fine("Creating table " + getTableName() + " (" +
-                     StringUtil.join(_columnDefinitions, ", ") + ") " + _postamble);
-            JDBCUtil.createTableIfMissing(conn, getTableName(), _columnDefinitions, _postamble);
-            updateVersion(conn, 1);
-        }
-
-        // if we have a key generator, initialize that too
-        if (_keyGenerator != null) {
-            _keyGenerator.init(conn);
-        }
-
-        // if schema versioning is disabled, stop now
-        if (_schemaVersion < 0) {
-            return;
-        }
-
-        // make sure the versions match
-        int currentVersion = readVersion(conn);
-        if (currentVersion == _schemaVersion) {
-            return;
-        }
-
-        log.info("Migrating " + getTableName() + " from " +
-                 currentVersion + " to " + _schemaVersion + "...");
-
-        // otherwise try to migrate the schema; doing column additions magically and running any
-        // registered hand-migrations
-        DatabaseMetaData meta = conn.getMetaData();
-        ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
-        HashSet<String> columns = new HashSet<String>();
-        while (rs.next()) {
-            columns.add(rs.getString("COLUMN_NAME"));
-        }
-
-        for (String fname : _columnFields) {
-            FieldMarshaller fmarsh = _fields.get(fname);
-            if (columns.contains(fmarsh.getColumnName())) {
-                continue;
-            }
-
-            // otherwise add the column
-            String coldef = fmarsh.getColumnDefinition();
-            String query = "alter table " + getTableName() + " add column " + coldef;
-
-            // try to add it to the appropriate spot
-            int fidx = ListUtil.indexOf(_allFields, fmarsh.getColumnName());
-            if (fidx == 0) {
-                query += " first";
-            } else {
-                query += " after " + _allFields[fidx-1];
-            }
-
-            log.info("Adding column to " + getTableName() + ": " + coldef);
-            Statement stmt = conn.createStatement();
-            try {
-                stmt.executeUpdate(query);
-            } finally {
-                stmt.close();
-            }
-
-            // if the column is a TIMESTAMP column, we need to run a special query to update all
-            // existing rows to the current time because MySQL annoyingly assigns them a default
-            // value of "0000-00-00 00:00:00" regardless of whether we explicitly provide a
-            // "DEFAULT" value for the column or not
-            if (coldef.toLowerCase().indexOf(" timestamp") != -1) {
-                query = "update " + getTableName() + " set " + fmarsh.getColumnName() + " = NOW()";
-                log.info("Assigning current time to TIMESTAMP column: " + query);
-                stmt = conn.createStatement();
-                try {
-                    stmt.executeUpdate(query);
-                } finally {
-                    stmt.close();
-                }
-            }
-        }
-
-        // TODO: run any registered hand migrations
-
-        updateVersion(conn, _schemaVersion);
+        return _initialized;
     }
 
     /**
@@ -628,6 +538,167 @@ public class DepotMarshaller<T>
         return pstmt;
     }
 
+    /**
+     * This is called by the persistence context to register a migration for the entity managed by
+     * this marshaller.
+     */
+    protected void registerMigration (EntityMigration migration)
+    {
+        _migrations.add(migration);
+    }
+
+    /**
+     * Initializes the table used by this marshaller. This is called automatically by the {@link
+     * PersistenceContext} the first time an entity is used.  If the table does not exist, it will
+     * be created. If the schema version specified by the persistent object is newer than the
+     * database schema, it will be migrated.
+     */
+    protected void init (PersistenceContext ctx)
+        throws PersistenceException
+    {
+        if (_initialized) { // sanity check
+            throw new IllegalStateException(
+                "Cannot re-initialize marshaller [type=" + _pclass + "].");
+        }
+        _initialized = true;
+
+        // if we have no table (i.e. we're a computed entity), we have nothing to create
+        if (getTableName() == null) {
+            return;
+        }
+
+        // check to see if our schema version table exists, create it if not
+        ctx.invoke(new Modifier(null) {
+            public int invoke (Connection conn) throws SQLException {
+                JDBCUtil.createTableIfMissing(
+                    conn, SCHEMA_VERSION_TABLE,
+                    new String[] { "persistentClass VARCHAR(255) NOT NULL",
+                                   "version INTEGER NOT NULL" }, "");
+                return 0;
+            }
+        });
+
+        // now create the table for our persistent class if it does not exist
+        ctx.invoke(new Modifier(null) {
+            public int invoke (Connection conn) throws SQLException {
+                if (!JDBCUtil.tableExists(conn, getTableName())) {
+                    log.fine("Creating table " + getTableName() + " (" +
+                             StringUtil.join(_columnDefinitions, ", ") + ") " + _postamble);
+                    JDBCUtil.createTableIfMissing(
+                        conn, getTableName(), _columnDefinitions, _postamble);
+                    updateVersion(conn, 1);
+                }
+                return 0;
+            }
+        });
+
+        // if we have a key generator, initialize that too
+        if (_keyGenerator != null) {
+            ctx.invoke(new Modifier(null) {
+                public int invoke (Connection conn) throws SQLException {
+                    _keyGenerator.init(conn);
+                    return 0;
+                }
+            });
+        }
+
+        // if schema versioning is disabled, stop now
+        if (_schemaVersion < 0) {
+            return;
+        }
+
+        // make sure the versions match
+        int currentVersion = ctx.invoke(new Modifier(null) {
+            public int invoke (Connection conn) throws SQLException {
+                String query = "select version from " + SCHEMA_VERSION_TABLE +
+                    " where persistentClass = '" + getTableName() + "'";
+                Statement stmt = conn.createStatement();
+                try {
+                    ResultSet rs = stmt.executeQuery(query);
+                    return (rs.next()) ? rs.getInt(1) : 1;
+                } finally {
+                    stmt.close();
+                }
+            }
+        });
+        if (currentVersion == _schemaVersion) {
+            return;
+        }
+
+        log.info("Migrating " + getTableName() + " from " +
+                 currentVersion + " to " + _schemaVersion + "...");
+
+        // otherwise try to migrate the schema
+        final HashSet<String> columns = new HashSet<String>();
+        ctx.invoke(new Modifier(null) {
+            public int invoke (Connection conn) throws SQLException {
+                DatabaseMetaData meta = conn.getMetaData();
+                ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
+                while (rs.next()) {
+                    columns.add(rs.getString("COLUMN_NAME"));
+                }
+                return 0;
+            }
+        });
+
+        // run our pre-default-migrations
+        for (EntityMigration migration : _migrations) {
+            if (migration.runBeforeDefault() &&
+                migration.shouldRunMigration(currentVersion, _schemaVersion)) {
+                ctx.invoke(migration);
+            }
+        }
+
+        // do our "default" migrations magically
+        for (String fname : _columnFields) {
+            FieldMarshaller fmarsh = _fields.get(fname);
+            if (columns.contains(fmarsh.getColumnName())) {
+                continue;
+            }
+
+            // otherwise add the column
+            String coldef = fmarsh.getColumnDefinition();
+            String query = "alter table " + getTableName() + " add column " + coldef;
+
+            // try to add it to the appropriate spot
+            int fidx = ListUtil.indexOf(_allFields, fmarsh.getColumnName());
+            if (fidx == 0) {
+                query += " first";
+            } else {
+                query += " after " + _allFields[fidx-1];
+            }
+
+            log.info("Adding column to " + getTableName() + ": " + coldef);
+            ctx.invoke(new Modifier.Simple(query));
+
+            // if the column is a TIMESTAMP column, we need to run a special query to update all
+            // existing rows to the current time because MySQL annoyingly assigns them a default
+            // value of "0000-00-00 00:00:00" regardless of whether we explicitly provide a
+            // "DEFAULT" value for the column or not
+            if (coldef.toLowerCase().indexOf(" timestamp") != -1) {
+                query = "update " + getTableName() + " set " + fmarsh.getColumnName() + " = NOW()";
+                log.info("Assigning current time to TIMESTAMP column: " + query);
+                ctx.invoke(new Modifier.Simple(query));
+            }
+        }
+
+        // run our post-default-migrations
+        for (EntityMigration migration : _migrations) {
+            if (!migration.runBeforeDefault() &&
+                migration.shouldRunMigration(currentVersion, _schemaVersion)) {
+                ctx.invoke(migration);
+            }
+        }
+
+        // record our new version in the database
+        ctx.invoke(new Modifier(null) {
+            public int invoke (Connection conn) throws SQLException {
+                updateVersion(conn, _schemaVersion);
+                return 0;
+            }
+        });
+    }
+
     protected void updateVersion (Connection conn, int version)
         throws SQLException
     {
@@ -640,20 +711,6 @@ public class DepotMarshaller<T>
             if (stmt.executeUpdate(update) == 0) {
                 stmt.executeUpdate(insert);
             }
-        } finally {
-            stmt.close();
-        }
-    }
-
-    protected int readVersion (Connection conn)
-        throws SQLException
-    {
-        String query = "select version from " + SCHEMA_VERSION_TABLE +
-            " where persistentClass = '" + getTableName() + "'";
-        Statement stmt = conn.createStatement();
-        try {
-            ResultSet rs = stmt.executeQuery(query);
-            return (rs.next()) ?  rs.getInt(1) : 1;
         } finally {
             stmt.close();
         }
@@ -699,6 +756,12 @@ public class DepotMarshaller<T>
 
     /** Used when creating and migrating our table schema. */
     protected String _postamble = "";
+
+    /** Indicates that we have been initialized (created or migrated our tables). */
+    protected boolean _initialized;
+
+    /** A list of hand registered entity migrations to run prior to doing the default migration. */
+    protected ArrayList<EntityMigration> _migrations = new ArrayList<EntityMigration>();
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";

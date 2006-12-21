@@ -36,6 +36,6 @@ public @interface Entity
     String name () default "";
 
     /** Additional SQL to be added when creating this entity's table for the first time. You can
-     * specify additional indices here or supply a MySQL table storage type for example. */
+     * specify a MySQL table storage type for example. */
     String postamble () default "";
 }

@@ -44,7 +44,7 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="prepare,compute-builds">
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
            debug="on" optimize="off" deprecation="off">
       <classpath refid="classpath"/>
@@ -58,6 +58,9 @@
       <exclude name="com/samskivert/util/**" unless="build.util"/>
       <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
       <exclude name="com/samskivert/xml/**" unless="build.xml"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <compilerarg value="-Xlint:-deprecation"/>
     </javac>
   </target>
 

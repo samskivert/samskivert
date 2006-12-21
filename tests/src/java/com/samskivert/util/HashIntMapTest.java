@@ -21,6 +21,8 @@
 package com.samskivert.util;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -34,31 +36,23 @@ public class HashIntMapTest extends TestCase
 
     public void runTest ()
     {
-        HashIntMap table = new HashIntMap();
+        HashIntMap<Integer> table = new HashIntMap<Integer>();
         populateTable(table);
 
         // check the table contents
         for (int i = 10; i < 20; i++) {
-            Integer val = (Integer)table.get(i);
+            Integer val = table.get(i);
             assertTrue("get(" + i + ") == " + i, val.intValue() == i);
         }
 
-        String keys = StringUtil.toString(table.keys());
-        assertTrue("keys valid", keys.equals(TEST1));
-
-        String elems = StringUtil.toString(table.elements());
-        assertTrue("elems valid", elems.equals(TEST1));
+        checkContents(table, TEST1, TEST1);
 
         // remove some entries and attempt to remove some non-entries
         for (int i = 12; i < 22; i++) {
             table.remove(i);
         }
 
-        keys = StringUtil.toString(table.keys());
-        assertTrue("keys valid", keys.equals(TEST2));
-
-        elems = StringUtil.toString(table.elements());
-        assertTrue("elems valid", elems.equals(TEST2));
+        checkContents(table, TEST2, TEST2);
 
         // now try some serialization
         populateTable(table);
@@ -73,11 +67,12 @@ public class HashIntMapTest extends TestCase
 
             FileInputStream fin = new FileInputStream(tmpfile);
             ObjectInputStream in = new ObjectInputStream(fin);
-            HashIntMap map = (HashIntMap)in.readObject();
+            @SuppressWarnings("unchecked") HashIntMap<Integer> map =
+                (HashIntMap<Integer>)in.readObject();
 
             // check the table contents
             for (int i = 10; i < 20; i++) {
-                Integer val = (Integer)table.get(i);
+                Integer val = table.get(i);
                 assertTrue("get(" + i + ") == " + i, val.intValue() == i);
             }
 
@@ -100,23 +95,23 @@ public class HashIntMapTest extends TestCase
             Integer val;
             // let's keep the ones that are a multiple of 16
             if ((ii & 15) == 0) {
-                val = (Integer) table.get(ii);
+                val = table.get(ii);
             } else {
-                val = (Integer) table.remove(ii);
+                val = table.remove(ii);
             }
             assertTrue("get(" + ii + ") == " + val, val.intValue() == ii);
         }
 
         // and then let's also remove the multiples of 16
-        for (int ii=1; ii < 12345; ii += 3) {
+        for (int ii = 1; ii < 12345; ii += 3) {
             if ((ii & 15) == 0) {
-                Integer val = (Integer) table.remove(ii);
+                Integer val = table.remove(ii);
                 assertTrue("get(" + ii + ") == " + val, val.intValue() == ii);
             }
         }
     }
 
-    protected void populateTable (HashIntMap table)
+    protected void populateTable (HashIntMap<Integer> table)
     {
         for (int i = 10; i < 20; i++) {
             Integer value = new Integer(i);
@@ -124,12 +119,26 @@ public class HashIntMapTest extends TestCase
         }
     }
 
+    protected void checkContents (HashIntMap<Integer> table, String exkeys, String exvals)
+    {
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.addAll(table.keySet());
+        Collections.sort(keys);
+        String keystr = StringUtil.toString(keys);
+        assertTrue(keystr + ".equals(" + exkeys + ")", keystr.equals(exkeys));
+
+        ArrayList<Integer> values = new ArrayList<Integer>();
+        values.addAll(table.values());
+        Collections.sort(values);
+        String valuestr = StringUtil.toString(values);
+        assertTrue(valuestr + ".equals(" + exvals + ")", valuestr.equals(exvals));
+    }
+
     public static Test suite ()
     {
         return new HashIntMapTest();
     }
 
-    protected static final String TEST1 =
-        "(15, 16, 14, 19, 11, 18, 12, 17, 13, 10)";
-    protected static final String TEST2 = "(11, 10)";
+    protected static final String TEST1 = "(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)";
+    protected static final String TEST2 = "(10, 11)";
 }

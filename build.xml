@@ -128,6 +128,15 @@
       <batchtest>
         <fileset dir="${src.dir}">
           <include name="**/tests/**/*Test.java"/>
+          <exclude name="com/samskivert/io/**" unless="build.io"/>
+          <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+          <exclude name="com/samskivert/net/**" unless="build.net"/>
+          <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
+          <exclude name="com/samskivert/swing/**" unless="build.swing"/>
+          <exclude name="com/samskivert/test/**" unless="build.test"/>
+          <exclude name="com/samskivert/util/**" unless="build.util"/>
+          <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
+          <exclude name="com/samskivert/xml/**" unless="build.xml"/>
         </fileset>
       </batchtest>
     </unit>

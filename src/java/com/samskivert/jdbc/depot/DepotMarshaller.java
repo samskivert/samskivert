@@ -217,18 +217,14 @@ public class DepotMarshaller<T>
         if (entity != null) {
             for (Index index : entity.indices()) {
                 // TODO: delegate this to a database specific SQL generator
-                _declarations.add("INDEX " + index.name() + " " + index.type() +
+                _declarations.add(index.type() + "index " + index.name() +
                                   " (" + StringUtil.join(index.columns(), ", ") + ")");
             }
         }
 
         // add the primary key, if we have one
         if (hasPrimaryKey()) {
-            String[] pkcols = new String[_pkColumns.size()];
-            for (int ii = 0; ii < pkcols.length; ii ++) {
-                pkcols[ii] = _pkColumns.get(ii).getColumnName();
-            }
-            _declarations.add("PRIMARY KEY (" + StringUtil.join(pkcols, ", ") + ")");
+            _declarations.add("PRIMARY KEY (" + getPrimaryKeyColumns() + ")");
         }
 
         // if we did not find a schema version field, complain
@@ -632,21 +628,9 @@ public class DepotMarshaller<T>
             return;
         }
 
+        // otherwise try to migrate the schema
         log.info("Migrating " + getTableName() + " from " +
                  currentVersion + " to " + _schemaVersion + "...");
-
-        // otherwise try to migrate the schema
-        final HashSet<String> columns = new HashSet<String>();
-        ctx.invoke(new Modifier(null) {
-            public int invoke (Connection conn) throws SQLException {
-                DatabaseMetaData meta = conn.getMetaData();
-                ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
-                while (rs.next()) {
-                    columns.add(rs.getString("COLUMN_NAME"));
-                }
-                return 0;
-            }
-        });
 
         // run our pre-default-migrations
         for (EntityMigration migration : _migrations) {
@@ -656,10 +640,28 @@ public class DepotMarshaller<T>
             }
         }
 
-        // do our "default" migrations magically
+        // enumerate all of the columns now that we've run our pre-migrations
+        final HashSet<String> columns = new HashSet<String>();
+        final HashSet<String> indices = new HashSet<String>();
+        ctx.invoke(new Modifier(null) {
+            public int invoke (Connection conn) throws SQLException {
+                DatabaseMetaData meta = conn.getMetaData();
+                ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
+                while (rs.next()) {
+                    columns.add(rs.getString("COLUMN_NAME"));
+                }
+                rs = meta.getIndexInfo(null, null, getTableName(), false, false);
+                while (rs.next()) {
+                    indices.add(rs.getString("INDEX_NAME"));
+                }
+                return 0;
+            }
+        });
+
+        // add any missing columns
         for (String fname : _columnFields) {
             FieldMarshaller fmarsh = _fields.get(fname);
-            if (columns.contains(fmarsh.getColumnName())) {
+            if (columns.remove(fmarsh.getColumnName())) {
                 continue;
             }
 
@@ -689,6 +691,43 @@ public class DepotMarshaller<T>
             }
         }
 
+        // add or remove the primary key as needed
+        if (hasPrimaryKey() && !indices.remove("PRIMARY")) {
+            String pkdef = "primary key (" + getPrimaryKeyColumns() + ")";
+            log.info("Adding primary key to " + getTableName() + ": " + pkdef);
+            ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " add " + pkdef));
+
+        } else if (!hasPrimaryKey() && indices.remove("PRIMARY")) {
+            log.info("Dropping primary from " + getTableName());
+            ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " drop primary key"));
+        }
+
+        // add any missing indices
+        Entity entity = _pclass.getAnnotation(Entity.class);
+        for (Index index : (entity == null ? new Index[0] : entity.indices())) {
+            if (indices.remove(index.name())) {
+                continue;
+            }
+            String indexdef = "create " + index.type() + " index " + index.name() +
+                " on " + getTableName() + " (" + StringUtil.join(index.columns(), ", ") + ")";
+            log.info("Adding index: " + indexdef);
+            ctx.invoke(new Modifier.Simple(indexdef));
+        }
+
+        // remove any extra columns
+        for (String column : columns) {
+            log.info("Dropping old column '" + column + "' from " + getTableName());
+            String query = "alter table " + getTableName() + " drop index " + column;
+            ctx.invoke(new Modifier.Simple(query));
+        }
+
+        // remove any extra indices
+        for (String index : indices) {
+            log.info("Dropping old index '" + index + "' from " + getTableName());
+            String query = "alter table " + getTableName() + " drop index " + index;
+            ctx.invoke(new Modifier.Simple(query));
+        }
+
         // run our post-default-migrations
         for (EntityMigration migration : _migrations) {
             if (!migration.runBeforeDefault() &&
@@ -704,6 +743,15 @@ public class DepotMarshaller<T>
                 return 0;
             }
         });
+    }
+
+    protected String getPrimaryKeyColumns ()
+    {
+        String[] pkcols = new String[_pkColumns.size()];
+        for (int ii = 0; ii < pkcols.length; ii ++) {
+            pkcols[ii] = _pkColumns.get(ii).getColumnName();
+        }
+        return StringUtil.join(pkcols, ", ");
     }
 
     protected void updateVersion (Connection conn, int version)

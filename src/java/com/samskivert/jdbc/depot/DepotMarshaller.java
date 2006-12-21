@@ -41,6 +41,7 @@ import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.annotation.Entity;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.annotation.Id;
+import com.samskivert.jdbc.depot.annotation.Index;
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
 import com.samskivert.jdbc.depot.annotation.Transient;
 
@@ -72,6 +73,7 @@ public class DepotMarshaller<T>
         _pclass = pclass;
 
         // see if this is a computed entity
+        Entity entity = pclass.getAnnotation(Entity.class);
         Computed computed = pclass.getAnnotation(Computed.class);
         if (computed == null) {
             // if not, this class has a corresponding SQL table
@@ -79,7 +81,6 @@ public class DepotMarshaller<T>
             _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
 
             // see if there are Entity values specified
-            Entity entity = pclass.getAnnotation(Entity.class);
             if (entity != null) {
                 if (entity.name().length() > 0) {
                     _tableName = entity.name();
@@ -200,28 +201,34 @@ public class DepotMarshaller<T>
         // figure out the list of fields that correspond to actual table columns and generate the
         // SQL used to create and migrate our table (unless we're a computed entity)
         _columnFields = new String[_allFields.length];
-        _columnDefinitions = new String[_allFields.length];
         int jj = 0;
         for (int ii = 0; ii < _allFields.length; ii++) {
             // include all persistent non-computed fields
             String colDef = _fields.get(_allFields[ii]).getColumnDefinition();
             if (colDef != null) {
                 _columnFields[jj] = _allFields[ii];
-                _columnDefinitions[jj] = colDef;
+                _declarations.add(colDef);
                 jj ++;
             }
         }
         _columnFields = ArrayUtil.splice(_columnFields, jj);
-        _columnDefinitions = ArrayUtil.splice(_columnDefinitions, jj);
+
+        // determine whether we have any index definitions
+        if (entity != null) {
+            for (Index index : entity.indices()) {
+                // TODO: delegate this to a database specific SQL generator
+                _declarations.add("INDEX " + index.name() + " " + index.type() +
+                                  " (" + StringUtil.join(index.columns(), ", ") + ")");
+            }
+        }
 
         // add the primary key, if we have one
         if (hasPrimaryKey()) {
-            String[] indices = new String[_pkColumns.size()];
-            for (int ii = 0; ii < indices.length; ii ++) {
-                indices[ii] = _pkColumns.get(ii).getColumnName();
+            String[] pkcols = new String[_pkColumns.size()];
+            for (int ii = 0; ii < pkcols.length; ii ++) {
+                pkcols[ii] = _pkColumns.get(ii).getColumnName();
             }
-            _columnDefinitions = ArrayUtil.append(
-                _columnDefinitions, "PRIMARY KEY (" + StringUtil.join(indices, ", ") + ")");
+            _declarations.add("PRIMARY KEY (" + StringUtil.join(pkcols, ", ") + ")");
         }
 
         // if we did not find a schema version field, complain
@@ -582,10 +589,10 @@ public class DepotMarshaller<T>
         ctx.invoke(new Modifier(null) {
             public int invoke (Connection conn) throws SQLException {
                 if (!JDBCUtil.tableExists(conn, getTableName())) {
-                    log.fine("Creating table " + getTableName() + " (" +
-                             StringUtil.join(_columnDefinitions, ", ") + ") " + _postamble);
-                    JDBCUtil.createTableIfMissing(
-                        conn, getTableName(), _columnDefinitions, _postamble);
+                    log.info("Creating table " + getTableName() + " (" + _declarations + ") " +
+                             _postamble);
+                    String[] definition = _declarations.toArray(new String[_declarations.size()]);
+                    JDBCUtil.createTableIfMissing(conn, getTableName(), definition, _postamble);
                     updateVersion(conn, 1);
                 }
                 return 0;
@@ -752,7 +759,7 @@ public class DepotMarshaller<T>
     protected int _schemaVersion = -1;
 
     /** Used when creating and migrating our table schema. */
-    protected String[] _columnDefinitions;
+    protected ArrayList<String> _declarations = new ArrayList<String>();
 
     /** Used when creating and migrating our table schema. */
     protected String _postamble = "";

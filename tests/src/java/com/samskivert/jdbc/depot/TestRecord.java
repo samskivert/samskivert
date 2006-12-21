@@ -6,14 +6,17 @@ package com.samskivert.jdbc.depot;
 import java.sql.Date;
 import java.sql.Timestamp;
 
-import com.samskivert.jdbc.depot.annotation.Id;
 import com.samskivert.jdbc.depot.annotation.Column;
+import com.samskivert.jdbc.depot.annotation.Entity;
+import com.samskivert.jdbc.depot.annotation.Id;
+import com.samskivert.jdbc.depot.annotation.Index;
 
 import com.samskivert.util.StringUtil;
 
 /**
  * A test persistent object.
  */
+@Entity(indices={ @Index(name="createdIndex", columns={"created"}) })
 public class TestRecord
 {
     public static final int SCHEMA_VERSION = 1;

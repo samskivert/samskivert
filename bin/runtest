@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Runs built code
+# Runs test code
 
 ROOT=`dirname $0`
 ROOT=`cd $ROOT/.. ; pwd`
@@ -15,7 +15,7 @@ CLASSPATH="$JAVA_HOME/jre/lib/rt.jar"
 for JAR in $ROOT/dist/lib/*.jar; do
     CLASSPATH=$CLASSPATH:$JAR
 done
-CLASSPATH=$ROOT/dist/classes:$CLASSPATH
+CLASSPATH=$ROOT/tests/dist/classes:$ROOT/dist/classes:$ROOT/tests:$CLASSPATH
 export CLASSPATH
 
 eval $JAVA_VM $JAVA_ARGS "$@"

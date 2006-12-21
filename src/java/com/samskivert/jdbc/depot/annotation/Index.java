@@ -2,8 +2,8 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006 Michael Bayne, Pär Winzell
-//
+// Copyright (C) 2006 Michael Bayne
+// 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -26,19 +26,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specifies the primary field(s) of an entity.
+ * Defines an index on an entity table.
  */
-@Target(value=ElementType.TYPE)
+@Target(value={})
 @Retention(value=RetentionPolicy.RUNTIME)
-public @interface Entity
+public @interface Index
 {
-    /** The name of an entity. Defaults to the unqualified name of the entity class. */
+    /** Defines the name of the index. */
     String name () default "";
 
-    /** Defines indices to add to this entity's table. */
-    Index[] indices () default {};
+    /** Configures the type of this index if necessary. MySQL supports FULLTEXT, SPATIAL and
+     * UNIQUE. */
+    String type () default "";
 
-    /** Additional SQL to be added when creating this entity's table for the first time. You can
-     * specify a MySQL table storage type for example. */
-    String postamble () default "";
+    /** Defines the columns on which the index operates. */
+    String[] columns () default {};
 }

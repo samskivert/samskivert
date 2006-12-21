@@ -714,12 +714,8 @@ public class DepotMarshaller<T>
             ctx.invoke(new Modifier.Simple(indexdef));
         }
 
-        // remove any extra columns
-        for (String column : columns) {
-            log.info("Dropping old column '" + column + "' from " + getTableName());
-            String query = "alter table " + getTableName() + " drop index " + column;
-            ctx.invoke(new Modifier.Simple(query));
-        }
+        // we do not hand remove columns but rather require that EntityMigration.Drop records be
+        // registered by hand to avoid accidentally causin the loss of data
 
         // remove any extra indices
         for (String index : indices) {

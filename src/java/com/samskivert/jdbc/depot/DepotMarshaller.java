@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import com.samskivert.jdbc.depot.annotation.Computed;
+import com.samskivert.jdbc.depot.annotation.Entity;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.annotation.Id;
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
@@ -76,6 +77,15 @@ public class DepotMarshaller<T>
             // if not, this class has a corresponding SQL table
             _tableName = _pclass.getName();
             _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
+
+            // see if there are Entity values specified
+            Entity entity = pclass.getAnnotation(Entity.class);
+            if (entity != null) {
+                if (entity.name().length() > 0) {
+                    _tableName = entity.name();
+                }
+                _postamble = entity.postamble();
+            }
         }
 
         // if the entity defines a new TableGenerator, map that in our static table as those are
@@ -211,7 +221,6 @@ public class DepotMarshaller<T>
             _columnDefinitions = ArrayUtil.append(
                 _columnDefinitions, "PRIMARY KEY (" + StringUtil.join(indices, ", ") + ")");
         }
-        _postamble = ""; // TODO: add annotations for the postamble
 
         // if we did not find a schema version field, complain
         if (_schemaVersion < 0) {
@@ -689,7 +698,7 @@ public class DepotMarshaller<T>
     protected String[] _columnDefinitions;
 
     /** Used when creating and migrating our table schema. */
-    protected String _postamble;
+    protected String _postamble = "";
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";

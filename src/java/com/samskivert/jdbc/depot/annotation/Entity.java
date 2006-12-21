@@ -34,4 +34,8 @@ public @interface Entity
 {
     /** The name of an entity. Defaults to the unqualified name of the entity class. */
     String name () default "";
+
+    /** Additional SQL to be added when creating this entity's table for the first time. You can
+     * specify additional indices here or supply a MySQL table storage type for example. */
+    String postamble () default "";
 }

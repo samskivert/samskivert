@@ -32,15 +32,14 @@ import org.apache.velocity.runtime.RuntimeSingleton;
 import com.samskivert.util.StringUtil;
 
 /**
- * The invocation context provides access to request related information
- * as well as being the place where objects are placed to make them
- * available to the template.
+ * The invocation context provides access to request related information as well as being the place
+ * where objects are placed to make them available to the template.
  */
 public class InvocationContext extends VelocityContext
 {
     /**
-     * Constructs a new invocation context instance with the supplied http
-     * request and response objects.
+     * Constructs a new invocation context instance with the supplied http request and response
+     * objects.
      */
     public InvocationContext (HttpServletRequest req, HttpServletResponse rsp)
     {
@@ -65,19 +64,34 @@ public class InvocationContext extends VelocityContext
     }
 
     /**
-     * Fetches a Velocity template that can be used for later formatting.
+     * Fetches a Velocity template that can be used for later formatting. The template is read with
+     * the specified encoding or the default encoding if encoding is null.
      *
-     * @exception Exception thrown if an error occurs loading or parsing
-     * the template.
+     * @exception Exception thrown if an error occurs loading or parsing the template.
      */
-    public Template getTemplate (String path)
+    public Template getTemplate (String path, String encoding)
         throws Exception
     {
         Object siteId = get("__siteid__");
         if (siteId != null) {
             path = siteId + ":" + path;
         }
-        return RuntimeSingleton.getRuntimeServices().getTemplate(path);
+        if (encoding == null) {
+            return RuntimeSingleton.getRuntimeServices().getTemplate(path);
+        } else {
+            return RuntimeSingleton.getRuntimeServices().getTemplate(path, encoding);
+        }
+    }
+
+    /**
+     * Fetches a Velocity template that can be used for later formatting.
+     *
+     * @exception Exception thrown if an error occurs loading or parsing the template.
+     */
+    public Template getTemplate (String path)
+        throws Exception
+    {
+        return getTemplate(path, null);
     }
 
     /**
@@ -97,12 +111,12 @@ public class InvocationContext extends VelocityContext
     }
 
     /**
-     * Puts all the parameters in the request into the context.
+     * Don't use this method. It is terribly unsafe and was written by a lazy engineer.
      */
+    @Deprecated
     public void putAllParameters ()
     {
         Enumeration e = _req.getParameterNames();
-
         while (e.hasMoreElements()) {
             String param = (String)e.nextElement();
             put(param, _req.getParameter(param));
@@ -110,8 +124,8 @@ public class InvocationContext extends VelocityContext
     }
 
     /**
-     * Encodes all the request params so they can be slapped
-     * onto a different URL which is useful when doing redirects.
+     * Encodes all the request params so they can be slapped onto a different URL which is useful
+     * when doing redirects.
      */
     public String encodeAllParameters ()
     {
@@ -129,7 +143,7 @@ public class InvocationContext extends VelocityContext
 
         return buf.toString();
     }
-    
+
     protected HttpServletRequest _req;
     protected HttpServletResponse _rsp;
 }

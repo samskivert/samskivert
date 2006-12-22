@@ -20,6 +20,7 @@
 
 package com.samskivert.velocity;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
@@ -153,7 +154,7 @@ public class Application
      */
     protected MessageManager createMessageManager (String bundlePath)
     {
-        return new MessageManager(bundlePath, null, _siteIdent);
+        return new MessageManager(bundlePath, Locale.getDefault(), _siteIdent);
     }
 
     /**

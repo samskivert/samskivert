@@ -201,21 +201,23 @@ public abstract class Conditionals
     public static class Match
         implements SQLOperator
     {
-        public enum Mode { DEFAULT, BOOLEAN, QUERY_EXPANSION, NL_QUERY_EXPANSION };
+        public enum Mode { DEFAULT, BOOLEAN, NATURAL_LANGUAGE };
 
-        public Match (String query, Mode mode, String... pColumns)
+        public Match (String query, Mode mode, boolean queryExpansion, String... pColumns)
         {
             _query = query;
             _mode = mode;
+            _queryExpansion = queryExpansion;
             _columns = new ColumnExp[pColumns.length];
             for (int ii = 0; ii < pColumns.length; ii++) {
                 _columns[ii] = new ColumnExp(null, pColumns[ii]);
             }
         }
 
-        public Match (String query, Mode mode, ColumnExp... columns)
+        public Match (String query, Mode mode, boolean queryExpansion, ColumnExp... columns)
         {
             _query = query;
+            _queryExpansion = queryExpansion;
             _mode = mode;
             _columns = columns;
         }
@@ -236,12 +238,12 @@ public abstract class Conditionals
             case BOOLEAN:
                 builder.append(" in boolean mode");
                 break;
-            case QUERY_EXPANSION:
+            case NATURAL_LANGUAGE:
+                builder.append(" in natural language mode");
+                break;
+            }
+            if (_queryExpansion) {
                 builder.append(" with query expansion");
-                break;
-            case NL_QUERY_EXPANSION:
-                builder.append(" in natural language mode with query expansion");
-                break;
             }
             builder.append(")");
         }
@@ -256,6 +258,7 @@ public abstract class Conditionals
 
         protected String _query;
         protected Mode _mode;
+        protected boolean _queryExpansion;
         protected ColumnExp[] _columns;
     }
 }

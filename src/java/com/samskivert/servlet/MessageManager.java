@@ -31,26 +31,23 @@ import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;
 
 /**
- * The message manager handles the translation messages for a web
- * application. The webapp should construct the message manager with the
- * name of its message properties file and it can then make use of the
- * message manager to generate locale specific messages for a request.
+ * The message manager handles the translation messages for a web application. The webapp should
+ * construct the message manager with the name of its message properties file and it can then make
+ * use of the message manager to generate locale specific messages for a request.
  */
 public class MessageManager
 {
     /**
-     * Constructs a message manager with the specified bundle path. The
-     * message manager will be instantiating a <code>ResourceBundle</code>
-     * with the supplied path, so it should conform to the naming
-     * conventions defined by that class.
+     * Constructs a message manager with the specified bundle path. The message manager will be
+     * instantiating a <code>ResourceBundle</code> with the supplied path, so it should conform to
+     * the naming conventions defined by that class.
      *
-     * @param siteIdent an optional site identifier that can be used to
-     * identify the site via which an http request was made.
+     * @param siteIdent an optional site identifier that can be used to identify the site via which
+     * an http request was made.
      *
      * @see java.util.ResourceBundle
      */
-    public MessageManager (String bundlePath, Locale deflocale,
-                           SiteIdentifier siteIdent)
+    public MessageManager (String bundlePath, Locale deflocale, SiteIdentifier siteIdent)
     {
         // keep these for later
         _bundlePath = bundlePath;
@@ -59,19 +56,16 @@ public class MessageManager
     }
 
     /**
-     * If the message manager is to be used in a multi-site environment,
-     * it can be configured to load site-specific message resources in
-     * addition to the default application message resources. It must be
-     * configured with the facilities to load site-specific resources by a
+     * If the message manager is to be used in a multi-site environment, it can be configured to
+     * load site-specific message resources in addition to the default application message
+     * resources. It must be configured with the facilities to load site-specific resources by a
      * call to this function.
      *
-     * @param siteBundlePath the path to the site-specific message
-     * resources.
-     * @param siteLoader a site-specific resource loader, properly
-     * configured with a site identifier.
+     * @param siteBundlePath the path to the site-specific message resources.
+     * @param siteLoader a site-specific resource loader, properly configured with a site
+     * identifier.
      */
-    public void activateSiteSpecificMessages (String siteBundlePath,
-                                              SiteResourceLoader siteLoader)
+    public void activateSiteSpecificMessages (String siteBundlePath, SiteResourceLoader siteLoader)
     {
         _siteBundlePath = siteBundlePath;
         _siteLoader = siteLoader;
@@ -86,9 +80,8 @@ public class MessageManager
     }
 
     /**
-     * Looks up the message with the specified path in the resource bundle
-     * most appropriate for the locales described as preferred by the
-     * request.  Always reports missing paths.
+     * Looks up the message with the specified path in the resource bundle most appropriate for the
+     * locales described as preferred by the request.  Always reports missing paths.
      */
     public String getMessage (HttpServletRequest req, String path)
     {
@@ -96,31 +89,27 @@ public class MessageManager
     }
 
     /**
-     * Looks up the message with the specified path in the resource bundle
-     * most appropriate for the locales described as preferred by the
-     * request, then substitutes the supplied arguments into that message
-     * using a <code>MessageFormat</code> object.
+     * Looks up the message with the specified path in the resource bundle most appropriate for the
+     * locales described as preferred by the request, then substitutes the supplied arguments into
+     * that message using a <code>MessageFormat</code> object.
      *
      * @see java.text.MessageFormat
      */
-    public String getMessage (HttpServletRequest req, String path,
-                              Object[] args)
+    public String getMessage (HttpServletRequest req, String path, Object[] args)
     {
         String msg = getMessage(req, path, true);
-        // we may cache message formatters later, but for now just use the
-        // static convenience function
+        // we may cache message formatters later, but for now just use the static convenience
+        // function
         return MessageFormat.format(MessageUtil.escape(msg), args);
     }
 
     /**
-     * Looks up the message with the specified path in the resource bundle
-     * most appropriate for the locales described as preferred by the
-     * request.  If requested it will log a missing path and return the
-     * path as the translation (which should make it obvious in the
-     * servlet that the translation is missing) otherwise it returns null.
+     * Looks up the message with the specified path in the resource bundle most appropriate for the
+     * locales described as preferred by the request.  If requested it will log a missing path and
+     * return the path as the translation (which should make it obvious in the servlet that the
+     * translation is missing) otherwise it returns null.
      */
-    protected String getMessage (HttpServletRequest req, String path,
-                                 boolean reportMissing)
+    protected String getMessage (HttpServletRequest req, String path, boolean reportMissing)
     {
         if (path == null) {
             return "[null message key]";
@@ -139,8 +128,8 @@ public class MessageManager
             String[] args = StringUtil.split(argstr, "|");
             // unescape and translate the arguments
             for (int i = 0; i < args.length; i++) {
-                // if the argument is tainted, do no further translation
-                // (it might contain |s or other fun stuff)
+                // if the argument is tainted, do no further translation (it might contain |s or
+                // other fun stuff)
                 if (args[i].startsWith(MessageUtil.TAINT_CHAR)) {
                     args[i] = MessageUtil.unescape(args[i].substring(1));
                 } else {
@@ -150,9 +139,9 @@ public class MessageManager
             return getMessage(req, key, args);
         }
 
-        // load up the matching resource bundles (the array will contain the
-        // site-specific resources first and the application resources second);
-        // use the locale preferred by the client if possible
+        // load up the matching resource bundles (the array will contain the site-specific
+        // resources first and the application resources second); use the locale preferred by the
+        // client if possible
         ResourceBundle[] bundles = resolveBundles(req);
         String message = null;
         if (bundles != null) {
@@ -163,8 +152,7 @@ public class MessageManager
                         message = bundles[i].getString(path);
                     }
                 } catch (MissingResourceException mre) {
-                    // no complaints, just try the bundle in the enclosing
-                    // scope
+                    // no complaints, just try the bundle in the enclosing scope
                 }
             }
         }
@@ -182,13 +170,11 @@ public class MessageManager
                 // avoid trivial infinite recursion
                 if (ref.equals(path)) {
                     throw new IllegalStateException(
-                        "Illegal self-referential message " + path + " = " +
-                        message + ".");
+                        "Illegal self-referential message " + path + " = " + message + ".");
                 }
                 if (ref.length() > 0 && !Character.isDigit(ref.charAt(0))) {
                     String refmsg = getMessage(req, ref, true);
-                    message = message.substring(0, oidx) +
-                        refmsg + message.substring(cidx+1);
+                    message = message.substring(0, oidx) + refmsg + message.substring(cidx+1);
                     oidx += refmsg.length();
                 }
             }
@@ -206,13 +192,12 @@ public class MessageManager
     }
 
     /**
-     * Finds the closest matching resource bundle for the locales
-     * specified as preferred by the client in the supplied http request.
+     * Finds the closest matching resource bundle for the locales specified as preferred by the
+     * client in the supplied http request.
      */
     protected ResourceBundle[] resolveBundles (HttpServletRequest req)
     {
-        // first look to see if we've cached the bundles for this request
-        // in the request object
+        // first look to see if we've cached the bundles for this request in the request object
         ResourceBundle[] bundles = null;
         if (req != null) {
             bundles = (ResourceBundle[])req.getAttribute(getBundleCacheName());
@@ -245,15 +230,14 @@ public class MessageManager
         if (siteLoader != null) {
             bundles[0] = resolveBundle(req, _siteBundlePath, siteLoader, false);
         } else if (siteString != null) {
-            // or just try prefixing the site string to the normal bundle path
-            // and see if that turns something up
+            // or just try prefixing the site string to the normal bundle path and see if that
+            // turns something up
             bundles[0] = resolveBundle(req, siteString + "_" + _bundlePath,
                                        getClass().getClassLoader(), true);
         }
 
         // then from the default classloader
-        bundles[1] = resolveBundle(
-            req, _bundlePath, getClass().getClassLoader(), false);
+        bundles[1] = resolveBundle(req, _bundlePath, getClass().getClassLoader(), false);
 
         // if we found either or both bundles, cache 'em
         if (bundles[0] != null || bundles[1] != null && req != null) {
@@ -264,12 +248,11 @@ public class MessageManager
     }
 
     /**
-     * Resolves the default resource bundle based on the locale
-     * information provided in the supplied http request object.
+     * Resolves the default resource bundle based on the locale information provided in the
+     * supplied http request object.
      */
-    protected ResourceBundle resolveBundle (
-        HttpServletRequest req, String bundlePath, ClassLoader loader,
-        boolean silent)
+    protected ResourceBundle resolveBundle (HttpServletRequest req, String bundlePath,
+                                            ClassLoader loader, boolean silent)
     {
         ResourceBundle bundle = null;
 
@@ -279,16 +262,13 @@ public class MessageManager
                 Locale locale = (Locale)locales.nextElement();
 
                 try {
-                    // java caches resource bundles, so we don't need to
-                    // reinvent the wheel here. however, java also falls back
-                    // from a specific bundle to a more general one if it
-                    // can't find a specific bundle. that's real nice of it,
-                    // but we want first to see whether or not we have exact
-                    // matches on any of the preferred locales specified by
-                    // the client. if we don't, then we can rely on java's
+                    // java caches resource bundles, so we don't need to reinvent the wheel here.
+                    // however, java also falls back from a specific bundle to a more general one
+                    // if it can't find a specific bundle. that's real nice of it, but we want
+                    // first to see whether or not we have exact matches on any of the preferred
+                    // locales specified by the client. if we don't, then we can rely on java's
                     // fallback mechanisms
-                    bundle = ResourceBundle.getBundle(
-                        bundlePath, locale, loader);
+                    bundle = ResourceBundle.getBundle(bundlePath, locale, loader);
 
                     // if it's an exact match, off we go
                     if (bundle.getLocale().equals(locale)) {
@@ -296,28 +276,25 @@ public class MessageManager
                     }
 
                 } catch (MissingResourceException mre) {
-                    // no need to freak out quite yet, see if we have
-                    // something for one of the other preferred locales
+                    // no need to freak out quite yet, see if we have something for one of the
+                    // other preferred locales
                 }
             }
         }
 
-        // if we were unable to find an exact match for any of the user's
-        // preferred locales, take their most preferred and let java
-        // perform it's fallback logic on that one
+        // if we were unable to find an exact match for any of the user's preferred locales, take
+        // their most preferred and let java perform it's fallback logic on that one
         if (bundle == null) {
             Locale locale = (req == null) ? _deflocale : req.getLocale();
             try {
                 bundle = ResourceBundle.getBundle(bundlePath, locale, loader);
             } catch (MissingResourceException mre) {
                 if (!silent) {
-                    // if we were unable even to find a default bundle, we may
-                    // want to log a warning
-                    Log.warning("Unable to resolve any message bundle " +
-                                "[req=" + getURL(req) + ", locale=" + locale +
-                                ", bundlePath=" + bundlePath +
-                                ", classLoader=" + loader +
-                                ", siteBundlePath=" + _siteBundlePath +
+                    // if we were unable even to find a default bundle, we may want to log a
+                    // warning
+                    Log.warning("Unable to resolve any message bundle [req=" + getURL(req) +
+                                ", locale=" + locale + ", bundlePath=" + bundlePath +
+                                ", classLoader=" + loader + ", siteBundlePath=" + _siteBundlePath +
                                 ", siteLoader=" + _siteLoader + "].");
                 }
             }
@@ -341,23 +318,20 @@ public class MessageManager
     /** The path, relative to the classpath, to our resource bundles. */
     protected String _bundlePath;
 
-    /** The path to the site-specific message bundles, fetched via the
-     * site-specific resource loader. */
+    /** The path to the site-specific message bundles, fetched via the site-specific resource
+     * loader. */
     protected String _siteBundlePath;
 
-    /** The resource loader with which to fetch our site-specific message
-     * bundles. */
+    /** The resource loader with which to fetch our site-specific message bundles. */
     protected SiteResourceLoader _siteLoader;
 
-    /** The site identifier we use to determine through which site a
-     * request was made. */
+    /** The site identifier we use to determine through which site a request was made. */
     protected SiteIdentifier _siteIdent;
 
     /** The locale to use if we are accessed without an HTTP request. */
     protected Locale _deflocale;
 
-    /** The attribute name that we use for caching resource bundles in
-     * request objects. */
+    /** The attribute name that we use for caching resource bundles in request objects. */
     protected static final String BUNDLE_CACHE_PREFIX =
         "com.samskivert.servlet.MessageManager:CachedResourceBundle:";
 }

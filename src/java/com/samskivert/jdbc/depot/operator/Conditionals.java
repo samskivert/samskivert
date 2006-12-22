@@ -220,7 +220,11 @@ public abstract class Conditionals
         public void appendExpression (Query query, StringBuilder builder)
         {
             builder.append("match(");
+            int idx = 0;
             for (ColumnExp column : _columns) {
+                if (idx++ > 0) {
+                    builder.append(", ");
+                }
                 column.appendExpression(query, builder);
             }
             builder.append(") against (?)");

@@ -201,18 +201,22 @@ public abstract class Conditionals
     public static class Match
         implements SQLOperator
     {
-        public Match (String query, String... pColumns)
+        public enum Mode { DEFAULT, BOOLEAN, QUERY_EXPANSION, NL_QUERY_EXPANSION };
+
+        public Match (String query, Mode mode, String... pColumns)
         {
             _query = query;
+            _mode = mode;
             _columns = new ColumnExp[pColumns.length];
             for (int ii = 0; ii < pColumns.length; ii++) {
                 _columns[ii] = new ColumnExp(null, pColumns[ii]);
             }
         }
 
-        public Match (String query, ColumnExp... columns)
+        public Match (String query, Mode mode, ColumnExp... columns)
         {
             _query = query;
+            _mode = mode;
             _columns = columns;
         }
 
@@ -227,7 +231,19 @@ public abstract class Conditionals
                 }
                 column.appendExpression(query, builder);
             }
-            builder.append(") against (?)");
+            builder.append(") against (?");
+            switch (_mode) {
+            case BOOLEAN:
+                builder.append(" in boolean mode");
+                break;
+            case QUERY_EXPANSION:
+                builder.append(" with query expansion");
+                break;
+            case NL_QUERY_EXPANSION:
+                builder.append(" in natural language mode with query expansion");
+                break;
+            }
+            builder.append(")");
         }
 
         // from SQLExpression
@@ -239,6 +255,7 @@ public abstract class Conditionals
         }
 
         protected String _query;
+        protected Mode _mode;
         protected ColumnExp[] _columns;
     }
 }

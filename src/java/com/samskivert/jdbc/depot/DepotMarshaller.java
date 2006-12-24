@@ -217,7 +217,7 @@ public class DepotMarshaller<T>
         if (entity != null) {
             for (Index index : entity.indices()) {
                 // TODO: delegate this to a database specific SQL generator
-                _declarations.add(index.type() + "index " + index.name() +
+                _declarations.add(index.type() + " index " + index.name() +
                                   " (" + StringUtil.join(index.columns(), ", ") + ")");
             }
         }

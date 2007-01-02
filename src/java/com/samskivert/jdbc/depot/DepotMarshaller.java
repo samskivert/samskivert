@@ -714,15 +714,12 @@ public class DepotMarshaller<T>
             ctx.invoke(new Modifier.Simple(indexdef));
         }
 
-        // we do not hand remove columns but rather require that EntityMigration.Drop records be
+        // we do not auto-remove columns but rather require that EntityMigration.Drop records be
         // registered by hand to avoid accidentally causin the loss of data
 
-        // remove any extra indices
-        for (String index : indices) {
-            log.info("Dropping old index '" + index + "' from " + getTableName());
-            String query = "alter table " + getTableName() + " drop index " + index;
-            ctx.invoke(new Modifier.Simple(query));
-        }
+        // we don't auto-remove indices either because we'd have to sort out the potentially
+        // complex origins of an index (which might be because of a @Unique column or maybe the
+        // index was hand defined in a @Column clause)
 
         // run our post-default-migrations
         for (EntityMigration migration : _migrations) {

@@ -28,11 +28,9 @@ import java.util.Comparator;
 public class Comparators
 {
     /**
-     * A comparator that compares the toString() value of all objects
-     * case insensitively.
+     * A comparator that compares the toString() value of all objects case insensitively.
      */
-    public static final Comparator<Object> LEXICAL_CASE_INSENSITIVE =
-        new Comparator<Object>() {
+    public static final Comparator<Object> LEXICAL_CASE_INSENSITIVE = new Comparator<Object>() {
         public int compare (Object o1, Object o2)
         {
             if (o1 == o2) { // catches null == null
@@ -51,8 +49,7 @@ public class Comparators
     /**
      * A comparator that compares {@link Comparable} instances.
      */
-    public static final Comparator<Object> COMPARABLE =
-        new Comparator<Object>() {
+    public static final Comparator<Object> COMPARABLE = new Comparator<Object>() {
         @SuppressWarnings("unchecked")
         public int compare (Object o1, Object o2)
         {
@@ -66,4 +63,12 @@ public class Comparators
             return ((Comparable<Object>)o1).compareTo(o2); // null-free
         }
     };
+
+    /**
+     * Compares two integers in an overflow safe manner.
+     */
+    public static int compareTo (int value1, int value2)
+    {
+	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+    }
 }

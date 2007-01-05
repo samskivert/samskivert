@@ -67,7 +67,7 @@ public class Comparators
     /**
      * Compares two integers in an overflow safe manner.
      */
-    public static int compareTo (int value1, int value2)
+    public static int compare (int value1, int value2)
     {
 	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
     }

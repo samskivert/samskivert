@@ -55,7 +55,7 @@
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare,compute-builds">
-    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
+    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" deprecation="off"
            source="1.5" target="1.5" encoding="utf-8">
       <classpath refid="classpath"/>

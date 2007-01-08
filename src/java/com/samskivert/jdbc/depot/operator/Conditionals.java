@@ -22,6 +22,7 @@ package com.samskivert.jdbc.depot.operator;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 
 import com.samskivert.jdbc.depot.Query;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
@@ -155,9 +156,19 @@ public abstract class Conditionals
             this(new ColumnExp(null, pColumn), values);
         }
 
+        public In (String pColumn, Collection<? extends Comparable> values)
+        {
+            this(new ColumnExp(null, pColumn), values.toArray(new Comparable[values.size()]));
+        }
+
         public In (Class pClass, String pColumn, Comparable... values)
         {
             this(new ColumnExp(pClass, pColumn), values);
+        }
+
+        public In (Class pClass, String pColumn, Collection<? extends Comparable> values)
+        {
+            this(new ColumnExp(pClass, pColumn), values.toArray(new Comparable[values.size()]));
         }
 
         public In (ColumnExp column, Comparable... values)

@@ -25,11 +25,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 
 /**
  * Marks a field as computed, meaning it is ignored for schema purposes and it does not directly
- * correspond to a column in a table, thus its value must be overridden in the {@link Query}.
+ * correspond to a column in a table, thus its value must be overridden in the {@link ConstructedQuery}.
  */
 @Retention(value=RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.TYPE })

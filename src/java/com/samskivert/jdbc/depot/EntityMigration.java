@@ -113,7 +113,7 @@ public abstract class EntityMigration extends Modifier
 
     protected EntityMigration (int targetVersion)
     {
-        super(null);
+        super();
         _targetVersion = targetVersion;
     }
 

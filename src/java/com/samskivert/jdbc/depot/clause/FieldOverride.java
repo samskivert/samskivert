@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
@@ -75,7 +75,7 @@ public class FieldOverride
     }
 
     // from QueryClause
-    public void appendClause (Query query, StringBuilder builder)
+    public void appendClause (ConstructedQuery query, StringBuilder builder)
     {
         _override.appendExpression(query, builder);
         builder.append(" as ").append(_field);

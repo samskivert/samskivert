@@ -21,11 +21,19 @@
 package com.samskivert.jdbc.depot;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 import com.samskivert.io.PersistenceException;
 
@@ -44,16 +52,66 @@ public class PersistenceContext
     public HashMap<String, TableGenerator> tableGenerators = new HashMap<String, TableGenerator>();
 
     /**
-     * Creates a persistence context that will use the supplied provider to
-     * obtain JDBC connections.
+     * A cache listener is notified when cache entries are invalited through creation, deletion,
+     * or modification. Its purpose is typically to do further invalidation of dependent entries
+     * in other caches.
+     */
+    public static interface CacheListener<T>
+    {
+        /**
+         * The given entry has just been deleted, modified or created. Do what thou wilt.
+         */
+        public void entryModified (CacheKey key, T entry);
+    }
+
+    /**
+     * The callback for {@link #cacheTraverse}; this is called for each entry in a given cache.
+     */
+    public static interface CacheTraverser<T extends Serializable>
+    {
+        /**
+         * Performs whatever cache-related tasks need doing for this cache entry. This method
+         * is called for each cache entry in a full-cache enumeration.
+         */
+        public void visitCacheEntry (
+            PersistenceContext ctx, String cacheId, Serializable key, T record);
+    }
+
+    /**
+     * A simple implementation of {@link CacheTraverser} that selectively deletes entries in
+     * a cache depending on the return value of {@link #testCacheEntry}.
+     */
+    public static abstract class CacheEvictionFilter<T extends Serializable>
+        implements CacheTraverser<T>
+    {
+        // from CacheTraverser
+        public void visitCacheEntry (
+            PersistenceContext ctx, String cacheId, Serializable key, T record)
+        {
+            if (testForEviction(key, record)) {
+                ctx.cacheInvalidate(cacheId, key);
+            }
+        }
+
+        /**
+         * Decides whether or not this entry should be evicted and returns true if yes, false if
+         * no.
+         */
+        protected abstract boolean testForEviction (Serializable key, T record);
+    }
+    
+    /**
+     * Creates a persistence context that will use the supplied provider to obtain JDBC
+     * connections.
      *
-     * @param ident the identifier to provide to the connection provider when
-     * requesting a connection.
+     * @param ident the identifier to provide to the connection provider when requesting a
+     * connection.
      */
     public PersistenceContext (String ident, ConnectionProvider conprov)
     {
         _ident = ident;
         _conprov = conprov;
+        _cachemgr = CacheManager.getInstance();
     }
 
     /**
@@ -106,12 +164,28 @@ public class PersistenceContext
     /**
      * Invokes a non-modifying query and returns its result.
      */
-    @SuppressWarnings("unchecked")
     public <T> T invoke (Query<T> query)
         throws PersistenceException
     {
-        // TODO: check the cache using query.getKey()
-        return (T) invoke(query, null, true);
+        CacheKey key = query.getCacheKey();
+        // if there is a cache key, check the cache
+        if (key != null) {
+            Cache cache = getCache(key.getCacheId());
+            if (cache != null) {
+                Element cacheHit = cache.get(key.getCacheKey());
+                if (cacheHit != null) {
+                    Log.debug("invoke: cache hit [hit=" + cacheHit + "]");
+                    @SuppressWarnings("unchecked") T value = (T) cacheHit.getValue();
+                    return value;
+                }
+            }
+            Log.debug("invoke: cache miss [key=" + key + "]");
+        }
+        // otherwise, perform the query
+        @SuppressWarnings("unchecked") T result = (T) invoke(query, null, true);
+        // and let the caller figure out if it wants to cache itself somehow
+        query.updateCache(this, result);
+        return result;
     }
 
     /**
@@ -120,11 +194,143 @@ public class PersistenceContext
     public int invoke (Modifier modifier)
         throws PersistenceException
     {
-        // TODO: invalidate the cache using the modifier's key
+        modifier.cacheInvalidation(this);
+        int rows = (Integer) invoke(null, modifier, true);
+        if (rows > 0) {
+            modifier.cacheUpdate(this);
+        }
+        return rows;
+    }
 
-        int result = (Integer) invoke(null, modifier, true);
-        // TODO: (optionally) cache the results of the modifier
-        return result;
+    /**
+     * Returns the {@link Cache} for the given cache id, or creates one if necessary.
+     */
+    public Cache getCache (String cacheId)
+    {
+        Cache cache = _cachemgr.getCache(cacheId);
+        if (cache == null) {
+            cache = new Cache(cacheId, 5000, false, false, 600, 60);
+            _cachemgr.addCache(cache);
+        }
+        return cache;
+    }
+
+    /**
+     * Stores a new entry indexed by the given key.
+     */
+    public <T> void cacheStore (CacheKey key, T value)
+    {
+        Log.debug("cacheStore: entry [key=" + key + ", value=" + value + "]");
+        getCache(key.getCacheId()).put(new Element(key.getCacheKey(), value));
+
+        // first do cascading invalidations
+        Set<CacheListener<?>> listeners = _listenerSets.get(key.getCacheId());
+        if (listeners != null && listeners.size() > 0) {
+            for (CacheListener<?> listener : listeners) {
+                Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
+                @SuppressWarnings("unchecked") CacheListener<T> casted = (CacheListener<T>)listener;
+                casted.entryModified(key, value);
+            }
+        }
+    }
+
+    /**
+     * Evicts the cache entry indexed under the given key, if there is one.
+     * The eviction may trigger further cache invalidations.
+     */
+    public void cacheInvalidate (CacheKey key)
+    {
+        cacheInvalidate(key.getCacheId(), key.getCacheKey());
+    }
+
+    /**
+     * Evicts the cache entry indexed under the given class and cache key, if there is one.
+     * The eviction may trigger further cache invalidations.
+     */
+    public void cacheInvalidate (Class pClass, Serializable cacheKey)
+    {
+        cacheInvalidate(pClass.getName(), cacheKey);
+    }
+
+    /**
+     * Evicts the cache entry indexed under the given cache id and cache key, if there is one.
+     * The eviction may trigger further cache invalidations.
+     */
+    public <T extends Serializable> void cacheInvalidate (String cacheId, Serializable cacheKey)
+    {
+        Log.debug("cacheInvalidate: entry [cacheId=" + cacheId + ", cacheKey=" + cacheKey + "]");
+        Cache cache = getCache(cacheId);
+        Element element = cache.get(cacheKey);
+
+        // first do cascading invalidations
+        Set<CacheListener<?>> listeners = _listenerSets.get(cacheId);
+        if (listeners != null && listeners.size() > 0) {
+            CacheKey key = new SimpleCacheKey(cacheId, cacheKey);
+            for (CacheListener<?> listener : listeners) {
+                Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
+                @SuppressWarnings("unchecked") CacheListener<T> casted = (CacheListener<T>)listener;
+                @SuppressWarnings("unchecked") T value =
+                    (element != null ? (T) element.getValue() : null);
+                casted.entryModified(key, value);
+            }
+        }
+
+        // then evict the keyed entry, if needed
+        if (element != null) {
+            Log.debug("cacheInvalidate: evicting [cacheKey=" + cacheKey + "]");
+            cache.remove(cacheKey);
+        }
+    }
+
+    /**
+     * Brutally iterates over the entire contents of the cache associated with the given class,
+     * invoking the callback for each cache entry.
+     */
+    public <T extends Serializable> void cacheTraverse (Class pClass, CacheTraverser<T> filter)
+    {
+        cacheTraverse(pClass.getName(), filter);
+    }
+
+    /**
+     * Brutally iterates over the entire contents of the cache identified by the given cache id,
+     * invoking the callback for each cache entry.
+     */
+    public <T extends Serializable> void cacheTraverse (String cacheId, CacheTraverser<T> filter)
+    {
+        Cache cache = getCache(cacheId);
+        if (cache != null) {
+            for (Object key : cache.getKeys()) {
+                Serializable sKey = (Serializable) key;
+                Element element = cache.get(sKey);
+                if (element != null) {
+                    @SuppressWarnings("unchecked") T value = (T) element.getValue();
+                    filter.visitCacheEntry(this, cacheId, sKey, value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Registers a new cache listener with the cache associated with the given class.
+     */
+    public <T extends Serializable> void addCacheListener (
+        Class<T> pClass, CacheListener<T> listener)
+    {
+        addCacheListener(pClass.getName(), listener);
+    }
+
+    /**
+     * Registers a new cache listener with the identified cache.
+     */
+    public <T extends Serializable> void addCacheListener (
+        String cacheId, CacheListener<T> listener)
+    {
+        Set<CacheListener<?>> listenerSet = _listenerSets.get(cacheId);
+        if (listenerSet == null) {
+            listenerSet = new HashSet<CacheListener<?>>();
+            _listenerSets.put(cacheId, listenerSet);
+        }
+        listenerSet.add(listener);
     }
 
     /**
@@ -203,22 +409,24 @@ public class PersistenceContext
     }
 
     /**
-     * Check whether the specified exception is a transient failure
-     * that can be retried.
+     * Check whether the specified exception is a transient failure that can be retried.
      */
     protected boolean isTransientException (SQLException sqe)
     {
         // TODO: this is MySQL specific. This was snarfed from MySQLLiaison.
         String msg = sqe.getMessage();
-        return (msg != null &&
-            (msg.indexOf("Lost connection") != -1 ||
-             msg.indexOf("link failure") != -1 ||
-             msg.indexOf("Broken pipe") != -1));
+        return (msg != null && (msg.indexOf("Lost connection") != -1 ||
+                                msg.indexOf("link failure") != -1 ||
+                                msg.indexOf("Broken pipe") != -1));
     }
 
     protected String _ident;
     protected ConnectionProvider _conprov;
+    protected CacheManager _cachemgr;
 
-    protected HashMap<Class<?>, DepotMarshaller<?>> _marshallers =
+    protected Map<String, Set<CacheListener<?>>> _listenerSets =
+        new HashMap<String, Set<CacheListener<?>>>(); 
+
+    protected Map<Class<?>, DepotMarshaller<?>> _marshallers =
         new HashMap<Class<?>, DepotMarshaller<?>>();
 }

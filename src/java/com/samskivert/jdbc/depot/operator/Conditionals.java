@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
@@ -56,7 +56,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
+        public void appendExpression (ConstructedQuery query, StringBuilder builder)
         {
             _column.appendExpression(query, builder);
             builder.append(" is null");
@@ -181,7 +181,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
+        public void appendExpression (ConstructedQuery query, StringBuilder builder)
         {
             _column.appendExpression(query, builder);
             builder.append(" in (");
@@ -234,7 +234,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
+        public void appendExpression (ConstructedQuery query, StringBuilder builder)
         {
             builder.append("match(");
             int idx = 0;

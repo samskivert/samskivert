@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -24,15 +24,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.samskivert.jdbc.depot.clause.Where;
-
 /**
  * Encapsulates a modification of persistent objects.
  */
 public abstract class Modifier
 {
-    /** A simple modifier that executes a single SQL statement. No cache flushing is done as a
-     * result of this operation. */
+    /**
+     * A simple modifier that executes a single SQL statement. No cache flushing is done as a
+     * result of this operation.
+     */
     public static class Simple extends Modifier
     {
         public Simple (String query) {
@@ -52,19 +52,74 @@ public abstract class Modifier
         protected String _query;
     }
 
-    public abstract int invoke (Connection conn) throws SQLException;
-
-    protected Modifier (Where key)
+    /**
+     * A simple modifier that updates the cache with its modified object on completion. The derived
+     * class must call {@link #setInstance} to inform the modifier of its object at some point
+     * during the modification operation.
+     */
+    public static abstract class CachingModifier<T> extends Modifier
     {
-        _key = key;
+        protected CachingModifier (CacheKey key, CacheInvalidator invalidator)
+        {
+            super(invalidator);
+            _key = key;
+        }
+
+        protected void setInstance (T result)
+        {
+            _result = result;
+        }
+
+        protected void updateKey (CacheKey key)
+        {
+            if (key != null) {
+                _key = key;
+            }
+        }
+
+        @Override
+        public void cacheUpdate (PersistenceContext ctx)
+        {
+            super.cacheUpdate(ctx);
+            if (_key != null) {
+                ctx.cacheStore(_key, _result);
+            }
+        }
+
+        protected CacheKey _key;
+        protected T _result;
     }
 
-    protected void updateKey (Key key)
+    public abstract int invoke (Connection conn) throws SQLException;
+
+    public Modifier ()
     {
-        if (key != null) {
-            _key = key;
+        this(null);
+    }
+
+    public Modifier (CacheInvalidator invalidator)
+    {
+        _invalidator = invalidator;
+    }
+
+    /**
+     * Do any cache invalidation needed for this modification. This method is called just
+     * before the database statement is executed.
+     */
+    public void cacheInvalidation (PersistenceContext ctx)
+    {
+        if (_invalidator != null) {
+            _invalidator.invalidate(ctx);
         }
     }
 
-    protected Where _key;
+    /**
+     * Do any cache updates needed for this modification. This method is called just after
+     * the successful execution of the database statement.
+     */
+    public void cacheUpdate (PersistenceContext ctx)
+    {
+    }
+
+    protected CacheInvalidator _invalidator;
 }

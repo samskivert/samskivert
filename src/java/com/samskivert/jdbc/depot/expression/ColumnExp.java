@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.expression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 
 /**
  * An expression identifying a column of a class, e.g. GameRecord.itemId. If no class is given,
@@ -51,7 +51,7 @@ public class ColumnExp
     }
 
     // from SQLExpression
-    public void appendExpression (Query query, StringBuilder builder)
+    public void appendExpression (ConstructedQuery query, StringBuilder builder)
     {
         if (pClass == null || query == null) {
             builder.append(pColumn);

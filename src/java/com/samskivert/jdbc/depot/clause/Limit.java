@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 
 /**
  *  Represents a LIMIT/OFFSET clause, for pagination.
@@ -45,7 +45,7 @@ public class Limit
     }
 
     // from QueryClause
-    public void appendClause (Query query, StringBuilder builder)
+    public void appendClause (ConstructedQuery query, StringBuilder builder)
     {
         builder.append(" limit ? offset ? ");
     }

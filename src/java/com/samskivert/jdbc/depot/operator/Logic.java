@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.operator;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
 
 /**
@@ -80,7 +80,7 @@ public abstract class Logic
         }
 
         // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
+        public void appendExpression (ConstructedQuery query, StringBuilder builder)
         {
             builder.append(" not (");
             _condition.appendExpression(query, builder);

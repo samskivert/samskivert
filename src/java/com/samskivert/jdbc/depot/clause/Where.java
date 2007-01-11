@@ -25,9 +25,14 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.ValueExp;
 import com.samskivert.jdbc.depot.operator.SQLOperator;
+import com.samskivert.jdbc.depot.operator.Conditionals.Equals;
+import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
+import com.samskivert.jdbc.depot.operator.Logic.And;
 
 /**
  * Represents a where clause: the condition can be any comparison operator or logical combination
@@ -36,6 +41,47 @@ import com.samskivert.jdbc.depot.operator.SQLOperator;
 public class Where
     implements QueryClause
 {
+    public Where (String index, Comparable value)
+    {
+        this(new ColumnExp(index), value);
+    }
+
+    public Where (ColumnExp column, Comparable value)
+    {
+        this(new ColumnExp[] { column }, new Comparable[] { value });
+    }
+
+    public Where (ColumnExp index1, Comparable value1,
+                ColumnExp index2, Comparable value2)
+    {
+        this(new ColumnExp[] { index1, index2 }, new Comparable[] { value1, value2 });
+    }
+
+    public Where (ColumnExp index1, Comparable value1,
+                ColumnExp index2, Comparable value2,
+                ColumnExp index3, Comparable value3)
+    {
+        this(new ColumnExp[] { index1, index2, index3 },
+             new Comparable[] { value1, value2, value3 });
+    }
+
+    public Where (String index1, Comparable value1, String index2, Comparable value2)
+    {
+        this(new ColumnExp(index1), value1, new ColumnExp(index2), value2);
+    }
+
+    public Where (String index1, Comparable value1, String index2, Comparable value2,
+                String index3, Comparable value3)
+    {
+        this(new ColumnExp(index1), value1, new ColumnExp(index2), value2, 
+             new ColumnExp(index3), value3);
+    }
+
+    public Where (ColumnExp[] columns, Comparable[] values)
+    {
+        this(toCondition(columns, values));
+    }
+
     public Where (SQLOperator condition)
     {
         _condition = condition;
@@ -48,7 +94,7 @@ public class Where
     }
 
     // from QueryClause
-    public void appendClause (Query query, StringBuilder builder)
+    public void appendClause (ConstructedQuery query, StringBuilder builder)
     {
         builder.append(" where ");
         _condition.appendExpression(query, builder);
@@ -59,6 +105,16 @@ public class Where
         throws SQLException
     {
         return _condition.bindArguments(pstmt, argIdx);
+    }
+
+    protected static SQLOperator toCondition (ColumnExp[] columns, Comparable[] values)
+    {
+        SQLOperator[] comparisons = new SQLOperator[columns.length];
+        for (int ii = 0; ii < columns.length; ii ++) {
+            comparisons[ii] = (values[ii] == null) ? new IsNull(columns[ii]) :
+                new Equals(columns[ii], new ValueExp(values[ii]));
+        }
+        return new And(comparisons);
     }
 
     protected SQLOperator _condition;

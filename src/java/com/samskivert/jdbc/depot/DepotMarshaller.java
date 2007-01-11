@@ -47,7 +47,6 @@ import com.samskivert.jdbc.depot.annotation.Transient;
 
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.Where;
-import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -255,11 +254,11 @@ public class DepotMarshaller<T>
      * Returns a key configured with the primary key of the supplied object.  Throws an exception
      * if the persistent object did not declare a primary key.
      */
-    public Key getPrimaryKey (Object object)
+    public Key<T> getPrimaryKey (Object object)
     {
         if (!hasPrimaryKey()) {
             throw new UnsupportedOperationException(
-                getClass().getName() + " does not define a primary key");
+                _pclass.getName() + " does not define a primary key");
         }
         try {
             Comparable[] values = new Comparable[_pkColumns.size()];
@@ -277,23 +276,17 @@ public class DepotMarshaller<T>
      * Creates a primary key record for the type of object handled by this marshaller, using the
      * supplied primary key value.
      */
-    public Key makePrimaryKey (Comparable... values)
+    public Key<T> makePrimaryKey (Comparable... values)
     {
         if (!hasPrimaryKey()) {
             throw new UnsupportedOperationException(
                 getClass().getName() + " does not define a primary key");
         }
-        if (values.length != _pkColumns.size()) {
-            throw new IllegalArgumentException(
-                "Argument count (" + values.length + ") must match primary key size (" +
-                _pkColumns.size() + ")");
-        }
-        ColumnExp[] columns = new ColumnExp[_pkColumns.size()];
+        String[] columns = new String[_pkColumns.size()];
         for (int ii = 0; ii < _pkColumns.size(); ii++) {
-            FieldMarshaller field = _pkColumns.get(ii);
-            columns[ii] = new ColumnExp(_pclass, field.getColumnName());
+            columns[ii] = _pkColumns.get(ii).getColumnName();
         }
-        return new Key(columns, values);
+        return new Key<T>(_pclass, columns, values);
     }
 
     /**
@@ -552,7 +545,7 @@ public class DepotMarshaller<T>
 
     /**
      * Initializes the table used by this marshaller. This is called automatically by the {@link
-     * PersistenceContext} the first time an entity is used.  If the table does not exist, it will
+     * PersistenceContext} the first time an entity is used. If the table does not exist, it will
      * be created. If the schema version specified by the persistent object is newer than the
      * database schema, it will be migrated.
      */
@@ -571,7 +564,7 @@ public class DepotMarshaller<T>
         }
 
         // check to see if our schema version table exists, create it if not
-        ctx.invoke(new Modifier(null) {
+        ctx.invoke(new Modifier() {
             public int invoke (Connection conn) throws SQLException {
                 JDBCUtil.createTableIfMissing(
                     conn, SCHEMA_VERSION_TABLE,
@@ -582,7 +575,7 @@ public class DepotMarshaller<T>
         });
 
         // now create the table for our persistent class if it does not exist
-        ctx.invoke(new Modifier(null) {
+        ctx.invoke(new Modifier() {
             public int invoke (Connection conn) throws SQLException {
                 if (!JDBCUtil.tableExists(conn, getTableName())) {
                     log.info("Creating table " + getTableName() + " (" + _declarations + ") " +
@@ -597,7 +590,7 @@ public class DepotMarshaller<T>
 
         // if we have a key generator, initialize that too
         if (_keyGenerator != null) {
-            ctx.invoke(new Modifier(null) {
+            ctx.invoke(new Modifier() {
                 public int invoke (Connection conn) throws SQLException {
                     _keyGenerator.init(conn);
                     return 0;
@@ -611,7 +604,7 @@ public class DepotMarshaller<T>
         }
 
         // make sure the versions match
-        int currentVersion = ctx.invoke(new Modifier(null) {
+        int currentVersion = ctx.invoke(new Modifier() {
             public int invoke (Connection conn) throws SQLException {
                 String query = "select version from " + SCHEMA_VERSION_TABLE +
                     " where persistentClass = '" + getTableName() + "'";
@@ -643,7 +636,7 @@ public class DepotMarshaller<T>
         // enumerate all of the columns now that we've run our pre-migrations
         final HashSet<String> columns = new HashSet<String>();
         final HashSet<String> indices = new HashSet<String>();
-        ctx.invoke(new Modifier(null) {
+        ctx.invoke(new Modifier() {
             public int invoke (Connection conn) throws SQLException {
                 DatabaseMetaData meta = conn.getMetaData();
                 ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
@@ -730,7 +723,7 @@ public class DepotMarshaller<T>
         }
 
         // record our new version in the database
-        ctx.invoke(new Modifier(null) {
+        ctx.invoke(new Modifier() {
             public int invoke (Connection conn) throws SQLException {
                 updateVersion(conn, _schemaVersion);
                 return 0;

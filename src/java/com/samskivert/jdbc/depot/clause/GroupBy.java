@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
@@ -45,7 +45,7 @@ public class GroupBy
     }
 
     // from QueryClause
-    public void appendClause (Query query, StringBuilder builder)
+    public void appendClause (ConstructedQuery query, StringBuilder builder)
     {
         builder.append(" group by ");
         for (int ii = 0; ii < _values.length; ii++) {

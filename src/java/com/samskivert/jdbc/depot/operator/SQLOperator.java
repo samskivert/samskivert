@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.operator;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 
@@ -47,7 +47,7 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
+        public void appendExpression (ConstructedQuery query, StringBuilder builder)
         {
             for (int ii = 0; ii < _conditions.length; ii++) {
                 if (ii > 0) {
@@ -94,7 +94,7 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public void appendExpression (Query query, StringBuilder builder)
+        public void appendExpression (ConstructedQuery query, StringBuilder builder)
         {
             _lhs.appendExpression(query, builder);
             builder.append(operator());

@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.operator.SQLOperator;
 import com.samskivert.jdbc.depot.operator.Conditionals.*;
@@ -64,7 +64,7 @@ public class Join
     }
 
     // from QueryClause
-    public void appendClause (Query query, StringBuilder builder)
+    public void appendClause (ConstructedQuery query, StringBuilder builder)
     {
         builder.append(" inner join " );
         builder.append(query.getTableName(_joinClass)).append(" as ");

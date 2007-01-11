@@ -18,36 +18,25 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.jdbc.depot.clause;
+package com.samskivert.jdbc.depot;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Collection;
-
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import java.io.Serializable;
 
 /**
- *  Represents a FOR UPDATE clause.
+ * This interface uniquely identifies a single persistent entry for caching purposes.
+ * Queries that are given a {@link CacheKey} consult the cache before they hit the
+ * database.
  */
-public class ForUpdate
-    implements QueryClause
+public interface CacheKey
 {
-    // from QueryClause
-    public Collection<Class> getClassSet ()
-    {
-        return null;
-    }
+    /**
+     * Returns the id of the cache in whose scope this key makes sense.
+     */
+    public String getCacheId ();
 
-    // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
-    {
-        builder.append(" for update ");
-    }
-
-    // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
-    {
-        return argIdx;
-    }
+    /**
+     * Returns the actual opaque serializable cache key under which results are stored
+     * in the cache identified by {@link #getCacheId}.
+     */
+    public Serializable getCacheKey ();
 }

@@ -6,7 +6,7 @@
     <include name="commons-digester.jar"/>
     <include name="commons-io.jar"/>
     <include name="commons-logging.jar"/>
-    <include name="ejb3-persistence.jar"/>
+    <include name="ehcache-1.2.jar"/>
     <include name="junit-3.7.jar"/>
     <include name="mail.jar"/>
     <include name="servlet-2.3.jar"/>

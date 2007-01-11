@@ -18,36 +18,18 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.jdbc.depot.clause;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Collection;
-
-import com.samskivert.jdbc.depot.ConstructedQuery;
+package com.samskivert.jdbc.depot;
 
 /**
- *  Represents a FOR UPDATE clause.
+ * Implementors of this interface performs perform cache invalidation for calls to
+ * {@link DepotRepository#updateLiteral}, {@link DepotRepository#updatePartial} and 
+ * {@link DepotRepository#deleteAll).
  */
-public class ForUpdate
-    implements QueryClause
+public interface CacheInvalidator
 {
-    // from QueryClause
-    public Collection<Class> getClassSet ()
-    {
-        return null;
-    }
-
-    // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
-    {
-        builder.append(" for update ");
-    }
-
-    // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
-    {
-        return argIdx;
-    }
+    /**
+     * Must invalidate all cache entries that depend on the records being modified or deleted.
+     * This method is called just before the database statement is executed.
+     */
+    public void invalidate (PersistenceContext ctx);
 }

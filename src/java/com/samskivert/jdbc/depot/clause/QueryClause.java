@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 
 /**
  * Represents a piece or modifier of an SQL query.
@@ -41,7 +41,7 @@ public interface QueryClause
      * Construct the SQL form of this query clause. The implementor is expected to call methods
      * on the Query object to e.g. resolve current table abbreviations associated with classes.
      */
-    public void appendClause (Query query, StringBuilder builder);
+    public void appendClause (ConstructedQuery query, StringBuilder builder);
 
     /**
      * Bind any objects that were referenced in the generated SQL.  For each ? that appears in the

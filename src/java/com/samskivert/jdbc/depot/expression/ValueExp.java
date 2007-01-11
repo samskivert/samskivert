@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.expression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.Query;
+import com.samskivert.jdbc.depot.ConstructedQuery;
 
 /**
  * A Java value that is bound as a parameter to the query, e.g. 1 or 'abc'. 
@@ -37,7 +37,7 @@ public class ValueExp
     }
 
     // from SQLExpression
-    public void appendExpression (Query query, StringBuilder builder)
+    public void appendExpression (ConstructedQuery query, StringBuilder builder)
     {
         builder.append("?");
     }

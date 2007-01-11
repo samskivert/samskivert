@@ -1,7 +1,7 @@
 //
 // $Id$
 
-package com.samskivert.jdbc.tests;
+package com.samskivert.jdbc.depot.tests;
 
 import java.sql.Date;
 import java.sql.Timestamp;

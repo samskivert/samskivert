@@ -61,6 +61,7 @@
       <classpath refid="classpath"/>
       <exclude name="com/samskivert/io/**" unless="build.io"/>
       <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+      <exclude name="com/samskivert/jdbc/depot/**" unless="build.depot"/>
       <exclude name="com/samskivert/net/**" unless="build.net"/>
       <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
       <exclude name="com/samskivert/swing/**" unless="build.swing"/>
@@ -85,6 +86,7 @@
       <packageset dir="${src.dir}">
         <exclude name="com/samskivert/io/**" unless="build.io"/>
         <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+        <exclude name="com/samskivert/jdbc/depot/**" unless="build.depot"/>
         <exclude name="com/samskivert/net/**" unless="build.net"/>
         <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
         <exclude name="com/samskivert/swing/**" unless="build.swing"/>
@@ -130,6 +132,7 @@
           <include name="**/tests/**/*Test.java"/>
           <exclude name="com/samskivert/io/**" unless="build.io"/>
           <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+          <exclude name="com/samskivert/jdbc/depot/**" unless="build.depot"/>
           <exclude name="com/samskivert/net/**" unless="build.net"/>
           <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
           <exclude name="com/samskivert/swing/**" unless="build.swing"/>

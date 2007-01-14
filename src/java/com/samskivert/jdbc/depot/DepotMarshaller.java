@@ -251,22 +251,54 @@ public class DepotMarshaller<T>
     }
 
     /**
-     * Returns a key configured with the primary key of the supplied object.  Throws an exception
-     * if the persistent object did not declare a primary key.
+     * Returns a key configured with the primary key of the supplied object. If all the fields are
+     * null, this method returns null. An exception is thrown if some of the fields are null and
+     * some are not, or if the object does not declare a primary key.
      */
     public Key<T> getPrimaryKey (Object object)
     {
+        return getPrimaryKey(object, true);
+    }
+
+    /**
+     * Returns a key configured with the primary key of the supplied object. If all the fields are
+     * null, this method returns null. If some of the fields are null and some are not, an
+     * exception is thrown. If the object does not declare a primary key and the second argument is
+     * true, this method throws an exception; if it's false, the method returns null.
+     */
+    public Key<T> getPrimaryKey (Object object, boolean requireKey)
+    {
         if (!hasPrimaryKey()) {
-            throw new UnsupportedOperationException(
-                _pclass.getName() + " does not define a primary key");
+            if (requireKey) {
+                throw new UnsupportedOperationException(
+                    _pclass.getName() + " does not define a primary key");
+            }
+            return null;
         }
+
         try {
             Comparable[] values = new Comparable[_pkColumns.size()];
+            boolean hasNulls = false;
             for (int ii = 0; ii < _pkColumns.size(); ii++) {
                 FieldMarshaller field = _pkColumns.get(ii);
                 values[ii] = (Comparable) field.getField().get(object);
+                if (values[ii] == null || Integer.valueOf(0).equals(values[ii])) {
+                    // if this is the first null we see but not the first field, freak out
+                    if (!hasNulls && ii > 0) {
+                        throw new IllegalArgumentException(
+                            "Persistent object's primary key fields are mixed null and non-null.");
+                    }
+                    hasNulls = true;
+                } else if (hasNulls) {
+                    // if this is a non-null field and we've previously seen nulls, also freak
+                    throw new IllegalArgumentException(
+                        "Persistent object's primary key fields are mixed null and non-null.");
+                }
             }
-            return makePrimaryKey(values);
+
+            // if all the fields were null, return null, else build a key
+            return hasNulls ? null : makePrimaryKey(values);
+
         } catch (IllegalAccessException iae) {
             throw new RuntimeException(iae);
         }

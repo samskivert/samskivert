@@ -53,23 +53,29 @@ public abstract class Modifier
     }
 
     /**
-     * A simple modifier that updates the cache with its modified object on completion. The derived
-     * class must call {@link #setInstance} to inform the modifier of its object at some point
-     * during the modification operation.
+     * A convenience modifier that can perform cache updates in addition to invalidation:
+     * - Before {@link #invoke(Connection)}, the {@link CacheInvalidator} is run, if given.
+     * - After {@link #invoke(Connection)}, the cache is updated with the modified object,
+     * presuming both _key and _result are non-null. These variables may be set or modified
+     * during execution in addition to being supplied to the constructor.
      */
     public static abstract class CachingModifier<T> extends Modifier
     {
-        protected CachingModifier (CacheKey key, CacheInvalidator invalidator)
+        /**
+         * Construct a new CachingModifier with the given result, cache key, and invalidator,
+         * all of which are optional, and may also be set during execution.
+         */
+        protected CachingModifier (T result, CacheKey key, CacheInvalidator invalidator)
         {
             super(invalidator);
+            _result = result;
             _key = key;
         }
 
-        protected void setInstance (T result)
-        {
-            _result = result;
-        }
-
+        /**
+         * Update this {@link CachingModifier}'s cache key, e.g. during insertion when a
+         * persistent object first receives a generated key.
+         */
         protected void updateKey (CacheKey key)
         {
             if (key != null) {
@@ -77,11 +83,12 @@ public abstract class Modifier
             }
         }
 
-        @Override
+        @Override // from Modifier
         public void cacheUpdate (PersistenceContext ctx)
         {
             super.cacheUpdate(ctx);
-            if (_key != null) {
+            // if we have both a key and a record, cache
+            if (_key != null && _result != null) {
                 ctx.cacheStore(_key, _result);
             }
         }
@@ -90,13 +97,23 @@ public abstract class Modifier
         protected T _result;
     }
 
+    /**
+     * Overriden to perform the actual database modifications represented by this object;
+     * should return the number of modified rows.
+     */
     public abstract int invoke (Connection conn) throws SQLException;
 
+    /**
+     * Constructs a {@link Modifier} without a cache invalidator.
+     */
     public Modifier ()
     {
         this(null);
     }
 
+    /**
+     * Constructs a {@link Modifier} with the given cache invalidator.
+     */
     public Modifier (CacheInvalidator invalidator)
     {
         _invalidator = invalidator;

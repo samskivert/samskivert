@@ -189,7 +189,9 @@ public class DepotRepository
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
-        return _ctx.invoke(new CachingModifier<T>(null, null) {
+        final Key key = marsh.getPrimaryKey(record, false);
+        // key will be null if record was supplied without a primary key
+        return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 // update our modifier's key so that it can cache our results
                 updateKey(marsh.assignPrimaryKey(conn, record, false));
@@ -198,7 +200,6 @@ public class DepotRepository
                     int mods = stmt.executeUpdate();
                     // check again in case we have a post-factum key generator
                     updateKey(marsh.assignPrimaryKey(conn, record, true));
-                    setInstance(record);
                     return mods;
                 } finally {
                     JDBCUtil.close(stmt);
@@ -218,7 +219,10 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
         final Key key = marsh.getPrimaryKey(record);
-        return _ctx.invoke(new CachingModifier<T>(key, key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Can't update record with null primary key.");
+        }
+        return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(conn, record, key);
                 try {
@@ -241,7 +245,10 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
         final Key key = marsh.getPrimaryKey(record);
-        return _ctx.invoke(new CachingModifier<T>(key, key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Can't update record with null primary key.");
+        }
+        return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(conn, record, key, modifiedFields);
                 try {
@@ -408,13 +415,13 @@ public class DepotRepository
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
         final Key key = marsh.hasPrimaryKey() ? marsh.getPrimaryKey(record) : null;
-        return _ctx.invoke(new CachingModifier<T>(key, key) {
+        return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
-                    // if our primary key is null or is the integer 0, assume the record has never
+                    // if our primary key isn't null, update rather than insert the record
                     // before been persisted and insert
-                    if (key != null && !Integer.valueOf(0).equals(key)) {
+                    if (key != null) {
                         stmt = marsh.createUpdate(conn, record, key);
                         int mods = stmt.executeUpdate();
                         if (mods > 0) {
@@ -429,7 +436,6 @@ public class DepotRepository
                     stmt = marsh.createInsert(conn, record);
                     int mods = stmt.executeUpdate();
                     updateKey(marsh.assignPrimaryKey(conn, record, true));
-                    setInstance(record);
                     return mods;
 
                 } finally {
@@ -450,6 +456,9 @@ public class DepotRepository
     {
         @SuppressWarnings("unchecked") Class<T> type = (Class<T>)record.getClass();
         Key<T> primaryKey = _ctx.getMarshaller(type).getPrimaryKey(record);
+        if (primaryKey == null) {
+            throw new IllegalArgumentException("Can't delete record with null primary key.");
+        }
         return deleteAll(type, primaryKey, primaryKey);
     }
 

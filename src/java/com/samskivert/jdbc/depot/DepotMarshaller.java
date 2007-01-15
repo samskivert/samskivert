@@ -31,8 +31,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -42,8 +46,10 @@ import com.samskivert.jdbc.depot.annotation.Entity;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.annotation.Id;
 import com.samskivert.jdbc.depot.annotation.Index;
+import com.samskivert.jdbc.depot.annotation.Table;
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
 import com.samskivert.jdbc.depot.annotation.Transient;
+import com.samskivert.jdbc.depot.annotation.UniqueConstraint;
 
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.Where;
@@ -71,8 +77,10 @@ public class DepotMarshaller<T>
     {
         _pclass = pclass;
 
-        // see if this is a computed entity
         Entity entity = pclass.getAnnotation(Entity.class);
+        Table table = null;
+
+        // see if this is a computed entity
         Computed computed = pclass.getAnnotation(Computed.class);
         if (computed == null) {
             // if not, this class has a corresponding SQL table
@@ -86,6 +94,9 @@ public class DepotMarshaller<T>
                 }
                 _postamble = entity.postamble();
             }
+
+            // check for a Table annotation, for unique constraints
+            table = pclass.getAnnotation(Table.class);
         }
 
         // if the entity defines a new TableGenerator, map that in our static table as those are
@@ -218,6 +229,14 @@ public class DepotMarshaller<T>
                 // TODO: delegate this to a database specific SQL generator
                 _declarations.add(index.type() + " index " + index.name() +
                                   " (" + StringUtil.join(index.columns(), ", ") + ")");
+            }
+        }
+
+        // add any unique constraints given
+        if (table != null) {
+            for (UniqueConstraint constraint : table.uniqueConstraints()) {
+                _declarations.add(
+                    "UNIQUE (" + StringUtil.join(constraint.columnNames(), ", ") + ")");
             }
         }
 
@@ -666,8 +685,8 @@ public class DepotMarshaller<T>
         }
 
         // enumerate all of the columns now that we've run our pre-migrations
-        final HashSet<String> columns = new HashSet<String>();
-        final HashSet<String> indices = new HashSet<String>();
+        final Set<String> columns = new HashSet<String>();
+        final Map<String, Set<String>> indexColumns = new HashMap<String, Set<String>>();
         ctx.invoke(new Modifier() {
             public int invoke (Connection conn) throws SQLException {
                 DatabaseMetaData meta = conn.getMetaData();
@@ -675,13 +694,33 @@ public class DepotMarshaller<T>
                 while (rs.next()) {
                     columns.add(rs.getString("COLUMN_NAME"));
                 }
+
                 rs = meta.getIndexInfo(null, null, getTableName(), false, false);
                 while (rs.next()) {
-                    indices.add(rs.getString("INDEX_NAME"));
+                    String indexName = rs.getString("INDEX_NAME");
+                    Set<String> set = indexColumns.get(indexName);
+                    if (rs.getBoolean("NON_UNIQUE")) {
+                        // not a unique index: just make sure there's an entry in the keyset
+                        if (set == null) {
+                            indexColumns.put(indexName, null);
+                        }
+
+                    } else {
+                        // for unique indices we collect the column names
+                        if (set == null) {
+                            set = new HashSet<String>();
+                            indexColumns.put(indexName, set);
+                        }
+                        set.add(rs.getString("COLUMN_NAME"));
+                    }
                 }
+
                 return 0;
             }
         });
+
+        // this is a little silly, but we need a copy for name disambiguation later
+        Set<String> indicesCopy = new HashSet<String>(indexColumns.keySet());
 
         // add any missing columns
         for (String fname : _columnFields) {
@@ -717,12 +756,12 @@ public class DepotMarshaller<T>
         }
 
         // add or remove the primary key as needed
-        if (hasPrimaryKey() && !indices.remove("PRIMARY")) {
+        if (hasPrimaryKey() && !indexColumns.containsKey("PRIMARY")) {
             String pkdef = "primary key (" + getPrimaryKeyColumns() + ")";
             log.info("Adding primary key to " + getTableName() + ": " + pkdef);
             ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " add " + pkdef));
 
-        } else if (!hasPrimaryKey() && indices.remove("PRIMARY")) {
+        } else if (!hasPrimaryKey() && indexColumns.remove("PRIMARY") != null) {
             log.info("Dropping primary from " + getTableName());
             ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " drop primary key"));
         }
@@ -730,13 +769,49 @@ public class DepotMarshaller<T>
         // add any missing indices
         Entity entity = _pclass.getAnnotation(Entity.class);
         for (Index index : (entity == null ? new Index[0] : entity.indices())) {
-            if (indices.remove(index.name())) {
+            if (indexColumns.remove(index.name()) != null) {
                 continue;
             }
             String indexdef = "create " + index.type() + " index " + index.name() +
                 " on " + getTableName() + " (" + StringUtil.join(index.columns(), ", ") + ")";
             log.info("Adding index: " + indexdef);
             ctx.invoke(new Modifier.Simple(indexdef));
+        }
+
+        // to get the @Table(uniqueIndices...) indices, we use our clever set of column name sets
+        Set<Set<String>> uniqueIndices = new HashSet<Set<String>>(indexColumns.values());
+        Table table;
+        if (getTableName() != null && (table = _pclass.getAnnotation(Table.class)) != null) {
+            Set<String> colSet = new HashSet<String>();
+            for (UniqueConstraint constraint : table.uniqueConstraints()) {
+                // for each given UniqueConstraint, build a new column set
+                colSet.clear();
+                for (String column : constraint.columnNames()) {
+                    colSet.add(column);
+                }
+                // and check if the table contained this set
+                if (uniqueIndices.contains(colSet)) {
+                    continue; // good, carry on
+                }
+
+                // else build the index; we'll use mysql's convention of naming it after a column,
+                // with possible _N disambiguation; luckily we made a copy of the index names!
+                String indexName = colSet.iterator().next();
+                if (indicesCopy.contains(indexName)) {
+                    int num = 1;
+                    indexName += "_";
+                    while (indicesCopy.contains(indexName + num)) {
+                        num ++;
+                    }
+                    indexName += num;
+                }
+
+                String[] columnArr = colSet.toArray(new String[colSet.size()]);
+                String indexdef = "create unique index " + indexName + " on " +
+                    getTableName() + " (" + StringUtil.join(columnArr, ", ") + ")";
+                log.info("Adding unique index: " + indexdef);
+                ctx.invoke(new Modifier.Simple(indexdef));
+            }
         }
 
         // we do not auto-remove columns but rather require that EntityMigration.Drop records be

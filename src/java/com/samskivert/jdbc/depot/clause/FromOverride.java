@@ -26,17 +26,30 @@ import java.util.Collection;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.PersistentRecord;
-import com.samskivert.util.CollectionUtil;
 
 /**
  *  Completely overrides the FROM clause, if it exists.
  */
 public class FromOverride extends QueryClause
 {
-    public FromOverride (Class<? extends PersistentRecord>... fromClasses)
+    public FromOverride (Class<? extends PersistentRecord> fromClass)
         throws PersistenceException
     {
-        CollectionUtil.addAll(_fromClasses, fromClasses);
+        _fromClasses.add(fromClass);
+    }
+
+    public FromOverride (Class<? extends PersistentRecord> fromClass1,
+                         Class<? extends PersistentRecord> fromClass2)
+        throws PersistenceException
+    {
+        _fromClasses.add(fromClass1);
+        _fromClasses.add(fromClass2);
+    }
+
+    public FromOverride (Collection<Class<? extends PersistentRecord>> fromClasses)
+        throws PersistenceException
+    {
+        _fromClasses.addAll(fromClasses);
     }
 
     // from QueryClause

@@ -22,24 +22,22 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 
 import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.ValueExp;
-import com.samskivert.jdbc.depot.operator.SQLOperator;
 import com.samskivert.jdbc.depot.operator.Conditionals.Equals;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
 import com.samskivert.jdbc.depot.operator.Logic.And;
+import com.samskivert.jdbc.depot.operator.SQLOperator;
 
 /**
  * Represents a where clause: the condition can be any comparison operator or logical combination
  * thereof.
  */
-public class Where
-    implements QueryClause
+public class Where extends QueryClause
 {
     public Where (String index, Comparable value)
     {
@@ -88,13 +86,7 @@ public class Where
     }
 
     // from QueryClause
-    public List<Class> getClassSet()
-    {
-        return Arrays.asList(new Class[] { });
-    }
-
-    // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" where ");
         _condition.appendExpression(query, builder);

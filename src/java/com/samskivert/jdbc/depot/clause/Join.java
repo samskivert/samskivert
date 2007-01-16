@@ -22,22 +22,23 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
-import com.samskivert.jdbc.depot.operator.SQLOperator;
 import com.samskivert.jdbc.depot.operator.Conditionals.*;
+import com.samskivert.jdbc.depot.operator.SQLOperator;
 
 /**
  *  Represents a JOIN -- currently just an INNER one.
  */
-public class Join
-    implements QueryClause
+public class Join extends QueryClause
 {
-    public Join (Class pClass, String pCol, Class joinClass, String jCol)
+    public Join (Class<? extends PersistentRecord> pClass, String pCol,
+                 Class<? extends PersistentRecord> joinClass, String jCol)
         throws PersistenceException
     {
         _joinClass = joinClass;
@@ -51,20 +52,23 @@ public class Join
         _joinCondition = new Equals(primary, join);
     }
 
-    public Join (Class joinClass, SQLOperator joinCondition)
+    public Join (Class<? extends PersistentRecord> joinClass, SQLOperator joinCondition)
     {
         _joinClass = joinClass;
         _joinCondition = joinCondition;
     }
 
     // from QueryClause
-    public Collection<Class> getClassSet ()
+    public Collection<Class<? extends PersistentRecord>> getClassSet ()
     {
-        return Arrays.asList(new Class[] { _joinClass });
+        ArrayList<Class<? extends PersistentRecord>> set =
+            new ArrayList<Class<? extends PersistentRecord>>();
+        set.add(_joinClass);
+        return set;
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" inner join " );
         builder.append(query.getTableName(_joinClass)).append(" as ");
@@ -80,7 +84,7 @@ public class Join
     }
 
     /** The class of the table we're to join against. */
-    protected Class _joinClass;
+    protected Class<? extends PersistentRecord> _joinClass;
 
     /** The condition used to join in the new table. */
     protected SQLOperator _joinCondition;

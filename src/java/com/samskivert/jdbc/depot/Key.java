@@ -23,9 +23,9 @@ package com.samskivert.jdbc.depot;
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.samskivert.jdbc.depot.clause.Where;
@@ -37,7 +37,7 @@ import com.samskivert.jdbc.depot.clause.Where;
  * itself upon modification. This class is created by many {@link DepotMarshaller} methods as
  * a convenience, and may also be instantiated explicitly.
  */
-public class Key<T> extends Where
+public class Key<T extends PersistentRecord> extends Where
     implements CacheKey, CacheInvalidator
 {
     /**
@@ -94,13 +94,16 @@ public class Key<T> extends Where
     }
 
     // from QueryClause
-    public List<Class> getClassSet()
+    public Collection<Class<? extends PersistentRecord>> getClassSet ()
     {
-        return Arrays.asList(new Class[] { _pClass });
+        ArrayList<Class<? extends PersistentRecord>> set =
+            new ArrayList<Class<? extends PersistentRecord>>();
+        set.add(_pClass);
+        return set;
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" where ");
         boolean first = true;

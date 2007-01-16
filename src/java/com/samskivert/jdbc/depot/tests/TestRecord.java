@@ -6,6 +6,7 @@ package com.samskivert.jdbc.depot.tests;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.Entity;
 import com.samskivert.jdbc.depot.annotation.Id;
@@ -17,7 +18,7 @@ import com.samskivert.util.StringUtil;
  * A test persistent object.
  */
 @Entity(indices={ @Index(name="createdIndex", columns={"created"}) })
-public class TestRecord
+public class TestRecord extends PersistentRecord
 {
     public static final int SCHEMA_VERSION = 1;
 

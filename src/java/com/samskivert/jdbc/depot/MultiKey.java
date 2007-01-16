@@ -22,9 +22,9 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.samskivert.jdbc.depot.clause.Where;
@@ -34,7 +34,7 @@ import com.samskivert.jdbc.depot.clause.Where;
  * does not implement {@link CacheKey} but it does implement {@link CacheInvalidator} which means
  * it can be sent into e.g. {@link DepotRepository#deleteAll) and have it clean up after itself.
  */
-public class MultiKey<T> extends Where
+public class MultiKey<T extends PersistentRecord> extends Where
     implements CacheInvalidator
 {
     /**
@@ -85,13 +85,16 @@ public class MultiKey<T> extends Where
     }
 
     // from QueryClause
-    public List<Class> getClassSet()
+    public Collection<Class<? extends PersistentRecord>> getClassSet ()
     {
-        return Arrays.asList(new Class[] { _pClass });
+        ArrayList<Class<? extends PersistentRecord>> set =
+            new ArrayList<Class<? extends PersistentRecord>>();
+        set.add(_pClass);
+        return set;
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" where ");
         boolean first = true;

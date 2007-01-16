@@ -22,7 +22,6 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
 
 import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
@@ -31,8 +30,7 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 /**
  *  Represents an ORDER BY clause.
  */
-public class OrderBy
-    implements QueryClause
+public class OrderBy extends QueryClause
 {
     /** Indicates the order of the clause. */
     public enum Order { ASC, DESC };
@@ -76,13 +74,7 @@ public class OrderBy
     }
 
     // from QueryClause
-    public Collection<Class> getClassSet ()
-    {
-        return null;
-    }
-
-    // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" order by ");
         for (int ii = 0; ii < _values.length; ii++) {

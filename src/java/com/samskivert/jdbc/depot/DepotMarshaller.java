@@ -63,7 +63,7 @@ import static com.samskivert.jdbc.depot.Log.log;
  * Handles the marshalling and unmarshalling of persistent instances to JDBC primitives ({@link
  * PreparedStatement} and {@link ResultSet}).
  */
-public class DepotMarshaller<T>
+public class DepotMarshaller<T extends PersistentRecord>
 {
     /** The name of a private static field that must be defined for all persistent object classes.
      * It is used to handle schema migration. If automatic schema migration is not desired, define

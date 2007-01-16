@@ -20,53 +20,45 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.util.CollectionUtil;
 
 /**
  *  Completely overrides the FROM clause, if it exists.
  */
-public class FromOverride
-    implements QueryClause
+public class FromOverride extends QueryClause
 {
-    public FromOverride (Class... fromClasses)
+    public FromOverride (Class<? extends PersistentRecord>... fromClasses)
         throws PersistenceException
     {
-        _fromClasses = fromClasses;
+        CollectionUtil.addAll(_fromClasses, fromClasses);
     }
 
     // from QueryClause
-    public Collection<Class> getClassSet ()
+    public Collection<Class<? extends PersistentRecord>> getClassSet ()
     {
-        return Arrays.asList(_fromClasses);
+        return _fromClasses;
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" from " );
-        for (int ii = 0; ii < _fromClasses.length; ii++) {
+        for (int ii = 0; ii < _fromClasses.size(); ii++) {
             if (ii > 0) {
                 builder.append(", ");
             }
-            builder.append(query.getTableName(_fromClasses[ii])).
-                append(" as ").
-                append(query.getTableAbbreviation(_fromClasses[ii]));
+            builder.append(query.getTableName(_fromClasses.get(ii))).
+                append(" as ").append(query.getTableAbbreviation(_fromClasses.get(ii)));
         }
     }
 
-    // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
-    {
-        return argIdx;
-    }
-
     /** The classes of the tables we're selecting from. */
-    protected Class[] _fromClasses;
+    protected ArrayList<Class<? extends PersistentRecord>> _fromClasses =
+        new ArrayList<Class<? extends PersistentRecord>>();
 }

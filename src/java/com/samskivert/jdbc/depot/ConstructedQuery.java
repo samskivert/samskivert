@@ -65,7 +65,7 @@ public abstract class ConstructedQuery<T>
      *
      * This method is called by individual clauses.
      */
-    public String getTableAbbreviation (Class cl)
+    public String getTableAbbreviation (Class<? extends PersistentRecord> cl)
     {
         int ix = _classList.indexOf(cl);
         if (ix < 0) {
@@ -197,11 +197,13 @@ public abstract class ConstructedQuery<T>
      * class, as dictated by the key and query clauses.  A persistence context is supplied for
      * instantiation of marshallers, which may trigger table creations and schema migrations.
      */
-    protected ConstructedQuery (PersistenceContext ctx, Class type, QueryClause... clauses)
+    protected ConstructedQuery (PersistenceContext ctx, Class<? extends PersistentRecord> type,
+                                QueryClause... clauses)
         throws PersistenceException
     {
         _mainType = type;
-        Set<Class> classSet = new HashSet<Class>();
+        Set<Class<? extends PersistentRecord>> classSet =
+            new HashSet<Class<? extends PersistentRecord>>();
         if (type != null) {
             classSet.add(type);
         }
@@ -261,17 +263,17 @@ public abstract class ConstructedQuery<T>
         }
         _classMap = new HashMap<Class, DepotMarshaller>();
 
-        for (Class<?> c : classSet) {
+        for (Class<? extends PersistentRecord> c : classSet) {
             _classMap.put(c, ctx.getMarshaller(c));
         }
-        _classList = new ArrayList<Class>(classSet);
+        _classList = new ArrayList<Class<? extends PersistentRecord>>(classSet);
     }
     
     /** The persistent class to instantiate for the results. */
-    protected Class _mainType;
+    protected Class<? extends PersistentRecord> _mainType;
 
     /** A list of referenced classes, used to generate table abbreviations. */
-    protected List<Class> _classList;
+    protected List<Class<? extends PersistentRecord>> _classList;
 
     /** Classes mapped to marshallers, used for table names and field lists. */
     protected Map<Class, DepotMarshaller> _classMap;

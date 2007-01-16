@@ -29,9 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.JDBCUtil;
@@ -66,7 +63,8 @@ public class DepotRepository
     /**
      * Loads the persistent object that matches the specified primary key.
      */
-    protected <T> T load (Class<T> type, Comparable primaryKey, QueryClause... clauses)
+    protected <T extends PersistentRecord> T load (Class<T> type, Comparable primaryKey,
+                                                   QueryClause... clauses)
         throws PersistenceException
     {
         clauses = ArrayUtil.append(clauses, _ctx.getMarshaller(type).makePrimaryKey(primaryKey));
@@ -76,7 +74,8 @@ public class DepotRepository
     /**
      * Loads the persistent object that matches the specified primary key.
      */
-    protected <T> T load (Class<T> type, String ix, Comparable val, QueryClause... clauses)
+    protected <T extends PersistentRecord> T load (Class<T> type, String ix, Comparable val,
+                                                   QueryClause... clauses)
         throws PersistenceException
     {
         clauses = ArrayUtil.append(clauses, new Key<T>(type, ix, val));
@@ -86,8 +85,9 @@ public class DepotRepository
     /**
      * Loads the persistent object that matches the specified two-column primary key.
      */
-    protected <T> T load (Class<T> type, String ix1, Comparable val1, String ix2,
-                          Comparable val2, QueryClause... clauses)
+    protected <T extends PersistentRecord> T load (Class<T> type, String ix1, Comparable val1,
+                                                   String ix2, Comparable val2,
+                                                   QueryClause... clauses)
         throws PersistenceException
     {
         clauses = ArrayUtil.append(clauses, new Key<T>(type, ix1, val1, ix2, val2));
@@ -97,8 +97,9 @@ public class DepotRepository
     /**
      * Loads the persistent object that matches the specified three-column primary key.
      */
-    protected <T> T load (Class<T> type, String ix1, Comparable val1, String ix2,
-                          Comparable val2, String ix3, Comparable val3, QueryClause... clauses)
+    protected <T extends PersistentRecord> T load (Class<T> type, String ix1, Comparable val1,
+                                                   String ix2, Comparable val2, String ix3,
+                                                   Comparable val3, QueryClause... clauses)
         throws PersistenceException
     {
         clauses = ArrayUtil.append(clauses, new Key<T>(type, ix1, val1, ix2, val2, ix3, val3));
@@ -108,7 +109,7 @@ public class DepotRepository
     /**
      * Loads the first persistent object that matches the supplied key.
      */
-    protected <T> T load (Class<T> type, QueryClause... clauses)
+    protected <T extends PersistentRecord> T load (Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
@@ -130,6 +131,7 @@ public class DepotRepository
                 }
             }
 
+            // from Query
             public void updateCache (PersistenceContext ctx, T result) {
                 CacheKey key = getCacheKey();
                 if (key == null) {
@@ -140,7 +142,18 @@ public class DepotRepository
                     // if we can, create a key from what was actually returned
                     key = marsh.getPrimaryKey(result);
                 }
-                ctx.cacheStore(key, result);
+                ctx.cacheStore(key, result != null ? result.clone() : null);
+            }
+
+            // from Query
+            public T transformCacheHit (CacheKey key, T value)
+            {
+                // we do not want to return a reference to the actual cached entity
+                if (value == null) {
+                    return null;
+                }
+                @SuppressWarnings("unchecked") T cvalue = (T) value.clone();
+                return cvalue;
             }
         });
     }
@@ -148,7 +161,7 @@ public class DepotRepository
     /**
      * Loads all persistent objects that match the specified key.
      */
-    protected <T,C extends Collection<T>> Collection<T> findAll (
+    protected <T extends PersistentRecord, C extends Collection<T>> Collection<T> findAll (
         Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {
@@ -169,12 +182,32 @@ public class DepotRepository
                 }
             }
 
+            // from Query
             public void updateCache (PersistenceContext ctx, ArrayList<T> result) {
                 if (marsh.hasPrimaryKey()) {
                     for (T bit : result) {
-                        ctx.cacheStore(marsh.getPrimaryKey(bit), bit);
+                        ctx.cacheStore(marsh.getPrimaryKey(bit), bit.clone());
                     }
                 }
+            }
+
+            // from Query
+            public ArrayList<T> transformCacheHit (CacheKey key, ArrayList<T> bits)
+            {
+                if (bits == null) {
+                    return bits;
+                }
+
+                ArrayList<T> result = new ArrayList<T>();
+                for (T bit : bits) {
+                    if (bit != null) {
+                        @SuppressWarnings("unchecked") T cbit = (T) bit.clone();
+                        result.add(cbit);
+                    } else {
+                        result.add(null);
+                    }
+                }
+                return result;
             }
         });
     }
@@ -185,7 +218,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action, this should always be one.
      */
-    protected <T> int insert (final T record)
+    protected <T extends PersistentRecord> int insert (T record)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
@@ -194,12 +227,12 @@ public class DepotRepository
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 // update our modifier's key so that it can cache our results
-                updateKey(marsh.assignPrimaryKey(conn, record, false));
-                PreparedStatement stmt = marsh.createInsert(conn, record);
+                updateKey(marsh.assignPrimaryKey(conn, _result, false));
+                PreparedStatement stmt = marsh.createInsert(conn, _result);
                 try {
                     int mods = stmt.executeUpdate();
                     // check again in case we have a post-factum key generator
-                    updateKey(marsh.assignPrimaryKey(conn, record, true));
+                    updateKey(marsh.assignPrimaryKey(conn, _result, true));
                     return mods;
                 } finally {
                     JDBCUtil.close(stmt);
@@ -214,7 +247,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int update (final T record)
+    protected <T extends PersistentRecord> int update (T record)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
@@ -224,7 +257,7 @@ public class DepotRepository
         }
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = marsh.createUpdate(conn, record, key);
+                PreparedStatement stmt = marsh.createUpdate(conn, _result, key);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -240,7 +273,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int update (final T record, final String... modifiedFields)
+    protected <T extends PersistentRecord> int update (T record, final String... modifiedFields)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
@@ -250,7 +283,7 @@ public class DepotRepository
         }
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = marsh.createUpdate(conn, record, key, modifiedFields);
+                PreparedStatement stmt = marsh.createUpdate(conn, _result, key, modifiedFields);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -270,8 +303,8 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updatePartial (Class<T> type, Comparable primaryKey,
-                                     Map<String,Object> updates)
+    protected <T extends PersistentRecord> int updatePartial (
+        Class<T> type, Comparable primaryKey, Map<String,Object> updates)
         throws PersistenceException
     {
         Object[] fieldsValues = new Object[updates.size()*2];
@@ -293,7 +326,8 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updatePartial (Class<T> type, Comparable primaryKey, Object... fieldsValues)
+    protected <T extends PersistentRecord> int updatePartial (
+        Class<T> type, Comparable primaryKey, Object... fieldsValues)
         throws PersistenceException
     {
         Key<T> key = _ctx.getMarshaller(type).makePrimaryKey(primaryKey);
@@ -312,8 +346,8 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updatePartial (Class<T> type, final Where key, CacheInvalidator invalidator,
-                                     Object... fieldsValues)
+    protected <T extends PersistentRecord> int updatePartial (
+        Class<T> type, final Where key, CacheInvalidator invalidator, Object... fieldsValues)
         throws PersistenceException
     {
         // separate the arguments into keys and values
@@ -354,7 +388,8 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updateLiteral (Class<T> type, Comparable primaryKey, String... fieldsValues)
+    protected <T extends PersistentRecord> int updateLiteral (
+        Class<T> type, Comparable primaryKey, String... fieldsValues)
         throws PersistenceException
     {
         Key<T> key = _ctx.getMarshaller(type).makePrimaryKey(primaryKey);
@@ -378,8 +413,8 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action.
      */
-    protected <T> int updateLiteral (Class<T> type, final Where key, CacheInvalidator invalidator,
-                                     String... fieldsValues)
+    protected <T extends PersistentRecord> int updateLiteral (
+        Class<T> type, final Where key, CacheInvalidator invalidator, String... fieldsValues)
         throws PersistenceException
     {
         // separate the arguments into keys and values
@@ -410,7 +445,7 @@ public class DepotRepository
      *
      * @return the number of rows modified by this action, this should always be one.
      */
-    protected <T> int store (final T record)
+    protected <T extends PersistentRecord> int store (T record)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
@@ -422,7 +457,7 @@ public class DepotRepository
                     // if our primary key isn't null, update rather than insert the record
                     // before been persisted and insert
                     if (key != null) {
-                        stmt = marsh.createUpdate(conn, record, key);
+                        stmt = marsh.createUpdate(conn, _result, key);
                         int mods = stmt.executeUpdate();
                         if (mods > 0) {
                             return mods;
@@ -432,10 +467,10 @@ public class DepotRepository
 
                     // if the update modified zero rows or the primary key was obviously unset, do
                     // an insertion
-                    updateKey(marsh.assignPrimaryKey(conn, record, false));
-                    stmt = marsh.createInsert(conn, record);
+                    updateKey(marsh.assignPrimaryKey(conn, _result, false));
+                    stmt = marsh.createInsert(conn, _result);
                     int mods = stmt.executeUpdate();
-                    updateKey(marsh.assignPrimaryKey(conn, record, true));
+                    updateKey(marsh.assignPrimaryKey(conn, _result, true));
                     return mods;
 
                 } finally {
@@ -451,7 +486,7 @@ public class DepotRepository
      *
      * @return the number of rows deleted by this action.
      */
-    protected <T> int delete (T record)
+    protected <T extends PersistentRecord> int delete (T record)
         throws PersistenceException
     {
         @SuppressWarnings("unchecked") Class<T> type = (Class<T>)record.getClass();
@@ -468,7 +503,7 @@ public class DepotRepository
      *
      * @return the number of rows deleted by this action.
      */
-    protected <T> int delete (Class<T> type, Comparable primaryKeyValue)
+    protected <T extends PersistentRecord> int delete (Class<T> type, Comparable primaryKeyValue)
         throws PersistenceException
     {
         Key<T> primaryKey = _ctx.getMarshaller(type).makePrimaryKey(primaryKeyValue);
@@ -480,7 +515,8 @@ public class DepotRepository
      *
      * @return the number of rows deleted by this action.
      */
-    protected <T> int deleteAll (Class<T> type, final Where key, CacheInvalidator invalidator)
+    protected <T extends PersistentRecord> int deleteAll (
+        Class<T> type, final Where key, CacheInvalidator invalidator)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(type);

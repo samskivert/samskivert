@@ -20,12 +20,9 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Collection;
-
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
@@ -38,8 +35,7 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
  * table through a {@link ColumnExp}, or a literal expression such as COUNT(*) through a
  * {@link LiteralExp}.
  */
-public class FieldOverride
-    implements QueryClause
+public class FieldOverride extends QueryClause
 {
     public FieldOverride (String field, String str)
         throws PersistenceException
@@ -47,7 +43,7 @@ public class FieldOverride
         this(field, new LiteralExp(str));
     }
 
-    public FieldOverride (String field, Class pClass, String pCol)
+    public FieldOverride (String field, Class<? extends PersistentRecord> pClass, String pCol)
         throws PersistenceException
     {
         this(field, new ColumnExp(pClass, pCol));
@@ -69,23 +65,10 @@ public class FieldOverride
     }
 
     // from QueryClause
-    public Collection<Class> getClassSet ()
-    {
-        return null;
-    }
-
-    // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         _override.appendExpression(query, builder);
         builder.append(" as ").append(_field);
-    }
-
-    // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
-    {
-        return argIdx;
     }
 
     /** The name of the field on the persistent object to override. */

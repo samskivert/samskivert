@@ -59,7 +59,7 @@ public abstract class Modifier
      * presuming both _key and _result are non-null. These variables may be set or modified
      * during execution in addition to being supplied to the constructor.
      */
-    public static abstract class CachingModifier<T> extends Modifier
+    public static abstract class CachingModifier<T extends PersistentRecord> extends Modifier
     {
         /**
          * Construct a new CachingModifier with the given result, cache key, and invalidator,
@@ -89,7 +89,7 @@ public abstract class Modifier
             super.cacheUpdate(ctx);
             // if we have both a key and a record, cache
             if (_key != null && _result != null) {
-                ctx.cacheStore(_key, _result);
+                ctx.cacheStore(_key, _result.clone());
             }
         }
 

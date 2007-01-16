@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
@@ -45,7 +46,7 @@ public abstract class Conditionals
             this(new ColumnExp(null, pColumn));
         }
 
-        public IsNull (Class pClass, String pColumn)
+        public IsNull (Class<? extends PersistentRecord> pClass, String pColumn)
         {
             this(new ColumnExp(pClass, pColumn));
         }
@@ -161,12 +162,13 @@ public abstract class Conditionals
             this(new ColumnExp(null, pColumn), values.toArray(new Comparable[values.size()]));
         }
 
-        public In (Class pClass, String pColumn, Comparable... values)
+        public In (Class<? extends PersistentRecord> pClass, String pColumn, Comparable... values)
         {
             this(new ColumnExp(pClass, pColumn), values);
         }
 
-        public In (Class pClass, String pColumn, Collection<? extends Comparable> values)
+        public In (Class<? extends PersistentRecord> pClass, String pColumn,
+                   Collection<? extends Comparable> values)
         {
             this(new ColumnExp(pClass, pColumn), values.toArray(new Comparable[values.size()]));
         }

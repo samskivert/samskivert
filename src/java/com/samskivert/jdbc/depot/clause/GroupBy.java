@@ -22,7 +22,6 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
 
 import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
@@ -30,8 +29,7 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 /**
  *  Represents a GROUP BY clause.
  */
-public class GroupBy
-    implements QueryClause
+public class GroupBy extends QueryClause
 {
     public GroupBy (SQLExpression... values)
     {
@@ -39,13 +37,7 @@ public class GroupBy
     }
 
     // from QueryClause
-    public Collection<Class> getClassSet ()
-    {
-        return null;
-    }
-
-    // from QueryClause
-    public void appendClause (ConstructedQuery query, StringBuilder builder)
+    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" group by ");
         for (int ii = 0; ii < _values.length; ii++) {

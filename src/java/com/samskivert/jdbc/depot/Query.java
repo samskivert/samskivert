@@ -38,9 +38,15 @@ public interface Query<T>
      */
     public T invoke (Connection conn)
         throws SQLException;
-    
+
+    /**
+     * Overriden by subclasses to perform special operations when the query would return a cache
+     * hit. The value may be mutated, modified, or null may be return to force a database hit.
+     */
+    public T transformCacheHit (CacheKey key, T value);
+
     /**
      * Overriden by subclasses to perform case-by-case cache updates.
      */
-    void updateCache (PersistenceContext ctx, T result);
+    public void updateCache (PersistenceContext ctx, T result);
 }

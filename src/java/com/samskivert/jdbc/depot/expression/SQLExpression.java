@@ -34,7 +34,7 @@ public interface SQLExpression
      * Construct the SQL form of this expression. The implementor is invited to call methods on the
      * Query object to e.g. resolve the current table abbreviations associated with classes.
      */
-    public void appendExpression (ConstructedQuery query, StringBuilder builder);
+    public void appendExpression (ConstructedQuery<?> query, StringBuilder builder);
 
     /**
      * Bind any objects that were referenced in the generated SQL.  For each ? that appears in the

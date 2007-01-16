@@ -25,29 +25,36 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
  * Represents a piece or modifier of an SQL query.
  */
-public interface QueryClause
+public abstract class QueryClause
 {
     /**
-     * Return a set of all persistent classes referenced by this clause.  Null may be returned if
-     * no classes are rererenced.
+     * Return a set of all persistent classes referenced by this clause. The default implementation
+     * returns null to indicate that no classes are rererenced.
      */
-    public Collection<Class> getClassSet ();
+    public Collection<Class<? extends PersistentRecord>> getClassSet ()
+    {
+        return null;
+    }
     
     /**
-     * Construct the SQL form of this query clause. The implementor is expected to call methods
-     * on the Query object to e.g. resolve current table abbreviations associated with classes.
+     * Construct the SQL form of this query clause. The implementor is expected to call methods on
+     * the Query object to e.g. resolve current table abbreviations associated with classes.
      */
-    public void appendClause (ConstructedQuery query, StringBuilder builder);
+    public abstract void appendClause (ConstructedQuery<?> query, StringBuilder builder);
 
     /**
      * Bind any objects that were referenced in the generated SQL.  For each ? that appears in the
      * SQL, precisely one parameter must be claimed and bound in this method, and argIdx
-     * incremented and returned.
+     * incremented and returned. The default implementation binds nothing.
      */
     public int bindArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException;
+        throws SQLException
+    {
+        return argIdx;
+    }
 }

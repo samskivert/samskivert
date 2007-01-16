@@ -140,7 +140,7 @@ public class PersistenceContext
      * and register a pre-migration for every single schema migration and they will then be
      * guaranteed to be run in registration order and with predictable pre- and post-conditions.
      */
-    public <T> void registerMigration (Class<T> type, EntityMigration migration)
+    public <T extends PersistentRecord> void registerMigration (Class<T> type, EntityMigration migration)
     {
         getRawMarshaller(type).registerMigration(migration);
     }
@@ -149,7 +149,7 @@ public class PersistenceContext
      * Returns the marshaller for the specified persistent object class, creating and initializing
      * it if necessary.
      */
-    public <T> DepotMarshaller<T> getMarshaller (Class<T> type)
+    public <T extends PersistentRecord> DepotMarshaller<T> getMarshaller (Class<T> type)
         throws PersistenceException
     {
         DepotMarshaller<T> marshaller = getRawMarshaller(type);
@@ -176,7 +176,11 @@ public class PersistenceContext
                 if (cacheHit != null) {
                     Log.debug("invoke: cache hit [hit=" + cacheHit + "]");
                     @SuppressWarnings("unchecked") T value = (T) cacheHit.getValue();
-                    return value;
+                    value = query.transformCacheHit(key, value);
+                    if (value != null) {
+                        return value;
+                    }
+                    Log.debug("invoke: transformCacheHit returned null; rejecting cached value.");
                 }
             }
             Log.debug("invoke: cache miss [key=" + key + "]");
@@ -337,7 +341,7 @@ public class PersistenceContext
      * Looks up and creates, but does not initialize, the marshaller for the specified Entity
      * type.
      */
-    protected <T> DepotMarshaller<T> getRawMarshaller (Class<T> type)
+    protected <T extends PersistentRecord> DepotMarshaller<T> getRawMarshaller (Class<T> type)
     {
         @SuppressWarnings("unchecked") DepotMarshaller<T> marshaller =
             (DepotMarshaller<T>)_marshallers.get(type);

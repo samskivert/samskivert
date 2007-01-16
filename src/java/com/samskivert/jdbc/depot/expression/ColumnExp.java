@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
  * An expression identifying a column of a class, e.g. GameRecord.itemId. If no class is given,
@@ -33,7 +34,7 @@ public class ColumnExp
     implements SQLExpression
 {
     /** The table that hosts the column we reference, or null. */
-    final public Class pClass;
+    final public Class<? extends PersistentRecord> pClass;
 
     /** The name of the column we reference. */
     final public String pColumn;
@@ -43,7 +44,7 @@ public class ColumnExp
         this(null, column);
     }
 
-    public ColumnExp (Class c, String column)
+    public ColumnExp (Class<? extends PersistentRecord> c, String column)
     {
         super();
         pClass = c;
@@ -51,7 +52,7 @@ public class ColumnExp
     }
 
     // from SQLExpression
-    public void appendExpression (ConstructedQuery query, StringBuilder builder)
+    public void appendExpression (ConstructedQuery<?> query, StringBuilder builder)
     {
         if (pClass == null || query == null) {
             builder.append(pColumn);

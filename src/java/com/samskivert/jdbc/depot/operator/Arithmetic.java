@@ -130,4 +130,54 @@ public abstract class Arithmetic
             return "/";
         }
     }
+
+    /** The SQL '&' operator. */
+    public static class BitAnd extends BinaryOperator
+    {
+        public BitAnd (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
+        public BitAnd (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public BitAnd (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        protected String operator()
+        {
+            return "&";
+        }
+    }
+
+    /** The SQL '|' operator. */
+    public static class BitOr extends BinaryOperator
+    {
+        public BitOr (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
+        public BitOr (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public BitOr (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        protected String operator()
+        {
+            return "|";
+        }
+    }
 }

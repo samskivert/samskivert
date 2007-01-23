@@ -114,6 +114,7 @@ public class UserManager
 	_loginURL = config.getProperty("login_url");
 	if (_loginURL == null) {
 	    Log.warning("No login_url supplied in user manager config. Authentication won't work.");
+            _loginURL = "/missing_login_url";
 	}
 
         // look up any override to our user auth cookie

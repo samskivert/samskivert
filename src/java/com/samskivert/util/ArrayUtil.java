@@ -808,6 +808,18 @@ public class ArrayUtil
      * Creates a new array that contains the contents of the first parameter
      * array followed by those of the second.
      */
+    public static int[] concatenate (int[] v1, int[] v2)
+    {
+        int[] values = new int[v1.length + v2.length];
+        System.arraycopy(v1, 0, values, 0, v1.length);
+        System.arraycopy(v2, 0, values, v1.length, v2.length);
+        return values;
+    }
+    
+    /**
+     * Creates a new array that contains the contents of the first parameter
+     * array followed by those of the second.
+     */
     public static <T extends Object> T[] concatenate (T[] v1, T[] v2)
     {
         @SuppressWarnings("unchecked")

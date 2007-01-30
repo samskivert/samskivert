@@ -119,7 +119,9 @@ public abstract class EntityMigration extends Modifier
 
     /**
      * This is called to provide the migration with the name of the entity table and access to its
-     * field marshallers prior to being invoked.
+     * field marshallers prior to being invoked. This will <em>only</em> be called after this
+     * migration has been determined to be runnable so one cannot rely on this method having been
+     * called in {@link #shouldRunMigration}.
      */
     protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers)
     {

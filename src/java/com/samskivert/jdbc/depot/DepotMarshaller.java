@@ -680,6 +680,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         for (EntityMigration migration : _migrations) {
             if (migration.runBeforeDefault() &&
                 migration.shouldRunMigration(currentVersion, _schemaVersion)) {
+                migration.init(getTableName(), _fields);
                 ctx.invoke(migration);
             }
         }

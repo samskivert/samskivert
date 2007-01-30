@@ -761,7 +761,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             log.info("Adding primary key to " + getTableName() + ": " + pkdef);
             ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " add " + pkdef));
 
-        } else if (!hasPrimaryKey() && indexColumns.remove("PRIMARY") != null) {
+        } else if (!hasPrimaryKey() && indexColumns.containsKey("PRIMARY")) {
+            indexColumns.remove("PRIMARY");
             log.info("Dropping primary from " + getTableName());
             ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " drop primary key"));
         }
@@ -769,7 +770,8 @@ public class DepotMarshaller<T extends PersistentRecord>
         // add any missing indices
         Entity entity = _pclass.getAnnotation(Entity.class);
         for (Index index : (entity == null ? new Index[0] : entity.indices())) {
-            if (indexColumns.remove(index.name()) != null) {
+            if (indexColumns.containsKey(index.name())) {
+                indexColumns.remove(index.name());
                 continue;
             }
             String indexdef = "create " + index.type() + " index " + index.name() +

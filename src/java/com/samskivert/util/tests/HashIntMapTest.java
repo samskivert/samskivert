@@ -61,7 +61,7 @@ public class HashIntMapTest extends TestCase
         populateTable(table);
 
         try {
-            File tmpfile = new File("/tmp/himt.dat");
+            File tmpfile = File.createTempFile("himt", "dat");
 
             FileOutputStream fout = new FileOutputStream(tmpfile);
             ObjectOutputStream out = new ObjectOutputStream(fout);

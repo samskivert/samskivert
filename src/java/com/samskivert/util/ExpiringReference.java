@@ -31,6 +31,15 @@ package com.samskivert.util;
 public class ExpiringReference<T>
 {
     /**
+     * Gets the value from an expiring reference but returns null if the supplied reference
+     * reference is null.
+     */
+    public static <T> T get (ExpiringReference<T> value)
+    {
+        return (value == null) ? null : value.getValue();
+    }
+
+    /**
      * Creates an reference to the specified value that will expire in the
      * specified number of milliseconds.
      */

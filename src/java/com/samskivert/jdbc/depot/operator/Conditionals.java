@@ -274,4 +274,29 @@ public abstract class Conditionals
         protected boolean _queryExpansion;
         protected ColumnExp[] _columns;
     }
+
+    /** The SQL ' like ' operator. */
+    public static class Like extends BinaryOperator
+    {
+        public Like (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
+        public Like (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public Like (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        protected String operator()
+        {
+            return " like ";
+        }
+    }
 }

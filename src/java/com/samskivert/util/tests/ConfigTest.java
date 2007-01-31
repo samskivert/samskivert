@@ -9,7 +9,7 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import com.samskivert.util.Config;
+import com.samskivert.util.PrefsConfig;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -24,7 +24,7 @@ public class ConfigTest extends TestCase
 
     public void runTest ()
     {
-        Config config = new Config("rsrc/util/test");
+        PrefsConfig config = new PrefsConfig("rsrc/util/test");
 
         System.out.println("prop1: " + config.getValue("prop1", 1));
         System.out.println("prop2: " + config.getValue("prop2", "two"));
@@ -51,8 +51,7 @@ public class ConfigTest extends TestCase
         config.setValue("sub.sub3", "three");
 
         Properties subprops = config.getSubProperties("sub");
-        System.out.println("Sub: " +
-                           StringUtil.toString(subprops.propertyNames()));
+        System.out.println("Sub: " + StringUtil.toString(subprops.propertyNames()));
     }
 
     public static Test suite ()

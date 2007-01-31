@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import com.samskivert.swing.RuntimeAdjust;
-import com.samskivert.util.Config;
+import com.samskivert.util.PrefsConfig;
 
 /**
  * Does something extraordinary.
@@ -18,7 +18,7 @@ public class AdjustTestApp
 {
     public static void main (String[] args)
     {
-        Config config = new Config("test");
+        PrefsConfig config = new PrefsConfig("test");
         new RuntimeAdjust.IntAdjust(
             "This is a test adjustment. It is nice.",
             "samskivert.test.int_adjust1", config, 5);

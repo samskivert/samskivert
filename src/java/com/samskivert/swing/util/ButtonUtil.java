@@ -16,7 +16,7 @@ import javax.swing.JToggleButton;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import com.samskivert.util.Config;
+import com.samskivert.util.PrefsConfig;
 import com.samskivert.util.IntListUtil;
 
 /**
@@ -25,8 +25,8 @@ import com.samskivert.util.IntListUtil;
 public class ButtonUtil
 {
     /**
-     * Set the specified button such that it alternates between being
-     * selected and not whenever it is pushed.
+     * Set the specified button such that it alternates between being selected and not whenever it
+     * is pushed.
      */
     public static synchronized void setToggling (AbstractButton b)
     {
@@ -44,28 +44,25 @@ public class ButtonUtil
     }
 
     /**
-     * Binds the supplied button to the named boolean property in the
-     * supplied config repository. When the button is pressed, it will
-     * update the config property and when the config property is changed
-     * (by the button or by other means) it will update the selected state
-     * of the button. When the button is made non-visible, it will be
-     * unbound to the config's property and rebound again if it is once
-     * again visible.
+     * Binds the supplied button to the named boolean property in the supplied config repository.
+     * When the button is pressed, it will update the config property and when the config property
+     * is changed (by the button or by other means) it will update the selected state of the
+     * button. When the button is made non-visible, it will be unbound to the config's property and
+     * rebound again if it is once again visible.
      */
     public static void bindToProperty (
-        String property, Config config, AbstractButton button, boolean defval)
+        String property, PrefsConfig config, AbstractButton button, boolean defval)
     {
         // create a config binding which will take care of everything
         new ButtonConfigBinding(property, config, button, defval);
     }
 
     /**
-     * Configure the specified button to cause the specified
-     * property to cycle through the specified values whenever the button is
-     * pressed.
+     * Configure the specified button to cause the specified property to cycle through the
+     * specified values whenever the button is pressed.
      */
     public static ActionListener cycleToProperty (
-        final String property, final Config config, AbstractButton button,
+        final String property, final PrefsConfig config, AbstractButton button,
         final int[] values)
     {
         ActionListener al = new ActionListener() {
@@ -87,7 +84,7 @@ public class ButtonUtil
     protected static class ButtonConfigBinding
         implements AncestorListener, PropertyChangeListener, ItemListener
     {
-        public ButtonConfigBinding (String property, Config config,
+        public ButtonConfigBinding (String property, PrefsConfig config,
                                     AbstractButton button, boolean defval)
         {
             _property = property;
@@ -136,7 +133,7 @@ public class ButtonUtil
         }
 
         protected String _property;
-        protected Config _config;
+        protected PrefsConfig _config;
         protected AbstractButton _button;
         protected boolean _defval;
     }

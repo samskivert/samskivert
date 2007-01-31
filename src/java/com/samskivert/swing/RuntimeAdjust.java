@@ -31,32 +31,28 @@ import javax.swing.Scrollable;
 
 import com.samskivert.Log;
 import com.samskivert.util.ComparableArrayList;
-import com.samskivert.util.Config;
+import com.samskivert.util.PrefsConfig;
 import com.samskivert.util.DebugChords;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 /**
- * Provides a service where named variables can be registered as
- * adjustable by the developer at runtime. Generally a special key is
- * configured (via {@link DebugChords}) to pop up the adjustable variables
- * interface which can then be used to toggle booleans, change integer
- * values and generally adjust debugging and tuning parameters. This is
- * not meant to be an interface for end-user configurable parameters, but
- * to allow the developer to tweak runtime parameters more easily.
+ * Provides a service where named variables can be registered as adjustable by the developer at
+ * runtime. Generally a special key is configured (via {@link DebugChords}) to pop up the
+ * adjustable variables interface which can then be used to toggle booleans, change integer values
+ * and generally adjust debugging and tuning parameters. This is not meant to be an interface for
+ * end-user configurable parameters, but to allow the developer to tweak runtime parameters more
+ * easily.
  *
- * <p> Adjustments are bound to a {@link Config} property which can be
- * changed through the config interface or through the bound runtime
- * adjust.
+ * <p> Adjustments are bound to a {@link PrefsConfig} property which can be changed through the
+ * config interface or through the bound runtime adjust.
  *
- * <p> <em>Note:</em> adjusts are meant to be arranged in a two level
- * hierarchy. An adjust's name, therefore, should be of the form:
- * <code>library.package.adjustment</code>. The <code>package</code>
- * component can consist of multiple words joined with a period, but the
- * <code>library</code> will always be the first word before the first
- * period and the <code>adjustment</code> always the last word after the
- * final period. This is mainly only important for organizing the runtime
- * adjustment editing interface.
+ * <p> <em>Note:</em> adjusts are meant to be arranged in a two level hierarchy. An adjust's name,
+ * therefore, should be of the form: <code>library.package.adjustment</code>. The
+ * <code>package</code> component can consist of multiple words joined with a period, but the
+ * <code>library</code> will always be the first word before the first period and the
+ * <code>adjustment</code> always the last word after the final period. This is mainly only
+ * important for organizing the runtime adjustment editing interface.
  */
 public class RuntimeAdjust
 {
@@ -147,8 +143,7 @@ public class RuntimeAdjust
     public static class BooleanAdjust extends Adjust
         implements ActionListener
     {
-        public BooleanAdjust (String descrip, String name,
-                              Config config, boolean defval)
+        public BooleanAdjust (String descrip, String name, PrefsConfig config, boolean defval)
         {
             super(descrip, name, config);
             _value = _config.getValue(_name, defval);
@@ -197,8 +192,7 @@ public class RuntimeAdjust
     /** Provides runtime adjustable integer variables. */
     public static class IntAdjust extends TextFieldAdjust
     {
-        public IntAdjust (String descrip, String name,
-                          Config config, int defval)
+        public IntAdjust (String descrip, String name, PrefsConfig config, int defval)
         {
             super(descrip, name, config);
             _value = _config.getValue(_name, defval);
@@ -251,8 +245,8 @@ public class RuntimeAdjust
     public static class EnumAdjust extends Adjust
         implements ActionListener
     {
-        public EnumAdjust (String descrip, String name,
-                           Config config, String[] values, String defval)
+        public EnumAdjust (String descrip, String name, PrefsConfig config,
+                           String[] values, String defval)
         {
             super(descrip, name, config);
             _values = values;
@@ -310,9 +304,8 @@ public class RuntimeAdjust
     public static class FileAdjust extends Adjust
         implements ActionListener
     {
-        public FileAdjust (String descrip, String name,
-                           Config config, boolean directoriesOnly,
-                           String defval)
+        public FileAdjust (String descrip, String name, PrefsConfig config,
+                           boolean directoriesOnly, String defval)
         {
             super(descrip, name, config);
             _value = _config.getValue(_name, defval);
@@ -431,7 +424,7 @@ public class RuntimeAdjust
     protected abstract static class TextFieldAdjust extends Adjust
         implements ActionListener, FocusListener
     {
-        public TextFieldAdjust (String descrip, String name, Config config)
+        public TextFieldAdjust (String descrip, String name, PrefsConfig config)
         {
             super(descrip, name, config);
         }
@@ -464,7 +457,7 @@ public class RuntimeAdjust
     protected abstract static class Adjust
         implements PropertyChangeListener, Comparable<Adjust>
     {
-        public Adjust (String descrip, String name, Config config)
+        public Adjust (String descrip, String name, PrefsConfig config)
         {
             _name = name;
             _descrip = descrip;
@@ -550,10 +543,9 @@ public class RuntimeAdjust
         }
 
         protected String _name, _descrip;
-        protected Config _config;
+        protected PrefsConfig _config;
         protected JPanel _editor;
     }
 
-    protected static ComparableArrayList<Adjust> _adjusts =
-        new ComparableArrayList<Adjust>();
+    protected static ComparableArrayList<Adjust> _adjusts = new ComparableArrayList<Adjust>();
 }

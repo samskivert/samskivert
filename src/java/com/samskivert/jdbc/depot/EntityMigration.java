@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -24,6 +24,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+
+import com.samskivert.jdbc.JDBCUtil;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -75,9 +77,27 @@ public abstract class EntityMigration extends Modifier
             try {
                 log.info("Changing '" + _oldColumnName + "' to '" + _newColumnDef + "' in " +
                          _tableName);
-                return stmt.executeUpdate(
-                    "alter table " + _tableName + " change column " + _oldColumnName + " " +
-                    _newColumnDef);
+
+                if (!JDBCUtil.tableContainsColumn(conn, _tableName, _oldColumnName)) {
+                    if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
+                        // we'll accept this inconsistency
+                        log.warning("Column rename appears already performed.");
+                        return 0;
+                    }
+                    // but this is not OK
+                    throw new IllegalArgumentException(
+                        _tableName + " does not contain '" + _oldColumnName + "'");
+                }
+
+                // nor is this
+                if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
+                    throw new IllegalArgumentException(
+                        _tableName + " already contains '" + _newColumnName + "'");
+                }
+
+                return stmt.executeUpdate("alter table " + _tableName + " change column " +
+                                          _oldColumnName + " " + _newColumnDef);
+
             } finally {
                 stmt.close();
             }

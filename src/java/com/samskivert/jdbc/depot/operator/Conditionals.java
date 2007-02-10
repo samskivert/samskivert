@@ -123,6 +123,31 @@ public abstract class Conditionals
         }
     }
 
+    /** The SQL '<=' operator. */
+    public static class LessThanEquals extends BinaryOperator
+    {
+        public LessThanEquals (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
+        public LessThanEquals (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public LessThanEquals (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        protected String operator()
+        {
+            return "<=";
+        }
+    }
+
     /** The SQL '>' operator. */
     public static class GreaterThan extends BinaryOperator
     {
@@ -145,6 +170,31 @@ public abstract class Conditionals
         protected String operator()
         {
             return ">";
+        }
+    }
+
+    /** The SQL '>=' operator. */
+    public static class GreaterThanEquals extends BinaryOperator
+    {
+        public GreaterThanEquals (String pColumn, Comparable value)
+        {
+            super(new ColumnExp(pColumn), value);
+        }
+
+        public GreaterThanEquals (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public GreaterThanEquals (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        protected String operator()
+        {
+            return ">=";
         }
     }
 

@@ -48,6 +48,12 @@ public abstract class EntityMigration extends Modifier
         }
 
         public int invoke (Connection conn) throws SQLException {
+            if (!JDBCUtil.tableContainsColumn(conn, _tableName, _columnName)) {
+                // we'll accept this inconsistency
+                log.warning("Column drop appears already performed.");
+                return 0;
+            }
+
             Statement stmt = conn.createStatement();
             try {
                 log.info("Dropping '" + _columnName + "' from " + _tableName);

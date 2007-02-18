@@ -79,31 +79,30 @@ public abstract class EntityMigration extends Modifier
         }
 
         public int invoke (Connection conn) throws SQLException {
+            if (!JDBCUtil.tableContainsColumn(conn, _tableName, _oldColumnName)) {
+                if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
+                    // we'll accept this inconsistency
+                    log.warning(_tableName + "." + _oldColumnName + " already renamed to " +
+                                _newColumnName + ".");
+                    return 0;
+                }
+                // but this is not OK
+                throw new IllegalArgumentException(
+                    _tableName + " does not contain '" + _oldColumnName + "'");
+            }
+
+            // nor is this
+            if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
+                throw new IllegalArgumentException(
+                    _tableName + " already contains '" + _newColumnName + "'");
+            }
+
             Statement stmt = conn.createStatement();
             try {
                 log.info("Changing '" + _oldColumnName + "' to '" + _newColumnDef + "' in " +
                          _tableName);
-
-                if (!JDBCUtil.tableContainsColumn(conn, _tableName, _oldColumnName)) {
-                    if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
-                        // we'll accept this inconsistency
-                        log.warning("Column rename appears already performed.");
-                        return 0;
-                    }
-                    // but this is not OK
-                    throw new IllegalArgumentException(
-                        _tableName + " does not contain '" + _oldColumnName + "'");
-                }
-
-                // nor is this
-                if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
-                    throw new IllegalArgumentException(
-                        _tableName + " already contains '" + _newColumnName + "'");
-                }
-
                 return stmt.executeUpdate("alter table " + _tableName + " change column " +
                                           _oldColumnName + " " + _newColumnDef);
-
             } finally {
                 stmt.close();
             }

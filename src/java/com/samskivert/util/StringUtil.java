@@ -54,6 +54,27 @@ import java.util.regex.Pattern;
 public class StringUtil
 {
     /**
+     * Used to format objects in {@link #listToString(Object,StringUtil.Formatter)}.
+     */
+    public static class Formatter
+    {
+        /** Formats the supplied object into a string. */
+        public String toString (Object object) {
+            return object == null ? "null" : object.toString();
+        }
+
+        /** Returns the string that will be prepended to a formatted list. */
+        public String getOpenBox () {
+            return "(";
+        }
+
+        /** Returns the string that will be appended to a formatted list. */
+        public String getCloseBox () {
+            return ")";
+        }
+    }
+
+    /**
      * @return true if the string is null or empty, false otherwise.
      *
      * @deprecated use isBlank instead.
@@ -73,6 +94,14 @@ public class StringUtil
     }
 
     /**
+     * @return the supplied string if it is non-null, "" if it is null.
+     */
+    public static String deNull (String value)
+    {
+        return (value == null) ? "" : value;
+    }
+
+    /**
      * Truncate the specified String if it is longer than maxLength.
      */
     public static String truncate (String s, int maxLength)
@@ -81,12 +110,11 @@ public class StringUtil
     }
 
     /**
-     * Truncate the specified String if it is longer than maxLength.
-     * The string will be truncated at a position such that it is
-     * maxLength chars long after the addition of the 'append' String.
+     * Truncate the specified String if it is longer than maxLength.  The string will be truncated
+     * at a position such that it is maxLength chars long after the addition of the 'append'
+     * String.
      *
-     * @param append a String to add to the truncated String only after
-     * truncation.
+     * @param append a String to add to the truncated String only after truncation.
      */
     public static String truncate (String s, int maxLength, String append)
     {
@@ -98,8 +126,7 @@ public class StringUtil
     }
 
     /**
-     * Returns a version of the supplied string with the first letter
-     * capitalized.
+     * Returns a version of the supplied string with the first letter capitalized.
      */
     public static String capitalize (String s)
     {
@@ -142,8 +169,8 @@ public class StringUtil
     }
 
     /**
-     * Sanitize the specified String such that each character must match
-     * against the regex specified.
+     * Sanitize the specified String such that each character must match against the regex
+     * specified.
      */
     public static String sanitize (String source, String charRegex)
     {
@@ -158,8 +185,8 @@ public class StringUtil
     }
 
     /**
-     * Returns a new string based on <code>source</code> with all
-     * instances of <code>before</code> replaced with <code>after</code>.
+     * Returns a new string based on <code>source</code> with all instances of <code>before</code>
+     * replaced with <code>after</code>.
      */
     public static String replace (String source, String before, String after)
     {
@@ -184,40 +211,34 @@ public class StringUtil
     }
 
     /**
-     * Pads the supplied string to the requested string width by appending
-     * spaces to the end of the returned string. If the original string is
-     * wider than the requested width, it is returned unmodified.
+     * Pads the supplied string to the requested string width by appending spaces to the end of the
+     * returned string. If the original string is wider than the requested width, it is returned
+     * unmodified.
      */
     public static String pad (String value, int width)
     {
         // sanity check
         if (width <= 0) {
-            String errmsg = "Pad width must be greater than zero.";
-            throw new IllegalArgumentException(errmsg);
-
+            throw new IllegalArgumentException("Pad width must be greater than zero.");
         } else if (value.length() >= width) {
             return value;
-
         } else {
             return value + spaces(width-value.length());
         }
     }
 
     /**
-     * Pads the supplied string to the requested string width by prepending
-     * spaces to the end of the returned string. If the original string is
-     * wider than the requested width, it is returned unmodified.
+     * Pads the supplied string to the requested string width by prepending spaces to the end of
+     * the returned string. If the original string is wider than the requested width, it is
+     * returned unmodified.
      */
     public static String prepad (String value, int width)
     {
         // sanity check
         if (width <= 0) {
-            String errmsg = "Pad width must be greater than zero.";
-            throw new IllegalArgumentException(errmsg);
-
+            throw new IllegalArgumentException("Pad width must be greater than zero.");
         } else if (value.length() >= width) {
             return value;
-
         } else {
             return spaces(width-value.length()) + value;
         }
@@ -232,8 +253,7 @@ public class StringUtil
     }
 
     /**
-     * Returns a string containing the specified character repeated the
-     * specified number of times.
+     * Returns a string containing the specified character repeated the specified number of times.
      */
     public static String fill (char c, int count)
     {
@@ -243,8 +263,8 @@ public class StringUtil
     }
 
     /**
-     * Returns whether the supplied string represents an integer value by
-     * attempting to parse it with {@link Integer#parseInt}.
+     * Returns whether the supplied string represents an integer value by attempting to parse it
+     * with {@link Integer#parseInt}.
      */
     public static boolean isInteger (String value)
     {
@@ -258,9 +278,8 @@ public class StringUtil
     }
 
     /**
-     * Formats a floating point value with useful default rules;
-     * ie. always display a digit to the left of the decimal and display
-     * only two digits to the right of the decimal (rounding as
+     * Formats a floating point value with useful default rules; ie. always display a digit to the
+     * left of the decimal and display only two digits to the right of the decimal (rounding as
      * necessary).
      */
     public static String format (float value)
@@ -269,9 +288,8 @@ public class StringUtil
     }
 
     /**
-     * Formats a floating point value with useful default rules;
-     * ie. always display a digit to the left of the decimal and display
-     * only two digits to the right of the decimal (rounding as
+     * Formats a floating point value with useful default rules; ie. always display a digit to the
+     * left of the decimal and display only two digits to the right of the decimal (rounding as
      * necessary).
      */
     public static String format (double value)
@@ -280,25 +298,21 @@ public class StringUtil
     }
 
     /**
-     * Converts the supplied object to a string. Normally this is
-     * accomplished via the object's built in <code>toString()</code>
-     * method, but in the case of arrays, <code>toString()</code> is
-     * called on each element and the contents are listed like so:
+     * Converts the supplied object to a string. Normally this is accomplished via the object's
+     * built in <code>toString()</code> method, but in the case of arrays, <code>toString()</code>
+     * is called on each element and the contents are listed like so:
      *
      * <pre>
      * (value, value, value)
      * </pre>
      *
-     * Arrays of ints, longs, floats and doubles are also handled for
-     * convenience.
+     * Arrays of ints, longs, floats and doubles are also handled for convenience.
      *
-     * <p> Additionally, <code>Enumeration</code> or <code>Iterator</code>
-     * objects can be passed and they will be enumerated and output in a
-     * similar manner to arrays. Bear in mind that this uses up the
-     * enumeration or iterator in question.
+     * <p> Additionally, <code>Enumeration</code> or <code>Iterator</code> objects can be passed
+     * and they will be enumerated and output in a similar manner to arrays. Bear in mind that this
+     * uses up the enumeration or iterator in question.
      *
-     * <p> Also note that passing null will result in the string "null"
-     * being returned.
+     * <p> Also note that passing null will result in the string "null" being returned.
      */
     public static String toString (Object val)
     {
@@ -308,11 +322,9 @@ public class StringUtil
     }
 
     /**
-     * Like the single argument {@link #toString(Object)} with the
-     * additional function of specifying the characters that are used to
-     * box in list and array types. For example, if "[" and "]" were
-     * supplied, an int array might be formatted like so: <code>[1, 3,
-     * 5]</code>.
+     * Like the single argument {@link #toString(Object)} with the additional function of
+     * specifying the characters that are used to box in list and array types. For example, if "["
+     * and "]" were supplied, an int array might be formatted like so: <code>[1, 3, 5]</code>.
      */
     public static String toString (
         Object val, String openBox, String closeBox)
@@ -323,9 +335,8 @@ public class StringUtil
     }
 
     /**
-     * Converts the supplied value to a string and appends it to the
-     * supplied string buffer. See the single argument version for more
-     * information.
+     * Converts the supplied value to a string and appends it to the supplied string buffer. See
+     * the single argument version for more information.
      *
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.
@@ -336,29 +347,24 @@ public class StringUtil
     }
 
     /**
-     * Converts the supplied value to a string and appends it to the
-     * supplied string buffer. The specified boxing characters are used to
-     * enclose list and array types. For example, if "[" and "]" were
-     * supplied, an int array might be formatted like so: <code>[1, 3,
-     * 5]</code>.
+     * Converts the supplied value to a string and appends it to the supplied string buffer. The
+     * specified boxing characters are used to enclose list and array types. For example, if "["
+     * and "]" were supplied, an int array might be formatted like so: <code>[1, 3, 5]</code>.
      *
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.
      * @param openBox the opening box character.
      * @param closeBox the closing box character.
      */
-    public static void toString (
-            StringBuilder buf, Object val, String openBox, String closeBox)
+    public static void toString (StringBuilder buf, Object val, String openBox, String closeBox)
     {
         toString(buf, val, openBox, closeBox, ", ");
     }
 
     /**
-     * Converts the supplied value to a string and appends it to the
-     * supplied string buffer. The specified boxing characters are used to
-     * enclose list and array types. For example, if "[" and "]" were
-     * supplied, an int array might be formatted like so: <code>[1, 3,
-     * 5]</code>.
+     * Converts the supplied value to a string and appends it to the supplied string buffer. The
+     * specified boxing characters are used to enclose list and array types. For example, if "["
+     * and "]" were supplied, an int array might be formatted like so: <code>[1, 3, 5]</code>.
      *
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.
@@ -366,8 +372,8 @@ public class StringUtil
      * @param closeBox the closing box character.
      * @param sep the separator string.
      */
-    public static void toString (StringBuilder buf, Object val,
-                                 String openBox, String closeBox, String sep)
+    public static void toString (
+        StringBuilder buf, Object val, String openBox, String closeBox, String sep)
     {
         if (val instanceof byte[]) {
             buf.append(openBox);
@@ -507,43 +513,11 @@ public class StringUtil
     }
 
     /**
-     * Used to format objects in {@link
-     * #listToString(Object,StringUtil.Formatter)}.
-     */
-    public static class Formatter
-    {
-        /**
-         * Formats the supplied object into a string.
-         */
-        public String toString (Object object)
-        {
-            return object == null ? "null" : object.toString();
-        }
-
-        /**
-         * Returns the string that will be prepended to a formatted list.
-         */
-        public String getOpenBox ()
-        {
-            return "(";
-        }
-
-        /**
-         * Returns the string that will be appended to a formatted list.
-         */
-        public String getCloseBox ()
-        {
-            return ")";
-        }
-    }
-
-    /**
-     * Formats a collection of elements (either an array of objects, an
-     * {@link Iterator}, an {@link Enumeration} or a {@link Collection})
-     * using the supplied formatter on each element. Note that if you
-     * simply wish to format a collection of elements by calling {@link
-     * Object#toString} on each element, you can just pass the list to the
-     * {@link #toString(Object)} method which will do just that.
+     * Formats a collection of elements (either an array of objects, an {@link Iterator}, an {@link
+     * Enumeration} or a {@link Collection}) using the supplied formatter on each element. Note
+     * that if you simply wish to format a collection of elements by calling {@link
+     * Object#toString} on each element, you can just pass the list to the {@link
+     * #toString(Object)} method which will do just that.
      */
     public static String listToString (Object val, Formatter formatter)
     {
@@ -553,12 +527,10 @@ public class StringUtil
     }
 
     /**
-     * Formats the supplied collection into the supplied string buffer
-     * using the supplied formatter. See {@link
-     * #listToString(Object,StringUtil.Formatter)} for more details.
+     * Formats the supplied collection into the supplied string buffer using the supplied
+     * formatter. See {@link #listToString(Object,StringUtil.Formatter)} for more details.
      */
-    public static void listToString (
-            StringBuilder buf, Object val, Formatter formatter)
+    public static void listToString (StringBuilder buf, Object val, Formatter formatter)
     {
         // get an iterator if this is a collection
         if (val instanceof Iterable) {
@@ -608,9 +580,8 @@ public class StringUtil
     }
 
     /**
-     * Generates a string representation of the supplied object by calling
-     * {@link #toString} on the contents of its public fields and
-     * prefixing that by the name of the fields. For example:
+     * Generates a string representation of the supplied object by calling {@link #toString} on the
+     * contents of its public fields and prefixing that by the name of the fields. For example:
      *
      * <p><code>[itemId=25, itemName=Elvis, itemCoords=(14, 25)]</code>
      */
@@ -620,8 +591,8 @@ public class StringUtil
     }
 
     /**
-     * Like {@link #fieldsToString(Object)} except that the supplied
-     * separator string will be used between fields.
+     * Like {@link #fieldsToString(Object)} except that the supplied separator string will be used
+     * between fields.
      */
     public static String fieldsToString (Object object, String sep)
     {
@@ -631,15 +602,14 @@ public class StringUtil
     }
 
     /**
-     * Appends to the supplied string buffer a representation of the
-     * supplied object by calling {@link #toString} on the contents of its
-     * public fields and prefixing that by the name of the fields. For
-     * example:
+     * Appends to the supplied string buffer a representation of the supplied object by calling
+     * {@link #toString} on the contents of its public fields and prefixing that by the name of the
+     * fields. For example:
      *
      * <p><code>itemId=25, itemName=Elvis, itemCoords=(14, 25)</code>
      *
-     * <p>Note: unlike the version of this method that returns a string,
-     * enclosing brackets are not included in the output of this method.
+     * <p>Note: unlike the version of this method that returns a string, enclosing brackets are not
+     * included in the output of this method.
      */
     public static void fieldsToString (StringBuilder buf, Object object)
     {
@@ -647,8 +617,8 @@ public class StringUtil
     }
 
     /**
-     * Like {@link #fieldsToString(StringBuilder,Object)} except that the
-     * supplied separator will be used between fields.
+     * Like {@link #fieldsToString(StringBuilder,Object)} except that the supplied separator will
+     * be used between fields.
      */
     public static void fieldsToString (
             StringBuilder buf, Object object, String sep)
@@ -660,8 +630,7 @@ public class StringUtil
         // we only want non-static fields
         for (int i = 0; i < fields.length; i++) {
             int mods = fields[i].getModifiers();
-            if ((mods & Modifier.PUBLIC) == 0 ||
-                (mods & Modifier.STATIC) != 0) {
+            if ((mods & Modifier.PUBLIC) == 0 || (mods & Modifier.STATIC) != 0) {
                 continue;
             }
 
@@ -673,8 +642,7 @@ public class StringUtil
             buf.append(fields[i].getName()).append("=");
             try {
                 try {
-                    Method meth = clazz.getMethod(
-                        fields[i].getName() + "ToString", new Class[0]);
+                    Method meth = clazz.getMethod(fields[i].getName() + "ToString", new Class[0]);
                     buf.append(meth.invoke(object, (Object[]) null));
                 } catch (NoSuchMethodException nsme) {
                     toString(buf, fields[i].get(object));
@@ -687,9 +655,8 @@ public class StringUtil
     }
 
     /**
-     * Formats a pair of coordinates such that positive values are
-     * rendered with a plus prefix and negative values with a minus
-     * prefix.  Examples would look like: <code>+3+4</code>
+     * Formats a pair of coordinates such that positive values are rendered with a plus prefix and
+     * negative values with a minus prefix.  Examples would look like: <code>+3+4</code>
      * <code>-5+7</code>, etc.
      */
     public static String coordsToString (int x, int y)
@@ -700,9 +667,8 @@ public class StringUtil
     }
 
     /**
-     * Formats a pair of coordinates such that positive values are
-     * rendered with a plus prefix and negative values with a minus
-     * prefix.  Examples would look like: <code>+3+4</code>
+     * Formats a pair of coordinates such that positive values are rendered with a plus prefix and
+     * negative values with a minus prefix.  Examples would look like: <code>+3+4</code>
      * <code>-5+7</code>, etc.
      */
     public static void coordsToString (StringBuilder buf, int x, int y)
@@ -718,11 +684,10 @@ public class StringUtil
     }
 
     /**
-     * Attempts to generate a string representation of the object using
-     * <code>object.toString()</code>, but catches any exceptions that are
-     * thrown and reports them in the returned string instead. Useful for
-     * situations where you can't trust the rat bastards that implemented
-     * the object you're toString()ing.
+     * Attempts to generate a string representation of the object using {@link Object#toString},
+     * but catches any exceptions that are thrown and reports them in the returned string
+     * instead. Useful for situations where you can't trust the rat bastards that implemented the
+     * object you're toString()ing.
      */
     public static String safeToString (Object object)
     {
@@ -758,13 +723,12 @@ public class StringUtil
     }
 
     /**
-     * Generates a string from the supplied bytes that is the HEX encoded
-     * representation of those bytes.  Returns the empty string for a
-     * <code>null</code> or empty byte array.
+     * Generates a string from the supplied bytes that is the HEX encoded representation of those
+     * bytes.  Returns the empty string for a <code>null</code> or empty byte array.
      *
      * @param bytes the bytes for which we want a string representation.
-     * @param count the number of bytes to stop at (which will be coerced
-     * into being <= the length of the array).
+     * @param count the number of bytes to stop at (which will be coerced into being <= the length
+     * of the array).
      */
     public static String hexlate (byte[] bytes, int count)
     {
@@ -788,8 +752,8 @@ public class StringUtil
     }
 
     /**
-     * Generates a string from the supplied bytes that is the HEX encoded
-     * representation of those bytes.
+     * Generates a string from the supplied bytes that is the HEX encoded representation of those
+     * bytes.
      */
     public static String hexlate (byte[] bytes)
     {
@@ -805,14 +769,13 @@ public class StringUtil
             return null;
         }
 
-        // if for some reason we are given a hex string that wasn't made
-        // by hexlate, convert to lowercase so things work.
+        // if for some reason we are given a hex string that wasn't made by hexlate, convert to
+        // lowercase so things work.
         hex = hex.toLowerCase();
         byte[] data = new byte[hex.length()/2];
         for (int ii = 0; ii < hex.length(); ii+=2) {
             int value = (byte)(XLATE.indexOf(hex.charAt(ii)) << 4);
             value  += XLATE.indexOf(hex.charAt(ii+1));
-
             // values over 127 are wrapped around, restoring negative bytes
             data[ii/2] = (byte)value;
         }
@@ -823,8 +786,7 @@ public class StringUtil
     /**
      * Returns a hex string representing the MD5 encoded source.
      *
-     * @exception RuntimeException thrown if the MD5 codec was not
-     * available in this JVM.
+     * @exception RuntimeException thrown if the MD5 codec was not available in this JVM.
      */
     public static String md5hex (String source)
     {
@@ -837,16 +799,12 @@ public class StringUtil
     }
 
     /**
-     * Parses an array of signed byte-sized integers from their string
-     * representation. The array should be represented as a bare list of
-     * numbers separated by commas, for example:
+     * Parses an array of signed byte-sized integers from their string representation. The array
+     * should be represented as a bare list of numbers separated by commas, for example:
      *
-     * <pre>
-     * 25, 17, 21, 99
-     * </pre>
+     * <pre>25, 17, 21, 99</pre>
      *
-     * Any inability to parse the short array will result in the function
-     * returning null.
+     * Any inability to parse the short array will result in the function returning null.
      */
     public static byte[] parseByteArray (String source)
     {
@@ -855,8 +813,7 @@ public class StringUtil
         for (int i = 0; tok.hasMoreTokens(); i++) {
             try {
                 // trim the whitespace from the token
-                String token = tok.nextToken().trim();
-                vals[i] = Byte.parseByte(token);
+                vals[i] = Byte.parseByte(tok.nextToken().trim());
             } catch (NumberFormatException nfe) {
                 return null;
             }
@@ -865,16 +822,12 @@ public class StringUtil
     }
 
     /**
-     * Parses an array of short integers from their string representation.
-     * The array should be represented as a bare list of numbers separated
-     * by commas, for example:
+     * Parses an array of short integers from their string representation.  The array should be
+     * represented as a bare list of numbers separated by commas, for example:
      *
-     * <pre>
-     * 25, 17, 21, 99
-     * </pre>
+     * <pre>25, 17, 21, 99</pre>
      *
-     * Any inability to parse the short array will result in the function
-     * returning null.
+     * Any inability to parse the short array will result in the function returning null.
      */
     public static short[] parseShortArray (String source)
     {
@@ -883,8 +836,7 @@ public class StringUtil
         for (int i = 0; tok.hasMoreTokens(); i++) {
             try {
                 // trim the whitespace from the token
-                String token = tok.nextToken().trim();
-                vals[i] = Short.parseShort(token);
+                vals[i] = Short.parseShort(tok.nextToken().trim());
             } catch (NumberFormatException nfe) {
                 return null;
             }
@@ -893,16 +845,12 @@ public class StringUtil
     }
 
     /**
-     * Parses an array of integers from it's string representation. The
-     * array should be represented as a bare list of numbers separated by
-     * commas, for example:
+     * Parses an array of integers from it's string representation. The array should be represented
+     * as a bare list of numbers separated by commas, for example:
      *
-     * <pre>
-     * 25, 17, 21, 99
-     * </pre>
+     * <pre>25, 17, 21, 99</pre>
      *
-     * Any inability to parse the int array will result in the function
-     * returning null.
+     * Any inability to parse the int array will result in the function returning null.
      */
     public static int[] parseIntArray (String source)
     {
@@ -911,8 +859,7 @@ public class StringUtil
         for (int i = 0; tok.hasMoreTokens(); i++) {
             try {
                 // trim the whitespace from the token
-                String token = tok.nextToken().trim();
-                vals[i] = Integer.parseInt(token);
+                vals[i] = Integer.parseInt(tok.nextToken().trim());
             } catch (NumberFormatException nfe) {
                 return null;
             }
@@ -921,16 +868,12 @@ public class StringUtil
     }
 
     /**
-     * Parses an array of longs from it's string representation. The
-     * array should be represented as a bare list of numbers separated by
-     * commas, for example:
+     * Parses an array of longs from it's string representation. The array should be represented as
+     * a bare list of numbers separated by commas, for example:
      *
-     * <pre>
-     * 25, 17125141422, 21, 99
-     * </pre>
+     * <pre>25, 17125141422, 21, 99</pre>
      *
-     * Any inability to parse the long array will result in the function
-     * returning null.
+     * Any inability to parse the long array will result in the function returning null.
      */
     public static long[] parseLongArray (String source)
     {
@@ -939,8 +882,7 @@ public class StringUtil
         for (int i = 0; tok.hasMoreTokens(); i++) {
             try {
                 // trim the whitespace from the token
-                String token = tok.nextToken().trim();
-                vals[i] = Long.parseLong(token);
+                vals[i] = Long.parseLong(tok.nextToken().trim());
             } catch (NumberFormatException nfe) {
                 return null;
             }
@@ -949,16 +891,12 @@ public class StringUtil
     }
 
     /**
-     * Parses an array of floats from it's string representation. The
-     * array should be represented as a bare list of numbers separated by
-     * commas, for example:
+     * Parses an array of floats from it's string representation. The array should be represented
+     * as a bare list of numbers separated by commas, for example:
      *
-     * <pre>
-     * 25.0, .5, 1, 0.99
-     * </pre>
+     * <pre>25.0, .5, 1, 0.99</pre>
      *
-     * Any inability to parse the array will result in the function
-     * returning null.
+     * Any inability to parse the array will result in the function returning null.
      */
     public static float[] parseFloatArray (String source)
     {
@@ -967,8 +905,7 @@ public class StringUtil
         for (int i = 0; tok.hasMoreTokens(); i++) {
             try {
                 // trim the whitespace from the token
-                String token = tok.nextToken().trim();
-                vals[i] = Float.parseFloat(token);
+                vals[i] = Float.parseFloat(tok.nextToken().trim());
             } catch (NumberFormatException nfe) {
                 return null;
             }
@@ -977,17 +914,13 @@ public class StringUtil
     }
 
     /**
-     * Parses an array of strings from a single string. The array should
-     * be represented as a bare list of strings separated by commas, for
-     * example:
+     * Parses an array of strings from a single string. The array should be represented as a bare
+     * list of strings separated by commas, for example:
      *
-     * <pre>
-     * mary, had, a, little, lamb, and, an, escaped, comma,,
-     * </pre>
+     * <pre>mary, had, a, little, lamb, and, an, escaped, comma,,</pre>
      *
-     * If a comma is desired in one of the strings, it should be escaped
-     * by putting two commas in a row. Any inability to parse the string
-     * array will result in the function returning null.
+     * If a comma is desired in one of the strings, it should be escaped by putting two commas in a
+     * row. Any inability to parse the string array will result in the function returning null.
      */
     public static String[] parseStringArray (String source)
     {
@@ -995,9 +928,8 @@ public class StringUtil
     }
 
     /**
-     * Like {@link #parseStringArray(String)} but can be instructed to
-     * invoke {@link String#intern} on the strings being parsed into the
-     * array.
+     * Like {@link #parseStringArray(String)} but can be instructed to invoke {@link String#intern}
+     * on the strings being parsed into the array.
      */
     public static String[] parseStringArray (String source, boolean intern)
     {
@@ -1038,8 +970,8 @@ public class StringUtil
     }
 
     /**
-     * Joins an array of strings (or objects which will be converted to
-     * strings) into a single string separated by commas.
+     * Joins an array of strings (or objects which will be converted to strings) into a single
+     * string separated by commas.
      */
     public static String join (Object[] values)
     {
@@ -1047,12 +979,10 @@ public class StringUtil
     }
 
     /**
-     * Joins an array of strings into a single string, separated by
-     * commas, and optionally escaping commas that occur in the individual
-     * string values such that a subsequent call to {@link
-     * #parseStringArray} would recreate the string array properly. Any
-     * elements in the values array that are null will be treated as an
-     * empty string.
+     * Joins an array of strings into a single string, separated by commas, and optionally escaping
+     * commas that occur in the individual string values such that a subsequent call to {@link
+     * #parseStringArray} would recreate the string array properly. Any elements in the values
+     * array that are null will be treated as an empty string.
      */
     public static String join (Object[] values, boolean escape)
     {
@@ -1060,8 +990,8 @@ public class StringUtil
     }
 
     /**
-     * Joins the supplied array of strings into a single string separated
-     * by the supplied separator.
+     * Joins the supplied array of strings into a single string separated by the supplied
+     * separator.
      */
     public static String join (Object[] values, String separator)
     {
@@ -1071,8 +1001,7 @@ public class StringUtil
     /**
      * Helper function for the various <code>join</code> methods.
      */
-    protected static String join (
-        Object[] values, String separator, boolean escape)
+    protected static String join (Object[] values, String separator, boolean escape)
     {
         StringBuilder buf = new StringBuilder();
         int vlength = values.length;
@@ -1087,11 +1016,10 @@ public class StringUtil
     }
 
     /**
-     * Joins an array of strings into a single string, separated by
-     * commas, and escaping commas that occur in the individual string
-     * values such that a subsequent call to {@link #parseStringArray}
-     * would recreate the string array properly. Any elements in the
-     * values array that are null will be treated as an empty string.
+     * Joins an array of strings into a single string, separated by commas, and escaping commas
+     * that occur in the individual string values such that a subsequent call to {@link
+     * #parseStringArray} would recreate the string array properly. Any elements in the values
+     * array that are null will be treated as an empty string.
      */
     public static String joinEscaped (String[] values)
     {
@@ -1099,8 +1027,7 @@ public class StringUtil
     }
 
     /**
-     * Splits the supplied string into components based on the specified
-     * separator string.
+     * Splits the supplied string into components based on the specified separator string.
      */
     public static String[] split (String source, String sep)
     {
@@ -1133,11 +1060,10 @@ public class StringUtil
     }
 
     /**
-     * Returns an array containing the values in the supplied array
-     * converted into a table of values wrapped at the specified column
-     * count and fit into the specified field width. For example, a call
-     * like <code>toWrappedString(values, 5, 3)</code> might result in
-     * output like so:
+     * Returns an array containing the values in the supplied array converted into a table of
+     * values wrapped at the specified column count and fit into the specified field width. For
+     * example, a call like <code>toWrappedString(values, 5, 3)</code> might result in output like
+     * so:
      *
      * <pre>
      *  12  1  9 10  3
@@ -1165,8 +1091,8 @@ public class StringUtil
             // append the value itself
             buf.append(valbuf);
 
-            // if we're at the end of a row but not the end of the whole
-            // integer list, append a newline
+            // if we're at the end of a row but not the end of the whole integer list, append a
+            // newline
             if (i % colCount == (colCount-1) &&
                 i != values.length-1) {
                 buf.append("\n");
@@ -1177,8 +1103,8 @@ public class StringUtil
     }
 
     /**
-     * Used to convert a time interval to a more easily human readable
-     * string of the form: <code>1d 15h 4m 15s 987m</code>.
+     * Used to convert a time interval to a more easily human readable string of the form: <code>1d
+     * 15h 4m 15s 987m</code>.
      */
     public static String intervalToString (long millis)
     {
@@ -1212,11 +1138,9 @@ public class StringUtil
     }
 
     /**
-     * Returns the class name of the supplied object, truncated to one
-     * package prior to the actual class name. For example,
-     * <code>com.samskivert.util.StringUtil</code> would be reported as
-     * <code>util.StringUtil</code>. If a null object is passed in,
-     * <code>null</code> is returned.
+     * Returns the class name of the supplied object, truncated to one package prior to the actual
+     * class name. For example, <code>com.samskivert.util.StringUtil</code> would be reported as
+     * <code>util.StringUtil</code>. If a null object is passed in, <code>null</code> is returned.
      */
     public static String shortClassName (Object object)
     {
@@ -1224,9 +1148,8 @@ public class StringUtil
     }
 
     /**
-     * Returns the supplied class's name, truncated to one package prior
-     * to the actual class name. For example,
-     * <code>com.samskivert.util.StringUtil</code> would be reported as
+     * Returns the supplied class's name, truncated to one package prior to the actual class
+     * name. For example, <code>com.samskivert.util.StringUtil</code> would be reported as
      * <code>util.StringUtil</code>.
      */
     public static String shortClassName (Class clazz)
@@ -1235,9 +1158,8 @@ public class StringUtil
     }
 
     /**
-     * Returns the supplied class name truncated to one package prior to
-     * the actual class name. For example,
-     * <code>com.samskivert.util.StringUtil</code> would be reported as
+     * Returns the supplied class name truncated to one package prior to the actual class name. For
+     * example, <code>com.samskivert.util.StringUtil</code> would be reported as
      * <code>util.StringUtil</code>.
      */
     public static String shortClassName (String name)
@@ -1254,8 +1176,8 @@ public class StringUtil
     }
 
     /**
-     * Converts a name of the form <code>weAreSoCool</code> to a name of
-     * the form <code>WE_ARE_SO_COOL</code>.
+     * Converts a name of the form <code>weAreSoCool</code> to a name of the form
+     * <code>WE_ARE_SO_COOL</code>.
      */
     public static String unStudlyName (String name)
     {
@@ -1264,8 +1186,8 @@ public class StringUtil
         int nlen = name.length();
         for (int i = 0; i < nlen; i++) {
             char c = name.charAt(i);
-            // if we see an upper case character and we've seen a lower
-            // case character since the last time we did so, slip in an _
+            // if we see an upper case character and we've seen a lower case character since the
+            // last time we did so, slip in an _
             if (Character.isUpperCase(c)) {
                 nname.append("_");
                 seenLower = false;
@@ -1287,22 +1209,19 @@ public class StringUtil
     }
 
     /**
-     * Encodes (case-insensitively) a short English language string into a
-     * semi-unique integer. This is done by selecting the first eight
-     * characters in the string that fall into the set of the 16 most
-     * frequently used characters in the English language and converting
-     * them to a 4 bit value and storing the result into the returned
-     * integer.
+     * Encodes (case-insensitively) a short English language string into a semi-unique
+     * integer. This is done by selecting the first eight characters in the string that fall into
+     * the set of the 16 most frequently used characters in the English language and converting
+     * them to a 4 bit value and storing the result into the returned integer.
      *
-     * <p> This method is useful for mapping a set of string constants to
-     * a set of unique integers (e.g. mapping an enumerated type to an
-     * integer and back without having to require that the declaration
-     * order of the enumerated type remain constant for all time). The
-     * caller must, of course, ensure that no collisions occur.
+     * <p> This method is useful for mapping a set of string constants to a set of unique integers
+     * (e.g. mapping an enumerated type to an integer and back without having to require that the
+     * declaration order of the enumerated type remain constant for all time). The caller must, of
+     * course, ensure that no collisions occur.
      *
      * @param value the string to be encoded.
-     * @param encoded if non-null, a string buffer into which the
-     * characters used for the encoding will be recorded.
+     * @param encoded if non-null, a string buffer into which the characters used for the encoding
+     * will be recorded.
      */
     public static int stringCode (String value, StringBuilder encoded)
     {
@@ -1336,10 +1255,9 @@ public class StringUtil
     /** Used by {@link #hexlate} and {@link #unhexlate}. */
     protected static final String XLATE = "0123456789abcdef";
 
-    /** Maps the 16 most frequent letters in the English language to a
-     * number between 0 and 15. Used by {@link #stringCode}. */
-    protected static final HashIntMap<Integer> _letterToBits =
-        new HashIntMap<Integer>();
+    /** Maps the 16 most frequent letters in the English language to a number between 0 and
+     * 15. Used by {@link #stringCode}. */
+    protected static final HashIntMap<Integer> _letterToBits = new HashIntMap<Integer>();
     static {
         String mostCommon = "etaoinsrhldcumfp";
         for (int ii = mostCommon.length() - 1; ii >= 0; ii--) {

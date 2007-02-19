@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -52,16 +52,28 @@ public class PersistenceContext
     public HashMap<String, TableGenerator> tableGenerators = new HashMap<String, TableGenerator>();
 
     /**
-     * A cache listener is notified when cache entries are invalited through creation, deletion,
-     * or modification. Its purpose is typically to do further invalidation of dependent entries
-     * in other caches.
+     * A cache listener is notified when cache entries change. Its purpose is typically to do
+     * further invalidation of dependent entries in other caches.
      */
     public static interface CacheListener<T>
     {
         /**
-         * The given entry has just been deleted, modified or created. Do what thou wilt.
+         * The given entry (which is never null) has just been evicted from the cache slot
+         * indicated by the given key.
+         *
+         * This method is most commonly used to trigger custom cache invalidation of records that
+         * depend on the one that was just invalidated.
          */
-        public void entryModified (CacheKey key, T entry);
+        public void entryInvalidated (CacheKey key, T oldEntry);
+
+        /**
+         * The given entry, which may be an explicit null, has just been placed into the cache
+         * under the given key. The previous cache entry, if any, is also supplied.
+         *
+         * This method is most likely used by repositories to index entries by attribute for quick
+         * cache invalidation when brute force is unrealistically time consuming.
+         */
+        public void entryCached (CacheKey key, T newEntry, T oldEntry);
     }
 
     /**
@@ -99,7 +111,7 @@ public class PersistenceContext
          */
         protected abstract boolean testForEviction (Serializable key, T record);
     }
-    
+
     /**
      * Creates a persistence context that will use the supplied provider to obtain JDBC
      * connections.
@@ -129,7 +141,7 @@ public class PersistenceContext
      * <li> Run all registered pre-migrations
      * <li> Perform all default migrations (column additions and removals)
      * <li> Run all registered post-migrations </ul>
-     * 
+     *
      * Thus you must either be prepared for the entity to be at <b>any</b> version prior to your
      * migration target version because we may start up, find the schema at version 1 and the
      * Entity class at version 8 and do all "standard" migrations in one fell swoop. So if a column
@@ -222,25 +234,33 @@ public class PersistenceContext
     /**
      * Stores a new entry indexed by the given key.
      */
-    public <T> void cacheStore (CacheKey key, T value)
+    public <T> void cacheStore (CacheKey key, T entry)
     {
-        Log.debug("cacheStore: entry [key=" + key + ", value=" + value + "]");
-        getCache(key.getCacheId()).put(new Element(key.getCacheKey(), value));
+        Log.debug("cacheStore: entry [key=" + key + ", value=" + entry + "]");
 
-        // first do cascading invalidations
+        // find the old entry, if any
+        Cache cache = getCache(key.getCacheId());
+        Element element = cache.get(key.getCacheKey());
+        @SuppressWarnings("unchecked") T oldEntry =
+            (element != null ? (T) element.getValue() : null);
+
+        // update the cache
+        cache.put(new Element(key.getCacheKey(), entry));
+
+        // then do cache invalidations
         Set<CacheListener<?>> listeners = _listenerSets.get(key.getCacheId());
         if (listeners != null && listeners.size() > 0) {
             for (CacheListener<?> listener : listeners) {
                 Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
                 @SuppressWarnings("unchecked") CacheListener<T> casted = (CacheListener<T>)listener;
-                casted.entryModified(key, value);
+                casted.entryCached(key, entry, oldEntry);
             }
         }
     }
 
     /**
-     * Evicts the cache entry indexed under the given key, if there is one.
-     * The eviction may trigger further cache invalidations.
+     * Evicts the cache entry indexed under the given key, if there is one.  The eviction may
+     * trigger further cache invalidations.
      */
     public void cacheInvalidate (CacheKey key)
     {
@@ -248,8 +268,8 @@ public class PersistenceContext
     }
 
     /**
-     * Evicts the cache entry indexed under the given class and cache key, if there is one.
-     * The eviction may trigger further cache invalidations.
+     * Evicts the cache entry indexed under the given class and cache key, if there is one.  The
+     * eviction may trigger further cache invalidations.
      */
     public void cacheInvalidate (Class pClass, Serializable cacheKey)
     {
@@ -257,33 +277,38 @@ public class PersistenceContext
     }
 
     /**
-     * Evicts the cache entry indexed under the given cache id and cache key, if there is one.
-     * The eviction may trigger further cache invalidations.
+     * Evicts the cache entry indexed under the given cache id and cache key, if there is one.  The
+     * eviction may trigger further cache invalidations.
      */
     public <T extends Serializable> void cacheInvalidate (String cacheId, Serializable cacheKey)
     {
         Log.debug("cacheInvalidate: entry [cacheId=" + cacheId + ", cacheKey=" + cacheKey + "]");
+
         Cache cache = getCache(cacheId);
         Element element = cache.get(cacheKey);
+        if (element == null) {
+            return;
+        }
 
-        // first do cascading invalidations
-        Set<CacheListener<?>> listeners = _listenerSets.get(cacheId);
-        if (listeners != null && listeners.size() > 0) {
-            CacheKey key = new SimpleCacheKey(cacheId, cacheKey);
-            for (CacheListener<?> listener : listeners) {
-                Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
-                @SuppressWarnings("unchecked") CacheListener<T> casted = (CacheListener<T>)listener;
-                @SuppressWarnings("unchecked") T value =
-                    (element != null ? (T) element.getValue() : null);
-                casted.entryModified(key, value);
+        // find the old entry, if any
+        @SuppressWarnings("unchecked") T oldEntry = (T) element.getValue();
+        if (oldEntry != null) {
+            // if there was one, do (possibly cascading) cache invalidations
+            Set<CacheListener<?>> listeners = _listenerSets.get(cacheId);
+            if (listeners != null && listeners.size() > 0) {
+                CacheKey key = new SimpleCacheKey(cacheId, cacheKey);
+                for (CacheListener<?> listener : listeners) {
+                    Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
+                    @SuppressWarnings("unchecked") CacheListener<T> casted =
+                        (CacheListener<T>)listener;
+                    casted.entryInvalidated(key, oldEntry);
+                }
             }
         }
 
         // then evict the keyed entry, if needed
-        if (element != null) {
-            Log.debug("cacheInvalidate: evicting [cacheKey=" + cacheKey + "]");
-            cache.remove(cacheKey);
-        }
+        Log.debug("cacheInvalidate: evicting [cacheKey=" + cacheKey + "]");
+        cache.remove(cacheKey);
     }
 
     /**
@@ -429,7 +454,7 @@ public class PersistenceContext
     protected CacheManager _cachemgr;
 
     protected Map<String, Set<CacheListener<?>>> _listenerSets =
-        new HashMap<String, Set<CacheListener<?>>>(); 
+        new HashMap<String, Set<CacheListener<?>>>();
 
     protected Map<Class<?>, DepotMarshaller<?>> _marshallers =
         new HashMap<Class<?>, DepotMarshaller<?>>();

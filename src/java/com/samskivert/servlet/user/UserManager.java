@@ -178,10 +178,11 @@ public class UserManager
     public User loadUser (String authcode)
 	throws PersistenceException
     {
+        User user = (authcode == null) ? null : _repository.loadUserBySession(authcode);
         if (USERMGR_DEBUG) {
-            Log.info("Loading user by authcode directly [code=" + authcode + "].");
+            Log.info("Loaded user by authcode [code=" + authcode + ", user=" + user + "].");
         }
-        return (authcode == null) ? null : _repository.loadUserBySession(authcode);
+        return user;
     }
 
     /**

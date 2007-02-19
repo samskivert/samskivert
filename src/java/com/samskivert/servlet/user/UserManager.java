@@ -123,6 +123,11 @@ public class UserManager
             _userAuthCookie = authCook;
         }
 
+        if (USERMGR_DEBUG) {
+            Log.info("UserManager initialized [acook=" + _userAuthCookie +
+                     ", login=" + _loginURL + "].");
+        }
+
 	// register a cron job to prune the session table every hour
 	_pruner = new Interval() {
 	    public void expired ()
@@ -162,7 +167,11 @@ public class UserManager
     public User loadUser (HttpServletRequest req)
 	throws PersistenceException
     {
-	return loadUser(CookieUtil.getCookieValue(req, _userAuthCookie));
+        String authcook = CookieUtil.getCookieValue(req, _userAuthCookie);
+        if (USERMGR_DEBUG) {
+            Log.info("Loading user by cookie [" + _userAuthCookie + "=" + authcook + "].");
+        }
+	return loadUser(authcook);
     }
 
     /**
@@ -171,6 +180,9 @@ public class UserManager
     public User loadUser (String authcode)
 	throws PersistenceException
     {
+        if (USERMGR_DEBUG) {
+            Log.info("Loading user by authcode directly [code=" + authcode + "].");
+        }
         return (authcode == null) ? null : _repository.loadUserBySession(authcode);
     }
 
@@ -186,12 +198,14 @@ public class UserManager
 	throws PersistenceException, RedirectException
     {
 	User user = loadUser(req);
-	// if no user was loaded, we need to redirect these fine people to the
-	// login page
+	// if no user was loaded, we need to redirect these fine people to the login page
 	if (user == null) {
 	    // first construct the redirect URL
             String eurl = RequestUtils.getLocationEncoded(req);
 	    String target = StringUtil.replace(_loginURL, "%R", eurl);
+            if (USERMGR_DEBUG) {
+                Log.info("No user found in require, redirecting [to=" + target + "].");
+            }
 	    throw new RedirectException(target);
 	}
 	return user;
@@ -276,7 +290,9 @@ public class UserManager
 
 	// register a session for this user
 	String authcode = _repository.registerSession(user, expires);
-
+        if (USERMGR_DEBUG) {
+            Log.info("Session started [user=" + username + ", code=" + authcode + "].");
+        }
 	return new Tuple<User,String>(user, authcode);
     }
 
@@ -299,6 +315,9 @@ public class UserManager
         }
 	acookie.setPath("/");
         acookie.setMaxAge((expires > 0) ? (expires*24*60*60) : -1);
+        if (USERMGR_DEBUG) {
+            Log.info("Setting cookie " + acookie + ".");
+        }
 	rsp.addCookie(acookie);
     }
 
@@ -307,9 +326,8 @@ public class UserManager
      */
     public void logout (HttpServletRequest req, HttpServletResponse rsp)
     {
-	String authcode = CookieUtil.getCookieValue(req, _userAuthCookie);
-
 	// nothing to do if they don't already have an auth cookie
+	String authcode = CookieUtil.getCookieValue(req, _userAuthCookie);
 	if (authcode == null) {
 	    return;
 	}
@@ -319,10 +337,12 @@ public class UserManager
         c.setPath("/");
         c.setMaxAge(0);
         CookieUtil.widenDomain(req, c);
+        if (USERMGR_DEBUG) {
+            Log.info("Clearing cookie " + c + ".");
+        }
         rsp.addCookie(c);
 
-        // we need an unwidened one to ensure that old-style cookies are
-        // wiped as well
+        // we need an unwidened one to ensure that old-style cookies are wiped as well
         c = new Cookie(_userAuthCookie, "x");
         c.setPath("/");
         c.setMaxAge(0);
@@ -330,9 +350,8 @@ public class UserManager
     }
 
     /**
-     * Called by the user manager to create the user repository. Derived
-     * classes can override this and create a specialized repository if
-     * they so desire.
+     * Called by the user manager to create the user repository. Derived classes can override this
+     * and create a specialized repository if they so desire.
      */
     protected UserRepository createRepository (ConnectionProvider conprov)
         throws PersistenceException
@@ -366,4 +385,7 @@ public class UserManager
 
     /** Indicates how long (in days) that a "non-persisting" session token should last. */
     protected static final int NON_PERSIST_EXPIRE_DAYS = 1;
+
+    /** Change this to true and recompile to debug cookie handling. */
+    protected static final boolean USERMGR_DEBUG = true;
 }

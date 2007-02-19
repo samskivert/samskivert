@@ -42,12 +42,10 @@ import com.samskivert.util.Tuple;
 public class UserManager
 {
     /** An instance of the insecure authenticator for general-purpose use. */
-    public static final Authenticator AUTH_INSECURE =
-        new InsecureAuthenticator();
+    public static final Authenticator AUTH_INSECURE = new InsecureAuthenticator();
 
     /** An instance of the password authenticator for general-purpose use. */
-    public static final Authenticator AUTH_PASSWORD =
-        new PasswordAuthenticator();
+    public static final Authenticator AUTH_PASSWORD = new PasswordAuthenticator();
 
     /**
      * A totally insecure authenticator that authenticates any user.  <em>Note:</em> Applications
@@ -387,5 +385,5 @@ public class UserManager
     protected static final int NON_PERSIST_EXPIRE_DAYS = 1;
 
     /** Change this to true and recompile to debug cookie handling. */
-    protected static final boolean USERMGR_DEBUG = true;
+    protected static final boolean USERMGR_DEBUG = false;
 }

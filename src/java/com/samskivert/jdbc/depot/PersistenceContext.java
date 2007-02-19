@@ -236,6 +236,11 @@ public class PersistenceContext
      */
     public <T> void cacheStore (CacheKey key, T entry)
     {
+        if (key == null) {
+            Log.warning("Cache key must not be null [entry=" + entry + "]");
+            Thread.dumpStack();
+            return;
+        }
         Log.debug("cacheStore: entry [key=" + key + ", value=" + entry + "]");
 
         // find the old entry, if any
@@ -264,7 +269,12 @@ public class PersistenceContext
      */
     public void cacheInvalidate (CacheKey key)
     {
-        cacheInvalidate(key.getCacheId(), key.getCacheKey());
+        if (key == null) {
+            Log.warning("Cache key to invalidate must not be null.");
+            Thread.dumpStack();
+        } else {
+            cacheInvalidate(key.getCacheId(), key.getCacheKey());
+        }
     }
 
     /**

@@ -745,13 +745,15 @@ public class DepotMarshaller<T extends PersistentRecord>
             log.info("Adding column to " + getTableName() + ": " + coldef);
             ctx.invoke(new Modifier.Simple(query));
 
-            // if the column is a TIMESTAMP column, we need to run a special query to update all
-            // existing rows to the current time because MySQL annoyingly assigns them a default
-            // value of "0000-00-00 00:00:00" regardless of whether we explicitly provide a
-            // "DEFAULT" value for the column or not
-            if (coldef.toLowerCase().indexOf(" timestamp") != -1) {
+            // if the column is a TIMESTAMP or DATETIME column, we need to run a special query to
+            // update all existing rows to the current time because MySQL annoyingly assigns
+            // TIMESTAMP columns a value of "0000-00-00 00:00:00" regardless of whether we
+            // explicitly provide a "DEFAULT" value for the column or not, and DATETIME columns
+            // cannot accept CURRENT_TIME or NOW() defaults at all.
+            if (coldef.toLowerCase().indexOf(" timestamp") != -1 ||
+                coldef.toLowerCase().indexOf(" datetime") != -1) {
                 query = "update " + getTableName() + " set " + fmarsh.getColumnName() + " = NOW()";
-                log.info("Assigning current time to TIMESTAMP column: " + query);
+                log.info("Assigning current time to column: " + query);
                 ctx.invoke(new Modifier.Simple(query));
             }
         }

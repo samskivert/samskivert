@@ -359,7 +359,7 @@ public class GenRecordTask extends Task
     protected static final String FIELDS_END = MARKER + "FIELDS END";
 
     /** A regular expression for matching the package declaration. */
-    protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^\\s*package\\s+(\\w+)\\W");
+    protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^\\s*package\\s+(\\S+)\\W");
 
     /** A regular expression for matching the class or interface declaration. */
     protected static final Pattern NAME_PATTERN = Pattern.compile(

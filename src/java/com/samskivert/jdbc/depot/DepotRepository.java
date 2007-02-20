@@ -335,6 +335,46 @@ public class DepotRepository
     }
 
     /**
+     * Updates the specified columns for all persistent objects matching the supplied two-column
+     * primary key.
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param primaryKey the primary key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns and the values to be
+     * assigned, in key, value, key, value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T extends PersistentRecord> int updatePartial (
+        Class<T> type, String ix1, Comparable val1, String ix2, Comparable val2,
+        Object... fieldsValues)
+        throws PersistenceException
+    {
+        Key<T> key = new Key<T>(type, ix1, val1, ix2, val2);
+        return updatePartial(type, key, key, fieldsValues);
+    }
+
+    /**
+     * Updates the specified columns for all persistent objects matching the supplied three-column
+     * primary key.
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param primaryKey the primary key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns and the values to be
+     * assigned, in key, value, key, value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T extends PersistentRecord> int updatePartial (
+        Class<T> type, String ix1, Comparable val1, String ix2, Comparable val2,
+        String ix3, Comparable val3, Object... fieldsValues)
+        throws PersistenceException
+    {
+        Key<T> key = new Key<T>(type, ix1, val1, ix2, val2, ix3, val3);
+        return updatePartial(type, key, key, fieldsValues);
+    }
+
+    /**
      * Updates the specified columns for all persistent objects matching the supplied key.
      *
      * @param type the type of the persistent object to be modified.
@@ -393,6 +433,58 @@ public class DepotRepository
         throws PersistenceException
     {
         Key<T> key = _ctx.getMarshaller(type).makePrimaryKey(primaryKey);
+        return updateLiteral(type, key, key, fieldsValues);
+    }
+
+    /**
+     * Updates the specified columns for all persistent objects matching the supplied two-column
+     * primary key. The values in this case must be literal SQL to be inserted into the update
+     * statement. In general this is used when you want to do something like the following:
+     *
+     * <pre>
+     * update FOO set BAR = BAR + 1;
+     * update BAZ set BIF = NOW();
+     * </pre>
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param primaryKey the key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns and the values to be
+     * assigned, in key, literal value, key, literal value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T extends PersistentRecord> int updateLiteral (
+        Class<T> type, String ix1, Comparable val1, String ix2, Comparable val2,
+        String... fieldsValues)
+        throws PersistenceException
+    {
+        Key<T> key = new Key<T>(type, ix1, val1, ix2, val2);
+        return updateLiteral(type, key, key, fieldsValues);
+    }
+
+    /**
+     * Updates the specified columns for all persistent objects matching the supplied three-column
+     * primary key. The values in this case must be literal SQL to be inserted into the update
+     * statement. In general this is used when you want to do something like the following:
+     *
+     * <pre>
+     * update FOO set BAR = BAR + 1;
+     * update BAZ set BIF = NOW();
+     * </pre>
+     *
+     * @param type the type of the persistent object to be modified.
+     * @param primaryKey the key to match in the update.
+     * @param fieldsValues an array containing the names of the fields/columns and the values to be
+     * assigned, in key, literal value, key, literal value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T extends PersistentRecord> int updateLiteral (
+        Class<T> type, String ix1, Comparable val1, String ix2, Comparable val2,
+        String ix3, Comparable val3, String... fieldsValues)
+        throws PersistenceException
+    {
+        Key<T> key = new Key<T>(type, ix1, val1, ix2, val2, ix3, val3);
         return updateLiteral(type, key, key, fieldsValues);
     }
 

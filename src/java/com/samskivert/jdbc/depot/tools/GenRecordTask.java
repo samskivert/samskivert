@@ -363,5 +363,5 @@ public class GenRecordTask extends Task
 
     /** A regular expression for matching the class or interface declaration. */
     protected static final Pattern NAME_PATTERN = Pattern.compile(
-        "^\\s*public\\s+(?:abstract\\s+)?(interface|class)\\s+(\\S+)(\\W|$)");
+        "^\\s*public\\s+(?:abstract\\s+)?(interface|class)\\s+(\\S+)(\\W|$)(<)?");
 }

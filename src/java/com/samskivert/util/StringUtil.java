@@ -1189,7 +1189,9 @@ public class StringUtil
             // if we see an upper case character and we've seen a lower case character since the
             // last time we did so, slip in an _
             if (Character.isUpperCase(c)) {
-                nname.append("_");
+                if (seenLower) {
+                    nname.append("_");
+                }
                 seenLower = false;
                 nname.append(c);
             } else {

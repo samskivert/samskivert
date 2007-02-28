@@ -19,11 +19,33 @@ public class Username
     public static final String NAME_REGEX = "^[_A-Za-z0-9]*$";
 
     /**
-     * Creates a username instance. Usernames must consist only of
-     * characters that match the following regular expression:
-     * <code>[_A-Za-z0-9]+</code> and be longer than two characters.
+     * Creates a username instance.
      */
     public Username (String username)
+        throws InvalidUsernameException
+    {
+        validateName(username);
+        _username = username;
+    }
+
+    /** Returns the text of this username. */
+    public String getUsername ()
+    {
+        return _username;
+    }
+
+    /** Returns a string representation of this instance. */
+    public String toString ()
+    {
+        return _username;
+    }
+
+    /**
+     * Validates our username. The default implementation requires that usernames consist only of
+     * characters that match the {@link #NAME_REGEX} regular expression and be between {@link
+     * #MINIMUM_USERNAME_LENGTH} and {@link #MAXIMUM_USERNAME_LENGTH} characters.
+     */
+    protected void validateName (String username)
         throws InvalidUsernameException
     {
 	// check length
@@ -38,20 +60,6 @@ public class Username
 	if (!username.matches(NAME_REGEX)) {
 	    throw new InvalidUsernameException("error.invalid_username");
 	}
-
-        _username = username;
-    }
-
-    /** Returns the text of this username. */
-    public String getUsername ()
-    {
-        return _username;
-    }
-
-    /** Returns a string representation of this instance. */
-    public String toString ()
-    {
-        return _username;
     }
 
     protected String _username;

@@ -108,13 +108,41 @@ public abstract class EntityMigration extends Modifier
             }
         }
 
-        protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers)
-        {
+        protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers) {
             super.init(tableName, marshallers);
             _newColumnDef = marshallers.get(_newColumnName).getColumnDefinition();
         }
 
         protected String _oldColumnName,  _newColumnName, _newColumnDef;
+    }
+
+    /**
+     * A convenient migration for changing the type of an existing column.
+     */
+    public static class Retype extends EntityMigration
+    {
+        public Retype (int targetVersion, String columnName) {
+            super(targetVersion);
+            _columnName = columnName;
+        }
+
+        public int invoke (Connection conn) throws SQLException {
+            Statement stmt = conn.createStatement();
+            try {
+                log.info("Updating type of '" + _columnName + "' in " + _tableName);
+                return stmt.executeUpdate("alter table " + _tableName + " change column " +
+                                          _columnName + " " + _newColumnDef);
+            } finally {
+                stmt.close();
+            }
+        }
+
+        protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers) {
+            super.init(tableName, marshallers);
+            _newColumnDef = marshallers.get(_columnName).getColumnDefinition();
+        }
+
+        protected String _columnName, _newColumnDef;
     }
 
     /**

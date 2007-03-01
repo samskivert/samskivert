@@ -633,7 +633,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                              _postamble);
                     String[] definition = _declarations.toArray(new String[_declarations.size()]);
                     JDBCUtil.createTableIfMissing(conn, getTableName(), definition, _postamble);
-                    updateVersion(conn, 1);
+                    updateVersion(conn, _schemaVersion);
                 }
                 return 0;
             }

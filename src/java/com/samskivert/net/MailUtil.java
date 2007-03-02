@@ -142,7 +142,9 @@ public class MailUtil
                 message.addRecipient(Message.RecipientType.TO,
                                      new InternetAddress(recipients[ii]));
             }
-            message.setSubject(subject);
+            if (subject != null) {
+                message.setSubject(subject);
+            }
             Transport.send(message);
 
         } catch (Exception e) {

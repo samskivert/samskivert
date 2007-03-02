@@ -535,14 +535,15 @@ public class DepotRepository
      * is null or zero), it will be inserted directly. Otherwise an update will first be attempted
      * and if that matches zero rows, the object will be inserted.
      *
-     * @return the number of rows modified by this action, this should always be one.
+     * @return true if the record was created, false if it was updated.
      */
-    protected <T extends PersistentRecord> int store (T record)
+    protected <T extends PersistentRecord> boolean store (T record)
         throws PersistenceException
     {
         final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
         final Key key = marsh.hasPrimaryKey() ? marsh.getPrimaryKey(record) : null;
-        return _ctx.invoke(new CachingModifier<T>(record, key, key) {
+        final boolean[] created = new boolean[1];
+        _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
@@ -563,6 +564,7 @@ public class DepotRepository
                     stmt = marsh.createInsert(conn, _result);
                     int mods = stmt.executeUpdate();
                     updateKey(marsh.assignPrimaryKey(conn, _result, true));
+                    created[0] = true;
                     return mods;
 
                 } finally {
@@ -570,6 +572,7 @@ public class DepotRepository
                 }
             }
         });
+        return created[0];
     }
 
     /**

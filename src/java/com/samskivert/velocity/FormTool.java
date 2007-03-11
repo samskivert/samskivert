@@ -56,7 +56,7 @@ public class FormTool
      */
     public void setUseXHTML (boolean useXHTML)
     {
-        _closeBrace = useXHTML ? "/>" : ">";
+        _useXHTML = useXHTML;
     }
 
     /**
@@ -293,9 +293,9 @@ public class FormTool
         buf.append("<input type=\"checkbox\"");
         buf.append(" name=\"").append(name).append("\"");
         if (value) {
-            buf.append(" checked");
+            buf.append(_useXHTML ? " checked=\"checked\"" : " checked");
         }
-        buf.append(_closeBrace);
+        buf.append(getCloseBrace());
         return buf.toString();
     }
 
@@ -345,9 +345,9 @@ public class FormTool
         buf.append(" value=\"").append(value).append("\"");
         String selectedValue = getValue(name, defaultValue);
         if (value.equals(selectedValue)) {
-            buf.append(" checked");
+            buf.append(_useXHTML ? " checked=\"checked\"" : " checked");
         }
-        buf.append(_closeBrace);
+        buf.append(getCloseBrace());
         return buf.toString();
     }
 
@@ -404,7 +404,7 @@ public class FormTool
         if (!StringUtil.isBlank(extra)) {
             buf.append(" ").append(extra);
         }
-        buf.append(_closeBrace);
+        buf.append(getCloseBrace());
         return buf.toString();
     }
 
@@ -433,9 +433,17 @@ public class FormTool
         return ParameterUtil.getParameter(_req, name, true);
     }
 
+    /**
+     * Returns the string used to close unmatched tags.
+     */
+    protected String getCloseBrace ()
+    {
+        return _useXHTML ? " />" : ">";
+    }
+
     /** A reference to the servlet request in use by this form tool. */
     protected HttpServletRequest _req;
 
-    /** The string used to close unmatched tags. */
-    protected String _closeBrace = "/>";
+    /** Whether or not we should aim to generate XHTML or HTML. */
+    protected boolean _useXHTML = true;
 }

@@ -148,15 +148,7 @@ public class StringUtil
      */
     public static String toUSLowerCase (String s)
     {
-        if (isBlank(s)) {
-            return s;
-        }
-        for (int ii = 0, ll = s.length(); ii < ll; ii++) {
-            if (Character.isUpperCase(s.charAt(ii))) {
-                return s.toLowerCase(Locale.US);
-            }
-        }
-        return s;
+        return isBlank(s) ? s : s.toLowerCase(Locale.US);
     }
 
     /**
@@ -165,15 +157,7 @@ public class StringUtil
      */
     public static String toUSUpperCase (String s)
     {
-        if (isBlank(s)) {
-            return s;
-        }
-        for (int ii = 0, ll = s.length(); ii < ll; ii++) {
-            if (Character.isLowerCase(s.charAt(ii))) {
-                return s.toUpperCase(Locale.US);
-            }
-        }
-        return s;
+        return isBlank(s) ? s : s.toUpperCase(Locale.US);
     }
 
     /**

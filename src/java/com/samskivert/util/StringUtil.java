@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -139,6 +140,40 @@ public class StringUtil
         } else {
             return String.valueOf(Character.toUpperCase(c)) + s.substring(1);
         }
+    }
+
+    /**
+     * Returns a US locale lower case string.  Useful when manipulating filenames and resource
+     * keys which would not have locale specific characters.
+     */
+    public static String toUSLowerCase (String s)
+    {
+        if (isBlank(s)) {
+            return s;
+        }
+        for (int ii = 0, ll = s.length(); ii < ll; ii++) {
+            if (Character.isUpperCase(s.charAt(ii))) {
+                return s.toLowerCase(Locale.US);
+            }
+        }
+        return s;
+    }
+
+    /**
+     * Returns a US locale upper case string.  Useful when manipulating filenames and resource
+     * keys which would not have locale specific characters.
+     */
+    public static String toUSUpperCase (String s)
+    {
+        if (isBlank(s)) {
+            return s;
+        }
+        for (int ii = 0, ll = s.length(); ii < ll; ii++) {
+            if (Character.isLowerCase(s.charAt(ii))) {
+                return s.toUpperCase(Locale.US);
+            }
+        }
+        return s;
     }
 
     /**
@@ -1035,7 +1070,7 @@ public class StringUtil
         if (isBlank(source)) {
             return new String[0];
         }
-        
+
         int tcount = 0, tpos = -1, tstart = 0;
 
         // count up the number of tokens

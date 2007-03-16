@@ -97,47 +97,65 @@ public abstract class ConstructedQuery<T>
             throw new RuntimeException("createQuery() called with _mainClass == null");
         }
 
+        // we need to know if there's a entity-level @Computed annotation
+        Computed entityComputed = _mainType.getAnnotation(Computed.class);
+
+        // and we need to look up per-field information on our marshaller
         DepotMarshaller<?> mainMarshaller = _classMap.get(_mainType);
-        String[] fields = mainMarshaller._allFields;
+
         StringBuilder query = new StringBuilder("select ");
         boolean skip = true;
-        for (int ii = 0; ii < fields.length; ii ++) {
+        for (String field : mainMarshaller.getFieldNames()) {
             if (!skip) {
                 query.append(", ");
             }
             skip = false;
 
-            FieldOverride clause = _disMap.get(fields[ii]);
+            // see if there's a field override
+            FieldOverride clause = _disMap.get(field);
             if (clause != null) {
                 clause.appendClause(this, query);
                 continue;
             }
 
-            Computed computed = mainMarshaller._fields.get(fields[ii]).getComputed();
-            if (computed == null) {
-                // make sure the object corresponds to a table, otherwise the whole thing is
-                // computed
-                if (mainMarshaller.getTableName() != null) {
-                    // if it's neither overridden nor computed, it's a standard field
-                    query.append(getTableAbbreviation(_mainType)).append(".").append(fields[ii]);
+            // figure out the class we're selecting from unless we're otherwise overriden:
+            // for a concrete record, simply use the corresponding table; for a computed one,
+            // default to the shadowed concrete record, or null if there isn't one
+            Class<? extends PersistentRecord> tableClass =
+                entityComputed == null ? _mainType : entityComputed.shadowOf();
+
+            // handle the field-level @Computed annotation, if there is one
+            Computed fieldComputed = mainMarshaller.getFieldMarshaller(field).getComputed();
+            if (fieldComputed != null) {
+                // check if the computed field has a literal SQL definition
+                if (fieldComputed.fieldDefinition().length() > 0) {
+                    query.append(fieldComputed.fieldDefinition()).append(" as ").append(field);
                     continue;
                 }
-                throw new SQLException(
-                    "@Computed entity field without definition [field=" + fields[ii] + "]");
-            }
 
-            // check if the computed field has a literal SQL definition
-            if (computed.fieldDefinition().length() > 0) {
-                query.append(computed.fieldDefinition() + " as " + fields[ii]);
-
-            } else if (!computed.required()) {
                 // or if we can simply ignore the field
-                skip = true;
+                if (!fieldComputed.required()) {
+                    skip = true;
+                    continue;
+                }
 
-            } else {
-                throw new SQLException(
-                    "@Computed(required) field without definition [field=" + fields[ii] + "]");
+                // else see if there's an overriding shadowOf definition
+                if (fieldComputed.shadowOf() != null) {
+                    tableClass = fieldComputed.shadowOf();
+                }
             }
+
+            // if we get this far we hopefully have a table to select from
+            if (tableClass != null) {
+                String tableName = getTableAbbreviation(tableClass);
+                query.append(tableName).append(".").append(field);
+                continue;
+            }
+
+            // else owie
+            throw new SQLException(
+                "Persistent field has no definition [class=" + _mainType +
+                ", field=" + field + "]");
         }
 
         if (_fromOverride != null) {
@@ -268,7 +286,7 @@ public abstract class ConstructedQuery<T>
         }
         _classList = new ArrayList<Class<? extends PersistentRecord>>(classSet);
     }
-    
+
     /** The persistent class to instantiate for the results. */
     protected Class<? extends PersistentRecord> _mainType;
 

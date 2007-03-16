@@ -31,9 +31,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -253,7 +250,7 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
-     * Returns the name of the table in which persistence instances of this class are stored. By
+     * Returns the name of the table in which persistent instances of our class are stored. By
      * default this is the classname of the persistent object without the package.
      */
     public String getTableName ()
@@ -261,6 +258,22 @@ public class DepotMarshaller<T extends PersistentRecord>
         return _tableName;
     }
 
+    /**
+     * Returns all the persistent fields of our class, in definition order.
+     */
+    public String[] getFieldNames ()
+    {
+        return _allFields;
+    }
+    
+    /**
+     * Returns the {@link FieldMarshaller} for a named field on our persistent class.
+     */
+    public FieldMarshaller getFieldMarshaller (String fieldName)
+    {
+        return _fields.get(fieldName);
+    }
+    
     /**
      * Returns true if our persistent object defines a primary key.
      */

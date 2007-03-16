@@ -28,10 +28,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +49,8 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.annotation.Id;
+import com.samskivert.util.GenUtil;
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
@@ -140,14 +145,25 @@ public class GenRecordTask extends Task
             return;
         }
 
-        // determine which fields we need to deal with
-        ArrayList<Field> flist = new ArrayList<Field>();
+        // determine which fields we need to deal with and those that make up our primary key
+        List<Field> flist = new ArrayList<Field>(), kflist = new ArrayList<Field>();
         Field[] fields = oclass.getDeclaredFields();
         for (int ii = 0; ii < fields.length; ii++) {
             Field f = fields[ii];
             int mods = f.getModifiers();
             if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || Modifier.isTransient(mods)) {
                 continue;
+            }
+            boolean found = false;
+            // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
+            for (Annotation a : f.getDeclaredAnnotations()) {
+                if (Id.class.getName().equals(a.annotationType().getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                kflist.add(f);
             }
             flist.add(f);
         }
@@ -171,6 +187,7 @@ public class GenRecordTask extends Task
         // now determine where to insert our static field declarations
         int bstart = -1, bend = -1;
         int nstart = -1, nend = -1;
+        int mstart = -1, mend = -1;
         for (int ii = 0; ii < lines.length; ii++) {
             String line = lines[ii].trim();
 
@@ -197,30 +214,40 @@ public class GenRecordTask extends Task
                 nstart = ii;
             } else if (line.equals(FIELDS_END)) {
                 nend = ii+1;
+            } else if (line.equals(METHODS_START)) {
+                mstart = ii;
+            } else if (line.equals(METHODS_END)) {
+                mend = ii+1;
             }
         }
 
         // sanity check the markers
         if (check(source, "fields start", nstart, "fields end", nend) ||
-            check(source, "fields end", nend, "fields start", nstart)) {
+            check(source, "fields end", nend, "fields start", nstart) ||
+            check(source, "methods start", mstart, "methods end", mend) ||
+            check(source, "methods end", mend, "methods start", mstart)) {
             return;
         }
 
-        // we have no previous markers then stuff the fields at the top of the class body
+        // we have no previous markers then stuff the fields at the top of the class body and the
+        // methods at the bottom
         if (nstart == -1) {
             nstart = bstart;
             nend = bstart;
+        }
+        if (mstart == -1) {
+            mstart = bend;
+            mend = bend;
         }
 
         // get the unqualified class name
         String rname = oclass.getName();
         rname = rname.substring(rname.lastIndexOf(".")+1);
 
-        // generate our fields section and our methods section
+        // generate our fields section
         StringBuilder fsection = new StringBuilder();
         for (int ii = 0; ii < flist.size(); ii++) {
             Field f = flist.get(ii);
-            Class<?> ftype = f.getType();
             String fname = f.getName();
 
             // create our velocity context
@@ -245,12 +272,54 @@ public class GenRecordTask extends Task
             fsection.append(fwriter.toString());
         }
 
+        // generate our methods section
+        StringBuilder msection = new StringBuilder();
+
+        // add a getKey() method, if applicable
+        if (kflist.size() > 0) {
+            // create our velocity context
+            VelocityContext ctx = new VelocityContext();
+            ctx.put("record", rname);
+
+            StringBuilder argList = new StringBuilder();
+            StringBuilder argNameList = new StringBuilder();
+            StringBuilder fieldNameList = new StringBuilder();
+            for (Field keyField : kflist) {
+                if (argList.length() > 0) {
+                    argList.append(", ");
+                    argNameList.append(", ");
+                    fieldNameList.append(", ");
+                }
+                String name = keyField.getName();
+                argList.append(GenUtil.simpleName(keyField)).append(" ").append(name);
+                argNameList.append(name);
+                fieldNameList.append(StringUtil.unStudlyName(name));
+            }
+
+            ctx.put("argList", argList.toString());
+            ctx.put("argNameList", argNameList.toString());
+            ctx.put("fieldNameList", fieldNameList.toString());
+
+            // now generate our bits
+            StringWriter mwriter = new StringWriter();
+            try {
+                _velocity.mergeTemplate(KEY_TMPL, "UTF-8", ctx, mwriter);
+            } catch (Exception e) {
+                System.err.println("Failed processing template");
+                e.printStackTrace(System.err);
+            }
+
+            // and append them as appropriate to the string buffers
+            msection.append(mwriter.toString());
+        }
+
         // now bolt everything back together into a class declaration
         try {
             BufferedWriter bout = new BufferedWriter(new FileWriter(source));
             for (int ii = 0; ii < nstart; ii++) {
                 writeln(bout, lines[ii]);
             }
+
             if (fsection.length() > 0) {
                 String prev = get(lines, nstart-1);
                 if (!StringUtil.isBlank(prev) && !prev.equals("{")) {
@@ -263,30 +332,45 @@ public class GenRecordTask extends Task
                     bout.newLine();
                 }
             }
-            for (int ii = nend; ii < lines.length; ii++) {
+            for (int ii = nend; ii < mstart; ii++) {
                 writeln(bout, lines[ii]);
             }
+
+            if (msection.length() > 0) {
+                if (!StringUtil.isBlank(get(lines, mstart-1))) {
+                    bout.newLine();
+                }
+                writeln(bout, "    " + METHODS_START);
+                bout.write(msection.toString());
+                writeln(bout, "    " + METHODS_END);
+                String next = get(lines, mend);
+                if (!StringUtil.isBlank(next) && !next.equals("}")) {
+                    bout.newLine();
+                }
+            }
+            for (int ii = mend; ii < lines.length; ii++) {
+                writeln(bout, lines[ii]);
+            }
+
             bout.close();
         } catch (IOException ioe) {
             System.err.println("Error writing to '" + source + "': " + ioe);
         }
     }
 
-    /** Safely gets the <code>index</code>th line, returning the empty
-     * string if we exceed the length of the array. */
+    /** Safely gets the <code>index</code>th line, returning the empty string if we exceed the
+     * length of the array. */
     protected String get (String[] lines, int index)
     {
         return (index < lines.length) ? lines[index] : "";
     }
 
     /** Helper function for sanity checking marker existence. */
-    protected boolean check (File source, String mname, int mline,
-                             String fname, int fline)
+    protected boolean check (File source, String mname, int mline, String fname, int fline)
     {
         if (mline == -1 && fline != -1) {
-            System.err.println("Found " + fname + " marker (at line " +
-                               (fline+1) + ") but no " + mname +
-                               " marker in '" + source + "'.");
+            System.err.println("Found " + fname + " marker (at line " + (fline+1) + ") but no " +
+                               mname + " marker in '" + source + "'.");
             return true;
         }
         return false;
@@ -353,10 +437,15 @@ public class GenRecordTask extends Task
     /** Specifies the path to the name code template. */
     protected static final String NAME_TMPL = "com/samskivert/jdbc/depot/tools/record_name.tmpl";
 
+    /** Specifies the path to the key code template. */
+    protected static final String KEY_TMPL = "com/samskivert/jdbc/depot/tools/record_key.tmpl";
+
     // markers
     protected static final String MARKER = "// AUTO-GENERATED: ";
     protected static final String FIELDS_START = MARKER + "FIELDS START";
     protected static final String FIELDS_END = MARKER + "FIELDS END";
+    protected static final String METHODS_START = MARKER + "METHODS START";
+    protected static final String METHODS_END = MARKER + "METHODS END";
 
     /** A regular expression for matching the package declaration. */
     protected static final Pattern PACKAGE_PATTERN = Pattern.compile("^\\s*package\\s+(\\S+)\\W");

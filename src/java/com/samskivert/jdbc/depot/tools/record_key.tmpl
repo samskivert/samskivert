@@ -1,0 +1,11 @@
+    /**
+     * Create and return a primary {@link Key} to identify a {@link #$record}
+     * with the supplied key values.
+     */
+    public static Key<${record}> getKey (${argList})
+    {
+        return new Key<${record}>(
+                ${record}.class,
+                new String[] { $fieldNameList },
+                new Comparable[] { $argNameList });
+    }

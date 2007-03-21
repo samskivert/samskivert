@@ -18,11 +18,11 @@ public class ResultHandler<T>
      */
     public void getResult (ResultListener<T> rl)
     {
-        if (_result != null) {
-            rl.requestCompleted(_result);
-        } else if (_error != null) {
+        if (_error != null) {
             rl.requestFailed(_error);
-        } else { // _list != null
+        } else if (_list == null) { // _list == null when we have a result
+            rl.requestCompleted(_result);
+        } else {
             _list.add(rl);
         }
     }
@@ -30,23 +30,30 @@ public class ResultHandler<T>
     // documentation inherited from interface ResultListener
     public void requestCompleted (T result)
     {
-        _list.requestCompleted(_result = result);
+        _result = result;
+        ResultListener<T> list = _list;
         _list = null;
+
+        list.requestCompleted(result);
     }
 
     // documentation inherited from interface ResultListener
     public void requestFailed (Exception cause)
     {
-        _list.requestFailed(_error = cause);
+        _error = cause;
+        ResultListener<T> list = _list;
         _list = null;
+
+        list.requestFailed(cause);
     }
 
-    /** When waiting for the result, the list of registered listeners. */
+    /** If non-null, indicates that we're waiting for the result and holds the list of registered
+     * listeners. */
     protected ResultListenerList<T> _list = new ResultListenerList<T>();
 
-    /** The result, if it was obtained successfully. */
-    protected T _result;
-
-    /** The cause of the failure, if the result could not be obtained. */
+    /** If non-null, the cause of the failure to obtain a result. */
     protected Exception _error;
+
+    /** The result. */
+    protected T _result;
 }

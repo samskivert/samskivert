@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -303,6 +303,29 @@ public class SimpleRepository extends Repository
                 try {
                     stmt = conn.createStatement();
                     JDBCUtil.checkedUpdate(stmt, query, 1);
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Executes the supplied update query in this repository, logging a warning
+     * if the modification count is not equal to the specified count.
+     */
+    protected void warnedUpdate (final String query, final int count)
+        throws PersistenceException
+    {
+        executeUpdate(new Operation<Object>() {
+            public Object invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                Statement stmt = null;
+                try {
+                    stmt = conn.createStatement();
+                    JDBCUtil.warnedUpdate(stmt, query, 1);
                 } finally {
                     JDBCUtil.close(stmt);
                 }

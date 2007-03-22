@@ -1,7 +1,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2006 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implements a {@link SoftReference} cache wherein the values in the hashmap
- * are not prevented from being garbage collected.
+ * Implements a {@link SoftReference} cache wherein the values in the hashmap are not prevented
+ * from being garbage collected.
  */
 public class SoftCache<K,V>
 {
@@ -44,8 +44,7 @@ public class SoftCache<K,V>
     }
 
     /**
-     * Returns true if the supplied key exists in this map and is mapped to an
-     * active value.
+     * Returns true if the supplied key exists in this map and is mapped to an active value.
      */
     public boolean containsKey (K key)
     {
@@ -73,13 +72,13 @@ public class SoftCache<K,V>
      */
     public V put (K key, V value)
     {
-        SoftReference<V> old = _map.put(key, new SoftReference<V>(value));
+        SoftReference<V> old = _map.put(key, createReference(value));
         return (old == null) ? null : old.get();
     }
 
     /**
-     * Removes the specified key from the map. Returns the value to which the
-     * key was previously mapped or null.
+     * Removes the specified key from the map. Returns the value to which the key was previously
+     * mapped or null.
      */
     public V remove (K key)
     {
@@ -93,6 +92,15 @@ public class SoftCache<K,V>
     public void clear ()
     {
         _map.clear();
+    }
+
+    /**
+     * Creates and returns a {@link SoftReference} to the supplied value.  Subclasses can override
+     * to return custom subclasses.
+     */
+    protected SoftReference<V> createReference (V value)
+    {
+        return new SoftReference<V>(value);
     }
 
     protected HashMap<K,SoftReference<V>> _map;

@@ -34,7 +34,7 @@ public class ResultHandler<T>
      */
     public T peekResult ()
     {
-        return (_error == null && _list == null) ? _result : null;
+        return _result;
     }
 
     // documentation inherited from interface ResultListener

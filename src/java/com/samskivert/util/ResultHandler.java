@@ -27,6 +27,16 @@ public class ResultHandler<T>
         }
     }
 
+    /**
+     * Peeks at the result, which will be returned if already available.  If the result is pending
+     * or there was an error, this method returns <code>null</code> (which, however, will also be
+     * returned if the actual result was <code>null</code>).
+     */
+    public T peekResult ()
+    {
+        return (_error == null && _list == null) ? _result : null;
+    }
+
     // documentation inherited from interface ResultListener
     public void requestCompleted (T result)
     {

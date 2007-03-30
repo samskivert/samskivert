@@ -28,6 +28,14 @@ public class ResultHandler<T>
     }
 
     /**
+     * Checks whether the result (or error, if the request failed) is already available.
+     */
+    public boolean hasResult ()
+    {
+        return (_list == null);
+    }
+
+    /**
      * Peeks at the result, which will be returned if already available.  If the result is pending
      * or there was an error, this method returns <code>null</code> (which, however, will also be
      * returned if the actual result was <code>null</code>).

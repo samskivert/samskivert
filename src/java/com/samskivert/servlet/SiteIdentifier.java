@@ -24,57 +24,56 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Responsible for determining the unique site identifier based on
- * information available in the HTTP request. Site identifiers are
- * integers ranging from 1 to {@link Integer#MAX_VALUE}. Because the site
- * identifier implementation is likely to have access to the site
- * classification metadata, this interface is also used to map integer
- * site identifiers to string site identifiers.
+ * Responsible for determining the unique site identifier based on information available in the
+ * HTTP request. Site identifiers are integers ranging from 1 to {@link Integer#MAX_VALUE}. Because
+ * the site identifier implementation is likely to have access to the site classification metadata,
+ * this interface is also used to map integer site identifiers to string site identifiers.
  */
 public interface SiteIdentifier
 {
-    /** The default site identifier, to be used when a site cannot be
-     * identified or for site identifiers that don't wish to distinguish
-     * between sites. */
+    /** The default site identifier, to be used when a site cannot be identified or for site
+     * identifiers that don't wish to distinguish between sites. */
     public static final int DEFAULT_SITE_ID = -1;
 
     /** The string identifier for the default site. */
     public static final String DEFAULT_SITE_STRING = "default";
 
+    /** Use this to override the site identification process by calling {@link
+     * HttpServletRequest#setAttribute} with this key and an Integer value indicating the site id
+     * to be used, and any call to {@link #identifySite} on that request will return the overridden
+     * site. */
+    public static final String SITE_ID_OVERRIDE_KEY = "SiteIdentifierOverride";
+
     /**
-     * Returns the unique identifier for the site on which this request
-     * originated. That may be divined by looking at the server name, or
-     * perhaps a request parameter, or part of the path info. The
-     * mechanism (or mechanisms) are up to the implementation.
+     * Returns the unique identifier for the site on which this request originated. That may be
+     * divined by looking at the server name, or perhaps a request parameter, or part of the path
+     * info. The mechanism (or mechanisms) are up to the implementation. Note: the implementation
+     * must honor the {@link #SITE_ID_OVERRIDE_KEY} request attribute.
      *
-     * @param req the http servlet request the site for which we are
-     * trying to identify.
+     * @param req the http servlet request the site for which we are trying to identify.
      *
-     * @return the unique site identifier requestsed or {@link
-     * #DEFAULT_SITE_ID} if the site could not be identified. No site
-     * should ever have a site id value of 0.
+     * @return the unique site identifier requestsed or {@link #DEFAULT_SITE_ID} if the site could
+     * not be identified. No site should ever have a site id value of 0.
      */
     public int identifySite (HttpServletRequest req);
 
     /**
-     * Returns a string representation of the site identifier. The
-     * SiteIdentifier in use can map the site ids to strings however it
-     * likes as long as it consistently maps the same identifier to the
-     * same string and vice versa. Presumably these strings would be human
-     * readable and meaningful.
+     * Returns a string representation of the site identifier. The SiteIdentifier in use can map
+     * the site ids to strings however it likes as long as it consistently maps the same identifier
+     * to the same string and vice versa. Presumably these strings would be human readable and
+     * meaningful.
      *
-     * @param siteId the unique integer identifier for the site that we
-     * wish to be identified by a string.
+     * @param siteId the unique integer identifier for the site that we wish to be identified by a
+     * string.
      *
      * @return the string identifier for this site.
      */
     public String getSiteString (int siteId);
 
     /**
-     * Returns the site identifier for the site associated with the
-     * supplied site string. The SiteIdentifier in use can map the site
-     * ids to strings however it likes as long as it consistently maps the
-     * same string to the same identifier and vice versa.
+     * Returns the site identifier for the site associated with the supplied site string. The
+     * SiteIdentifier in use can map the site ids to strings however it likes as long as it
+     * consistently maps the same string to the same identifier and vice versa.
      *
      * @param siteString the string to be converted into a site identifer.
      *
@@ -83,8 +82,7 @@ public interface SiteIdentifier
     public int getSiteId (String siteString);
 
     /**
-     * Returns an enumerator over all {@link Site} mappings known to this
-     * SiteIdentifier.
+     * Returns an enumerator over all {@link Site} mappings known to this SiteIdentifier.
      */
     public Iterator<Site> enumerateSites ();
 }

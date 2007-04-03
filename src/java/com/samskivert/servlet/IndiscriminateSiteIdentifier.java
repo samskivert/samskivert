@@ -26,23 +26,28 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Used by default and for systems that have no need to discriminate
- * between different sites in their web applications.
+ * Used by default and for systems that have no need to discriminate between different sites in
+ * their web applications.
  */
 public class IndiscriminateSiteIdentifier implements SiteIdentifier
 {
     /**
-     * Always returns {@link #DEFAULT_SITE_ID} regardless of the
-     * information in the request.
+     * Always returns {@link #DEFAULT_SITE_ID} regardless of the information in the request.
      */
     public int identifySite (HttpServletRequest req)
     {
-        return DEFAULT_SITE_ID;
+        // check whether our site id was overridden
+        Integer override = (Integer)req.getAttribute(SITE_ID_OVERRIDE_KEY);
+        if (override != null) {
+            return override;
+        } else {
+            return DEFAULT_SITE_ID;
+        }
     }
 
     /**
-     * Always returns {@link #DEFAULT_SITE_STRING} regardless of the value
-     * of the supplied identifer.
+     * Always returns {@link #DEFAULT_SITE_STRING} regardless of the value of the supplied
+     * identifer.
      */
     public String getSiteString (int siteId)
     {
@@ -50,8 +55,7 @@ public class IndiscriminateSiteIdentifier implements SiteIdentifier
     }
 
     /**
-     * Always returns {@link #DEFAULT_SITE_ID} regardless of the value of
-     * the supplied string.
+     * Always returns {@link #DEFAULT_SITE_ID} regardless of the value of the supplied string.
      */
     public int getSiteId (String siteString)
     {

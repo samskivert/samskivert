@@ -16,19 +16,19 @@
     <echo level="info">------------------------------------------</echo>
     <echo level="info">Standard extensions - http://java.sun.com/</echo>
     <echo level="info">------------------------------------------</echo>
-    <available property="servlet2.3.present"
-     classname="javax.servlet.Servlet" classpathref="classpath"/>
+    <available property="servlet2.3.present" classpathref="classpath"
+     classname="javax.servlet.Servlet"/>
     <echo level="info">Servlet 2.3: ${servlet2.3.present}</echo>
-    <available property="mail.present"
-     classname="javax.mail.Transport" classpathref="classpath"/>
+    <available property="mail.present" classpathref="classpath"
+     classname="javax.mail.Transport"/>
     <echo level="info">Java Mail: ${mail.present}</echo>
 
-    <available property="sax.present"
-     classname="org.xml.sax.SAXException" classpathref="classpath"/>
+    <available property="sax.present" classpathref="classpath"
+     classname="org.xml.sax.SAXException"/>
     <echo level="info">SAX: ${sax.present}</echo>
 
-    <available property="jaxp.present"
-     classname="javax.xml.parsers.SAXParser" classpathref="classpath"/>
+    <available property="jaxp.present" classpathref="classpath"
+     classname="javax.xml.parsers.SAXParser"/>
     <echo level="info">JAXP: ${jaxp.present}</echo>
 
     <echo level="info"></echo>
@@ -59,6 +59,10 @@
     <echo level="info">---------------</echo>
     <echo level="info">Other libraries</echo>
     <echo level="info">---------------</echo>
+    <available property="ant.present" classpathref="classpath" ignoresystemclasses="true"
+     classname="org.apache.tools.ant.Task"/>
+    <echo level="info">Ant: ${ant.present}</echo>
+
     <available property="ehcache.present" classpathref="classpath"
      classname="net.sf.ehcache.Element"/>
     <echo level="info">EH Cache: ${ehcache.present}</echo>
@@ -96,13 +100,21 @@
     </condition>
     <echo>com.samskivert.jdbc.depot: ${build.depot}</echo>
 
-    <condition property="build.net">
+    <condition property="build.depot.tools">
+      <and>
+        <isset property="build.depot"/>
+        <isset property="ant.present"/>
+      </and>
+    </condition>
+    <echo>com.samskivert.jdbc.depot.tools: ${build.depot.tools}</echo>
+
+    <condition property="build.mail">
       <and>
         <isset property="build.io"/>
         <isset property="mail.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.net: ${build.net}</echo>
+    <echo>com.samskivert.net.MailUtil: ${build.mail}</echo>
 
     <condition property="build.servlet">
       <and>

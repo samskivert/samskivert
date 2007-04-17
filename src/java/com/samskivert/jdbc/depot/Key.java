@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,20 +89,16 @@ public class Key<T extends PersistentRecord> extends Where
             map.put(fields[i], values[i]);
         }
 
-        // then introspect on the persistent record and iterate over its actual fields
-        _fields = new ArrayList<String>(fields.length);
-        _values = new ArrayList<Comparable>(fields.length);
-        for (Field field : _pClass.getFields()) {
-            // look for @Id fields
-            if (field.getAnnotation(Id.class) != null) {
-                String fName = field.getName();
-                // make sure we were provided with a value for this primary key field
-                if (map.containsKey(fName) == false) {
-                    throw new IllegalArgumentException("Missing value for key field: " + fName);
-                }
-                _fields.add(fName);
-                _values.add(map.get(fName));
-                map.remove(fName);
+        // look up the cached primary key fields for this object
+        String[] keyFields = getKeyFields(pClass);
+
+        // now extract the values in field order and ensure none are extra or missing
+        _values = new Comparable[fields.length];
+        for (int ii = 0; ii < keyFields.length; ii++) {
+            _values[ii] = map.remove(keyFields[ii]);
+            // make sure we were provided with a value for this primary key field
+            if (_values[ii] == null) {
+                throw new IllegalArgumentException("Missing value for key field: " + keyFields[ii]);
             }
         }
         // finally make sure we were not given any fields that are not in fact primary key fields
@@ -124,11 +121,12 @@ public class Key<T extends PersistentRecord> extends Where
     public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
         builder.append(" where ");
-        for (int ii = 0; ii < _fields.size(); ii ++) {
+        String[] keyFields = getKeyFields(_pClass);
+        for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
                 builder.append(" and ");
             }
-            builder.append(_fields.get(ii)).append(_values.get(ii) == null ? " is null " : " = ? ");
+            builder.append(keyFields[ii]).append(_values[ii] == null ? " is null " : " = ? ");
         }
     }
 
@@ -136,9 +134,9 @@ public class Key<T extends PersistentRecord> extends Where
     public int bindArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        for (int ii = 0; ii < _fields.size(); ii ++) {
-            if (_values.get(ii) != null) {
-                pstmt.setObject(argIdx ++, _values.get(ii));
+        for (int ii = 0; ii < _values.length; ii ++) {
+            if (_values[ii] != null) {
+                pstmt.setObject(argIdx ++, _values[ii]);
             }
         }
         return argIdx;
@@ -165,7 +163,7 @@ public class Key<T extends PersistentRecord> extends Where
     @Override
     public int hashCode ()
     {
-        return _pClass.hashCode() + 31 * _values.hashCode();
+        return _pClass.hashCode() ^ Arrays.hashCode(_values);
     }
 
     @Override
@@ -178,22 +176,45 @@ public class Key<T extends PersistentRecord> extends Where
             return false;
         }
         Key other = (Key) obj;
-        return _pClass == other._pClass && _values.equals(other._values);
+        return _pClass == other._pClass && Arrays.equals(_values, other._values);
     }
 
     @Override
     public String toString ()
     {
         StringBuilder builder = new StringBuilder("[Key pClass=" + _pClass.getName());
-        for (int ii = 0; ii < _fields.size(); ii ++) {
-            builder.append(", ").append(_fields.get(ii)).append("=").append(_values.get(ii));
+        String[] keyFields = getKeyFields(_pClass);
+        for (int ii = 0; ii < keyFields.length; ii ++) {
+            builder.append(", ").append(keyFields[ii]).append("=").append(_values[ii]);
         }
         builder.append("]");
         return builder.toString();
     }
 
+    /**
+     * Returns an array containing the names of the primary key fields for the supplied persistent
+     * class. The values are introspected and cached for the lifetime of the VM.
+     */
+    protected static String[] getKeyFields (Class<?> pClass)
+    {
+        String[] fields = _keyFields.get(pClass);
+        if (fields == null) {
+            ArrayList<String> kflist = new ArrayList<String>();
+            for (Field field : pClass.getFields()) {
+                // look for @Id fields
+                if (field.getAnnotation(Id.class) != null) {
+                    kflist.add(field.getName());
+                }
+            }
+            _keyFields.put(pClass, fields = kflist.toArray(new String[kflist.size()]));
+        }
+        return fields;
+    }
 
     protected Class<T> _pClass;
-    protected ArrayList<String> _fields;
-    protected ArrayList<Comparable> _values;
+    protected Comparable[] _values;
+
+    /** A (never expiring) cache of primary key field names for all persistent classes (of which
+     * there are merely dozens, so we don't need to worry about expiring). */
+    protected static HashMap<Class<?>,String[]> _keyFields = new HashMap<Class<?>,String[]>();
 }

@@ -44,7 +44,7 @@ public class Key<T extends PersistentRecord> extends Where
     implements CacheKey, CacheInvalidator
 {
     /**
-     * Constructs a new single-column {@code Key} with the given value. 
+     * Constructs a new single-column {@code Key} with the given value.
      */
     public Key (Class<T> pClass, String ix, Comparable val)
     {
@@ -77,17 +77,17 @@ public class Key<T extends PersistentRecord> extends Where
         // TODO: make Where an interface so we don't have to do this ugly super call
         super(null);
         _pClass = pClass;
-        
+
         if (fields.length != values.length) {
             throw new IllegalArgumentException("Field and Value arrays must be of equal length.");
         }
-        
+
         // build a local map of field name -> field value
         Map<String, Comparable> map = new HashMap<String, Comparable>();
         for (int i = 0; i < fields.length; i ++) {
             map.put(fields[i], values[i]);
         }
-        
+
         // then introspect on the persistent record and iterate over its actual fields
         _fields = new ArrayList<String>(fields.length);
         _values = new ArrayList<Comparable>(fields.length);
@@ -95,7 +95,7 @@ public class Key<T extends PersistentRecord> extends Where
             // look for @Id fields
             if (field.getAnnotation(Id.class) != null) {
                 String fName = field.getName();
-                // make sure we were provided with a value for this primary key field 
+                // make sure we were provided with a value for this primary key field
                 if (map.containsKey(fName) == false) {
                     throw new IllegalArgumentException("Missing value for key field: " + fName);
                 }
@@ -110,7 +110,7 @@ public class Key<T extends PersistentRecord> extends Where
                 "Non-key columns given: " +  StringUtil.join(map.keySet().toArray(), ", "));
         }
     }
-    
+
     // from QueryClause
     public Collection<Class<? extends PersistentRecord>> getClassSet ()
     {
@@ -143,7 +143,7 @@ public class Key<T extends PersistentRecord> extends Where
         }
         return argIdx;
     }
-    
+
     // from CacheKey
     public String getCacheId ()
     {
@@ -192,7 +192,7 @@ public class Key<T extends PersistentRecord> extends Where
         return builder.toString();
     }
 
-        
+
     protected Class<T> _pClass;
     protected ArrayList<String> _fields;
     protected ArrayList<Comparable> _values;

@@ -146,30 +146,29 @@ public class GenRecordTask extends Task
             return;
         }
 
-        // determine which fields we need to deal with and those that make up our primary key
-        List<Field> flist = new ArrayList<Field>(), kflist = new ArrayList<Field>();
-        // we'd just use Class.getFields() but that returns things in a random order whereas
-        // ClassUtil returns fields in declaration order starting from the top-most class with
-        // derived class fields showing up after super class fields
-        Field[] fields = ClassUtil.getFields(oclass);
-        for (int ii = 0; ii < fields.length; ii++) {
-            Field f = fields[ii];
-            int mods = f.getModifiers();
+        // determine which fields make up our primary key; we'd just use Class.getFields() but that
+        // returns things in a random order whereas ClassUtil returns fields in declaration order
+        // starting from the top-most class and going down the line
+        List<Field> kflist = new ArrayList<Field>();
+      FIELD_LOOP:
+        for (Field field : ClassUtil.getFields(oclass)) {
+            // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
+            for (Annotation a : field.getAnnotations()) {
+                if (Id.class.getName().equals(a.annotationType().getName())) {
+                    kflist.add(field);
+                    continue FIELD_LOOP;
+                }
+            }
+        }
+
+        // determine which fields we need to generate constants for
+        List<Field> flist = new ArrayList<Field>();
+        for (Field field : oclass.getDeclaredFields()) {
+            int mods = field.getModifiers();
             if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || Modifier.isTransient(mods)) {
                 continue;
             }
-            boolean found = false;
-            // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
-            for (Annotation a : f.getAnnotations()) {
-                if (Id.class.getName().equals(a.annotationType().getName())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                kflist.add(f);
-            }
-            flist.add(f);
+            flist.add(field);
         }
 
         // slurp our source file into newline separated strings

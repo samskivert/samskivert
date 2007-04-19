@@ -50,6 +50,7 @@ import org.apache.velocity.app.VelocityEngine;
 
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.annotation.Id;
+import com.samskivert.util.ClassUtil;
 import com.samskivert.util.GenUtil;
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
@@ -139,15 +140,18 @@ public class GenRecordTask extends Task
     /** Processes a resolved distributed object class instance. */
     protected void processRecord (File source, Class oclass)
     {
-        // make sure we extend persistent record
-        if (!_prclass.isAssignableFrom(oclass)) {
+        // make sure we extend persistent record and we're not abstract
+        if (!_prclass.isAssignableFrom(oclass) && !Modifier.isAbstract(oclass.getModifiers())) {
             // System.err.println("Skipping " + oclass.getName() + "...");
             return;
         }
 
         // determine which fields we need to deal with and those that make up our primary key
         List<Field> flist = new ArrayList<Field>(), kflist = new ArrayList<Field>();
-        Field[] fields = oclass.getDeclaredFields();
+        // we'd just use Class.getFields() but that returns things in a random order whereas
+        // ClassUtil returns fields in declaration order starting from the top-most class with
+        // derived class fields showing up after super class fields
+        Field[] fields = ClassUtil.getFields(oclass);
         for (int ii = 0; ii < fields.length; ii++) {
             Field f = fields[ii];
             int mods = f.getModifiers();
@@ -156,7 +160,7 @@ public class GenRecordTask extends Task
             }
             boolean found = false;
             // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
-            for (Annotation a : f.getDeclaredAnnotations()) {
+            for (Annotation a : f.getAnnotations()) {
                 if (Id.class.getName().equals(a.annotationType().getName())) {
                     found = true;
                     break;

@@ -146,17 +146,20 @@ public class GenRecordTask extends Task
             return;
         }
 
-        // determine which fields make up our primary key; we'd just use Class.getFields() but that
-        // returns things in a random order whereas ClassUtil returns fields in declaration order
-        // starting from the top-most class and going down the line
+        // determine our primary key fields for getKey() generation (if we're not an abstract)
         List<Field> kflist = new ArrayList<Field>();
-      FIELD_LOOP:
-        for (Field field : ClassUtil.getFields(oclass)) {
-            // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
-            for (Annotation a : field.getAnnotations()) {
-                if (Id.class.getName().equals(a.annotationType().getName())) {
-                    kflist.add(field);
-                    continue FIELD_LOOP;
+        if (!Modifier.isAbstract(oclass.getModifiers())) {
+            // determine which fields make up our primary key; we'd just use Class.getFields() but
+            // that returns things in a random order whereas ClassUtil returns fields in
+            // declaration order starting from the top-most class and going down the line
+          FIELD_LOOP:
+            for (Field field : ClassUtil.getFields(oclass)) {
+                // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
+                for (Annotation a : field.getAnnotations()) {
+                    if (Id.class.getName().equals(a.annotationType().getName())) {
+                        kflist.add(field);
+                        continue FIELD_LOOP;
+                    }
                 }
             }
         }
@@ -278,8 +281,8 @@ public class GenRecordTask extends Task
         // generate our methods section
         StringBuilder msection = new StringBuilder();
 
-        // add a getKey() method, if applicable (and we're not abstract)
-        if (!Modifier.isAbstract(oclass.getModifiers()) && kflist.size() > 0) {
+        // add a getKey() method, if applicable
+        if (kflist.size() > 0) {
             // create our velocity context
             VelocityContext ctx = new VelocityContext();
             ctx.put("record", rname);

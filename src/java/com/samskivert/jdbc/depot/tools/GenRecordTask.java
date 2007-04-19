@@ -140,8 +140,8 @@ public class GenRecordTask extends Task
     /** Processes a resolved distributed object class instance. */
     protected void processRecord (File source, Class oclass)
     {
-        // make sure we extend persistent record and we're not abstract
-        if (!_prclass.isAssignableFrom(oclass) && !Modifier.isAbstract(oclass.getModifiers())) {
+        // make sure we extend persistent record
+        if (!_prclass.isAssignableFrom(oclass)) {
             // System.err.println("Skipping " + oclass.getName() + "...");
             return;
         }
@@ -279,8 +279,8 @@ public class GenRecordTask extends Task
         // generate our methods section
         StringBuilder msection = new StringBuilder();
 
-        // add a getKey() method, if applicable
-        if (kflist.size() > 0) {
+        // add a getKey() method, if applicable (and we're not abstract)
+        if (!Modifier.isAbstract(oclass.getModifiers()) && kflist.size() > 0) {
             // create our velocity context
             VelocityContext ctx = new VelocityContext();
             ctx.put("record", rname);

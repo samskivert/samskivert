@@ -27,6 +27,7 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.samskivert.io.PersistenceException;
@@ -161,7 +162,7 @@ public class DepotRepository
     /**
      * Loads all persistent objects that match the specified key.
      */
-    protected <T extends PersistentRecord> ArrayList<T> findAll (
+    protected <T extends PersistentRecord> List<T> findAll (
         Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {

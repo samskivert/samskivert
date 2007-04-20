@@ -161,7 +161,7 @@ public class DepotRepository
     /**
      * Loads all persistent objects that match the specified key.
      */
-    protected <T extends PersistentRecord, C extends Collection<T>> Collection<T> findAll (
+    protected <T extends PersistentRecord> ArrayList<T> findAll (
         Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {

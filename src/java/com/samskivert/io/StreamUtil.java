@@ -3,10 +3,11 @@
 
 package com.samskivert.io;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
+import java.io.Reader;
 
 import com.samskivert.Log;
 
@@ -44,15 +45,29 @@ public class StreamUtil
     }
 
     /**
-     * Convenient close for a Closeable. Use in a finally clause and love life.
+     * Convenient close for a Reader. Use in a finally clause and love life.
      */
-    public static void close (Closeable c)
+    public static void close (Reader in)
     {
-        if (c != null) {
+        if (in != null) {
             try {
-                c.close();
+                in.close();
             } catch (IOException ioe) {
-                Log.warning("Error closing closeable [obj=" + c + ", cause=" + ioe + "].");
+                Log.warning("Error closing reader [reader=" + in + ", cause=" + ioe + "].");
+            }
+        }
+    }
+
+    /**
+     * Convenient close for a Writer. Use in a finally clause and love life.
+     */
+    public static void close (Writer out)
+    {
+        if (out != null) {
+            try {
+                out.close();
+            } catch (IOException ioe) {
+                Log.warning("Error closing writer [writer=" + out + ", cause=" + ioe + "].");
             }
         }
     }

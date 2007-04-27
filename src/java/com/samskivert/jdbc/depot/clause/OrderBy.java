@@ -25,6 +25,7 @@ import java.sql.SQLException;
 
 import com.samskivert.jdbc.depot.ConstructedQuery;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
@@ -34,6 +35,14 @@ public class OrderBy extends QueryClause
 {
     /** Indicates the order of the clause. */
     public enum Order { ASC, DESC };
+
+    /**
+     * Creates and returns a random order by clause.
+     */
+    public static OrderBy random ()
+    {
+        return ascending(new LiteralExp("rand()"));
+    }
 
     /**
      * Creates and returns an ascending order by clause on the supplied column.

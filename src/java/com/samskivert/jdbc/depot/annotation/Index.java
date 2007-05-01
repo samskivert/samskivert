@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 public @interface Index
 {
     /** Defines the name of the index. */
-    String name () default "";
+    String name ();
 
     /** Configures the type of this index if necessary. MySQL supports FULLTEXT, SPATIAL and
      * UNIQUE. */

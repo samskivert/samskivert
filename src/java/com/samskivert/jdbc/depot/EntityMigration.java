@@ -108,6 +108,10 @@ public abstract class EntityMigration extends Modifier
             }
         }
 
+        public boolean runBeforeDefault () {
+            return false;
+        }
+
         protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers) {
             super.init(tableName, marshallers);
             _newColumnDef = marshallers.get(_newColumnName).getColumnDefinition();
@@ -135,6 +139,10 @@ public abstract class EntityMigration extends Modifier
             } finally {
                 stmt.close();
             }
+        }
+
+        public boolean runBeforeDefault () {
+            return false;
         }
 
         protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers) {

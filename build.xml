@@ -23,8 +23,8 @@
   </path>
 
   <!-- import some targets to enumerate and check dependency availability -->
-  <import file="libs-incl.xml"/>
-  <import file="depends-incl.xml"/>
+  <import file="etc/libs-incl.xml"/>
+  <import file="etc/depends-incl.xml"/>
 
   <!-- prepares the application directories -->
   <target name="prepare">

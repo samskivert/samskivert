@@ -712,8 +712,10 @@ public class StringUtil
     {
         try {
             return object.toString();
-        } catch (Exception e) {
-            return "<toString() failure: " + e + ">";
+        } catch (Throwable t) {
+            // We catch any throwable, even Errors. Someone is just trying to debug something,
+            // probably inside another catch block.
+            return "<toString() failure: " + t + ">";
         }
     }
 

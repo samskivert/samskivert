@@ -270,7 +270,9 @@ public class DepotRepository
 
     /**
      * Updates just the specified fields of the supplied persistent object, using its primary key
-     * to identify the row to be updated.
+     * to identify the row to be updated. This method currently flushes the associated record from
+     * the cache, but in the future it should be modified to update the modified fields in the
+     * cached value iff the record exists in the cache.
      *
      * @return the number of rows modified by this action.
      */
@@ -282,7 +284,8 @@ public class DepotRepository
         if (key == null) {
             throw new IllegalArgumentException("Can't update record with null primary key.");
         }
-        return _ctx.invoke(new CachingModifier<T>(record, key, key) {
+        // by passing null as "result" we flush the record from the cache and don't restore it
+        return _ctx.invoke(new CachingModifier<T>(null, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(conn, _result, key, modifiedFields);
                 try {
@@ -376,7 +379,10 @@ public class DepotRepository
     }
 
     /**
-     * Updates the specified columns for all persistent objects matching the supplied key.
+     * Updates the specified columns for all persistent objects matching the supplied key. This
+     * method currently flushes the associated record from the cache, but in the future it should
+     * be modified to update the modified fields in the cached value iff the record exists in the
+     * cache.
      *
      * @param type the type of the persistent object to be modified.
      * @param key the key to match in the update.

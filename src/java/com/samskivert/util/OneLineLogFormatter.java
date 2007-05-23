@@ -72,14 +72,12 @@ public class OneLineLogFormatter extends Formatter
         if (_showWhere) {
             // append the log method call context
             String where = record.getSourceClassName();
-            boolean legacy = (where.indexOf("LoggingLogProvider") != -1);
-            if (where != null && !legacy) {
-                String logger = record.getLoggerName();
-                if (logger != null && where.startsWith(logger) &&
-                    where.length() > logger.length()) {
-                    where = where.substring(logger.length()+1);
-                }
-            } else {
+            if (where != null) {
+                // strip the package name from the logging class
+                where = where.substring(where.lastIndexOf(".")+1);
+            }
+            boolean legacy = where.equals("Log") || where.equals("LoggingLogProvider");
+            if (legacy) {
                 where = record.getLoggerName();
             }
             buf.append(where);

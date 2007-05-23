@@ -284,10 +284,11 @@ public class DepotRepository
         if (key == null) {
             throw new IllegalArgumentException("Can't update record with null primary key.");
         }
-        // by passing null as "result" we flush the record from the cache and don't restore it
-        return _ctx.invoke(new CachingModifier<T>(null, key, key) {
+        return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn) throws SQLException {
                 PreparedStatement stmt = marsh.createUpdate(conn, _result, key, modifiedFields);
+                // clear out _result so that we don't rewrite this partial record to the cache
+                _result = null;
                 try {
                     return stmt.executeUpdate();
                 } finally {

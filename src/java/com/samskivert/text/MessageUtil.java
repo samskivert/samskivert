@@ -98,16 +98,14 @@ public class MessageUtil
 
         StringBuilder buf = new StringBuilder();
         int vlength = value.length();
-        for (int i = 0; i < vlength; i++) {
-            char ch = value.charAt(i);
-            if (ch != '\\') {
+        for (int ii = 0; ii < vlength; ii++) {
+            char ch = value.charAt(ii);
+            if (ch != '\\' || ii == vlength-1) {
                 buf.append(ch);
-            } else if (i < vlength-1) {
-                // look at the next character
-                ch = value.charAt(++i);
-                buf.append((ch == '!') ? '|' : ch);
             } else {
-                buf.append(ch);
+                // look at the next character
+                ch = value.charAt(++ii);
+                buf.append((ch == '!') ? '|' : ch);
             }
         }
 

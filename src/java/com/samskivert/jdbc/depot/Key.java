@@ -42,7 +42,7 @@ import com.samskivert.util.StringUtil;
  * a convenience, and may also be instantiated explicitly.
  */
 public class Key<T extends PersistentRecord> extends Where
-    implements CacheKey, CacheInvalidator
+    implements CacheKey, CacheInvalidator, Serializable
 {
     /**
      * Constructs a new single-column {@code Key} with the given value.
@@ -151,7 +151,7 @@ public class Key<T extends PersistentRecord> extends Where
     // from CacheKey
     public Serializable getCacheKey ()
     {
-        return _values;
+        return this; // TODO: Optimally return a special class here containing only _values.
     }
 
     // from CacheInvalidator

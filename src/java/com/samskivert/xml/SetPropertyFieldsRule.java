@@ -130,7 +130,7 @@ public class SetPropertyFieldsRule extends Rule
 
             // and finally set the field
             field.set(top, value);
-    }
+        }
     }
 
     protected HashMap<String,FieldParser> _parsers;

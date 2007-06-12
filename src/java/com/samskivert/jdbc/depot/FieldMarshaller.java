@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -88,6 +88,9 @@ public abstract class FieldMarshaller
         } else if (ftype.equals(byte[].class)) {
             marshaller = new ByteArrayMarshaller();
 
+        } else if (ftype.equals(int[].class)) {
+            marshaller = new IntArrayMarshaller();
+
         // SQL types
         } else if (ftype.equals(Date.class) ||
             ftype.equals(Time.class) ||
@@ -124,7 +127,7 @@ public abstract class FieldMarshaller
     {
         return _computed;
     }
-    
+
     /**
      * Returns the GeneratedValue annotation on this field, if any.
      */
@@ -402,6 +405,20 @@ public abstract class FieldMarshaller
         }
         public String getColumnType () {
             return "VARBINARY";
+        }
+    }
+
+    protected static class IntArrayMarshaller extends FieldMarshaller {
+        public void setValue (Object po, PreparedStatement ps, int column)
+            throws SQLException, IllegalAccessException {
+            ps.setObject(column, _field.get(po));
+        }
+        public void getValue (ResultSet rs, Object po)
+            throws SQLException, IllegalAccessException {
+            _field.set(po, rs.getObject(getColumnName()));
+        }
+        public String getColumnType () {
+            return "BLOB";
         }
     }
 

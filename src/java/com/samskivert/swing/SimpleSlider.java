@@ -32,7 +32,7 @@ public class SimpleSlider extends JPanel
      */
     public SimpleSlider (String label, int min, int max, int value)
     {
-        super(new BorderLayout());
+        super(new BorderLayout(5, 5));
         setOpaque(false);
         add(_label = new JLabel(), BorderLayout.WEST);
         setLabel(label);

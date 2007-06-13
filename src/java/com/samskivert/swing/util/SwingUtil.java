@@ -77,10 +77,18 @@ public class SwingUtil
      */
     public static void centerWindow (Window window)
     {
-        Toolkit tk = window.getToolkit();
-        Dimension ss = tk.getScreenSize();
+        Rectangle bounds;
+        try {
+            bounds = GraphicsEnvironment.getLocalGraphicsEnvironment().
+                getDefaultScreenDevice().getDefaultConfiguration().getBounds();
+        } catch (Throwable t) {
+            Toolkit tk = window.getToolkit();
+            Dimension ss = tk.getScreenSize();
+            bounds = new Rectangle(0, 0, ss.width, ss.height);
+        }
+
         int width = window.getWidth(), height = window.getHeight();
-        window.setBounds((ss.width-width)/2, (ss.height-height)/2,
+        window.setBounds(bounds.x + (bounds.width-width)/2, bounds.y + (bounds.height-height)/2,
                          width, height);
     }
 

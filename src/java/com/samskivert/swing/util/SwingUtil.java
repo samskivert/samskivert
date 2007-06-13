@@ -84,7 +84,7 @@ public class SwingUtil
         } catch (Throwable t) {
             Toolkit tk = window.getToolkit();
             Dimension ss = tk.getScreenSize();
-            bounds = new Rectangle(0, 0, ss.width, ss.height);
+            bounds = new Rectangle(ss);
         }
 
         int width = window.getWidth(), height = window.getHeight();

@@ -609,7 +609,18 @@ public class DepotRepository
     protected <T extends PersistentRecord> int delete (Class<T> type, Comparable primaryKeyValue)
         throws PersistenceException
     {
-        Key<T> primaryKey = _ctx.getMarshaller(type).makePrimaryKey(primaryKeyValue);
+        return delete(type, _ctx.getMarshaller(type).makePrimaryKey(primaryKeyValue));
+    }
+
+    /**
+     * Deletes all persistent objects from the database with a primary key matching the supplied
+     * primary key.
+     *
+     * @return the number of rows deleted by this action.
+     */
+    protected <T extends PersistentRecord> int delete (Class<T> type, Key<T> primaryKey)
+        throws PersistenceException
+    {
         return deleteAll(type, primaryKey, primaryKey);
     }
 

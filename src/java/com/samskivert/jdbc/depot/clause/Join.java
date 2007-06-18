@@ -33,10 +33,13 @@ import com.samskivert.jdbc.depot.operator.Conditionals.*;
 import com.samskivert.jdbc.depot.operator.SQLOperator;
 
 /**
- *  Represents a JOIN -- currently just an INNER one.
+ *  Represents a JOIN.
  */
 public class Join extends QueryClause
 {
+    /** Indicates the join type to be used. The default is INNER. */
+    public static enum Type { INNER, LEFT_OUTER, RIGHT_OUTER };
+
     public Join (Class<? extends PersistentRecord> pClass, String pCol,
                  Class<? extends PersistentRecord> joinClass, String jCol)
         throws PersistenceException
@@ -67,10 +70,29 @@ public class Join extends QueryClause
         return set;
     }
 
+    /**
+     * Configures the type of join to be performed.
+     */
+    public Join setType (Type type)
+    {
+        _type = type;
+        return this;
+    }
+
     // from QueryClause
     public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
     {
-        builder.append(" inner join " );
+        switch (_type) {
+        case INNER:
+            builder.append(" inner join " );
+            break;
+        case LEFT_OUTER:
+            builder.append(" left outer join " );
+            break;
+        case RIGHT_OUTER:
+            builder.append(" right outer join " );
+            break;
+        }
         builder.append(query.getTableName(_joinClass)).append(" as ");
         builder.append(query.getTableAbbreviation(_joinClass)).append(" on ");
         _joinCondition.appendExpression(query, builder);
@@ -82,6 +104,9 @@ public class Join extends QueryClause
     {
         return _joinCondition.bindArguments(pstmt, argIdx);
     }
+
+    /** Indicates the type of join to be performed. */
+    protected Type _type = Type.INNER;
 
     /** The class of the table we're to join against. */
     protected Class<? extends PersistentRecord> _joinClass;

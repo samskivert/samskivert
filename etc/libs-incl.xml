@@ -10,7 +10,7 @@
     <include name="ehcache-1.2.jar"/>
     <include name="junit-3.7.jar"/>
     <include name="mail.jar"/>
-    <include name="servlet-2.3.jar"/>
+    <include name="servlet-*.jar"/>
     <include name="velocity-1.5-dev.jar"/>
   </fileset>
 </project>

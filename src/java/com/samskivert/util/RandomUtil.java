@@ -69,8 +69,20 @@ public class RandomUtil
      */
     public static float getFloat (float high)
     {
-        return rand.nextFloat() * high;
+        return getFloat(high, rand);
     }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed float value between
+     * 0.0 (inclusive) and the specified value (exclusive).
+     *
+     * @param high the high value limiting the random number sought.
+     * @param r the random number generator to use
+     */
+    public static float getFloat (float high, Random r)
+    {
+         return r.nextFloat() * high;
+     }
 
     /**
      * Pick a random index from the array, weighted by the value of the
@@ -121,6 +133,25 @@ public class RandomUtil
      */
     public static int getWeightedIndex (float[] weights)
     {
+        return getWeightedIndex(weights, rand);
+    }
+
+    /**
+     * Pick a random index from the array, weighted by the value of the
+     * corresponding array element.
+     *
+     * @param weights an array of non-negative floats.
+     * @return an index into the array, or -1 if the sum of the weights
+     * is less than or equal to 0.0 or any individual element is negative. 
+     *
+     * For example, passing in {0.2, 0.0, 0.6, 0.8} will return
+     * <table><tr><td>0</td><td>1/8th of the time</td></tr>
+     * <tr><td>1</td><td>never</td></tr>
+     * <tr><td>2</td><td>3/8th of the time</td></tr>
+     * <tr><td>3</td><td>half of the time</td></tr></table>
+     */
+    public static int getWeightedIndex (float[] weights, Random r)
+    {
         float sum = 0.0f;
         for (int ii = 0; ii < weights.length; ii++) {
             if (weights[ii] < 0.0f) {
@@ -132,7 +163,7 @@ public class RandomUtil
         if (sum <= 0.0) {
             return -1;
         }
-        float pick = getFloat(sum);
+        float pick = getFloat(sum, r);
         for (int ii=0, nn=weights.length; ii < nn; ii++) {
             pick -= weights[ii];
             if (pick < 0.0) {

@@ -664,6 +664,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // if schema versioning is disabled, stop now
         if (_schemaVersion < 0) {
+            verifySchemasMatch(ctx);
             return;
         }
 
@@ -682,6 +683,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         });
         if (currentVersion == _schemaVersion) {
+            verifySchemasMatch(ctx);
             return;
         }
 
@@ -699,39 +701,9 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
 
         // enumerate all of the columns now that we've run our pre-migrations
-        final Set<String> columns = new HashSet<String>();
-        final Map<String, Set<String>> indexColumns = new HashMap<String, Set<String>>();
-        ctx.invoke(new Modifier() {
-            public int invoke (Connection conn) throws SQLException {
-                DatabaseMetaData meta = conn.getMetaData();
-                ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
-                while (rs.next()) {
-                    columns.add(rs.getString("COLUMN_NAME"));
-                }
-
-                rs = meta.getIndexInfo(null, null, getTableName(), false, false);
-                while (rs.next()) {
-                    String indexName = rs.getString("INDEX_NAME");
-                    Set<String> set = indexColumns.get(indexName);
-                    if (rs.getBoolean("NON_UNIQUE")) {
-                        // not a unique index: just make sure there's an entry in the keyset
-                        if (set == null) {
-                            indexColumns.put(indexName, null);
-                        }
-
-                    } else {
-                        // for unique indices we collect the column names
-                        if (set == null) {
-                            set = new HashSet<String>();
-                            indexColumns.put(indexName, set);
-                        }
-                        set.add(rs.getString("COLUMN_NAME"));
-                    }
-                }
-
-                return 0;
-            }
-        });
+        Set<String> columns = new HashSet<String>();
+        Map<String, Set<String>> indexColumns = new HashMap<String, Set<String>>();
+        loadMetaData(ctx, columns, indexColumns);
 
         // this is a little silly, but we need a copy for name disambiguation later
         Set<String> indicesCopy = new HashSet<String>(indexColumns.keySet());
@@ -855,6 +827,65 @@ public class DepotMarshaller<T extends PersistentRecord>
                 return 0;
             }
         });
+    }
+
+    /**
+     * Loads up the metadata for our database table: the names of our columns and indices.
+     */
+    protected void loadMetaData (PersistenceContext ctx, final Set<String> columns,
+                                 final Map<String, Set<String>> indexColumns)
+        throws PersistenceException
+    {
+        ctx.invoke(new Modifier() {
+            public int invoke (Connection conn) throws SQLException {
+                DatabaseMetaData meta = conn.getMetaData();
+                ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
+                while (rs.next()) {
+                    columns.add(rs.getString("COLUMN_NAME"));
+                }
+
+                if (indexColumns != null) {
+                    rs = meta.getIndexInfo(null, null, getTableName(), false, false);
+                    while (rs.next()) {
+                        String indexName = rs.getString("INDEX_NAME");
+                        Set<String> set = indexColumns.get(indexName);
+                        if (rs.getBoolean("NON_UNIQUE")) {
+                            // not a unique index: just make sure there's an entry in the keyset
+                            if (set == null) {
+                                indexColumns.put(indexName, null);
+                            }
+
+                        } else {
+                            // for unique indices we collect the column names
+                            if (set == null) {
+                                set = new HashSet<String>();
+                                indexColumns.put(indexName, set);
+                            }
+                            set.add(rs.getString("COLUMN_NAME"));
+                        }
+                    }
+                }
+
+                return 0;
+            }
+        });
+    }
+
+    /**
+     * Checks that there are no database columns for which we no longer have Java fields.
+     */
+    protected void verifySchemasMatch (PersistenceContext ctx)
+        throws PersistenceException
+    {
+        Set<String> columns = new HashSet<String>();
+        loadMetaData(ctx, columns, null);
+        for (String fname : _columnFields) {
+            FieldMarshaller fmarsh = _fields.get(fname);
+            columns.remove(fmarsh.getColumnName());
+        }
+        for (String column : columns) {
+            log.warning(getTableName() + " contains stale column '" + column + "'.");
+        }
     }
 
     protected String getPrimaryKeyColumns ()

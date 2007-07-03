@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,6 +20,11 @@
 
 package com.samskivert.util;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.ConcurrentModificationException;
@@ -32,10 +37,11 @@ import java.util.Set;
  * to indicate no value, -1 is returned instead. This means that you must
  * be careful if you intend to store -1 as a valid value in the table.
  */
-// 
+//
 // TODO: make this a proper map, perhaps even an extension of HashIntMap
 // or at least share a common abstract ancestor.
 public class IntIntMap
+    implements Serializable
 {
     public interface IntIntEntry extends IntMap.IntEntry<Integer>
     {
@@ -66,6 +72,11 @@ public class IntIntMap
     public IntIntMap ()
     {
 	this(DEFAULT_BUCKETS, DEFAULT_LOAD_FACTOR);
+    }
+
+    public boolean isEmpty ()
+    {
+        return _size == 0;
     }
 
     public int size ()
@@ -317,6 +328,46 @@ public class IntIntMap
         };
     }
 
+    /**
+     * Save the state of this instance to a stream (i.e., serialize it).
+     */
+    private void writeObject (ObjectOutputStream s)
+        throws IOException
+    {
+        // write out number of buckets
+        s.writeInt(_buckets.length);
+        s.writeFloat(_loadFactor);
+
+        // write out size (number of mappings)
+        s.writeInt(_size);
+
+        // write out keys and values
+        for (IntIntEntry entry : entrySet()) {
+            s.writeInt(entry.getIntKey());
+            s.writeInt(entry.getIntValue());
+        }
+    }
+
+    /**
+     * Reconstitute the <tt>IntIntMap</tt> instance from a stream (i.e.,
+     * deserialize it).
+     */
+    private void readObject (ObjectInputStream s)
+         throws IOException, ClassNotFoundException
+    {
+        // read in number of buckets and allocate the bucket array
+        _buckets = new Record[s.readInt()];
+        _loadFactor = s.readFloat();
+
+        // read in size (number of mappings)
+        int size = s.readInt();
+
+        // read the keys and values
+        for (int i=0; i<size; i++) {
+            put(s.readInt(), s.readInt());
+        }
+    }
+
     class Record implements IntIntEntry
     {
 	public Record next;
@@ -504,4 +555,7 @@ public class IntIntMap
     protected float _loadFactor;
 
     protected int _modCount = 0;
+
+    /** Change this if the fields or inheritance hierarchy ever changes. */
+    private static final long serialVersionUID = 1;
 }

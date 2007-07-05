@@ -935,6 +935,23 @@ public class StringUtil
     }
 
     /**
+     * Parses an array of booleans from its string representation. The array should be represented
+     * as a bare list of numbers separated by commas, for example:
+     *
+     * <pre>false, false, true, false</pre>
+     */
+    public static boolean[] parseBooleanArray (String source)
+    {
+        StringTokenizer tok = new StringTokenizer(source, ",");
+        boolean[] vals = new boolean[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            // trim the whitespace from the token
+            vals[i] = Boolean.parseBoolean(tok.nextToken().trim());
+        }
+        return vals;
+    }
+
+    /**
      * Parses an array of strings from a single string. The array should be represented as a bare
      * list of strings separated by commas, for example:
      *

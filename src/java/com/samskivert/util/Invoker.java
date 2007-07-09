@@ -41,7 +41,10 @@ public class Invoker extends LoopingThread
         public long queueStamp;
 
         /** The default constructor. */
-        public Unit () {}
+        public Unit ()
+        {
+            this("Unknown");
+        }
 
         /** Creates an invoker unit which will report the supplied name in
          * {@link #toString}. */
@@ -88,7 +91,7 @@ public class Invoker extends LoopingThread
             return _name;
         }
 
-        protected String _name = "Unknown";
+        protected String _name;
     }
 
     /**
@@ -130,6 +133,10 @@ public class Invoker extends LoopingThread
             public boolean invoke () {
                 r.run();
                 return false;
+            }
+
+            public String toString () {
+                return "Posted Runnable: " + String.valueOf(r);
             }
         });
     }

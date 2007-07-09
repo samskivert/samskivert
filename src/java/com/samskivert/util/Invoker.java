@@ -27,6 +27,7 @@ import com.samskivert.Log;
  * invoker is desirable.
  */
 public class Invoker extends LoopingThread
+    implements RunQueue
 {
     /**
      * The unit encapsulates a unit of executable code that will be run on
@@ -120,6 +121,23 @@ public class Invoker extends LoopingThread
         unit.queueStamp = System.currentTimeMillis();
         // and append it to the queue
         _queue.append(unit);
+    }
+
+    // from RunQueue
+    public void postRunnable (final Runnable r)
+    {
+        postUnit(new Unit() {
+            public boolean invoke () {
+                r.run();
+                return false;
+            }
+        });
+    }
+
+    // from RunQueue
+    public boolean isDispatchThread ()
+    {
+        return (this == Thread.currentThread());
     }
 
     // documentation inherited

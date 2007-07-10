@@ -111,7 +111,7 @@ public class UserManager
      *
      * @param pruneQueue an optional run queue on which to run our periodic session pruning task.
      */
-    public void init (Properties config, ConnectionProvider conprov, final RunQueue pruneQueue)
+    public void init (Properties config, ConnectionProvider conprov, RunQueue pruneQueue)
         throws PersistenceException
     {
         // save this for later
@@ -139,8 +139,7 @@ public class UserManager
         }
 
         // register a cron job to prune the session table every hour
-        _pruner = new Interval() {
-            { _runQueue = pruneQueue; } // blame Ray for being draconian in Interval's constructor
+        _pruner = new Interval(pruneQueue) {
             public void expired () {
                 try {
                     _repository.pruneSessions();

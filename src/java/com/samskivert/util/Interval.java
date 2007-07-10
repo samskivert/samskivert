@@ -63,18 +63,15 @@ public abstract class Interval
      */
     public Interval ()
     {
+        this(null);
     }
 
     /**
      * Create an Interval that uses the specified {@link RunQueue} to run the {@link #expired}
-     * method.
+     * method. If null is supplied the interval will be run directly on the timer thread.
      */
     public Interval (RunQueue runQueue)
     {
-        if (runQueue == null) {
-            throw new NullPointerException("RunQueue cannot be null, " +
-                "use other constructor if you want a simple Interval.");
-        }
         _runQueue = runQueue;
     }
 

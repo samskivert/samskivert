@@ -100,20 +100,20 @@ public class UserManager
      * the user database.
      */
     public void init (Properties config, ConnectionProvider conprov)
-	throws PersistenceException
+        throws PersistenceException
     {
         // save this for later
         _config = config;
 
-	// create the user repository
-	_repository = createRepository(conprov);
+        // create the user repository
+        _repository = createRepository(conprov);
 
-	// fetch the login URL from the properties
-	_loginURL = config.getProperty("login_url");
-	if (_loginURL == null) {
-	    Log.warning("No login_url supplied in user manager config. Authentication won't work.");
+        // fetch the login URL from the properties
+        _loginURL = config.getProperty("login_url");
+        if (_loginURL == null) {
+            Log.warning("No login_url supplied in user manager config. Authentication won't work.");
             _loginURL = "/missing_login_url";
-	}
+        }
 
         // look up any override to our user auth cookie
         String authCook = config.getProperty("auth_cookie.name");
@@ -126,24 +126,24 @@ public class UserManager
                      ", login=" + _loginURL + "].");
         }
 
-	// register a cron job to prune the session table every hour
-	_pruner = new Interval() {
-	    public void expired ()
-	    {
-		try {
-		    _repository.pruneSessions();
-		} catch (PersistenceException pe) {
-		    Log.warning("Error pruning session table.");
+        // register a cron job to prune the session table every hour
+        _pruner = new Interval() {
+            public void expired ()
+            {
+                try {
+                    _repository.pruneSessions();
+                } catch (PersistenceException pe) {
+                    Log.warning("Error pruning session table.");
                     Log.logStackTrace(pe);
-		}
-	    }
-	};
+                }
+            }
+        };
         _pruner.schedule(SESSION_PRUNE_INTERVAL, true);
     }
 
     public void shutdown ()
     {
-	// cancel our session table pruning thread
+        // cancel our session table pruning thread
         _pruner.cancel();
     }
 
@@ -152,7 +152,7 @@ public class UserManager
      */
     public UserRepository getRepository ()
     {
-	return _repository;
+        return _repository;
     }
 
     /**
@@ -163,20 +163,20 @@ public class UserManager
      * request or if the authentication information is bogus.
      */
     public User loadUser (HttpServletRequest req)
-	throws PersistenceException
+        throws PersistenceException
     {
         String authcook = CookieUtil.getCookieValue(req, _userAuthCookie);
         if (USERMGR_DEBUG) {
             Log.info("Loading user by cookie [" + _userAuthCookie + "=" + authcook + "].");
         }
-	return loadUser(authcook);
+        return loadUser(authcook);
     }
 
     /**
      * Loads up a user based on the supplied session authentication token.
      */
     public User loadUser (String authcode)
-	throws PersistenceException
+        throws PersistenceException
     {
         User user = (authcode == null) ? null : _repository.loadUserBySession(authcode);
         if (USERMGR_DEBUG) {
@@ -194,20 +194,20 @@ public class UserManager
      * @return the user associated with the request.
      */
     public User requireUser (HttpServletRequest req)
-	throws PersistenceException, RedirectException
+        throws PersistenceException, RedirectException
     {
-	User user = loadUser(req);
-	// if no user was loaded, we need to redirect these fine people to the login page
-	if (user == null) {
-	    // first construct the redirect URL
+        User user = loadUser(req);
+        // if no user was loaded, we need to redirect these fine people to the login page
+        if (user == null) {
+            // first construct the redirect URL
             String eurl = RequestUtils.getLocationEncoded(req);
-	    String target = StringUtil.replace(_loginURL, "%R", eurl);
+            String target = StringUtil.replace(_loginURL, "%R", eurl);
             if (USERMGR_DEBUG) {
                 Log.info("No user found in require, redirecting [to=" + target + "].");
             }
-	    throw new RedirectException(target);
-	}
-	return user;
+            throw new RedirectException(target);
+        }
+        return user;
     }
 
     /**
@@ -230,13 +230,13 @@ public class UserManager
      */
     public User login (String username, Password password, boolean persist,
                        HttpServletRequest req, HttpServletResponse rsp, Authenticator auth)
-	throws PersistenceException, AuthenticationFailedException
+        throws PersistenceException, AuthenticationFailedException
     {
-	// load up the requested user
-	User user = _repository.loadUser(username);
-	if (user == null) {
-	    throw new NoSuchUserException("error.no_such_user");
-	}
+        // load up the requested user
+        User user = _repository.loadUser(username);
+        if (user == null) {
+            throw new NoSuchUserException("error.no_such_user");
+        }
 
         // potentially convert the user's legacy password
         if (password != null && password.getCleartext() != null &&
@@ -251,7 +251,7 @@ public class UserManager
         // give them the necessary cookies and business
         effectLogin(user, persist ? PERSIST_EXPIRE_DAYS : NON_PERSIST_EXPIRE_DAYS, req, rsp);
 
-	return user;
+        return user;
     }
 
     /**
@@ -269,13 +269,13 @@ public class UserManager
      */
     public Tuple<User,String> login (
         String username, Password password, int expires, Authenticator auth)
-	throws PersistenceException, AuthenticationFailedException
+        throws PersistenceException, AuthenticationFailedException
     {
-	// load up the requested user
-	User user = _repository.loadUser(username);
-	if (user == null) {
-	    throw new NoSuchUserException("error.no_such_user");
-	}
+        // load up the requested user
+        User user = _repository.loadUser(username);
+        if (user == null) {
+            throw new NoSuchUserException("error.no_such_user");
+        }
 
         // potentially convert the user's legacy password
         if (password != null && password.getCleartext() != null &&
@@ -287,12 +287,12 @@ public class UserManager
         // run the user through the authentication gamut
         auth.authenticateUser(user, username, password);
 
-	// register a session for this user
-	String authcode = _repository.registerSession(user, expires);
+        // register a session for this user
+        String authcode = _repository.registerSession(user, expires);
         if (USERMGR_DEBUG) {
             Log.info("Session started [user=" + username + ", code=" + authcode + "].");
         }
-	return new Tuple<User,String>(user, authcode);
+        return new Tuple<User,String>(user, authcode);
     }
 
     /**
@@ -306,18 +306,18 @@ public class UserManager
         User user, int expires, HttpServletRequest req, HttpServletResponse rsp)
         throws PersistenceException
     {
-	String authcode = _repository.registerSession(user, Math.max(expires, 1));
-	Cookie acookie = new Cookie(_userAuthCookie, authcode);
+        String authcode = _repository.registerSession(user, Math.max(expires, 1));
+        Cookie acookie = new Cookie(_userAuthCookie, authcode);
         // strip the hostname from the server and use that as the domain unless configured not to
         if (!"false".equalsIgnoreCase(_config.getProperty("auth_cookie.strip_hostname"))) {
             CookieUtil.widenDomain(req, acookie);
         }
-	acookie.setPath("/");
+        acookie.setPath("/");
         acookie.setMaxAge((expires > 0) ? (expires*24*60*60) : -1);
         if (USERMGR_DEBUG) {
             Log.info("Setting cookie " + acookie + ".");
         }
-	rsp.addCookie(acookie);
+        rsp.addCookie(acookie);
     }
 
     /**
@@ -325,13 +325,13 @@ public class UserManager
      */
     public void logout (HttpServletRequest req, HttpServletResponse rsp)
     {
-	// nothing to do if they don't already have an auth cookie
-	String authcode = CookieUtil.getCookieValue(req, _userAuthCookie);
-	if (authcode == null) {
-	    return;
-	}
+        // nothing to do if they don't already have an auth cookie
+        String authcode = CookieUtil.getCookieValue(req, _userAuthCookie);
+        if (authcode == null) {
+            return;
+        }
 
-	// set them up the bomb
+        // set them up the bomb
         Cookie c = new Cookie(_userAuthCookie, "x");
         c.setPath("/");
         c.setMaxAge(0);

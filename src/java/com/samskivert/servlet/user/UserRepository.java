@@ -68,7 +68,7 @@ public class UserRepository extends JORARepository
     public UserRepository (ConnectionProvider provider)
         throws PersistenceException
     {
-	super(provider, USER_REPOSITORY_IDENT);
+        super(provider, USER_REPOSITORY_IDENT);
     }
 
     /**
@@ -87,9 +87,9 @@ public class UserRepository extends JORARepository
      */
     public int createUser (
         Username username, Password password, String realname, String email, int siteId)
-	throws UserExistsException, PersistenceException
+        throws UserExistsException, PersistenceException
     {
-	// create a new user object...
+        // create a new user object...
         User user = new User();
         user.setDirtyMask(_utable.getFieldMask());
 
@@ -105,7 +105,7 @@ public class UserRepository extends JORARepository
      * @return the user with the specified user id or null if no user with that id exists.
      */
     public User loadUser (String username)
-	throws PersistenceException
+        throws PersistenceException
     {
         return loadUserWhere("where username = " + JDBCUtil.escape(username));
     }
@@ -116,7 +116,7 @@ public class UserRepository extends JORARepository
      * @return the user with the specified user id or null if no user with that id exists.
      */
     public User loadUser (int userId)
-	throws PersistenceException
+        throws PersistenceException
     {
         return loadUserWhere("where userId = " + userId);
     }
@@ -128,7 +128,7 @@ public class UserRepository extends JORARepository
      * supplied identifier.
      */
     public User loadUserBySession (String sessionKey)
-	throws PersistenceException
+        throws PersistenceException
     {
         User user = load(_utable, "sessions", "where authcode = '" + sessionKey + "' " +
                          "AND sessions.userId = users.userId");
@@ -144,7 +144,7 @@ public class UserRepository extends JORARepository
      * @return the users whom have a user id in the userIds array.
      */
     public HashIntMap<User> loadUsersFromId (int[] userIds)
-	throws PersistenceException
+        throws PersistenceException
     {
         HashIntMap<User> data = new HashIntMap<User>();
         if (userIds.length > 0) {
@@ -164,7 +164,7 @@ public class UserRepository extends JORARepository
      * @return the user with the specified user id or null if no user with that id exists.
      */
     public ArrayList<User> lookupUsersByEmail (String email)
-	throws PersistenceException
+        throws PersistenceException
     {
         return loadAll(_utable, "where email = " + JDBCUtil.escape(email));
     }
@@ -177,7 +177,7 @@ public class UserRepository extends JORARepository
      * @return the users matching the specified query or an empty list if there are no matches.
      */
     public ArrayList<User> lookupUsersWhere (final String where)
-	throws PersistenceException
+        throws PersistenceException
     {
         ArrayList<User> users = loadAll(_utable, where);
         for (User user : users) {
@@ -196,7 +196,7 @@ public class UserRepository extends JORARepository
      * the user record were modified.
      */
     public boolean updateUser (final User user)
-	throws PersistenceException
+        throws PersistenceException
     {
         if (!user.getDirtyMask().isModified()) {
             // nothing doing!
@@ -219,16 +219,16 @@ public class UserRepository extends JORARepository
      * email.
      */
     public void deleteUser (final User user)
-	throws PersistenceException
+        throws PersistenceException
     {
         if (user.isDeleted()) {
             return;
         }
 
-	executeUpdate(new Operation<Object>() {
+        executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
-	    {
+            {
                // create our modified fields mask
                 FieldMask mask = _utable.getFieldMask();
                 mask.setModified("username");
@@ -257,8 +257,8 @@ public class UserRepository extends JORARepository
 
                 // ok we failed to rename the user, lets bust an error
                 throw new PersistenceException("Failed to 'delete' the user");
-	    }
-	});
+            }
+        });
     }
 
     /**
@@ -269,7 +269,7 @@ public class UserRepository extends JORARepository
      * @param expireDays the number of days in which the session token should expire.
      */
     public String registerSession (User user, int expireDays)
-	throws PersistenceException
+        throws PersistenceException
     {
         // look for an existing session for this user
         final String query = "select sessionId, authcode from sessions " +
@@ -291,9 +291,9 @@ public class UserRepository extends JORARepository
             }
         });
 
-	// figure out when to expire the session
-	Calendar cal = Calendar.getInstance();
-	cal.add(Calendar.DATE, expireDays);
+        // figure out when to expire the session
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, expireDays);
         Date expires = new Date(cal.getTime().getTime());
 
         // if we found one, update its expires time and reuse it
@@ -307,7 +307,7 @@ public class UserRepository extends JORARepository
         String authcode = UserUtil.genAuthCode(user);
         update("insert into sessions (authcode, userId, expires) values('" + authcode + "', " +
                user.userId + ", '" + expires + "')");
-	return authcode;
+        return authcode;
     }
 
     /**
@@ -319,8 +319,8 @@ public class UserRepository extends JORARepository
     public boolean refreshSession (String sessionKey, int expireDays)
         throws PersistenceException
     {
-	Calendar cal = Calendar.getInstance();
-	cal.add(Calendar.DATE, expireDays);
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, expireDays);
         Date expires = new Date(cal.getTime().getTime());
 
         // attempt to update an existing session row, returning true if we found and updated it
@@ -332,7 +332,7 @@ public class UserRepository extends JORARepository
      * Prunes any expired sessions from the sessions table.
      */
     public void pruneSessions ()
-	throws PersistenceException
+        throws PersistenceException
     {
         update("delete from sessions where expires <= CURRENT_DATE()");
     }
@@ -342,9 +342,9 @@ public class UserRepository extends JORARepository
      * array. If any users do not exist, their slot in the array will contain a null.
      */
     public String[] loadUserNames (int[] userIds)
-	throws PersistenceException
+        throws PersistenceException
     {
-	return loadNames(userIds, "username");
+        return loadNames(userIds, "username");
     }
 
     /**
@@ -352,20 +352,20 @@ public class UserRepository extends JORARepository
      * array. If any users do not exist, their slot in the array will contain a null.
      */
     public String[] loadRealNames (int[] userIds)
-	throws PersistenceException
+        throws PersistenceException
     {
-	return loadNames(userIds, "realname");
+        return loadNames(userIds, "realname");
     }
 
     /**
      * Returns an array with the real names of every user in the system.
      */
     public String[] loadAllRealNames ()
-	throws PersistenceException
+        throws PersistenceException
     {
         final ArrayList<String> names = new ArrayList<String>();
 
-	// do the query
+        // do the query
         execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
@@ -387,7 +387,7 @@ public class UserRepository extends JORARepository
             }
         });
 
-	// finally construct our result
+        // finally construct our result
         return names.toArray(new String[names.size()]);
     }
 
@@ -398,11 +398,11 @@ public class UserRepository extends JORARepository
     protected void populateUser (
         User user, Username name, Password pass, String realname, String email, int siteId)
     {
-	user.username = name.getUsername();
-	user.setPassword(pass);
-	user.setRealName(realname);
-	user.setEmail(email);
-	user.created = new Date(System.currentTimeMillis());
+        user.username = name.getUsername();
+        user.setPassword(pass);
+        user.setRealName(realname);
+        user.setEmail(email);
+        user.created = new Date(System.currentTimeMillis());
         user.setSiteId(siteId);
     }
 
@@ -411,16 +411,16 @@ public class UserRepository extends JORARepository
      * process, which is returned.
      */
     protected int insertUser (final User user)
-	throws UserExistsException, PersistenceException
+        throws UserExistsException, PersistenceException
     {
         executeUpdate(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
                 try {
-		    _utable.insert(conn, user);
-		    // update the userid now that it's known
-		    user.userId = liaison.lastInsertedId(conn);
+                    _utable.insert(conn, user);
+                    // update the userid now that it's known
+                    user.userId = liaison.lastInsertedId(conn);
                     // nothing to return
                     return null;
 
@@ -434,7 +434,7 @@ public class UserRepository extends JORARepository
             }
         });
 
-	return user.userId;
+        return user.userId;
     }
 
     /**
@@ -442,7 +442,7 @@ public class UserRepository extends JORARepository
      * matches.
      */
     protected User loadUserWhere (String where)
-	throws PersistenceException
+        throws PersistenceException
     {
         User user = load(_utable, where);
         if (user != null) {
@@ -452,16 +452,16 @@ public class UserRepository extends JORARepository
     }
 
     protected String[] loadNames (int[] userIds, final String column)
-	throws PersistenceException
+        throws PersistenceException
     {
         // if userids is zero length, we've got no work to do
         if (userIds.length == 0) {
             return new String[0];
         }
 
-	// do the query
+        // do the query
         final String ids = genIdString(userIds);
-	final HashIntMap<String> map = new HashIntMap<String>();
+        final HashIntMap<String> map = new HashIntMap<String>();
         execute(new Operation<Object>() {
             public Object invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
@@ -486,12 +486,12 @@ public class UserRepository extends JORARepository
             }
         });
 
-	// finally construct our result
-	String[] result = new String[userIds.length];
-	for (int i = 0; i < userIds.length; i++) {
-	    result[i] = map.get(userIds[i]);
-	}
-	return result;
+        // finally construct our result
+        String[] result = new String[userIds.length];
+        for (int i = 0; i < userIds.length; i++) {
+            result[i] = map.get(userIds[i]);
+        }
+        return result;
     }
 
     /**
@@ -500,14 +500,14 @@ public class UserRepository extends JORARepository
      */
     protected String genIdString (int[] userIds)
     {
-	// build up the string we need for the query
-	StringBuilder ids = new StringBuilder();
-	for (int i = 0; i < userIds.length; i++) {
-	    if (ids.length() > 0) {
+        // build up the string we need for the query
+        StringBuilder ids = new StringBuilder();
+        for (int i = 0; i < userIds.length; i++) {
+            if (ids.length() > 0) {
                 ids.append(",");
             }
             ids.append(userIds[i]);
-	}
+        }
 
         return ids.toString();
     }
@@ -515,8 +515,8 @@ public class UserRepository extends JORARepository
     // documentation inherited
     protected void createTables ()
     {
-	// create our table object
-	_utable = new Table<User>(User.class, "users", "userId");
+        // create our table object
+        _utable = new Table<User>(User.class, "users", "userId");
     }
 
     /** A wrapper that provides access to the userstable. */

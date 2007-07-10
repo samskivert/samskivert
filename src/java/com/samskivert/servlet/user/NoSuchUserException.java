@@ -27,6 +27,6 @@ public class NoSuchUserException extends AuthenticationFailedException
 {
     public NoSuchUserException (String message)
     {
-	super(message);
+        super(message);
     }
 }

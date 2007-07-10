@@ -48,18 +48,18 @@ public class Username
     protected void validateName (String username)
         throws InvalidUsernameException
     {
-	// check length
-	if (username.length() < MINIMUM_USERNAME_LENGTH) {
-	    throw new InvalidUsernameException("error.username_too_short");
-	}
-	if (username.length() > MAXIMUM_USERNAME_LENGTH) {
-	    throw new InvalidUsernameException("error.username_too_long");
-	}
+        // check length
+        if (username.length() < MINIMUM_USERNAME_LENGTH) {
+            throw new InvalidUsernameException("error.username_too_short");
+        }
+        if (username.length() > MAXIMUM_USERNAME_LENGTH) {
+            throw new InvalidUsernameException("error.username_too_long");
+        }
 
-	// check that it's only valid characters
-	if (!username.matches(NAME_REGEX)) {
-	    throw new InvalidUsernameException("error.invalid_username");
-	}
+        // check that it's only valid characters
+        if (!username.matches(NAME_REGEX)) {
+            throw new InvalidUsernameException("error.invalid_username");
+        }
     }
 
     protected String _username;

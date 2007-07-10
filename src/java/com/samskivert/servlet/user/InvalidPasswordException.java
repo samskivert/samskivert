@@ -27,6 +27,6 @@ public class InvalidPasswordException extends AuthenticationFailedException
 {
     public InvalidPasswordException (String message)
     {
-	super(message);
+        super(message);
     }
 }

@@ -33,13 +33,13 @@ public class UserUtil
      */
     public static String genAuthCode (User user)
     {
-	// concatenate a bunch of secret stuff together
-	StringBuilder buf = new StringBuilder();
-	buf.append(user.password);
-	buf.append(System.currentTimeMillis());
-	buf.append(Math.random());
+        // concatenate a bunch of secret stuff together
+        StringBuilder buf = new StringBuilder();
+        buf.append(user.password);
+        buf.append(System.currentTimeMillis());
+        buf.append(Math.random());
 
-	// and MD5 hash it
+        // and MD5 hash it
         return StringUtil.md5hex(buf.toString());
     }
 
@@ -62,7 +62,7 @@ public class UserUtil
         if (ignoreUserCase) {
             username = username.toLowerCase();
         }
-	return Crypt.crypt(StringUtil.truncate(username, 2), password);
+        return Crypt.crypt(StringUtil.truncate(username, 2), password);
     }
 
     public static void main (String[] args)

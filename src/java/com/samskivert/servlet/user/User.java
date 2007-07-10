@@ -65,7 +65,7 @@ public class User
      */
     public void setRealName (String realname)
     {
-	this.realname = realname;
+        this.realname = realname;
         _dirty.setModified("realname");
     }
 
@@ -86,7 +86,7 @@ public class User
      */
     public void setPassword (Password password)
     {
-	this.password = password.getEncrypted();
+        this.password = password.getEncrypted();
         _dirty.setModified("password");
     }
 
@@ -95,7 +95,7 @@ public class User
      */
     public void setEmail (String email)
     {
-	this.email = email;
+        this.email = email;
         _dirty.setModified("email");
     }
 

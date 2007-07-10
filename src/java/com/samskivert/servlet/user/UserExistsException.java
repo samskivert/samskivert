@@ -30,6 +30,6 @@ public class UserExistsException extends PersistenceException
 {
     public UserExistsException (String message)
     {
-	super(message);
+        super(message);
     }
 }

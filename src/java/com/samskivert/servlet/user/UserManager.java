@@ -32,6 +32,7 @@ import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.util.CookieUtil;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.Interval;
+import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
@@ -79,7 +80,7 @@ public class UserManager
     }
 
     /**
-     * Prepares this user manager it for operation. Presently the user manager requires the
+     * Prepares this user manager for operation. Presently the user manager requires the
      * following configuration information:
      *
      * <ul>
@@ -100,6 +101,17 @@ public class UserManager
      * the user database.
      */
     public void init (Properties config, ConnectionProvider conprov)
+        throws PersistenceException
+    {
+        init(config, conprov, null);
+    }
+
+    /**
+     * Prepares this user manager for operation. See {@link #init(Properties,ConnectionProvider)}.
+     *
+     * @param pruneQueue an optional run queue on which to run our periodic session pruning task.
+     */
+    public void init (Properties config, ConnectionProvider conprov, final RunQueue pruneQueue)
         throws PersistenceException
     {
         // save this for later
@@ -128,8 +140,8 @@ public class UserManager
 
         // register a cron job to prune the session table every hour
         _pruner = new Interval() {
-            public void expired ()
-            {
+            { _runQueue = pruneQueue; } // blame Ray for being draconian in Interval's constructor
+            public void expired () {
                 try {
                     _repository.pruneSessions();
                 } catch (PersistenceException pe) {

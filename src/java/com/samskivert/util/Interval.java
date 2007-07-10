@@ -26,34 +26,32 @@ import java.util.TimerTask;
 import com.samskivert.Log;
 
 /**
- * An interface for doing operations after some delay. Allows expiration
- * to occur on a specific thread, and guarantees that any queued expiration
- * will not run if the Interval has since been cancelled or rescheduled.
+ * An interface for doing operations after some delay. Allows expiration to occur on a specific
+ * thread, and guarantees that any queued expiration will not run if the Interval has since been
+ * cancelled or rescheduled.
  */
 public abstract class Interval
 {
     /**
-     * An interface that will be implemented by the runnable posted
-     * to a RunQueue that can be used to retrieve the original Interval.
+     * An interface that will be implemented by the runnable posted to a RunQueue that can be used
+     * to retrieve the original Interval.
      */
     public static interface RunBuddy extends Runnable
     {
         /**
-         * Retrieve the Interval that is responsible for posting this
-         * RunBuddy to a RunQueue. Most likely used to call toString()
-         * on the Interval for logging purposes.
+         * Retrieve the Interval that is responsible for posting this RunBuddy to a RunQueue. Most
+         * likely used to call toString() on the Interval for logging purposes.
          */
         public Interval getInterval ();
     }
 
     /**
-     * Clears out the {@link Timer} currently being used to schedule
-     * intervals. This method is normally not needed as a single timer thread
-     * can be used for the lifetime of the VM, but in certain situations (in
-     * applets) the timer thread will be forcibly killed when the applet is
-     * destroyed but the classes will not be unloaded. In that case, the applet
-     * should call this method in its own destroy method. A new timer thread
-     * will then be created the next time an interval is scheduled.
+     * Clears out the {@link Timer} currently being used to schedule intervals. This method is
+     * normally not needed as a single timer thread can be used for the lifetime of the VM, but in
+     * certain situations (in applets) the timer thread will be forcibly killed when the applet is
+     * destroyed but the classes will not be unloaded. In that case, the applet should call this
+     * method in its own destroy method. A new timer thread will then be created the next time an
+     * interval is scheduled.
      */
     public static synchronized void resetTimer ()
     {
@@ -61,16 +59,15 @@ public abstract class Interval
     }
 
     /**
-     * Create a simple interval that does not use a RunQueue to run
-     * the expired() method.
+     * Create a simple interval that does not use a RunQueue to run the {@link #expired} method.
      */
     public Interval ()
     {
     }
 
     /**
-     * Create an Interval that uses the specified RunQueue to run
-     * the expired() method.
+     * Create an Interval that uses the specified {@link RunQueue} to run the {@link #expired}
+     * method.
      */
     public Interval (RunQueue runQueue)
     {
@@ -82,15 +79,13 @@ public abstract class Interval
     }
 
     /**
-     *
      * The main method where your interval should do its work.
-     *
      */
     public abstract void expired ();
 
     /**
-     * Schedule the interval to execute once, after the specified delay.
-     * Supersedes any previous schedule that this Interval may have had.
+     * Schedule the interval to execute once, after the specified delay.  Supersedes any previous
+     * schedule that this Interval may have had.
      */
     public final void schedule (long delay)
     {
@@ -98,8 +93,8 @@ public abstract class Interval
     }
 
     /**
-     * Schedule the interval to execute repeatedly, with the same delay.
-     * Supersedes any previous schedule that this Interval may have had.
+     * Schedule the interval to execute repeatedly, with the same delay.  Supersedes any previous
+     * schedule that this Interval may have had.
      */
     public final void schedule (long delay, boolean repeat)
     {
@@ -107,9 +102,8 @@ public abstract class Interval
     }
 
     /**
-     * Schedule the interval to execute repeatedly with the specified
-     * initial delay and repeat delay.
-     * Supersedes any previous schedule that this Interval may have had.
+     * Schedule the interval to execute repeatedly with the specified initial delay and repeat
+     * delay.  Supersedes any previous schedule that this Interval may have had.
      */
     public final void schedule (long initialDelay, long repeatDelay)
     {
@@ -125,8 +119,8 @@ public abstract class Interval
     }
 
     /**
-     * Cancel the current schedule, and ensure that any expirations that
-     * are queued up but have not yet run do not run.
+     * Cancel the current schedule, and ensure that any expirations that are queued up but have not
+     * yet run do not run.
      */
     public final void cancel ()
     {
@@ -152,17 +146,15 @@ public abstract class Interval
             }
 
         } else {
-            // If the task has been defanged, we go ahead and try cancelling
-            // it again. The reason for this is that it's possible
-            // to have a runaway task if two threads call schedule() and
-            // cancel() at the same time.
+            // If the task has been defanged, we go ahead and try cancelling it again. The reason
+            // for this is that it's possible to have a runaway task if two threads call schedule()
+            // and cancel() at the same time.
             // 1) ThreadA calls cancel() and gets a handle on taskA, yields.
-            // 2) ThreadB calls schedule(), gets a handle on taskA, cancel()s,
-            //    which sets _task to null, then sets up taskB, returns.
-            // 3) ThreadA resumes, sets _task to null and re-cancels taskA.
-            // taskB is now an active TimerTask but is not referenced anywhere.
-            // In case this is taskB, we cancel it so that it doesn't
-            // ineffectually expire repeatedly until the JVM exists.
+            // 2) ThreadB calls schedule(), gets a handle on taskA, cancel()s, which sets _task to
+            //    null, then sets up taskB, returns.
+            // 3) ThreadA resumes, sets _task to null and re-cancels taskA.  taskB is now an active
+            //    TimerTask but is not referenced anywhere.  In case this is taskB, we cancel it so
+            //    that it doesn't ineffectually expire repeatedly until the JVM exists.
             task.cancel();
         }
     }
@@ -209,8 +201,7 @@ public abstract class Interval
         protected RunBuddy _runner;
     }
 
-    /** If non-null, the RunQueue used to run the expired() method for each
-     * Interval. */
+    /** If non-null, the RunQueue used to run the expired() method for each Interval. */
     protected RunQueue _runQueue;
 
     /** The task that actually schedules our execution with the static Timer. */

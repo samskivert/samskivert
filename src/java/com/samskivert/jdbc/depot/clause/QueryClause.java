@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006 Michael Bayne, Pär Winzell
+// Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
@@ -33,26 +33,24 @@ import com.samskivert.jdbc.depot.PersistentRecord;
 public abstract class QueryClause
 {
     /**
-     * Return a set of all persistent classes referenced by this clause. The default implementation
-     * returns null to indicate that no classes are rererenced.
+     * Adds all persistent classes referenced by this clause, if any, to the supplied set.
      */
-    public Collection<Class<? extends PersistentRecord>> getClassSet ()
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        return null;
     }
-    
-    /**
-     * Construct the SQL form of this query clause. The implementor is expected to call methods on
-     * the Query object to e.g. resolve current table abbreviations associated with classes.
-     */
-    public abstract void appendClause (ConstructedQuery<?> query, StringBuilder builder);
 
     /**
-     * Bind any objects that were referenced in the generated SQL.  For each ? that appears in the
+     * Constructs the SQL form of this query clause. The implementor is expected to call methods on
+     * the Query object to e.g. resolve current table abbreviations associated with classes.
+     */
+    public abstract void appendClause (QueryBuilderContext<?> query, StringBuilder builder);
+
+    /**
+     * Binds any objects that were referenced in the generated SQL.  For each ? that appears in the
      * SQL, precisely one parameter must be claimed and bound in this method, and argIdx
      * incremented and returned. The default implementation binds nothing.
      */
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
         return argIdx;

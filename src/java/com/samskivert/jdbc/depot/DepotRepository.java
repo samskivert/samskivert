@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006 Michael Bayne, Pär Winzell
+// Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -22,10 +22,8 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +32,9 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.Modifier.*;
+import com.samskivert.jdbc.depot.clause.FieldOverride;
+import com.samskivert.jdbc.depot.clause.FromOverride;
+import com.samskivert.jdbc.depot.clause.Join;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.util.ArrayUtil;
@@ -113,104 +114,44 @@ public class DepotRepository
     protected <T extends PersistentRecord> T load (Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {
-        final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        return _ctx.invoke(new ConstructedQuery<T>(_ctx, type, clauses) {
-            public T invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = createQuery(conn);
-                try {
-                    T result = null;
-                    ResultSet rs = stmt.executeQuery();
-                    if (rs.next()) {
-                        result = marsh.createObject(rs);
-                    }
-                    // TODO: if (rs.next()) issue warning?
-                    rs.close();
-                    return result;
-
-                } finally {
-                    JDBCUtil.close(stmt);
-                }
-            }
-
-            // from Query
-            public void updateCache (PersistenceContext ctx, T result) {
-                CacheKey key = getCacheKey();
-                if (key == null) {
-                    // no row-specific cache key was given
-                    if (result == null || !marsh.hasPrimaryKey()) {
-                        return;
-                    }
-                    // if we can, create a key from what was actually returned
-                    key = marsh.getPrimaryKey(result);
-                }
-                ctx.cacheStore(key, result != null ? result.clone() : null);
-            }
-
-            // from Query
-            public T transformCacheHit (CacheKey key, T value)
-            {
-                // we do not want to return a reference to the actual cached entity
-                if (value == null) {
-                    return null;
-                }
-                @SuppressWarnings("unchecked") T cvalue = (T) value.clone();
-                return cvalue;
-            }
-        });
+        return _ctx.invoke(new FindOneQuery<T>(_ctx, type, clauses));
     }
 
     /**
-     * Loads all persistent objects that match the specified key.
+     * Loads all persistent objects that match the specified clauses.
+     *
+     * We have two strategies for doing this: one performs the query as-is, the second executes
+     * two passes: first fetching only key columns and consulting the cache for each such key;
+     * then, in the second pass, fetching the full entity only for keys that were not found in
+     * the cache.
+     *
+     * The more complex strategy could save a lot of data shuffling. On the other hand, its
+     * complexity is an inherent drawback, and it does execute two separate database queries
+     * for what the simple method does in one.
      */
-    protected <T extends PersistentRecord> List<T> findAll (
-        Class<T> type, QueryClause... clauses)
+    protected <T extends PersistentRecord> List<T> findAll (Class<T> type, QueryClause... clauses)
         throws PersistenceException
     {
-        final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        return _ctx.invoke(new ConstructedQuery<ArrayList<T>>(_ctx, type, clauses) {
-            public ArrayList<T> invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = createQuery(conn);
-                try {
-                    ArrayList<T> results = new ArrayList<T>();
-                    ResultSet rs = stmt.executeQuery();
-                    while (rs.next()) {
-                        results.add(marsh.createObject(rs));
-                    }
-                    return results;
+        DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
+        boolean useExplicit = (marsh.getTableName() == null) || !marsh.hasPrimaryKey();
 
-                } finally {
-                    JDBCUtil.close(stmt);
-                }
-            }
-
-            // from Query
-            public void updateCache (PersistenceContext ctx, ArrayList<T> result) {
-                if (marsh.hasPrimaryKey()) {
-                    for (T bit : result) {
-                        ctx.cacheStore(marsh.getPrimaryKey(bit), bit.clone());
-                    }
-                }
-            }
-
-            // from Query
-            public ArrayList<T> transformCacheHit (CacheKey key, ArrayList<T> bits)
-            {
-                if (bits == null) {
-                    return bits;
-                }
-
-                ArrayList<T> result = new ArrayList<T>();
-                for (T bit : bits) {
-                    if (bit != null) {
-                        @SuppressWarnings("unchecked") T cbit = (T) bit.clone();
-                        result.add(cbit);
-                    } else {
-                        result.add(null);
-                    }
-                }
-                return result;
-            }
-        });
+        // TODO: This is a very conservative approach where all complicated queries are handled
+        // TODO: with the traditional single-pass query. The double pass algorithm can handle a
+        // TODO: much larger class of queries, but only after some engine upgrades: specifically,
+        // TODO: the field references used in the WHERE clause of the Entity query in WithCache
+        // TODO: cannot be the trivial expansion currently used in the Key class, but must rather
+        // TODO: undergo the same treatment SELECT fields currently do in SQLQueryBuilder. This
+        // TODO: is probably best done with an additional method in QueryBuilderContext, or perhaps
+        // TODO: a much larger switch to using a visitor pattern for generating the SQL of the
+        // TODO: clause hierarchies.
+        for (QueryClause clause : clauses) {
+            useExplicit |= (clause instanceof FieldOverride ||
+                            clause instanceof Join ||
+                            clause instanceof FromOverride);
+        }
+        return _ctx.invoke(useExplicit ?
+            new FindAllQuery.Explicitly<T>(_ctx, type, clauses) :
+            new FindAllQuery.WithCache<T>(_ctx, type, clauses));
     }
 
     /**

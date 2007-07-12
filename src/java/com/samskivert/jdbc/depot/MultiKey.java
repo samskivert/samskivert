@@ -85,16 +85,13 @@ public class MultiKey<T extends PersistentRecord> extends Where
     }
 
     // from QueryClause
-    public Collection<Class<? extends PersistentRecord>> getClassSet ()
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        ArrayList<Class<? extends PersistentRecord>> set =
-            new ArrayList<Class<? extends PersistentRecord>>();
-        set.add(_pClass);
-        return set;
+        classSet.add(_pClass);
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         builder.append(" where ");
         boolean first = true;
@@ -121,7 +118,7 @@ public class MultiKey<T extends PersistentRecord> extends Where
     }
 
     // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
         for (Map.Entry entry : _map.entrySet()) {

@@ -20,7 +20,12 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Collection;
+
+import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
  *  Represents a FOR UPDATE clause.
@@ -28,7 +33,7 @@ import com.samskivert.jdbc.depot.ConstructedQuery;
 public class ForUpdate extends QueryClause
 {
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         builder.append(" for update ");
     }

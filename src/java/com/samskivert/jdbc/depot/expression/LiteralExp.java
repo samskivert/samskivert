@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.expression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 
 /**
  * An expression for things we don't support natively, e.g. COUNT(*).
@@ -38,13 +38,13 @@ public class LiteralExp
     }
 
     // from SQLExpression
-    public void appendExpression (ConstructedQuery query, StringBuilder builder)
+    public void appendExpression (QueryBuilderContext query, StringBuilder builder)
     {
         builder.append(_text);
     }
 
     // from SQLExpression
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
         return argIdx;

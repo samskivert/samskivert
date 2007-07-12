@@ -22,16 +22,17 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 import com.samskivert.jdbc.depot.operator.Conditionals.Equals;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
 import com.samskivert.jdbc.depot.operator.Logic.And;
-import com.samskivert.jdbc.depot.operator.SQLOperator;
 
 /**
  * Represents a where clause: the condition can be any comparison operator or logical combination
@@ -80,28 +81,28 @@ public class Where extends QueryClause
         this(toCondition(columns, values));
     }
 
-    public Where (SQLOperator condition)
+    public Where (SQLExpression condition)
     {
         _condition = condition;
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         builder.append(" where ");
         _condition.appendExpression(query, builder);
     }
 
     // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        return _condition.bindArguments(pstmt, argIdx);
+        return _condition.bindExpressionArguments(pstmt, argIdx);
     }
 
-    protected static SQLOperator toCondition (ColumnExp[] columns, Comparable[] values)
+    protected static SQLExpression toCondition (ColumnExp[] columns, Comparable[] values)
     {
-        SQLOperator[] comparisons = new SQLOperator[columns.length];
+        SQLExpression[] comparisons = new SQLExpression[columns.length];
         for (int ii = 0; ii < columns.length; ii ++) {
             comparisons[ii] = (values[ii] == null) ? new IsNull(columns[ii]) :
                 new Equals(columns[ii], new ValueExp(values[ii]));
@@ -109,5 +110,5 @@ public class Where extends QueryClause
         return new And(comparisons);
     }
 
-    protected SQLOperator _condition;
+    protected SQLExpression _condition;
 }

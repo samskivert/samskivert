@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.operator;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 
@@ -40,14 +40,14 @@ public interface SQLOperator extends SQLExpression
     public abstract static class MultiOperator
         implements SQLOperator
     {
-        public MultiOperator (SQLOperator... conditions)
+        public MultiOperator (SQLExpression ... conditions)
         {
             super();
             _conditions = conditions;
         }
 
         // from SQLExpression
-        public void appendExpression (ConstructedQuery query, StringBuilder builder)
+        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
         {
             for (int ii = 0; ii < _conditions.length; ii++) {
                 if (ii > 0) {
@@ -60,11 +60,11 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
+        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
             throws SQLException
         {
             for (int ii = 0; ii < _conditions.length; ii++) {
-                argIdx = _conditions[ii].bindArguments(pstmt, argIdx);
+                argIdx = _conditions[ii].bindExpressionArguments(pstmt, argIdx);
             }
             return argIdx;
         }
@@ -74,7 +74,7 @@ public interface SQLOperator extends SQLExpression
          */
         protected abstract String operator ();
 
-        protected SQLOperator[] _conditions;
+        protected SQLExpression[] _conditions;
     }
 
     /**
@@ -94,7 +94,7 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public void appendExpression (ConstructedQuery query, StringBuilder builder)
+        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
         {
             _lhs.appendExpression(query, builder);
             builder.append(operator());
@@ -102,11 +102,11 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
+        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
             throws SQLException
         {
-            argIdx = _lhs.bindArguments(pstmt, argIdx);
-            argIdx = _rhs.bindArguments(pstmt, argIdx);
+            argIdx = _lhs.bindExpressionArguments(pstmt, argIdx);
+            argIdx = _rhs.bindExpressionArguments(pstmt, argIdx);
             return argIdx;
         }
 

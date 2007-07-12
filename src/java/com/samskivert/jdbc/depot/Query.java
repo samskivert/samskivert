@@ -29,12 +29,19 @@ import java.sql.SQLException;
 public interface Query<T>
 {
     /**
-     * Returns the {@link CacheKey} associated with this query, if relevant, or null.
+     * Any query may elect to utilize the built-in cache by returning a non-null {@link CacheKey}
+     * in this method. This is done automatically by the {@link DepotRepository} when looking up
+     * single entities by primary key, but even entire collections can be cached under a single
+     * key.
+     * 
+     * Great care must be taken to invalidate such cached collections when their constituent
+     * entities are invalidated. This is generally done using {@link CacheListener} and
+     * {@link CacheInvalidator}.
      */
     public CacheKey getCacheKey ();
 
     /**
-     * Performs the actual JDBC operations associated with this query.
+     * Performs the actual JDBC operations associated with this query. 
      */
     public T invoke (Connection conn)
         throws SQLException;

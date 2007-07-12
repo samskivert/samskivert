@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006 Michael Bayne, Pär Winzell
+// Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,6 @@
 package com.samskivert.jdbc.depot;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -37,7 +36,6 @@ import java.sql.Timestamp;
 import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
-import com.samskivert.jdbc.depot.annotation.GenerationType;
 import com.samskivert.jdbc.depot.annotation.Id;
 
 import com.samskivert.util.StringUtil;
@@ -47,7 +45,7 @@ import com.samskivert.util.StringUtil;
  *
  * @see DepotMarshaller
  */
-public abstract class FieldMarshaller
+public abstract class FieldMarshaller<T>
 {
     /**
      * Creates and returns a field marshaller for the specified field. Throws an exception if the
@@ -153,18 +151,48 @@ public abstract class FieldMarshaller
     }
 
     /**
+     * Reads and returns this field from the result set.
+     */
+    public abstract T getFromSet (ResultSet rs)
+        throws SQLException;
+
+    /**
+     * Sets the specified column of the given prepared statement to the given value.
+     */
+    public abstract void writeToStatement (PreparedStatement ps, int column, T value)
+        throws SQLException;
+
+    /**
+     * Reads this field from the given persistent object.
+     */
+    public abstract T getFromObject (Object po)
+        throws IllegalArgumentException, IllegalAccessException;
+
+    /**
+     * Writes the given value to the given persistent value.
+     */
+    public abstract void writeToObject (Object po, T value)
+        throws IllegalArgumentException, IllegalAccessException;
+
+    /**
      * Reads the value of our field from the persistent object and sets that
      * value into the specified column of the supplied prepared statement.
      */
-    public abstract void setValue (Object po, PreparedStatement ps, int column)
-        throws SQLException, IllegalAccessException;
+    public void readFromObject (Object po, PreparedStatement ps, int column)
+        throws SQLException, IllegalAccessException
+    {
+        writeToStatement(ps, column, getFromObject(po));
+    }
 
     /**
      * Reads the specified column from the supplied result set and writes it to
      * the appropriate field of the persistent object.
      */
-    public abstract void getValue (ResultSet rset, Object po)
-        throws SQLException, IllegalAccessException;
+    public void writeToObject (ResultSet rset, Object po)
+        throws SQLException, IllegalAccessException
+    {
+        writeToObject(po, getFromSet(rset));
+    }
 
     /**
      * Returns the type used in the SQL column definition for this field.
@@ -254,113 +282,161 @@ public abstract class FieldMarshaller
         _columnDefinition = builder.toString();
     }
 
-    protected static class BooleanMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setBoolean(column, _field.getBoolean(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.setBoolean(po, rs.getBoolean(getColumnName()));
-        }
+    protected static class BooleanMarshaller extends FieldMarshaller<Boolean> {
         public String getColumnType () {
             return "TINYINT";
         }
+        public Boolean getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.getBoolean(po);
+        }
+        public Boolean getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getBoolean(getColumnName());
+        }
+        public void writeToObject (Object po, Boolean value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.setBoolean(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Boolean value)
+            throws SQLException {
+            ps.setBoolean(column, value);
+        }
     }
 
-    protected static class ByteMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setByte(column, _field.getByte(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.setByte(po, rs.getByte(getColumnName()));
-        }
+    protected static class ByteMarshaller extends FieldMarshaller<Byte> {
         public String getColumnType () {
             return "TINYINT";
         }
+        public Byte getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.getByte(po);
+        }
+        public Byte getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getByte(getColumnName());
+        }
+        public void writeToObject (Object po, Byte value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.setByte(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Byte value)
+            throws SQLException {
+            ps.setByte(column, value);
+        }
     }
 
-    protected static class ShortMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setShort(column, _field.getShort(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.setShort(po, rs.getShort(getColumnName()));
-        }
+    protected static class ShortMarshaller extends FieldMarshaller<Short> {
         public String getColumnType () {
             return "SMALLINT";
         }
+        public Short getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.getShort(po);
+        }
+        public Short getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getShort(getColumnName());
+        }
+        public void writeToObject (Object po, Short value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.setShort(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Short value)
+            throws SQLException {
+            ps.setShort(column, value);
+        }
     }
 
-    protected static class IntMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setInt(column, _field.getInt(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.setInt(po, rs.getInt(getColumnName()));
-        }
+    protected static class IntMarshaller extends FieldMarshaller<Integer> {
         public String getColumnType () {
             return "INTEGER";
         }
+        public Integer getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.getInt(po);
+        }
+        public Integer getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getInt(getColumnName());
+        }
+        public void writeToObject (Object po, Integer value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.setInt(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Integer value)
+            throws SQLException {
+            ps.setInt(column, value);
+        }
     }
 
-    protected static class LongMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setLong(column, _field.getLong(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.setLong(po, rs.getLong(getColumnName()));
-        }
+    protected static class LongMarshaller extends FieldMarshaller<Long> {
         public String getColumnType () {
             return "BIGINT";
         }
+        public Long getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.getLong(po);
+        }
+        public Long getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getLong(getColumnName());
+        }
+        public void writeToObject (Object po, Long value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.setLong(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Long value)
+            throws SQLException {
+            ps.setLong(column, value);
+        }
     }
 
-    protected static class FloatMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setFloat(column, _field.getFloat(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.setFloat(po, rs.getFloat(getColumnName()));
-        }
+    protected static class FloatMarshaller extends FieldMarshaller<Float> {
         public String getColumnType () {
             return "FLOAT";
         }
+        public Float getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.getFloat(po);
+        }
+        public Float getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getFloat(getColumnName());
+        }
+        public void writeToObject (Object po, Float value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.setFloat(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Float value)
+            throws SQLException {
+            ps.setFloat(column, value);
+        }
     }
 
-    protected static class DoubleMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setDouble(column, _field.getDouble(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.setDouble(po, rs.getDouble(getColumnName()));
-        }
+    protected static class DoubleMarshaller extends FieldMarshaller<Double> {
         public String getColumnType () {
             return "DOUBLE";
         }
+        public Double getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.getDouble(po);
+        }
+        public Double getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getDouble(getColumnName());
+        }
+        public void writeToObject (Object po, Double value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.setDouble(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Double value)
+            throws SQLException {
+            ps.setDouble(column, value);
+        }
     }
 
-    protected static class ObjectMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setObject(column, _field.get(po));
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.set(po, rs.getObject(getColumnName()));
-        }
+    protected static class ObjectMarshaller extends FieldMarshaller<Object> {
         public String getColumnType () {
             Class<?> ftype = _field.getType();
             if (ftype.equals(Byte.class)) {
@@ -392,37 +468,69 @@ public abstract class FieldMarshaller
                     "Don't know how to create SQL for " + ftype + ".");
             }
         }
+        public Object getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return _field.get(po);
+        }
+        public Object getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getObject(getColumnName());
+        }
+        public void writeToObject (Object po, Object value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.set(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, Object value)
+            throws SQLException {
+            ps.setObject(column, value);
+        }
     }
 
-    protected static class ByteArrayMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setBytes(column, (byte[])_field.get(po));
+    protected static class ByteArrayMarshaller extends FieldMarshaller<byte[]> {
+        public byte[] getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return (byte[]) _field.get(po);
         }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.set(po, rs.getBytes(getColumnName()));
+        public byte[] getFromSet (ResultSet rs)
+            throws SQLException {
+            return rs.getBytes(getColumnName());
+        }
+        public void writeToObject (Object po, byte[] value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.set(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, byte[] value)
+            throws SQLException {
+            ps.setBytes(column, value);
         }
         public String getColumnType () {
             return "VARBINARY";
         }
     }
 
-    protected static class IntArrayMarshaller extends FieldMarshaller {
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setObject(column, _field.get(po));
+    protected static class IntArrayMarshaller extends FieldMarshaller<int[]> {
+        public int[] getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return (int[]) _field.get(po);
         }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            _field.set(po, rs.getObject(getColumnName()));
+        public int[] getFromSet (ResultSet rs)
+            throws SQLException {
+            return (int[]) rs.getObject(getColumnName());
+        }
+        public void writeToObject (Object po, int[] value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.set(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, int[] value)
+            throws SQLException {
+            ps.setObject(column, value);
         }
         public String getColumnType () {
             return "BLOB";
         }
     }
 
-    protected static class ByteEnumMarshaller extends FieldMarshaller {
+    protected static class ByteEnumMarshaller extends FieldMarshaller<ByteEnum> {
         public ByteEnumMarshaller (Class clazz) {
             try {
                 _factmeth = clazz.getMethod("fromByte", new Class[] { Byte.TYPE });
@@ -437,20 +545,31 @@ public abstract class FieldMarshaller
             }
         }
 
-        public void setValue (Object po, PreparedStatement ps, int column)
-            throws SQLException, IllegalAccessException {
-            ps.setInt(column, ((ByteEnum)_field.get(po)).toByte());
-        }
-        public void getValue (ResultSet rs, Object po)
-            throws SQLException, IllegalAccessException {
-            try {
-                _field.set(po, _factmeth.invoke(null, rs.getByte(getColumnName())));
-            } catch (InvocationTargetException ite) {
-                throw new RuntimeException(ite);
-            }
-        }
         public String getColumnType () {
             return "TINYINT";
+        }
+
+        public ByteEnum getFromObject (Object po)
+            throws IllegalArgumentException, IllegalAccessException {
+            return (ByteEnum) _field.get(po);
+        }
+        public ByteEnum getFromSet (ResultSet rs)
+            throws SQLException {
+            try {
+                return (ByteEnum) _factmeth.invoke(null, rs.getByte(getColumnName()));
+            } catch (SQLException se) {
+                throw se;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        public void writeToObject (Object po, ByteEnum value)
+            throws IllegalArgumentException, IllegalAccessException {
+            _field.set(po, value);
+        }
+        public void writeToStatement (PreparedStatement ps, int column, ByteEnum value)
+            throws SQLException {
+            ps.setByte(column, value.toByte());
         }
 
         protected Method _factmeth;

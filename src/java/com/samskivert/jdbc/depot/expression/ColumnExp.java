@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.expression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
@@ -52,7 +52,7 @@ public class ColumnExp
     }
 
     // from SQLExpression
-    public void appendExpression (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendExpression (QueryBuilderContext<?> query, StringBuilder builder)
     {
         if (pClass == null || query == null) {
             builder.append(pColumn);
@@ -63,7 +63,7 @@ public class ColumnExp
     }
 
     // from SQLExpression
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
         return argIdx;

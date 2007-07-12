@@ -20,11 +20,13 @@
 
 package com.samskivert.jdbc.depot.clause;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
@@ -53,13 +55,13 @@ public class FromOverride extends QueryClause
     }
 
     // from QueryClause
-    public Collection<Class<? extends PersistentRecord>> getClassSet ()
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        return _fromClasses;
+        classSet.addAll(_fromClasses);
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         builder.append(" from " );
         for (int ii = 0; ii < _fromClasses.size(); ii++) {
@@ -74,4 +76,5 @@ public class FromOverride extends QueryClause
     /** The classes of the tables we're selecting from. */
     protected ArrayList<Class<? extends PersistentRecord>> _fromClasses =
         new ArrayList<Class<? extends PersistentRecord>>();
+
 }

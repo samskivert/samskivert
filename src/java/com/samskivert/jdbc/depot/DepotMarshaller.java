@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006 Michael Bayne, Pär Winzell
+// Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -239,7 +239,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // add the primary key, if we have one
         if (hasPrimaryKey()) {
-            _declarations.add("PRIMARY KEY (" + getPrimaryKeyColumns() + ")");
+            _declarations.add("PRIMARY KEY (" + getJoinedKeyColumns() + ")");
         }
 
         // if we did not find a schema version field, complain
@@ -280,6 +280,19 @@ public class DepotMarshaller<T extends PersistentRecord>
     public boolean hasPrimaryKey ()
     {
         return (_pkColumns != null);
+    }
+
+    /**
+     * Return the names of the columns that constitute the primary key of our associated
+     * persistent record.
+     */
+    public String[] getPrimaryKeyColumns ()
+    {
+        String[] pkcols = new String[_pkColumns.size()];
+        for (int ii = 0; ii < pkcols.length; ii ++) {
+            pkcols[ii] = _pkColumns.get(ii).getColumnName();
+        }
+        return pkcols;
     }
 
     /**
@@ -354,6 +367,29 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
+     * Creates a primary key record for the type of object handled by this marshaller, using the
+     * supplied result set.
+     */
+    public Key<T> makePrimaryKey (ResultSet rs)
+        throws SQLException
+    {
+        if (!hasPrimaryKey()) {
+            throw new UnsupportedOperationException(
+                getClass().getName() + " does not define a primary key");
+        }
+        Comparable[] values = new Comparable[_pkColumns.size()];
+        for (int ii = 0; ii < _pkColumns.size(); ii++) {
+            Object keyValue = _pkColumns.get(ii).getFromSet(rs);
+            if (!(keyValue instanceof Comparable)) {
+                throw new IllegalArgumentException("Key field must be Comparable [field=" +
+                                                   _pkColumns.get(ii).getColumnName() + "]");
+            }
+            values[ii] = (Comparable) keyValue;
+        }
+        return makePrimaryKey(values);
+    }
+
+    /**
      * Returns true if this marshaller has been initialized ({@link #init} has been called), its
      * migrations run and it is ready for operation. False otherwise.
      */
@@ -387,7 +423,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                     }
                     throw new SQLException("ResultSet missing field: " + fm.getField().getName());
                 }
-                fm.getValue(rs, po);
+                fm.writeToObject(rs, po);
             }
             return po;
 
@@ -427,7 +463,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             PreparedStatement pstmt = conn.prepareStatement(insert.toString());
             int idx = 0;
             for (String field : _columnFields) {
-                _fields.get(field).setValue(po, pstmt, ++idx);
+                _fields.get(field).readFromObject(po, pstmt, ++idx);
             }
             return pstmt;
 
@@ -507,10 +543,10 @@ public class DepotMarshaller<T extends PersistentRecord>
             idx = 0;
             // bind the update arguments
             for (String field : modifiedFields) {
-                _fields.get(field).setValue(po, pstmt, ++idx);
+                _fields.get(field).readFromObject(po, pstmt, ++idx);
             }
             // now bind the key arguments
-            key.bindArguments(pstmt, ++idx);
+            key.bindClauseArguments(pstmt, ++idx);
             return pstmt;
 
         } catch (SQLException sqe) {
@@ -553,7 +589,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             pstmt.setObject(++idx, value);
         }
         // now bind the key arguments
-        key.bindArguments(pstmt, ++idx);
+        key.bindClauseArguments(pstmt, ++idx);
         return pstmt;
     }
 
@@ -568,7 +604,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         StringBuilder query = new StringBuilder("delete from " + getTableName());
         key.appendClause(null, query);
         PreparedStatement pstmt = conn.prepareStatement(query.toString());
-        key.bindArguments(pstmt, 1);
+        key.bindClauseArguments(pstmt, 1);
         return pstmt;
     }
 
@@ -594,7 +630,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         key.appendClause(null, update);
 
         PreparedStatement pstmt = conn.prepareStatement(update.toString());
-        key.bindArguments(pstmt, 1);
+        key.bindClauseArguments(pstmt, 1);
         return pstmt;
     }
 
@@ -745,7 +781,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // add or remove the primary key as needed
         if (hasPrimaryKey() && !indexColumns.containsKey("PRIMARY")) {
-            String pkdef = "primary key (" + getPrimaryKeyColumns() + ")";
+            String pkdef = "primary key (" + getJoinedKeyColumns() + ")";
             log.info("Adding primary key to " + getTableName() + ": " + pkdef);
             ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " add " + pkdef));
 
@@ -888,13 +924,9 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
     }
 
-    protected String getPrimaryKeyColumns ()
+    protected String getJoinedKeyColumns ()
     {
-        String[] pkcols = new String[_pkColumns.size()];
-        for (int ii = 0; ii < pkcols.length; ii ++) {
-            pkcols[ii] = _pkColumns.get(ii).getColumnName();
-        }
-        return StringUtil.join(pkcols, ", ");
+        return StringUtil.join(getPrimaryKeyColumns(), ", ");
     }
 
     protected void updateVersion (Connection conn, int version)

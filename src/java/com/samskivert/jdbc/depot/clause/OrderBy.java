@@ -22,8 +22,10 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
@@ -83,7 +85,7 @@ public class OrderBy extends QueryClause
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         builder.append(" order by ");
         for (int ii = 0; ii < _values.length; ii++) {
@@ -96,11 +98,11 @@ public class OrderBy extends QueryClause
     }
 
     // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
         for (int ii = 0; ii < _values.length; ii++) {
-            argIdx = _values[ii].bindArguments(pstmt, argIdx);
+            argIdx = _values[ii].bindExpressionArguments(pstmt, argIdx);
         }
         return argIdx;
     }

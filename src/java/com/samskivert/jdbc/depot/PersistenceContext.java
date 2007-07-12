@@ -257,7 +257,8 @@ public class PersistenceContext
         if (listeners != null && listeners.size() > 0) {
             for (CacheListener<?> listener : listeners) {
                 Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
-                @SuppressWarnings("unchecked") CacheListener<T> casted = (CacheListener<T>)listener;
+                @SuppressWarnings("unchecked")
+                    CacheListener<T> casted = (CacheListener<T>)listener;
                 casted.entryCached(key, entry, oldEntry);
             }
         }

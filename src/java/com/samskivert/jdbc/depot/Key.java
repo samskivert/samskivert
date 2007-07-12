@@ -32,17 +32,18 @@ import java.util.Map;
 
 import com.samskivert.jdbc.depot.annotation.Id;
 import com.samskivert.jdbc.depot.clause.Where;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.util.StringUtil;
 
 /**
- * A special form of {@link Where} clause that uniquely specifices a single database row and
+ * A special form of {@link Where} clause that uniquely specifies a single database row and
  * thus also a single persistent object. Because it implements both {@link CacheKey} and
  * {@link CacheInvalidator} it also uniquely indexes into the cache and knows how to invalidate
  * itself upon modification. This class is created by many {@link DepotMarshaller} methods as
  * a convenience, and may also be instantiated explicitly.
  */
 public class Key<T extends PersistentRecord> extends Where
-    implements CacheKey, CacheInvalidator, Serializable
+    implements SQLExpression, CacheKey, CacheInvalidator, Serializable
 {
     /**
      * Constructs a new single-column {@code Key} with the given value.
@@ -109,18 +110,33 @@ public class Key<T extends PersistentRecord> extends Where
     }
 
     // from QueryClause
-    public Collection<Class<? extends PersistentRecord>> getClassSet ()
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        ArrayList<Class<? extends PersistentRecord>> set =
-            new ArrayList<Class<? extends PersistentRecord>>();
-        set.add(_pClass);
-        return set;
+        classSet.add(_pClass);
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         builder.append(" where ");
+        appendExpression(query, builder);
+    }
+
+    // from QueryClause
+    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
+        throws SQLException
+    {
+        for (int ii = 0; ii < _values.length; ii ++) {
+            if (_values[ii] != null) {
+                pstmt.setObject(argIdx ++, _values[ii]);
+            }
+        }
+        return argIdx;
+    }
+
+    // from SQLExpression
+    public void appendExpression (QueryBuilderContext<?> query, StringBuilder builder)
+    {
         String[] keyFields = getKeyFields(_pClass);
         for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
@@ -130,16 +146,11 @@ public class Key<T extends PersistentRecord> extends Where
         }
     }
 
-    // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    // from SQLExpression
+    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        for (int ii = 0; ii < _values.length; ii ++) {
-            if (_values[ii] != null) {
-                pstmt.setObject(argIdx ++, _values[ii]);
-            }
-        }
-        return argIdx;
+        return bindClauseArguments(pstmt, argIdx);
     }
 
     // from CacheKey

@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
@@ -57,14 +57,14 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void appendExpression (ConstructedQuery query, StringBuilder builder)
+        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
         {
             _column.appendExpression(query, builder);
             builder.append(" is null");
         }
 
         // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
+        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
             throws SQLException
         {
             return argIdx;
@@ -233,7 +233,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void appendExpression (ConstructedQuery query, StringBuilder builder)
+        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
         {
             _column.appendExpression(query, builder);
             builder.append(" in (");
@@ -247,7 +247,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
+        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
             throws SQLException
         {
             for (int ii = 0; ii < _values.length; ii++) {
@@ -286,7 +286,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void appendExpression (ConstructedQuery query, StringBuilder builder)
+        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
         {
             builder.append("match(");
             int idx = 0;
@@ -312,7 +312,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
+        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
             throws SQLException
         {
             pstmt.setString(argIdx++, _query);

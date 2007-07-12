@@ -20,8 +20,12 @@
 
 package com.samskivert.jdbc.depot.clause;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Collection;
+
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
@@ -65,7 +69,7 @@ public class FieldOverride extends QueryClause
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         _override.appendExpression(query, builder);
         builder.append(" as ").append(_field);

@@ -23,7 +23,8 @@ package com.samskivert.jdbc.depot.operator;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
 
 /**
@@ -38,7 +39,7 @@ public abstract class Logic
      */
     public static class Or extends MultiOperator
     {
-        public Or (SQLOperator... conditions)
+        public Or (SQLExpression... conditions)
         {
             super(conditions);
         }
@@ -55,7 +56,7 @@ public abstract class Logic
      */
     public static class And extends MultiOperator
     {
-        public And (SQLOperator... conditions)
+        public And (SQLExpression... conditions)
         {
             super(conditions);
         }
@@ -73,14 +74,14 @@ public abstract class Logic
     public static class Not
         implements SQLOperator
     {
-        public Not (SQLOperator condition)
+        public Not (SQLExpression condition)
         {
             super();
             _condition = condition;
         }
 
         // from SQLExpression
-        public void appendExpression (ConstructedQuery query, StringBuilder builder)
+        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
         {
             builder.append(" not (");
             _condition.appendExpression(query, builder);
@@ -88,12 +89,12 @@ public abstract class Logic
         }
 
         // from SQLExpression
-        public int bindArguments (PreparedStatement pstmt, int argIdx)
+        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
             throws SQLException
         {
-            return _condition.bindArguments(pstmt, argIdx);
+            return _condition.bindExpressionArguments(pstmt, argIdx);
         }
 
-        protected SQLOperator _condition;
+        protected SQLExpression _condition;
     }
 }

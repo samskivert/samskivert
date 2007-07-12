@@ -23,7 +23,7 @@ package com.samskivert.jdbc.depot.expression;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 
 /**
  * An expression for a function, e.g. FLOOR(blah).
@@ -41,7 +41,7 @@ public class FunctionExp
     }
 
     // from SQLExpression
-    public void appendExpression (ConstructedQuery query, StringBuilder builder)
+    public void appendExpression (QueryBuilderContext query, StringBuilder builder)
     {
         builder.append(_function);
         builder.append("(");
@@ -55,11 +55,11 @@ public class FunctionExp
     }
 
     // from SQLExpression
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
         for (int ii = 0; ii < _arguments.length; ii ++) {
-            argIdx = _arguments[ii].bindArguments(pstmt, argIdx);
+            argIdx = _arguments[ii].bindExpressionArguments(pstmt, argIdx);
         }
         return argIdx;
     }

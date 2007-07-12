@@ -22,15 +22,14 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.ConstructedQuery;
+import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.operator.Conditionals.*;
-import com.samskivert.jdbc.depot.operator.SQLOperator;
 
 /**
  *  Represents a JOIN.
@@ -55,19 +54,16 @@ public class Join extends QueryClause
         _joinCondition = new Equals(primary, join);
     }
 
-    public Join (Class<? extends PersistentRecord> joinClass, SQLOperator joinCondition)
+    public Join (Class<? extends PersistentRecord> joinClass, SQLExpression joinCondition)
     {
         _joinClass = joinClass;
         _joinCondition = joinCondition;
     }
 
     // from QueryClause
-    public Collection<Class<? extends PersistentRecord>> getClassSet ()
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        ArrayList<Class<? extends PersistentRecord>> set =
-            new ArrayList<Class<? extends PersistentRecord>>();
-        set.add(_joinClass);
-        return set;
+        classSet.add(_joinClass);
     }
 
     /**
@@ -80,7 +76,7 @@ public class Join extends QueryClause
     }
 
     // from QueryClause
-    public void appendClause (ConstructedQuery<?> query, StringBuilder builder)
+    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         switch (_type) {
         case INNER:
@@ -99,10 +95,10 @@ public class Join extends QueryClause
     }
 
     // from QueryClause
-    public int bindArguments (PreparedStatement pstmt, int argIdx)
+    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
-        return _joinCondition.bindArguments(pstmt, argIdx);
+        return _joinCondition.bindExpressionArguments(pstmt, argIdx);
     }
 
     /** Indicates the type of join to be performed. */
@@ -112,5 +108,5 @@ public class Join extends QueryClause
     protected Class<? extends PersistentRecord> _joinClass;
 
     /** The condition used to join in the new table. */
-    protected SQLOperator _joinCondition;
+    protected SQLExpression _joinCondition;
 }

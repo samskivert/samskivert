@@ -84,13 +84,13 @@ public class MultiKey<T extends PersistentRecord> extends Where
         }
     }
 
-    // from QueryClause
+    @Override // from QueryClause
     public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
         classSet.add(_pClass);
     }
 
-    // from QueryClause
+    @Override // from Where
     public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
     {
         builder.append(" where ");
@@ -117,8 +117,8 @@ public class MultiKey<T extends PersistentRecord> extends Where
         builder.append(")");
     }
 
-    // from QueryClause
-    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
+    @Override // from Where
+    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
         throws SQLException
     {
         for (Map.Entry entry : _map.entrySet()) {

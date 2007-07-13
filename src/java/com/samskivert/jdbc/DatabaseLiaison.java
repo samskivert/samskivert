@@ -1,8 +1,8 @@
 //
-// $Id: DatabaseLiaison.java,v 1.2 2001/09/20 02:09:09 mdb Exp $
+// $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001 Michael Bayne
+// Copyright (C) 2001-2007 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published

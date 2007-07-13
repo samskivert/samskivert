@@ -1,8 +1,8 @@
 //
-// $Id: MouseArmingAdapter.java,v 1.1 2002/12/13 04:30:38 shaper Exp $
+// $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2002 Ray Greenwell
+// Copyright (C) 2001-2007 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published

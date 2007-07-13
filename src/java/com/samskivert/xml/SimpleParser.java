@@ -1,8 +1,8 @@
 //
-// $Id: SimpleParser.java,v 1.4 2001/11/17 03:43:48 mdb Exp $
+// $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001 Walter Korman
+// Copyright (C) 2001-2007 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published

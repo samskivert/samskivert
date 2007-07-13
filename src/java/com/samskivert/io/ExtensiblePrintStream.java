@@ -1,8 +1,8 @@
 //
-// $Id: ExtensiblePrintStream.java,v 1.2 2002/10/16 19:12:53 shaper Exp $
+// $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2002 Walter Korman
+// Copyright (C) 2001-2007 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published

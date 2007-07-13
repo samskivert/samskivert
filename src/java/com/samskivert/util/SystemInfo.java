@@ -1,8 +1,8 @@
 //
-// $Id: SystemInfo.java,v 1.3 2003/01/15 01:27:44 shaper Exp $
+// $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2003 Walter Korman
+// Copyright (C) 2001-2007 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published

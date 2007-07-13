@@ -1,8 +1,8 @@
 //
-// $Id: AuthenticationFailedException.java,v 1.1 2002/05/02 19:10:34 shaper Exp $
+// $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2002 Walter Korman
+// Copyright (C) 2001-2007 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published

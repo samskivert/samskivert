@@ -26,31 +26,27 @@ import java.util.Iterator;
 import com.samskivert.Log;
 
 /**
- * The invoker is used to invoke self-contained units of code on an
- * invoking thread. Each invoker is associated with its own thread and
- * that thread is used to invoke all of the units posted to that invoker
- * in the order in which they were posted. The invoker also provides a
- * convenient mechanism for processing the result of an invocation back on
- * the main thread.
+ * The invoker is used to invoke self-contained units of code on an invoking thread. Each invoker
+ * is associated with its own thread and that thread is used to invoke all of the units posted to
+ * that invoker in the order in which they were posted. The invoker also provides a convenient
+ * mechanism for processing the result of an invocation back on the main thread.
  *
- * <p> The invoker is a useful tool for services that need to block and
- * therefore cannot be run on the main thread. For example, an interactive
- * application might provide an invoker on which to run database queries.
+ * <p> The invoker is a useful tool for services that need to block and therefore cannot be run on
+ * the main thread. For example, an interactive application might provide an invoker on which to
+ * run database queries.
  *
- * <p> Bear in mind that each invoker instance runs units on its own
- * thread and care must be taken to ensure that code running on separate
- * invokers properly synchronizes access to shared information. Where
- * possible, complete isolation of the services provided by a particular
- * invoker is desirable.
+ * <p> Bear in mind that each invoker instance runs units on its own thread and care must be taken
+ * to ensure that code running on separate invokers properly synchronizes access to shared
+ * information. Where possible, complete isolation of the services provided by a particular invoker
+ * is desirable.
  */
 public class Invoker extends LoopingThread
     implements RunQueue
 {
     /**
-     * The unit encapsulates a unit of executable code that will be run on
-     * the invoker thread. It also provides facilities for additional code
-     * to be run on the main thread once the primary code has completed on
-     * the invoker thread.
+     * The unit encapsulates a unit of executable code that will be run on the invoker thread. It
+     * also provides facilities for additional code to be run on the main thread once the primary
+     * code has completed on the invoker thread.
      */
     public static abstract class Unit implements Runnable
     {
@@ -63,43 +59,49 @@ public class Invoker extends LoopingThread
             this("Unknown");
         }
 
-        /** Creates an invoker unit which will report the supplied name in
-         * {@link #toString}. */
+        /** Creates an invoker unit which will report the supplied name in {@link #toString}. */
         public Unit (String name)
         {
             _name = name;
         }
 
         /**
-         * This method is called on the invoker thread and should be used
-         * to perform the primary function of the unit. It can return true
-         * to cause the <code>handleResult</code> method to be
-         * subsequently invoked on the dobjmgr thread (generally to allow
-         * the results of the invocation to be acted upon back in the
-         * context of the regular world) or false to indicate that no
-         * further processing should be performed.
+         * This method is called on the invoker thread and should be used to perform the primary
+         * function of the unit. It can return true to cause the {@link #handleResult} method to be
+         * subsequently invoked on the dobjmgr thread (generally to allow the results of the
+         * invocation to be acted upon back in the context of the regular world) or false to
+         * indicate that no further processing should be performed.
          *
-         * @return true if the <code>handleResult</code> method should be
-         * invoked on the main thread, false if not.
+         * @return true if the {@link #handleResult} method should be called on the main thread,
+         * false if not.
          */
         public abstract boolean invoke ();
 
         /**
-         * Invocation unit implementations can implement this function to
-         * perform any post-unit-invocation processing back on the main
-         * thread. It will be invoked if <code>invoke</code> returns true.
+         * Invocation unit implementations can implement this function to perform any post unit
+         * invocation processing back on the main thread. It will be invoked if {@link #invoke}
+         * returns true.
          */
         public void handleResult ()
         {
             // do nothing by default
         }
 
-        // we want to be a runnable to make the receiver interface simple,
-        // but we'd like for invocation unit implementations to be able to
-        // put their result handling code into an aptly named method
+        // we want to be a runnable to make the receiver interface simple, but we'd like for
+        // invocation unit implementations to be able to put their result handling code into an
+        // aptly named method
         public void run ()
         {
             handleResult();
+        }
+
+        /**
+         * Returns the duration beyond which this invoker unit will be considered to be running too
+         * long and result in a warning being logged. The default is 500ms.
+         */
+        public long getLongThreshold ()
+        {
+            return DEFAULT_LONG_THRESHOLD;
         }
 
         /** Returns the name of this invoker. */
@@ -112,8 +114,7 @@ public class Invoker extends LoopingThread
     }
 
     /**
-     * Creates an invoker that will post results to the supplied result
-     * receiver.
+     * Creates an invoker that will post results to the supplied result receiver.
      */
     public Invoker (String name, RunQueue resultReceiver)
     {
@@ -122,18 +123,7 @@ public class Invoker extends LoopingThread
     }
 
     /**
-     * Configures the duration after which an invoker unit will be considered
-     * "long". When they complete, long units have a warning message
-     * logged. The default long threshold is 500 milliseconds.
-     */
-    public void setLongThresholds (long longThreshold)
-    {
-        _longThreshold = longThreshold;
-    }
-
-    /**
-     * Posts a unit to this invoker for subsequent invocation on the
-     * invoker's thread.
+     * Posts a unit to this invoker for subsequent invocation on the invoker's thread.
      */
     public void postUnit (Unit unit)
     {
@@ -184,8 +174,7 @@ public class Invoker extends LoopingThread
         try {
             willInvokeUnit(unit, start);
             if (unit.invoke()) {
-                // if it returned true, we post it to the receiver thread
-                // to invoke the result processing
+                // if it returned true, post it to the receiver thread for result processing
                 _receiver.postRunnable(unit);
             }
             didInvokeUnit(unit, start);
@@ -197,8 +186,8 @@ public class Invoker extends LoopingThread
     }
 
     /**
-     * Shuts down the invoker thread by queueing up a unit that will cause
-     * the thread to exit after all currently queued units are processed.
+     * Shuts down the invoker thread by queueing up a unit that will cause the thread to exit after
+     * all currently queued units are processed.
      */
     public void shutdown ()
     {
@@ -214,8 +203,8 @@ public class Invoker extends LoopingThread
      * Called before we process an invoker unit.
      *
      * @param unit the unit about to be invoked.
-     * @param start a timestamp recorded immediately before invocation if
-     * {@link #PERF_TRACK} is enabled, 0L otherwise.
+     * @param start a timestamp recorded immediately before invocation if {@link #PERF_TRACK} is
+     * enabled, 0L otherwise.
      */
     protected void willInvokeUnit (Unit unit, long start)
     {
@@ -225,8 +214,8 @@ public class Invoker extends LoopingThread
      * Called before we process an invoker unit.
      *
      * @param unit the unit about to be invoked.
-     * @param start a timestamp recorded immediately before invocation if
-     * {@link #PERF_TRACK} is enabled, 0L otherwise.
+     * @param start a timestamp recorded immediately before invocation if {@link #PERF_TRACK} is
+     * enabled, 0L otherwise.
      */
     protected void didInvokeUnit (Unit unit, long start)
     {
@@ -237,11 +226,10 @@ public class Invoker extends LoopingThread
             recordMetrics(key, duration);
 
             // report long runners
-            if (duration > _longThreshold) {
-                String howLong = (duration >= 10*_longThreshold) ?
-                    "Really long" : "Long";
-                Log.warning(howLong + " invoker unit [unit=" + unit +
-                            " (" + key + "), time=" + duration + "ms].");
+            if (duration > unit.getLongThreshold()) {
+                String howLong = (duration >= 10*unit.getLongThreshold()) ? "Really long" : "Long";
+                Log.warning(howLong + " invoker unit [unit=" + unit + " (" + key +
+                            "), time=" + duration + "ms].");
             }
         }
     }
@@ -270,8 +258,7 @@ public class Invoker extends LoopingThread
 
         public String toString () {
             int count = _histo.size();
-            return _totalElapsed + "ms/" + count + " = " +
-                (_totalElapsed/count) + "ms avg " +
+            return _totalElapsed + "ms/" + count + " = " + (_totalElapsed/count) + "ms avg " +
                 StringUtil.toString(_histo.getBuckets());
         }
 
@@ -287,15 +274,13 @@ public class Invoker extends LoopingThread
     protected RunQueue _receiver;
 
     /** Tracks the counts of invocations by unit's class. */
-    protected HashMap<Object,UnitProfile> _tracker =
-        new HashMap<Object,UnitProfile>();
+    protected HashMap<Object,UnitProfile> _tracker = new HashMap<Object,UnitProfile>();
 
     /** The total number of invoker units run since the last report. */
     protected int _unitsRun;
 
-    /** The duration of time after which we consider a unit to be delinquent
-     * and log a warning. */
-    protected long _longThreshold = 500L;
+    /** The duration of time after which we consider a unit to be delinquent and log a warning. */
+    protected static final long DEFAULT_LONG_THRESHOLD = 500L;
 
     /** Whether or not to track invoker unit performance. */
     protected static final boolean PERF_TRACK = true;

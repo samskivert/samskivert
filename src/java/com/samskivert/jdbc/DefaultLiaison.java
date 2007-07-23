@@ -24,33 +24,65 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * The default liaison is used if no other liaison could be matched for a
- * particular database connection. It isn't very smart or useful but we
- * need something.
+ * The default liaison is used if no other liaison could be matched for a particular database
+ * connection. It isn't very smart or useful but we need something.
  */
-public class DefaultLiaison implements DatabaseLiaison
+public class DefaultLiaison extends BaseLiaison
 {
-    // documentation inherited
+    // from DatabaseLiaison
     public boolean matchesURL (String url)
     {
         return true;
     }
 
-    // documentation inherited
+    // from DatabaseLiaison
     public boolean isDuplicateRowException (SQLException sqe)
     {
         return false;
     }
 
-    // documentation inherited
+    // from DatabaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
         return false;
     }
 
-    // documentation inherited
+    // from DatabaseLiaison
     public int lastInsertedId (Connection conn) throws SQLException
     {
         return -1;
+    }
+
+    // from DatabaseLiaison
+    public void initializeGenerator (
+        Connection conn, String table, String column, int value, int size)
+        throws SQLException
+    {
+        // nothing doing
+    }
+
+    // from DatabaseLiaison
+    public int lastInsertedId (Connection conn, String table, String column)
+        throws SQLException
+    {
+        return -1;
+    }
+
+    // from DatabaseLiaison
+    public String columnSQL (String column)
+    {
+        return column;
+    }
+
+    // from DatabaseLiaison
+    public String tableSQL (String table)
+    {
+        return table;
+    }
+
+    // from DatabaseLiaison
+    public String indexSQL (String index)
+    {
+        return index;
     }
 }

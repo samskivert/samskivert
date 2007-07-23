@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -23,30 +23,24 @@ package com.samskivert.jdbc;
 import java.sql.*;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.HashMap;
 
 import com.samskivert.Log;
 
 /**
- * The liaison registry provides access to the appropriate database
- * liaison implementation for a particular database connection.
+ * The liaison registry provides access to the appropriate database liaison implementation for a
+ * particular database connection.
  */
 public class LiaisonRegistry
 {
     /**
-     * Fetch the appropriate database liaison for the supplied database
-     * connection.
+     * Fetch the appropriate database liaison for the supplied URL, which should be the same string
+     * that would be used to configure a connection to the database.
      */
-    public static DatabaseLiaison getLiaison (Connection conn)
-        throws SQLException
+    public static DatabaseLiaison getLiaison (String url)
     {
-        DatabaseMetaData dmd = conn.getMetaData();
-        String url = dmd.getURL();
-
         // see if we already have a liaison mapped for this connection
         DatabaseLiaison liaison = _mappings.get(url);
-
         if (liaison == null) {
             // scan the list looking for a matching liaison
             for (DatabaseLiaison candidate : _liaisons) {
@@ -58,8 +52,8 @@ public class LiaisonRegistry
 
             // if we didn't find a matching liaison, use the default
             if (liaison == null) {
-                Log.warning("Unable to match liaison for database " +
-                            "[url=" + url + "]. Using default.");
+                Log.warning("Unable to match liaison for database [url=" + url + "]. " +
+                            "Using default.");
                 liaison = new DefaultLiaison();
             }
 
@@ -70,25 +64,34 @@ public class LiaisonRegistry
         return liaison;
     }
 
-    protected static void registerLiaisonClass (
-        Class<? extends DatabaseLiaison> lclass)
+    /**
+     * Fetch the appropriate database liaison for the supplied database connection.
+     */
+    public static DatabaseLiaison getLiaison (Connection conn)
+        throws SQLException
+    {
+        return getLiaison(conn.getMetaData().getURL());
+
+    }
+
+    protected static void registerLiaisonClass (Class<? extends DatabaseLiaison> lclass)
     {
         // create a new instance and stick it on our list
         try {
             _liaisons.add(lclass.newInstance());
         } catch (Exception e) {
-            Log.warning("Unable to instantiate liaison " +
-                        "[class=" + lclass.getName() + ", error=" + e + "].");
+            Log.warning("Unable to instantiate liaison [class=" + lclass.getName() +
+                        ", error=" + e + "].");
         }
     }
 
-    protected static ArrayList<DatabaseLiaison> _liaisons =
-        new ArrayList<DatabaseLiaison>();
+    protected static ArrayList<DatabaseLiaison> _liaisons = new ArrayList<DatabaseLiaison>();
     protected static HashMap<String,DatabaseLiaison> _mappings =
         new HashMap<String,DatabaseLiaison>();
 
     // register our liaison classes
     static {
         registerLiaisonClass(MySQLLiaison.class);
+        registerLiaisonClass(PostgreSQLLiaison.class);
     }
 }

@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -28,9 +28,8 @@ import java.sql.SQLException;
 import com.samskivert.io.PersistenceException;
 
 /**
- * Used to note that transitionary code has been run to migrate persistent
- * data. The TransitionRepository is especially useful for data that
- * one cannot examine to determine if it's been transitioned.
+ * Used to note that transitionary code has been run to migrate persistent data. This is especially
+ * useful for data that one cannot examine to determine if it's been transitioned.
  */
 public class TransitionRepository extends SimpleRepository
 {
@@ -81,18 +80,20 @@ public class TransitionRepository extends SimpleRepository
             public Boolean invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
-                Object found = null;
                 PreparedStatement stmt = null;
                 try {
-                    stmt = conn.prepareStatement("select NAME " +
-                        "from TRANSITIONS where CLASS=? and NAME=?");
+                    stmt = conn.prepareStatement(
+                        " select " + liaison.columnSQL("NAME") +
+                        "   from " + liaison.tableSQL("TRANSITIONS") +
+                        "  where " + liaison.columnSQL("CLASS") + "=?" +
+                        "    and " + liaison.columnSQL("NAME") + "=?");
                     stmt.setString(1, cname);
                     stmt.setString(2, name);
                     ResultSet rs = stmt.executeQuery();
                     if (rs.next()) {
-                        while (rs.next()); // is this really necessary?
                         return true;
                     }
+
                 } finally {
                     JDBCUtil.close(stmt);
                 }
@@ -114,12 +115,14 @@ public class TransitionRepository extends SimpleRepository
             {
                 PreparedStatement stmt = null;
                 try {
-                    stmt = conn.prepareStatement("insert into TRANSITIONS " +
-                        "(CLASS, NAME) values (?, ?)");
+                    stmt = conn.prepareStatement(
+                        "insert into " + liaison.tableSQL("TRANSITIONS") + " (" +
+                        liaison.columnSQL("CLASS") + ", " + liaison.columnSQL("NAME") +
+                        ") values (?, ?)");
                     stmt.setString(1, cname);
                     stmt.setString(2, name);
-
                     JDBCUtil.checkedUpdate(stmt, 1);
+
                 } finally {
                     JDBCUtil.close(stmt);
                 }
@@ -141,8 +144,10 @@ public class TransitionRepository extends SimpleRepository
             {
                 PreparedStatement stmt = null;
                 try {
-                    stmt = conn.prepareStatement("delete from TRANSITIONS " +
-                        "where CLASS=? and NAME=?");
+                    stmt = conn.prepareStatement(
+                        " delete from " + liaison.tableSQL("TRANSITIONS") +
+                        "       where " + liaison.columnSQL("CLASS") + "=? " +
+                        "         and " + liaison.columnSQL("NAME") + "=?");
                     stmt.setString(1, cname);
                     stmt.setString(2, name);
 
@@ -160,10 +165,12 @@ public class TransitionRepository extends SimpleRepository
     protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
         throws SQLException, PersistenceException
     {
-        JDBCUtil.createTableIfMissing(conn, "TRANSITIONS", new String[] {
-            "CLASS varchar(200) not null",
-            "NAME varchar(50) not null",
-            "APPLIED timestamp not null",
-            "primary key (CLASS, NAME)" }, "");
+        liaison.createTableIfMissing(
+            conn,
+            "TRANSITIONS",
+            new String[] { "CLASS", "NAME", "APPLIED" },
+            new String[] { "VARCHAR(200)", "VARCHAR(50)", "TIMESTAMP NOT NULL" },
+            null,
+            new String[] { "CLASS", "NAME" });
     }
 }

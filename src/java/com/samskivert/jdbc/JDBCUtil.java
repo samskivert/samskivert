@@ -20,7 +20,6 @@
 
 package com.samskivert.jdbc;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Iterator;

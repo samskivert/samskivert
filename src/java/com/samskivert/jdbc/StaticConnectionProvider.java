@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -31,15 +31,12 @@ import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.StringUtil;
 
 /**
- * The static connection provider generates JDBC connections based on
- * configuration information provided via a properties file. It does no
- * connection pooling and always returns the same connection for a
- * particular identifier (unless that connection need be closed because of
- * a connection failure, in which case it opens a new one the next time
- * the connection is requested).
+ * The static connection provider generates JDBC connections based on configuration information
+ * provided via a properties file. It does no connection pooling and always returns the same
+ * connection for a particular identifier (unless that connection need be closed because of a
+ * connection failure, in which case it opens a new one the next time the connection is requested).
  *
- * <p> The configuration properties file should contain the following
- * information:
+ * <p> The configuration properties file should contain the following information:
  *
  * <pre>
  * IDENT.driver=[jdbc driver class]
@@ -50,14 +47,13 @@ import com.samskivert.util.StringUtil;
  * [...]
  * </pre>
  *
- * Where <code>IDENT</code> is the database identifier for a particular
- * database connection. When a particular database identifier is
- * requested, the configuration information will be fetched from the
- * properties.
+ * Where <code>IDENT</code> is the database identifier for a particular database connection. When a
+ * particular database identifier is requested, the configuration information will be fetched from
+ * the properties.
  *
- * <p> Additionally, a default set of properties can be provided using the
- * identifier <code>default</code>. Values not provided for a specific
- * identifier will be sought from the defaults. For example:
+ * <p> Additionally, a default set of properties can be provided using the identifier
+ * <code>default</code>. Values not provided for a specific identifier will be sought from the
+ * defaults. For example:
  *
  * <pre>
  * default.driver=[jdbc driver class]
@@ -75,15 +71,15 @@ import com.samskivert.util.StringUtil;
 public class StaticConnectionProvider implements ConnectionProvider
 {
     /**
-     * Constructs a static connection provider which will load its
-     * configuration from a properties file accessible via the classpath
-     * of the running application and identified by the specified path.
+     * Constructs a static connection provider which will load its configuration from a properties
+     * file accessible via the classpath of the running application and identified by the specified
+     * path.
      *
-     * @param propPath the path (relative to the classpath) to the
-     * properties file that will be used for configuration information.
+     * @param propPath the path (relative to the classpath) to the properties file that will be
+     * used for configuration information.
      *
-     * @exception IOException thrown if an error occurs locating or
-     * loading the specified properties file.
+     * @exception IOException thrown if an error occurs locating or loading the specified
+     * properties file.
      */
     public StaticConnectionProvider (String propPath)
         throws IOException
@@ -92,8 +88,8 @@ public class StaticConnectionProvider implements ConnectionProvider
     }
 
     /**
-     * Constructs a static connection provider which will fetch its
-     * configuration information from the specified properties object.
+     * Constructs a static connection provider which will fetch its configuration information from
+     * the specified properties object.
      *
      * @param props the configuration for this connection provider.
      */
@@ -103,8 +99,7 @@ public class StaticConnectionProvider implements ConnectionProvider
     }
 
     /**
-     * Closes all of the open database connections in preparation for
-     * shutting down.
+     * Closes all of the open database connections in preparation for shutting down.
      */
     public void shutdown ()
     {
@@ -112,18 +107,24 @@ public class StaticConnectionProvider implements ConnectionProvider
         Iterator iter = _keys.keySet().iterator();
         while (iter.hasNext()) {
             String key = (String)iter.next();
-            Mapping conmap = (Mapping)_keys.get(key);
+            Mapping conmap = _keys.get(key);
             try {
                 conmap.connection.close();
             } catch (SQLException sqe) {
-                Log.warning("Error shutting down connection " +
-                            "[key=" + key + ", err=" + sqe + "].");
+                Log.warning("Error shutting down connection [key=" + key + ", err=" + sqe + "].");
             }
         }
 
         // clear out our mapping tables
         _keys.clear();
         _idents.clear();
+    }
+
+    // from ConnectionProvider
+    public String getURL (String ident)
+    {
+        Properties props = PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
+        return props.getProperty("url");
     }
 
     // documentation inherited
@@ -135,9 +136,7 @@ public class StaticConnectionProvider implements ConnectionProvider
 
         // open the connection if we haven't already
         if (conmap == null) {
-            String[] defaults;
-            Properties props =
-                PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
+            Properties props = PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
 
             // get the JDBC configuration info
             String err = "No driver class specified [ident=" + ident + "].";
@@ -149,33 +148,30 @@ public class StaticConnectionProvider implements ConnectionProvider
             err = "No driver password specified [ident=" + ident + "].";
             String password = requireProp(props, "password", err);
 
-            // if this is a read-only connection,
-
-            // we cache connections by username+url+readOnly to avoid making
-            // more that one connection to a particular database server
+            // if this is a read-only connection, we cache connections by username+url+readOnly to
+            // avoid making more that one connection to a particular database server
             String key = username + "@" + url + ":" + readOnly;
             conmap = _keys.get(key);
             if (conmap == null) {
                 Log.debug("Creating " + key + " for " + ident + ".");
                 conmap = new Mapping();
                 conmap.key = key;
-                conmap.connection =
-                    openConnection(driver, url, username, password);
+                conmap.connection = openConnection(driver, url, username, password);
 
-                // make the connection read-only to let the JDBC driver know
-                // that it can and should use the read-only mirror(s)
+                // make the connection read-only to let the JDBC driver know that it can and should
+                // use the read-only mirror(s)
                 if (readOnly) {
                     try {
                         conmap.connection.setReadOnly(true);
                     } catch (SQLException sqe) {
                         closeConnection(ident, conmap.connection);
-                        err = "Failed to make connection read-only " +
-                            "[key=" + key + ", ident=" + ident + "].";
+                        err = "Failed to make connection read-only [key=" + key +
+                            ", ident=" + ident + "].";
                         throw new PersistenceException(err, sqe);
                     }
                 }
-
                 _keys.put(key, conmap);
+
             } else {
                 Log.debug("Reusing " + key + " for " + ident + ".");
             }
@@ -185,19 +181,25 @@ public class StaticConnectionProvider implements ConnectionProvider
             _idents.put(mapkey, conmap);
         }
 
+        // in case the previous user turned off auto-commit we have to make sure here it's on
+        try {
+            conmap.connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            throw new PersistenceException("Failed to turn on connection auto-commit", e);
+        }
+
         return conmap.connection;
     }
 
     // documentation inherited
-    public void releaseConnection (String ident, boolean readOnly,
-                                   Connection conn)
+    public void releaseConnection (String ident, boolean readOnly, Connection conn)
     {
         // nothing to do here, all is well
     }
 
     // documentation inherited
-    public void connectionFailed (String ident, boolean readOnly,
-                                  Connection conn, SQLException error)
+    public void connectionFailed (
+        String ident, boolean readOnly, Connection conn, SQLException error)
     {
         String mapkey = ident + ":" + readOnly;
         Mapping conmap = _idents.get(mapkey);
@@ -216,8 +218,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         _keys.remove(conmap.key);
     }
 
-    protected Connection openConnection (
-        String driver, String url, String username, String password)
+    protected Connection openConnection (String driver, String url, String username, String passwd)
         throws PersistenceException
     {
         // create an instance of the driver
@@ -233,11 +234,11 @@ public class StaticConnectionProvider implements ConnectionProvider
         try {
             Properties props = new Properties();
             props.put("user", username);
-            props.put("password", password);
+            props.put("password", passwd);
             return jdriver.connect(url, props);
+
         } catch (SQLException sqe) {
-            String err = "Error creating database connection " +
-                "[driver=" + driver + ", url=" + url +
+            String err = "Error creating database connection [driver=" + driver + ", url=" + url +
                 ", username=" + username + "].";
             throw new PersistenceException(err, sqe);
         }
@@ -253,25 +254,23 @@ public class StaticConnectionProvider implements ConnectionProvider
         }
     }
 
-    protected static String requireProp (
-        Properties props, String name, String errmsg)
+    protected static String requireProp (Properties props, String name, String errmsg)
 	throws PersistenceException
     {
 	String value = props.getProperty(name);
 	if (StringUtil.isBlank(value)) {
-            // augment the error message
-            errmsg = "Unable to get connection. " + errmsg;
+            errmsg = "Unable to get connection. " + errmsg; // augment the error message
 	    throw new PersistenceException(errmsg);
 	}
 	return value;
     }
 
-    /** Contains information on a particular connection to which any
-     * number of database identifiers can be mapped. */
+    /** Contains information on a particular connection to which any number of database identifiers
+     * can be mapped. */
     protected static class Mapping
     {
-        /** The combination of username and JDBC url that uniquely
-         * identifies our database connection. */
+        /** The combination of username and JDBC url that uniquely identifies our database
+         * connection. */
         public String key;
 
         /** The connection itself. */

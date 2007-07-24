@@ -71,7 +71,6 @@ public class LiaisonRegistry
         throws SQLException
     {
         return getLiaison(conn.getMetaData().getURL());
-
     }
 
     protected static void registerLiaisonClass (Class<? extends DatabaseLiaison> lclass)

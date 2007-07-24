@@ -181,13 +181,6 @@ public class StaticConnectionProvider implements ConnectionProvider
             _idents.put(mapkey, conmap);
         }
 
-        // in case the previous user turned off auto-commit we have to make sure here it's on
-        try {
-            conmap.connection.setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new PersistenceException("Failed to turn on connection auto-commit", e);
-        }
-
         return conmap.connection;
     }
 

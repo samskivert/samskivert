@@ -78,10 +78,10 @@
 
     <echo level="info"></echo>
     <property name="build.util" value="true"/>
-    <!--<echo>com.samskivert.util: ${build.util}</echo>-->
+    <!--<echo level="info">com.samskivert.util: ${build.util}</echo>-->
 
     <property name="build.io" value="true"/>
-    <!--<echo>com.samskivert.io: ${build.io}</echo>-->
+    <!--<echo level="info">com.samskivert.io: ${build.io}</echo>-->
 
     <condition property="build.jdbc">
       <and>
@@ -90,7 +90,7 @@
         <isset property="jakarta.commons-io.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.jdbc: ${build.jdbc}</echo>
+    <echo level="info">com.samskivert.jdbc: ${build.jdbc}</echo>
 
     <condition property="build.depot">
       <and>
@@ -98,7 +98,7 @@
         <isset property="ehcache.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.jdbc.depot: ${build.depot}</echo>
+    <echo level="info">com.samskivert.jdbc.depot: ${build.depot}</echo>
 
     <condition property="build.depot.tools">
       <and>
@@ -106,7 +106,7 @@
         <isset property="ant.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.jdbc.depot.tools: ${build.depot.tools}</echo>
+    <echo level="info">com.samskivert.jdbc.depot.tools: ${build.depot.tools}</echo>
 
     <condition property="build.mail">
       <and>
@@ -114,7 +114,7 @@
         <isset property="mail.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.net.MailUtil: ${build.mail}</echo>
+    <echo level="info">com.samskivert.net.MailUtil: ${build.mail}</echo>
 
     <condition property="build.servlet">
       <and>
@@ -124,15 +124,15 @@
         <isset property="servlet2.3.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.servlet: ${build.servlet}</echo>
+    <echo level="info">com.samskivert.servlet: ${build.servlet}</echo>
 
     <condition property="build.swing">
       <isset property="build.util"/>
     </condition>
-    <echo>com.samskivert.swing: ${build.swing}</echo>
+    <echo level="info">com.samskivert.swing: ${build.swing}</echo>
 
     <property name="build.test" value="true"/>
-    <echo>com.samskivert.test: ${build.test}</echo>
+    <echo level="info">com.samskivert.test: ${build.test}</echo>
 
     <condition property="build.velocity">
       <and>
@@ -143,7 +143,7 @@
         <isset property="servlet2.3.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.velocity: ${build.velocity}</echo>
+    <echo level="info">com.samskivert.velocity: ${build.velocity}</echo>
 
     <condition property="build.xml">
       <and>
@@ -155,7 +155,7 @@
         <isset property="sax.present"/>
       </and>
     </condition>
-    <echo>com.samskivert.xml: ${build.xml}</echo>
+    <echo level="info">com.samskivert.xml: ${build.xml}</echo>
   </target>
 
 </project>

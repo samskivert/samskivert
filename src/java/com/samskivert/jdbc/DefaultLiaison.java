@@ -47,12 +47,6 @@ public class DefaultLiaison extends BaseLiaison
         return false;
     }
 
-    @SuppressWarnings("deprecation") // from DatabaseLiaison
-    public int lastInsertedId (Connection conn) throws SQLException
-    {
-        return -1;
-    }
-
     // from DatabaseLiaison
     public void initializeGenerator (
         Connection conn, String table, String column, int value, int size)

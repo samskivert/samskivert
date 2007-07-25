@@ -22,10 +22,12 @@ package com.samskivert.jdbc.depot.tests;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Set;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.jdbc.depot.DepotRepository;
+import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
  * A test tool for the Depot repository services.
@@ -58,5 +60,11 @@ public class TestRepository extends DepotRepository
     public TestRepository (ConnectionProvider conprov)
     {
         super(conprov);
+    }
+
+    @Override // from DepotRepository
+    protected void getManagedRecords (Set<Class<? extends PersistentRecord>> classes)
+    {
+        classes.add(TestRecord.class);
     }
 }

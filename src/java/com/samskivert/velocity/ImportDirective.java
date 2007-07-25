@@ -40,10 +40,9 @@ import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.util.StringUtil;
 
 /**
- * Pluggable directive that handles the #import() statement in VTL. Import is
- * like #parse() except that it creates a compound key
- * (<code>siteId:template_path</code>) based on information from the current
- * request when fetching the imported template.
+ * Pluggable directive that handles the #import() statement in VTL. Import is like #parse() except
+ * that it creates a compound key (<code>siteId:template_path</code>) based on information from the
+ * current request when fetching the imported template.
  */
 public class ImportDirective extends Directive
 {
@@ -73,14 +72,14 @@ public class ImportDirective extends Directive
     {
         // make sure an argument was supplied to the directive
         if (node.getChild(0) == null) {
-            rsvc.error("#import() error :  null argument");
+            rsvc.getLog().error("#import() error :  null argument");
             return false;
         }
 
         // make sure that argument has a value
         Object value = node.getChild(0).value(context);
         if (value == null) {
-            rsvc.error("#import() error :  null argument");
+            rsvc.getLog().error("#import() error :  null argument");
             return false;
         }
 
@@ -92,9 +91,8 @@ public class ImportDirective extends Directive
         int maxlen = rsvc.getInt(
             RuntimeConstants.PARSE_DIRECTIVE_MAXDEPTH, 20);
         if (templateStack.length >= maxlen) {
-            rsvc.error("Max recursion depth reached (" + maxlen + "). "  +
-                       "File stack: " +
-                       StringUtil.toString(templateStack) + ".");
+            rsvc.getLog().error("Max recursion depth reached (" + maxlen + "). "  +
+                                "File stack: " + StringUtil.toString(templateStack) + ".");
             return false;
         }
 
@@ -120,7 +118,7 @@ public class ImportDirective extends Directive
             try {
                 siteId = ((Integer)siteIdVal).intValue();
             } catch (Exception e) {
-                rsvc.error("#import() error: No siteId information in context.");
+                rsvc.getLog().error("#import() error: No siteId information in context.");
             }
             path = siteId + ":" + path;
         }
@@ -131,22 +129,19 @@ public class ImportDirective extends Directive
             t = rsvc.getTemplate(path, encoding);   
 
         } catch (ResourceNotFoundException rnfe) {
-            rsvc.error("#import(): cannot find template '" + path +
-                       "', called from template " +
-                       context.getCurrentTemplateName() +
-                       " at (" + getLine() + ", " + getColumn() + ")");       	
+            rsvc.getLog().error("#import(): cannot find template '" + path +
+                                "', called from template " + context.getCurrentTemplateName() +
+                                " at (" + getLine() + ", " + getColumn() + ")");       	
             throw rnfe;
 
         } catch (ParseErrorException pee) {
-            rsvc.error("#import(): syntax error in #import()-ed template '" +
-                       path + "', called from template " +
-                       context.getCurrentTemplateName() +
-                       " at (" + getLine() + ", " + getColumn() + ")");    
+            rsvc.getLog().error("#import(): syntax error in #import()-ed template '" + path +
+                                "', called from template " + context.getCurrentTemplateName() +
+                                " at (" + getLine() + ", " + getColumn() + ")");    
             throw pee;
 
         } catch (Exception e) {	
-            rsvc.error("#import(): Error [path=" + path +
-                       ", error=" + e + "].");
+            rsvc.getLog().error("#import(): Error [path=" + path + ", error=" + e + "].");
             return false;
         }
 
@@ -156,7 +151,7 @@ public class ImportDirective extends Directive
             ((SimpleNode)t.getData()).render(context, writer);
 
         } catch (Throwable th) {        
-            rsvc.error("Exception rendering #import(" + path + "): " + th);
+            rsvc.getLog().error("Exception rendering #import(" + path + "): " + th);
             // we want to pass method invocation exceptions through
             if (th instanceof MethodInvocationException) {
                 throw (MethodInvocationException)th;

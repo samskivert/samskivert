@@ -553,10 +553,11 @@ public class TGraphics2D extends Graphics2D
         return _primary.toString();
     }
 
+    @SuppressWarnings("deprecation")
     public Rectangle getClipRect ()
     {
-        // getClipRect is deprecated, but getClipBounds is the new way
-        // to do the same thing. We call that to avoid deprecation warnings.
+        // getClipRect is deprecated, but getClipBounds is the new way to do the same thing. We
+        // call that to avoid deprecation warnings.
         return _primary.getClipBounds();
     }
 

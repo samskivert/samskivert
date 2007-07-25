@@ -31,8 +31,7 @@ import org.apache.velocity.runtime.resource.ResourceManagerImpl;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
 /**
- * A resource manager implementation for Velocity that loads resources
- * from the servlet context.
+ * A resource manager implementation for Velocity that loads resources from the servlet context.
  */
 public class ServletContextResourceManager extends ResourceManagerImpl
 {
@@ -40,37 +39,31 @@ public class ServletContextResourceManager extends ResourceManagerImpl
         throws Exception
     {
         super.initialize(rsvc);
-        rsvc.info("SCRM initializing.");
+        rsvc.getLog().info("SCRM initializing.");
 
-        // the web framework was kind enough to slip this into the runtime
-        // instance when it started up
-        Application app = (Application)rsvc.getApplicationAttribute(
-            Application.VELOCITY_ATTR_KEY);
+        // the web framework was kind enough to slip this into the runtime when it started up
+        Application app = (Application)rsvc.getApplicationAttribute(Application.VELOCITY_ATTR_KEY);
         if (app == null) {
-            rsvc.warn("SCRM: No application was initialized. A user of the " +
-                      "servlet context resource manager must ensure that " +
-                      "an application is instantiated and initialized.");
+            rsvc.getLog().warn("SCRM: No application was initialized. A user of the " +
+                               "servlet context resource manager must ensure that " +
+                               "an application is instantiated and initialized.");
         }
 
         // create our resource loader
-        _contextLoader = new ServletContextResourceLoader(
-            app.getServletContext());
+        _contextLoader = new ServletContextResourceLoader(app.getServletContext());
 
-        // for now, turn caching on with the expectation that new
-        // resources of any sort will result in the entire web application
-        // being reloaded and clearing out the cache
+        // for now, turn caching on with the expectation that new resources of any sort will result
+        // in the entire web application being reloaded and clearing out the cache
         _contextLoader.setCachingOn(true);
 
-        rsvc.info("SCRM initialization complete.");
+        rsvc.getLog().info("SCRM initialization complete.");
     }
 
-    protected Resource loadResource(
-        String resourceName, int resourceType, String encoding)
+    protected Resource loadResource(String resourceName, int resourceType, String encoding)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {
         // create a blank new resource
-        Resource resource =
-            ResourceFactory.getResource(resourceName, resourceType);
+        Resource resource = ResourceFactory.getResource(resourceName, resourceType);
         resource.setRuntimeServices(rsvc);
         resource.setName(resourceName);
         resource.setEncoding(encoding);
@@ -78,8 +71,7 @@ public class ServletContextResourceManager extends ResourceManagerImpl
         resource.setResourceLoader(_contextLoader);
         resource.process();
         resource.setLastModified(_contextLoader.getLastModified(resource));
-        resource.setModificationCheckInterval(
-            _contextLoader.getModificationCheckInterval());
+        resource.setModificationCheckInterval(_contextLoader.getModificationCheckInterval());
         resource.touch();
 
         return resource;

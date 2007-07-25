@@ -59,6 +59,6 @@ public class TestComboButtonBox
         ComboButtonBox box = new ComboButtonBox(ComboButtonBox.HORIZONTAL, model);
         frame.getContentPane().add(box);
         frame.pack();
-        frame.show();
+        frame.setVisible(true);
     }
 }

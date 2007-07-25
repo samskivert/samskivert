@@ -47,16 +47,9 @@ public class MySQLLiaison extends BaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
 	String msg = sqe.getMessage();
-	return (msg != null &&
-                (msg.indexOf("Lost connection") != -1 ||
-                 msg.indexOf("link failure") != -1 ||
-                 msg.indexOf("Broken pipe") != -1));
-    }
-
-    // from DatabaseLiaison
-    public int lastInsertedId (Connection conn) throws SQLException
-    {
-        return lastInsertedId(conn, null, null);
+	return (msg != null && (msg.indexOf("Lost connection") != -1 ||
+                                msg.indexOf("link failure") != -1 ||
+                                msg.indexOf("Broken pipe") != -1));
     }
 
     // from DatabaseLiaison

@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.ArrayUtil;
@@ -50,7 +51,7 @@ import com.samskivert.jdbc.depot.expression.ValueExp;
  * Provides a base for classes that provide access to persistent objects. Also defines the
  * mechanism by which all persistent queries and updates are routed through the distributed cache.
  */
-public class DepotRepository
+public abstract class DepotRepository
 {
     /**
      * Creates a repository with the supplied connection provider and its own private persistence
@@ -59,6 +60,7 @@ public class DepotRepository
     protected DepotRepository (ConnectionProvider conprov)
     {
         _ctx = new PersistenceContext(getClass().getName(), conprov);
+        _ctx.repositoryCreated(this);
     }
 
     /**
@@ -67,7 +69,13 @@ public class DepotRepository
     protected DepotRepository (PersistenceContext context)
     {
         _ctx = context;
+        _ctx.repositoryCreated(this);
     }
+
+    /**
+     * Adds the persistent classes used by this repository to the supplied set.
+     */
+    protected abstract void getManagedRecords (Set<Class<? extends PersistentRecord>> classes);
 
     /**
      * Loads the persistent object that matches the specified primary key.

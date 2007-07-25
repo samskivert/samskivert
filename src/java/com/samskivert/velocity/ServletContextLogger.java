@@ -23,12 +23,12 @@ package com.samskivert.velocity;
 import javax.servlet.ServletContext;
 
 import org.apache.velocity.runtime.RuntimeServices;
-import org.apache.velocity.runtime.log.LogSystem;
+import org.apache.velocity.runtime.log.LogChute;
 
 /**
  * Routes Velocity log messages to the servlet context.
  */
-public class ServletContextLogger implements LogSystem
+public class ServletContextLogger implements LogChute
 {
     /**
      * Constructs a servlet context logger that will obtain its servlet
@@ -48,22 +48,21 @@ public class ServletContextLogger implements LogSystem
         _sctx = sctx;
     }
 
-    // documentation inherited
+    // from interface LogChute
     public void init (RuntimeServices rsvc)
     {
         // if we weren't constructed with a servlet context, try to obtain
         // one via the application context
         if (_sctx == null) {
             // first look for the servlet context directly
-            _sctx = (ServletContext)
-                rsvc.getApplicationAttribute("ServletContext");
+            _sctx = (ServletContext)rsvc.getApplicationAttribute("ServletContext");
         }
 
         // if that didn't work, look for an application
         if (_sctx == null) {
             // first look for an application
-            Application app = (Application)rsvc.getApplicationAttribute(
-                Application.VELOCITY_ATTR_KEY);
+            Application app = (Application)
+                rsvc.getApplicationAttribute(Application.VELOCITY_ATTR_KEY);
             if (app != null) {
                 _sctx = app.getServletContext();
             }
@@ -71,20 +70,33 @@ public class ServletContextLogger implements LogSystem
 
         // if we still don't have one, complain
         if (_sctx == null) {
-            rsvc.warn("ServletContextLogger: servlet context was not " +
-                      "supplied. A user of the servlet context logger must " +
-                      "call Velocity.setApplicationAttribute(" +
-                      "\"ServletContext\", getServletContext()).");
+            rsvc.getLog().warn("ServletContextLogger: servlet context was not supplied. A user " +
+                               "of the servlet context logger must call " +
+                               "Velocity.setApplicationAttribute(\"ServletContext\", " +
+                               "getServletContext()).");
         }
     }
 
-    // documentation inherited
-    public void logVelocityMessage (int level, String message)
+    // from interface LogChute
+    public void log (int level, String message)
     {
-        // log only warning or above for now
-        if (level >= LogSystem.WARN_ID) {
+        if (isLevelEnabled(level)) {
             _sctx.log(message);
         }
+    }
+
+    // from interface LogChute
+    public void log (int level, String message, Throwable t)
+    {
+        if (isLevelEnabled(level)) {
+            _sctx.log(message, t);
+        }
+    }
+
+    // from interface LogChute
+    public boolean isLevelEnabled (int level)
+    {
+        return (level >= WARN_ID);
     }
 
     /** A reference to our servlet context. */

@@ -50,13 +50,6 @@ public class PostgreSQLLiaison extends BaseLiaison
     }
 
     // from DatabaseLiaison
-    public int lastInsertedId (Connection conn) throws SQLException
-    {
-        throw new SQLException(
-            "No backwards-compatible lastInsertedId() support for PostgreSQL in this code.");
-    }
-
-    // from DatabaseLiaison
     public int lastInsertedId (Connection conn, String table, String column) throws SQLException
     {
         // PostgreSQL's support for auto-generated ID's comes in the form of appropriately named

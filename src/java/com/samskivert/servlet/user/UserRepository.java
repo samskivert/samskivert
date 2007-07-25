@@ -420,7 +420,7 @@ public class UserRepository extends JORARepository
                 try {
                     _utable.insert(conn, user);
                     // update the userid now that it's known
-                    user.userId = liaison.lastInsertedId(conn);
+                    user.userId = liaison.lastInsertedId(conn, _utable.getName(), "userId");
                     // nothing to return
                     return null;
 

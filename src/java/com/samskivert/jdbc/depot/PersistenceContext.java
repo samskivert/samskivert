@@ -20,8 +20,11 @@
 
 package com.samskivert.jdbc.depot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -394,6 +397,29 @@ public class PersistenceContext
     }
 
     /**
+     * Iterates over all {@link PersistentRecord} classes managed by this context and initializes
+     * their {@link DepotMarshaller}. This forces migrations to run and the database schema to be
+     * created.
+     */
+    public void initializeManagedRecords ()
+        throws PersistenceException
+    {
+        for (Class<? extends PersistentRecord> rclass : _managedRecords) {
+            getMarshaller(rclass);
+        }
+    }
+
+    /**
+     * Called when a depot repository is created. We register all persistent record classes used by
+     * the repository so that systems that desire it can force the resolution of all database
+     * tables rather than allowing resolution to happen on demand.
+     */
+    protected void repositoryCreated (DepotRepository repo)
+    {
+        repo.getManagedRecords(_managedRecords);
+    }
+
+    /**
      * Looks up and creates, but does not initialize, the marshaller for the specified Entity
      * type.
      */
@@ -474,4 +500,16 @@ public class PersistenceContext
 
     protected Map<Class<?>, DepotMarshaller<?>> _marshallers =
         new HashMap<Class<?>, DepotMarshaller<?>>();
+
+    /**
+     * The set of persistent records for which this context is responsible. This data is used by
+     * {@link #initializeManagedRecords} to force migration/schema initialization.
+     */
+    protected Set<Class<? extends PersistentRecord>> _managedRecords =
+        new HashSet<Class<? extends PersistentRecord>>();
+
+    /**
+     * A collection of all {@link PersistenceContext} objects in existence.
+     */
+    protected static List<PersistenceContext> _contexts = new ArrayList<PersistenceContext>();
 }

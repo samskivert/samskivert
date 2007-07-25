@@ -47,7 +47,7 @@ public class DefaultLiaison extends BaseLiaison
         return false;
     }
 
-    // from DatabaseLiaison
+    @SuppressWarnings("deprecation") // from DatabaseLiaison
     public int lastInsertedId (Connection conn) throws SQLException
     {
         return -1;

@@ -62,6 +62,6 @@ public class AdjustTestApp
         frame.getContentPane().add(RuntimeAdjust.createAdjustEditor(), BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.show();
+        frame.setVisible(true);
     }
 }

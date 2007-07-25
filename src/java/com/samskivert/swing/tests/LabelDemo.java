@@ -143,7 +143,7 @@ public class LabelDemo extends JPanel
         LabelDemo demo = new LabelDemo();
         frame.getContentPane().add(demo);
         frame.pack();
-        frame.show();
+        frame.setVisible(true);
     }
 
     protected Label[] _labels = new Label[10];

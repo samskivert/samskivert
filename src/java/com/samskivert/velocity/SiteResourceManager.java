@@ -30,13 +30,15 @@ import org.apache.velocity.runtime.resource.ResourceFactory;
 import org.apache.velocity.runtime.resource.ResourceManagerImpl;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
+import com.samskivert.Log;
+
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
 
 /**
- * A resource manager implementation for Velocity that first loads site
- * specific resources (via the {@link SiteJarResourceLoader}), but falls back
- * to default resources if no site-specific resource loader is available.
+ * A resource manager implementation for Velocity that first loads site specific resources (via the
+ * {@link SiteJarResourceLoader}), but falls back to default resources if no site-specific resource
+ * loader is available.
  */
 public class SiteResourceManager extends ResourceManagerImpl
 {
@@ -44,16 +46,15 @@ public class SiteResourceManager extends ResourceManagerImpl
         throws Exception
     {
         super.initialize(rsvc);
-        rsvc.info("SiteResourceManager initializing.");
+        Log.log.info("SiteResourceManager initializing.");
 
-        // the web framework was kind enough to slip this into the runtime
-        // instance when it started up
+        // the web framework was kind enough to slip this into the runtime when it started up
         Application app = (Application)rsvc.getApplicationAttribute(
             Application.VELOCITY_ATTR_KEY);
         if (app == null) {
-            rsvc.warn("SiteResourceManager: No application was initialized. " +
-                      "A user of the site resource manager must ensure that " +
-                      "an application is instantiated and initialized.");
+            Log.log.warning("SiteResourceManager: No application was initialized. " +
+                            "A user of the site resource manager must ensure that " +
+                            "an application is instantiated and initialized.");
         }
 
         // get handles on the good stuff
@@ -63,33 +64,30 @@ public class SiteResourceManager extends ResourceManagerImpl
         // make sure the app has a site resource loader
         SiteResourceLoader loader = app.getSiteResourceLoader();
         if (loader == null) {
-            rsvc.warn("SiteResourceManager: application must be " +
-                      "configured with a site-specific resource loader " +
-                      "that we can use to fetch site-specific resources.");
+            Log.log.warning("SiteResourceManager: application must be " +
+                            "configured with a site-specific resource loader " +
+                            "that we can use to fetch site-specific resources.");
         }
 
         // create our resource loaders
         _siteLoader = new SiteJarResourceLoader(loader);
         _contextLoader = new ServletContextResourceLoader(_sctx);
 
-        // for now, turn caching on with the expectation that new
-        // resources of any sort will result in the entire web application
-        // being reloaded and clearing out the cache
+        // for now, turn caching on with the expectation that new resources of any sort will result
+        // in the entire web application being reloaded and clearing out the cache
         _siteLoader.setCachingOn(true);
         _contextLoader.setCachingOn(true);
 
-        rsvc.info("SiteResourceManager initialization complete.");
+        Log.log.info("SiteResourceManager initialization complete.");
     }
 
-    protected Resource loadResource(
-        String resourceName, int resourceType, String encoding)
+    protected Resource loadResource(String resourceName, int resourceType, String encoding)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {
         SiteKey skey = new SiteKey(resourceName);
 
         // create a blank new resource
-        Resource resource =
-            ResourceFactory.getResource(skey.path, resourceType);
+        Resource resource = ResourceFactory.getResource(skey.path, resourceType);
         resource.setRuntimeServices(rsvc);
         resource.setEncoding(encoding);
 
@@ -101,8 +99,7 @@ public class SiteResourceManager extends ResourceManagerImpl
             // nothing to worry about here
         }
 
-        // then try the servlet context loader if we didn't find a
-        // site-specific resource
+        // then try the servlet context loader if we didn't find a site-specific resource
         if (resource.getData() == null) {
             resource.setName(skey.path);
             resolveResource(resource, _contextLoader);
@@ -117,8 +114,7 @@ public class SiteResourceManager extends ResourceManagerImpl
         resource.setResourceLoader(loader);
         resource.process();
         resource.setLastModified(loader.getLastModified(resource));
-        resource.setModificationCheckInterval(
-            loader.getModificationCheckInterval());
+        resource.setModificationCheckInterval(loader.getModificationCheckInterval());
         resource.touch();
     }
 

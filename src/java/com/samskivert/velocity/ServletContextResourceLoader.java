@@ -29,8 +29,7 @@ import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
 /**
- * A Velocity resource loader that loads resources from the servlet
- * context.
+ * A Velocity resource loader that loads resources from the servlet context.
  *
  * @see ServletContext#getResource
  * @see ServletContext#getResourceAsStream
@@ -38,17 +37,16 @@ import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 public class ServletContextResourceLoader extends ResourceLoader
 {
     /**
-     * When used with the default Velocity resource manager, we are
-     * constructed with our zero-argument constructor and later
-     * initialized via {@link #init}.
+     * When used with the default Velocity resource manager, we are constructed with our
+     * zero-argument constructor and later initialized via {@link #init}.
      */
     public ServletContextResourceLoader ()
     {
     }
 
     /**
-     * When used with the {@link SiteResourceManager} we are constructed
-     * with our servlet context reference and not later initialized.
+     * When used with the {@link SiteResourceManager} we are constructed with our servlet context
+     * reference and not later initialized.
      */
     public ServletContextResourceLoader (ServletContext sctx)
     {
@@ -60,22 +58,14 @@ public class ServletContextResourceLoader extends ResourceLoader
      */
     public void init (ExtendedProperties config)
     {
-        // there seems to be a tradition of logging this stuff; surely we
-        // don't want to buck tradition, do we?
-        rsvc.info("ServletContextResourceLoader: initialization starting.");
-
-        // the web framework was kind enough to slip this into the runtime
-        // instance when it started up
+        // the web framework was kind enough to slip this into the runtime when it started up
         _sctx = (ServletContext)rsvc.getApplicationAttribute("ServletContext");
         if (_sctx == null) {
-            rsvc.warn("ServletContextResourceLoader: servlet context " +
-                      "was not supplied as application context. A " +
-                      "user of the servlet context resource loader " +
-                      "must call Velocity.setApplicationAttribute(" +
-                      "\"ServletContext\", getServletContext()).");
+            rsvc.getLog().warn("ServletContextResourceLoader: servlet context was not supplied " +
+                               "as application context. A user of the servlet context resource " +
+                               "loader must call Velocity.setApplicationAttribute(" +
+                               "\"ServletContext\", getServletContext()).");
         }
-
-        rsvc.info("ServletContextResourceLoader : initialization complete.");
     }
 
     /**

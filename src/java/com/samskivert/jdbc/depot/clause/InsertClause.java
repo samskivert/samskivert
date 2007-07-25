@@ -2,8 +2,8 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+// Copyright (C) 2006 Michael Bayne
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,58 +20,55 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 
 /**
- *  Completely overrides the FROM clause, if it exists.
+ * Builds actual SQL given a main persistent type and some {@link QueryClause} objects.
  */
-public class FromOverride extends QueryClause
+public class InsertClause<T extends PersistentRecord> extends QueryClause
 {
-    public FromOverride (Class<? extends PersistentRecord> fromClass)
-        throws PersistenceException
+    public InsertClause (Class<? extends PersistentRecord> pClass, Object pojo, String ixField)
     {
-        _fromClasses.add(fromClass);
+        _pClass = pClass;
+        _pojo = pojo;
+        _ixField = ixField;
     }
 
-    public FromOverride (Class<? extends PersistentRecord> fromClass1,
-                         Class<? extends PersistentRecord> fromClass2)
-        throws PersistenceException
+    public Class<? extends PersistentRecord> getPersistentClass ()
     {
-        _fromClasses.add(fromClass1);
-        _fromClasses.add(fromClass2);
+        return _pClass;
     }
 
-    public FromOverride (Collection<Class<? extends PersistentRecord>> fromClasses)
-        throws PersistenceException
+    public Object getPojo ()
     {
-        _fromClasses.addAll(fromClasses);
+        return _pojo;
     }
 
-    public List<Class<? extends PersistentRecord>> getFromClasses ()
+    public String getIndexField ()
     {
-        return _fromClasses;
+        return _ixField;
     }
 
     // from SQLExpression
     public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        classSet.addAll(getFromClasses());
+        classSet.add(_pClass);
+        // If we add SQLExpression[] values INSERT, remember to recurse into them here.
     }
 
     // from SQLExpression
-    public void accept (ExpressionVisitor builder)
-        throws Exception
+    public void accept (ExpressionVisitor builder) throws Exception
     {
         builder.visit(this);
     }
 
-    /** The classes of the tables we're selecting from. */
-    protected List<Class<? extends PersistentRecord>> _fromClasses =
-        new ArrayList<Class<? extends PersistentRecord>>();
+    protected Class<? extends PersistentRecord> _pClass;
+
+    /** The object from which to fetch values, or null. */
+    protected Object _pojo;
+
+    protected String _ixField;
 }

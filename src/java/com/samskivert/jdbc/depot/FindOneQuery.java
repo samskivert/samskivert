@@ -26,8 +26,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.samskivert.io.PersistenceException;
+
+import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.clause.SelectClause;
 
 /**
  * The implementation of {@link DepotRepository#find) functionality.
@@ -39,21 +42,23 @@ public class FindOneQuery<T extends PersistentRecord>
         throws PersistenceException
     {
         _marsh = ctx.getMarshaller(type);
-        DepotTypes<T> types = SQLQueryBuilder.getDepotTypes(ctx, type, clauses);
-        _builder = new SQLQueryBuilder<T>(ctx, types, _marsh.getFieldNames(), clauses);
+        _select = new SelectClause<T>(type, _marsh.getFieldNames(), clauses);
+        _builder = ctx.getSQLBuilder(DepotTypes.getDepotTypes(ctx, _select));
+        _builder.newQuery(_select);
     }
 
     // from Query
     public CacheKey getCacheKey ()
     {
-        if (_builder.where != null && _builder.where instanceof CacheKey) {
-            return (CacheKey) _builder.where;
+        WhereClause where = _select.getWhereClause();
+        if (where != null && where instanceof CacheKey) {
+            return (CacheKey) where;
         }
         return null;
     }
 
     // from Query
-    public T invoke (Connection conn) throws SQLException {
+    public T invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
         PreparedStatement stmt = _builder.prepare(conn);
         try {
             T result = null;
@@ -96,5 +101,6 @@ public class FindOneQuery<T extends PersistentRecord>
     }
 
     protected DepotMarshaller<T> _marsh;
-    protected SQLQueryBuilder<T> _builder;
+    protected SelectClause<T> _select;
+    protected SQLBuilder _builder;
 }

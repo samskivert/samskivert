@@ -20,39 +20,11 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Collection;
-
-import com.samskivert.jdbc.depot.QueryBuilderContext;
-import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
  * Represents a piece or modifier of an SQL query.
  */
-public abstract class QueryClause
+public abstract class QueryClause implements SQLExpression
 {
-    /**
-     * Adds all persistent classes referenced by this clause, if any, to the supplied set.
-     */
-    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
-    {
-    }
-
-    /**
-     * Constructs the SQL form of this query clause. The implementor is expected to call methods on
-     * the Query object to e.g. resolve current table abbreviations associated with classes.
-     */
-    public abstract void appendClause (QueryBuilderContext<?> query, StringBuilder builder);
-
-    /**
-     * Binds any objects that were referenced in the generated SQL.  For each ? that appears in the
-     * SQL, precisely one parameter must be claimed and bound in this method, and argIdx
-     * incremented and returned. The default implementation binds nothing.
-     */
-    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
-    {
-        return argIdx;
-    }
 }

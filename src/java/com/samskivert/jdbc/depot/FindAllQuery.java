@@ -33,14 +33,18 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.ArrayUtil;
+
+import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
-import com.samskivert.jdbc.depot.operator.Logic.*;
+
 import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.Join;
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
-import com.samskivert.util.ArrayUtil;
+import com.samskivert.jdbc.depot.operator.Logic.*;
 
 /**
  * This class implements the functionality required by {@link DepotRepository#findAll): fetch
@@ -58,18 +62,20 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             throws PersistenceException
         {
             super(ctx, type);
-            _types = SQLQueryBuilder.getDepotTypes(ctx, type, clauses);
+            DepotTypes types = DepotTypes.getDepotTypes(ctx, clauses);
+            types.addClass(ctx, type);
+            _builder = _ctx.getSQLBuilder(types);
             _clauses = clauses;
         }
 
-        public List<T> invoke (Connection conn) throws SQLException {
-            SQLQueryBuilder<T> keyFieldQuery = new SQLQueryBuilder<T>(
-                    _ctx, _types, _marsh.getPrimaryKeyColumns(), _clauses);
-            PreparedStatement stmt = keyFieldQuery.prepare(conn);
-
+        public List<T> invoke (Connection conn, DatabaseLiaison liaison) throws SQLException
+        {
             Map<Key<T>, T> entities = new HashMap<Key<T>, T>();
             List<Key<T>> allKeys = new ArrayList<Key<T>>();
             List<Key<T>> fetchKeys = new ArrayList<Key<T>>();
+
+            _builder.newQuery(new SelectClause<T>(_type, _marsh.getPrimaryKeyFields(), _clauses));
+            PreparedStatement stmt = _builder.prepare(conn);
             try {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
@@ -97,26 +103,28 @@ public abstract class FindAllQuery<T extends PersistentRecord>
 
             if (fetchKeys.size() > 0) {
                 int jj = 0;
-                QueryClause[] newClauses = new QueryClause[_clauses.length + 1];
                 // a select subset of query clauses are preserved for the entity query
+                QueryClause[] newClauses = new QueryClause[_clauses.length + 1];
                 for (int ii = 0; ii < _clauses.length; ii ++) {
                     if (_clauses[ii] instanceof Join || _clauses[ii] instanceof FieldOverride) {
                         newClauses[jj ++] = _clauses[ii];
                     }
                 }
-                SQLExpression[] keyArray = fetchKeys.toArray(new SQLExpression[0]);
+
+                SQLExpression[] keyArray = new SQLExpression[fetchKeys.size()];
+                for (int ii = 0; ii < keyArray.length; ii ++) {
+                    keyArray[ii] = fetchKeys.get(ii).condition;
+                }
 
                 // add our special key-matching where clause
                 newClauses[jj ++] = new Where(new Or(keyArray));
                 newClauses = ArrayUtil.splice(newClauses, jj);
 
                 // build the new query
-                SQLQueryBuilder<T> entityQuery = new SQLQueryBuilder<T>(
-                        _ctx, _types, _marsh.getFieldNames(), newClauses);
+                _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(), newClauses));
+                stmt = _builder.prepare(conn);
 
                 // and execute it
-                stmt = entityQuery.prepare(conn);
-
                 try {
                     ResultSet rs = stmt.executeQuery();
                     for (Key<T> key : fetchKeys) {
@@ -138,7 +146,6 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             return result;
         }
 
-        protected DepotTypes<T> _types;
         protected QueryClause[] _clauses;
     }
 
@@ -151,33 +158,32 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             throws PersistenceException
         {
             super(ctx, type);
-            DepotTypes<List<T>> types = SQLQueryBuilder.getDepotTypes(ctx, type, clauses);
-            _builder = new SQLQueryBuilder<List<T>>(ctx, types, _marsh.getFieldNames(), clauses);
+            SelectClause<T> select = new SelectClause<T>(type, _marsh.getFieldNames(), clauses);
+            _builder = ctx.getSQLBuilder(DepotTypes.getDepotTypes(ctx, select));
+            _builder.newQuery(select);
         }
 
-        public List<T> invoke (Connection conn) throws SQLException {
-            PreparedStatement stmt = _builder.prepare(conn);
-
+        public List<T> invoke (Connection conn, DatabaseLiaison liaison) throws SQLException
+        {
             List<T> result = new ArrayList<T>();
+            PreparedStatement stmt = _builder.prepare(conn);
             try {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     result.add(_marsh.createObject(rs));
                 }
-
             } finally {
                 JDBCUtil.close(stmt);
             }
             return result;
         }
-
-        protected SQLQueryBuilder<List<T>> _builder;
     }
 
     public FindAllQuery (PersistenceContext ctx, Class<T> type)
         throws PersistenceException
     {
         _ctx = ctx;
+        _type = type;
         _marsh = _ctx.getMarshaller(type);
     }
 
@@ -216,5 +222,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     }
 
     protected PersistenceContext _ctx;
+    protected SQLBuilder _builder;
     protected DepotMarshaller<T> _marsh;
+    protected Class<T> _type;
 }

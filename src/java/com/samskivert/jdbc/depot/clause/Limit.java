@@ -20,12 +20,10 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 
 /**
  *  Represents a LIMIT/OFFSET clause, for pagination.
@@ -38,21 +36,27 @@ public class Limit extends QueryClause
         _count = count;
     }
 
-    // from QueryClause
-    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
+    public int getOffset ()
     {
-        builder.append(" limit ? offset ? ");
+        return _offset;
+    }
+    
+    public int getCount ()
+    {
+        return _count;
     }
 
-    // from QueryClause
-    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    // from SQLExpression
+    public void accept (ExpressionVisitor builder) throws Exception
     {
-        pstmt.setObject(argIdx++, _count);
-        pstmt.setObject(argIdx++, _offset);
-        return argIdx;
+        builder.visit(this);
     }
-
+    
+    // from SQLExpression
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+    {
+    }
+    
     /** The first row of the result set to return. */
     protected int _offset;
 

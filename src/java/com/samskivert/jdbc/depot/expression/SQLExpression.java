@@ -20,10 +20,10 @@
 
 package com.samskivert.jdbc.depot.expression;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.SQLBuilder;
 
 /**
  * Represents an SQL expression, e.g. column name, function, or constant.
@@ -31,16 +31,19 @@ import com.samskivert.jdbc.depot.QueryBuilderContext;
 public interface SQLExpression
 {
     /**
-     * Construct the SQL form of this expression. The implementor is invited to call methods on the
-     * Query object to e.g. resolve the current table abbreviations associated with classes.
+     * Most uses of this class have been implemented with a visitor pattern. Create your own
+     * {@link ExpressionVisitor} and call this method with it.
+     * 
+     * @see SQLBuilder
      */
-    public void appendExpression (QueryBuilderContext<?> query, StringBuilder builder);
+    public void accept (ExpressionVisitor builder)
+        throws Exception;
 
     /**
-     * Bind any objects that were referenced in the generated SQL.  For each ? that appears in the
-     * SQL, precisely one parameter must be claimed and bound in this method, and argIdx
-     * incremented and returned.
+     * Adds all persistent classes that are brought into the SQL context by this clause: FROM
+     * clauses, JOINs, UPDATEs, anything that could create a new table abbreviation. This method
+     * should recurse into any subordinate state that may in turn bring in new classes so that
+     * sub-queries work correctly.
      */
-    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException;
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet);
 }

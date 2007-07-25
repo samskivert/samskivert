@@ -20,21 +20,19 @@
 
 package com.samskivert.jdbc.depot;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.samskivert.jdbc.depot.clause.Where;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 
 /**
  * A special form of {@link Where} clause that specifies an explicit range of database rows. It
  * does not implement {@link CacheKey} but it does implement {@link CacheInvalidator} which means
  * it can be sent into e.g. {@link DepotRepository#deleteAll) and have it clean up after itself.
  */
-public class MultiKey<T extends PersistentRecord> extends Where
+public class MultiKey<T extends PersistentRecord> extends WhereClause
     implements CacheInvalidator
 {
     /**
@@ -69,8 +67,6 @@ public class MultiKey<T extends PersistentRecord> extends Where
     public MultiKey (Class<T> pClass, String[] sFields, Comparable[] sValues,
                      String mField, Comparable[] mValues)
     {
-        // TODO
-        super(null);
         if (sFields.length != sValues.length) {
             throw new IllegalArgumentException(
                 "Key field and values arrays must be of equal length.");
@@ -84,52 +80,16 @@ public class MultiKey<T extends PersistentRecord> extends Where
         }
     }
 
-    @Override // from QueryClause
+    // from SQLExpression
+    public void accept (ExpressionVisitor builder) throws Exception
+    {
+        builder.visit(this);
+    }
+
+    // from SQLExpression
     public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        classSet.add(_pClass);
-    }
-
-    @Override // from Where
-    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
-    {
-        builder.append(" where ");
-        boolean first = true;
-        for (Map.Entry entry : _map.entrySet()) {
-            if (first) {
-                first = false;
-            } else {
-                builder.append(" and ");
-            }
-            builder.append(entry.getKey());
-            builder.append(entry.getValue() == null ? " is null " : " = ? ");
-        }
-        if (!first) {
-            builder.append(" and ");
-        }
-        builder.append(_mField).append(" in (");
-        for (int ii = 0; ii < _mValues.length; ii ++) {
-            if (ii > 0) {
-                builder.append(", ");
-            }
-            builder.append("?");
-        }
-        builder.append(")");
-    }
-
-    @Override // from Where
-    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
-    {
-        for (Map.Entry entry : _map.entrySet()) {
-            if (entry.getValue() != null) {
-                pstmt.setObject(argIdx ++, entry.getValue());
-            }
-        }
-        for (int ii = 0; ii < _mValues.length; ii++) {
-            pstmt.setObject(argIdx ++, _mValues[ii]);
-        }
-        return argIdx;
+        // nothing to add
     }
 
     // from CacheInvalidator
@@ -142,8 +102,28 @@ public class MultiKey<T extends PersistentRecord> extends Where
         }
     }
 
-    protected Class<T> _pClass;
-    protected HashMap<String, Comparable> _map;
+    public Class<T> getPersistentClass ()
+    {
+        return _pClass;
+    }
+
+    public Map<String, Comparable> getSingleFieldsMap ()
+    {
+        return _map;
+    }
+
+    public String getMultiField ()
+    {
+        return _mField;
+    }
+
+    public Comparable[] getMultiValues ()
+    {
+        return _mValues;
+    }
+
     protected String _mField;
     protected Comparable[] _mValues;
+    protected Class<T> _pClass;
+    protected HashMap<String, Comparable> _map;
 }

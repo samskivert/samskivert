@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -40,4 +40,18 @@ public @interface GeneratedValue
 
     /** Identifies the strategy to be used to generate this value. */
     GenerationType strategy () default GenerationType.AUTO;
+
+    /**
+     * The initial value to be used when allocating id numbers from the generator. The default
+     * initial value is 1. <em>Note:</em> this default differs from the value used by the EJB3
+     * persistence framework.
+     */
+    int initialValue () default 1;
+
+    /**
+     * The amount to increment by when allocating id numbers from the generator. The default
+     * allocation size is 1. <em>Note:</em> this default differs from the value used by the EJB3
+     * persistence framework.
+     */
+    int allocationSize () default 1;
 }

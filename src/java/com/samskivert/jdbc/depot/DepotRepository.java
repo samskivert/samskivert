@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -29,15 +29,22 @@ import java.util.List;
 import java.util.Map;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.ArrayUtil;
+
 import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
+
 import com.samskivert.jdbc.depot.Modifier.*;
+import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.FromOverride;
+import com.samskivert.jdbc.depot.clause.InsertClause;
 import com.samskivert.jdbc.depot.clause.Join;
 import com.samskivert.jdbc.depot.clause.QueryClause;
-import com.samskivert.jdbc.depot.clause.Where;
-import com.samskivert.util.ArrayUtil;
+import com.samskivert.jdbc.depot.clause.UpdateClause;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
+import com.samskivert.jdbc.depot.expression.ValueExp;
 
 /**
  * Provides a base for classes that provide access to persistent objects. Also defines the
@@ -163,18 +170,36 @@ public class DepotRepository
     protected <T extends PersistentRecord> int insert (T record)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
-        final Key key = marsh.getPrimaryKey(record, false);
+        @SuppressWarnings("unchecked") final Class<T> pClass = (Class<T>) record.getClass();
+        final DepotMarshaller<T> marsh = _ctx.getMarshaller(pClass);
+        Key<T> key = marsh.getPrimaryKey(record, false);
+
+        DepotTypes types = DepotTypes.getDepotTypes(_ctx);
+        types.addClass(_ctx, pClass);
+        final SQLBuilder builder = _ctx.getSQLBuilder(types);
+
         // key will be null if record was supplied without a primary key
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn) throws SQLException {
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 // update our modifier's key so that it can cache our results
-                updateKey(marsh.assignPrimaryKey(conn, _result, false));
-                PreparedStatement stmt = marsh.createInsert(conn, _result);
+                if (_key == null) {
+                    updateKey(marsh.assignPrimaryKey(conn, liaison, _result, false));
+                }
+
+                String ixField = null;
+                if (_key == null && marsh.hasPrimaryKey() && marsh.getKeyGenerator() != null &&
+                        marsh.getKeyGenerator() instanceof IdentityKeyGenerator) {
+                    ixField = ((IdentityKeyGenerator) marsh.getKeyGenerator()).getColumn();
+                }
+                builder.newQuery(new InsertClause<T>(pClass, _result, ixField));
+
+                PreparedStatement stmt = builder.prepare(conn);
                 try {
                     int mods = stmt.executeUpdate();
                     // check again in case we have a post-factum key generator
-                    updateKey(marsh.assignPrimaryKey(conn, _result, true));
+                    if (_key == null) {
+                        updateKey(marsh.assignPrimaryKey(conn, liaison, _result, true));
+                    }
                     return mods;
                 } finally {
                     JDBCUtil.close(stmt);
@@ -192,14 +217,22 @@ public class DepotRepository
     protected <T extends PersistentRecord> int update (T record)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
-        final Key key = marsh.getPrimaryKey(record);
+        @SuppressWarnings("unchecked") Class<T> pClass = (Class<T>) record.getClass();
+        requireNotComputed(pClass, "update");
+
+        DepotMarshaller<T> marsh = _ctx.getMarshaller(pClass);
+        Key key = marsh.getPrimaryKey(record);
         if (key == null) {
             throw new IllegalArgumentException("Can't update record with null primary key.");
         }
+
+        UpdateClause<T> update = new UpdateClause<T>(pClass, key, marsh._columnFields, record);
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, update));
+        builder.newQuery(update);
+
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = marsh.createUpdate(conn, _result, key);
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -220,14 +253,26 @@ public class DepotRepository
     protected <T extends PersistentRecord> int update (T record, final String... modifiedFields)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
-        final Key key = marsh.getPrimaryKey(record);
+        @SuppressWarnings("unchecked")
+        Class<T> pClass = (Class<T>) record.getClass();
+
+        requireNotComputed(pClass, "updatePartial");
+
+        DepotMarshaller<T> marsh = _ctx.getMarshaller(pClass);
+        Key key = marsh.getPrimaryKey(record);
+
         if (key == null) {
             throw new IllegalArgumentException("Can't update record with null primary key.");
         }
+
+        UpdateClause<T> update = new UpdateClause<T>(pClass, key, modifiedFields, record);
+
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, update));
+        builder.newQuery(update);
+
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = marsh.createUpdate(conn, _result, key, modifiedFields);
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                PreparedStatement stmt = builder.prepare(conn);
                 // clear out _result so that we don't rewrite this partial record to the cache
                 _result = null;
                 try {
@@ -336,21 +381,23 @@ public class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T extends PersistentRecord> int updatePartial (
-        Class<T> type, final Where key, CacheInvalidator invalidator, Object... fieldsValues)
+        Class<T> type, final WhereClause key, CacheInvalidator invalidator, Object... fieldsValues)
         throws PersistenceException
     {
         // separate the arguments into keys and values
         final String[] fields = new String[fieldsValues.length/2];
-        final Object[] values = new Object[fields.length];
+        final SQLExpression[] values = new SQLExpression[fields.length];
         for (int ii = 0, idx = 0; ii < fields.length; ii++) {
             fields[ii] = (String)fieldsValues[idx++];
-            values[ii] = fieldsValues[idx++];
+            values[ii] = new ValueExp(fieldsValues[idx++]);
         }
+        UpdateClause<T> update = new UpdateClause<T>(type, key, fields, values);
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, update));
+        builder.newQuery(update);
 
-        final DepotMarshaller marsh = _ctx.getMarshaller(type);
         return _ctx.invoke(new Modifier(invalidator) {
-            public int invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = marsh.createPartialUpdate(conn, key, fields, values);
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -378,11 +425,11 @@ public class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T extends PersistentRecord> int updateLiteral (
-        Class<T> type, Comparable primaryKey, String... fieldsValues)
+        Class<T> type, Comparable primaryKey, Map<String, SQLExpression> fieldsToValues)
         throws PersistenceException
     {
         Key<T> key = _ctx.getMarshaller(type).makePrimaryKey(primaryKey);
-        return updateLiteral(type, key, key, fieldsValues);
+        return updateLiteral(type, key, key, fieldsToValues);
     }
 
     /**
@@ -404,11 +451,11 @@ public class DepotRepository
      */
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, String ix1, Comparable val1, String ix2, Comparable val2,
-        String... fieldsValues)
+        Map<String, SQLExpression> fieldsToValues)
         throws PersistenceException
     {
         Key<T> key = new Key<T>(type, ix1, val1, ix2, val2);
-        return updateLiteral(type, key, key, fieldsValues);
+        return updateLiteral(type, key, key, fieldsToValues);
     }
 
     /**
@@ -430,11 +477,11 @@ public class DepotRepository
      */
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, String ix1, Comparable val1, String ix2, Comparable val2,
-        String ix3, Comparable val3, String... fieldsValues)
+        String ix3, Comparable val3, Map<String, SQLExpression> fieldsToValues)
         throws PersistenceException
     {
         Key<T> key = new Key<T>(type, ix1, val1, ix2, val2, ix3, val3);
-        return updateLiteral(type, key, key, fieldsValues);
+        return updateLiteral(type, key, key, fieldsToValues);
     }
 
     /**
@@ -455,21 +502,29 @@ public class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T extends PersistentRecord> int updateLiteral (
-        Class<T> type, final Where key, CacheInvalidator invalidator, String... fieldsValues)
+        Class<T> type, final WhereClause key, CacheInvalidator invalidator,
+        Map<String, SQLExpression> fieldsToValues)
         throws PersistenceException
     {
+        requireNotComputed(type, "updateLiteral");
+
         // separate the arguments into keys and values
-        final String[] fields = new String[fieldsValues.length/2];
-        final String[] values = new String[fields.length];
-        for (int ii = 0, idx = 0; ii < fields.length; ii++) {
-            fields[ii] = fieldsValues[idx++];
-            values[ii] = fieldsValues[idx++];
+        final String[] fields = new String[fieldsToValues.size()];
+        final SQLExpression[] values = new SQLExpression[fields.length];
+        int ii = 0;
+        for (Map.Entry<String, SQLExpression> entry : fieldsToValues.entrySet()) {
+            fields[ii] = entry.getKey();
+            values[ii] = entry.getValue();
+            ii ++;
         }
 
-        final DepotMarshaller marsh = _ctx.getMarshaller(type);
+        UpdateClause<T> update = new UpdateClause<T>(type, key, fields, values);
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, update));
+        builder.newQuery(update);
+
         return _ctx.invoke(new Modifier(invalidator) {
-            public int invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = marsh.createLiteralUpdate(conn, key, fields, values);
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -489,17 +544,25 @@ public class DepotRepository
     protected <T extends PersistentRecord> boolean store (T record)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = _ctx.getMarshaller(record.getClass());
-        final Key key = marsh.hasPrimaryKey() ? marsh.getPrimaryKey(record) : null;
+        @SuppressWarnings("unchecked") final Class<T> pClass = (Class<T>) record.getClass();
+        requireNotComputed(pClass, "store");
+
+        final DepotMarshaller<T> marsh = _ctx.getMarshaller(pClass);
+        Key<T> key = marsh.hasPrimaryKey() ? marsh.getPrimaryKey(record) : null;
+        final UpdateClause<T> update =
+            new UpdateClause<T>(pClass, key, marsh._columnFields, record);
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, update));
+        builder.newQuery(update);
+
         final boolean[] created = new boolean[1];
         _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn) throws SQLException {
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
-                    // if our primary key isn't null, update rather than insert the record
-                    // before been persisted and insert
-                    if (key != null) {
-                        stmt = marsh.createUpdate(conn, _result, key);
+                    // if our primary key isn't null, update rather than insert the record before
+                    // been persisted and insert
+                    if (_key != null) {
+                        stmt = builder.prepare(conn);
                         int mods = stmt.executeUpdate();
                         if (mods > 0) {
                             return mods;
@@ -509,10 +572,22 @@ public class DepotRepository
 
                     // if the update modified zero rows or the primary key was obviously unset, do
                     // an insertion
-                    updateKey(marsh.assignPrimaryKey(conn, _result, false));
-                    stmt = marsh.createInsert(conn, _result);
+                    if (_key == null) {
+                        updateKey(marsh.assignPrimaryKey(conn, liaison, _result, false));
+                    }
+
+                    String ixField = null;
+                    if (_key == null && marsh.hasPrimaryKey() && marsh.getKeyGenerator() != null &&
+                            marsh.getKeyGenerator() instanceof IdentityKeyGenerator) {
+                        ixField = ((IdentityKeyGenerator) marsh.getKeyGenerator()).getColumn();
+                    }
+                    builder.newQuery(new InsertClause<T>(pClass, _result, ixField));
+
+                    stmt = builder.prepare(conn);
                     int mods = stmt.executeUpdate();
-                    updateKey(marsh.assignPrimaryKey(conn, _result, true));
+                    if (_key == null) {
+                        updateKey(marsh.assignPrimaryKey(conn, liaison, _result, true));
+                    }
                     created[0] = true;
                     return mods;
 
@@ -571,13 +646,16 @@ public class DepotRepository
      * @return the number of rows deleted by this action.
      */
     protected <T extends PersistentRecord> int deleteAll (
-        Class<T> type, final Where key, CacheInvalidator invalidator)
+        Class<T> type, final WhereClause key, CacheInvalidator invalidator)
         throws PersistenceException
     {
-        final DepotMarshaller marsh = _ctx.getMarshaller(type);
+        DeleteClause<T> delete = new DeleteClause<T>(type, key);
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, delete));
+        builder.newQuery(delete);
+
         return _ctx.invoke(new Modifier(invalidator) {
-            public int invoke (Connection conn) throws SQLException {
-                PreparedStatement stmt = marsh.createDelete(conn, key);
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
                 } finally {
@@ -587,25 +665,18 @@ public class DepotRepository
         });
     }
 
-    protected static abstract class CollectionQuery<T extends Collection> implements Query<T>
+    // make sure the given type corresponds to a concrete class
+    protected void requireNotComputed (Class<? extends PersistentRecord> type, String action)
+        throws PersistenceException
     {
-        public CollectionQuery (CacheKey key)
-            throws PersistenceException
-        {
-            _key = key;
+        DepotMarshaller marsh = _ctx.getMarshaller(type);
+        if (marsh == null) {
+            throw new PersistenceException("Unknown persistent type [class=" + type + "]");
         }
-
-        public CacheKey getCacheKey ()
-        {
-            return _key;
+        if (marsh.getTableName() == null) {
+            throw new PersistenceException(
+                "Can't " + action + " computed entities [class=" + type + "]");
         }
-
-        public void updateCache (PersistenceContext ctx, T result)
-        {
-            ctx.cacheStore(_key, result);
-        }
-
-        protected CacheKey _key;
     }
 
     protected PersistenceContext _ctx;

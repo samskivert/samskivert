@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,53 +20,48 @@
 
 package com.samskivert.jdbc.depot.expression;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
- * An expression identifying a column of a class, e.g. GameRecord.itemId. If no class is given,
- * no disambiguation occurs in the generated SQL.
+ * An expression that unambiguously identifies a field of a class, e.g. GameRecord.itemId.
  */
 public class ColumnExp
     implements SQLExpression
 {
-    /** The table that hosts the column we reference, or null. */
-    final public Class<? extends PersistentRecord> pClass;
-
-    /** The name of the column we reference. */
-    final public String pColumn;
-
-    public ColumnExp (String column)
-    {
-        this(null, column);
-    }
-
-    public ColumnExp (Class<? extends PersistentRecord> c, String column)
+    public ColumnExp (Class<? extends PersistentRecord> pClass, String field)
     {
         super();
-        pClass = c;
-        this.pColumn = column;
+        _pClass = pClass;
+        _pField = field;
     }
 
     // from SQLExpression
-    public void appendExpression (QueryBuilderContext<?> query, StringBuilder builder)
+    public void accept (ExpressionVisitor builder) throws Exception
     {
-        if (pClass == null || query == null) {
-            builder.append(pColumn);
-        } else {
-            String tRef = query.getTableAbbreviation(pClass);
-            builder.append(tRef).append(".").append(pColumn);
-        }
+        builder.visit(this);
     }
 
     // from SQLExpression
-    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        return argIdx;
+        classSet.add(_pClass);
     }
 
+    public Class<? extends PersistentRecord> getPersistentClass ()
+    {
+        return _pClass;
+    }
+
+    public String getField ()
+    {
+        return _pField;
+    }
+
+    /** The table that hosts the column we reference, or null. */
+    protected final Class<? extends PersistentRecord> _pClass;
+
+    /** The name of the column we reference. */
+    protected final String _pField;
 }

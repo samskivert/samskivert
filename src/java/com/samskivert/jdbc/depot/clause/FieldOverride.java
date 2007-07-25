@@ -20,14 +20,12 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 
@@ -68,11 +66,22 @@ public class FieldOverride extends QueryClause
         return _field;
     }
 
-    // from QueryClause
-    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
+    public SQLExpression getOverride ()
     {
-        _override.appendExpression(query, builder);
-        builder.append(" as ").append(_field);
+        return _override;
+    }
+
+    // from SQLExpression
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+    {
+        _override.addClasses(classSet);
+    }
+
+    // from SQLExpression
+    public void accept (ExpressionVisitor visitor)
+        throws Exception
+    {
+        visitor.visit(this); 
     }
 
     /** The name of the field on the persistent object to override. */
@@ -80,4 +89,5 @@ public class FieldOverride extends QueryClause
 
     /** The overriding expression. */
     protected SQLExpression _override;
+
 }

@@ -20,13 +20,10 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
-import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 
@@ -44,22 +41,6 @@ public class OrderBy extends QueryClause
     public static OrderBy random ()
     {
         return ascending(new LiteralExp("rand()"));
-    }
-
-    /**
-     * Creates and returns an ascending order by clause on the supplied column.
-     */
-    public static OrderBy ascending (String column)
-    {
-        return ascending(new ColumnExp(null, column));
-    }
-
-    /**
-     * Creates and returns a descending order by clause on the supplied column.
-     */
-    public static OrderBy descending (String column)
-    {
-        return descending(new ColumnExp(null, column));
     }
 
     /**
@@ -84,32 +65,34 @@ public class OrderBy extends QueryClause
         _orders = orders;
     }
 
-    // from QueryClause
-    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
+    public SQLExpression[] getValues ()
     {
-        builder.append(" order by ");
-        for (int ii = 0; ii < _values.length; ii++) {
-            if (ii > 0) {
-                builder.append(", ");
-            }
-            _values[ii].appendExpression(query, builder);
-            builder.append(" ").append(_orders[ii]);
-        }
+        return _values;
+    }
+    
+    public Order[] getOrders ()
+    {
+        return _orders;
     }
 
-    // from QueryClause
-    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    // from SQLExpression
+    public void accept (ExpressionVisitor builder) throws Exception
     {
-        for (int ii = 0; ii < _values.length; ii++) {
-            argIdx = _values[ii].bindExpressionArguments(pstmt, argIdx);
-        }
-        return argIdx;
+        builder.visit(this);
     }
 
+    // from SQLExpression
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+    {
+        for (SQLExpression expression : _values) {
+            expression.addClasses(classSet);
+        }
+    }
+    
     /** The expressions that are generated for the clause. */
     protected SQLExpression[] _values;
 
     /** Whether the ordering is to be ascending or descending. */
     protected Order[] _orders;
+
 }

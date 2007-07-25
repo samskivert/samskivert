@@ -20,16 +20,14 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
-import com.samskivert.jdbc.depot.operator.Conditionals.*;
+import com.samskivert.jdbc.depot.operator.Conditionals.Equals;
 
 /**
  *  Represents a JOIN.
@@ -50,7 +48,7 @@ public class Join extends QueryClause
     public Join (ColumnExp primary, ColumnExp join)
         throws PersistenceException
     {
-        _joinClass = join.pClass;
+        _joinClass = join.getPersistentClass();
         _joinCondition = new Equals(primary, join);
     }
 
@@ -58,12 +56,6 @@ public class Join extends QueryClause
     {
         _joinClass = joinClass;
         _joinCondition = joinCondition;
-    }
-
-    // from QueryClause
-    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
-    {
-        classSet.add(_joinClass);
     }
 
     /**
@@ -75,30 +67,31 @@ public class Join extends QueryClause
         return this;
     }
 
-    // from QueryClause
-    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
+    public Type getType ()
     {
-        switch (_type) {
-        case INNER:
-            builder.append(" inner join " );
-            break;
-        case LEFT_OUTER:
-            builder.append(" left outer join " );
-            break;
-        case RIGHT_OUTER:
-            builder.append(" right outer join " );
-            break;
-        }
-        builder.append(query.getTableName(_joinClass)).append(" as ");
-        builder.append(query.getTableAbbreviation(_joinClass)).append(" on ");
-        _joinCondition.appendExpression(query, builder);
+        return _type;
     }
 
-    // from QueryClause
-    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    public Class<? extends PersistentRecord> getJoinClass ()
     {
-        return _joinCondition.bindExpressionArguments(pstmt, argIdx);
+        return _joinClass;
+    }
+
+    public SQLExpression getJoinCondition ()
+    {
+        return _joinCondition;
+    }
+
+    // from SQLExpression
+    public void accept (ExpressionVisitor builder) throws Exception
+    {
+        builder.visit(this);
+    }
+
+    // from SQLExpression
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+    {
+        classSet.add(_joinClass);
     }
 
     /** Indicates the type of join to be performed. */

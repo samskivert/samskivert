@@ -20,14 +20,12 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
-import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.WhereClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 import com.samskivert.jdbc.depot.operator.Conditionals.Equals;
@@ -38,13 +36,8 @@ import com.samskivert.jdbc.depot.operator.Logic.And;
  * Represents a where clause: the condition can be any comparison operator or logical combination
  * thereof.
  */
-public class Where extends QueryClause
+public class Where extends WhereClause
 {
-    public Where (String index, Comparable value)
-    {
-        this(new ColumnExp(index), value);
-    }
-
     public Where (ColumnExp column, Comparable value)
     {
         this(new ColumnExp[] { column }, new Comparable[] { value });
@@ -64,18 +57,6 @@ public class Where extends QueryClause
              new Comparable[] { value1, value2, value3 });
     }
 
-    public Where (String index1, Comparable value1, String index2, Comparable value2)
-    {
-        this(new ColumnExp(index1), value1, new ColumnExp(index2), value2);
-    }
-
-    public Where (String index1, Comparable value1, String index2, Comparable value2,
-                String index3, Comparable value3)
-    {
-        this(new ColumnExp(index1), value1, new ColumnExp(index2), value2, 
-             new ColumnExp(index3), value3);
-    }
-
     public Where (ColumnExp[] columns, Comparable[] values)
     {
         this(toCondition(columns, values));
@@ -86,20 +67,23 @@ public class Where extends QueryClause
         _condition = condition;
     }
 
-    // from QueryClause
-    public void appendClause (QueryBuilderContext<?> query, StringBuilder builder)
+    public SQLExpression getCondition ()
     {
-        builder.append(" where ");
-        _condition.appendExpression(query, builder);
+        return _condition;
     }
 
-    // from QueryClause
-    public int bindClauseArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    // from SQLExpression
+    public void accept (ExpressionVisitor builder) throws Exception
     {
-        return _condition.bindExpressionArguments(pstmt, argIdx);
+        builder.visit(this);
     }
 
+    // from SQLExpression
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+    {
+        _condition.addClasses(classSet);
+    }
+    
     protected static SQLExpression toCondition (ColumnExp[] columns, Comparable[] values)
     {
         SQLExpression[] comparisons = new SQLExpression[columns.length];

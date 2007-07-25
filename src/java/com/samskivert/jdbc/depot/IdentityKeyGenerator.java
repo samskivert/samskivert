@@ -21,17 +21,22 @@
 package com.samskivert.jdbc.depot;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
-import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.DatabaseLiaison;
+import com.samskivert.jdbc.LiaisonRegistry;
+import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 
 /**
  * Generates primary keys using an identity column.
  */
-public class IdentityKeyGenerator implements KeyGenerator
+public class IdentityKeyGenerator extends KeyGenerator
 {
+    public IdentityKeyGenerator (GeneratedValue gv, String table, String column)
+    {
+        super(gv, table, column);
+    }
+
     // from interface KeyGenerator
     public boolean isPostFactum ()
     {
@@ -39,27 +44,16 @@ public class IdentityKeyGenerator implements KeyGenerator
     }
 
     // from interface KeyGenerator
-    public void init (Connection conn)
+    public void init (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
-        // nothing to do here
+        liaison.initializeGenerator(conn, _table, _column, _initialValue, _allocationSize);
     }
 
     // from interface KeyGenerator
-    public int nextGeneratedValue (Connection conn)
+    public int nextGeneratedValue (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
-        // load up the last inserted ID mysql style
-        Statement stmt = conn.createStatement();
-        try {
-            ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-            throw new SQLException("Failed to generate next ID");
-
-        } finally {
-            JDBCUtil.close(stmt);
-        }
+        return liaison.lastInsertedId(conn, _table, _column);
     }
 }

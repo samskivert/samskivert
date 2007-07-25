@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -50,14 +50,13 @@ public @interface Column
      * Whether the database column is nullable. <em>Note:</em> this default differs from the value
      * used by the EJB3 persistence framework.
      */
-    boolean nullable () default false; 
+    boolean nullable () default false;
 
     /**
-     * The SQL fragment that is used when generating the DDL for the column. Defaults to the
-     * generated SQL to create a column of the inferred type.
+     * The SQL type that is used when generating the DDL for the column.
      */
-    String columnDefinition () default ""; 
-    
+    String type() default "";
+
     /**
      * The column length. (Applies to String and byte[] columns.)
      */

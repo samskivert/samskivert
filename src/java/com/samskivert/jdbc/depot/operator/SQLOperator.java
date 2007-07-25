@@ -20,10 +20,10 @@
 
 package com.samskivert.jdbc.depot.operator;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 
@@ -42,37 +42,32 @@ public interface SQLOperator extends SQLExpression
     {
         public MultiOperator (SQLExpression ... conditions)
         {
-            super();
             _conditions = conditions;
         }
 
         // from SQLExpression
-        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+        public void accept (ExpressionVisitor builder) throws Exception
         {
-            for (int ii = 0; ii < _conditions.length; ii++) {
-                if (ii > 0) {
-                    builder.append(" ").append(operator()).append(" ");
-                }
-                builder.append("(");
-                _conditions[ii].appendExpression(query, builder);
-                builder.append(")");
+            builder.visit(this);
+        }
+        
+        // from SQLExpression
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+        {
+            for (int ii = 0; ii < _conditions.length; ii ++) {
+                _conditions[ii].addClasses(classSet);
             }
         }
 
-        // from SQLExpression
-        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
+        public SQLExpression[] getConditions ()
         {
-            for (int ii = 0; ii < _conditions.length; ii++) {
-                argIdx = _conditions[ii].bindExpressionArguments(pstmt, argIdx);
-            }
-            return argIdx;
+            return _conditions;
         }
 
         /**
          * Returns the text infix to be used to join expressions together.
          */
-        protected abstract String operator ();
+        public abstract String operator ();
 
         protected SQLExpression[] _conditions;
     }
@@ -94,26 +89,32 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+        public void accept (ExpressionVisitor builder) throws Exception
         {
-            _lhs.appendExpression(query, builder);
-            builder.append(operator());
-            _rhs.appendExpression(query, builder);
+            builder.visit(this);
         }
 
         // from SQLExpression
-        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
         {
-            argIdx = _lhs.bindExpressionArguments(pstmt, argIdx);
-            argIdx = _rhs.bindExpressionArguments(pstmt, argIdx);
-            return argIdx;
+            _lhs.addClasses(classSet);
+            _rhs.addClasses(classSet);
         }
-
+        
         /**
          * Returns the string representation of the operator.
          */
-        protected abstract String operator();
+        public abstract String operator();
+
+        public SQLExpression getLeftHandSide ()
+        {
+            return _lhs;
+        }
+
+        public SQLExpression getRightHandSide ()
+        {
+            return _rhs;
+        }
 
         protected SQLExpression _lhs;
         protected SQLExpression _rhs;

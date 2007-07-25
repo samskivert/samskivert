@@ -37,8 +37,4 @@ public @interface Entity
 
     /** Defines indices to add to this entity's table. */
     Index[] indices () default {};
-
-    /** Additional SQL to be added when creating this entity's table for the first time. You can
-     * specify a MySQL table storage type for example. */
-    String postamble () default "";
 }

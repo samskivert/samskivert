@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,36 +20,37 @@
 
 package com.samskivert.jdbc.depot.expression;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
- * A Java value that is bound as a parameter to the query, e.g. 1 or 'abc'. 
+ * A Java value that is bound as a parameter to the query, e.g. 1 or 'abc'.
  */
 public class ValueExp
     implements SQLExpression
 {
-    public ValueExp (Comparable _value)
+    public ValueExp (Object _value)
     {
         this._value = _value;
     }
 
     // from SQLExpression
-    public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+    public void accept (ExpressionVisitor builder) throws Exception
     {
-        builder.append("?");
+        builder.visit(this);
     }
 
     // from SQLExpression
-    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        pstmt.setObject(argIdx ++, _value);
-        return argIdx;
+    }
+
+    public Object getValue ()
+    {
+        return _value;
     }
 
     /** The value to be bound to the SQL parameters. */
-    protected Comparable _value;
+    protected Object _value;
 }

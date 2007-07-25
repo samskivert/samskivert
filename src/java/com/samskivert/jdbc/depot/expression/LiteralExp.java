@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,10 +20,9 @@
 
 package com.samskivert.jdbc.depot.expression;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
  * An expression for things we don't support natively, e.g. COUNT(*).
@@ -38,16 +37,19 @@ public class LiteralExp
     }
 
     // from SQLExpression
-    public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+    public void accept (ExpressionVisitor builder) throws Exception
     {
-        builder.append(_text);
+        builder.visit(this);
     }
 
     // from SQLExpression
-    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        return argIdx;
+    }
+
+    public String getText ()
+    {
+        return _text;
     }
 
     /** The literal text of this expression, e.g. COUNT(*) */

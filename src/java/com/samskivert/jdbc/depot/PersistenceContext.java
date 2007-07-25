@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -40,8 +40,11 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.DuplicateKeyException;
-
+import com.samskivert.jdbc.LiaisonRegistry;
+import com.samskivert.jdbc.MySQLLiaison;
+import com.samskivert.jdbc.PostgreSQLLiaison;
 
 /**
  * Defines a scope in which global annotations are shared.
@@ -124,6 +127,23 @@ public class PersistenceContext
         _ident = ident;
         _conprov = conprov;
         _cachemgr = CacheManager.getInstance();
+        _liaison = LiaisonRegistry.getLiaison(conprov.getURL(ident));
+    }
+
+    /**
+     * Create and return a new {@link SQLBuilder} for the appropriate dialect.
+     *
+     * TODO: At some point perhaps use a more elegant way of discerning our dialect.
+     */
+    public SQLBuilder getSQLBuilder (DepotTypes types)
+    {
+        if (_liaison instanceof PostgreSQLLiaison) {
+            return new PostgreSQLBuilder(types);
+        }
+        if (_liaison instanceof MySQLLiaison) {
+            return new MySQLBuilder(types);
+        }
+        throw new IllegalArgumentException("Unknown liaison type: " + _liaison.getClass());
     }
 
     /**
@@ -399,25 +419,21 @@ public class PersistenceContext
         Connection conn = _conprov.getConnection(_ident, isReadOnlyQuery);
         try {
             if (isReadOnlyQuery) {
-                // if this becomes more complex than this single statement,
-                // then this should turn into a method call that contains
-                // the complexity
-                return query.invoke(conn);
+                // if this becomes more complex than this single statement, then this should turn
+                // into a method call that contains the complexity
+                return query.invoke(conn, _liaison);
 
             } else {
-                // if this becomes more complex than this single statement,
-                // then this should turn into a method call that contains
-                // the complexity
-                return modifier.invoke(conn);
+                // if this becomes more complex than this single statement, then this should turn
+                // into a method call that contains the complexity
+                return modifier.invoke(conn, _liaison);
             }
 
         } catch (SQLException sqe) {
             if (!isReadOnlyQuery) {
-                // convert this exception to a DuplicateKeyException if
-                // appropriate
-                String msg = sqe.getMessage();
-                if (msg != null && msg.indexOf("Duplicate entry") != -1) {
-                    throw new DuplicateKeyException(msg);
+                // convert this exception to a DuplicateKeyException if appropriate
+                if (_liaison.isDuplicateRowException(sqe)) {
+                    throw new DuplicateKeyException(sqe.getMessage());
                 }
             }
 
@@ -425,7 +441,7 @@ public class PersistenceContext
             _conprov.connectionFailed(_ident, isReadOnlyQuery, conn, sqe);
             conn = null;
 
-            if (retryOnTransientFailure && isTransientException(sqe)) {
+            if (retryOnTransientFailure && _liaison.isTransientException(sqe)) {
                 // the MySQL JDBC driver has the annoying habit of including
                 // the embedded exception stack trace in the message of their
                 // outer exception; if I want a fucking stack trace, I'll call
@@ -448,21 +464,10 @@ public class PersistenceContext
         return invoke(query, modifier, false);
     }
 
-    /**
-     * Check whether the specified exception is a transient failure that can be retried.
-     */
-    protected boolean isTransientException (SQLException sqe)
-    {
-        // TODO: this is MySQL specific. This was snarfed from MySQLLiaison.
-        String msg = sqe.getMessage();
-        return (msg != null && (msg.indexOf("Lost connection") != -1 ||
-                                msg.indexOf("link failure") != -1 ||
-                                msg.indexOf("Broken pipe") != -1));
-    }
-
     protected String _ident;
     protected ConnectionProvider _conprov;
     protected CacheManager _cachemgr;
+    protected DatabaseLiaison _liaison;
 
     protected Map<String, Set<CacheListener<?>>> _listenerSets =
         new HashMap<String, Set<CacheListener<?>>>();

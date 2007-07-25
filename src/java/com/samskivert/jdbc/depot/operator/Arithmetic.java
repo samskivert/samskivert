@@ -20,7 +20,6 @@
 
 package com.samskivert.jdbc.depot.operator;
 
-import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 
@@ -34,11 +33,6 @@ public abstract class Arithmetic
     /** The SQL '+' operator. */
     public static class Add extends BinaryOperator
     {
-        public Add (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public Add (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -50,7 +44,7 @@ public abstract class Arithmetic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "+";
         }
@@ -59,11 +53,6 @@ public abstract class Arithmetic
     /** The SQL '-' operator. */
     public static class Sub extends BinaryOperator
     {
-        public Sub (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public Sub (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -75,7 +64,7 @@ public abstract class Arithmetic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "-";
         }
@@ -84,11 +73,6 @@ public abstract class Arithmetic
     /** The SQL '*' operator. */
     public static class Mul extends BinaryOperator
     {
-        public Mul (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public Mul (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -100,7 +84,7 @@ public abstract class Arithmetic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "*";
         }
@@ -109,11 +93,6 @@ public abstract class Arithmetic
     /** The SQL '/' operator. */
     public static class Div extends BinaryOperator
     {
-        public Div (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public Div (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -125,7 +104,7 @@ public abstract class Arithmetic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "/";
         }
@@ -134,11 +113,6 @@ public abstract class Arithmetic
     /** The SQL '&' operator. */
     public static class BitAnd extends BinaryOperator
     {
-        public BitAnd (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public BitAnd (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -150,7 +124,7 @@ public abstract class Arithmetic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "&";
         }
@@ -159,11 +133,6 @@ public abstract class Arithmetic
     /** The SQL '|' operator. */
     public static class BitOr extends BinaryOperator
     {
-        public BitOr (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public BitOr (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -175,7 +144,7 @@ public abstract class Arithmetic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "|";
         }

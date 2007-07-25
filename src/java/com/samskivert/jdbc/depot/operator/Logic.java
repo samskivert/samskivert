@@ -20,12 +20,11 @@
 
 package com.samskivert.jdbc.depot.operator;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
-import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
 
 /**
  * A convenient container for implementations of logical operators.  Classes that value brevity
@@ -37,7 +36,7 @@ public abstract class Logic
     /**
      * Represents a condition that is false iff all its subconditions are false.
      */
-    public static class Or extends MultiOperator
+    public static class Or extends SQLOperator.MultiOperator
     {
         public Or (SQLExpression... conditions)
         {
@@ -45,7 +44,7 @@ public abstract class Logic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "or";
         }
@@ -54,7 +53,7 @@ public abstract class Logic
     /**
      * Represents a condition that is true iff all its subconditions are true.
      */
-    public static class And extends MultiOperator
+    public static class And extends SQLOperator.MultiOperator
     {
         public And (SQLExpression... conditions)
         {
@@ -62,7 +61,7 @@ public abstract class Logic
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "and";
         }
@@ -76,25 +75,26 @@ public abstract class Logic
     {
         public Not (SQLExpression condition)
         {
-            super();
             _condition = condition;
         }
-
-        // from SQLExpression
-        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+        
+        public SQLExpression getCondition ()
         {
-            builder.append(" not (");
-            _condition.appendExpression(query, builder);
-            builder.append(")");
+            return _condition;
         }
 
         // from SQLExpression
-        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
+        public void accept (ExpressionVisitor builder) throws Exception
         {
-            return _condition.bindExpressionArguments(pstmt, argIdx);
+            builder.visit(this);
         }
 
+        // from SQLExpression
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+        {
+            _condition.addClasses(classSet);
+        }
+        
         protected SQLExpression _condition;
     }
 }

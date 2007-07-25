@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -25,23 +25,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
 
+import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.LiaisonRegistry;
 
 /**
- * Generates primary keys using an external table 
+ * Generates primary keys using an external table .
  */
-public class TableKeyGenerator implements KeyGenerator
+public class TableKeyGenerator extends KeyGenerator
 {
-    public TableKeyGenerator (TableGenerator annotation)
+    public TableKeyGenerator (TableGenerator tg, GeneratedValue gv, String table, String column)
     {
-        _table = defStr(annotation.table(), "IdSequences");
-        _pkColumnName = defStr(annotation.pkColumnName(), "sequence");
-        _pkColumnValue = defStr(annotation.pkColumnValue(), "default");
-        _valueColumnName = defStr(annotation.valueColumnName(), "value");
-        _allocationSize = annotation.allocationSize();
-        _initialValue = annotation.initialValue();
+        super(gv, table, column);
+        _valueTable = defStr(tg.table(), "IdSequences");
+        _pkColumnName = defStr(tg.pkColumnName(), "sequence");
+        _pkColumnValue = defStr(tg.pkColumnValue(), "default");
+        _valueColumnName = defStr(tg.valueColumnName(), "value");
     }
 
     // from interface KeyGenerator
@@ -51,20 +53,23 @@ public class TableKeyGenerator implements KeyGenerator
     }
 
     // from interface KeyGenerator
-    public void init (Connection conn)
+    public void init (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
         // make sure our table exists
-        JDBCUtil.createTableIfMissing(conn, _table, new String[] {
-            _pkColumnName + " VARCHAR(255) PRIMARY KEY",
-            _valueColumnName + " INTEGER NOT NULL"
-        }, "");
+        liaison.createTableIfMissing(
+            conn, _valueTable,
+            new String[] { _pkColumnName, _valueColumnName },
+            new String[] { "VARCHAR(255)", "INTEGER NOT NULL" },
+            null,
+            new String[] { _pkColumnName });
 
         // and also that there's a row in it for us
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(
-                "SELECT * FROM " + _table + " WHERE " + _pkColumnName + " = ?");
+                " SELECT * FROM " + liaison.tableSQL(_valueTable) +
+                "  WHERE " + liaison.columnSQL(_pkColumnName) + " = ?");
             stmt.setString(1, _pkColumnValue);
             if (stmt.executeQuery().next()) {
                 return;
@@ -72,8 +77,10 @@ public class TableKeyGenerator implements KeyGenerator
 
             JDBCUtil.close(stmt);
             stmt = null;
-            stmt = conn.prepareStatement("INSERT INTO " + _table + " SET " +
-                                         _pkColumnName + " = ?, " + _valueColumnName + " = ?");
+            stmt = conn.prepareStatement(
+                " INSERT INTO " + liaison.tableSQL(_valueTable) + " (" +
+                liaison.columnSQL(_pkColumnName) + ", " + liaison.columnSQL(_valueColumnName) +
+                ") VALUES (?, ?)");
             stmt.setString(1, _pkColumnValue);
             stmt.setInt(2, _initialValue);
             stmt.executeUpdate();
@@ -84,27 +91,32 @@ public class TableKeyGenerator implements KeyGenerator
     }
 
     // from interface KeyGenerator
-    public int nextGeneratedValue (Connection conn)
+    public int nextGeneratedValue (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
         PreparedStatement stmt = null;
         try {
-            String query = "SELECT " + _valueColumnName + " FROM " + _table +
-                " WHERE " + _pkColumnName + "= ? FOR UPDATE";
+            // TODO: Make this lockless!
+            String query =
+                " SELECT " + liaison.columnSQL(_valueColumnName) +
+                "   FROM " + liaison.tableSQL(_valueTable) +
+                "  WHERE " + liaison.columnSQL(_pkColumnName) + " = ? FOR UPDATE";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, _pkColumnValue);
 
             ResultSet rs = stmt.executeQuery();
             if (!rs.next()) {
-                throw new SQLException("Failed to find next primary key value [table=" + _table +
-                                       ", column=" + _valueColumnName +
+                throw new SQLException("Failed to find next primary key value " +
+                                       "[table=" + _valueTable + ", column=" + _valueColumnName +
                                        ", where=" + _pkColumnName + "=" + _pkColumnValue + "]");
             }
             int val = rs.getInt(1);
             JDBCUtil.close(stmt);
 
-            stmt = conn.prepareStatement("UPDATE " + _table + " SET " + _valueColumnName + " = ? " +
-                                         "WHERE " + _pkColumnName + " = ?");
+            stmt = conn.prepareStatement(
+                " UPDATE " + liaison.tableSQL(_valueTable) +
+                "    SET " + liaison.columnSQL(_valueColumnName) + " = ? " +
+                "  WHERE " + liaison.columnSQL(_pkColumnName) + " = ?");
             stmt.setInt(1, val + _allocationSize);
             stmt.setString(2, _pkColumnValue);
             stmt.executeUpdate();
@@ -126,10 +138,8 @@ public class TableKeyGenerator implements KeyGenerator
         return value;
     }
 
-    protected String _table;
+    protected String _valueTable;
     protected String _pkColumnName;
     protected String _pkColumnValue;
     protected String _valueColumnName;
-    protected int _initialValue;
-    protected int _allocationSize;
 }

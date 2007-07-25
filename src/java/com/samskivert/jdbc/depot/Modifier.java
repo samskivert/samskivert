@@ -24,6 +24,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import com.samskivert.jdbc.DatabaseLiaison;
+
 /**
  * Encapsulates a modification of persistent objects.
  */
@@ -33,23 +35,22 @@ public abstract class Modifier
      * A simple modifier that executes a single SQL statement. No cache flushing is done as a
      * result of this operation.
      */
-    public static class Simple extends Modifier
+    public abstract static class Simple extends Modifier
     {
-        public Simple (String query) {
+        public Simple () {
             super(null);
-            _query = query;
         }
 
-        public int invoke (Connection conn) throws SQLException {
+        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             Statement stmt = conn.createStatement();
             try {
-                return stmt.executeUpdate(_query);
+                return stmt.executeUpdate(createQuery(liaison));
             } finally {
                 stmt.close();
             }
         }
 
-        protected String _query;
+        protected abstract String createQuery (DatabaseLiaison liaison);
     }
 
     /**
@@ -98,10 +99,10 @@ public abstract class Modifier
     }
 
     /**
-     * Overriden to perform the actual database modifications represented by this object;
-     * should return the number of modified rows.
+     * Overriden to perform the actual database modifications represented by this object; should
+     * return the number of modified rows.
      */
-    public abstract int invoke (Connection conn) throws SQLException;
+    public abstract int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException;
 
     /**
      * Constructs a {@link Modifier} without a cache invalidator.

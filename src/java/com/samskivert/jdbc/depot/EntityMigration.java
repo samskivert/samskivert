@@ -22,10 +22,11 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
+import java.util.Map;
 
+import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.LiaisonRegistry;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -47,21 +48,15 @@ public abstract class EntityMigration extends Modifier
             _columnName = columnName;
         }
 
-        public int invoke (Connection conn) throws SQLException {
+        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             if (!JDBCUtil.tableContainsColumn(conn, _tableName, _columnName)) {
                 // we'll accept this inconsistency
                 log.warning(_tableName + "." + _columnName + " already dropped.");
                 return 0;
             }
 
-            Statement stmt = conn.createStatement();
-            try {
-                log.info("Dropping '" + _columnName + "' from " + _tableName);
-                return stmt.executeUpdate(
-                    "alter table " + _tableName + " drop column " + _columnName);
-            } finally {
-                stmt.close();
-            }
+            log.info("Dropping '" + _columnName + "' from " + _tableName);
+            return liaison.dropColumn(conn, _tableName, _columnName) ? 1 : 0;
         }
 
         protected String _columnName;
@@ -78,7 +73,7 @@ public abstract class EntityMigration extends Modifier
             _newColumnName = newColumnName;
         }
 
-        public int invoke (Connection conn) throws SQLException {
+        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             if (!JDBCUtil.tableContainsColumn(conn, _tableName, _oldColumnName)) {
                 if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
                     // we'll accept this inconsistency
@@ -97,60 +92,46 @@ public abstract class EntityMigration extends Modifier
                     _tableName + " already contains '" + _newColumnName + "'");
             }
 
-            Statement stmt = conn.createStatement();
-            try {
-                log.info("Changing '" + _oldColumnName + "' to '" + _newColumnDef + "' in " +
-                         _tableName);
-                return stmt.executeUpdate("alter table " + _tableName + " change column " +
-                                          _oldColumnName + " " + _newColumnDef);
-            } finally {
-                stmt.close();
-            }
+            log.info("Renaming '" + _oldColumnName + "' to '" + _newColumnName + "' in: " +
+                _tableName);
+            return liaison.renameColumn(conn, _tableName, _oldColumnName, _newColumnName) ? 1 : 0;
         }
 
         public boolean runBeforeDefault () {
             return false;
         }
 
-        protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers) {
-            super.init(tableName, marshallers);
-            _newColumnDef = marshallers.get(_newColumnName).getColumnDefinition();
-        }
-
-        protected String _oldColumnName,  _newColumnName, _newColumnDef;
+        protected String _oldColumnName,  _newColumnName;
     }
 
     /**
-     * A convenient migration for changing the type of an existing column.
+     * A convenient migration for changing the type of an existing field. NOTE: This object is
+     * instantiated with the name of a persistent field, not the name of a database column. These
+     * can be very different things for classes that use @Column annotations.
      */
     public static class Retype extends EntityMigration
     {
-        public Retype (int targetVersion, String columnName) {
+        public Retype (int targetVersion, String fieldName) {
             super(targetVersion);
-            _columnName = columnName;
+            _fieldName = fieldName;
         }
 
-        public int invoke (Connection conn) throws SQLException {
-            Statement stmt = conn.createStatement();
-            try {
-                log.info("Updating type of '" + _columnName + "' in " + _tableName);
-                return stmt.executeUpdate("alter table " + _tableName + " change column " +
-                                          _columnName + " " + _newColumnDef);
-            } finally {
-                stmt.close();
-            }
+        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            log.info("Updating type of '" + _fieldName + "' in " + _tableName);
+            return liaison.changeColumn(conn, _tableName, _fieldName, _newColumnDef) ? 1 : 0;
         }
 
         public boolean runBeforeDefault () {
             return false;
         }
 
-        protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers) {
+        protected void init (String tableName, Map<String,FieldMarshaller> marshallers) {
             super.init(tableName, marshallers);
-            _newColumnDef = marshallers.get(_columnName).getColumnDefinition();
+            _columnName = marshallers.get(_fieldName).getColumnName();
+            _newColumnDef = marshallers.get(_fieldName).getColumnDefinition();
         }
 
-        protected String _columnName, _newColumnDef;
+        protected String _fieldName, _columnName, _newColumnDef;
     }
 
     /**
@@ -184,7 +165,7 @@ public abstract class EntityMigration extends Modifier
      * migration has been determined to be runnable so one cannot rely on this method having been
      * called in {@link #shouldRunMigration}.
      */
-    protected void init (String tableName, HashMap<String,FieldMarshaller> marshallers)
+    protected void init (String tableName, Map<String,FieldMarshaller> marshallers)
     {
         _tableName = tableName;
     }

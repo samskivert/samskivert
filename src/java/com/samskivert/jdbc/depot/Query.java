@@ -23,11 +23,30 @@ package com.samskivert.jdbc.depot;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.samskivert.jdbc.DatabaseLiaison;
+
 /**
  * The base of all read-only queries.
  */
 public interface Query<T>
 {
+    /** A simple base class for non-complex queries. */
+    public abstract class TrivialQuery<T> implements Query<T>
+    {
+        public abstract T invoke (Connection conn, DatabaseLiaison liaison) throws SQLException;
+
+        public CacheKey getCacheKey () {
+            return null;
+        }
+
+        public T transformCacheHit (CacheKey key, T value) {
+            return value;
+        }
+
+        public void updateCache (PersistenceContext ctx, T result) {
+        }
+    }
+    
     /**
      * Any query may elect to utilize the built-in cache by returning a non-null {@link CacheKey}
      * in this method. This is done automatically by the {@link DepotRepository} when looking up
@@ -43,7 +62,7 @@ public interface Query<T>
     /**
      * Performs the actual JDBC operations associated with this query. 
      */
-    public T invoke (Connection conn)
+    public T invoke (Connection conn, DatabaseLiaison liaison)
         throws SQLException;
 
     /**

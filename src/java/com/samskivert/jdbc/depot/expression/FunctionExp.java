@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,16 +20,14 @@
 
 package com.samskivert.jdbc.depot.expression;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
  * An expression for a function, e.g. FLOOR(blah).
  */
-public class FunctionExp
-    implements SQLExpression
+public class FunctionExp implements SQLExpression
 {
     /**
      * Create a new FunctionExp with the given function and arguments.
@@ -41,27 +39,28 @@ public class FunctionExp
     }
 
     // from SQLExpression
-    public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+    public void accept (ExpressionVisitor builder)
+        throws Exception
     {
-        builder.append(_function);
-        builder.append("(");
-        for (int ii = 0; ii < _arguments.length; ii ++) {
-            if (ii > 0) {
-                builder.append(", ");
-            }
-            _arguments[ii].appendExpression(query, builder);
-        }
-        builder.append(")");
+        builder.visit(this);
     }
 
     // from SQLExpression
-    public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-        throws SQLException
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
         for (int ii = 0; ii < _arguments.length; ii ++) {
-            argIdx = _arguments[ii].bindExpressionArguments(pstmt, argIdx);
+            _arguments[ii].addClasses(classSet);
         }
-        return argIdx;
+    }
+
+    public String getFunction ()
+    {
+        return _function;
+    }
+
+    public SQLExpression[] getArguments ()
+    {
+        return _arguments;
     }
 
     /** The literal name of this function, e.g. FLOOR */

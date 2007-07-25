@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -20,15 +20,12 @@
 
 package com.samskivert.jdbc.depot.operator;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 
-import com.samskivert.jdbc.depot.QueryBuilderContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
-import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 
 /**
  * A convenient container for implementations of conditional operators.  Classes that value brevity
@@ -56,31 +53,28 @@ public abstract class Conditionals
             _column = column;
         }
 
-        // from SQLExpression
-        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+        public ColumnExp getColumn()
         {
-            _column.appendExpression(query, builder);
-            builder.append(" is null");
+            return _column;
         }
 
         // from SQLExpression
-        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
+        public void accept (ExpressionVisitor builder) throws Exception
         {
-            return argIdx;
+            builder.visit(this);
+        }
+
+        // from SQLExpression
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+        {
         }
 
         protected ColumnExp _column;
     }
 
     /** The SQL '=' operator. */
-    public static class Equals extends BinaryOperator
+    public static class Equals extends SQLOperator.BinaryOperator
     {
-        public Equals (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public Equals (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -92,20 +86,15 @@ public abstract class Conditionals
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "=";
         }
     }
 
     /** The SQL '<' operator. */
-    public static class LessThan extends BinaryOperator
+    public static class LessThan extends SQLOperator.BinaryOperator
     {
-        public LessThan (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public LessThan (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -117,20 +106,15 @@ public abstract class Conditionals
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "<";
         }
     }
 
     /** The SQL '<=' operator. */
-    public static class LessThanEquals extends BinaryOperator
+    public static class LessThanEquals extends SQLOperator.BinaryOperator
     {
-        public LessThanEquals (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public LessThanEquals (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -142,20 +126,15 @@ public abstract class Conditionals
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return "<=";
         }
     }
 
     /** The SQL '>' operator. */
-    public static class GreaterThan extends BinaryOperator
+    public static class GreaterThan extends SQLOperator.BinaryOperator
     {
-        public GreaterThan (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public GreaterThan (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -167,20 +146,15 @@ public abstract class Conditionals
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return ">";
         }
     }
 
     /** The SQL '>=' operator. */
-    public static class GreaterThanEquals extends BinaryOperator
+    public static class GreaterThanEquals extends SQLOperator.BinaryOperator
     {
-        public GreaterThanEquals (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public GreaterThanEquals (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -192,7 +166,7 @@ public abstract class Conditionals
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return ">=";
         }
@@ -202,16 +176,6 @@ public abstract class Conditionals
     public static class In
         implements SQLOperator
     {
-        public In (String pColumn, Comparable... values)
-        {
-            this(new ColumnExp(null, pColumn), values);
-        }
-
-        public In (String pColumn, Collection<? extends Comparable> values)
-        {
-            this(new ColumnExp(null, pColumn), values.toArray(new Comparable[values.size()]));
-        }
-
         public In (Class<? extends PersistentRecord> pClass, String pColumn, Comparable... values)
         {
             this(new ColumnExp(pClass, pColumn), values);
@@ -232,107 +196,40 @@ public abstract class Conditionals
             _values = values;
         }
 
-        // from SQLExpression
-        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
+        public In (ColumnExp pColumn, Collection<? extends Comparable> values)
         {
-            _column.appendExpression(query, builder);
-            builder.append(" in (");
-            for (int ii = 0; ii < _values.length; ii ++) {
-                if (ii > 0) {
-                    builder.append(", ");
-                }
-                builder.append("?");
-            }
-            builder.append(")");
+            this(pColumn, values.toArray(new Comparable[values.size()]));
+        }
+
+        public ColumnExp getColumn ()
+        {
+            return _column;
+        }
+
+        public Comparable[] getValues ()
+        {
+            return _values;
         }
 
         // from SQLExpression
-        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
+        public void accept (ExpressionVisitor builder) throws Exception
         {
-            for (int ii = 0; ii < _values.length; ii++) {
-                pstmt.setObject(argIdx ++, _values[ii]);
-            }
-            return argIdx;
+            builder.visit(this);
+        }
+
+        // from SQLExpression
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+        {
+            _column.addClasses(classSet);
         }
 
         protected ColumnExp _column;
         protected Comparable[] _values;
     }
 
-    /** The MySQL 'match (...) against (...)' operator. */
-    public static class Match
-        implements SQLOperator
-    {
-        public enum Mode { DEFAULT, BOOLEAN, NATURAL_LANGUAGE };
-
-        public Match (String query, Mode mode, boolean queryExpansion, String... pColumns)
-        {
-            _query = query;
-            _mode = mode;
-            _queryExpansion = queryExpansion;
-            _columns = new ColumnExp[pColumns.length];
-            for (int ii = 0; ii < pColumns.length; ii++) {
-                _columns[ii] = new ColumnExp(null, pColumns[ii]);
-            }
-        }
-
-        public Match (String query, Mode mode, boolean queryExpansion, ColumnExp... columns)
-        {
-            _query = query;
-            _queryExpansion = queryExpansion;
-            _mode = mode;
-            _columns = columns;
-        }
-
-        // from SQLExpression
-        public void appendExpression (QueryBuilderContext query, StringBuilder builder)
-        {
-            builder.append("match(");
-            int idx = 0;
-            for (ColumnExp column : _columns) {
-                if (idx++ > 0) {
-                    builder.append(", ");
-                }
-                column.appendExpression(query, builder);
-            }
-            builder.append(") against (?");
-            switch (_mode) {
-            case BOOLEAN:
-                builder.append(" in boolean mode");
-                break;
-            case NATURAL_LANGUAGE:
-                builder.append(" in natural language mode");
-                break;
-            }
-            if (_queryExpansion) {
-                builder.append(" with query expansion");
-            }
-            builder.append(")");
-        }
-
-        // from SQLExpression
-        public int bindExpressionArguments (PreparedStatement pstmt, int argIdx)
-            throws SQLException
-        {
-            pstmt.setString(argIdx++, _query);
-            return argIdx;
-        }
-
-        protected String _query;
-        protected Mode _mode;
-        protected boolean _queryExpansion;
-        protected ColumnExp[] _columns;
-    }
-
     /** The SQL ' like ' operator. */
-    public static class Like extends BinaryOperator
+    public static class Like extends SQLOperator.BinaryOperator
     {
-        public Like (String pColumn, Comparable value)
-        {
-            super(new ColumnExp(pColumn), value);
-        }
-
         public Like (SQLExpression column, Comparable value)
         {
             super(column, value);
@@ -344,9 +241,64 @@ public abstract class Conditionals
         }
 
         @Override
-        protected String operator()
+        public String operator()
         {
             return " like ";
         }
+    }
+
+    /** The MySQL 'match (...) against (...)' operator. */
+    @Deprecated
+    public static class Match
+        implements SQLOperator
+    {
+        public enum Mode { DEFAULT, BOOLEAN, NATURAL_LANGUAGE };
+
+        public Match (String query, Mode mode, boolean queryExpansion, ColumnExp... columns)
+        {
+            _query = query;
+            _queryExpansion = queryExpansion;
+            _mode = mode;
+            _columns = columns;
+        }
+
+        public String getQuery ()
+        {
+            return _query;
+        }
+
+        public Mode getMode ()
+        {
+            return _mode;
+        }
+
+        public boolean isQueryExpansion ()
+        {
+            return _queryExpansion;
+        }
+
+        public ColumnExp[] getColumns ()
+        {
+            return _columns;
+        }
+
+        // from SQLExpression
+        public void accept (ExpressionVisitor builder) throws Exception
+        {
+            builder.visit(this);
+        }
+
+        // from SQLExpression
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+        {
+            for (ColumnExp column : _columns) {
+                column.addClasses(classSet);
+            }
+        }
+
+        protected String _query;
+        protected Mode _mode;
+        protected boolean _queryExpansion;
+        protected ColumnExp[] _columns;
     }
 }

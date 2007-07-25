@@ -63,18 +63,4 @@ public @interface TableGenerator
      * the primary key column of the generator table
      */    
     String pkColumnValue () default "";
-
-    /**
-     * The initial value to be used when allocating id numbers from the generator. The default
-     * initial value is 1. <em>Note:</em> this default differs from the value used by the EJB3
-     * persistence framework.
-     */
-    int initialValue () default 1;
-
-    /**
-     * The amount to increment by when allocating id numbers from the generator. The default
-     * allocation size is 1. <em>Note:</em> this default differs from the value used by the EJB3
-     * persistence framework.
-     */
-    int allocationSize () default 1;
 }

@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
@@ -106,8 +107,18 @@ public abstract class FieldMarshaller<T>
                 "Cannot marshall field of type '" + ftype.getName() + "'.");
         }
 
-        marshaller.init(field);
+        marshaller.create(field);
         return marshaller;
+    }
+
+    /**
+     * Initializes this field marshaller with a SQL builder which it uses to construct its column
+     * definition according to the appropriate database dialect.
+     */
+    public void init (SQLBuilder builder)
+        throws PersistenceException
+    {
+        _columnDefinition = builder.buildColumnDefinition(this);
     }
 
     /**
@@ -194,98 +205,30 @@ public abstract class FieldMarshaller<T>
         writeToObject(po, getFromSet(rset));
     }
 
-    /**
-     * Returns the type used in the SQL column definition for this field.
-     */
-    public abstract String getColumnType ();
-
-    protected void init (Field field)
+    protected void create (Field field)
     {
         _field = field;
         _columnName = field.getName();
 
-        // read our column metadata from the annotation (if it exists); annoyingly we can't create
-        // a Column instance to read the defaults so we have to duplicate them here
-        int length = 255;
-        boolean nullable = false;
-        boolean unique = false;
-        String defval = "";
         Column column = _field.getAnnotation(Column.class);
         if (column != null) {
-            nullable = column.nullable();
-            unique = column.unique();
-            length = column.length();
-            defval = column.defaultValue();
             if (!StringUtil.isBlank(column.name())) {
                 _columnName = column.name();
             }
         }
 
         _computed = field.getAnnotation(Computed.class);
-        // if this field is @Computed, it has no SQL definition
         if (_computed != null) {
-            _columnDefinition = null;
             return;
         }
 
-        // create our SQL column definition
-        StringBuilder builder = new StringBuilder();
-        if (column != null && !StringUtil.isBlank(column.columnDefinition())) {
-            builder.append(column.columnDefinition());
-
-        } else {
-            builder.append(getColumnName());
-            String type = getColumnType();
-            builder.append(" ").append(type);
-
-            // if this is a VARCHAR field, add the length
-            if (type.equals("VARCHAR") || type.equals("VARBINARY")) {
-                builder.append("(").append(length).append(")");
-            }
-
-            // TODO: handle precision and scale
-
-            // handle nullability and uniqueness
-            if (!nullable) {
-                builder.append(" NOT NULL");
-            }
-            if (unique) {
-                builder.append(" UNIQUE");
-            }
-
-            // append the default value if one was specified
-            if (defval.length() > 0) {
-                builder.append(" DEFAULT ").append(defval);
-            }
-        }
-
-        // handle primary keyness
         if (field.getAnnotation(Id.class) != null) {
             // figure out how we're going to generate our primary key values
             _generatedValue = field.getAnnotation(GeneratedValue.class);
-            if (_generatedValue != null) {
-                switch (_generatedValue.strategy()) {
-                case AUTO:
-                case IDENTITY:
-                    builder.append(" AUTO_INCREMENT");
-                    break;
-                case SEQUENCE: // TODO
-                    throw new IllegalArgumentException(
-                        "SEQUENCE key generation strategy not yet supported.");
-                case TABLE:
-                    // nothing to do here, it'll be handled later
-                    break;
-                }
-            }
         }
-
-        _columnDefinition = builder.toString();
     }
 
     protected static class BooleanMarshaller extends FieldMarshaller<Boolean> {
-        public String getColumnType () {
-            return "TINYINT";
-        }
         public Boolean getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.getBoolean(po);
@@ -305,9 +248,6 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class ByteMarshaller extends FieldMarshaller<Byte> {
-        public String getColumnType () {
-            return "TINYINT";
-        }
         public Byte getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.getByte(po);
@@ -327,9 +267,6 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class ShortMarshaller extends FieldMarshaller<Short> {
-        public String getColumnType () {
-            return "SMALLINT";
-        }
         public Short getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.getShort(po);
@@ -349,9 +286,6 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class IntMarshaller extends FieldMarshaller<Integer> {
-        public String getColumnType () {
-            return "INTEGER";
-        }
         public Integer getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.getInt(po);
@@ -371,9 +305,6 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class LongMarshaller extends FieldMarshaller<Long> {
-        public String getColumnType () {
-            return "BIGINT";
-        }
         public Long getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.getLong(po);
@@ -393,9 +324,6 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class FloatMarshaller extends FieldMarshaller<Float> {
-        public String getColumnType () {
-            return "FLOAT";
-        }
         public Float getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.getFloat(po);
@@ -415,9 +343,6 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class DoubleMarshaller extends FieldMarshaller<Double> {
-        public String getColumnType () {
-            return "DOUBLE";
-        }
         public Double getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.getDouble(po);
@@ -437,37 +362,6 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class ObjectMarshaller extends FieldMarshaller<Object> {
-        public String getColumnType () {
-            Class<?> ftype = _field.getType();
-            if (ftype.equals(Byte.class)) {
-                return "TINYINT";
-            } else if (ftype.equals(Short.class)) {
-                return "SMALLINT";
-            } else if (ftype.equals(Integer.class)) {
-                return "INTEGER";
-            } else if (ftype.equals(Long.class)) {
-                return "BIGINT";
-            } else if (ftype.equals(Float.class)) {
-                return "FLOAT";
-            } else if (ftype.equals(Double.class)) {
-                return "DOUBLE";
-            } else if (ftype.equals(String.class)) {
-                return "VARCHAR";
-            } else if (ftype.equals(Date.class)) {
-                return "DATE";
-            } else if (ftype.equals(Time.class)) {
-                return "DATETIME";
-            } else if (ftype.equals(Timestamp.class)) {
-                return "TIMESTAMP";
-            } else if (ftype.equals(Blob.class)) {
-                return "BLOB";
-            } else if (ftype.equals(Clob.class)) {
-                return "CLOB";
-            } else {
-                throw new IllegalArgumentException(
-                    "Don't know how to create SQL for " + ftype + ".");
-            }
-        }
         public Object getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
             return _field.get(po);
@@ -503,9 +397,6 @@ public abstract class FieldMarshaller<T>
             throws SQLException {
             ps.setBytes(column, value);
         }
-        public String getColumnType () {
-            return "VARBINARY";
-        }
     }
 
     protected static class IntArrayMarshaller extends FieldMarshaller<int[]> {
@@ -525,9 +416,6 @@ public abstract class FieldMarshaller<T>
             throws SQLException {
             ps.setObject(column, value);
         }
-        public String getColumnType () {
-            return "BLOB";
-        }
     }
 
     protected static class ByteEnumMarshaller extends FieldMarshaller<ByteEnum> {
@@ -543,10 +431,6 @@ public abstract class FieldMarshaller<T>
                 throw new IllegalArgumentException(
                     _field.getType() + ".fromByte() must be public and static.");
             }
-        }
-
-        public String getColumnType () {
-            return "TINYINT";
         }
 
         public ByteEnum getFromObject (Object po)

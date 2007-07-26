@@ -86,4 +86,11 @@ public interface ConnectionProvider
      * would be used if {@link #getConnection} were called.
      */
     public String getURL (String ident);
+
+    /**
+     * Shuts down this connection provider, closing all connections currently in the pool. This
+     * should only be called once all active connections have been released with {@link
+     * #releaseConnection}.
+     */
+    public void shutdown ();
 }

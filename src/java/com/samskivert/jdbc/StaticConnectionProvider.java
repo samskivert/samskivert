@@ -98,28 +98,6 @@ public class StaticConnectionProvider implements ConnectionProvider
         _props = props;
     }
 
-    /**
-     * Closes all of the open database connections in preparation for shutting down.
-     */
-    public void shutdown ()
-    {
-        // close all of the connections
-        Iterator iter = _keys.keySet().iterator();
-        while (iter.hasNext()) {
-            String key = (String)iter.next();
-            Mapping conmap = _keys.get(key);
-            try {
-                conmap.connection.close();
-            } catch (SQLException sqe) {
-                Log.warning("Error shutting down connection [key=" + key + ", err=" + sqe + "].");
-            }
-        }
-
-        // clear out our mapping tables
-        _keys.clear();
-        _idents.clear();
-    }
-
     // from ConnectionProvider
     public String getURL (String ident)
     {
@@ -209,6 +187,26 @@ public class StaticConnectionProvider implements ConnectionProvider
             _idents.remove(conmap.idents.get(ii));
         }
         _keys.remove(conmap.key);
+    }
+
+    // from ConnectionProvider
+    public void shutdown ()
+    {
+        // close all of the connections
+        Iterator iter = _keys.keySet().iterator();
+        while (iter.hasNext()) {
+            String key = (String)iter.next();
+            Mapping conmap = _keys.get(key);
+            try {
+                conmap.connection.close();
+            } catch (SQLException sqe) {
+                Log.warning("Error shutting down connection [key=" + key + ", err=" + sqe + "].");
+            }
+        }
+
+        // clear out our mapping tables
+        _keys.clear();
+        _idents.clear();
     }
 
     protected Connection openConnection (String driver, String url, String username, String passwd)

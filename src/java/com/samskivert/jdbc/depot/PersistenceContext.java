@@ -142,6 +142,22 @@ public class PersistenceContext
     }
 
     /**
+     * Shuts this persistence context down, shutting down any caching system in use and shutting
+     * down the JDBC connection pool.
+     */
+    public void shutdown ()
+    {
+        try {
+            if (_cache != null) {
+                _cache.shutdown();
+            }
+        } catch (Throwable t) {
+            log.log(Level.WARNING, "Failure shutting down Depot cache.", t);
+        }
+        _conprov.shutdown();
+    }
+
+    /**
      * Create and return a new {@link SQLBuilder} for the appropriate dialect.
      *
      * TODO: At some point perhaps use a more elegant way of discerning our dialect.
@@ -183,7 +199,8 @@ public class PersistenceContext
      * and register a pre-migration for every single schema migration and they will then be
      * guaranteed to be run in registration order and with predictable pre- and post-conditions.
      */
-    public <T extends PersistentRecord> void registerMigration (Class<T> type, EntityMigration migration)
+    public <T extends PersistentRecord> void registerMigration (
+        Class<T> type, EntityMigration migration)
     {
         getRawMarshaller(type).registerMigration(migration);
     }

@@ -50,8 +50,8 @@
   </target>
 
   <!-- wipes the entire build directory clean -->
-  <target name="distclean" depends="clean">
-    <delete dir="${deploy.dir}"/>
+  <target name="distclean">
+    <delete dir="${deploy.dir}" quiet="true"/>
   </target>
 
   <!-- build the java class files -->

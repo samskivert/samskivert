@@ -92,17 +92,17 @@
     </condition>
     <echo level="info">com.samskivert.jdbc: ${build.jdbc}</echo>
 
-    <condition property="build.depot">
+    <condition property="build.depot.ehcache">
       <and>
         <isset property="build.jdbc"/>
         <isset property="ehcache.present"/>
       </and>
     </condition>
-    <echo level="info">com.samskivert.jdbc.depot: ${build.depot}</echo>
+    <echo level="info">com.samskivert.jdbc.depot.ehcace: ${build.depot.ehcache}</echo>
 
     <condition property="build.depot.tools">
       <and>
-        <isset property="build.depot"/>
+        <isset property="build.jdbc"/>
         <isset property="ant.present"/>
       </and>
     </condition>

@@ -61,7 +61,8 @@
       <classpath refid="classpath"/>
       <exclude name="com/samskivert/io/**" unless="build.io"/>
       <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
-      <exclude name="com/samskivert/jdbc/depot/EHCacheAdapter.java" unless="ehcache.present"/>
+      <exclude name="com/samskivert/jdbc/depot/EHCacheAdapter.java" unless="build.depot.ehcache"/>
+      <exclude name="com/samskivert/jdbc/depot/tools/**" unless="build.depot.tools"/>
       <exclude name="com/samskivert/net/MailUtil*" unless="build.mail"/>
       <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
       <exclude name="com/samskivert/swing/**" unless="build.swing"/>

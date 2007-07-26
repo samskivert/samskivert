@@ -255,7 +255,8 @@ public class DispatcherServlet extends HttpServlet
         props.setProperty("userdirective", ImportDirective.class.getName());
 
         // configure the servlet context logger
-        props.put(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM, new ServletContextLogger());
+        props.put(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                  ServletContextLogger.class.getName());
 
         // now return our augmented properties
         return props;

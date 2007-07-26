@@ -21,25 +21,17 @@
 package com.samskivert.jdbc.depot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.jdbc.depot.annotation.TableGenerator;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import com.samskivert.io.PersistenceException;
-
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.jdbc.ConnectionProvider;
@@ -48,6 +40,10 @@ import com.samskivert.jdbc.DuplicateKeyException;
 import com.samskivert.jdbc.LiaisonRegistry;
 import com.samskivert.jdbc.MySQLLiaison;
 import com.samskivert.jdbc.PostgreSQLLiaison;
+
+import com.samskivert.jdbc.depot.annotation.TableGenerator;
+
+import static com.samskivert.jdbc.depot.Log.log;
 
 /**
  * Defines a scope in which global annotations are shared.
@@ -127,10 +123,22 @@ public class PersistenceContext
      */
     public PersistenceContext (String ident, ConnectionProvider conprov)
     {
+        this(ident, conprov, null);
+    }
+
+    /**
+     * Creates a persistence context that will use the supplied provider to obtain JDBC
+     * connections.
+     *
+     * @param ident the identifier to provide to the connection provider when requesting a
+     * connection.
+     */
+    public PersistenceContext (String ident, ConnectionProvider conprov, CacheAdapter adapter)
+    {
         _ident = ident;
         _conprov = conprov;
-        _cachemgr = CacheManager.getInstance();
         _liaison = LiaisonRegistry.getLiaison(conprov.getURL(ident));
+        _cache = adapter;
     }
 
     /**
@@ -204,21 +212,18 @@ public class PersistenceContext
     {
         CacheKey key = query.getCacheKey();
         // if there is a cache key, check the cache
-        if (key != null) {
-            Cache cache = getCache(key.getCacheId());
-            if (cache != null) {
-                Element cacheHit = cache.get(key.getCacheKey());
-                if (cacheHit != null) {
-                    Log.debug("invoke: cache hit [hit=" + cacheHit + "]");
-                    @SuppressWarnings("unchecked") T value = (T) cacheHit.getValue();
-                    value = query.transformCacheHit(key, value);
-                    if (value != null) {
-                        return value;
-                    }
-                    Log.debug("invoke: transformCacheHit returned null; rejecting cached value.");
+        if (key != null && _cache != null) {
+            CacheAdapter.CachedValue<T> cacheHit = cacheLookup(key);
+            if (cacheHit != null) {
+                log.fine("invoke: cache hit [hit=" + cacheHit + "]");
+                T value = cacheHit.getValue();
+                value = query.transformCacheHit(key, value);
+                if (value != null) {
+                    return value;
                 }
+                log.fine("invoke: transformCacheHit returned null; rejecting cached value.");
             }
-            Log.debug("invoke: cache miss [key=" + key + "]");
+            log.fine("invoke: cache miss [key=" + key + "]");
         }
         // otherwise, perform the query
         @SuppressWarnings("unchecked") T result = (T) invoke(query, null, true);
@@ -242,16 +247,15 @@ public class PersistenceContext
     }
 
     /**
-     * Returns the {@link Cache} for the given cache id, or creates one if necessary.
+     * Looks up an entry in the cache by the given key.
      */
-    public Cache getCache (String cacheId)
+    public <T> CacheAdapter.CachedValue<T> cacheLookup (CacheKey key)
     {
-        Cache cache = _cachemgr.getCache(cacheId);
-        if (cache == null) {
-            cache = new Cache(cacheId, 5000, false, false, 600, 60);
-            _cachemgr.addCache(cache);
+        if (_cache == null) {
+            return null;
         }
-        return cache;
+        CacheAdapter.CacheBin<T> bin = _cache.getCache(key.getCacheId());
+        return bin.lookup(key.getCacheKey());
     }
 
     /**
@@ -259,27 +263,29 @@ public class PersistenceContext
      */
     public <T> void cacheStore (CacheKey key, T entry)
     {
+        if (_cache == null) {
+            return;
+        }
         if (key == null) {
-            Log.warning("Cache key must not be null [entry=" + entry + "]");
+            log.warning("Cache key must not be null [entry=" + entry + "]");
             Thread.dumpStack();
             return;
         }
-        Log.debug("cacheStore: entry [key=" + key + ", value=" + entry + "]");
+        log.fine("cacheStore: entry [key=" + key + ", value=" + entry + "]");
 
-        // find the old entry, if any
-        Cache cache = getCache(key.getCacheId());
-        Element element = cache.get(key.getCacheKey());
+        CacheAdapter.CacheBin<T> bin = _cache.getCache(key.getCacheId());
+        CacheAdapter.CachedValue element = bin.lookup(key.getCacheKey());
         @SuppressWarnings("unchecked") T oldEntry =
             (element != null ? (T) element.getValue() : null);
 
         // update the cache
-        cache.put(new Element(key.getCacheKey(), entry));
+        bin.store(key.getCacheKey(), entry);
 
         // then do cache invalidations
         Set<CacheListener<?>> listeners = _listenerSets.get(key.getCacheId());
         if (listeners != null && listeners.size() > 0) {
             for (CacheListener<?> listener : listeners) {
-                Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
+                log.fine("cacheInvalidate: cascading [listener=" + listener + "]");
                 @SuppressWarnings("unchecked")
                     CacheListener<T> casted = (CacheListener<T>)listener;
                 casted.entryCached(key, entry, oldEntry);
@@ -294,7 +300,7 @@ public class PersistenceContext
     public void cacheInvalidate (CacheKey key)
     {
         if (key == null) {
-            Log.warning("Cache key to invalidate must not be null.");
+            log.warning("Cache key to invalidate must not be null.");
             Thread.dumpStack();
         } else {
             cacheInvalidate(key.getCacheId(), key.getCacheKey());
@@ -316,23 +322,26 @@ public class PersistenceContext
      */
     public <T extends Serializable> void cacheInvalidate (String cacheId, Serializable cacheKey)
     {
-        Log.debug("cacheInvalidate: entry [cacheId=" + cacheId + ", cacheKey=" + cacheKey + "]");
+        if (_cache == null) {
+            return;
+        }
+        log.fine("cacheInvalidate: entry [cacheId=" + cacheId + ", cacheKey=" + cacheKey + "]");
 
-        Cache cache = getCache(cacheId);
-        Element element = cache.get(cacheKey);
+        CacheAdapter.CacheBin<T> bin = _cache.getCache(cacheId);
+        CacheAdapter.CachedValue<T> element = bin.lookup(cacheKey);
         if (element == null) {
             return;
         }
 
         // find the old entry, if any
-        @SuppressWarnings("unchecked") T oldEntry = (T) element.getValue();
+        T oldEntry = element.getValue();
         if (oldEntry != null) {
             // if there was one, do (possibly cascading) cache invalidations
             Set<CacheListener<?>> listeners = _listenerSets.get(cacheId);
             if (listeners != null && listeners.size() > 0) {
                 CacheKey key = new SimpleCacheKey(cacheId, cacheKey);
                 for (CacheListener<?> listener : listeners) {
-                    Log.debug("cacheInvalidate: cascading [listener=" + listener + "]");
+                    log.fine("cacheInvalidate: cascading [listener=" + listener + "]");
                     @SuppressWarnings("unchecked") CacheListener<T> casted =
                         (CacheListener<T>)listener;
                     casted.entryInvalidated(key, oldEntry);
@@ -341,8 +350,8 @@ public class PersistenceContext
         }
 
         // then evict the keyed entry, if needed
-        Log.debug("cacheInvalidate: evicting [cacheKey=" + cacheKey + "]");
-        cache.remove(cacheKey);
+        log.fine("cacheInvalidate: evicting [cacheKey=" + cacheKey + "]");
+        bin.remove(cacheKey);
     }
 
     /**
@@ -360,14 +369,15 @@ public class PersistenceContext
      */
     public <T extends Serializable> void cacheTraverse (String cacheId, CacheTraverser<T> filter)
     {
-        Cache cache = getCache(cacheId);
-        if (cache != null) {
-            for (Object key : cache.getKeys()) {
-                Serializable sKey = (Serializable) key;
-                Element element = cache.get(sKey);
+        if (_cache == null) {
+            return;
+        }
+        CacheAdapter.CacheBin<T> bin = _cache.getCache(cacheId);
+        if (bin != null) {
+            for (Object key : bin.enumerateKeys()) {
+                CacheAdapter.CachedValue<T> element = bin.lookup((Serializable) key);
                 if (element != null) {
-                    @SuppressWarnings("unchecked") T value = (T) element.getValue();
-                    filter.visitCacheEntry(this, cacheId, sKey, value);
+                    filter.visitCacheEntry(this, cacheId, (Serializable) key, element.getValue());
                 }
             }
         }
@@ -473,8 +483,7 @@ public class PersistenceContext
                 // outer exception; if I want a fucking stack trace, I'll call
                 // printStackTrace() thanksverymuch
                 String msg = StringUtil.split(String.valueOf(sqe), "\n")[0];
-                Log.info("Transient failure executing operation, " +
-                    "retrying [error=" + msg + "].");
+                log.info("Transient failure executing operation, retrying [error=" + msg + "].");
 
             } else {
                 String msg = isReadOnlyQuery ? "Query failure " + query
@@ -492,8 +501,10 @@ public class PersistenceContext
 
     protected String _ident;
     protected ConnectionProvider _conprov;
-    protected CacheManager _cachemgr;
     protected DatabaseLiaison _liaison;
+
+    /** The object through which all our caching is relayed, or null, for no caching. */
+    protected CacheAdapter _cache;
 
     protected Map<String, Set<CacheListener<?>>> _listenerSets =
         new HashMap<String, Set<CacheListener<?>>>();

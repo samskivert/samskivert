@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -28,9 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.ArrayUtil;
@@ -83,10 +80,9 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                     allKeys.add(key);
 
                     // TODO: All this cache fiddling needs to move to PersistenceContext?
-                    Cache cache = _ctx.getCache(key.getCacheId());
-                    Element hit = cache.get(key.getCacheKey());
+                    CacheAdapter.CachedValue<T> hit = _ctx.cacheLookup(key);
                     if (hit != null) {
-                        @SuppressWarnings("unchecked") T value = (T) hit.getValue();
+                        T value = hit.getValue();
                         if (value != null) {
                             @SuppressWarnings("unchecked") T newValue = (T) value.clone();
                             entities.put(key, newValue);

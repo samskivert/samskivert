@@ -29,7 +29,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.commons.io.CopyUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.samskivert.Log;
 import com.samskivert.io.StreamUtil;
@@ -109,7 +109,7 @@ public class FileUtil
             try {
                 fout = new BufferedOutputStream(new FileOutputStream(efile));
                 jin = jar.getInputStream(entry);
-                CopyUtils.copy(jin, fout);
+                IOUtils.copy(jin, fout);
             } catch (Exception e) {
                 Log.warning("Failure unpacking [jar=" + jar +
                             ", entry=" + efile + ", error=" + e + "].");

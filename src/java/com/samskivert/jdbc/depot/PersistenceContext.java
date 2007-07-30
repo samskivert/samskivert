@@ -471,46 +471,51 @@ public class PersistenceContext
     {
         boolean isReadOnlyQuery = (query != null);
         Connection conn = _conprov.getConnection(_ident, isReadOnlyQuery);
-        try {
-            if (isReadOnlyQuery) {
-                // if this becomes more complex than this single statement, then this should turn
-                // into a method call that contains the complexity
-                return query.invoke(conn, _liaison);
+        // TEMP: we synchronize on the connection to cooperate with SimpleRepository when used in
+        // conjunction with a StaticConnectionProvider; at some point we'll switch to standard JDBC
+        // connection pooling which will block in getConnection() instead of returning a connection
+        // that someone else may be using
+        synchronized (conn) {
+            try {
+                if (isReadOnlyQuery) {
+                    // if this becomes more complex than this single statement, then this should
+                    // turn into a method call that contains the complexity
+                    return query.invoke(conn, _liaison);
 
-            } else {
-                // if this becomes more complex than this single statement, then this should turn
-                // into a method call that contains the complexity
-                return modifier.invoke(conn, _liaison);
-            }
-
-        } catch (SQLException sqe) {
-            if (!isReadOnlyQuery) {
-                // convert this exception to a DuplicateKeyException if appropriate
-                if (_liaison.isDuplicateRowException(sqe)) {
-                    throw new DuplicateKeyException(sqe.getMessage());
+                } else {
+                    // if this becomes more complex than this single statement, then this should
+                    // turn into a method call that contains the complexity
+                    return modifier.invoke(conn, _liaison);
                 }
+
+            } catch (SQLException sqe) {
+                if (!isReadOnlyQuery) {
+                    // convert this exception to a DuplicateKeyException if appropriate
+                    if (_liaison.isDuplicateRowException(sqe)) {
+                        throw new DuplicateKeyException(sqe.getMessage());
+                    }
+                }
+
+                // let the provider know that the connection failed
+                _conprov.connectionFailed(_ident, isReadOnlyQuery, conn, sqe);
+                conn = null;
+
+                if (retryOnTransientFailure && _liaison.isTransientException(sqe)) {
+                    // the MySQL JDBC driver has the annoying habit of including the embedded
+                    // exception stack trace in the message of their outer exception; if I want a
+                    // fucking stack trace, I'll call printStackTrace() thanksverymuch
+                    String msg = StringUtil.split(String.valueOf(sqe), "\n")[0];
+                    log.info("Transient failure executing op, retrying [error=" + msg + "].");
+
+                } else {
+                    String msg = isReadOnlyQuery ?
+                        "Query failure " + query : "Modifier failure " + modifier;
+                    throw new PersistenceException(msg, sqe);
+                }
+
+            } finally {
+                _conprov.releaseConnection(_ident, isReadOnlyQuery, conn);
             }
-
-            // let the provider know that the connection failed
-            _conprov.connectionFailed(_ident, isReadOnlyQuery, conn, sqe);
-            conn = null;
-
-            if (retryOnTransientFailure && _liaison.isTransientException(sqe)) {
-                // the MySQL JDBC driver has the annoying habit of including
-                // the embedded exception stack trace in the message of their
-                // outer exception; if I want a fucking stack trace, I'll call
-                // printStackTrace() thanksverymuch
-                String msg = StringUtil.split(String.valueOf(sqe), "\n")[0];
-                log.info("Transient failure executing operation, retrying [error=" + msg + "].");
-
-            } else {
-                String msg = isReadOnlyQuery ? "Query failure " + query
-                                             : "Modifier failure " + modifier;
-                throw new PersistenceException(msg, sqe);
-            }
-
-        } finally {
-            _conprov.releaseConnection(_ident, isReadOnlyQuery, conn);
         }
 
         // if we got here, we want to retry a transient failure

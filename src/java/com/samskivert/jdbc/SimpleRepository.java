@@ -139,6 +139,7 @@ public class SimpleRepository extends Repository
         V rv = null;
         boolean supportsTransactions = false;
         boolean attemptedOperation = false;
+        Boolean oldAutoCommit = null;
 
         // check our pre-condition
         if (_precond != null && !_precond.validate(_dbident, op)) {
@@ -163,7 +164,10 @@ public class SimpleRepository extends Repository
                 }
 
                 // turn off auto-commit
-                conn.setAutoCommit(false);
+                if (supportsTransactions) {
+                    oldAutoCommit = conn.getAutoCommit();
+                    conn.setAutoCommit(false);
+                }
 
                 // let derived classes do any got-connection processing
                 gotConnection(conn);
@@ -240,6 +244,14 @@ public class SimpleRepository extends Repository
 
             } finally {
                 if (conn != null) {
+                    // restore our auto-commit settings
+                    if (oldAutoCommit != null) {
+                        try {
+                            conn.setAutoCommit(oldAutoCommit);
+                        } catch (SQLException sace) {
+                            Log.warning("Unable to restore auto-commit [err=" + sace + "].");
+                        }
+                    }
                     // release the database connection
                     _provider.releaseConnection(_dbident, readOnly, conn);
                 }

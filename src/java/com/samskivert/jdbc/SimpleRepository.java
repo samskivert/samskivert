@@ -232,8 +232,7 @@ public class SimpleRepository extends Repository
             } catch (RuntimeException rte) {
                 // back out our changes if something got hosed
                 try {
-                    if (supportsTransactions &&
-                        conn != null && !conn.isClosed()) {
+                    if (supportsTransactions && conn != null && !conn.isClosed()) {
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
@@ -245,7 +244,7 @@ public class SimpleRepository extends Repository
             } finally {
                 if (conn != null) {
                     // restore our auto-commit settings
-                    if (oldAutoCommit != null && !conn.isClosed()) {
+                    if (oldAutoCommit != null && conn != null && !conn.isClosed()) {
                         try {
                             conn.setAutoCommit(oldAutoCommit);
                         } catch (SQLException sace) {

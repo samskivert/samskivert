@@ -245,7 +245,7 @@ public class SimpleRepository extends Repository
             } finally {
                 if (conn != null) {
                     // restore our auto-commit settings
-                    if (oldAutoCommit != null) {
+                    if (oldAutoCommit != null && !conn.isClosed()) {
                         try {
                             conn.setAutoCommit(oldAutoCommit);
                         } catch (SQLException sace) {

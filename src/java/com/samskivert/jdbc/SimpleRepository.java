@@ -243,13 +243,13 @@ public class SimpleRepository extends Repository
 
             } finally {
                 if (conn != null) {
-                    // restore our auto-commit settings
-                    if (oldAutoCommit != null && !conn.isClosed()) {
-                        try {
+                    try {
+                        // restore our auto-commit settings
+                        if (oldAutoCommit != null && !conn.isClosed()) {
                             conn.setAutoCommit(oldAutoCommit);
-                        } catch (SQLException sace) {
-                            Log.warning("Unable to restore auto-commit [err=" + sace + "].");
                         }
+                    } catch (SQLException sace) {
+                        Log.warning("Unable to restore auto-commit [err=" + sace + "].");
                     }
                     // release the database connection
                     _provider.releaseConnection(_dbident, readOnly, conn);

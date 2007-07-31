@@ -265,6 +265,14 @@ public class PersistenceContext
     }
 
     /**
+     * Returns true if there is a {@link CacheAdapter} configured, false otherwise.
+     */
+    public boolean isUsingCache ()
+    {
+        return _cache != null;
+    }
+
+    /**
      * Looks up an entry in the cache by the given key.
      */
     public <T> CacheAdapter.CachedValue<T> cacheLookup (CacheKey key)

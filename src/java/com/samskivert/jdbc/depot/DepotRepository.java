@@ -148,7 +148,8 @@ public abstract class DepotRepository
         throws PersistenceException
     {
         DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        boolean useExplicit = (marsh.getTableName() == null) || !marsh.hasPrimaryKey();
+        boolean useExplicit =
+            (marsh.getTableName() == null) || !marsh.hasPrimaryKey() || !_ctx.isUsingCache();
 
         // TODO: This is a very conservative approach where all complicated queries are handled
         // TODO: with the traditional single-pass query. The double pass algorithm can handle a

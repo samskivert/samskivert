@@ -22,11 +22,14 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.FieldMarshaller.BooleanMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ByteArrayMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ByteEnumMarshaller;
@@ -38,44 +41,54 @@ import com.samskivert.jdbc.depot.FieldMarshaller.IntMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.LongMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ObjectMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ShortMarshaller;
+import com.samskivert.jdbc.depot.annotation.FullTextIndex;
+import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
-import com.samskivert.jdbc.depot.operator.Conditionals.Match;
+import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 
 public class MySQLBuilder
     extends SQLBuilder
 {
     public class MSBuildVisitor extends BuildVisitor
     {
-        protected MSBuildVisitor (DepotTypes types)
-        {
-            super(types);
-        }
-
         @Override
-        public void visit (Match match)
+        public void visit (FullTextMatch match)
             throws Exception
         {
             _builder.append("match(");
-            ColumnExp[] columns = match.getColumns();
-            for (int ii = 0; ii < columns.length; ii ++) {
+            Class<? extends PersistentRecord> pClass = match.getPersistentRecord();
+            FullTextIndex fts = _types.getMarshaller(pClass).getFullTextIndex(match.getName());
+            String[] fields = fts.fieldNames();
+            for (int ii = 0; ii < fields.length; ii ++) {
                 if (ii > 0) {
                     _builder.append(", ");
                 }
-                columns[ii].accept(this);
+                new ColumnExp(pClass, fields[ii]).accept(this);
             }
-            _builder.append(") against (?");
-            switch (match.getMode()) {
-            case BOOLEAN:
-                _builder.append(" in boolean mode");
-                break;
-            case NATURAL_LANGUAGE:
-                _builder.append(" in natural language mode");
-                break;
+            _builder.append(") against (? in boolean mode)");
+        }
+
+        @Override
+        public void visit (DeleteClause<? extends PersistentRecord> deleteClause)
+            throws Exception
+        {
+            _builder.append("delete from ");
+            appendTableName(deleteClause.getPersistentClass());
+            _builder.append(" ");
+
+            // MySQL can't do DELETE FROM SomeTable AS T1, so we turn off abbreviations briefly.
+            boolean savedFlag = _types.getUseTableAbbreviations();
+            _types.setUseTableAbbreviations(false);
+            try {
+                deleteClause.getWhereClause().accept(this);
+            } finally {
+                _types.setUseTableAbbreviations(savedFlag);
             }
-            if (match.isQueryExpansion()) {
-                _builder.append(" with query expansion");
-            }
-            _builder.append(")");
+        }
+
+        protected MSBuildVisitor (DepotTypes types)
+        {
+            super(types);
         }
 
         protected void appendTableName (Class<? extends PersistentRecord> type)
@@ -107,7 +120,7 @@ public class MySQLBuilder
         }
 
         @Override
-        public void visit (Match match)
+        public void visit (FullTextMatch match)
             throws Exception
         {
             _stmt.setString(_argIdx ++, match.getQuery());
@@ -117,6 +130,34 @@ public class MySQLBuilder
     public MySQLBuilder (DepotTypes types)
     {
         super(types);
+    }
+
+    @Override
+    public <T extends PersistentRecord> boolean addFullTextSearch (
+        Connection conn, DepotMarshaller<T> marshaller, FullTextIndex fts)
+        throws SQLException
+    {
+        Class<T> pClass = marshaller.getPersistentClass();
+        StringBuilder update = new StringBuilder("ALTER TABLE ").
+            append(marshaller.getTableName()).append(" ADD FULLTEXT INDEX ftsIx_").
+            append(fts.name()).append(" (");
+        String[] fields = fts.fieldNames();
+        for (int ii = 0; ii < fields.length; ii ++) {
+            if (ii > 0) {
+                update.append(", ");
+            }
+            update.append(_types.getColumnName(pClass, fields[ii]));
+        }
+        update.append(")");
+
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(update.toString());
+            stmt.executeUpdate();
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+        return true;
     }
 
     @Override

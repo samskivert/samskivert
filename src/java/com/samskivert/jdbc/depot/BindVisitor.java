@@ -44,7 +44,7 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
-import com.samskivert.jdbc.depot.operator.Conditionals.Match;
+import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 import com.samskivert.jdbc.depot.operator.Logic.Not;
 import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
@@ -128,7 +128,7 @@ public class BindVisitor implements ExpressionVisitor
         }
     }
 
-    public void visit (Match match) throws Exception
+    public void visit (FullTextMatch match) throws Exception
     {
         // we never get here
     }

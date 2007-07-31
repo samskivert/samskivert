@@ -46,7 +46,7 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
-import com.samskivert.jdbc.depot.operator.Conditionals.Match;
+import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 import com.samskivert.jdbc.depot.operator.Logic.Not;
 import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
@@ -197,11 +197,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
         _builder.append(")");
     }
 
-    public void visit (Match match)
-        throws Exception
-    {
-        throw new IllegalArgumentException("Match() is MySQL-specific.");
-    }
+    public abstract void visit (FullTextMatch match)
+        throws Exception;
 
     public void visit (ColumnExp columnExp)
         throws Exception
@@ -456,6 +453,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
     {
         _builder.append("delete from ");
         appendTableName(deleteClause.getPersistentClass());
+        _builder.append(" as ");
+        appendTableAbbreviation(deleteClause.getPersistentClass());
         _builder.append(" ");
         deleteClause.getWhereClause().accept(this);
     }

@@ -247,39 +247,33 @@ public abstract class Conditionals
         }
     }
 
-    /** The MySQL 'match (...) against (...)' operator. */
-    @Deprecated
-    public static class Match
+    /**
+     * An attempt at a dialect-agnostic full-text search condition, such as MySQL's MATCH() and
+     * PostgreSQL's @@ TO_TSQUERY(...) abilities.
+     */
+    public static class FullTextMatch
         implements SQLOperator
     {
-        public enum Mode { DEFAULT, BOOLEAN, NATURAL_LANGUAGE };
-
-        public Match (String query, Mode mode, boolean queryExpansion, ColumnExp... columns)
+        public FullTextMatch (Class<? extends PersistentRecord> pClass, String name, String query)
         {
+            _pClass = pClass;
+            _name = name;
             _query = query;
-            _queryExpansion = queryExpansion;
-            _mode = mode;
-            _columns = columns;
         }
 
+        public Class<? extends PersistentRecord> getPersistentRecord ()
+        {
+            return _pClass;
+        }
+        
         public String getQuery ()
         {
             return _query;
         }
 
-        public Mode getMode ()
+        public String getName ()
         {
-            return _mode;
-        }
-
-        public boolean isQueryExpansion ()
-        {
-            return _queryExpansion;
-        }
-
-        public ColumnExp[] getColumns ()
-        {
-            return _columns;
+            return _name;
         }
 
         // from SQLExpression
@@ -291,14 +285,10 @@ public abstract class Conditionals
         // from SQLExpression
         public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
         {
-            for (ColumnExp column : _columns) {
-                column.addClasses(classSet);
-            }
         }
 
+        protected Class<? extends PersistentRecord> _pClass;
+        protected String _name;
         protected String _query;
-        protected Mode _mode;
-        protected boolean _queryExpansion;
-        protected ColumnExp[] _columns;
     }
 }

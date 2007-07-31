@@ -40,6 +40,7 @@ import java.util.logging.Level;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.annotation.Entity;
+import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.annotation.Id;
 import com.samskivert.jdbc.depot.annotation.Index;
@@ -93,6 +94,14 @@ public class DepotMarshaller<T extends PersistentRecord>
         TableGenerator generator = pclass.getAnnotation(TableGenerator.class);
         if (generator != null) {
             context.tableGenerators.put(generator.name(), generator);
+        }
+
+        // if there are FTS indexes in the Table, map those out here for future use
+        Table table = pclass.getAnnotation(Table.class);
+        if (table != null) {
+            for (FullTextIndex fts : table.fullTextIndexes()) {
+                _fullTextIndexes.put(fts.name(), fts);
+            }
         }
 
         // introspect on the class and create marshallers for persistent fields
@@ -196,6 +205,14 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
+     * Returns the persistent class this is object is a marshaller for.
+     */
+    public Class<T> getPersistentClass ()
+    {
+       return _pclass;
+    }
+
+    /**
      * Returns the name of the table in which persistent instances of our class are stored. By
      * default this is the classname of the persistent object without the package.
      */
@@ -218,6 +235,14 @@ public class DepotMarshaller<T extends PersistentRecord>
     public String[] getColumnFieldNames ()
     {
         return _columnFields;
+    }
+
+    /**
+     * Return the {@link FullTextIndex} registered under the given name, or null if none.
+     */
+    public FullTextIndex getFullTextIndex (String name)
+    {
+        return _fullTextIndexes.get(name);
     }
 
     /**
@@ -448,16 +473,16 @@ public class DepotMarshaller<T extends PersistentRecord>
      * be created. If the schema version specified by the persistent object is newer than the
      * database schema, it will be migrated.
      */
-    protected void init (PersistenceContext ctx)
+    protected void init (final PersistenceContext ctx)
         throws PersistenceException
     {
-        SQLBuilder builder = ctx.getSQLBuilder(DepotTypes.TRIVIAL);
-
         if (_initialized) { // sanity check
             throw new IllegalStateException(
                 "Cannot re-initialize marshaller [type=" + _pclass + "].");
         }
         _initialized = true;
+
+        final SQLBuilder builder = ctx.getSQLBuilder(new DepotTypes(ctx, _pclass));
 
         // perform the context-sensitive initialization of the field marshallers
         for (FieldMarshaller fm : _fields.values()) {
@@ -494,7 +519,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             UniqueConstraint[] uCons = table.uniqueConstraints();
             uniqueConstraintColumns = new String[uCons.length][];
             for (int kk = 0; kk < uCons.length; kk ++) {
-                String[] columns = uCons[kk].columnNames();
+                String[] columns = uCons[kk].fieldNames();
                 for (int ii = 0; ii < columns.length; ii ++) {
                     FieldMarshaller fm = getFieldMarshaller(columns[ii]);
                     if (fm == null) {
@@ -542,8 +567,13 @@ public class DepotMarshaller<T extends PersistentRecord>
                         primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
                     }
                 }
-                liaison.createTableIfMissing(conn, getTableName(), columns, fDeclarations,
-                                             fUniqueConstraintColumns, primaryKeyColumns);
+                if (liaison.createTableIfMissing(conn, getTableName(), columns, fDeclarations,
+                                                 fUniqueConstraintColumns, primaryKeyColumns)) {
+                    for (FullTextIndex fti : _fullTextIndexes.values()) {
+                        builder.addFullTextSearch(conn, DepotMarshaller.this, fti);
+                    }
+                }
+
                 updateVersion(conn, liaison, _schemaVersion);
                 return 0;
             }
@@ -862,6 +892,9 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     /** The fields of our object with directly corresponding table columns. */
     protected String[] _columnFields;
+
+    /** A mapping of all of the full text index annotations for our persistent record. */
+    protected Map<String, FullTextIndex> _fullTextIndexes = new HashMap<String, FullTextIndex>();
 
     /** The version of our persistent object schema as specified in the class definition. */
     protected int _schemaVersion = -1;

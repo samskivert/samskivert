@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
+// Copyright (C) 2007 Michael Bayne, Pär Winzell
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -25,15 +25,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is used to specify that a unique constraint is to be included in the
- * generated DDL for a table.
+ * This annotation is used to specify that a full text index is to be included in the generated DDL
+ * for a table.
  */
 @Target(value={})
 @Retention(value=RetentionPolicy.RUNTIME)
-public @interface UniqueConstraint
+public @interface FullTextIndex
 {
     /**
-     * An array of the field names that make up the constraint
+     * An identifier for this index, unique with the scope of the record.
      */
-    public String[] fieldNames () default {};
+    public String name ();
+
+    /**
+     * An array of the field names that should be indexed.
+     */
+    public String[] fieldNames (); 
 }

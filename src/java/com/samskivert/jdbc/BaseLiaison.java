@@ -21,7 +21,6 @@
 package com.samskivert.jdbc;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -103,10 +102,9 @@ public abstract class BaseLiaison implements DatabaseLiaison
         }
         update.append(")");
 
-        PreparedStatement stmt = null;
+        Statement stmt = null;
         try {
-            stmt = conn.prepareStatement(update.toString());
-            stmt.executeUpdate();
+            stmt.executeUpdate(update.toString());
         } finally {
             JDBCUtil.close(stmt);
         }
@@ -116,15 +114,34 @@ public abstract class BaseLiaison implements DatabaseLiaison
     }
 
     // from DatabaseLiaison
+    public boolean addColumn (
+        Connection conn, String table, String column, String definition, boolean check)
+        throws SQLException
+    {
+        if (check && tableContainsColumn(conn, table, column)) {
+            return false;
+        }
+
+        Statement stmt = null;
+        try {
+            stmt.executeUpdate("ALTER TABLE " + tableSQL(table) + " ADD COLUMN " +
+                               columnSQL(column) + " " + definition);
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+
+        Log.info("Database column '" + column + "' added to table '" + table + "'.");
+        return true;
+    }
+
+    // from DatabaseLiaison
     public boolean changeColumn (Connection conn, String table, String column, String definition)
         throws SQLException
     {
-        PreparedStatement stmt = null;
+        Statement stmt = null;
         try {
-            stmt = conn.prepareStatement(
-                "ALTER TABLE " + tableSQL(table) + " CHANGE " + columnSQL(column) +
-                " " + column + " " + definition);
-            stmt.executeUpdate();
+            stmt.executeUpdate("ALTER TABLE " + tableSQL(table) + " CHANGE " +
+                               columnSQL(column) + " " + column + " " + definition);
         } finally {
             JDBCUtil.close(stmt);
         }
@@ -138,12 +155,11 @@ public abstract class BaseLiaison implements DatabaseLiaison
     public boolean renameColumn (Connection conn, String table, String from, String to)
         throws SQLException
     {
-        PreparedStatement stmt = null;
+        Statement stmt = null;
         try {
-            stmt = conn.prepareStatement(
-                "ALTER TABLE " + tableSQL(table) + " RENAME COLUMN " + columnSQL(from) +
-                " TO " + columnSQL(to));
-            if (stmt.executeUpdate() == 1) {
+            String query = "ALTER TABLE " + tableSQL(table) + " RENAME COLUMN " +
+                columnSQL(from) + " TO " + columnSQL(to);
+            if (stmt.executeUpdate(query) == 1) {
                 Log.info("Renamed column '" + from + "' on table '" + table + "' to '" + to + "'");
             }
         } finally {
@@ -159,11 +175,10 @@ public abstract class BaseLiaison implements DatabaseLiaison
             return false;
         }
 
-        PreparedStatement stmt = null;
+        Statement stmt = null;
         try {
-            stmt = conn.prepareStatement(
-                "ALTER TABLE " + tableSQL(table) + " DROP COLUMN " + columnSQL(column));
-            if (stmt.executeUpdate() == 1) {
+            String query = "ALTER TABLE " + tableSQL(table) + " DROP COLUMN " + columnSQL(column);
+            if (stmt.executeUpdate(query) == 1) {
                 Log.info("Database index '" + column + "' removed from table '" + table + "'.");
             }
         } finally {

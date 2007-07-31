@@ -26,8 +26,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.samskivert.jdbc.depot.annotation.Column;
+import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.operator.Conditionals;
 
 /**
  * At the heart of Depot's SQL generation, this object constructs two {@link ExpressionVisitor}
@@ -170,6 +172,17 @@ public abstract class SQLBuilder
 
         return builder.toString();
     }
+
+    /**
+     * Add full-text search capabilities, as defined by the provided {@link FullTextIndex}, on
+     * the table associated with the given {@link DepotMarshaller}. This is a highly database
+     * specific operation and must thus be implemented by each dialect subclass.
+     * 
+     * {@see Conditionals.FullTextIndex}
+     */
+    public abstract <T extends PersistentRecord> boolean addFullTextSearch (
+        Connection conn, DepotMarshaller<T> marshaller, FullTextIndex fts)
+        throws SQLException;
 
     /**
      * Overridden by subclasses to create a dialect-specific {@link BuildVisitor}.

@@ -88,10 +88,11 @@ public interface DatabaseLiaison
         throws SQLException;
 
     /**
-     * Alter the name, but not the definition, of a given column on a given table. Returns true or
-     * false if the database did or did not report a schema modification.
+     * Adds a column to a table with the given definition. Tests for the previous existence of
+     * the column iff 'check' is true.
      */
-    public boolean renameColumn (Connection conn, String table, String oldColumn, String newColumn)
+    public boolean addColumn (
+        Connection conn, String table, String column, String definition, boolean check)
         throws SQLException;
 
     /**
@@ -102,6 +103,13 @@ public interface DatabaseLiaison
      */
     public boolean changeColumn (
         Connection conn, String table, String column, String definition)
+        throws SQLException;
+
+    /**
+     * Alter the name, but not the definition, of a given column on a given table. Returns true or
+     * false if the database did or did not report a schema modification.
+     */
+    public boolean renameColumn (Connection conn, String table, String oldColumn, String newColumn)
         throws SQLException;
 
     /**

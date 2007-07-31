@@ -40,4 +40,9 @@ public @interface Table
      * Defaults to no additional constraints.
      */
     public UniqueConstraint[] uniqueConstraints () default {};
+    
+    /**
+     * Full-text search indexes defined on this entity, if any. Defaults to none.
+     */
+    public FullTextIndex[] fullTextIndexes () default {};
 }

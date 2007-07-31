@@ -40,7 +40,7 @@ import com.samskivert.jdbc.depot.clause.Where;
 
 import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
-import com.samskivert.jdbc.depot.operator.Conditionals.Match;
+import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 import com.samskivert.jdbc.depot.operator.Logic.Not;
 import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
@@ -70,7 +70,7 @@ public interface ExpressionVisitor
         throws Exception;
     public void visit (In in)
         throws Exception;
-    public void visit (Match match)
+    public void visit (FullTextMatch match)
         throws Exception;
     public void visit (ColumnExp columnExp)
         throws Exception;

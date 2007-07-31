@@ -22,11 +22,10 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.SQLException;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,41 +68,11 @@ public class DepotTypes
         return new DepotTypes(ctx, classSet);
     }
 
-    public String getTableName (Class<? extends PersistentRecord> cl)
-    {
-        return _classMap.get(cl).getTableName();
-    }
-
-    public String getTableAbbreviation (Class<? extends PersistentRecord> cl)
-    {
-        int ix = _classList.indexOf(cl);
-        if (ix < 0) {
-            throw new IllegalArgumentException("Unknown persistence class: " + cl);
-        }
-        return "T" + (ix+1);
-    }
-
-    public String getColumnName (Class<? extends PersistentRecord> cl, String field)
-    {
-        return getMarshaller(cl).getFieldMarshaller(field).getColumnName();
-    }
-
-    public DepotMarshaller getMarshaller (Class cl)
-    {
-        return _classMap.get(cl);
-    }
-
-    public void addClass (PersistenceContext ctx, Class <? extends PersistentRecord> type)
-        throws PersistenceException
-    {
-        if (_classMap.containsKey(type)) {
-            return;
-        }
-        _classList.add(type);
-        _classMap.put(type, ctx.getMarshaller(type));
-    }
-
-    protected DepotTypes (PersistenceContext ctx, Set<Class<? extends PersistentRecord>> others)
+    /**
+     * Create a new DepotTypes with the given {@link PersistenceContext} and a collection of
+     * persistent record classes.
+     */
+    public DepotTypes (PersistenceContext ctx, Collection<Class<? extends PersistentRecord>> others)
         throws PersistenceException
     {
         for (Class<? extends PersistentRecord> c : others) {
@@ -111,14 +80,114 @@ public class DepotTypes
         }
     }
 
+    /**
+     * Create a new DepotTypes with the given {@link PersistenceContext} and the given
+     * persistent record.
+     */
+    public DepotTypes (PersistenceContext ctx, Class<? extends PersistentRecord> pClass)
+        throws PersistenceException
+    {
+        addClass(ctx, pClass);
+    }
+
+    /**
+     * Return the full table name of the given persistent class, which must have been previously
+     * registered with this object.
+     */
+    public String getTableName (Class<? extends PersistentRecord> cl)
+    {
+        return _classMap.get(cl).getTableName();
+    }
+
+    /**
+     * Return the current abbreviation by which we refer to the table associated with the given
+     * persistent record -- which must have been previously registered with this object. If the
+     * useTableAbbreviations flag is false, we return the full table name instead.
+     */
+    public String getTableAbbreviation (Class<? extends PersistentRecord> cl)
+    {
+        if (_useTableAbbreviations) {
+            Integer ix = _classIx.get(cl);
+            if (ix == null) {
+                throw new IllegalArgumentException("Unknown persistence class: " + cl);
+            }
+            return "T" + (ix+1);
+        }
+        return getTableName(cl);
+    }
+
+    /**
+     * Return the associated database column of the given field of the given persistent class,
+     * or null if there is no associated marshaller, or if the field is unknown on the class, or
+     * if the field does not directly associate with a column.
+     */
+    public String getColumnName (Class<? extends PersistentRecord> cl, String field)
+    {
+        DepotMarshaller dm = getMarshaller(cl);
+        if (dm != null) {
+            FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
+            if (fm != null) {
+                return fm.getColumnName();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return the {@link DepotMarshaller} associated with the given persistent class, or null
+     * if the class has not been previously registered with this object.
+     */
+    public DepotMarshaller getMarshaller (Class<? extends PersistentRecord> cl)
+    {
+        return _classMap.get(cl);
+    }
+
+    /**
+     * Register a new persistent class with this object.
+     */
+    public void addClass (PersistenceContext ctx, Class <? extends PersistentRecord> type)
+        throws PersistenceException
+    {
+        if (_classMap.containsKey(type)) {
+            return;
+        }
+        _classMap.put(type, ctx.getMarshaller(type));
+        _classIx.put(type, _classIx.size());
+    }
+
+    /**
+     * Return the value of the useTableAbbreviations flag, which governs the behaviour when
+     * referencing columns during SQL construction. Normally, this flag is on, and tables are
+     * referenced as e.g. T1.itemId, but there are cases of weak/broken SQL where abbreviations
+     * may not be brought into play. In these cases we prepend the full table name.
+     */
+    public boolean getUseTableAbbreviations ()
+    {
+        return _useTableAbbreviations;
+    }
+
+    /**
+     * Sets the value of the useTableAbbreviations flag, which governs the behaviour when
+     * referencing columns during SQL construction. Normally, this flag is on, and tables are
+     * referenced as e.g. T1.itemId, but there are cases of weak/broken SQL where abbreviations
+     * may not be brought into play. In these cases we prepend the full table name.
+     */
+    public void setUseTableAbbreviations (boolean doUse)
+    {
+        _useTableAbbreviations = doUse;
+    }
+
+    // constructor used to create TRIVIAL
     protected DepotTypes ()
     {
     }
 
-    /** A list of referenced classes, used to generate table abbreviations. */
-    protected List<Class<? extends PersistentRecord>> _classList =
-        new ArrayList<Class<? extends PersistentRecord>>();
+    /** Classes mapped to integers, used for table abbreviation indexing. */
+    protected Map<Class, Integer> _classIx = new HashMap<Class, Integer>();
 
     /** Classes mapped to marshallers, used for table names and field lists. */
     protected Map<Class, DepotMarshaller> _classMap = new HashMap<Class, DepotMarshaller>();
+
+    /** When false, override the normal table abbreviations and return full table names instead. */
+    protected boolean _useTableAbbreviations = true;
 }

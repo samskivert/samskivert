@@ -77,9 +77,19 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     public JDBCTableSiteIdentifier (ConnectionProvider conprov)
         throws PersistenceException
     {
+        this(conprov, DEFAULT_SITE_ID);
+    }
+
+    /**
+     * Creates an identifier that will load data from the supplied connection provider and which
+     * will use the supplied default site id instead of {@link #DEFAULT_SITE_ID}.
+     */
+    public JDBCTableSiteIdentifier (ConnectionProvider conprov, int defaultSiteId)
+        throws PersistenceException
+    {
         _repo = new SiteIdentifierRepository(conprov);
-        // load up our site data
         _repo.refreshSiteData();
+        _defaultSiteId = defaultSiteId;
     }
 
     // documentation inherited
@@ -104,7 +114,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         }
 
         // if we matched nothing, return the default id
-        return DEFAULT_SITE_ID;
+        return _defaultSiteId;
     }
 
     // documentation inherited
@@ -112,6 +122,9 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     {
         checkReloadSites();
         Site site = _sitesById.get(siteId);
+        if (site == null) {
+            site = _sitesById.get(_defaultSiteId);
+        }
         return (site == null) ? DEFAULT_SITE_STRING : site.siteString;
     }
 
@@ -120,7 +133,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     {
         checkReloadSites();
         Site site = _sitesByString.get(siteString);
-        return (site == null) ? DEFAULT_SITE_ID : site.siteId;
+        return (site == null) ? _defaultSiteId : site.siteId;
     }
 
     // documentation inherited from interface
@@ -305,6 +318,9 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
 
     /** The repository through which we load up site identifier information. */
     protected SiteIdentifierRepository _repo;
+
+    /** The site id to return if we cannot identify the site from our table data. */
+    protected int _defaultSiteId;
 
     /** The list of domain to site identifier mappings ordered from most specific domain to least
      * specific. */

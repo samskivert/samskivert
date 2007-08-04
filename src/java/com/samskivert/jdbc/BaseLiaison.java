@@ -102,7 +102,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         }
         update.append(")");
 
-        Statement stmt = null;
+        Statement stmt = conn.createStatement();
         try {
             stmt.executeUpdate(update.toString());
         } finally {
@@ -122,7 +122,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
             return false;
         }
 
-        Statement stmt = null;
+        Statement stmt = conn.createStatement();
         try {
             stmt.executeUpdate("ALTER TABLE " + tableSQL(table) + " ADD COLUMN " +
                                columnSQL(column) + " " + definition);
@@ -138,7 +138,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
     public boolean changeColumn (Connection conn, String table, String column, String definition)
         throws SQLException
     {
-        Statement stmt = null;
+        Statement stmt = conn.createStatement();
         try {
             stmt.executeUpdate("ALTER TABLE " + tableSQL(table) + " CHANGE " +
                                columnSQL(column) + " " + column + " " + definition);
@@ -155,7 +155,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
     public boolean renameColumn (Connection conn, String table, String from, String to)
         throws SQLException
     {
-        Statement stmt = null;
+        Statement stmt = conn.createStatement();
         try {
             String query = "ALTER TABLE " + tableSQL(table) + " RENAME COLUMN " +
                 columnSQL(from) + " TO " + columnSQL(to);
@@ -175,7 +175,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
             return false;
         }
 
-        Statement stmt = null;
+        Statement stmt = conn.createStatement();
         try {
             String query = "ALTER TABLE " + tableSQL(table) + " DROP COLUMN " + columnSQL(column);
             if (stmt.executeUpdate(query) == 1) {

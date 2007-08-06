@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -34,9 +34,8 @@ public @interface Index
     /** Defines the name of the index. */
     String name ();
 
-    /** Configures the type of this index if necessary. MySQL supports FULLTEXT, SPATIAL and
-     * UNIQUE. */
-    String type () default "";
+    /** Does this index enforce a uniqueness constraint? */
+    boolean unique () default false;
 
     /** Defines the columns on which the index operates. */
     String[] columns () default {};

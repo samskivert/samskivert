@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -46,13 +46,13 @@ public interface Query<T>
         public void updateCache (PersistenceContext ctx, T result) {
         }
     }
-    
+
     /**
      * Any query may elect to utilize the built-in cache by returning a non-null {@link CacheKey}
      * in this method. This is done automatically by the {@link DepotRepository} when looking up
      * single entities by primary key, but even entire collections can be cached under a single
      * key.
-     * 
+     *
      * Great care must be taken to invalidate such cached collections when their constituent
      * entities are invalidated. This is generally done using {@link CacheListener} and
      * {@link CacheInvalidator}.
@@ -60,7 +60,7 @@ public interface Query<T>
     public CacheKey getCacheKey ();
 
     /**
-     * Performs the actual JDBC operations associated with this query. 
+     * Performs the actual JDBC operations associated with this query.
      */
     public T invoke (Connection conn, DatabaseLiaison liaison)
         throws SQLException;

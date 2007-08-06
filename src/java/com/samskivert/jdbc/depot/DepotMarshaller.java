@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -551,60 +552,61 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         });
 
-        // now create the table for our persistent class if it does not exist
-        final String[] fDeclarations = declarations;
-        final String[][] fUniqueConstraintColumns = uniqueConstraintColumns;
-        ctx.invoke(new Modifier() {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                String[] columns = new String[_columnFields.length];
-                for (int ii = 0; ii < columns.length; ii ++) {
-                    columns[ii] = _fields.get(_columnFields[ii]).getColumnName();
-                }
-                String[] primaryKeyColumns = null;
-                if (_pkColumns != null) {
-                    primaryKeyColumns = new String[_pkColumns.size()];
-                    for (int ii = 0; ii < primaryKeyColumns.length; ii ++) {
-                        primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
-                    }
-                }
-                if (liaison.createTableIfMissing(conn, getTableName(), columns, fDeclarations,
-                                                 fUniqueConstraintColumns, primaryKeyColumns)) {
-                    for (FullTextIndex fti : _fullTextIndexes.values()) {
-                        builder.addFullTextSearch(conn, DepotMarshaller.this, fti);
-                    }
-                }
-
-                updateVersion(conn, liaison, _schemaVersion);
-                return 0;
+        // fetch all relevant information regarding our table from the database
+        final TableMetaData metaData = ctx.invoke(new Query.TrivialQuery<TableMetaData>() {
+            public TableMetaData invoke (Connection conn, DatabaseLiaison dl) throws SQLException {
+                return new TableMetaData(conn.getMetaData());
             }
         });
 
-        // ensure that all indices are created
-        final Entity entity = _pclass.getAnnotation(Entity.class);
-        if (entity != null && entity.indices().length > 0) {
-            ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                    for (Index idx : entity.indices()) {
-                        liaison.addIndexToTable(conn, getTableName(), idx.columns(), idx.name());
-                    }
-                    return entity.indices().length;
-                }
-            });
-        }
+        // if the table does not exist, create it
+        if (!metaData.tableExists) {
+            final Entity entity = _pclass.getAnnotation(Entity.class);
+            final String[] fDeclarations = declarations;
+            final String[][] fUniqueConstraintColumns = uniqueConstraintColumns;
 
-        // if we have a key generator, initialize that too
-        if (_keyGenerator != null) {
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                    _keyGenerator.init(conn, liaison);
+                    // create the table
+                    String[] columns = new String[_columnFields.length];
+                    for (int ii = 0; ii < columns.length; ii ++) {
+                        columns[ii] = _fields.get(_columnFields[ii]).getColumnName();
+                    }
+                    String[] primaryKeyColumns = null;
+                    if (_pkColumns != null) {
+                        primaryKeyColumns = new String[_pkColumns.size()];
+                        for (int ii = 0; ii < primaryKeyColumns.length; ii ++) {
+                            primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
+                        }
+                    }
+                    liaison.createTableIfMissing(conn, getTableName(), columns, fDeclarations,
+                        fUniqueConstraintColumns, primaryKeyColumns);
+
+                    // add its indexen
+                    for (Index idx : entity.indices()) {
+                        liaison.addIndexToTable(
+                            conn, getTableName(), idx.columns(), idx.name(), idx.unique());
+                    }
+                    if (_keyGenerator != null) {
+                        _keyGenerator.init(conn, liaison);
+                    }
+                    for (FullTextIndex fti : _fullTextIndexes.values()) {
+                        builder.addFullTextSearch(conn, DepotMarshaller.this, fti);
+                    }
+
+                    updateVersion(conn, liaison, _schemaVersion);
                     return 0;
                 }
             });
+
+            // and we're done
+            return;
         }
 
-        // if schema versioning is disabled, stop now
+        // if the table exists, see if should attempt automatic schema migration
         if (_schemaVersion < 0) {
-            verifySchemasMatch(ctx);
+            // nope, versioning disabled
+            verifySchemasMatch(metaData, ctx);
             return;
         }
 
@@ -625,20 +627,15 @@ public class DepotMarshaller<T extends PersistentRecord>
                 }
             }
         });
-        if (currentVersion == _schemaVersion) {
-            verifySchemasMatch(ctx);
-            return;
-        }
 
-        if (true) {
-            log.warning("Automatic schema migration is temporarily disabled.");
-            verifySchemasMatch(ctx);
+        if (currentVersion == _schemaVersion) {
+            verifySchemasMatch(metaData, ctx);
             return;
         }
 
         // otherwise try to migrate the schema
-        log.info("Migrating " + getTableName() + " from " +
-                 currentVersion + " to " + _schemaVersion + "...");
+        log.info("Migrating " + getTableName() + " from " + currentVersion + " to " +
+                 _schemaVersion + "...");
 
         // run our pre-default-migrations
         for (EntityMigration migration : _migrations) {
@@ -648,9 +645,6 @@ public class DepotMarshaller<T extends PersistentRecord>
                 ctx.invoke(migration);
             }
         }
-
-        // enumerate all columns and indexes now that we've run our pre-migrations
-        TableMetaData metaData = loadMetaData(ctx);
 
         // this is a little silly, but we need a copy for name disambiguation later
         Set<String> indicesCopy = new HashSet<String>(metaData.indexColumns.keySet());
@@ -691,70 +685,77 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         }
 
-        // TODO: This needs more work to be database-independent, I think. Assuming the index name
-        // is going to be PRIMARY seems like a MySQL-ism, and we'll do the rest of the index work
-        // when we do that.
+        // add or remove the primary key as needed
+        if (hasPrimaryKey() && metaData.pkName == null) {
+            log.info("Adding primary key.");
+            ctx.invoke(new Modifier() {
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    liaison.addPrimaryKey(conn, getTableName(), getPrimaryKeyFields());
+                    return 0;
+                }
+            });
 
-//        // add or remove the primary key as needed
-//        if (hasPrimaryKey() && !indexColumns.containsKey("PRIMARY")) {
-//            String pkdef = "primary key (" + getJoinedKeyColumns() + ")";
-//            log.info("Adding primary key to " + getTableName() + ": " + pkdef);
-//            ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " add " + pkdef));
-//
-//        } else if (!hasPrimaryKey() && indexColumns.containsKey("PRIMARY")) {
-//            indexColumns.remove("PRIMARY");
-//            log.info("Dropping primary from " + getTableName());
-//            ctx.invoke(new Modifier.Simple("alter table " + getTableName() + " drop primary key"));
-//        }
-//
-//        // add any missing indices
-//        for (Index index : (entity == null ? new Index[0] : entity.indices())) {
-//            if (indexColumns.containsKey(index.name())) {
-//                indexColumns.remove(index.name());
-//                continue;
-//            }
-//            String indexdef =
-//                "create " + index.type() + " index " + _liaison.indexSQL(index.name()) +
-//                " on " + _liaison.tableSQL(getTableName()) + " (" + StringUtil.join(index.columns(), ", ") + ")";
-//            log.info("Adding index: " + indexdef);
-//            ctx.invoke(new Modifier.Simple(indexdef));
-//        }
-//
-//        // to get the @Table(uniqueIndices...) indices, we use our clever set of column name sets
-//        Set<Set<String>> uniqueIndices = new HashSet<Set<String>>(indexColumns.values());
-//        Table table;
-//        if (getTableName() != null && (table = _pclass.getAnnotation(Table.class)) != null) {
-//            Set<String> colSet = new HashSet<String>();
-//            for (UniqueConstraint constraint : table.uniqueConstraints()) {
-//                // for each given UniqueConstraint, build a new column set
-//                colSet.clear();
-//                for (String column : constraint.columnNames()) {
-//                    colSet.add(column);
-//                }
-//                // and check if the table contained this set
-//                if (uniqueIndices.contains(colSet)) {
-//                    continue; // good, carry on
-//                }
-//
-//                // else build the index; we'll use mysql's convention of naming it after a column,
-//                // with possible _N disambiguation; luckily we made a copy of the index names!
-//                String indexName = colSet.iterator().next();
-//                if (indicesCopy.contains(indexName)) {
-//                    int num = 1;
-//                    indexName += "_";
-//                    while (indicesCopy.contains(indexName + num)) {
-//                        num ++;
-//                    }
-//                    indexName += num;
-//                }
-//
-//                String[] columnArr = colSet.toArray(new String[colSet.size()]);
-//                String indexdef = "create unique index " + indexName + " on " +
-//                    getTableName() + " (" + StringUtil.join(columnArr, ", ") + ")";
-//                log.info("Adding unique index: " + indexdef);
-//                ctx.invoke(new Modifier.Simple(indexdef));
-//            }
-//        }
+        } else if (!hasPrimaryKey() && metaData.pkName != null) {
+            log.info("Dropping primary key.");
+            ctx.invoke(new Modifier() {
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    liaison.dropPrimaryKey(conn, getTableName(), metaData.pkName);
+                    return 0;
+                }
+            });
+        }
+
+        Entity entity = _pclass.getAnnotation(Entity.class);
+        // add any missing indices
+        for (final Index index : (entity == null ? new Index[0] : entity.indices())) {
+            if (metaData.indexColumns.containsKey(index.name())) {
+                metaData.indexColumns.remove(index.name());
+                continue;
+            }
+            ctx.invoke(new Modifier() {
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    liaison.addIndexToTable(
+                        conn, getTableName(), index.columns(), index.name(), index.unique());
+                    return 0;
+                }
+            });
+        }
+
+        // to get the @Table(uniqueIndices...) indices, we use our clever set of column name sets
+        Set<Set<String>> uniqueIndices = new HashSet<Set<String>>(metaData.indexColumns.values());
+
+        if (getTableName() != null && table != null) {
+            for (UniqueConstraint constraint : table.uniqueConstraints()) {
+                // for each given UniqueConstraint, build a new column set
+                Set<String> colSet = new HashSet<String>(Arrays.asList(constraint.fieldNames()));
+
+                // and check if the table contained this set
+                if (uniqueIndices.contains(colSet)) {
+                    continue; // good, carry on
+                }
+
+                // else build the index; we'll use mysql's convention of naming it after a column,
+                // with possible _N disambiguation; luckily we made a copy of the index names!
+                String indexName = colSet.iterator().next();
+                if (indicesCopy.contains(indexName)) {
+                    int num = 1;
+                    indexName += "_";
+                    while (indicesCopy.contains(indexName + num)) {
+                        num ++;
+                    }
+                    indexName += num;
+                }
+
+                final String[] colArr = colSet.toArray(new String[colSet.size()]);
+                final String fName = indexName;
+                ctx.invoke(new Modifier() {
+                    public int invoke (Connection conn, DatabaseLiaison dl) throws SQLException {
+                        dl.addIndexToTable(conn, getTableName(), colArr, fName, true);
+                        return 0;
+                    }
+                });
+            }
+        }
 
         // we do not auto-remove columns but rather require that EntityMigration.Drop records be
         // registered by hand to avoid accidentally causing the loss of data
@@ -781,19 +782,9 @@ public class DepotMarshaller<T extends PersistentRecord>
         });
     }
 
-    protected TableMetaData loadMetaData (PersistenceContext ctx)
-        throws PersistenceException
-    {
-        return ctx.invoke(new Query.TrivialQuery<TableMetaData>() {
-            public TableMetaData invoke (Connection conn, DatabaseLiaison liaison)
-                throws SQLException {
-                return new TableMetaData(conn.getMetaData());
-            }
-        });
-    }
-
     protected class TableMetaData
     {
+        public boolean tableExists;
         public Set<String> tableColumns = new HashSet<String>();
         public Map<String, Set<String>> indexColumns = new HashMap<String, Set<String>>();
         public String pkName;
@@ -802,6 +793,11 @@ public class DepotMarshaller<T extends PersistentRecord>
         public TableMetaData (DatabaseMetaData meta)
             throws SQLException
         {
+            tableExists = meta.getTables("", "", getTableName(), null).next();
+            if (!tableExists) {
+                return;
+            }
+
             ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
             while (rs.next()) {
                 tableColumns.add(rs.getString("COLUMN_NAME"));
@@ -838,10 +834,9 @@ public class DepotMarshaller<T extends PersistentRecord>
     /**
      * Checks that there are no database columns for which we no longer have Java fields.
      */
-    protected void verifySchemasMatch (PersistenceContext ctx)
+    protected void verifySchemasMatch (TableMetaData meta, PersistenceContext ctx)
         throws PersistenceException
     {
-        TableMetaData meta = loadMetaData(ctx);
         for (String fname : _columnFields) {
             FieldMarshaller fmarsh = _fields.get(fname);
             meta.tableColumns.remove(fmarsh.getColumnName());

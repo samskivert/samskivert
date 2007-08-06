@@ -84,7 +84,27 @@ public interface DatabaseLiaison
      * Adds a named index to a table on the given columns. Returns true or false if the database
      * did or did not report a schema modification.
      */
-    public boolean addIndexToTable (Connection conn, String table, String[] columns, String index)
+    public boolean addIndexToTable (
+        Connection conn, String table, String[] columns, String index, boolean unique)
+        throws SQLException;
+
+    /**
+     * Drops the named index from the given table.
+     */
+    public void dropIndex (Connection conn, String table, String index)
+        throws SQLException;
+
+    /**
+     * Adds a primary key to a table of the given name and on the given columns. Returns true or
+     * false if the database did nor did not report a schema modification.
+     */
+    public void addPrimaryKey (Connection conn, String table, String[] columns)
+        throws SQLException;
+
+    /**
+     * Deletes the primary key from a table, if it exists.
+     */
+    public void dropPrimaryKey (Connection conn, String table, String pkName)
         throws SQLException;
 
     /**

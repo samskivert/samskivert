@@ -36,7 +36,7 @@ public class PostgreSQLLiaison extends BaseLiaison
     // from DatabaseLiaison
     public boolean isDuplicateRowException (SQLException sqe)
     {
-	String msg = sqe.getMessage();
+        String msg = sqe.getMessage();
         return (msg != null && msg.indexOf("duplicate key") != -1);
     }
 
@@ -44,8 +44,8 @@ public class PostgreSQLLiaison extends BaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
         // TODO: Add more error messages here as we encounter them.
-	String msg = sqe.getMessage();
-	return (msg != null &&
+        String msg = sqe.getMessage();
+        return (msg != null &&
                 msg.indexOf("An I/O error occured while sending to the backend") != -1);
     }
 

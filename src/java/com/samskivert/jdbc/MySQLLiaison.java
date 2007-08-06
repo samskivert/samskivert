@@ -23,7 +23,6 @@ package com.samskivert.jdbc;
 import java.sql.*;
 
 import com.samskivert.Log;
-import com.samskivert.util.StringUtil;
 
 /**
  * A database liaison for the MySQL database.
@@ -39,15 +38,15 @@ public class MySQLLiaison extends BaseLiaison
     // from DatabaseLiaison
     public boolean isDuplicateRowException (SQLException sqe)
     {
-	String msg = sqe.getMessage();
-	return (msg != null && msg.indexOf("Duplicate entry") != -1);
+        String msg = sqe.getMessage();
+        return (msg != null && msg.indexOf("Duplicate entry") != -1);
     }
 
     // from DatabaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
-	String msg = sqe.getMessage();
-	return (msg != null && (msg.indexOf("Lost connection") != -1 ||
+        String msg = sqe.getMessage();
+        return (msg != null && (msg.indexOf("Lost connection") != -1 ||
                                 msg.indexOf("link failure") != -1 ||
                                 msg.indexOf("Broken pipe") != -1));
     }
@@ -77,18 +76,21 @@ public class MySQLLiaison extends BaseLiaison
     }
 
     @Override // from BaseLiaison
-    public boolean addIndexToTable (Connection conn, String table, String[] columns, String ixName)
+    public boolean addIndexToTable (
+        Connection conn, String table, String[] columns, String ixName, boolean unique)
         throws SQLException
     {
         if (tableContainsIndex(conn, table, ixName)) {
             return false;
         }
-        ixName = (ixName != null ? ixName : StringUtil.join(columns, "_"));
 
         // MySQL's "CREATE INDEX" is buggy, it actually changes the case of the table names you're
         // working with. Luckily (?) ALTER TABLE ADD INDEX works, so we do that here.
-        StringBuilder update = new StringBuilder("ALTER TABLE ").append(table).
-            append(" ADD INDEX ").append(indexSQL(ixName)).append(" (");
+        StringBuilder update = new StringBuilder("ALTER TABLE ").append(table).append(" ADD ");
+        if (unique) {
+            update.append("UNIQUE ");
+        }
+        update.append("INDEX ").append(indexSQL(ixName)).append(" (");
         for (int ii = 0; ii < columns.length; ii ++) {
             if (ii > 0) {
                 update.append(", ");
@@ -107,6 +109,31 @@ public class MySQLLiaison extends BaseLiaison
 
         Log.info("Database index '" + ixName + "' added to table '" + table + "'");
         return true;
+    }
+
+    @Override // from BaseLiaison
+    public void dropIndex (Connection conn, String table, String index)
+        throws SQLException
+    {
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.executeUpdate(
+                "ALTER TABLE " + tableSQL(table) + " DROP INDEX " + columnSQL(index));
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+    }
+
+    @Override // from BaseLiaison
+    public void dropPrimaryKey (Connection conn, String table, String pkName)
+        throws SQLException
+    {
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.executeUpdate("ALTER TABLE " + tableSQL(table) + " DROP PRIMARY KEY");
+        } finally {
+            JDBCUtil.close(stmt);
+        }
     }
 
     // from DatabaseLiaison

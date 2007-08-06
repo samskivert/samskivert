@@ -84,7 +84,8 @@ public abstract class BaseLiaison implements DatabaseLiaison
     }
 
     // from DatabaseLiaison
-    public boolean addIndexToTable (Connection conn, String table, String[] columns, String ixName)
+    public boolean addIndexToTable (
+        Connection conn, String table, String[] columns, String ixName, boolean unique)
         throws SQLException
     {
         if (tableContainsIndex(conn, table, ixName)) {
@@ -92,8 +93,12 @@ public abstract class BaseLiaison implements DatabaseLiaison
         }
         ixName = (ixName != null ? ixName : StringUtil.join(columns, "_"));
 
-        StringBuilder update = new StringBuilder("CREATE INDEX ").append(indexSQL(ixName)).
-            append(" on ").append(tableSQL(table)).append(" (");
+        StringBuilder update = new StringBuilder("CREATE ");
+        if (unique) {
+            update.append("UNIQUE ");
+        }
+        update.append("INDEX ").append(indexSQL(ixName)).append(" ON ").
+            append(tableSQL(table)).append(" (");
         for (int ii = 0; ii < columns.length; ii ++) {
             if (ii > 0) {
                 update.append(", ");
@@ -111,6 +116,49 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
         Log.info("Database index '" + ixName + "' added to table '" + table + "'");
         return true;
+    }
+
+    // from DatabaseLiaison
+    public void addPrimaryKey (Connection conn, String table, String[] columns)
+        throws SQLException
+    {
+        StringBuilder fields = new StringBuilder("(");
+        for (int ii = 0; ii < columns.length; ii ++) {
+            if (ii > 0) {
+                fields.append(", ");
+            }
+            fields.append(columnSQL(columns[ii]));
+        }
+        fields.append(")");
+        String update = "ALTER TABLE " + tableSQL(table) + " ADD PRIMARY KEY " + fields.toString();
+
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.executeUpdate(update.toString());
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+
+        Log.info("Primary key " + fields + " added to table '" + table + "'");
+    }
+
+    // from DatabaseLiaison
+    public void dropIndex (Connection conn, String table, String index) throws SQLException
+    {
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.executeUpdate(
+                "ALTER TABLE " + tableSQL(table) + " DROP CONSTRAINT " + columnSQL(index));
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+    }
+
+    // from DatabaseLiaison
+    public void dropPrimaryKey (Connection conn, String table, String pkName)
+        throws SQLException
+    {
+        dropIndex(conn, table, pkName);
     }
 
     // from DatabaseLiaison

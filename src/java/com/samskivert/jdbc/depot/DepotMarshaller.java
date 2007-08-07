@@ -72,7 +72,6 @@ public class DepotMarshaller<T extends PersistentRecord>
     public DepotMarshaller (Class<T> pclass, PersistenceContext context)
     {
         _pclass = pclass;
-
         Entity entity = pclass.getAnnotation(Entity.class);
 
         // see if this is a computed entity
@@ -559,9 +558,10 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         });
 
+        final Entity entity = _pclass.getAnnotation(Entity.class);
+
         // if the table does not exist, create it
         if (!metaData.tableExists) {
-            final Entity entity = _pclass.getAnnotation(Entity.class);
             final String[] fDeclarations = declarations;
             final String[][] fUniqueConstraintColumns = uniqueConstraintColumns;
 
@@ -583,9 +583,11 @@ public class DepotMarshaller<T extends PersistentRecord>
                         fUniqueConstraintColumns, primaryKeyColumns);
 
                     // add its indexen
-                    for (Index idx : entity.indices()) {
-                        liaison.addIndexToTable(
-                            conn, getTableName(), idx.columns(), idx.name(), idx.unique());
+                    if (entity != null) {
+                        for (Index idx : entity.indices()) {
+                            liaison.addIndexToTable(
+                                conn, getTableName(), idx.columns(), idx.name(), idx.unique());
+                        }
                     }
                     if (_keyGenerator != null) {
                         _keyGenerator.init(conn, liaison);
@@ -705,7 +707,6 @@ public class DepotMarshaller<T extends PersistentRecord>
             });
         }
 
-        Entity entity = _pclass.getAnnotation(Entity.class);
         // add any missing indices
         for (final Index index : (entity == null ? new Index[0] : entity.indices())) {
             if (metaData.indexColumns.containsKey(index.name())) {

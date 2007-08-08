@@ -20,10 +20,8 @@
 
 package com.samskivert.jdbc.depot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -549,9 +547,4 @@ public class PersistenceContext
      */
     protected Set<Class<? extends PersistentRecord>> _managedRecords =
         new HashSet<Class<? extends PersistentRecord>>();
-
-    /**
-     * A collection of all {@link PersistenceContext} objects in existence.
-     */
-    protected static List<PersistenceContext> _contexts = new ArrayList<PersistenceContext>();
 }

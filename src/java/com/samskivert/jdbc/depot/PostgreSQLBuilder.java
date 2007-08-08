@@ -186,7 +186,7 @@ public class PostgreSQLBuilder
     }
 
     @Override
-    protected <T> String getColumnType (FieldMarshaller fm)
+    protected <T> String getColumnType (FieldMarshaller fm, int length)
     {
         if (fm instanceof ByteMarshaller) {
             return "SMALLINT";
@@ -215,7 +215,10 @@ public class PostgreSQLBuilder
             } else if (ftype.equals(Double.class)) {
                 return "DOUBLE";
             } else if (ftype.equals(String.class)) {
-                return "VARCHAR";
+                if (length < (1 << 15)) {
+                    return "VARCHAR(" + length + ")";
+                }
+                return "TEXT";
             } else if (ftype.equals(Date.class)) {
                 return "DATE";
             } else if (ftype.equals(Time.class)) {

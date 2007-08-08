@@ -173,7 +173,7 @@ public class MySQLBuilder
     }
 
     @Override
-    protected <T> String getColumnType (FieldMarshaller fm)
+    protected <T> String getColumnType (FieldMarshaller fm, int length)
     {
         if (fm instanceof ByteMarshaller) {
             return "TINYINT";
@@ -202,7 +202,10 @@ public class MySQLBuilder
             } else if (ftype.equals(Double.class)) {
                 return "DOUBLE";
             } else if (ftype.equals(String.class)) {
-                return "VARCHAR";
+                if (length < (1 << 15)) {
+                    return "VARCHAR(" + length + ")";
+                }
+                return "TEXT";
             } else if (ftype.equals(Date.class)) {
                 return "DATE";
             } else if (ftype.equals(Time.class)) {
@@ -218,7 +221,19 @@ public class MySQLBuilder
                     "Don't know how to create SQL for " + ftype + ".");
             }
         } else if (fm instanceof ByteArrayMarshaller) {
-            return "VARBINARY";
+            // semi-arbitrarily use VARBINARY() up to 32767
+            if (length < (1 << 15)) {
+                return "VARBINARY(" + length + ")";
+            }
+            // use BLOB to 65535
+            if (length < (1 << 16)) {
+                return "BLOB";
+            }
+            if (length < (1 << 24)) {
+                return "MEDIUMBLOB";
+            }
+            return "LONGBLOB";
+
         } else if (fm instanceof IntArrayMarshaller) {
             return "BLOB";
         } else if (fm instanceof ByteEnumMarshaller) {

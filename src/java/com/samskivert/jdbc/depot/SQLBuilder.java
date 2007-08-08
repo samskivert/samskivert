@@ -145,14 +145,9 @@ public abstract class SQLBuilder
 
         if (!typeDone) {
             if (type.length() == 0) {
-                type = getColumnType(fm);
+                type = getColumnType(fm, length);
             }
             builder.append(" ").append(type);
-
-            // if this is a VARCHAR field, add the length
-            if (type.equals("VARCHAR") || type.equals("VARBINARY")) {
-                builder.append("(").append(length).append(")");
-            }
 
             // TODO: handle precision and scale
 
@@ -177,7 +172,7 @@ public abstract class SQLBuilder
      * Add full-text search capabilities, as defined by the provided {@link FullTextIndex}, on
      * the table associated with the given {@link DepotMarshaller}. This is a highly database
      * specific operation and must thus be implemented by each dialect subclass.
-     * 
+     *
      * {@see Conditionals.FullTextIndex}
      */
     public abstract <T extends PersistentRecord> boolean addFullTextSearch (
@@ -196,8 +191,9 @@ public abstract class SQLBuilder
 
     /**
      * Overridden by subclasses to figure the dialect-specific SQL type of the given field.
+     * @param length
      */
-    protected abstract <T> String getColumnType (FieldMarshaller fm);
+    protected abstract <T> String getColumnType (FieldMarshaller fm, int length);
 
     /** The class that maps persistent classes to marshallers. */
     protected DepotTypes _types;

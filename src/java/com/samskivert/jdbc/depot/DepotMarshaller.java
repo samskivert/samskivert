@@ -31,7 +31,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -489,13 +488,18 @@ public class DepotMarshaller<T extends PersistentRecord>
             fm.init(builder);
         }
 
+        // if we have no table (i.e. we're a computed entity), we have nothing to create
+        if (getTableName() == null) {
+            return;
+        }
+
         // figure out the list of fields that correspond to actual table columns and generate the
         // SQL used to create and migrate our table (unless we're a computed entity)
         _columnFields = new String[_allFields.length];
         String[] declarations = new String[_allFields.length];
         int jj = 0;
         for (int ii = 0; ii < _allFields.length; ii++) {
-            @SuppressWarnings("unchecked") FieldMarshaller<T> fm = _fields.get(_allFields[ii]);
+            FieldMarshaller fm = _fields.get(_allFields[ii]);
             // include all persistent non-computed fields
             String colDef = fm.getColumnDefinition();
             if (colDef != null) {
@@ -506,31 +510,6 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
         _columnFields = ArrayUtil.splice(_columnFields, jj);
         declarations = ArrayUtil.splice(declarations, jj);
-
-        // if we have no table (i.e. we're a computed entity), we have nothing to create
-        if (getTableName() == null) {
-            return;
-        }
-
-        // add any additional unique constraints
-        String[][] uniqueConstraintColumns = null;
-        Table table = _pclass.getAnnotation(Table.class);
-        if (table != null) {
-            UniqueConstraint[] uCons = table.uniqueConstraints();
-            uniqueConstraintColumns = new String[uCons.length][];
-            for (int kk = 0; kk < uCons.length; kk ++) {
-                String[] columns = uCons[kk].fieldNames();
-                for (int ii = 0; ii < columns.length; ii ++) {
-                    FieldMarshaller fm = getFieldMarshaller(columns[ii]);
-                    if (fm == null) {
-                        throw new IllegalArgumentException(
-                            "Unknown field in @UniqueConstraint: " + columns[ii]);
-                    }
-                    columns[ii] = fm.getColumnName();
-                }
-                uniqueConstraintColumns[kk] = columns;
-            }
-        }
 
         // if we did not find a schema version field, complain
         if (_schemaVersion < 0) {
@@ -558,13 +537,12 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         });
 
-        final Entity entity = _pclass.getAnnotation(Entity.class);
+        // compute relevant information from our persistent record, too
+        final RecordMetaData rMeta = new RecordMetaData(_pclass, _fields);
 
         // if the table does not exist, create it
         if (!metaData.tableExists) {
             final String[] fDeclarations = declarations;
-            final String[][] fUniqueConstraintColumns = uniqueConstraintColumns;
-
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     // create the table
@@ -579,15 +557,19 @@ public class DepotMarshaller<T extends PersistentRecord>
                             primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
                         }
                     }
+                    String[][] uniqueConCols = new String[rMeta.uniqueConstraints.size()][];
+                    int kk = 0;
+                    for (Set<String> colSet : rMeta.uniqueConstraints) {
+                        uniqueConCols[kk++] = colSet.toArray(new String[colSet.size()]);
+                    }
                     liaison.createTableIfMissing(conn, getTableName(), columns, fDeclarations,
-                        fUniqueConstraintColumns, primaryKeyColumns);
+                                                 uniqueConCols, primaryKeyColumns);
 
                     // add its indexen
-                    if (entity != null) {
-                        for (Index idx : entity.indices()) {
-                            liaison.addIndexToTable(
-                                conn, getTableName(), idx.columns(), idx.name(), idx.unique());
-                        }
+                    for (Index idx : rMeta.indices.values()) {
+                        liaison.addIndexToTable(
+                            conn, getTableName(), idx.columns(),
+                            getTableName() + "_" + idx.name(), idx.unique());
                     }
                     if (_keyGenerator != null) {
                         _keyGenerator.init(conn, liaison);
@@ -708,15 +690,16 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
 
         // add any missing indices
-        for (final Index index : (entity == null ? new Index[0] : entity.indices())) {
-            if (metaData.indexColumns.containsKey(index.name())) {
-                metaData.indexColumns.remove(index.name());
+        for (final Index index : rMeta.indices.values()) {
+            final String ixName = getTableName() + "_" + index.name();
+            if (metaData.indexColumns.containsKey(ixName)) {
+                metaData.indexColumns.remove(ixName);
                 continue;
             }
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(
-                        conn, getTableName(), index.columns(), index.name(), index.unique());
+                        conn, getTableName(), index.columns(), ixName, index.unique());
                     return 0;
                 }
             });
@@ -725,37 +708,32 @@ public class DepotMarshaller<T extends PersistentRecord>
         // to get the @Table(uniqueIndices...) indices, we use our clever set of column name sets
         Set<Set<String>> uniqueIndices = new HashSet<Set<String>>(metaData.indexColumns.values());
 
-        if (getTableName() != null && table != null) {
-            for (UniqueConstraint constraint : table.uniqueConstraints()) {
-                // for each given UniqueConstraint, build a new column set
-                Set<String> colSet = new HashSet<String>(Arrays.asList(constraint.fieldNames()));
-
-                // and check if the table contained this set
-                if (uniqueIndices.contains(colSet)) {
-                    continue; // good, carry on
-                }
-
-                // else build the index; we'll use mysql's convention of naming it after a column,
-                // with possible _N disambiguation; luckily we made a copy of the index names!
-                String indexName = colSet.iterator().next();
-                if (indicesCopy.contains(indexName)) {
-                    int num = 1;
-                    indexName += "_";
-                    while (indicesCopy.contains(indexName + num)) {
-                        num ++;
-                    }
-                    indexName += num;
-                }
-
-                final String[] colArr = colSet.toArray(new String[colSet.size()]);
-                final String fName = indexName;
-                ctx.invoke(new Modifier() {
-                    public int invoke (Connection conn, DatabaseLiaison dl) throws SQLException {
-                        dl.addIndexToTable(conn, getTableName(), colArr, fName, true);
-                        return 0;
-                    }
-                });
+        for (Set<String> colSet : rMeta.uniqueConstraints) {
+            // check if the table contained this set
+            if (uniqueIndices.contains(colSet)) {
+                continue; // good, carry on
             }
+
+            // else build the index; we'll use mysql's convention of naming it after a column,
+            // with possible _N disambiguation; luckily we made a copy of the index names!
+            String indexName = colSet.iterator().next();
+            if (indicesCopy.contains(indexName)) {
+                int num = 1;
+                indexName += "_";
+                while (indicesCopy.contains(indexName + num)) {
+                    num ++;
+                }
+                indexName += num;
+            }
+
+            final String[] colArr = colSet.toArray(new String[colSet.size()]);
+            final String fName = indexName;
+            ctx.invoke(new Modifier() {
+                public int invoke (Connection conn, DatabaseLiaison dl) throws SQLException {
+                    dl.addIndexToTable(conn, getTableName(), colArr, fName, true);
+                    return 0;
+                }
+            });
         }
 
         // we do not auto-remove columns but rather require that EntityMigration.Drop records be
@@ -864,6 +842,51 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         } finally {
             stmt.close();
+        }
+    }
+
+    protected static class RecordMetaData
+    {
+        public Map<String, Index> indices = new HashMap<String, Index>();
+        public Set<Set<String>> uniqueConstraints = new HashSet<Set<String>>();
+
+        public RecordMetaData (Class<?> pClass, Map<String, FieldMarshaller> fmap)
+        {
+            recurse(pClass, fmap);
+        }
+
+        protected void recurse (Class<?> pClass, Map<String, FieldMarshaller> fmap)
+        {
+            // recurse first so subclass definitions overwrite superclass ones
+            Class<?> superClass = pClass.getSuperclass();
+            if (PersistentRecord.class.isAssignableFrom(superClass) &&
+                !PersistentRecord.class.equals(superClass)) {
+                recurse(superClass, fmap);
+            }
+
+            Table table = pClass.getAnnotation(Table.class);
+            if (table != null) {
+                for (UniqueConstraint constraint : table.uniqueConstraints()) {
+                    String[] fields = constraint.fieldNames();
+                    Set<String> colSet = new HashSet<String>();
+                    for (int ii = 0; ii < fields.length; ii ++) {
+                        FieldMarshaller fm = fmap.get(fields[ii]);
+                        if (fm == null) {
+                            throw new IllegalArgumentException(
+                                "Unknown unique constraint field: " + fields[ii]);
+                        }
+                        colSet.add(fm.getColumnName());
+                    }
+                    uniqueConstraints.add(colSet);
+                }
+            }
+
+            Entity entity = pClass.getAnnotation(Entity.class);
+            if (entity != null) {
+                for (Index index : entity.indices()) {
+                    indices.put(index.name(), index);
+                }
+            }
         }
     }
 

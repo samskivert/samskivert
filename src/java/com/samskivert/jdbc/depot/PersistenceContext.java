@@ -141,6 +141,14 @@ public class PersistenceContext
     }
 
     /**
+     * Returns the cache adapter used by this context or null if caching is disabled.
+     */
+    public CacheAdapter getCacheAdapter ()
+    {
+        return _cache;
+    }
+
+    /**
      * Shuts this persistence context down, shutting down any caching system in use and shutting
      * down the JDBC connection pool.
      */

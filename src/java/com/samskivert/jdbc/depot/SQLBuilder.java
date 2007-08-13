@@ -180,6 +180,13 @@ public abstract class SQLBuilder
         throws SQLException;
 
     /**
+     * Return true if the supplied column is an internal consideration of this {@link SQLBuilder},
+     * e.g. PostgreSQL's full text search data is stored in a table column that should otherwise
+     * not be visible to Depot; this method helps mask it.
+     */
+    public abstract boolean isPrivateColumn (String column);
+
+    /**
      * Overridden by subclasses to create a dialect-specific {@link BuildVisitor}.
      */
     protected abstract BuildVisitor getBuildVisitor ();

@@ -161,6 +161,13 @@ public class MySQLBuilder
     }
 
     @Override
+    public boolean isPrivateColumn (String column)
+    {
+        // The MySQL builder does not yet have any private columns.
+        return false;
+    }
+
+    @Override
     protected BuildVisitor getBuildVisitor ()
     {
         return new MSBuildVisitor(_types);

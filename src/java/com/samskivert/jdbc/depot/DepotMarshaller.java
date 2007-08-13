@@ -590,7 +590,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         // if the table exists, see if should attempt automatic schema migration
         if (_schemaVersion < 0) {
             // nope, versioning disabled
-            verifySchemasMatch(metaData, ctx);
+            verifySchemasMatch(metaData, ctx, builder);
             return;
         }
 
@@ -613,7 +613,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         });
 
         if (currentVersion == _schemaVersion) {
-            verifySchemasMatch(metaData, ctx);
+            verifySchemasMatch(metaData, ctx, builder);
             return;
         }
 
@@ -813,7 +813,8 @@ public class DepotMarshaller<T extends PersistentRecord>
     /**
      * Checks that there are no database columns for which we no longer have Java fields.
      */
-    protected void verifySchemasMatch (TableMetaData meta, PersistenceContext ctx)
+    protected void verifySchemasMatch (
+        TableMetaData meta, PersistenceContext ctx, SQLBuilder builder)
         throws PersistenceException
     {
         for (String fname : _columnFields) {
@@ -821,6 +822,9 @@ public class DepotMarshaller<T extends PersistentRecord>
             meta.tableColumns.remove(fmarsh.getColumnName());
         }
         for (String column : meta.tableColumns) {
+            if (builder.isPrivateColumn(column)) {
+                continue;
+            }
             log.warning(getTableName() + " contains stale column '" + column + "'.");
         }
     }

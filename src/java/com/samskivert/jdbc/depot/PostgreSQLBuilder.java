@@ -174,6 +174,13 @@ public class PostgreSQLBuilder
     }
 
     @Override
+    public boolean isPrivateColumn (String column)
+    {
+        // filter out any column that we created as part of FTS support
+        return column.startsWith("ftsCol_");
+    }
+
+    @Override
     protected BuildVisitor getBuildVisitor ()
     {
         return new PGBuildVisitor(_types);

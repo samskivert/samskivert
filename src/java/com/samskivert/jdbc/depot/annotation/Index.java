@@ -37,6 +37,6 @@ public @interface Index
     /** Does this index enforce a uniqueness constraint? */
     boolean unique () default false;
 
-    /** Defines the columns on which the index operates. */
-    String[] columns () default {};
+    /** Defines the fields on which the index operates. */
+    String[] fields () default {};
 }

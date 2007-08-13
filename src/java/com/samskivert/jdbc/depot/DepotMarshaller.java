@@ -548,10 +548,6 @@ public class DepotMarshaller<T extends PersistentRecord>
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     // create the table
-                    String[] columns = new String[_columnFields.length];
-                    for (int ii = 0; ii < columns.length; ii ++) {
-                        columns[ii] = _fields.get(_columnFields[ii]).getColumnName();
-                    }
                     String[] primaryKeyColumns = null;
                     if (_pkColumns != null) {
                         primaryKeyColumns = new String[_pkColumns.size()];
@@ -559,18 +555,23 @@ public class DepotMarshaller<T extends PersistentRecord>
                             primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
                         }
                     }
-                    liaison.createTableIfMissing(conn, getTableName(), columns, fDeclarations,
-                                                 uniqueConCols, primaryKeyColumns);
+                    liaison.createTableIfMissing(
+                        conn, getTableName(), fieldsToColumns(_columnFields),
+                        fDeclarations, uniqueConCols, primaryKeyColumns);
 
                     // add its indexen
                     for (Index idx : indexen) {
                         liaison.addIndexToTable(
-                            conn, getTableName(), idx.columns(),
+                            conn, getTableName(), fieldsToColumns(idx.fields()),
                             getTableName() + "_" + idx.name(), idx.unique());
                     }
+
+                    // its key generator
                     if (_keyGenerator != null) {
                         _keyGenerator.init(conn, liaison);
                     }
+
+                    // and its full text search indexes
                     for (FullTextIndex fti : _fullTextIndexes.values()) {
                         builder.addFullTextSearch(conn, DepotMarshaller.this, fti);
                     }
@@ -702,7 +703,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(
-                        conn, getTableName(), index.columns(), ixName, index.unique());
+                        conn, getTableName(), fieldsToColumns(index.fields()),
+                        ixName, index.unique());
                     return 0;
                 }
             });
@@ -762,6 +764,21 @@ public class DepotMarshaller<T extends PersistentRecord>
                 return 0;
             }
         });
+    }
+
+    // translate an array of field names to an array of column names
+    protected String[] fieldsToColumns (String[] fields)
+    {
+        String[] columns = new String[fields.length];
+        for (int ii = 0; ii < columns.length; ii ++) {
+            FieldMarshaller<?> fm = _fields.get(fields[ii]);
+            if (fm == null) {
+                throw new IllegalArgumentException(
+                    "Unknown field on record [field=" + fields[ii] + ", pClass=" + _pclass + "]");
+            }
+            columns[ii] = fm.getColumnName();
+        }
+        return columns;
     }
 
     /**

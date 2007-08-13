@@ -96,7 +96,7 @@ public abstract class SQLBuilder
      * TODO: This method should be split into several parts that are more easily overridden on a
      * case-by-case basis in the dialectal subclasses.
      */
-    public <T> String buildColumnDefinition (FieldMarshaller<T> fm)
+    public String buildColumnDefinition (FieldMarshaller fm)
     {
         // if this field is @Computed, it has no SQL definition
         if (fm.getComputed() != null) {

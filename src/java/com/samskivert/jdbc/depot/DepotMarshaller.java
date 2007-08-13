@@ -531,18 +531,20 @@ public class DepotMarshaller<T extends PersistentRecord>
         });
 
         // fetch all relevant information regarding our table from the database
-        final TableMetaData metaData = ctx.invoke(new Query.TrivialQuery<TableMetaData>() {
-            public TableMetaData invoke (Connection conn, DatabaseLiaison dl) throws SQLException {
-                return new TableMetaData(conn.getMetaData());
-            }
-        });
+        TableMetaData metaData = TableMetaData.load(ctx, getTableName());
 
         // compute relevant information from our persistent record, too
-        final RecordMetaData rMeta = new RecordMetaData(_pclass, _fields);
+        RecordMetaData rMeta = new RecordMetaData(_pclass, _fields);
 
         // if the table does not exist, create it
         if (!metaData.tableExists) {
             final String[] fDeclarations = declarations;
+            final String[][] uniqueConCols = new String[rMeta.uniqueConstraints.size()][];
+            int kk = 0;
+            for (Set<String> colSet : rMeta.uniqueConstraints) {
+                uniqueConCols[kk++] = colSet.toArray(new String[colSet.size()]);
+            }
+            final Iterable<Index> indexen = rMeta.indices.values();
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     // create the table
@@ -557,16 +559,11 @@ public class DepotMarshaller<T extends PersistentRecord>
                             primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
                         }
                     }
-                    String[][] uniqueConCols = new String[rMeta.uniqueConstraints.size()][];
-                    int kk = 0;
-                    for (Set<String> colSet : rMeta.uniqueConstraints) {
-                        uniqueConCols[kk++] = colSet.toArray(new String[colSet.size()]);
-                    }
                     liaison.createTableIfMissing(conn, getTableName(), columns, fDeclarations,
                                                  uniqueConCols, primaryKeyColumns);
 
                     // add its indexen
-                    for (Index idx : rMeta.indices.values()) {
+                    for (Index idx : indexen) {
                         liaison.addIndexToTable(
                             conn, getTableName(), idx.columns(),
                             getTableName() + "_" + idx.name(), idx.unique());
@@ -621,13 +618,18 @@ public class DepotMarshaller<T extends PersistentRecord>
         log.info("Migrating " + getTableName() + " from " + currentVersion + " to " +
                  _schemaVersion + "...");
 
-        // run our pre-default-migrations
-        for (EntityMigration migration : _migrations) {
-            if (migration.runBeforeDefault() &&
-                migration.shouldRunMigration(currentVersion, _schemaVersion)) {
-                migration.init(getTableName(), _fields);
-                ctx.invoke(migration);
+        if (_migrations.size() > 0) {
+            // run our pre-default-migrations
+            for (EntityMigration migration : _migrations) {
+                if (migration.runBeforeDefault() &&
+                        migration.shouldRunMigration(currentVersion, _schemaVersion)) {
+                    migration.init(getTableName(), _fields);
+                    ctx.invoke(migration);
+                }
             }
+
+            // we don't know what the pre-migrations did so we have to re-read metadata
+            metaData = TableMetaData.load(ctx, getTableName());
         }
 
         // this is a little silly, but we need a copy for name disambiguation later
@@ -635,7 +637,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // add any missing columns
         for (String fname : _columnFields) {
-            @SuppressWarnings("unchecked") final FieldMarshaller<T> fmarsh = _fields.get(fname);
+            final FieldMarshaller fmarsh = _fields.get(fname);
             if (metaData.tableColumns.remove(fmarsh.getColumnName())) {
                 continue;
             }
@@ -680,10 +682,11 @@ public class DepotMarshaller<T extends PersistentRecord>
             });
 
         } else if (!hasPrimaryKey() && metaData.pkName != null) {
-            log.info("Dropping primary key.");
+            final String pkName = metaData.pkName;
+            log.info("Dropping primary key: " + pkName);
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                    liaison.dropPrimaryKey(conn, getTableName(), metaData.pkName);
+                    liaison.dropPrimaryKey(conn, getTableName(), pkName);
                     return 0;
                 }
             });
@@ -761,7 +764,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         });
     }
 
-    protected class TableMetaData
+    protected static class TableMetaData
     {
         public boolean tableExists;
         public Set<String> tableColumns = new HashSet<String>();
@@ -769,20 +772,31 @@ public class DepotMarshaller<T extends PersistentRecord>
         public String pkName;
         public Set<String> pkColumns = new HashSet<String>();
 
-        public TableMetaData (DatabaseMetaData meta)
+        public static TableMetaData load (PersistenceContext ctx, final String tableName)
+            throws PersistenceException
+        {
+            return ctx.invoke(new Query.TrivialQuery<TableMetaData>() {
+                public TableMetaData invoke (Connection conn, DatabaseLiaison dl)
+                    throws SQLException {
+                    return new TableMetaData(conn.getMetaData(), tableName);
+                }
+            });
+        }
+
+        public TableMetaData (DatabaseMetaData meta, String tableName)
             throws SQLException
         {
-            tableExists = meta.getTables("", "", getTableName(), null).next();
+            tableExists = meta.getTables("", "", tableName, null).next();
             if (!tableExists) {
                 return;
             }
 
-            ResultSet rs = meta.getColumns(null, null, getTableName(), "%");
+            ResultSet rs = meta.getColumns(null, null, tableName, "%");
             while (rs.next()) {
                 tableColumns.add(rs.getString("COLUMN_NAME"));
             }
 
-            rs = meta.getIndexInfo(null, null, getTableName(), false, false);
+            rs = meta.getIndexInfo(null, null, tableName, false, false);
             while (rs.next()) {
                 String indexName = rs.getString("INDEX_NAME");
                 Set<String> set = indexColumns.get(indexName);
@@ -802,7 +816,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                 }
             }
 
-            rs = meta.getPrimaryKeys(null, null, getTableName());
+            rs = meta.getPrimaryKeys(null, null, tableName);
             while (rs.next()) {
                 pkName = rs.getString("PK_NAME");
                 pkColumns.add(rs.getString("COLUMN_NAME"));

@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -25,8 +25,6 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import com.samskivert.jdbc.DatabaseLiaison;
-import com.samskivert.jdbc.JDBCUtil;
-import com.samskivert.jdbc.LiaisonRegistry;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -49,7 +47,7 @@ public abstract class EntityMigration extends Modifier
         }
 
         public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-            if (!JDBCUtil.tableContainsColumn(conn, _tableName, _columnName)) {
+            if (!liaison.tableContainsColumn(conn, _tableName, _columnName)) {
                 // we'll accept this inconsistency
                 log.warning(_tableName + "." + _columnName + " already dropped.");
                 return 0;
@@ -74,8 +72,8 @@ public abstract class EntityMigration extends Modifier
         }
 
         public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-            if (!JDBCUtil.tableContainsColumn(conn, _tableName, _oldColumnName)) {
-                if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
+            if (!liaison.tableContainsColumn(conn, _tableName, _oldColumnName)) {
+                if (liaison.tableContainsColumn(conn, _tableName, _newColumnName)) {
                     // we'll accept this inconsistency
                     log.warning(_tableName + "." + _oldColumnName + " already renamed to " +
                                 _newColumnName + ".");
@@ -87,7 +85,7 @@ public abstract class EntityMigration extends Modifier
             }
 
             // nor is this
-            if (JDBCUtil.tableContainsColumn(conn, _tableName, _newColumnName)) {
+            if (liaison.tableContainsColumn(conn, _tableName, _newColumnName)) {
                 throw new IllegalArgumentException(
                     _tableName + " already contains '" + _newColumnName + "'");
             }
@@ -98,7 +96,7 @@ public abstract class EntityMigration extends Modifier
         }
 
         public boolean runBeforeDefault () {
-            return false;
+            return true;
         }
 
         protected String _oldColumnName,  _newColumnName;

@@ -34,7 +34,7 @@ import com.samskivert.util.StringUtil;
 /**
  * A test persistent object.
  */
-@Entity(indices={ @Index(name="createdIndex", columns={"created"}) })
+@Entity(indices={ @Index(name="createdIndex", fields={"created"}) })
 public class TestRecord extends PersistentRecord
 {
     public static final int SCHEMA_VERSION = 1;

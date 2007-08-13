@@ -764,6 +764,45 @@ public class DepotMarshaller<T extends PersistentRecord>
         });
     }
 
+    /**
+     * Checks that there are no database columns for which we no longer have Java fields.
+     */
+    protected void verifySchemasMatch (
+        TableMetaData meta, PersistenceContext ctx, SQLBuilder builder)
+        throws PersistenceException
+    {
+        for (String fname : _columnFields) {
+            FieldMarshaller fmarsh = _fields.get(fname);
+            meta.tableColumns.remove(fmarsh.getColumnName());
+        }
+        for (String column : meta.tableColumns) {
+            if (builder.isPrivateColumn(column)) {
+                continue;
+            }
+            log.warning(getTableName() + " contains stale column '" + column + "'.");
+        }
+    }
+
+    protected void updateVersion (Connection conn, DatabaseLiaison liaison, int version)
+        throws SQLException
+    {
+        String update =
+            "update " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
+            "   set " + liaison.columnSQL("version") + " = " + version +
+            " where " + liaison.columnSQL("persistentClass") + " = '" + getTableName() + "'";
+        Statement stmt = conn.createStatement();
+        try {
+            if (stmt.executeUpdate(update) == 0) {
+                String insert =
+                    "insert into " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
+                    " values('" + getTableName() + "', " + version + ")";
+                stmt.executeUpdate(insert);
+            }
+        } finally {
+            stmt.close();
+        }
+    }
+
     protected static class TableMetaData
     {
         public boolean tableExists;
@@ -821,45 +860,6 @@ public class DepotMarshaller<T extends PersistentRecord>
                 pkName = rs.getString("PK_NAME");
                 pkColumns.add(rs.getString("COLUMN_NAME"));
             }
-        }
-    }
-
-    /**
-     * Checks that there are no database columns for which we no longer have Java fields.
-     */
-    protected void verifySchemasMatch (
-        TableMetaData meta, PersistenceContext ctx, SQLBuilder builder)
-        throws PersistenceException
-    {
-        for (String fname : _columnFields) {
-            FieldMarshaller fmarsh = _fields.get(fname);
-            meta.tableColumns.remove(fmarsh.getColumnName());
-        }
-        for (String column : meta.tableColumns) {
-            if (builder.isPrivateColumn(column)) {
-                continue;
-            }
-            log.warning(getTableName() + " contains stale column '" + column + "'.");
-        }
-    }
-
-    protected void updateVersion (Connection conn, DatabaseLiaison liaison, int version)
-        throws SQLException
-    {
-        String update =
-            "update " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
-            "   set " + liaison.columnSQL("version") + " = " + version +
-            " where " + liaison.columnSQL("persistentClass") + " = '" + getTableName() + "'";
-        Statement stmt = conn.createStatement();
-        try {
-            if (stmt.executeUpdate(update) == 0) {
-                String insert =
-                    "insert into " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
-                    " values('" + getTableName() + "', " + version + ")";
-                stmt.executeUpdate(insert);
-            }
-        } finally {
-            stmt.close();
         }
     }
 

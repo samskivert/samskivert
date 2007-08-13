@@ -220,10 +220,15 @@ public class PersistenceContext
         throws PersistenceException
     {
         DepotMarshaller<T> marshaller = getRawMarshaller(type);
-        if (!marshaller.isInitialized()) {
-            // initialize the marshaller which may create or migrate the table for its underlying
-            // persistent object
-            marshaller.init(this);
+        try {
+            if (!marshaller.isInitialized()) {
+                // initialize the marshaller which may create or migrate the table for its
+                // underlying persistent object
+                marshaller.init(this);
+            }
+        } catch (PersistenceException pe) {
+            throw (PersistenceException)new PersistenceException(
+                "Failed to initialize marshaller [type=" + type + "].").initCause(pe);
         }
         return marshaller;
     }

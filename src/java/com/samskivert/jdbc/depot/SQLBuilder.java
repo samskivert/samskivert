@@ -25,11 +25,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import com.samskivert.jdbc.depot.DepotMarshaller.TableMetaData;
 import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.clause.QueryClause;
-import com.samskivert.jdbc.depot.operator.Conditionals;
 
 /**
  * At the heart of Depot's SQL generation, this object constructs two {@link ExpressionVisitor}
@@ -185,6 +185,13 @@ public abstract class SQLBuilder
      * not be visible to Depot; this method helps mask it.
      */
     public abstract boolean isPrivateColumn (String column);
+
+    /**
+     * Figure out what full text search indexes already exist on this table and return the names
+     * of those indexes as an array.
+     */
+    public abstract String[] getFtsIndexes (
+        Iterable<String> columns, Iterable<String> indexes);
 
     /**
      * Overridden by subclasses to create a dialect-specific {@link BuildVisitor}.

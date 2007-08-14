@@ -29,6 +29,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
@@ -106,6 +108,18 @@ public class PostgreSQLBuilder
     public PostgreSQLBuilder (DepotTypes types)
     {
         super(types);
+    }
+
+    @Override
+    public String[] getFtsIndexes (Iterable<String> columns, Iterable<String> indexes)
+    {
+        List<String> result = new ArrayList<String>();
+        for (String column : columns) {
+            if (column.startsWith("ftsCol_")) {
+                result.add(column.substring("ftsCol_".length()));
+            }
+        }
+        return result.toArray(new String[0]);
     }
 
     @Override

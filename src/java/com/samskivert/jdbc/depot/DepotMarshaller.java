@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,7 +52,6 @@ import com.samskivert.jdbc.depot.annotation.UniqueConstraint;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.util.ArrayUtil;
-import com.samskivert.util.StringUtil;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -741,6 +741,27 @@ public class DepotMarshaller<T extends PersistentRecord>
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(conn, getTableName(), colArr, fName, true);
+                    return 0;
+                }
+            });
+        }
+
+        // next we create any full text search indexes that exist on the record but not in the
+        // table, first step being to do a dialect-sensitive enumeration of existing indexes
+        Set<String> tableFts = new HashSet<String>(Arrays.asList(
+            builder.getFtsIndexes(metaData.tableColumns, metaData.indexColumns.keySet())));
+
+        // then iterate over what should be there
+        for (final FullTextIndex recordFts : _fullTextIndexes.values()) {
+            if (tableFts.contains(recordFts.name())) {
+                // the table already contains this one
+                continue;
+            }
+
+            // but not this one, so let's create it
+            ctx.invoke(new Modifier() {
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    builder.addFullTextSearch(conn, DepotMarshaller.this, recordFts);
                     return 0;
                 }
             });

@@ -29,6 +29,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.samskivert.Log;
 import com.samskivert.jdbc.JDBCUtil;
@@ -132,6 +134,18 @@ public class MySQLBuilder
     public MySQLBuilder (DepotTypes types)
     {
         super(types);
+    }
+
+    @Override
+    public String[] getFtsIndexes (Iterable<String> columns, Iterable<String> indexes)
+    {
+        List<String> result = new ArrayList<String>();
+        for (String index : indexes) {
+            if (index.startsWith("ftsIx_")) {
+                result.add(index.substring("ftsIx_".length()));
+            }
+        }
+        return result.toArray(new String[0]);
     }
 
     @Override

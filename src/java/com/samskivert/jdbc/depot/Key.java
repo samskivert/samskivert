@@ -215,14 +215,16 @@ public class Key<T extends PersistentRecord> extends WhereClause
     @Override
     public String toString ()
     {
-        StringBuilder builder =
-            new StringBuilder("[Key pClass=").append(condition.getPersistentClass().getName());
+        StringBuilder builder = new StringBuilder(condition.getPersistentClass().getSimpleName());
+        builder.append("(");
         String[] keyFields = getKeyFields(condition.getPersistentClass());
         for (int ii = 0; ii < keyFields.length; ii ++) {
-            builder.append(", ").append(keyFields[ii]).append("=").
-                append(condition.getValues()[ii]);
+            if (ii > 0) {
+                builder.append(", ");
+            }
+            builder.append(keyFields[ii]).append("=").append(condition.getValues()[ii]);
         }
-        builder.append("]");
+        builder.append(")");
         return builder.toString();
     }
 

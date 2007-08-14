@@ -51,6 +51,7 @@ import com.samskivert.jdbc.depot.annotation.UniqueConstraint;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.util.ArrayUtil;
+import com.samskivert.util.StringUtil;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -693,13 +694,15 @@ public class DepotMarshaller<T extends PersistentRecord>
             });
         }
 
-        // add any missing indices
+        // add any named indices that exist on the record but not yet on the table
         for (final Index index : rMeta.indices.values()) {
             final String ixName = getTableName() + "_" + index.name();
             if (metaData.indexColumns.containsKey(ixName)) {
+                // this index already exists
                 metaData.indexColumns.remove(ixName);
                 continue;
             }
+            // but this is a new, named index, so we create it
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(
@@ -710,17 +713,19 @@ public class DepotMarshaller<T extends PersistentRecord>
             });
         }
 
-        // to get the @Table(uniqueIndices...) indices, we use our clever set of column name sets
+        // now check if there are any @Table(uniqueConstraints) that need to be created
         Set<Set<String>> uniqueIndices = new HashSet<Set<String>>(metaData.indexColumns.values());
 
+        // unique constraints are unordered and may be unnamed, so we view them only as column sets
         for (Set<String> colSet : rMeta.uniqueConstraints) {
-            // check if the table contained this set
             if (uniqueIndices.contains(colSet)) {
-                continue; // good, carry on
+                // the table already contains precisely this column set
+                continue;
             }
 
-            // else build the index; we'll use mysql's convention of naming it after a column,
-            // with possible _N disambiguation; luckily we made a copy of the index names!
+            // else build the new constraint; we'll name it after one of its columns, adding _N
+            // to resolve any possible ambiguities, because using all the column names in the
+            // index name may exceed the maximum length of an SQL identifier
             String indexName = colSet.iterator().next();
             if (indicesCopy.contains(indexName)) {
                 int num = 1;
@@ -734,8 +739,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             final String[] colArr = colSet.toArray(new String[colSet.size()]);
             final String fName = indexName;
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison dl) throws SQLException {
-                    dl.addIndexToTable(conn, getTableName(), colArr, fName, true);
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    liaison.addIndexToTable(conn, getTableName(), colArr, fName, true);
                     return 0;
                 }
             });

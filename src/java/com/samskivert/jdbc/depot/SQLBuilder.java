@@ -21,6 +21,8 @@
 package com.samskivert.jdbc.depot;
 
 import java.lang.reflect.Field;
+import java.util.Set;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -187,11 +189,11 @@ public abstract class SQLBuilder
     public abstract boolean isPrivateColumn (String column);
 
     /**
-     * Figure out what full text search indexes already exist on this table and return the names
-     * of those indexes as an array.
+     * Figure out what full text search indexes already exist on this table and add the names of
+     * those indexes to the supplied target set.
      */
-    public abstract String[] getFtsIndexes (
-        Iterable<String> columns, Iterable<String> indexes);
+    public abstract void getFtsIndexes (
+        Iterable<String> columns, Iterable<String> indexes, Set<String> target);
 
     /**
      * Overridden by subclasses to create a dialect-specific {@link BuildVisitor}.

@@ -748,8 +748,8 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // next we create any full text search indexes that exist on the record but not in the
         // table, first step being to do a dialect-sensitive enumeration of existing indexes
-        Set<String> tableFts = new HashSet<String>(Arrays.asList(
-            builder.getFtsIndexes(metaData.tableColumns, metaData.indexColumns.keySet())));
+        Set<String> tableFts = new HashSet<String>();
+        builder.getFtsIndexes(metaData.tableColumns, metaData.indexColumns.keySet(), tableFts);
 
         // then iterate over what should be there
         for (final FullTextIndex recordFts : _fullTextIndexes.values()) {

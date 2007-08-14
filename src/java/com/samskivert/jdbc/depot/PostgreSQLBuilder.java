@@ -31,6 +31,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
@@ -111,15 +112,14 @@ public class PostgreSQLBuilder
     }
 
     @Override
-    public String[] getFtsIndexes (Iterable<String> columns, Iterable<String> indexes)
+    public void getFtsIndexes (
+        Iterable<String> columns, Iterable<String> indexes, Set<String> target)
     {
-        List<String> result = new ArrayList<String>();
         for (String column : columns) {
             if (column.startsWith("ftsCol_")) {
-                result.add(column.substring("ftsCol_".length()));
+                target.add(column.substring("ftsCol_".length()));
             }
         }
-        return result.toArray(new String[0]);
     }
 
     @Override

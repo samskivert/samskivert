@@ -31,6 +31,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.samskivert.Log;
 import com.samskivert.jdbc.JDBCUtil;
@@ -137,15 +138,14 @@ public class MySQLBuilder
     }
 
     @Override
-    public String[] getFtsIndexes (Iterable<String> columns, Iterable<String> indexes)
+    public void getFtsIndexes (
+        Iterable<String> columns, Iterable<String> indexes, Set<String> target)
     {
-        List<String> result = new ArrayList<String>();
         for (String index : indexes) {
             if (index.startsWith("ftsIx_")) {
-                result.add(index.substring("ftsIx_".length()));
+                target.add(index.substring("ftsIx_".length()));
             }
         }
-        return result.toArray(new String[0]);
     }
 
     @Override

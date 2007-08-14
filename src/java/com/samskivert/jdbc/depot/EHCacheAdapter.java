@@ -60,6 +60,9 @@ public class EHCacheAdapter
                 public T getValue () {
                     return value;
                 }
+                public String toString () {
+                    return String.valueOf(value);
+                }
             };
         }
 

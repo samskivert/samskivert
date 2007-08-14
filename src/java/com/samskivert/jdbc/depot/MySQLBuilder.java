@@ -26,9 +26,11 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import com.samskivert.Log;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.FieldMarshaller.BooleanMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ByteArrayMarshaller;
@@ -150,10 +152,10 @@ public class MySQLBuilder
         }
         update.append(")");
 
-        PreparedStatement stmt = null;
+        Statement stmt = conn.createStatement();
         try {
-            stmt = conn.prepareStatement(update.toString());
-            stmt.executeUpdate();
+            Log.info("Adding full-text search index: ftsIx_" + fts.name());
+            stmt.executeUpdate(update.toString());
         } finally {
             JDBCUtil.close(stmt);
         }

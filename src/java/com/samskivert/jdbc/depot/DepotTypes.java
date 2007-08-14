@@ -102,13 +102,12 @@ public class DepotTypes
      * Return the current abbreviation by which we refer to the table associated with the given
      * persistent record -- which must have been previously registered with this object. If the
      * useTableAbbreviations flag is false, we return the full table name instead.
+     *
+     * @exception IllegalArgumentException thrown if the specified class is not known.
      */
     public String getTableAbbreviation (Class<? extends PersistentRecord> cl)
     {
         if (_useTableAbbreviations) {
-            if (!_classIx.containsKey(cl)) {
-                throw new RuntimeException("Persistent class not known: " + cl);
-            }
             Integer ix = _classIx.get(cl);
             if (ix == null) {
                 throw new IllegalArgumentException("Unknown persistence class: " + cl);
@@ -122,26 +121,31 @@ public class DepotTypes
      * Return the associated database column of the given field of the given persistent class,
      * throwing an exception if the record has not been registered with this object, or if the
      * field is unknown on the record.
+     *
+     * @exception IllegalArgumentException thrown if the specified field is not part of the
+     * specified persistent class.
      */
     public String getColumnName (Class<? extends PersistentRecord> cl, String field)
     {
         FieldMarshaller<?> fm = getMarshaller(cl).getFieldMarshaller(field);
         if (fm == null) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                 "Field not known on class [field=" + field + ", class=" + cl + "]");
         }
         return fm.getColumnName();
     }
 
     /**
-     * Return the {@link DepotMarshaller} associated with the given persistent class, if it's
-     * been registered with this object, otherwise throw an exception.
+     * Return the {@link DepotMarshaller} associated with the given persistent class, if it's been
+     * registered with this object.
+     *
+     * @exception IllegalArgumentException thrown if the specified class is not known.
      */
     public DepotMarshaller getMarshaller (Class<? extends PersistentRecord> cl)
     {
         DepotMarshaller marsh = _classMap.get(cl);
         if (marsh == null) {
-            throw new RuntimeException("Persistent class not known: " + cl);
+            throw new IllegalArgumentException("Persistent class not known: " + cl);
         }
         return marsh;
     }

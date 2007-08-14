@@ -342,10 +342,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
 
             // handle the field-level @Computed annotation, if there is one
             FieldMarshaller fm = _types.getMarshaller(pClass).getFieldMarshaller(field);
-            if (fm == null) {
-                throw new IllegalArgumentException(
-                    "could not find marshaller for field: " + field);
-            }
+
             Computed fieldComputed = fm.getComputed();
             if (fieldComputed != null) {
                 // check if the computed field has a literal SQL definition

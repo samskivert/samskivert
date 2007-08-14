@@ -61,8 +61,8 @@ public class MySQLBuilder
         {
             _builder.append("match(");
             Class<? extends PersistentRecord> pClass = match.getPersistentRecord();
-            FullTextIndex fts = _types.getMarshaller(pClass).getFullTextIndex(match.getName());
-            String[] fields = fts.fieldNames();
+            String[] fields =
+                _types.getMarshaller(pClass).getFullTextIndex(match.getName()).fieldNames();
             for (int ii = 0; ii < fields.length; ii ++) {
                 if (ii > 0) {
                     _builder.append(", ");

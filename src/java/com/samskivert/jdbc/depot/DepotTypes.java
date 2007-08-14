@@ -22,7 +22,6 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.SQLException;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,7 +95,7 @@ public class DepotTypes
      */
     public String getTableName (Class<? extends PersistentRecord> cl)
     {
-        return _classMap.get(cl).getTableName();
+        return getMarshaller(cl).getTableName();
     }
 
     /**
@@ -107,6 +106,9 @@ public class DepotTypes
     public String getTableAbbreviation (Class<? extends PersistentRecord> cl)
     {
         if (_useTableAbbreviations) {
+            if (!_classIx.containsKey(cl)) {
+                throw new RuntimeException("Persistent class not known: " + cl);
+            }
             Integer ix = _classIx.get(cl);
             if (ix == null) {
                 throw new IllegalArgumentException("Unknown persistence class: " + cl);
@@ -118,28 +120,30 @@ public class DepotTypes
 
     /**
      * Return the associated database column of the given field of the given persistent class,
-     * or null if there is no associated marshaller, or if the field is unknown on the class, or
-     * if the field does not directly associate with a column.
+     * throwing an exception if the record has not been registered with this object, or if the
+     * field is unknown on the record.
      */
     public String getColumnName (Class<? extends PersistentRecord> cl, String field)
     {
-        DepotMarshaller dm = getMarshaller(cl);
-        if (dm != null) {
-            FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
-            if (fm != null) {
-                return fm.getColumnName();
-            }
+        FieldMarshaller<?> fm = getMarshaller(cl).getFieldMarshaller(field);
+        if (fm == null) {
+            throw new RuntimeException(
+                "Field not known on class [field=" + field + ", class=" + cl + "]");
         }
-        return null;
+        return fm.getColumnName();
     }
 
     /**
-     * Return the {@link DepotMarshaller} associated with the given persistent class, or null
-     * if the class has not been previously registered with this object.
+     * Return the {@link DepotMarshaller} associated with the given persistent class, if it's
+     * been registered with this object, otherwise throw an exception.
      */
     public DepotMarshaller getMarshaller (Class<? extends PersistentRecord> cl)
     {
-        return _classMap.get(cl);
+        DepotMarshaller marsh = _classMap.get(cl);
+        if (marsh == null) {
+            throw new RuntimeException("Persistent class not known: " + cl);
+        }
+        return marsh;
     }
 
     /**

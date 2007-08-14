@@ -222,6 +222,9 @@ public class PersistenceContext
         DepotMarshaller<T> marshaller = getRawMarshaller(type);
         try {
             if (!marshaller.isInitialized()) {
+                if (_warnOnLazyInit) {
+                    log.warning("Record being initialized lazily [type=" + type.getName() + "].");
+                }
                 // initialize the marshaller which may create or migrate the table for its
                 // underlying persistent object
                 marshaller.init(this);
@@ -447,13 +450,19 @@ public class PersistenceContext
      * Iterates over all {@link PersistentRecord} classes managed by this context and initializes
      * their {@link DepotMarshaller}. This forces migrations to run and the database schema to be
      * created.
+     *
+     * @param warnOnLazyInit if true, any persistent records that are resolved after this method is
+     * called will result in a warning so that the application developer can restructure their code
+     * to ensure that those records are properly registered prior to this call.
      */
-    public void initializeManagedRecords ()
+    public void initializeManagedRecords (boolean warnOnLazyInit)
         throws PersistenceException
     {
         for (Class<? extends PersistentRecord> rclass : _managedRecords) {
             getMarshaller(rclass);
         }
+        // now issue a warning if we lazily initialize any other persistent record
+        _warnOnLazyInit = true;
     }
 
     /**
@@ -544,6 +553,7 @@ public class PersistenceContext
     protected String _ident;
     protected ConnectionProvider _conprov;
     protected DatabaseLiaison _liaison;
+    protected boolean _warnOnLazyInit;
 
     /** The object through which all our caching is relayed, or null, for no caching. */
     protected CacheAdapter _cache;

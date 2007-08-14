@@ -92,14 +92,20 @@ public abstract class EntityMigration extends Modifier
 
             log.info("Renaming '" + _oldColumnName + "' to '" + _newColumnName + "' in: " +
                 _tableName);
-            return liaison.renameColumn(conn, _tableName, _oldColumnName, _newColumnName) ? 1 : 0;
+            return liaison.renameColumn(
+                conn, _tableName, _oldColumnName, _newColumnName, _newColumnDef) ? 1 : 0;
         }
 
         public boolean runBeforeDefault () {
             return true;
         }
 
-        protected String _oldColumnName,  _newColumnName;
+        protected void init (String tableName, Map<String,FieldMarshaller> marshallers) {
+            super.init(tableName, marshallers);
+            _newColumnDef = marshallers.get(_newColumnName).getColumnDefinition();
+        }
+
+        protected String _oldColumnName,  _newColumnName, _newColumnDef;
     }
 
     /**

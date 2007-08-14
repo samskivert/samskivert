@@ -77,13 +77,8 @@ public class PostgreSQLLiaison extends BaseLiaison
         Connection conn, String table, String column, int first, int step)
         throws SQLException
     {
-        Statement stmt = conn.createStatement();
-        try {
-            stmt.executeUpdate("alter sequence \"" + table + "_" + column + "_seq\" " +
-                               " restart with " + first + " increment " + step);
-        } finally {
-            JDBCUtil.close(stmt);
-        }
+        executeQuery(conn, "alter sequence \"" + table + "_" + column + "_seq\" " +
+                     " restart with " + first + " increment " + step);
     }
 
     // from DatabaseLiaison

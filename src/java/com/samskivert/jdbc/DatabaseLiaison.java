@@ -128,8 +128,12 @@ public interface DatabaseLiaison
     /**
      * Alter the name, but not the definition, of a given column on a given table. Returns true or
      * false if the database did or did not report a schema modification.
+     *
+     * @param newColumnDef the full definition of the new column, including its new name (MySQL
+     * requires this for a column rename).
      */
-    public boolean renameColumn (Connection conn, String table, String oldColumn, String newColumn)
+    public boolean renameColumn (
+        Connection conn, String table, String oldColumn, String newColumn, String newColumnDef)
         throws SQLException;
 
     /**

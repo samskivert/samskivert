@@ -99,14 +99,7 @@ public class MySQLLiaison extends BaseLiaison
         }
         update.append(")");
 
-        PreparedStatement stmt = null;
-        try {
-            stmt = conn.prepareStatement(update.toString());
-            stmt.executeUpdate();
-        } finally {
-            JDBCUtil.close(stmt);
-        }
-
+        executeQuery(conn, update.toString());
         Log.info("Database index '" + ixName + "' added to table '" + table + "'");
         return true;
     }
@@ -115,25 +108,29 @@ public class MySQLLiaison extends BaseLiaison
     public void dropIndex (Connection conn, String table, String index)
         throws SQLException
     {
-        Statement stmt = conn.createStatement();
-        try {
-            stmt.executeUpdate(
-                "ALTER TABLE " + tableSQL(table) + " DROP INDEX " + columnSQL(index));
-        } finally {
-            JDBCUtil.close(stmt);
-        }
+        executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " DROP INDEX " + columnSQL(index));
     }
 
     @Override // from BaseLiaison
     public void dropPrimaryKey (Connection conn, String table, String pkName)
         throws SQLException
     {
-        Statement stmt = conn.createStatement();
-        try {
-            stmt.executeUpdate("ALTER TABLE " + tableSQL(table) + " DROP PRIMARY KEY");
-        } finally {
-            JDBCUtil.close(stmt);
+        executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " DROP PRIMARY KEY");
+    }
+
+    @Override // from BaseLiaison
+    public boolean renameColumn (Connection conn, String table, String oldColumnName,
+                                 String newColumnName, String newColumnDef)
+        throws SQLException
+    {
+        if (!tableContainsColumn(conn, table, oldColumnName)) {
+            return false;
         }
+        executeQuery(conn, "ALTER TABLE " + table + " CHANGE " + oldColumnName + " " +
+                     newColumnName + " " + newColumnDef);
+        Log.info("Renamed column '" + oldColumnName + "' on table '" + table + "' to '" +
+                 newColumnName + "'");
+        return true;
     }
 
     // from DatabaseLiaison

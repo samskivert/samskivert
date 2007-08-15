@@ -678,7 +678,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             log.info("Adding primary key.");
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                    liaison.addPrimaryKey(conn, getTableName(), getPrimaryKeyFields());
+                    liaison.addPrimaryKey(
+                        conn, getTableName(), fieldsToColumns(getPrimaryKeyFields()));
                     return 0;
                 }
             });

@@ -21,6 +21,10 @@
 package com.samskivert.jdbc;
 
 import java.sql.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.samskivert.Log;
 
 /**
  * A database liaison for the MySQL database.
@@ -81,6 +85,26 @@ public class PostgreSQLLiaison extends BaseLiaison
                      " restart with " + first + " increment " + step);
     }
 
+    @Override // from DatabaseLiaison
+    public boolean changeColumn (Connection conn, String table, String column, String definition)
+        throws SQLException
+    {
+        // we need to handle nullability separately; TODO: make this less of a hack
+        boolean notNull = false;
+        Matcher match = NOT_NULL.matcher(definition);
+        if (match.find()) {
+            definition = match.replaceFirst("");
+            notNull = true;
+        }
+        executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " +
+                     columnSQL(column) + " TYPE " + definition);
+        executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " +
+                     columnSQL(column) + " " + (notNull ? "SET NOT NULL" : "DROP NOT NULL"));
+        Log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
+                 "definition '" + definition + "'.");
+        return true;
+    }
+
     // from DatabaseLiaison
     public String columnSQL (String column)
     {
@@ -98,4 +122,7 @@ public class PostgreSQLLiaison extends BaseLiaison
     {
         return "\"" + index + "\"";
     }
+
+    protected static final Pattern NOT_NULL =
+        Pattern.compile(" NOT NULL", Pattern.CASE_INSENSITIVE);
 }

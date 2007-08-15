@@ -164,7 +164,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         throws SQLException
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " CHANGE " +
-                     columnSQL(column) + " " + column + " " + definition);
+                     columnSQL(column) + " " + columnSQL(column) + " " + definition);
         Log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
                  "definition '" + definition + "'.");
         return true;

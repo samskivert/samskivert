@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
+// Copyright (C) 2001-2007 Michael Bayne
 // 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -21,15 +21,18 @@
 package com.samskivert.jdbc.depot;
 
 /**
- * Implementors of this interface performs perform cache invalidation for calls to
- * {@link DepotRepository#updateLiteral}, {@link DepotRepository#updatePartial} and 
- * {@link DepotRepository#deleteAll).
+ * An augmented cache invalidator interface for invalidators that can ensure that they are
+ * operating on the proper persistent record class.
  */
-public interface CacheInvalidator
+public interface ValidatingCacheInvalidator extends CacheInvalidator
 {
     /**
-     * Must invalidate all cache entries that depend on the records being modified or deleted.
-     * This method is called just before the database statement is executed.
+     * Validates that this invalidator operates on the supplied persistent record class. This helps
+     * to catch programmer errors where one record type is used for a query clause and another is
+     * used for the cache invalidator.
+     *
+     * @exception IllegalArgumentException thrown if the supplied persistent record class does not
+     * match the class that this invalidator will flush from the cache.
      */
-    public void invalidate (PersistenceContext ctx);
+    public void validateFlushType (Class<?> pClass);
 }

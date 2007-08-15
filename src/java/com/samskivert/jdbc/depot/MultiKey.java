@@ -33,7 +33,7 @@ import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
  * it can be sent into e.g. {@link DepotRepository#deleteAll) and have it clean up after itself.
  */
 public class MultiKey<T extends PersistentRecord> extends WhereClause
-    implements CacheInvalidator
+    implements ValidatingCacheInvalidator
 {
     /**
      * Constructs a new single-column {@code MultiKey} with the given value range.
@@ -112,7 +112,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
         // nothing to add
     }
 
-    // from CacheInvalidator
+    // from ValidatingCacheInvalidator
     public void validateFlushType (Class<?> pClass)
     {
         if (!pClass.equals(_pClass)) {

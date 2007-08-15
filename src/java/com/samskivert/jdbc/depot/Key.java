@@ -41,7 +41,7 @@ import com.samskivert.util.StringUtil;
  * a convenience, and may also be instantiated explicitly.
  */
 public class Key<T extends PersistentRecord> extends WhereClause
-    implements SQLExpression, CacheKey, CacheInvalidator, Serializable
+    implements SQLExpression, CacheKey, ValidatingCacheInvalidator, Serializable
 {
     /** An expression that contains our key columns and values. */
     public static class WhereCondition<U extends PersistentRecord> implements SQLExpression
@@ -188,7 +188,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
         return this; // TODO: Optimally return a special class here containing only _values.
     }
 
-    // from CacheInvalidator
+    // from ValidatingCacheInvalidator
     public void validateFlushType (Class<?> pClass)
     {
         if (!pClass.equals(condition.getPersistentClass())) {

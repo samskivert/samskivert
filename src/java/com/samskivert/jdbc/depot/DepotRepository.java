@@ -392,8 +392,8 @@ public abstract class DepotRepository
         Class<T> type, final WhereClause key, CacheInvalidator invalidator, Object... fieldsValues)
         throws PersistenceException
     {
-        if (invalidator != null) {
-            invalidator.validateFlushType(type); // sanity check
+        if (invalidator instanceof ValidatingCacheInvalidator) {
+            ((ValidatingCacheInvalidator)invalidator).validateFlushType(type); // sanity check
         }
         key.validateQueryType(type); // and another
 
@@ -521,8 +521,8 @@ public abstract class DepotRepository
     {
         requireNotComputed(type, "updateLiteral");
 
-        if (invalidator != null) {
-            invalidator.validateFlushType(type); // sanity check
+        if (invalidator instanceof ValidatingCacheInvalidator) {
+            ((ValidatingCacheInvalidator)invalidator).validateFlushType(type); // sanity check
         }
         key.validateQueryType(type); // and another
 
@@ -667,8 +667,8 @@ public abstract class DepotRepository
         Class<T> type, final WhereClause key, CacheInvalidator invalidator)
         throws PersistenceException
     {
-        if (invalidator != null) {
-            invalidator.validateFlushType(type); // sanity check
+        if (invalidator instanceof ValidatingCacheInvalidator) {
+            ((ValidatingCacheInvalidator)invalidator).validateFlushType(type); // sanity check
         }
         key.validateQueryType(type); // and another
 

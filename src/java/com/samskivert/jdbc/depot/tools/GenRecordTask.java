@@ -34,7 +34,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,23 +139,24 @@ public class GenRecordTask extends Task
         }
     }
 
-    /** Processes a resolved distributed object class instance. */
-    protected void processRecord (File source, Class oclass)
+    /** Processes a resolved persistent record class instance. */
+    protected void processRecord (File source, Class rclass)
     {
         // make sure we extend persistent record
-        if (!_prclass.isAssignableFrom(oclass)) {
-            // System.err.println("Skipping " + oclass.getName() + "...");
+        if (!_prclass.isAssignableFrom(rclass)) {
+            // System.err.println("Skipping " + rclass.getName() + "...");
             return;
         }
+        boolean isAbstract = Modifier.isAbstract(rclass.getModifiers());
 
         // determine our primary key fields for getKey() generation (if we're not an abstract)
         List<Field> kflist = new ArrayList<Field>();
-        if (!Modifier.isAbstract(oclass.getModifiers())) {
+        if (!isAbstract) {
             // determine which fields make up our primary key; we'd just use Class.getFields() but
             // that returns things in a random order whereas ClassUtil returns fields in
             // declaration order starting from the top-most class and going down the line
           FIELD_LOOP:
-            for (Field field : ClassUtil.getFields(oclass)) {
+            for (Field field : ClassUtil.getFields(rclass)) {
                 // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
                 for (Annotation a : field.getAnnotations()) {
                     if (Id.class.getName().equals(a.annotationType().getName())) {
@@ -166,12 +169,16 @@ public class GenRecordTask extends Task
 
         // determine which fields we need to generate constants for
         List<Field> flist = new ArrayList<Field>();
-        for (Field field : oclass.getDeclaredFields()) {
-            int mods = field.getModifiers();
-            if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || Modifier.isTransient(mods)) {
-                continue;
+        for (Field field : rclass.getFields()) {
+            if (isPersistentField(field)) {
+                flist.add(field);
             }
-            flist.add(field);
+        }
+        Set<Field> declared = new HashSet<Field>();
+        for (Field field : rclass.getDeclaredFields()) {
+            if (isPersistentField(field)) {
+                declared.add(field);
+            }
         }
 
         // slurp our source file into newline separated strings
@@ -247,7 +254,7 @@ public class GenRecordTask extends Task
         }
 
         // get the unqualified class name
-        String rname = oclass.getName();
+        String rname = rclass.getName();
         rname = rname.substring(rname.lastIndexOf(".")+1);
 
         // generate our fields section
@@ -263,19 +270,18 @@ public class GenRecordTask extends Task
             ctx.put("capfield", StringUtil.unStudlyName(fname).toUpperCase());
 
             // now generate our bits
-            StringWriter fwriter = new StringWriter();
-            try {
-                _velocity.mergeTemplate(NAME_TMPL, "UTF-8", ctx, fwriter);
-            } catch (Exception e) {
-                System.err.println("Failed processing template");
-                e.printStackTrace(System.err);
+            if (declared.contains(f)) {
+                if (fsection.length() > 0) {
+                    fsection.append("\n");
+                }
+                fsection.append(mergeTemplate(NAME_TMPL, ctx));
             }
-
-            // and append them as appropriate to the string buffers
-            if (ii > 0) {
-                fsection.append("\n");
+            if (!isAbstract) {
+                if (fsection.length() > 0) {
+                    fsection.append("\n");
+                }
+                fsection.append(mergeTemplate(COL_TMPL, ctx));
             }
-            fsection.append(fwriter.toString());
         }
 
         // generate our methods section
@@ -306,17 +312,8 @@ public class GenRecordTask extends Task
             ctx.put("argNameList", argNameList.toString());
             ctx.put("fieldNameList", fieldNameList.toString());
 
-            // now generate our bits
-            StringWriter mwriter = new StringWriter();
-            try {
-                _velocity.mergeTemplate(KEY_TMPL, "UTF-8", ctx, mwriter);
-            } catch (Exception e) {
-                System.err.println("Failed processing template");
-                e.printStackTrace(System.err);
-            }
-
-            // and append them as appropriate to the string buffers
-            msection.append(mwriter.toString());
+            // generate our bits and append them as appropriate to the string buffers
+            msection.append(mergeTemplate(KEY_TMPL, ctx));
         }
 
         // now bolt everything back together into a class declaration
@@ -364,8 +361,20 @@ public class GenRecordTask extends Task
         }
     }
 
-    /** Safely gets the <code>index</code>th line, returning the empty string if we exceed the
-     * length of the array. */
+    /**
+     * Returns true if the supplied field is part of a persistent record (is a public, non-static,
+     * non-transient field).
+     */
+    protected boolean isPersistentField (Field field)
+    {
+        int mods = field.getModifiers();
+        return Modifier.isPublic(mods) && !Modifier.isStatic(mods) && !Modifier.isTransient(mods);
+    }
+
+    /**
+     * Safely gets the <code>index</code>th line, returning the empty string if we exceed the
+     * length of the array.
+     */
     protected String get (String[] lines, int index)
     {
         return (index < lines.length) ? lines[index] : "";
@@ -388,6 +397,19 @@ public class GenRecordTask extends Task
     {
         bout.write(line);
         bout.newLine();
+    }
+
+    /** Helper function for generating our boilerplate code. */
+    protected String mergeTemplate (String tmpl, VelocityContext ctx)
+    {
+        StringWriter writer = new StringWriter();
+        try {
+            _velocity.mergeTemplate(tmpl, "UTF-8", ctx, writer);
+        } catch (Exception e) {
+            System.err.println("Failed processing template [tmpl=" + tmpl + "]");
+            e.printStackTrace(System.err);
+        }
+        return writer.toString();
     }
 
     /**
@@ -442,6 +464,9 @@ public class GenRecordTask extends Task
 
     /** Specifies the path to the name code template. */
     protected static final String NAME_TMPL = "com/samskivert/jdbc/depot/tools/record_name.tmpl";
+
+    /** Specifies the path to the column code template. */
+    protected static final String COL_TMPL = "com/samskivert/jdbc/depot/tools/record_column.tmpl";
 
     /** Specifies the path to the key code template. */
     protected static final String KEY_TMPL = "com/samskivert/jdbc/depot/tools/record_key.tmpl";

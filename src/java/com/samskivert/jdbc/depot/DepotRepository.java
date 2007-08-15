@@ -392,6 +392,9 @@ public abstract class DepotRepository
         Class<T> type, final WhereClause key, CacheInvalidator invalidator, Object... fieldsValues)
         throws PersistenceException
     {
+        // sanity check
+        invalidator.validateFlushType(type);
+
         // separate the arguments into keys and values
         final String[] fields = new String[fieldsValues.length/2];
         final SQLExpression[] values = new SQLExpression[fields.length];
@@ -515,6 +518,9 @@ public abstract class DepotRepository
         throws PersistenceException
     {
         requireNotComputed(type, "updateLiteral");
+
+        // sanity check
+        invalidator.validateFlushType(type);
 
         // separate the arguments into keys and values
         final String[] fields = new String[fieldsToValues.size()];

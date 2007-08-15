@@ -28,6 +28,16 @@ package com.samskivert.jdbc.depot;
 public interface CacheInvalidator
 {
     /**
+     * Validates that this invalidator operates on the supplied persistent record class. This helps
+     * to catch programmer errors where one record type is used for a query clause and another is
+     * used for the cache invalidator.
+     *
+     * @exception IllegalArgumentException thrown if the supplied persistent record class does not
+     * match the class that this invalidator will flush from the cache.
+     */
+    public void validateFlushType (Class<?> pClass);
+
+    /**
      * Must invalidate all cache entries that depend on the records being modified or deleted.
      * This method is called just before the database statement is executed.
      */

@@ -27,4 +27,28 @@ import com.samskivert.jdbc.depot.clause.QueryClause;
  */
 public abstract class WhereClause extends QueryClause
 {
+    /**
+     * Validates that the supplied persistent record type is the type matched by this where clause.
+     * Not all clauses will be able to perform this validation, but those that can, should do so to
+     * help alleviate programmer error.
+     *
+     * @exception IllegalArgumentException thrown if the supplied class is known not to by the type
+     * matched by this where clause.
+     */
+    public void validateQueryType (Class<?> pClass)
+    {
+        // nothing by default
+    }
+
+    /**
+     * A helper function for implementing {@link #validateQueryType}.
+     */
+    protected void validateTypesMatch (Class<?> qClass, Class<?> kClass)
+    {
+        if (!qClass.equals(kClass)) {
+            throw new IllegalArgumentException(
+                "Class mismatch between persistent record and key in query " +
+                "[qtype=" + qClass.getSimpleName() + ", ktype=" + kClass.getSimpleName() + "].");
+        }
+    }
 }

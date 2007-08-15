@@ -189,9 +189,27 @@ public class Key<T extends PersistentRecord> extends WhereClause
     }
 
     // from CacheInvalidator
+    public void validateFlushType (Class<?> pClass)
+    {
+        if (!pClass.equals(condition.getPersistentClass())) {
+            throw new IllegalArgumentException(
+                "Class mismatch between persistent record and cache invalidator " +
+                "[record=" + pClass.getSimpleName() +
+                ", invtype=" + condition.getPersistentClass().getSimpleName() + "].");
+        }
+    }
+
+    // from CacheInvalidator
     public void invalidate (PersistenceContext ctx)
     {
         ctx.cacheInvalidate(this);
+    }
+
+    @Override // from WhereClause
+    public void validateQueryType (Class<?> pClass)
+    {
+        super.validateQueryType(pClass);
+        validateTypesMatch(pClass, condition.getPersistentClass());
     }
 
     @Override

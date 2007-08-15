@@ -43,6 +43,7 @@ public class FindOneQuery<T extends PersistentRecord>
     {
         _marsh = ctx.getMarshaller(type);
         _select = new SelectClause<T>(type, _marsh.getFieldNames(), clauses);
+        _select.getWhereClause().validateQueryType(type); // sanity check
         _builder = ctx.getSQLBuilder(DepotTypes.getDepotTypes(ctx, _select));
         _builder.newQuery(_select);
     }
@@ -58,7 +59,8 @@ public class FindOneQuery<T extends PersistentRecord>
     }
 
     // from Query
-    public T invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+    public T invoke (Connection conn, DatabaseLiaison liaison) throws SQLException
+    {
         PreparedStatement stmt = _builder.prepare(conn);
         try {
             T result = null;
@@ -76,7 +78,8 @@ public class FindOneQuery<T extends PersistentRecord>
     }
 
     // from Query
-    public void updateCache (PersistenceContext ctx, T result) {
+    public void updateCache (PersistenceContext ctx, T result)
+    {
         CacheKey key = getCacheKey();
         if (key == null) {
             // no row-specific cache key was given

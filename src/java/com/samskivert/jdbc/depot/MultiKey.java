@@ -80,28 +80,6 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
         }
     }
 
-    // from SQLExpression
-    public void accept (ExpressionVisitor builder) throws Exception
-    {
-        builder.visit(this);
-    }
-
-    // from SQLExpression
-    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
-    {
-        // nothing to add
-    }
-
-    // from CacheInvalidator
-    public void invalidate (PersistenceContext ctx)
-    {
-        HashMap<String, Comparable> newMap = new HashMap<String, Comparable>(_map);
-        for (int i = 0; i < _mValues.length; i ++) {
-            newMap.put(_mField, _mValues[i]);
-            ctx.cacheInvalidate(new SimpleCacheKey(_pClass, newMap));
-        }
-    }
-
     public Class<T> getPersistentClass ()
     {
         return _pClass;
@@ -120,6 +98,46 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
     public Comparable[] getMultiValues ()
     {
         return _mValues;
+    }
+
+    // from SQLExpression
+    public void accept (ExpressionVisitor builder) throws Exception
+    {
+        builder.visit(this);
+    }
+
+    // from SQLExpression
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+    {
+        // nothing to add
+    }
+
+    // from CacheInvalidator
+    public void validateFlushType (Class<?> pClass)
+    {
+        if (!pClass.equals(_pClass)) {
+            throw new IllegalArgumentException(
+                "Class mismatch between persistent record and cache invalidator " +
+                "[record=" + pClass.getSimpleName() +
+                ", invtype=" + _pClass.getSimpleName() + "].");
+        }
+    }
+
+    // from CacheInvalidator
+    public void invalidate (PersistenceContext ctx)
+    {
+        HashMap<String, Comparable> newMap = new HashMap<String, Comparable>(_map);
+        for (int i = 0; i < _mValues.length; i ++) {
+            newMap.put(_mField, _mValues[i]);
+            ctx.cacheInvalidate(new SimpleCacheKey(_pClass, newMap));
+        }
+    }
+
+    @Override // from WhereClause
+    public void validateQueryType (Class<?> pClass)
+    {
+        super.validateQueryType(pClass);
+        validateTypesMatch(pClass, _pClass);
     }
 
     protected String _mField;

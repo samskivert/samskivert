@@ -392,10 +392,10 @@ public abstract class DepotRepository
         Class<T> type, final WhereClause key, CacheInvalidator invalidator, Object... fieldsValues)
         throws PersistenceException
     {
-        // sanity check
         if (invalidator != null) {
-            invalidator.validateFlushType(type);
+            invalidator.validateFlushType(type); // sanity check
         }
+        key.validateQueryType(type); // and another
 
         // separate the arguments into keys and values
         final String[] fields = new String[fieldsValues.length/2];
@@ -521,10 +521,10 @@ public abstract class DepotRepository
     {
         requireNotComputed(type, "updateLiteral");
 
-        // sanity check
         if (invalidator != null) {
-            invalidator.validateFlushType(type);
+            invalidator.validateFlushType(type); // sanity check
         }
+        key.validateQueryType(type); // and another
 
         // separate the arguments into keys and values
         final String[] fields = new String[fieldsToValues.size()];
@@ -667,6 +667,11 @@ public abstract class DepotRepository
         Class<T> type, final WhereClause key, CacheInvalidator invalidator)
         throws PersistenceException
     {
+        if (invalidator != null) {
+            invalidator.validateFlushType(type); // sanity check
+        }
+        key.validateQueryType(type); // and another
+
         DeleteClause<T> delete = new DeleteClause<T>(type, key);
         final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, delete));
         builder.newQuery(delete);

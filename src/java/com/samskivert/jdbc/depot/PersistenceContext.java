@@ -222,12 +222,12 @@ public class PersistenceContext
         DepotMarshaller<T> marshaller = getRawMarshaller(type);
         try {
             if (!marshaller.isInitialized()) {
-                if (_warnOnLazyInit) {
-                    log.warning("Record being initialized lazily [type=" + type.getName() + "].");
-                }
                 // initialize the marshaller which may create or migrate the table for its
                 // underlying persistent object
                 marshaller.init(this);
+                if (marshaller.getTableName() != null && _warnOnLazyInit) {
+                    log.warning("Record initialized lazily [type=" + type.getName() + "].");
+                }
             }
         } catch (PersistenceException pe) {
             throw (PersistenceException)new PersistenceException(

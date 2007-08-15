@@ -381,8 +381,8 @@ public abstract class DepotRepository
      *
      * @param type the type of the persistent object to be modified.
      * @param key the key to match in the update.
-     * @param invalidator a cache invalidator that will be prior to the update to flush the
-     * relevant persistent objects from the cache.
+     * @param invalidator a cache invalidator that will be run prior to the update to flush the
+     * relevant persistent objects from the cache, or null if no invalidation is needed.
      * @param fieldsValues an array containing the names of the fields/columns and the values to be
      * assigned, in key, value, key, value, etc. order.
      *
@@ -393,7 +393,9 @@ public abstract class DepotRepository
         throws PersistenceException
     {
         // sanity check
-        invalidator.validateFlushType(type);
+        if (invalidator != null) {
+            invalidator.validateFlushType(type);
+        }
 
         // separate the arguments into keys and values
         final String[] fields = new String[fieldsValues.length/2];
@@ -520,7 +522,9 @@ public abstract class DepotRepository
         requireNotComputed(type, "updateLiteral");
 
         // sanity check
-        invalidator.validateFlushType(type);
+        if (invalidator != null) {
+            invalidator.validateFlushType(type);
+        }
 
         // separate the arguments into keys and values
         final String[] fields = new String[fieldsToValues.size()];

@@ -90,15 +90,16 @@ public abstract class BuildVisitor implements ExpressionVisitor
     public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
         throws Exception
     {
-        String[] keyFields = Key.getKeyFields(whereCondition.getPersistentClass());
+        Class<? extends PersistentRecord> pClass = whereCondition.getPersistentClass();
+        String[] keyFields = Key.getKeyFields(pClass);
         Comparable[] values = whereCondition.getValues();
         for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
                 _builder.append(" and ");
             }
-            appendTableAbbreviation(whereCondition.getPersistentClass());
+            appendTableAbbreviation(pClass);
             _builder.append(".");
-            appendColumn(whereCondition.getPersistentClass(), keyFields[ii]);
+            appendColumn(pClass, keyFields[ii]);
             _builder.append(values[ii] == null ? " is null " : " = ? ");
         }
     }

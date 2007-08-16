@@ -96,6 +96,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (ii > 0) {
                 _builder.append(" and ");
             }
+            appendTableAbbreviation(whereCondition.getPersistentClass());
+            _builder.append(".");
             appendColumn(whereCondition.getPersistentClass(), keyFields[ii]);
             _builder.append(values[ii] == null ? " is null " : " = ? ");
         }

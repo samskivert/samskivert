@@ -49,6 +49,7 @@ import com.samskivert.jdbc.depot.FieldMarshaller.ObjectMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ShortMarshaller;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
+import com.samskivert.util.StringUtil;
 
 import com.samskivert.Log;
 
@@ -97,7 +98,15 @@ public class PostgreSQLBuilder
         public void visit (FullTextMatch match)
             throws Exception
         {
-            _stmt.setString(_argIdx ++, match.getQuery());
+            // The tsearch2 engine takes queries on the form
+            //   (foo&bar)|goop
+            // so in this first simple implementation, we just take the user query, chop it into
+            // words by space/punctuation and 'or' those together like so:
+            //   'ho! who goes there?' -> 'ho|who|goes|there'
+
+            String[] searchTerms = match.getQuery().toLowerCase().split("\\W+");
+            String query = StringUtil.join(searchTerms, "|");
+            _stmt.setString(_argIdx ++, query);
         }
 
         protected PGBindVisitor (DepotTypes types, PreparedStatement stmt)

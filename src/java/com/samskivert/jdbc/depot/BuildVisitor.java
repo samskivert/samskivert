@@ -97,8 +97,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (ii > 0) {
                 _builder.append(" and ");
             }
-            appendTableAbbreviation(pClass);
-            _builder.append(".");
+            // TODO: This cannot work properly until the Depot architecture has been expanded
+            // so that every field reference is expanded according to context such as shadowOf
+            // and FieldOverride. For now, this works out of sheer luck - we have no ambiguous
+            // references to trip us up... but it must be fixed soon.
+            // appendTableAbbreviation(pClass);
+            // _builder.append(".");
             appendColumn(pClass, keyFields[ii]);
             _builder.append(values[ii] == null ? " is null " : " = ? ");
         }

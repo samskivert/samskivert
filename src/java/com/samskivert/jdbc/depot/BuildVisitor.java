@@ -511,8 +511,10 @@ public abstract class BuildVisitor implements ExpressionVisitor
                 // first, see if there's a field override
                 FieldOverride override = fieldOverrides.get(field);
                 if (override != null) {
-                    // overrides point to a raw column even when that column is overridden
-                    // for the purposes of the query itself
+                    // If a FieldOverride's target is in turn another FieldOverride, the second
+                    // one is ignored. As an example, when creating ItemRecords from CloneRecords,
+                    // we make Item.itemId = Clone.itemId. We also make Item.parentId = Item.itemId
+                    // and would be dismayed to find Item.parentID = Item.itemId = Clone.itemId.
                     _ignoreOverrides = true;
                     override.accept(this);
                     _ignoreOverrides = false;

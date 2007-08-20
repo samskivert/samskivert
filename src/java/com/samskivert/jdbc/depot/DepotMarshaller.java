@@ -31,7 +31,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -75,8 +74,8 @@ public class DepotMarshaller<T extends PersistentRecord>
         Entity entity = pclass.getAnnotation(Entity.class);
 
         // see if this is a computed entity
-        Computed computed = pclass.getAnnotation(Computed.class);
-        if (computed == null) {
+        _computed = pclass.getAnnotation(Computed.class);
+        if (_computed == null) {
             // if not, this class has a corresponding SQL table
             _tableName = _pclass.getName();
             _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
@@ -210,6 +209,15 @@ public class DepotMarshaller<T extends PersistentRecord>
     public Class<T> getPersistentClass ()
     {
        return _pclass;
+    }
+
+    /**
+     * Returns the @Computed annotation definition of this entity, or null if none.
+     */
+
+    public Computed getComputed ()
+    {
+        return _computed;
     }
 
     /**
@@ -957,6 +965,9 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     /** The name of our persistent object table. */
     protected String _tableName;
+
+    /** The @Computed annotation of this entity, or null. */
+    protected Computed _computed;
 
     /** A field marshaller for each persistent field in our object. */
     protected Map<String, FieldMarshaller> _fields = new HashMap<String, FieldMarshaller>();

@@ -62,7 +62,7 @@ public class PostgreSQLBuilder
         public void visit (FullTextMatch match)
             throws Exception
         {
-            appendField("ftsCol_" + match.getName());
+            appendIdentifier("ftsCol_" + match.getName());
             _builder.append(" @@ TO_TSQUERY('default', ?)");
         }
 
@@ -71,22 +71,7 @@ public class PostgreSQLBuilder
             super(types);
         }
 
-        protected void appendTableName (Class<? extends PersistentRecord> type)
-        {
-            _builder.append("\"").append(_types.getTableName(type)).append("\"");
-        }
-
-        protected void appendTableAbbreviation (Class<? extends PersistentRecord> type)
-        {
-            _builder.append("\"").append(_types.getTableAbbreviation(type)).append("\"");
-        }
-
-        protected void appendColumn (Class<? extends PersistentRecord> type, String field)
-        {
-            _builder.append("\"").append(_types.getColumnName(type, field)).append("\"");
-        }
-
-        protected void appendField (String field)
+        protected void appendIdentifier (String field)
         {
             _builder.append("\"").append(field).append("\"");
         }

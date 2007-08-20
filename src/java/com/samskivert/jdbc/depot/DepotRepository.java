@@ -150,20 +150,6 @@ public abstract class DepotRepository
         boolean useExplicit =
             (marsh.getTableName() == null) || !marsh.hasPrimaryKey() || !_ctx.isUsingCache();
 
-        // TODO: This is a very conservative approach where all complicated queries are handled
-        // TODO: with the traditional single-pass query. The double pass algorithm can handle a
-        // TODO: much larger class of queries, but only after some engine upgrades: specifically,
-        // TODO: the field references used in the WHERE clause of the Entity query in WithCache
-        // TODO: cannot be the trivial expansion currently used in the Key class, but must rather
-        // TODO: undergo the same treatment SELECT fields currently do in SQLQueryBuilder. This
-        // TODO: is probably best done with an additional method in QueryBuilderContext, or perhaps
-        // TODO: a much larger switch to using a visitor pattern for generating the SQL of the
-        // TODO: clause hierarchies.
-        for (QueryClause clause : clauses) {
-            useExplicit |= (clause instanceof FieldOverride ||
-                            clause instanceof Join ||
-                            clause instanceof FromOverride);
-        }
         return _ctx.invoke(useExplicit ?
             new FindAllQuery.Explicitly<T>(_ctx, type, clauses) :
             new FindAllQuery.WithCache<T>(_ctx, type, clauses));

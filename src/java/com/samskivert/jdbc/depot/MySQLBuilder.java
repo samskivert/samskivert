@@ -29,8 +29,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import com.samskivert.Log;
@@ -106,12 +104,7 @@ public class MySQLBuilder
             _builder.append(_types.getTableAbbreviation(type));
         }
 
-        protected void appendColumn (Class<? extends PersistentRecord> type, String field)
-        {
-            _builder.append(_types.getColumnName(type, field));
-        }
-
-        protected void appendField (String field)
+        protected void appendIdentifier (String field)
         {
             _builder.append(field);
         }

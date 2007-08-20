@@ -21,6 +21,7 @@
 package com.samskivert.jdbc.depot;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,8 +84,10 @@ public abstract class BuildVisitor implements ExpressionVisitor
         throws Exception
     {
         fieldOverride.getOverride().accept(this);
-        _builder.append(" as ");
-        appendField(fieldOverride.getField());
+        if (_aliasFields) {
+            _builder.append(" as ");
+            appendIdentifier(fieldOverride.getField());
+        }
     }
 
     public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
@@ -97,13 +100,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (ii > 0) {
                 _builder.append(" and ");
             }
-            // TODO: This cannot work properly until the Depot architecture has been expanded
-            // so that every field reference is expanded according to context such as shadowOf
-            // and FieldOverride. For now, this works out of sheer luck - we have no ambiguous
-            // references to trip us up... but it must be fixed soon.
-            // appendTableAbbreviation(pClass);
-            // _builder.append(".");
-            appendColumn(pClass, keyFields[ii]);
+            appendRhsColumn(pClass, keyFields[ii]);
             _builder.append(values[ii] == null ? " is null " : " = ? ");
         }
     }
@@ -126,13 +123,13 @@ public abstract class BuildVisitor implements ExpressionVisitor
             } else {
                 _builder.append(" and ");
             }
-            appendColumn(key.getPersistentClass(), entry.getKey());
+            appendRhsColumn(key.getPersistentClass(), entry.getKey());
             _builder.append(entry.getValue() == null ? " is null " : " = ? ");
         }
         if (!first) {
             _builder.append(" and ");
         }
-        appendColumn(key.getPersistentClass(), key.getMultiField());
+        appendRhsColumn(key.getPersistentClass(), key.getMultiField());
         _builder.append(" in (");
 
         Comparable[] values = key.getMultiValues();
@@ -210,9 +207,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
     public void visit (ColumnExp columnExp)
         throws Exception
     {
-        appendTableAbbreviation(columnExp.getPersistentClass());
-        _builder.append(".");
-        appendColumn(columnExp.getPersistentClass(), columnExp.getField());
+        appendRhsColumn(columnExp.getPersistentClass(), columnExp.getField());
     }
 
     public void visit (Not not)
@@ -317,104 +312,76 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
         _builder.append("select ");
 
-        Computed entityComputed = pClass.getAnnotation(Computed.class);
-
-        // iterate over the fields we're filling in and figure out whence each one comes
-        boolean skip = true;
-        for (String field : selectClause.getFields()) {
-            if (!skip) {
-                _builder.append(", ");
-            }
-            skip = false;
-
-            // first, see if there's a field override
-            FieldOverride override = selectClause.lookupOverride(field);
-            if (override != null) {
-                override.accept(this);
-                continue;
-            }
-
-            // figure out the class we're selecting from unless we're otherwise overriden:
-            // for a concrete record, simply use the corresponding table; for a computed one,
-            // default to the shadowed concrete record, or null if there isn't one
-
-            Class<? extends PersistentRecord> tableClass;
-            if (entityComputed == null) {
-                tableClass = pClass;
-            } else if (!PersistentRecord.class.equals(entityComputed.shadowOf())) {
-                tableClass = entityComputed.shadowOf();
-            } else {
-                tableClass = null;
-            }
-
-            // handle the field-level @Computed annotation, if there is one
-            FieldMarshaller fm = _types.getMarshaller(pClass).getFieldMarshaller(field);
-
-            Computed fieldComputed = fm.getComputed();
-            if (fieldComputed != null) {
-                // check if the computed field has a literal SQL definition
-                if (fieldComputed.fieldDefinition().length() > 0) {
-                    _builder.append(fieldComputed.fieldDefinition()).append(" as ");
-                    appendField(field);
-                    continue;
-                }
-
-                // or if we can simply ignore the field
-                if (!fieldComputed.required()) {
-                    skip = true;
-                    continue;
-                }
-
-                // else see if there's an overriding shadowOf definition
-                if (fieldComputed.shadowOf() != null) {
-                    tableClass = fieldComputed.shadowOf();
-                }
-            }
-
-            // if we get this far we hopefully have a table to select from
-            if (tableClass != null) {
-                appendTableAbbreviation(tableClass);
-                _builder.append(".");
-                appendColumn(tableClass, field);
-                continue;
-            }
-
-            // else owie
+        if (_overrides.containsKey(pClass)) {
             throw new IllegalArgumentException(
-                "Persistent field has no definition [class=" +
-                selectClause.getPersistentClass() + ", field=" + field + "]");
+                "Can not yet nest SELECTs on the same persistent record.");
         }
 
-        if (selectClause.getFromOverride() != null) {
-            selectClause.getFromOverride().accept(this);
+        Map<String, FieldOverride> overrideMap = new HashMap<String, FieldOverride>();
+        for (FieldOverride override : selectClause.getFieldOverrides()) {
+            overrideMap.put(override.getField(), override);
+        }
+        _overrides.put(pClass, overrideMap);
 
-        } else if (_types.getTableName(pClass) != null) {
-            _builder.append(" from ");
-            appendTableName(pClass);
-            _builder.append(" as ");
-            appendTableAbbreviation(pClass);
+        try {
+            // iterate over the fields we're filling in and figure out whence each one comes
+            boolean skip = true;
 
-        } else {
-            throw new SQLException("Query on @Computed entity with no FromOverrideClause.");
-        }
+            // while expanding column names in the SELECT query, do aliasing
+            _aliasFields = true;
 
-        for (Join clause : selectClause.getJoinClauses()) {
-            clause.accept(this);
-        }
-        if (selectClause.getWhereClause() != null) {
-            selectClause.getWhereClause().accept(this);
-        }
-        if (selectClause.getGroupBy() != null) {
-            selectClause.getGroupBy().accept(this);
-        }
-        if (selectClause.getOrderBy() != null) {
-            selectClause.getOrderBy().accept(this);
-        }
-        if (selectClause.getLimit() != null) {
-            selectClause.getLimit().accept(this);
-        }
-        if (selectClause.getForUpdate() != null) {
-            selectClause.getForUpdate().accept(this);
+            for (String field : selectClause.getFields()) {
+                if (!skip) {
+                    _builder.append(", ");
+                }
+                skip = false;
+
+                int len = _builder.length();
+                appendRhsColumn(pClass, field);
+
+                // if nothing was added, don't add a comma
+                if (_builder.length() == len) {
+                    skip = true;
+                }
+            }
+
+            // then stop
+            _aliasFields = false;
+
+            if (selectClause.getFromOverride() != null) {
+                selectClause.getFromOverride().accept(this);
+
+            } else if (_types.getTableName(pClass) != null) {
+                _builder.append(" from ");
+                appendTableName(pClass);
+                _builder.append(" as ");
+                appendTableAbbreviation(pClass);
+
+            } else {
+                throw new SQLException("Query on @Computed entity with no FromOverrideClause.");
+            }
+
+            for (Join clause : selectClause.getJoinClauses()) {
+                clause.accept(this);
+            }
+            if (selectClause.getWhereClause() != null) {
+                selectClause.getWhereClause().accept(this);
+            }
+            if (selectClause.getGroupBy() != null) {
+                selectClause.getGroupBy().accept(this);
+            }
+            if (selectClause.getOrderBy() != null) {
+                selectClause.getOrderBy().accept(this);
+            }
+            if (selectClause.getLimit() != null) {
+                selectClause.getLimit().accept(this);
+            }
+            if (selectClause.getForUpdate() != null) {
+                selectClause.getForUpdate().accept(this);
+            }
+
+        } finally {
+            _overrides.remove(pClass);
         }
         if (isInner) {
             _builder.append(")");
@@ -440,7 +407,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (ii > 0) {
                 _builder.append(", ");
             }
-            appendColumn(pClass, fields[ii]);
+            appendLhsColumn(pClass, fields[ii]);
 
             _builder.append(" = ");
             if (pojo != null) {
@@ -479,7 +446,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (ii > 0) {
                 _builder.append(", ");
             }
-            appendColumn(pClass, fields[ii]);
+            appendLhsColumn(pClass, fields[ii]);
         }
         _builder.append(") values(");
 
@@ -497,23 +464,134 @@ public abstract class BuildVisitor implements ExpressionVisitor
         _builder.append(")");
     }
 
-    protected abstract void appendTableName (Class<? extends PersistentRecord> type);
-    protected abstract void appendTableAbbreviation (Class<? extends PersistentRecord> type);
-    protected abstract void appendColumn (Class<? extends PersistentRecord> type, String field);
-    protected abstract void appendField (String field);
+    protected abstract void appendIdentifier (String field);
+
+    protected void appendTableName (Class<? extends PersistentRecord> type)
+    {
+        appendIdentifier(_types.getTableName(type));
+    }
+
+    protected void appendTableAbbreviation (Class<? extends PersistentRecord> type)
+    {
+        appendIdentifier(_types.getTableAbbreviation(type));
+    }
+
+    // Constructs a name used for assignment in e.g. INSERT/UPDATE. This is the SQL
+    // equivalent of an lvalue; something that can appear to the left of an equals sign.
+    // We do not prepend this identifier with a table abbreviation, nor do we expand
+    // field overrides, shadowOf declarations, or the like: it is just a column name.
+    protected void appendLhsColumn (Class<? extends PersistentRecord> type, String field)
+        throws Exception
+    {
+        DepotMarshaller dm = _types.getMarshaller(type);
+        FieldMarshaller fm = dm.getFieldMarshaller(field);
+        if (dm == null) {
+            throw new IllegalArgumentException(
+                "Unknown field on persistent record [record=" + type + ", field=" + field + "]");
+        }
+
+        appendIdentifier(fm.getColumnName());
+    }
+
+    // Appends an expression for the given field on the given persistent record; this can
+    // appear in a SELECT list, in WHERE clauses, etc, etc.
+    protected void appendRhsColumn (Class<? extends PersistentRecord> type, String field)
+        throws Exception
+    {
+        DepotMarshaller dm = _types.getMarshaller(type);
+        FieldMarshaller fm = dm.getFieldMarshaller(field);
+        if (dm == null) {
+            throw new IllegalArgumentException(
+                "Unknown field on persistent record [record=" + type + ", field=" + field + "]");
+        }
+
+        if (!_ignoreOverrides) {
+            Map<String, FieldOverride> fieldOverrides = _overrides.get(type);
+            if (fieldOverrides != null) {
+                // first, see if there's a field override
+                FieldOverride override = fieldOverrides.get(field);
+                if (override != null) {
+                    // overrides point to a raw column even when that column is overridden
+                    // for the purposes of the query itself
+                    _ignoreOverrides = true;
+                    override.accept(this);
+                    _ignoreOverrides = false;
+                    return;
+                }
+            }
+        }
+
+        Computed entityComputed = dm.getComputed();
+
+        // figure out the class we're selecting from unless we're otherwise overriden:
+        // for a concrete record, simply use the corresponding table; for a computed one,
+        // default to the shadowed concrete record, or null if there isn't one
+        Class<? extends PersistentRecord> tableClass;
+        if (entityComputed == null) {
+            tableClass = type;
+
+        } else if (!PersistentRecord.class.equals(entityComputed.shadowOf())) {
+            tableClass = entityComputed.shadowOf();
+
+        } else {
+            tableClass = null;
+        }
+
+        // handle the field-level @Computed annotation, if there is one
+        Computed fieldComputed = fm.getComputed();
+        if (fieldComputed != null) {
+            // check if the computed field has a literal SQL definition
+            if (fieldComputed.fieldDefinition().length() > 0) {
+                _builder.append(fieldComputed.fieldDefinition());
+                if (_aliasFields) {
+                    _builder.append(" as ");
+                    appendIdentifier(field);
+                }
+                return;
+            }
+
+            // or if we can simply ignore the field
+            if (!fieldComputed.required()) {
+                return;
+            }
+
+            // else see if there's an overriding shadowOf definition
+            if (fieldComputed.shadowOf() != null) {
+                tableClass = fieldComputed.shadowOf();
+            }
+        }
+
+        // if we get this far we hopefully have a table to select from
+        if (tableClass != null) {
+            appendTableAbbreviation(tableClass);
+            _builder.append(".");
+            appendIdentifier(fm.getColumnName());
+            return;
+        }
+
+        // else owie
+        throw new IllegalArgumentException(
+            "Persistent field has no definition [class=" + type + ", field=" + field + "]");
+    }
 
     protected BuildVisitor (DepotTypes types)
     {
         _types = types;
-        _builder = new StringBuilder();
-        _innerClause = false;
     }
 
     protected DepotTypes _types;
 
     /** A StringBuilder to hold the constructed SQL. */
-    protected StringBuilder _builder;
+    protected StringBuilder _builder = new StringBuilder();
+
+    /** A mapping of field overrides per persistent record. */
+    protected Map<Class<? extends PersistentRecord>, Map<String, FieldOverride>> _overrides =
+        new HashMap<Class<? extends PersistentRecord>, Map<String,FieldOverride>>();
 
     /** A flag that's set to true for inner SELECT's */
-    protected boolean _innerClause;
+    protected boolean _innerClause = false;
+
+    protected boolean _ignoreOverrides = false;
+
+    protected boolean _aliasFields = false;
 }

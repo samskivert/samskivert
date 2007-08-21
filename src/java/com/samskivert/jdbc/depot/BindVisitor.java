@@ -26,7 +26,7 @@ import java.util.Set;
 
 import com.samskivert.jdbc.depot.Key.WhereCondition;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
-import com.samskivert.jdbc.depot.clause.FieldOverride;
+import com.samskivert.jdbc.depot.clause.FieldDefinition;
 import com.samskivert.jdbc.depot.clause.ForUpdate;
 import com.samskivert.jdbc.depot.clause.FromOverride;
 import com.samskivert.jdbc.depot.clause.GroupBy;
@@ -63,7 +63,7 @@ public class BindVisitor implements ExpressionVisitor
     {
     }
 
-    public void visit (FieldOverride fieldOverride)
+    public void visit (FieldDefinition fieldOverride)
         throws Exception
     {
     }

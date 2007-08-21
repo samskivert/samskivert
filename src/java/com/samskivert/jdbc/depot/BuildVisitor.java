@@ -29,6 +29,7 @@ import java.util.Set;
 import com.samskivert.jdbc.depot.Key.WhereCondition;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
+import com.samskivert.jdbc.depot.clause.FieldDefinition;
 import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.ForUpdate;
 import com.samskivert.jdbc.depot.clause.FromOverride;
@@ -81,13 +82,13 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
     }
 
-    public void visit (FieldOverride fieldOverride)
+    public void visit (FieldDefinition definition)
         throws Exception
     {
-        fieldOverride.getOverride().accept(this);
-        if (_aliasFields) {
+        definition.getDefinition().accept(this);
+        if (_enableAliasing) {
             _builder.append(" as ");
-            appendIdentifier(fieldOverride.getField());
+            appendIdentifier(definition.getField());
         }
     }
 
@@ -280,9 +281,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
         _builder.append(" as ");
         appendTableAbbreviation(join.getJoinClass());
         _builder.append(" on ");
-        _ignoreOverrides = true;
         join.getJoinCondition().accept(this);
-        _ignoreOverrides = false;
     }
 
     public void visit (Limit limit)
@@ -315,23 +314,23 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
         _builder.append("select ");
 
-        if (_overrides.containsKey(pClass)) {
+        if (_definitions.containsKey(pClass)) {
             throw new IllegalArgumentException(
                 "Can not yet nest SELECTs on the same persistent record.");
         }
 
-        Map<String, FieldOverride> overrideMap = new HashMap<String, FieldOverride>();
-        for (FieldOverride override : selectClause.getFieldOverrides()) {
-            overrideMap.put(override.getField(), override);
+        Map<String, FieldDefinition> definitionMap = new HashMap<String, FieldDefinition>();
+        for (FieldDefinition definition : selectClause.getFieldDefinitions()) {
+            definitionMap.put(definition.getField(), definition);
         }
-        _overrides.put(pClass, overrideMap);
+        _definitions.put(pClass, definitionMap);
 
         try {
             // iterate over the fields we're filling in and figure out whence each one comes
             boolean skip = true;
 
-            // while expanding column names in the SELECT query, do aliasing
-            _aliasFields = true;
+            // while expanding column names in the SELECT query, do aliasing and expansion
+            _enableAliasing = _enableOverrides = true;
 
             for (String field : selectClause.getFields()) {
                 if (!skip) {
@@ -349,7 +348,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             }
 
             // then stop
-            _aliasFields = false;
+            _enableAliasing = _enableOverrides = false;
 
             if (selectClause.getFromOverride() != null) {
                 selectClause.getFromOverride().accept(this);
@@ -384,7 +383,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             }
 
         } finally {
-            _overrides.remove(pClass);
+            _definitions.remove(pClass);
         }
         if (isInner) {
             _builder.append(")");
@@ -508,19 +507,36 @@ public abstract class BuildVisitor implements ExpressionVisitor
                 "Unknown field on persistent record [record=" + type + ", field=" + field + "]");
         }
 
-        if (!_ignoreOverrides) {
-            Map<String, FieldOverride> fieldOverrides = _overrides.get(type);
-            if (fieldOverrides != null) {
-                // first, see if there's a field override
-                FieldOverride override = fieldOverrides.get(field);
-                if (override != null) {
+        Map<String, FieldDefinition> fieldOverrides = _definitions.get(type);
+        if (fieldOverrides != null) {
+            // first, see if there's a field override
+            FieldDefinition override = fieldOverrides.get(field);
+
+            if (override != null) {
+                boolean useOverride;
+                if (override instanceof FieldOverride) {
+                    if (fm.getComputed() != null || dm.getComputed() != null) {
+                        throw new IllegalArgumentException(
+                            "FieldOverride cannot be used on @Computed field: " + field);
+                    }
+                    useOverride = _enableOverrides;
+                } else if (fm.getComputed() == null && dm.getComputed() == null) {
+                    throw new IllegalArgumentException(
+                        "FieldDefinition must not be used on concrete field: " + field);
+                } else {
+                    useOverride = true;
+                }
+
+                if (useOverride) {
                     // If a FieldOverride's target is in turn another FieldOverride, the second
                     // one is ignored. As an example, when creating ItemRecords from CloneRecords,
                     // we make Item.itemId = Clone.itemId. We also make Item.parentId = Item.itemId
                     // and would be dismayed to find Item.parentID = Item.itemId = Clone.itemId.
-                    _ignoreOverrides = true;
+
+                    boolean saved = _enableOverrides;
+                    _enableOverrides = false;
                     override.accept(this);
-                    _ignoreOverrides = false;
+                    _enableOverrides = saved;
                     return;
                 }
             }
@@ -548,7 +564,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             // check if the computed field has a literal SQL definition
             if (fieldComputed.fieldDefinition().length() > 0) {
                 _builder.append(fieldComputed.fieldDefinition());
-                if (_aliasFields) {
+                if (_enableAliasing) {
                     _builder.append(" as ");
                     appendIdentifier(field);
                 }
@@ -590,13 +606,13 @@ public abstract class BuildVisitor implements ExpressionVisitor
     protected StringBuilder _builder = new StringBuilder();
 
     /** A mapping of field overrides per persistent record. */
-    protected Map<Class<? extends PersistentRecord>, Map<String, FieldOverride>> _overrides =
-        new HashMap<Class<? extends PersistentRecord>, Map<String,FieldOverride>>();
+    protected Map<Class<? extends PersistentRecord>, Map<String, FieldDefinition>> _definitions=
+        new HashMap<Class<? extends PersistentRecord>, Map<String,FieldDefinition>>();
 
     /** A flag that's set to true for inner SELECT's */
     protected boolean _innerClause = false;
 
-    protected boolean _ignoreOverrides = false;
+    protected boolean _enableOverrides = false;
 
-    protected boolean _aliasFields = false;
+    protected boolean _enableAliasing = false;
 }

@@ -26,7 +26,7 @@ import com.samskivert.jdbc.depot.MultiKey;
 import com.samskivert.jdbc.depot.PersistentRecord;
 
 import com.samskivert.jdbc.depot.clause.DeleteClause;
-import com.samskivert.jdbc.depot.clause.FieldOverride;
+import com.samskivert.jdbc.depot.clause.FieldDefinition;
 import com.samskivert.jdbc.depot.clause.ForUpdate;
 import com.samskivert.jdbc.depot.clause.FromOverride;
 import com.samskivert.jdbc.depot.clause.GroupBy;
@@ -50,7 +50,7 @@ import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
  */
 public interface ExpressionVisitor
 {
-    public void visit (FieldOverride fieldOverride)
+    public void visit (FieldDefinition fieldOverride)
         throws Exception;
     public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
         throws Exception;

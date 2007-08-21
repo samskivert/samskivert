@@ -67,8 +67,8 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
             } else if (clause instanceof Join) {
                 _joinClauses.add((Join) clause);
 
-            } else if (clause instanceof FieldOverride) {
-                _disMap.put(((FieldOverride) clause).getField(), ((FieldOverride) clause));
+            } else if (clause instanceof FieldDefinition) {
+                _disMap.put(((FieldDefinition) clause).getField(), ((FieldDefinition) clause));
 
             } else if (clause instanceof OrderBy) {
                 if (_orderBy != null) {
@@ -101,12 +101,12 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
         }
     }
 
-    public FieldOverride lookupOverride (String field)
+    public FieldDefinition lookupDefinition (String field)
     {
         return _disMap.get(field);
     }
 
-    public Collection<FieldOverride> getFieldOverrides ()
+    public Collection<FieldDefinition> getFieldDefinitions ()
     {
         return _disMap.values();
     }
@@ -169,7 +169,7 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
         for (Join join : _joinClauses) {
             join.addClasses(classSet);
         }
-        for (FieldOverride override : _disMap.values()) {
+        for (FieldDefinition override : _disMap.values()) {
             override.addClasses(classSet);
         }
     }
@@ -181,7 +181,7 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
     }
 
     /** Persistent class fields mapped to field override clauses. */
-    protected Map<String, FieldOverride> _disMap = new HashMap<String, FieldOverride>();
+    protected Map<String, FieldDefinition> _disMap = new HashMap<String, FieldDefinition>();
 
     /** The persistent class this select defines. */
     protected Class<T> _pClass;

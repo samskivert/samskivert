@@ -20,37 +20,75 @@
 
 package com.samskivert.jdbc.depot.clause;
 
+import java.util.Collection;
+
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
- * Redirects one field of the persistent object we're creating from its default associated column
- * to a general {@link SQLExpression}.
+ * Supplies a definition for a computed field of the persistent object we're creating.
  *
  * Thus the select portion of a query can include a reference to a different column in a different
  * table through a {@link ColumnExp}, or a literal expression such as COUNT(*) through a
  * {@link LiteralExp}.
+ *
+ * @see FieldOverride
  */
-public class FieldOverride extends FieldDefinition
+public class FieldDefinition extends QueryClause
 {
-    public FieldOverride (String field, String str)
+    public FieldDefinition (String field, String str)
         throws PersistenceException
     {
-        super(field, str);
+        this(field, new LiteralExp(str));
     }
 
-    public FieldOverride (String field, Class<? extends PersistentRecord> pClass, String pCol)
+    public FieldDefinition (String field, Class<? extends PersistentRecord> pClass, String pCol)
         throws PersistenceException
     {
-        super(field, pClass, pCol);
+        this(field, new ColumnExp(pClass, pCol));
     }
 
-    public FieldOverride (String field, SQLExpression override)
+    public FieldDefinition (String field, SQLExpression override)
         throws PersistenceException
     {
-        super(field, override);
+        _field = field;
+        _definition = override;
     }
+
+    /**
+     * The field we're defining. The Query object uses this for indexing.
+     */
+    public String getField ()
+    {
+        return _field;
+    }
+
+    public SQLExpression getDefinition ()
+    {
+        return _definition;
+    }
+
+    // from SQLExpression
+    public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+    {
+        _definition.addClasses(classSet);
+    }
+
+    // from SQLExpression
+    public void accept (ExpressionVisitor visitor)
+        throws Exception
+    {
+        visitor.visit(this);
+    }
+
+    /** The name of the field on the persistent object to override. */
+    protected String _field;
+
+    /** The defining expression. */
+    protected SQLExpression _definition;
+
 }

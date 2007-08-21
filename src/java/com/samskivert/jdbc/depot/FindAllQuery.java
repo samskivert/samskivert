@@ -35,6 +35,7 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 
+import com.samskivert.jdbc.depot.clause.FieldDefinition;
 import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.Join;
 import com.samskivert.jdbc.depot.clause.QueryClause;
@@ -102,7 +103,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 // a select subset of query clauses are preserved for the entity query
                 QueryClause[] newClauses = new QueryClause[_clauses.length + 1];
                 for (int ii = 0; ii < _clauses.length; ii ++) {
-                    if (_clauses[ii] instanceof Join || _clauses[ii] instanceof FieldOverride) {
+                    if (_clauses[ii] instanceof Join || _clauses[ii] instanceof FieldDefinition) {
                         newClauses[jj ++] = _clauses[ii];
                     }
                 }

@@ -24,8 +24,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
+
+import static com.samskivert.Log.log;
 
 /**
  * Used to note that transitionary code has been run to migrate persistent data. This is especially
@@ -64,8 +67,28 @@ public class TransitionRepository extends SimpleRepository
         throws PersistenceException
     {
         if (!isTransitionApplied(clazz, name)) {
-            trans.run();
             noteTransition(clazz, name);
+            try {
+                trans.run();
+
+            } catch (PersistenceException e) {
+                try {
+                    clearTransition(clazz, name);
+                } catch (PersistenceException pe) {
+                    log.log(Level.WARNING, "Failed to clear failed transition [class=" + clazz +
+                            ", name=" + name + "].", pe);
+                }
+                throw e;
+
+            } catch (RuntimeException rte) {
+                try {
+                    clearTransition(clazz, name);
+                } catch (PersistenceException pe) {
+                    log.log(Level.WARNING, "Failed to clear failed transition [class=" + clazz +
+                            ", name=" + name + "].", pe);
+                }
+                throw rte;
+            }
         }
     }
 
@@ -104,13 +127,16 @@ public class TransitionRepository extends SimpleRepository
 
     /**
      * Note in the database that a particular transition has been applied.
+     *
+     * @return true if the transition was noted, false if it could not be noted because another
+     * process noted it first.
      */
-    public void noteTransition (Class clazz, final String name)
+    public boolean noteTransition (Class clazz, final String name)
         throws PersistenceException
     {
         final String cname = clazz.getName();
-        executeUpdate(new Operation<Void>() {
-            public Void invoke (Connection conn, DatabaseLiaison liaison)
+        return executeUpdate(new Operation<Boolean>() {
+            public Boolean invoke (Connection conn, DatabaseLiaison liaison)
                 throws SQLException, PersistenceException
             {
                 PreparedStatement stmt = null;
@@ -122,11 +148,18 @@ public class TransitionRepository extends SimpleRepository
                     stmt.setString(1, cname);
                     stmt.setString(2, name);
                     JDBCUtil.checkedUpdate(stmt, 1);
+                    return true;
+
+                } catch (SQLException sqe) {
+                    if (liaison.isDuplicateRowException(sqe)) {
+                        return false;
+                    } else {
+                        throw sqe;
+                    }
 
                 } finally {
                     JDBCUtil.close(stmt);
                 }
-                return null;
             }
         });
     }

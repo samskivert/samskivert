@@ -60,8 +60,7 @@ public class TransitionRepository extends SimpleRepository
     }
 
     /**
-     * Perform a transition if it has not already been applied, and record
-     * that it was applied.
+     * Perform a transition if it has not already been applied, and record that it was applied.
      */
     public void transition (Class clazz, String name, Transition trans)
         throws PersistenceException
@@ -183,7 +182,6 @@ public class TransitionRepository extends SimpleRepository
                         "         and " + liaison.columnSQL("NAME") + "=?");
                     stmt.setString(1, cname);
                     stmt.setString(2, name);
-
                     stmt.executeUpdate(); // we don't care if it worked or not
 
                 } finally {

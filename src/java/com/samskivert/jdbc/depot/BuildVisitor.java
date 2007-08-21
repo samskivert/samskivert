@@ -280,7 +280,9 @@ public abstract class BuildVisitor implements ExpressionVisitor
         _builder.append(" as ");
         appendTableAbbreviation(join.getJoinClass());
         _builder.append(" on ");
+        _ignoreOverrides = true;
         join.getJoinCondition().accept(this);
+        _ignoreOverrides = false;
     }
 
     public void visit (Limit limit)

@@ -257,8 +257,8 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
-     * Returns the {@link ValueGenerator} used to generate primary keys for this persistent object,
-     * or null if it does not use a key generator.
+     * Returns the {@link ValueGenerator} objects used to automatically generate field values for
+     * us when a new record is inserted.
      */
     public Iterable<ValueGenerator> getValueGenerators ()
     {
@@ -989,5 +989,4 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";
-
 }

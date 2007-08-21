@@ -451,12 +451,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
         _builder.append(") values(");
 
-        Set<String> generatedFields = insertClause.getIdentityFields();
+        Set<String> idFields = insertClause.getIdentityFields();
         for (int ii = 0; ii < fields.length; ii++) {
             if (ii > 0) {
                 _builder.append(", ");
             }
-            if (generatedFields.contains(fields[ii])) {
+            if (idFields.contains(fields[ii])) {
                 _builder.append("DEFAULT");
             } else {
                 _builder.append("?");

@@ -241,9 +241,9 @@ public class BindVisitor implements ExpressionVisitor
         DepotMarshaller marsh = _types.getMarshaller(insertClause.getPersistentClass());
 
         Object pojo = insertClause.getPojo();
-        Set<String> generatedFields = insertClause.getIdentityFields();
+        Set<String> idFields = insertClause.getIdentityFields();
         for (String field : marsh.getColumnFieldNames()) {
-            if (!generatedFields.contains(field)) {
+            if (!idFields.contains(field)) {
                 marsh.getFieldMarshaller(field).readFromObject(pojo, _stmt, _argIdx ++);
             }
         }

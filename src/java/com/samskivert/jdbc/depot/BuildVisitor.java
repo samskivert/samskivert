@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.samskivert.jdbc.depot.Key.WhereCondition;
 import com.samskivert.jdbc.depot.annotation.Computed;
@@ -450,12 +451,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
         _builder.append(") values(");
 
-        String ixField = insertClause.getIndexField();
+        Set<String> generatedFields = insertClause.getIdentityFields();
         for (int ii = 0; ii < fields.length; ii++) {
             if (ii > 0) {
                 _builder.append(", ");
             }
-            if (ixField != null && ixField.equals(fields[ii])) {
+            if (generatedFields.contains(fields[ii])) {
                 _builder.append("DEFAULT");
             } else {
                 _builder.append("?");

@@ -27,16 +27,16 @@ import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 
 /**
- * Defines the interface to our primary key generators.
+ * Defines the interface to our value generators.
  */
-public abstract class KeyGenerator
+public abstract class ValueGenerator
 {
-    public KeyGenerator (GeneratedValue gv, String table, String column)
+    public ValueGenerator (GeneratedValue gv, DepotMarshaller dm, FieldMarshaller fm)
     {
         _allocationSize = gv.allocationSize();
         _initialValue = gv.initialValue();
-        _table = table;
-        _column = column;
+        _dm = dm;
+        _fm = fm;
     }
 
     /**
@@ -57,24 +57,19 @@ public abstract class KeyGenerator
     public abstract int nextGeneratedValue (Connection conn, DatabaseLiaison liaison)
         throws SQLException;
 
-    /**
-     * Returns the name of the table for which we're generating a key value.
-     */
-    public String getTable ()
+
+    public DepotMarshaller getDepotMarshaller ()
     {
-        return _table;
+        return _dm;
     }
 
-    /**
-     * Returns the name of the column for which we're generating a key value.
-     */
-    public String getColumn ()
+    public FieldMarshaller getFieldMarshaller ()
     {
-        return _column;
+        return _fm;
     }
 
     protected int _initialValue;
     protected int _allocationSize;
-    protected String _table;
-    protected String _column;
+    protected DepotMarshaller _dm;
+    protected FieldMarshaller _fm;
 }

@@ -103,6 +103,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         }
 
+        boolean seenIdentityGenerator = false;
+
         // introspect on the class and create marshallers for persistent fields
         ArrayList<String> fields = new ArrayList<String>();
         for (Field field : _pclass.getFields()) {
@@ -136,38 +138,19 @@ public class DepotMarshaller<T extends PersistentRecord>
                     _pkColumns = new ArrayList<FieldMarshaller>();
                 }
                 _pkColumns.add(fm);
-
-                // check if this field defines a new TableGenerator
-                generator = field.getAnnotation(TableGenerator.class);
-                if (generator != null) {
-                    context.tableGenerators.put(generator.name(), generator);
-                }
-            }
-        }
-
-        // if the entity defines a single-columnar primary key, figure out if we will be generating
-        // values for it
-        if (_pkColumns != null) {
-            GeneratedValue gv = null;
-            FieldMarshaller keyField = null;
-            // loop over fields to see if there's a @GeneratedValue at all
-            for (FieldMarshaller field : _pkColumns) {
-                gv = field.getGeneratedValue();
-                if (gv != null) {
-                    keyField = field;
-                    break;
-                }
             }
 
-            if (keyField != null) {
-                // and if there is, make sure we've a single-column id
-                if (_pkColumns.size() > 1) {
-                    throw new IllegalArgumentException(
-                        "Cannot use @GeneratedValue on multiple-column @Id's");
-                }
+            // check if this field defines a new TableGenerator
+            generator = field.getAnnotation(TableGenerator.class);
+            if (generator != null) {
+                context.tableGenerators.put(generator.name(), generator);
+            }
 
-                // the primary key must be numeric if we are to auto-assign it
-                Class<?> ftype = keyField.getField().getType();
+            // check if this field is auto-generated
+            GeneratedValue gv = fm.getGeneratedValue();
+            if (gv != null) {
+                // we can only do this on numeric fields
+                Class<?> ftype = field.getType();
                 boolean isNumeric = (
                     ftype.equals(Byte.TYPE) || ftype.equals(Byte.class) ||
                     ftype.equals(Short.TYPE) || ftype.equals(Short.class) ||
@@ -175,14 +158,17 @@ public class DepotMarshaller<T extends PersistentRecord>
                     ftype.equals(Long.TYPE) || ftype.equals(Long.class));
                 if (!isNumeric) {
                     throw new IllegalArgumentException(
-                        "Cannot use @GeneratedValue on non-numeric column");
+                        "Cannot use @GeneratedValue on non-numeric column: " + field.getName());
                 }
-
                 switch(gv.strategy()) {
                 case AUTO:
                 case IDENTITY:
-                    _keyGenerator = new IdentityKeyGenerator(
-                        gv, getTableName(), keyField.getColumnName());
+                    if (seenIdentityGenerator) {
+                        throw new IllegalArgumentException(
+                            "Persistent records can have at most one AUTO/IDENTITY generator.");
+                    }
+                    _valueGenerators.put(field.getName(), new IdentityValueGenerator(gv, this, fm));
+                    seenIdentityGenerator = true;
                     break;
 
                 case TABLE:
@@ -192,11 +178,12 @@ public class DepotMarshaller<T extends PersistentRecord>
                         throw new IllegalArgumentException(
                             "Unknown generator [generator=" + name + "]");
                     }
-                    _keyGenerator = new TableKeyGenerator(
-                        generator, gv, getTableName(), keyField.getColumnName());
+                    _valueGenerators.put(
+                        field.getName(), new TableValueGenerator(generator, gv, this, fm));
                     break;
                 }
             }
+
         }
 
         // generate our full list of fields/columns for use in queries
@@ -270,12 +257,12 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
-     * Returns the {@link KeyGenerator} used to generate primary keys for this persistent object,
+     * Returns the {@link ValueGenerator} used to generate primary keys for this persistent object,
      * or null if it does not use a key generator.
      */
-    public KeyGenerator getKeyGenerator ()
+    public Iterable<ValueGenerator> getValueGenerators ()
     {
-        return _keyGenerator;
+        return _valueGenerators.values();
     }
 
     /**
@@ -435,36 +422,39 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
-     * Fills in the primary key just assigned to the supplied persistence object by the execution
-     * of the results of {@link #createInsert}.
+     * Go through the registered {@link ValueGenerator}s for our persistent object and run the
+     * ones that match the current postFactum phase, filling in the fields on the supplied object
+     * while we go. This method used to generate a key; that is now a separate step.
      *
-     * @return the newly assigned primary key or null if the object does not use primary keys or
-     * this is not the right time to assign the key.
+     * The return value is only non-empty for the !postFactum phase, in which case it is a set
+     * of field names that are associated with {@link IdentityValueGenerator}, because these need
+     * special handling in the INSERT (specifically, 'DEFAULT' must be supplied as a value in
+     * the eventual SQL).
      */
-    public Key assignPrimaryKey (
+    public Set<String> generateFieldValues (
         Connection conn, DatabaseLiaison liaison, Object po, boolean postFactum)
-        throws SQLException
     {
-        // if we have no primary key or no generator, then we're done
-        if (!hasPrimaryKey() || _keyGenerator == null) {
-            return null;
-        }
+        Set<String> idFields = new HashSet<String>();
 
-        // run this generator either before or after the actual insertion
-        if (_keyGenerator.isPostFactum() != postFactum) {
-            return null;
-        }
+        for (ValueGenerator vg : _valueGenerators.values()) {
+            if (!postFactum && vg instanceof IdentityValueGenerator) {
+                idFields.add(vg.getFieldMarshaller().getField().getName());
+            }
+            if (vg.isPostFactum() != postFactum) {
+                continue;
+            }
 
-        try {
-            int nextValue = _keyGenerator.nextGeneratedValue(conn, liaison);
-            _pkColumns.get(0).getField().set(po, nextValue);
-            return makePrimaryKey(nextValue);
-        } catch (Exception e) {
-            String errmsg = "Failed to assign primary key [type=" + _pclass + "]";
-            throw (SQLException) new SQLException(errmsg).initCause(e);
+            try {
+                int nextValue = vg.nextGeneratedValue(conn, liaison);
+                vg.getFieldMarshaller().getField().set(po, nextValue);
+
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                    "Failed to assign primary key [type=" + _pclass + "]", e);
+            }
         }
+        return idFields;
     }
-
 
     /**
      * This is called by the persistence context to register a migration for the entity managed by
@@ -575,9 +565,9 @@ public class DepotMarshaller<T extends PersistentRecord>
                             getTableName() + "_" + idx.name(), idx.unique());
                     }
 
-                    // its key generator
-                    if (_keyGenerator != null) {
-                        _keyGenerator.init(conn, liaison);
+                    // its value generators
+                    for (ValueGenerator vg : _valueGenerators.values()) {
+                        vg.init(conn, liaison);
                     }
 
                     // and its full text search indexes
@@ -969,15 +959,15 @@ public class DepotMarshaller<T extends PersistentRecord>
     /** The @Computed annotation of this entity, or null. */
     protected Computed _computed;
 
+    /** A mapping of field names to value generators for that field. */
+    protected Map<String, ValueGenerator> _valueGenerators = new HashMap<String, ValueGenerator>();
+
     /** A field marshaller for each persistent field in our object. */
     protected Map<String, FieldMarshaller> _fields = new HashMap<String, FieldMarshaller>();
 
     /** The field marshallers for our persistent object's primary key columns or null if it did not
      * define a primary key. */
     protected ArrayList<FieldMarshaller> _pkColumns;
-
-    /** The generator to use for auto-generating primary key values, or null. */
-    protected KeyGenerator _keyGenerator;
 
     /** The persisent fields of our object, in definition order. */
     protected String[] _allFields;
@@ -999,4 +989,5 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";
+
 }

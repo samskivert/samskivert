@@ -21,6 +21,7 @@
 package com.samskivert.jdbc.depot.clause;
 
 import java.util.Collection;
+import java.util.Set;
 
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
@@ -30,11 +31,12 @@ import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
  */
 public class InsertClause<T extends PersistentRecord> extends QueryClause
 {
-    public InsertClause (Class<? extends PersistentRecord> pClass, Object pojo, String ixField)
+    public InsertClause (
+        Class<? extends PersistentRecord> pClass, Object pojo, Set<String> identityFields)
     {
         _pClass = pClass;
         _pojo = pojo;
-        _ixField = ixField;
+        _idFields = identityFields;
     }
 
     public Class<? extends PersistentRecord> getPersistentClass ()
@@ -47,9 +49,9 @@ public class InsertClause<T extends PersistentRecord> extends QueryClause
         return _pojo;
     }
 
-    public String getIndexField ()
+    public Set<String> getIdentityFields ()
     {
-        return _ixField;
+        return _idFields;
     }
 
     // from SQLExpression
@@ -70,5 +72,5 @@ public class InsertClause<T extends PersistentRecord> extends QueryClause
     /** The object from which to fetch values, or null. */
     protected Object _pojo;
 
-    protected String _ixField;
+    protected Set<String> _idFields;
 }

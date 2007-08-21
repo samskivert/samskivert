@@ -30,16 +30,15 @@ import com.samskivert.jdbc.depot.annotation.TableGenerator;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
-import com.samskivert.jdbc.LiaisonRegistry;
 
 /**
  * Generates primary keys using an external table .
  */
-public class TableKeyGenerator extends KeyGenerator
+public class TableValueGenerator extends ValueGenerator
 {
-    public TableKeyGenerator (TableGenerator tg, GeneratedValue gv, String table, String column)
+    public TableValueGenerator (TableGenerator tg, GeneratedValue gv, DepotMarshaller dm, FieldMarshaller fm)
     {
-        super(gv, table, column);
+        super(gv, dm, fm);
         _valueTable = defStr(tg.table(), "IdSequences");
         _pkColumnName = defStr(tg.pkColumnName(), "sequence");
         _pkColumnValue = defStr(tg.pkColumnValue(), "default");

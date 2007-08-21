@@ -37,10 +37,7 @@ import com.samskivert.jdbc.JDBCUtil;
 
 import com.samskivert.jdbc.depot.Modifier.*;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
-import com.samskivert.jdbc.depot.clause.FieldOverride;
-import com.samskivert.jdbc.depot.clause.FromOverride;
 import com.samskivert.jdbc.depot.clause.InsertClause;
-import com.samskivert.jdbc.depot.clause.Join;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
@@ -175,24 +172,26 @@ public abstract class DepotRepository
         // key will be null if record was supplied without a primary key
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                // update our modifier's key so that it can cache our results
+                // set any auto-generated column values
+                Set<String> identityFields = marsh.generateFieldValues(conn, liaison, _result, false);
+
+                // if needed, update our modifier's key so that it can cache our results
                 if (_key == null) {
-                    updateKey(marsh.assignPrimaryKey(conn, liaison, _result, false));
+                    updateKey(marsh.getPrimaryKey(_result, false));
                 }
 
-                String ixField = null;
-                if (_key == null && marsh.hasPrimaryKey() && marsh.getKeyGenerator() != null &&
-                        marsh.getKeyGenerator() instanceof IdentityKeyGenerator) {
-                    ixField = ((IdentityKeyGenerator) marsh.getKeyGenerator()).getColumn();
-                }
-                builder.newQuery(new InsertClause<T>(pClass, _result, ixField));
+                builder.newQuery(new InsertClause<T>(pClass, _result, identityFields));
 
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     int mods = stmt.executeUpdate();
-                    // check again in case we have a post-factum key generator
+
+                    // run any post-factum value generators
+                    marsh.generateFieldValues(conn, liaison, _result, true);
+
+                    // and check once more if a key now exists
                     if (_key == null) {
-                        updateKey(marsh.assignPrimaryKey(conn, liaison, _result, true));
+                        updateKey(marsh.getPrimaryKey(_result, false));
                     }
                     return mods;
                 } finally {
@@ -575,22 +574,25 @@ public abstract class DepotRepository
                     }
 
                     // if the update modified zero rows or the primary key was obviously unset, do
-                    // an insertion
+                    // an insertion: first,  set any auto-generated column values
+                    Set<String> identityFields = marsh.generateFieldValues(conn, liaison, _result, false);
+
+                    // update our modifier's key so that it can cache our results
                     if (_key == null) {
-                        updateKey(marsh.assignPrimaryKey(conn, liaison, _result, false));
+                        updateKey(marsh.getPrimaryKey(_result, false));
                     }
 
-                    String ixField = null;
-                    if (_key == null && marsh.hasPrimaryKey() && marsh.getKeyGenerator() != null &&
-                            marsh.getKeyGenerator() instanceof IdentityKeyGenerator) {
-                        ixField = ((IdentityKeyGenerator) marsh.getKeyGenerator()).getColumn();
-                    }
-                    builder.newQuery(new InsertClause<T>(pClass, _result, ixField));
+                    builder.newQuery(new InsertClause<T>(pClass, _result, identityFields));
 
                     stmt = builder.prepare(conn);
                     int mods = stmt.executeUpdate();
+
+                    // run any post-factum value generators
+                    marsh.generateFieldValues(conn, liaison, _result, true);
+
+                    // and check once more if a key now exists
                     if (_key == null) {
-                        updateKey(marsh.assignPrimaryKey(conn, liaison, _result, true));
+                        updateKey(marsh.getPrimaryKey(_result, false));
                     }
                     created[0] = true;
                     return mods;

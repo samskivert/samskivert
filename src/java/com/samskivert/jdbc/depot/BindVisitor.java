@@ -22,6 +22,7 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.PreparedStatement;
 import java.util.Map;
+import java.util.Set;
 
 import com.samskivert.jdbc.depot.Key.WhereCondition;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
@@ -240,9 +241,9 @@ public class BindVisitor implements ExpressionVisitor
         DepotMarshaller marsh = _types.getMarshaller(insertClause.getPersistentClass());
 
         Object pojo = insertClause.getPojo();
-        String ixField = insertClause.getIndexField();
+        Set<String> generatedFields = insertClause.getIdentityFields();
         for (String field : marsh.getColumnFieldNames()) {
-            if (ixField == null || !ixField.equals(field)) {
+            if (!generatedFields.contains(field)) {
                 marsh.getFieldMarshaller(field).readFromObject(pojo, _stmt, _argIdx ++);
             }
         }

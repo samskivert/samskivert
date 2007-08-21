@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -24,17 +24,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.samskivert.jdbc.DatabaseLiaison;
-import com.samskivert.jdbc.LiaisonRegistry;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 
 /**
  * Generates primary keys using an identity column.
  */
-public class IdentityKeyGenerator extends KeyGenerator
+public class IdentityValueGenerator extends ValueGenerator
 {
-    public IdentityKeyGenerator (GeneratedValue gv, String table, String column)
+    public IdentityValueGenerator (GeneratedValue gv, DepotMarshaller dm, FieldMarshaller fm)
     {
-        super(gv, table, column);
+        super(gv, dm, fm);
     }
 
     // from interface KeyGenerator
@@ -47,13 +46,14 @@ public class IdentityKeyGenerator extends KeyGenerator
     public void init (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
-        liaison.initializeGenerator(conn, _table, _column, _initialValue, _allocationSize);
+        liaison.initializeGenerator(
+            conn, _dm.getTableName(), _fm.getColumnName(), _initialValue, _allocationSize);
     }
 
     // from interface KeyGenerator
     public int nextGeneratedValue (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
-        return liaison.lastInsertedId(conn, _table, _column);
+        return liaison.lastInsertedId(conn, _dm.getTableName(), _fm.getColumnName());
     }
 }

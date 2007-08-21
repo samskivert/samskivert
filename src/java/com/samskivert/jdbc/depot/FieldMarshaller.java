@@ -222,10 +222,8 @@ public abstract class FieldMarshaller<T>
             return;
         }
 
-        if (field.getAnnotation(Id.class) != null) {
-            // figure out how we're going to generate our primary key values
-            _generatedValue = field.getAnnotation(GeneratedValue.class);
-        }
+        // figure out how we're going to generate our primary key values
+        _generatedValue = field.getAnnotation(GeneratedValue.class);
     }
 
     protected static class BooleanMarshaller extends FieldMarshaller<Boolean> {

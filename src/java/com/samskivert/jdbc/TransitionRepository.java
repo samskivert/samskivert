@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
@@ -143,9 +144,11 @@ public class TransitionRepository extends SimpleRepository
                     stmt = conn.prepareStatement(
                         "insert into " + liaison.tableSQL("TRANSITIONS") + " (" +
                         liaison.columnSQL("CLASS") + ", " + liaison.columnSQL("NAME") +
-                        ") values (?, ?)");
+                        ", " + liaison.columnSQL("APPLIED") +
+                        ") values (?, ?, ?)");
                     stmt.setString(1, cname);
                     stmt.setString(2, name);
+                    stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
                     JDBCUtil.checkedUpdate(stmt, 1);
                     return true;
 

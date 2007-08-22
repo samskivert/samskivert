@@ -153,6 +153,12 @@ public abstract class SQLBuilder
 
             // TODO: handle precision and scale
 
+            // sanity check nullability
+            if (nullable && field.getType().isPrimitive()) {
+                throw new IllegalArgumentException(
+                    "Primitive Java type cannot be nullable [field=" + field.getName() + "]");
+            }
+
             // handle nullability and uniqueness
             if (!nullable) {
                 builder.append(" NOT NULL");
@@ -165,13 +171,18 @@ public abstract class SQLBuilder
             if (defval.length() > 0) {
                 builder.append(" DEFAULT ").append(defval);
 
-            } else if (field.getType().equals(Integer.TYPE) || // TODO: how to do this properly?
-                       field.getType().equals(Integer.class) ||
-                       field.getType().equals(Byte.TYPE) ||
-                       field.getType().equals(Byte.class) ||
+            } else if (field.getType().equals(Byte.TYPE) ||
                        field.getType().equals(Short.TYPE) ||
-                       field.getType().equals(Short.class)) {
+                       field.getType().equals(Integer.TYPE) ||
+                       field.getType().equals(Long.TYPE) ||
+                       field.getType().equals(Float.TYPE) ||
+                       field.getType().equals(Double.TYPE)) {
+                // Java primitive types cannot be null, so we provide a default value for these
+                // columns that matches Java's default for primitive types
                 builder.append(" DEFAULT 0");
+
+            } else if (field.getType().equals(Boolean.TYPE)) {
+                builder.append(" DEFAULT ").append(getBooleanDefault());
             }
         }
 
@@ -202,6 +213,14 @@ public abstract class SQLBuilder
      */
     public abstract void getFtsIndexes (
         Iterable<String> columns, Iterable<String> indexes, Set<String> target);
+
+    /**
+     * Returns the boolean literal that corresponds to false.
+     */
+    protected String getBooleanDefault ()
+    {
+        return "false";
+    }
 
     /**
      * Overridden by subclasses to create a dialect-specific {@link BuildVisitor}.

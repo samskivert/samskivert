@@ -177,6 +177,12 @@ public class MySQLBuilder
     }
 
     @Override
+    protected String getBooleanDefault ()
+    {
+        return "0";
+    }
+
+    @Override
     protected BuildVisitor getBuildVisitor ()
     {
         return new MSBuildVisitor(_types);

@@ -164,6 +164,14 @@ public abstract class SQLBuilder
             // append the default value if one was specified
             if (defval.length() > 0) {
                 builder.append(" DEFAULT ").append(defval);
+
+            } else if (field.getType().equals(Integer.TYPE) || // TODO: how to do this properly?
+                       field.getType().equals(Integer.class) ||
+                       field.getType().equals(Byte.TYPE) ||
+                       field.getType().equals(Byte.class) ||
+                       field.getType().equals(Short.TYPE) ||
+                       field.getType().equals(Short.class)) {
+                builder.append(" DEFAULT 0");
             }
         }
 

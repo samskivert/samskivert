@@ -28,6 +28,7 @@ import java.util.Map;
 
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.WhereClause;
+import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 
 /**
@@ -160,6 +161,16 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
     public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
         classSet.add(_pClass);
+
+        // TODO: This should not have to do a getAnnotation().
+        Computed computed = _pClass.getAnnotation(Computed.class);
+        if (computed != null) {
+            Class<? extends PersistentRecord> shadowClass = computed.shadowOf();
+            if (shadowClass != null) {
+                classSet.add(shadowClass);
+            }
+        }
+
         if (_fromOverride != null) {
             _fromOverride.addClasses(classSet);
         }

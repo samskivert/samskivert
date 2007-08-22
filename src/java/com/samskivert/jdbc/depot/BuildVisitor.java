@@ -353,14 +353,20 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (selectClause.getFromOverride() != null) {
                 selectClause.getFromOverride().accept(this);
 
-            } else if (_types.getTableName(pClass) != null) {
-                _builder.append(" from ");
-                appendTableName(pClass);
-                _builder.append(" as ");
-                appendTableAbbreviation(pClass);
-
             } else {
-                throw new SQLException("Query on @Computed entity with no FromOverrideClause.");
+                Computed computed = _types.getMarshaller(pClass).getComputed();
+                Class<? extends PersistentRecord> tClass;
+                if (computed != null && !PersistentRecord.class.equals(computed.shadowOf())) {
+                    tClass = computed.shadowOf();
+                } else if (_types.getTableName(pClass) != null) {
+                    tClass = pClass;
+                } else {
+                    throw new SQLException("Query on @Computed entity with no FromOverrideClause.");
+                }
+                _builder.append(" from ");
+                appendTableName(tClass);
+                _builder.append(" as ");
+                appendTableAbbreviation(tClass);
             }
 
             for (Join clause : selectClause.getJoinClauses()) {

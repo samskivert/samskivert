@@ -37,8 +37,6 @@ import com.samskivert.jdbc.JDBCUtil;
 
 import com.samskivert.jdbc.depot.Modifier.*;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
-import com.samskivert.jdbc.depot.clause.FieldOverride;
-import com.samskivert.jdbc.depot.clause.FromOverride;
 import com.samskivert.jdbc.depot.clause.InsertClause;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
@@ -149,14 +147,6 @@ public abstract class DepotRepository
         boolean useExplicit =
             (marsh.getTableName() == null) || !marsh.hasPrimaryKey() || !_ctx.isUsingCache();
 
-        // TODO: The two-pass query still doesn't do well in circumstances where we do tricky
-        // TODO: things such as override the table from whence the primary key fields come, so
-        // TODO: somewhat conservatively we fall back on the traditional explicit approach on
-        // TODO: any query involving FromOverrides or FieldOverrides. FieldDefinitions should
-        // TODO: not present a problem, however.
-        for (QueryClause clause : clauses) {
-            useExplicit |= (clause instanceof FieldOverride || clause instanceof FromOverride);
-        }
         return _ctx.invoke(useExplicit ?
             new FindAllQuery.Explicitly<T>(_ctx, type, clauses) :
             new FindAllQuery.WithCache<T>(_ctx, type, clauses));

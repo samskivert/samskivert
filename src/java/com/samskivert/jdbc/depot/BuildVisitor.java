@@ -102,7 +102,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (ii > 0) {
                 _builder.append(" and ");
             }
+            // A Key's WHERE clause must mirror what's actually retrieved for the persistent
+            // object, so we turn on overrides here just as we do when expanding SELECT fields
+            boolean saved = _enableOverrides;
+            _enableOverrides = true;
             appendRhsColumn(pClass, keyFields[ii]);
+            _enableOverrides = saved;
             _builder.append(values[ii] == null ? " is null " : " = ? ");
         }
     }
@@ -125,7 +130,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
             } else {
                 _builder.append(" and ");
             }
+            // A MultiKey's WHERE clause must mirror what's actually retrieved for the persistent
+            // object, so we turn on overrides here just as we do when expanding SELECT fields
+            boolean saved = _enableOverrides;
+            _enableOverrides = true;
             appendRhsColumn(key.getPersistentClass(), entry.getKey());
+            _enableOverrides = saved;
             _builder.append(entry.getValue() == null ? " is null " : " = ? ");
         }
         if (!first) {

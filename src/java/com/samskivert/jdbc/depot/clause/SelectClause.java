@@ -166,7 +166,7 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
         Computed computed = _pClass.getAnnotation(Computed.class);
         if (computed != null) {
             Class<? extends PersistentRecord> shadowClass = computed.shadowOf();
-            if (shadowClass != null) {
+            if (!PersistentRecord.class.equals(shadowClass)) {
                 classSet.add(shadowClass);
             }
         }

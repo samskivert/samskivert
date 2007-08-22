@@ -43,7 +43,10 @@ public class FindOneQuery<T extends PersistentRecord>
     {
         _marsh = ctx.getMarshaller(type);
         _select = new SelectClause<T>(type, _marsh.getFieldNames(), clauses);
-        _select.getWhereClause().validateQueryType(type); // sanity check
+        WhereClause where = _select.getWhereClause();
+        if (where != null) {
+            _select.getWhereClause().validateQueryType(type); // sanity check
+        }
         _builder = ctx.getSQLBuilder(DepotTypes.getDepotTypes(ctx, _select));
         _builder.newQuery(_select);
     }

@@ -124,11 +124,16 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 // and execute it
                 try {
                     ResultSet rs = stmt.executeQuery();
-                    for (Key<T> key : fetchKeys) {
-                        if (!rs.next()) {
-                            throw new SQLException("Expecting more rows in result set.");
-                        }
-                        entities.put(key, _marsh.createObject(rs));
+                    int cnt = 0;
+                    while (rs.next()) {
+                        T obj = _marsh.createObject(rs);
+                        entities.put(_marsh.getPrimaryKey(obj), obj);
+                        cnt ++;
+                    }
+                    if (cnt != fetchKeys.size()) {
+                        throw new SQLException(
+                            "Row count mismatch in second pass [expectedCount=" + fetchKeys.size() +
+                            ", actualCount=" + cnt + "]");
                     }
 
                 } finally {

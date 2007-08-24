@@ -416,8 +416,9 @@ public class PersistenceContext
         if (bin != null) {
             for (Object key : bin.enumerateKeys()) {
                 CacheAdapter.CachedValue<T> element = bin.lookup((Serializable) key);
-                if (element != null) {
-                    filter.visitCacheEntry(this, cacheId, (Serializable) key, element.getValue());
+                T value;
+                if (element != null && (value = element.getValue()) != null) {
+                    filter.visitCacheEntry(this, cacheId, (Serializable) key, value);
                 }
             }
         }

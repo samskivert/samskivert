@@ -36,12 +36,14 @@ import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 
 import com.samskivert.jdbc.depot.clause.FieldDefinition;
-import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.Join;
+import com.samskivert.jdbc.depot.clause.Limit;
+import com.samskivert.jdbc.depot.clause.OrderBy;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
+import com.samskivert.jdbc.depot.operator.SQLOperator;
 import com.samskivert.jdbc.depot.operator.Logic.*;
 
 import static com.samskivert.jdbc.depot.Log.log;
@@ -101,13 +103,21 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             }
 
             if (fetchKeys.size() > 0) {
+                // make a new array of query clauses for the second pass
                 int jj = 0;
-                // a select subset of query clauses are preserved for the entity query
                 QueryClause[] newClauses = new QueryClause[_clauses.length + 1];
+                SQLExpression originalWhereCondition = null;
+
                 for (int ii = 0; ii < _clauses.length; ii ++) {
-                    if (_clauses[ii] instanceof Join || _clauses[ii] instanceof FieldDefinition) {
-                        newClauses[jj ++] = _clauses[ii];
+                    // we do not need ORDER BY in the second pass query
+                    if (_clauses[ii] instanceof OrderBy) {
+                        continue;
                     }
+                    if (_clauses[ii] instanceof Where) {
+                        originalWhereCondition = ((Where) _clauses[ii]).getCondition();
+                        continue;
+                    }
+                    newClauses[jj ++] = _clauses[ii];
                 }
 
                 SQLExpression[] keyArray = new SQLExpression[fetchKeys.size()];
@@ -115,11 +125,19 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                     keyArray[ii] = fetchKeys.get(ii).condition;
                 }
 
-                // add our special key-matching where clause
-                newClauses[jj ++] = new Where(new Or(keyArray));
+                // create our special key-matching condition
+                SQLExpression newCondition = new Or(keyArray);
+
+                // add in the old condition, if there was one
+                if (originalWhereCondition != null) {
+                    newCondition = new And(newCondition, originalWhereCondition);
+                }
+
+                // and add it in as a WHERE
+                newClauses[jj ++] = new Where(newCondition);
                 newClauses = ArrayUtil.splice(newClauses, jj);
 
-                // build the new query
+                // finally build the new query
                 _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(), newClauses));
                 stmt = _builder.prepare(conn);
 

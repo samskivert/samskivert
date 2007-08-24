@@ -126,16 +126,18 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 // and execute it
                 try {
                     ResultSet rs = stmt.executeQuery();
-                    int cnt = 0;
+                    int cnt = 0, dups = 0;
                     while (rs.next()) {
                         T obj = _marsh.createObject(rs);
-                        entities.put(_marsh.getPrimaryKey(obj), obj);
-                        cnt ++;
+                        if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
+                            dups++;
+                        }
+                        cnt++;
                     }
                     if (cnt != fetchKeys.size()) {
-                        log.warning("Row count mismatch in second pass " +
-                                    "[expectedCount=" + fetchKeys.size() +
-                                    ", actualCount=" + cnt + "]");
+                        log.warning("Row count mismatch in second pass [query=" + stmt +
+                                    ", wanted=" + fetchKeys.size() + ", got=" + cnt +
+                                    ", dups=" + dups + "]");
                     }
 
                 } finally {

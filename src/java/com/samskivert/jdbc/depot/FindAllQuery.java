@@ -44,6 +44,8 @@ import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.operator.Logic.*;
 
+import static com.samskivert.jdbc.depot.Log.log;
+
 /**
  * This class implements the functionality required by {@link DepotRepository#findAll): fetch
  * a collection of persistent objects using one of two included strategies.
@@ -131,9 +133,9 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                         cnt ++;
                     }
                     if (cnt != fetchKeys.size()) {
-                        throw new SQLException(
-                            "Row count mismatch in second pass [expectedCount=" + fetchKeys.size() +
-                            ", actualCount=" + cnt + "]");
+                        log.warning("Row count mismatch in second pass " +
+                                    "[expectedCount=" + fetchKeys.size() +
+                                    ", actualCount=" + cnt + "]");
                     }
 
                 } finally {
@@ -143,7 +145,10 @@ public abstract class FindAllQuery<T extends PersistentRecord>
 
             List<T> result = new ArrayList<T>();
             for (Key<T> key : allKeys) {
-                result.add(entities.get(key));
+                T value = entities.get(key);
+                if (value != null) {
+                    result.add(value);
+                }
             }
             return result;
         }

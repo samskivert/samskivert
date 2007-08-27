@@ -114,6 +114,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 SQLExpression condition;
 
                 if (_marsh.getPrimaryKeyFields().length == 1) {
+                    // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
                     Comparable[] keyFieldValues = new Comparable[fetchKeys.size()];
                     for (int ii = 0; ii < keyFieldValues.length; ii ++) {
                         keyFieldValues[ii] = fetchKeys.get(ii).condition.getValues()[0];
@@ -121,6 +122,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                     condition = new In(_type, _marsh.getPrimaryKeyFields()[0], keyFieldValues);
 
                 } else {
+                    // Multi-column keys result in OR'd AND's, of unknown efficiency (TODO check).
                     SQLExpression[] keyArray = new SQLExpression[fetchKeys.size()];
                     for (int ii = 0; ii < keyArray.length; ii ++) {
                         keyArray[ii] = fetchKeys.get(ii).condition;

@@ -30,21 +30,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.util.ArrayUtil;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 
-import com.samskivert.jdbc.depot.clause.FieldDefinition;
-import com.samskivert.jdbc.depot.clause.Join;
-import com.samskivert.jdbc.depot.clause.Limit;
-import com.samskivert.jdbc.depot.clause.OrderBy;
+import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
-import com.samskivert.jdbc.depot.operator.SQLOperator;
 import com.samskivert.jdbc.depot.operator.Logic.*;
+import com.samskivert.jdbc.depot.operator.Conditionals.*;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -64,6 +60,18 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             throws PersistenceException
         {
             super(ctx, type);
+
+            if (_marsh.getComputed() != null) {
+                throw new IllegalArgumentException(
+                "This algorithm doesn't work on @Computed records.");
+            }
+            for (QueryClause clause : clauses) {
+                if (clause instanceof FieldOverride) {
+                    throw new IllegalArgumentException(
+                        "This algorithm doesn't work with FieldOverrides.");
+                }
+            }
+
             DepotTypes types = DepotTypes.getDepotTypes(ctx, clauses);
             types.addClass(ctx, type);
             _builder = _ctx.getSQLBuilder(types);
@@ -103,42 +111,26 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             }
 
             if (fetchKeys.size() > 0) {
-                // make a new array of query clauses for the second pass
-                int jj = 0;
-                QueryClause[] newClauses = new QueryClause[_clauses.length + 1];
-                SQLExpression originalWhereCondition = null;
+                SQLExpression condition;
 
-                for (int ii = 0; ii < _clauses.length; ii ++) {
-                    // we do not need ORDER BY in the second pass query
-                    if (_clauses[ii] instanceof OrderBy) {
-                        continue;
+                if (_marsh.getPrimaryKeyFields().length == 1) {
+                    Comparable[] keyFieldValues = new Comparable[fetchKeys.size()];
+                    for (int ii = 0; ii < keyFieldValues.length; ii ++) {
+                        keyFieldValues[ii] = fetchKeys.get(ii).condition.getValues()[0];
                     }
-                    if (_clauses[ii] instanceof Where) {
-                        originalWhereCondition = ((Where) _clauses[ii]).getCondition();
-                        continue;
+                    condition = new In(_type, _marsh.getPrimaryKeyFields()[0], keyFieldValues);
+
+                } else {
+                    SQLExpression[] keyArray = new SQLExpression[fetchKeys.size()];
+                    for (int ii = 0; ii < keyArray.length; ii ++) {
+                        keyArray[ii] = fetchKeys.get(ii).condition;
                     }
-                    newClauses[jj ++] = _clauses[ii];
+                    condition = new Or(keyArray);
                 }
 
-                SQLExpression[] keyArray = new SQLExpression[fetchKeys.size()];
-                for (int ii = 0; ii < keyArray.length; ii ++) {
-                    keyArray[ii] = fetchKeys.get(ii).condition;
-                }
-
-                // create our special key-matching condition
-                SQLExpression newCondition = new Or(keyArray);
-
-                // add in the old condition, if there was one
-                if (originalWhereCondition != null) {
-                    newCondition = new And(newCondition, originalWhereCondition);
-                }
-
-                // and add it in as a WHERE
-                newClauses[jj ++] = new Where(newCondition);
-                newClauses = ArrayUtil.splice(newClauses, jj);
-
+                Where keyWhere = new Where(condition);
                 // finally build the new query
-                _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(), newClauses));
+                _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(), keyWhere));
                 stmt = _builder.prepare(conn);
 
                 // and execute it

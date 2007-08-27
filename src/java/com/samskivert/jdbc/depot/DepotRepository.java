@@ -37,6 +37,7 @@ import com.samskivert.jdbc.JDBCUtil;
 
 import com.samskivert.jdbc.depot.Modifier.*;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
+import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.InsertClause;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
@@ -146,6 +147,11 @@ public abstract class DepotRepository
         DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
         boolean useExplicit =
             (marsh.getTableName() == null) || !marsh.hasPrimaryKey() || !_ctx.isUsingCache();
+
+        // queries on @Computed records or the presence of FieldOverrides use the simple algorithm
+        for (QueryClause clause : clauses) {
+            useExplicit |= (clause instanceof FieldOverride);
+        }
 
         return _ctx.invoke(useExplicit ?
             new FindAllQuery.Explicitly<T>(_ctx, type, clauses) :

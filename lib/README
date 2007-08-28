@@ -1,39 +1,19 @@
 Required external libraries
 ---------------------------
 
-The samskivert code requires the following external Java libraries (JAR
-files) to be placed here in the lib/ directory or in the shared library
-directory specified in the build.xml file (${java.libraries}).
+The samskivert code requires external Java libraries (JAR files) to be placed
+here in the lib/ directory. The libraries are enumerated in the
+etc/libs-incl.xml file and must be named as specified in that file.
 
-* Library: Jakarta Regular Expression package (org.apache.regexp)
-           http://jakarta.apache.org/regexp/
-  Depends: Used by various services.
+Those libraries can be obtained at the following websites:
 
-* Library: JDBC driver
-           MM MySQL driver: http://mmmysql.sourceforge.net/
-  Depends: Required by com.samskivert.jdbc.*
+- http://ant.apache.org/
+- http://ehcache.sourceforge.net/
+- http://jakarta.apache.org/commons
+- http://jakarta.apache.org/velocity
+- http://java.sun.com/products/javamail/
+- http://java.sun.com/products/servlet/
+- http://junit.org/
 
-* Library: WebMacro web template system
-           http://www.webmacro.org/
-  Depends: Required by com.samskivert.webmacro.*
-
-* Library: Jakarta Commons Collections (org.apache.commons.collections)
-           http://jakarta.apache.org/commons
-  Depends: Required by com.samskivert.velocity.*
-
-* Library: Velocity web template system
-           http://jakarta.apache.org/velocity
-  Depends: Required by com.samskivert.velocity.*
-
-* Library: Java API for XML Processing (JAXP) 1.1
-           http://java.sun.com/xml/download.html
-           (Only crimson.jar and jaxp.jar are required. xalan.jar may
-            safely be excluded.)
-  Depends: Required by com.samskivert.xml.*
-
-Once the jar files are in place (regardless of what they are named), the
-build system will automatically include them in the compile-time
-classpath.
-
---
-$Id$
+The latest versions of the libraries should work, except where specific
+versions are specified in the libs-incl.xml file.

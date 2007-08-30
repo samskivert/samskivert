@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -162,6 +162,17 @@ public class LRUHashMap<K,V> implements Map<K,V>
     public int size ()
     {
         return _delegate.size();
+    }
+
+    /**
+     * Update the overall size of the cache if an already added item changes size.
+     *
+     * @param sizeDifference the amount to adjust the size by.
+     */
+    public void adjustSize (int sizeDifference)
+    {
+        _size += sizeDifference;
+        flush();
     }
 
     // documentation inherited from interface

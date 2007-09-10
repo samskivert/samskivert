@@ -179,7 +179,8 @@ public abstract class DepotRepository
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 // set any auto-generated column values
-                Set<String> identityFields = marsh.generateFieldValues(conn, liaison, _result, false);
+                Set<String> identityFields =
+                    marsh.generateFieldValues(conn, liaison, _result, false);
 
                 // if needed, update our modifier's key so that it can cache our results
                 if (_key == null) {
@@ -581,7 +582,8 @@ public abstract class DepotRepository
 
                     // if the update modified zero rows or the primary key was obviously unset, do
                     // an insertion: first,  set any auto-generated column values
-                    Set<String> identityFields = marsh.generateFieldValues(conn, liaison, _result, false);
+                    Set<String> identityFields =
+                        marsh.generateFieldValues(conn, liaison, _result, false);
 
                     // update our modifier's key so that it can cache our results
                     if (_key == null) {

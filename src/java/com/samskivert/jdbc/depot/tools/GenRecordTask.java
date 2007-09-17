@@ -52,6 +52,7 @@ import org.apache.velocity.app.VelocityEngine;
 
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.annotation.Id;
+import com.samskivert.jdbc.depot.annotation.Transient;
 import com.samskivert.util.ClassUtil;
 import com.samskivert.util.GenUtil;
 import com.samskivert.util.StringUtil;
@@ -368,7 +369,8 @@ public class GenRecordTask extends Task
     protected boolean isPersistentField (Field field)
     {
         int mods = field.getModifiers();
-        return Modifier.isPublic(mods) && !Modifier.isStatic(mods) && !Modifier.isTransient(mods);
+        return Modifier.isPublic(mods) && !Modifier.isStatic(mods) &&
+            !Modifier.isTransient(mods) && (field.getAnnotation(Transient.class) == null);
     }
 
     /**

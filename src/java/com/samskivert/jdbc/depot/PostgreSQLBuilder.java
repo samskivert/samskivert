@@ -29,8 +29,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import com.samskivert.jdbc.DatabaseLiaison;
@@ -128,8 +126,8 @@ public class PostgreSQLBuilder
 
         String table = marshaller.getTableName();
         String column = "ftsCol_" + fts.name();
-        String index = "ftsIx_" + fts.name();
-        String trigger = "ftsTrig_" + fts.name();
+        String index = table + "_ftsIx_" + fts.name();
+        String trigger = table + "_ftsTrig_" + fts.name();
 
         // build the UPDATE
         StringBuilder initColumn = new StringBuilder("UPDATE ").

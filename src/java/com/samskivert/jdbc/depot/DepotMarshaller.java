@@ -68,17 +68,17 @@ public class DepotMarshaller<T extends PersistentRecord>
     /**
      * Creates a marshaller for the specified persistent object class.
      */
-    public DepotMarshaller (Class<T> pclass, PersistenceContext context)
+    public DepotMarshaller (Class<T> pClass, PersistenceContext context)
     {
-        _pclass = pclass;
+        _pClass = pClass;
 
-        Entity entity = pclass.getAnnotation(Entity.class);
+        Entity entity = pClass.getAnnotation(Entity.class);
 
         // see if this is a computed entity
-        _computed = pclass.getAnnotation(Computed.class);
+        _computed = pClass.getAnnotation(Computed.class);
         if (_computed == null) {
             // if not, this class has a corresponding SQL table
-            _tableName = _pclass.getName();
+            _tableName = _pClass.getName();
             _tableName = _tableName.substring(_tableName.lastIndexOf(".")+1);
 
             // see if there are Entity values specified
@@ -91,7 +91,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // if the entity defines a new TableGenerator, map that in our static table as those are
         // shared across all entities
-        TableGenerator generator = pclass.getAnnotation(TableGenerator.class);
+        TableGenerator generator = pClass.getAnnotation(TableGenerator.class);
         if (generator != null) {
             context.tableGenerators.put(generator.name(), generator);
         }
@@ -100,7 +100,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // introspect on the class and create marshallers for persistent fields
         ArrayList<String> fields = new ArrayList<String>();
-        for (Field field : _pclass.getFields()) {
+        for (Field field : _pClass.getFields()) {
             int mods = field.getModifiers();
 
             // check for a static constant schema version
@@ -110,7 +110,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                     _schemaVersion = (Integer)field.get(null);
                 } catch (Exception e) {
                     log.log(Level.WARNING, "Failed to read schema version " +
-                        "[class=" + _pclass + "].", e);
+                        "[class=" + _pClass + "].", e);
                 }
             }
 
@@ -183,7 +183,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         _allFields = fields.toArray(new String[fields.size()]);
 
         // now check for @Entity and @Table annotations on the entire superclass chain
-        Class<?> iterClass = pclass;
+        Class<?> iterClass = pClass;
         do {
             Table table = iterClass.getAnnotation(Table.class);
             if (table != null) {
@@ -231,7 +231,7 @@ public class DepotMarshaller<T extends PersistentRecord>
      */
     public Class<T> getPersistentClass ()
     {
-       return _pclass;
+       return _pClass;
     }
 
     /**
@@ -269,11 +269,19 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
-     * Return the {@link FullTextIndex} registered under the given name, or null if none.
+     * Return the {@link FullTextIndex} registered under the given name.
+     *
+     * @exception IllegalArgumentException thrown if the requested full text index does not exist
+     * on this record.
      */
     public FullTextIndex getFullTextIndex (String name)
     {
-        return _fullTextIndexes.get(name);
+        FullTextIndex fti = _fullTextIndexes.get(name);
+        if (fti == null) {
+            throw new IllegalStateException("Persistent class missing full text index " +
+                                            "[class=" + _pClass + ", index=" + name + "]");
+        }
+        return fti;
     }
 
     /**
@@ -335,7 +343,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         if (!hasPrimaryKey()) {
             if (requireKey) {
                 throw new UnsupportedOperationException(
-                    _pclass.getName() + " does not define a primary key");
+                    _pClass.getName() + " does not define a primary key");
             }
             return null;
         }
@@ -382,7 +390,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         for (int ii = 0; ii < _pkColumns.size(); ii++) {
             fields[ii] = _pkColumns.get(ii).getField().getName();
         }
-        return new Key<T>(_pclass, fields, values);
+        return new Key<T>(_pClass, fields, values);
     }
 
     /**
@@ -433,7 +441,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
 
             // then create and populate the persistent object
-            T po = _pclass.newInstance();
+            T po = _pClass.newInstance();
             for (FieldMarshaller fm : _fields.values()) {
                 if (!fields.contains(fm.getColumnName())) {
                     // this field was not in the result set, make sure that's OK
@@ -451,8 +459,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             throw sqe;
 
         } catch (Exception e) {
-            String errmsg = "Failed to unmarshall persistent object [pclass=" +
-                _pclass.getName() + "]";
+            String errmsg = "Failed to unmarshall persistent object [class=" +
+                _pClass.getName() + "]";
             throw (SQLException)new SQLException(errmsg).initCause(e);
         }
     }
@@ -486,7 +494,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
             } catch (Exception e) {
                 throw new IllegalStateException(
-                    "Failed to assign primary key [type=" + _pclass + "]", e);
+                    "Failed to assign primary key [type=" + _pClass + "]", e);
             }
         }
         return idFields;
@@ -512,11 +520,11 @@ public class DepotMarshaller<T extends PersistentRecord>
     {
         if (_initialized) { // sanity check
             throw new IllegalStateException(
-                "Cannot re-initialize marshaller [type=" + _pclass + "].");
+                "Cannot re-initialize marshaller [type=" + _pClass + "].");
         }
         _initialized = true;
 
-        final SQLBuilder builder = ctx.getSQLBuilder(new DepotTypes(ctx, _pclass));
+        final SQLBuilder builder = ctx.getSQLBuilder(new DepotTypes(ctx, _pClass));
 
         // perform the context-sensitive initialization of the field marshallers
         for (FieldMarshaller fm : _fields.values()) {
@@ -548,7 +556,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // if we did not find a schema version field, complain
         if (_schemaVersion < 0) {
-            log.warning("Unable to read " + _pclass.getName() + "." + SCHEMA_VERSION_FIELD +
+            log.warning("Unable to read " + _pClass.getName() + "." + SCHEMA_VERSION_FIELD +
                         ". Schema migration disabled.");
         }
 
@@ -832,7 +840,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             FieldMarshaller<?> fm = _fields.get(fields[ii]);
             if (fm == null) {
                 throw new IllegalArgumentException(
-                    "Unknown field on record [field=" + fields[ii] + ", pClass=" + _pclass + "]");
+                    "Unknown field on record [field=" + fields[ii] + ", class=" + _pClass + "]");
             }
             columns[ii] = fm.getColumnName();
         }
@@ -939,7 +947,7 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /** The persistent object class that we manage. */
-    protected Class<T> _pclass;
+    protected Class<T> _pClass;
 
     /** The name of our persistent object table. */
     protected String _tableName;

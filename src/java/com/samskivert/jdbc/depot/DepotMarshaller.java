@@ -71,6 +71,7 @@ public class DepotMarshaller<T extends PersistentRecord>
     public DepotMarshaller (Class<T> pclass, PersistenceContext context)
     {
         _pclass = pclass;
+
         Entity entity = pclass.getAnnotation(Entity.class);
 
         // see if this is a computed entity
@@ -93,14 +94,6 @@ public class DepotMarshaller<T extends PersistentRecord>
         TableGenerator generator = pclass.getAnnotation(TableGenerator.class);
         if (generator != null) {
             context.tableGenerators.put(generator.name(), generator);
-        }
-
-        // if there are FTS indexes in the Table, map those out here for future use
-        Table table = pclass.getAnnotation(Table.class);
-        if (table != null) {
-            for (FullTextIndex fts : table.fullTextIndexes()) {
-                _fullTextIndexes.put(fts.name(), fts);
-            }
         }
 
         boolean seenIdentityGenerator = false;
@@ -188,6 +181,49 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // generate our full list of fields/columns for use in queries
         _allFields = fields.toArray(new String[fields.size()]);
+
+        // now check for @Entity and @Table annotations on the entire superclass chain
+        Class<?> iterClass = pclass;
+        do {
+            Table table = iterClass.getAnnotation(Table.class);
+            if (table != null) {
+                for (UniqueConstraint constraint : table.uniqueConstraints()) {
+                    String[] conFields = constraint.fieldNames();
+                    Set<String> colSet = new HashSet<String>();
+                    for (int ii = 0; ii < conFields.length; ii ++) {
+                        FieldMarshaller fm = _fields.get(conFields[ii]);
+                        if (fm == null) {
+                            throw new IllegalArgumentException(
+                                "Unknown unique constraint field: " + conFields[ii]);
+                        }
+                        colSet.add(fm.getColumnName());
+                    }
+                    _uniqueConstraints.add(colSet);
+                }
+
+                // if there are FTS indexes in the Table, map those out here for future use
+                for (FullTextIndex fti : table.fullTextIndexes()) {
+                    if (_fullTextIndexes.containsKey(fti.name())) {
+                        continue;
+                    }
+                    _fullTextIndexes.put(fti.name(), fti);
+                }
+            }
+
+            entity = iterClass.getAnnotation(Entity.class);
+            if (entity != null) {
+                for (Index index : entity.indices()) {
+                    if (_indexes.containsKey(index.name())) {
+                        continue;
+                    }
+                    _indexes.put(index.name(), index);
+                }
+            }
+
+            iterClass = iterClass.getSuperclass();
+
+        } while (PersistentRecord.class.isAssignableFrom(iterClass) &&
+                 !PersistentRecord.class.equals(iterClass));
     }
 
     /**
@@ -532,18 +568,15 @@ public class DepotMarshaller<T extends PersistentRecord>
         // fetch all relevant information regarding our table from the database
         TableMetaData metaData = TableMetaData.load(ctx, getTableName());
 
-        // compute relevant information from our persistent record, too
-        RecordMetaData rMeta = new RecordMetaData(_pclass, _fields);
-
         // if the table does not exist, create it
         if (!metaData.tableExists) {
             final String[] fDeclarations = declarations;
-            final String[][] uniqueConCols = new String[rMeta.uniqueConstraints.size()][];
+            final String[][] uniqueConCols = new String[_uniqueConstraints.size()][];
             int kk = 0;
-            for (Set<String> colSet : rMeta.uniqueConstraints) {
+            for (Set<String> colSet : _uniqueConstraints) {
                 uniqueConCols[kk++] = colSet.toArray(new String[colSet.size()]);
             }
-            final Iterable<Index> indexen = rMeta.indices.values();
+            final Iterable<Index> indexen = _indexes.values();
             ctx.invoke(new Modifier() {
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     // create the table
@@ -694,7 +727,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
 
         // add any named indices that exist on the record but not yet on the table
-        for (final Index index : rMeta.indices.values()) {
+        for (final Index index : _indexes.values()) {
             final String ixName = getTableName() + "_" + index.name();
             if (metaData.indexColumns.containsKey(ixName)) {
                 // this index already exists
@@ -716,7 +749,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         Set<Set<String>> uniqueIndices = new HashSet<Set<String>>(metaData.indexColumns.values());
 
         // unique constraints are unordered and may be unnamed, so we view them only as column sets
-        for (Set<String> colSet : rMeta.uniqueConstraints) {
+        for (Set<String> colSet : _uniqueConstraints) {
             if (uniqueIndices.contains(colSet)) {
                 // the table already contains precisely this column set
                 continue;
@@ -905,51 +938,6 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
     }
 
-    protected static class RecordMetaData
-    {
-        public Map<String, Index> indices = new HashMap<String, Index>();
-        public Set<Set<String>> uniqueConstraints = new HashSet<Set<String>>();
-
-        public RecordMetaData (Class<?> pClass, Map<String, FieldMarshaller> fmap)
-        {
-            recurse(pClass, fmap);
-        }
-
-        protected void recurse (Class<?> pClass, Map<String, FieldMarshaller> fmap)
-        {
-            // recurse first so subclass definitions overwrite superclass ones
-            Class<?> superClass = pClass.getSuperclass();
-            if (PersistentRecord.class.isAssignableFrom(superClass) &&
-                !PersistentRecord.class.equals(superClass)) {
-                recurse(superClass, fmap);
-            }
-
-            Table table = pClass.getAnnotation(Table.class);
-            if (table != null) {
-                for (UniqueConstraint constraint : table.uniqueConstraints()) {
-                    String[] fields = constraint.fieldNames();
-                    Set<String> colSet = new HashSet<String>();
-                    for (int ii = 0; ii < fields.length; ii ++) {
-                        FieldMarshaller fm = fmap.get(fields[ii]);
-                        if (fm == null) {
-                            throw new IllegalArgumentException(
-                                "Unknown unique constraint field: " + fields[ii]);
-                        }
-                        colSet.add(fm.getColumnName());
-                    }
-                    uniqueConstraints.add(colSet);
-                }
-            }
-
-            Entity entity = pClass.getAnnotation(Entity.class);
-            if (entity != null) {
-                for (Index index : entity.indices()) {
-                    indices.put(index.name(), index);
-                }
-            }
-        }
-    }
-
     /** The persistent object class that we manage. */
     protected Class<T> _pclass;
 
@@ -975,7 +963,12 @@ public class DepotMarshaller<T extends PersistentRecord>
     /** The fields of our object with directly corresponding table columns. */
     protected String[] _columnFields;
 
-    /** A mapping of all of the full text index annotations for our persistent record. */
+    /** The indexes defined in @Entity annotations for this record. */
+    protected Map<String, Index> _indexes = new HashMap<String, Index>();
+
+    /** The unique constraints defined in @Table annotations for this record. */
+    protected Set<Set<String>> _uniqueConstraints = new HashSet<Set<String>>();
+
     protected Map<String, FullTextIndex> _fullTextIndexes = new HashMap<String, FullTextIndex>();
 
     /** The version of our persistent object schema as specified in the class definition. */

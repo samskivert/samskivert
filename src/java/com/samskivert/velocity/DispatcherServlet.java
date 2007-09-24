@@ -448,14 +448,14 @@ public class DispatcherServlet extends HttpServlet
     protected void doRequest (HttpServletRequest request, HttpServletResponse response)
          throws ServletException, IOException
     {
-        Context context = null;
+        InvocationContext context = null;
         try {
             context =  new InvocationContext(request, response);
             setContentType(request, response);
 
             Template template = handleRequest(request, response, context);
             if (template != null) {
-                mergeTemplate(template, context, response);
+                mergeTemplate(template, context);
             }
 
         } catch (Exception e) {
@@ -524,12 +524,12 @@ public class DispatcherServlet extends HttpServlet
      *
      * @param template template object returned by the {@link #handleRequest} method.
      * @param context context created by the {@link #createContext} method.
-     * @param response servlet reponse (use this to get the output stream or writer).
      */
-    protected void mergeTemplate (Template template, Context context, HttpServletResponse response)
+    protected void mergeTemplate (Template template, InvocationContext context)
         throws ResourceNotFoundException, ParseErrorException, MethodInvocationException,
-               IOException, UnsupportedEncodingException, Exception
+               UnsupportedEncodingException, IOException, Exception
     {
+        HttpServletResponse response = context.getResponse();
         ServletOutputStream output = response.getOutputStream();
         // ASSUMPTION: response.setContentType() has been called.
         String encoding = response.getCharacterEncoding();
@@ -543,6 +543,11 @@ public class DispatcherServlet extends HttpServlet
                 vw.recycle(new OutputStreamWriter(output, encoding));
             }
             template.merge(context, vw);
+
+        } catch (IOException ioe) {
+            // the client probably crashed or aborted the connection ungracefully, so use log.info
+            log.info("Failed to write response [uri=" + context.getRequest().getRequestURI() +
+                     ", error=" + ioe + "]");
 
         } finally {
             if (vw != null) {

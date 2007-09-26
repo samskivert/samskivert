@@ -650,7 +650,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         });
 
-        if (currentVersion == _schemaVersion) {
+        if (currentVersion >= _schemaVersion) {
             verifySchemasMatch(metaData, ctx, builder);
             return;
         }

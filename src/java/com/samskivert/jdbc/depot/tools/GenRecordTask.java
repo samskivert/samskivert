@@ -156,14 +156,10 @@ public class GenRecordTask extends Task
             // determine which fields make up our primary key; we'd just use Class.getFields() but
             // that returns things in a random order whereas ClassUtil returns fields in
             // declaration order starting from the top-most class and going down the line
-          FIELD_LOOP:
             for (Field field : ClassUtil.getFields(rclass)) {
-                // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
-                for (Annotation a : field.getAnnotations()) {
-                    if (Id.class.getName().equals(a.annotationType().getName())) {
-                        kflist.add(field);
-                        continue FIELD_LOOP;
-                    }
+                if (hasAnnotation(field, Id.class)) {
+                    kflist.add(field);
+                    continue;
                 }
             }
         }
@@ -370,7 +366,7 @@ public class GenRecordTask extends Task
     {
         int mods = field.getModifiers();
         return Modifier.isPublic(mods) && !Modifier.isStatic(mods) &&
-            !Modifier.isTransient(mods) && (field.getAnnotation(Transient.class) == null);
+            !Modifier.isTransient(mods) && !hasAnnotation(field, Transient.class);
     }
 
     /**
@@ -412,6 +408,17 @@ public class GenRecordTask extends Task
             e.printStackTrace(System.err);
         }
         return writer.toString();
+    }
+
+    protected static boolean hasAnnotation (Field field, Class<?> annotation)
+    {
+        // iterate becase getAnnotation() fails if we're dealing with multiple classloaders
+        for (Annotation a : field.getAnnotations()) {
+            if (annotation.getName().equals(a.annotationType().getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

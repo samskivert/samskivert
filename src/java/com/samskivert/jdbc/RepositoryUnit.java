@@ -20,6 +20,9 @@
 
 package com.samskivert.jdbc;
 
+import java.util.logging.Level;
+
+import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.Invoker;
 
@@ -77,9 +80,21 @@ public abstract class RepositoryUnit extends Invoker.Unit
     /**
      * Called if our persistent actions failed, back on the non-invoker thread.  Note that this may
      * be either an {@link Exception} thrown by {@link #invokePersist} or a {@link
-     * RuntimeException} thrown by same.
+     * RuntimeException} thrown by same. The default implementation logs an error message and a
+     * stack trace.
      */
-    public abstract void handleFailure (Exception pe);
+    public void handleFailure (Exception pe)
+    {
+        Log.log.log(Level.WARNING, getFailureMessage(), pe);
+    }
+
+    /**
+     * Returns the error message to be logged if {@link #invokePersist} throws an exception.
+     */
+    protected String getFailureMessage ()
+    {
+        return this + " failed.";
+    }
 
     protected Exception _error;
 }

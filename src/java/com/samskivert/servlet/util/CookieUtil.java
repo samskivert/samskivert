@@ -47,8 +47,7 @@ public class CookieUtil
     }
 
     /**
-     * Get the value of the cookie for the cookie of the specified name,
-     * or null if not found.
+     * Get the value of the cookie for the cookie of the specified name, or null if not found.
      */
     public static String getCookieValue (HttpServletRequest req, String name)
     {
@@ -68,18 +67,24 @@ public class CookieUtil
     }
 
     /**
-     * Sets the domain of the specified cookie to the server name
-     * associated with the supplied request minus the hostname
-     * (ie. <code>www.samskivert.com</code> becomes
+     * Sets the domain of the specified cookie to the server name associated with the supplied
+     * request minus the hostname (ie. <code>www.samskivert.com</code> becomes
      * <code>.samskivert.com</code>).
      */
     public static void widenDomain (HttpServletRequest req, Cookie cookie)
     {
-        String domain = req.getServerName();
-        int didx = domain.indexOf(".");
-        if (didx != -1) {
-            domain = domain.substring(didx);
+        String server = req.getServerName();
+        int didx = server.indexOf(".");
+        // if no period was found (e.g. localhost) don't set the domain
+        if (didx == -1) {
+            return;
         }
-        cookie.setDomain(domain);
+        // if two or more periods are found (e.g. www.domain.com) strip up to the first one
+        if (server.indexOf(".", didx+1) != -1) {
+            cookie.setDomain(server.substring(didx));
+        } else {
+            // ...otherwise prepend a "." because we're seeing something like "domain.com"
+            cookie.setDomain("." + server);
+        }
     }
 }

@@ -39,7 +39,7 @@ public class SortableArrayList<T> extends BaseArrayList<T>
      * any object allocation). The elements must all be mutually
      * comparable.
      */
-    public void sort (Comparator<T> comp)
+    public void sort (Comparator<? super T> comp)
     {
         if (_size > 1) {
             QuickSort.sort(_elements, 0, _size-1, comp);
@@ -56,7 +56,7 @@ public class SortableArrayList<T> extends BaseArrayList<T>
      * @return the index at which the element was inserted.
      */
     @SuppressWarnings("unchecked")
-    public int insertSorted (T value, Comparator<T> comp)
+    public int insertSorted (T value, Comparator<? super T> comp)
     {
         int ipos = binarySearch(value, comp);
         if (ipos < 0) {
@@ -76,7 +76,7 @@ public class SortableArrayList<T> extends BaseArrayList<T>
      * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
      * value) if the object was not found in the list.
      */
-    public int binarySearch (T key, Comparator<T> comp)
+    public int binarySearch (T key, Comparator<? super T> comp)
     {
         return ArrayUtil.binarySearch(_elements, 0, _size, key, comp);
     }

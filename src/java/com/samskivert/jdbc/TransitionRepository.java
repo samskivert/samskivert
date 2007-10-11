@@ -203,7 +203,11 @@ public class TransitionRepository extends SimpleRepository
             conn,
             "TRANSITIONS",
             new String[] { "CLASS", "NAME", "APPLIED" },
-            new String[] { "VARCHAR(200)", "VARCHAR(50)", "TIMESTAMP NOT NULL" },
+            new ColumnDefinition[] {
+                new ColumnDefinition("VARCHAR(200)", true, false, null),
+                new ColumnDefinition("VARCHAR(50)", true, false, null),
+                new ColumnDefinition("TIMESTAMP")
+            },
             null,
             new String[] { "CLASS", "NAME" });
     }

@@ -160,19 +160,24 @@ public abstract class BaseLiaison implements DatabaseLiaison
     }
 
     // from DatabaseLiaison
-    public boolean changeColumn (Connection conn, String table, String column, String definition)
+    public boolean changeColumn (Connection conn, String table, String column, String type,
+                                 Boolean nullable, Boolean unique, String defaultValue)
         throws SQLException
     {
+        String defStr = expandDefinition(
+            type, nullable != null ? nullable : false, unique != null ? unique : false,
+            defaultValue);
+
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " CHANGE " +
-                     columnSQL(column) + " " + columnSQL(column) + " " + definition);
+                     columnSQL(column) + " " + columnSQL(column) + " " + defStr);
         Log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
-                 "definition '" + definition + "'.");
+                 "definition '" + defStr + "'.");
         return true;
     }
 
     // from DatabaseLiaison
     public boolean renameColumn (Connection conn, String table, String from, String to,
-                                 String newColumnDef)
+                                 ColumnDefinition newColumnDef)
         throws SQLException
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " RENAME COLUMN " +
@@ -194,7 +199,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
     // from DatabaseLiaison
     public boolean createTableIfMissing (
-        Connection conn, String table, String[] columns, String[] definitions,
+        Connection conn, String table, String[] columns, ColumnDefinition[] definitions,
         String[][] uniqueConstraintColumns, String[] primaryKeyColumns)
         throws SQLException
     {
@@ -211,7 +216,8 @@ public abstract class BaseLiaison implements DatabaseLiaison
             if (ii > 0) {
                 builder.append(", ");
             }
-            builder.append(columnSQL(columns[ii])).append(" ").append(definitions[ii]);
+            builder.append(columnSQL(columns[ii])).append(" ");
+            builder.append(expandDefinition(definitions[ii]));
         }
 
         if (uniqueConstraintColumns != null && uniqueConstraintColumns.length > 0) {
@@ -245,6 +251,17 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
+    /**
+     * Create an SQL string that summarizes a column definition in that format generally
+     * accepted in table creation and column addition statements, e.g.
+     *          INTEGER UNIQUE NOT NULL DEFAULT 100
+     */
+    public String expandDefinition (ColumnDefinition def)
+    {
+        return expandDefinition(
+            def.getType(), def.isNullable(), def.isUnique(), def.getDefaultValue());
+    }
+
     protected int executeQuery (Connection conn, String query)
         throws SQLException
     {
@@ -254,5 +271,25 @@ public abstract class BaseLiaison implements DatabaseLiaison
         } finally {
             JDBCUtil.close(stmt);
         }
+    }
+
+    protected String expandDefinition (
+        String type, boolean nullable, boolean unique, String defaultValue)
+    {
+        StringBuilder builder = new StringBuilder(type);
+
+        if (!nullable) {
+            builder.append(" NOT NULL");
+        }
+        if (unique) {
+            builder.append(" UNIQUE");
+        }
+
+        // append the default value if one was specified
+        if (defaultValue != null) {
+            builder.append(" DEFAULT ").append(defaultValue);
+        }
+
+        return builder.toString();
     }
 }

@@ -59,6 +59,13 @@ public class MySQLLiaison extends BaseLiaison
         // AUTO_INCREMENT does not allow this kind of control
     }
 
+    public void deleteGenerator (Connection conn, String tableName, String columnName)
+        throws SQLException
+    {
+        // AUTO_INCREMENT does not create any database entities that we need to delete
+    }
+
+
     // from DatabaseLiaison
     public int lastInsertedId (Connection conn, String table, String column) throws SQLException
     {
@@ -120,14 +127,14 @@ public class MySQLLiaison extends BaseLiaison
 
     @Override // from BaseLiaison
     public boolean renameColumn (Connection conn, String table, String oldColumnName,
-                                 String newColumnName, String newColumnDef)
+                                 String newColumnName, ColumnDefinition newColumnDef)
         throws SQLException
     {
         if (!tableContainsColumn(conn, table, oldColumnName)) {
             return false;
         }
         executeQuery(conn, "ALTER TABLE " + table + " CHANGE " + oldColumnName + " " +
-                     newColumnName + " " + newColumnDef);
+                     newColumnName + " " + expandDefinition(newColumnDef));
         Log.info("Renamed column '" + oldColumnName + "' on table '" + table + "' to '" +
                  newColumnName + "'");
         return true;

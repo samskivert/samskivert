@@ -21,8 +21,6 @@
 package com.samskivert.jdbc;
 
 import java.sql.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.samskivert.Log;
 
@@ -85,23 +83,46 @@ public class PostgreSQLLiaison extends BaseLiaison
                      " restart with " + first + " increment " + step);
     }
 
-    @Override // from DatabaseLiaison
-    public boolean changeColumn (Connection conn, String table, String column, String definition)
+    // from DatabaseLiaison
+    public void deleteGenerator (Connection conn, String table, String column)
         throws SQLException
     {
-        // we need to handle nullability separately; TODO: make this less of a hack
-        boolean notNull = false;
-        Matcher match = NOT_NULL.matcher(definition);
-        if (match.find()) {
-            definition = match.replaceFirst("");
-            notNull = true;
+        executeQuery(conn, "drop sequence if exists \"" + table + "_" + column + "_seq\"");
+    }
+
+    @Override // from DatabaseLiaison
+    public boolean changeColumn (Connection conn, String table, String column, String type,
+                                 Boolean nullable, Boolean unique, String defaultValue)
+        throws SQLException
+    {
+        StringBuilder log = new StringBuilder();
+        if (type != null) {
+            executeQuery(
+                conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
+                " TYPE " + type);
+            log.append("type=" + type);
         }
-        executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " +
-                     columnSQL(column) + " TYPE " + definition);
-        executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " +
-                     columnSQL(column) + " " + (notNull ? "SET NOT NULL" : "DROP NOT NULL"));
+        if (nullable != null) {
+            executeQuery(
+                conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
+                " " + (nullable.booleanValue() ? "SET NOT NULL" : "DROP NOT NULL"));
+            if (log.length() > 0) log.append(", ");
+            log.append("nullable=" + nullable);
+        }
+        if (unique != null) {
+            // TODO: I think this requires ALTER TABLE DROP CONSTRAINT and so on
+            if (log.length() > 0) log.append(", ");
+            log.append("unique=" + unique + " (not implemented yet)");
+        }
+        if (defaultValue != null) {
+            executeQuery(
+                conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
+                " " + (defaultValue.length() > 0 ? "SET DEFAULT " + defaultValue : "DROP DEFAULT"));
+            if (log.length() > 0) log.append(", ");
+            log.append("defaultValue=" + defaultValue);
+        }
         Log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
-                 "definition '" + definition + "'.");
+                 "definition [" + log + "].");
         return true;
     }
 
@@ -122,7 +143,4 @@ public class PostgreSQLLiaison extends BaseLiaison
     {
         return "\"" + index + "\"";
     }
-
-    protected static final Pattern NOT_NULL =
-        Pattern.compile(" NOT NULL", Pattern.CASE_INSENSITIVE);
 }

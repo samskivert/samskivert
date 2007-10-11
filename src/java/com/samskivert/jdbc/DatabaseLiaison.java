@@ -66,6 +66,13 @@ public interface DatabaseLiaison
         throws SQLException;
 
     /**
+     * This method deletes the column value auto-generator described in {@link
+     * #lastInsertedId}.
+     */
+    public void deleteGenerator (Connection conn, String tableName, String columnName)
+        throws SQLException;
+
+    /**
      * This method attempts as dialect-agnostic an interface as possible to the ability of certain
      * databases to auto-generated numerical values for i.e. key columns; there is MySQL's
      * AUTO_INCREMENT and PostgreSQL's DEFAULT nextval(sequence), for example.
@@ -117,23 +124,25 @@ public interface DatabaseLiaison
 
     /**
      * Alter the definition, but not the name, of a given column on a given table. Returns true or
-     * false if the database did or did not report a schema modification.
-     *
-     * TODO: We may wish to further split column definitions into type, nullability, etc.
+     * false if the database did or did not report a schema modification. Any of the type,
+     * nullable, unique and defaultValue arguments may be null, in which case the implementation
+     * will attempt to leave that aspect of the column unchanged.
      */
     public boolean changeColumn (
-        Connection conn, String table, String column, String definition)
-        throws SQLException;
+        Connection conn, String table, String column, String type, Boolean nullable,
+        Boolean unique, String defaultValue)
+            throws SQLException;
 
     /**
      * Alter the name, but not the definition, of a given column on a given table. Returns true or
      * false if the database did or did not report a schema modification.
      *
-     * @param newColumnDef the full definition of the new column, including its new name (MySQL
+     * @param columnDef the full definition of the new column, including its new name (MySQL
      * requires this for a column rename).
      */
     public boolean renameColumn (
-        Connection conn, String table, String oldColumn, String newColumn, String newColumnDef)
+        Connection conn, String table, String oldColumn, String newColumn,
+        ColumnDefinition columnDef)
         throws SQLException;
 
     /**
@@ -142,9 +151,16 @@ public interface DatabaseLiaison
      * Returns true if the table was successfully created, false if it already existed.
      */
     public boolean createTableIfMissing (
-        Connection conn, String table, String[] columns, String[] definitions,
+        Connection conn, String table, String[] columns, ColumnDefinition[] declarations,
         String[][] uniqueConstraintColumns, String[] primaryKeyColumns)
         throws SQLException;
+
+    /**
+     * Create an SQL string that summarizes a column definition in that format generally
+     * accepted in table creation and column addition statements, e.g.
+     *          INTEGER UNIQUE NOT NULL DEFAULT 100
+     */
+    public String expandDefinition (ColumnDefinition coldef);
 
     /**
      * Returns true if the specified table exists and contains an index of the specified name;

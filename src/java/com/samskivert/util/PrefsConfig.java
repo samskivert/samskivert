@@ -52,7 +52,7 @@ public class PrefsConfig extends Config
     {
         super(path);
 
-        System.err.println("O hai! I m ritin 2 ur harddisx!");
+        Log.warning("O hai! I m ritin 2 ur harddisx!");
         Thread.dumpStack();
 
         // get a handle on the preferences instance that we'll use to override values in the
@@ -74,7 +74,7 @@ public class PrefsConfig extends Config
     {
         super(path, props);
 
-        System.err.println("O hai! I m ritin 2 ur harddisx!");
+        Log.warning("O hai! I m ritin 2 ur harddisx!");
         Thread.dumpStack();
 
         try {

@@ -90,7 +90,7 @@ public class TableValueGenerator extends ValueGenerator
             if (_migrateIfExists) {
                 Integer max = getFieldMaximum(conn, liaison);
                 if (max != null) {
-                    initialValue = max.intValue();
+                    initialValue = 1 + max.intValue();
                 }
             }
 

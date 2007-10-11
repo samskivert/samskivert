@@ -61,8 +61,4 @@ public @interface GeneratedValue
      * persistence framework.
      */
     int allocationSize () default 1;
-
-    /**
-     *
-     */
 }

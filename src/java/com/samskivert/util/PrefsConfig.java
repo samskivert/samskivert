@@ -52,6 +52,9 @@ public class PrefsConfig extends Config
     {
         super(path);
 
+        System.err.println("O hai! I m ritin 2 ur harddisx!");
+        Thread.dumpStack();
+
         // get a handle on the preferences instance that we'll use to override values in the
         // properties file
         try {
@@ -70,6 +73,9 @@ public class PrefsConfig extends Config
     public PrefsConfig (String path, Properties props)
     {
         super(path, props);
+
+        System.err.println("O hai! I m ritin 2 ur harddisx!");
+        Thread.dumpStack();
 
         try {
             _prefs = Preferences.userRoot().node(path);

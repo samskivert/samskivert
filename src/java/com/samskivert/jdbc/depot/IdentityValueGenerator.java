@@ -36,13 +36,13 @@ public class IdentityValueGenerator extends ValueGenerator
         super(gv, dm, fm);
     }
 
-    // from interface KeyGenerator
+    @Override // from ValueGenerator
     public boolean isPostFactum ()
     {
         return true;
     }
 
-    // from interface KeyGenerator
+    @Override // from ValueGenerator
     public void init (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
@@ -50,10 +50,17 @@ public class IdentityValueGenerator extends ValueGenerator
             conn, _dm.getTableName(), _fm.getColumnName(), _initialValue, _allocationSize);
     }
 
-    // from interface KeyGenerator
+    @Override // from ValueGenerator
     public int nextGeneratedValue (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
         return liaison.lastInsertedId(conn, _dm.getTableName(), _fm.getColumnName());
+    }
+
+    @Override // from ValueGenerator
+    public void delete (Connection conn, DatabaseLiaison liaison)
+        throws SQLException
+    {
+        liaison.deleteGenerator(conn, _dm.getTableName(), _fm.getColumnName());
     }
 }

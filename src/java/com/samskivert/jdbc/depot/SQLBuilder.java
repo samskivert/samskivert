@@ -27,7 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.depot.DepotMarshaller.TableMetaData;
+import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
@@ -91,6 +91,10 @@ public abstract class SQLBuilder
         return stmt;
     }
 
+    protected String nullify (String str) {
+        return (str != null && str.length() > 0) ? str : null;
+    }
+
     /**
      * Generates the SQL needed to construct a database column for field represented by the given
      * {@link FieldMarshaller}.
@@ -98,7 +102,7 @@ public abstract class SQLBuilder
      * TODO: This method should be split into several parts that are more easily overridden on a
      * case-by-case basis in the dialectal subclasses.
      */
-    public String buildColumnDefinition (FieldMarshaller fm)
+    public ColumnDefinition buildColumnDefinition (FieldMarshaller fm)
     {
         // if this field is @Computed, it has no SQL definition
         if (fm.getComputed() != null) {
@@ -107,25 +111,20 @@ public abstract class SQLBuilder
 
         Field field = fm.getField();
 
-        // read our column metadata from the annotation (if it exists); annoyingly we can't create
-        // a Column instance to read the defaults so we have to duplicate them here
-        int length = 255;
+        String type = null;
         boolean nullable = false;
         boolean unique = false;
-        String type = "";
-        String defval = "";
+        String defaultValue = null;
+        int length = 255;
+
         Column column = field.getAnnotation(Column.class);
         if (column != null) {
+            type = nullify(column.type());
             nullable = column.nullable();
             unique = column.unique();
+            defaultValue = nullify(column.defaultValue());
             length = column.length();
-            type = column.type();
-            defval = column.defaultValue();
         }
-
-        // create our SQL column definition
-        StringBuilder builder = new StringBuilder();
-        boolean typeDone = false;
 
         // handle primary keyness
         GeneratedValue genValue = fm.getGeneratedValue();
@@ -133,8 +132,8 @@ public abstract class SQLBuilder
             switch (genValue.strategy()) {
             case AUTO:
             case IDENTITY:
-                builder.append(" SERIAL UNIQUE");
-                typeDone = true;
+                type = "SERIAL";
+                unique = true;
                 break;
             case SEQUENCE: // TODO
                 throw new IllegalArgumentException(
@@ -145,48 +144,33 @@ public abstract class SQLBuilder
             }
         }
 
-        if (!typeDone) {
-            if (type.length() == 0) {
-                type = getColumnType(fm, length);
-            }
-            builder.append(" ").append(type);
+        if (type == null) {
+            type = getColumnType(fm, length);
+        }
 
-            // TODO: handle precision and scale
+        // sanity check nullability
+        if (nullable && field.getType().isPrimitive()) {
+            throw new IllegalArgumentException(
+                "Primitive Java type cannot be nullable [field=" + field.getName() + "]");
+        }
 
-            // sanity check nullability
-            if (nullable && field.getType().isPrimitive()) {
-                throw new IllegalArgumentException(
-                    "Primitive Java type cannot be nullable [field=" + field.getName() + "]");
-            }
-
-            // handle nullability and uniqueness
-            if (!nullable) {
-                builder.append(" NOT NULL");
-            }
-            if (unique) {
-                builder.append(" UNIQUE");
-            }
-
-            // append the default value if one was specified
-            if (defval.length() > 0) {
-                builder.append(" DEFAULT ").append(defval);
-
-            } else if (field.getType().equals(Byte.TYPE) ||
-                       field.getType().equals(Short.TYPE) ||
-                       field.getType().equals(Integer.TYPE) ||
-                       field.getType().equals(Long.TYPE) ||
-                       field.getType().equals(Float.TYPE) ||
-                       field.getType().equals(Double.TYPE)) {
+        if (defaultValue == null) {
+            if (field.getType().equals(Byte.TYPE) ||
+                    field.getType().equals(Short.TYPE) ||
+                    field.getType().equals(Integer.TYPE) ||
+                    field.getType().equals(Long.TYPE) ||
+                    field.getType().equals(Float.TYPE) ||
+                    field.getType().equals(Double.TYPE)) {
                 // Java primitive types cannot be null, so we provide a default value for these
                 // columns that matches Java's default for primitive types
-                builder.append(" DEFAULT 0");
+                defaultValue = "0";
 
             } else if (field.getType().equals(Boolean.TYPE)) {
-                builder.append(" DEFAULT ").append(getBooleanDefault());
+                defaultValue = getBooleanDefault();
             }
         }
 
-        return builder.toString();
+        return new ColumnDefinition(type, nullable, unique, defaultValue);
     }
 
     /**

@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.DatabaseLiaison;
 
 import static com.samskivert.jdbc.depot.Log.log;
@@ -105,7 +106,8 @@ public abstract class EntityMigration extends Modifier
             _newColumnDef = marshallers.get(_newColumnName).getColumnDefinition();
         }
 
-        protected String _oldColumnName,  _newColumnName, _newColumnDef;
+        protected String _oldColumnName,  _newColumnName;
+        protected ColumnDefinition _newColumnDef;
     }
 
     /**
@@ -122,7 +124,9 @@ public abstract class EntityMigration extends Modifier
 
         public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             log.info("Updating type of '" + _fieldName + "' in " + _tableName);
-            return liaison.changeColumn(conn, _tableName, _fieldName, _newColumnDef) ? 1 : 0;
+            return liaison.changeColumn(conn, _tableName, _fieldName, _newColumnDef.getType(),
+                _newColumnDef.isNullable(), _newColumnDef.isUnique(),
+                _newColumnDef.getDefaultValue()) ? 1 : 0;
         }
 
         public boolean runBeforeDefault () {
@@ -135,7 +139,8 @@ public abstract class EntityMigration extends Modifier
             _newColumnDef = marshallers.get(_fieldName).getColumnDefinition();
         }
 
-        protected String _fieldName, _columnName, _newColumnDef;
+        protected String _fieldName, _columnName;
+        protected ColumnDefinition _newColumnDef;
     }
 
     /**

@@ -49,9 +49,20 @@ public @interface GeneratedValue
     int initialValue () default 1;
 
     /**
+     * If there are rows in our corresponding table, this boolean determines whether or not to
+     * attempt to initialize the generator to the maximum value of our associated field over
+     * those rows. This attribute does not exist in the EJB3 framework.
+     */
+    boolean migrateIfExists () default true;
+
+    /**
      * The amount to increment by when allocating id numbers from the generator. The default
      * allocation size is 1. <em>Note:</em> this default differs from the value used by the EJB3
      * persistence framework.
      */
     int allocationSize () default 1;
+
+    /**
+     *
+     */
 }

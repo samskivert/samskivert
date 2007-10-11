@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
 
+import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 
@@ -45,21 +46,29 @@ public class TableValueGenerator extends ValueGenerator
         _valueColumnName = defStr(tg.valueColumnName(), "value");
     }
 
-    // from interface KeyGenerator
+    @Override // from ValueGenerator
     public boolean isPostFactum ()
     {
         return false;
     }
 
-    // from interface KeyGenerator
+    @Override // from ValueGenerator
     public void init (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
+        if (_initialized) {
+            return;
+        }
+        _initialized = true;
+
         // make sure our table exists
         liaison.createTableIfMissing(
             conn, _valueTable,
             new String[] { _pkColumnName, _valueColumnName },
-            new String[] { "VARCHAR(255)", "INTEGER NOT NULL" },
+            new ColumnDefinition[] {
+                new ColumnDefinition("VARCHAR(255)", true, false, null),
+                new ColumnDefinition("INTEGER")
+            },
             null,
             new String[] { _pkColumnName });
 
@@ -76,12 +85,21 @@ public class TableValueGenerator extends ValueGenerator
 
             JDBCUtil.close(stmt);
             stmt = null;
+
+            int initialValue = _initialValue;
+            if (_migrateIfExists) {
+                Integer max = getFieldMaximum(conn, liaison);
+                if (max != null) {
+                    initialValue = max.intValue();
+                }
+            }
+
             stmt = conn.prepareStatement(
                 " INSERT INTO " + liaison.tableSQL(_valueTable) + " (" +
                 liaison.columnSQL(_pkColumnName) + ", " + liaison.columnSQL(_valueColumnName) +
                 ") VALUES (?, ?)");
             stmt.setString(1, _pkColumnValue);
-            stmt.setInt(2, _initialValue);
+            stmt.setInt(2, initialValue);
             stmt.executeUpdate();
 
         } finally {
@@ -89,7 +107,23 @@ public class TableValueGenerator extends ValueGenerator
         }
     }
 
-    // from interface KeyGenerator
+    @Override // from ValueGenerator
+    public void delete (Connection conn, DatabaseLiaison liaison) throws SQLException
+    {
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(
+                " DELETE FROM " + liaison.tableSQL(_valueTable) +
+                "       WHERE " + liaison.columnSQL(_pkColumnName) + " = ?");
+            stmt.setString(1, _pkColumnValue);
+            stmt.executeUpdate();
+
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+    }
+
+    @Override // from ValueGenerator
     public int nextGeneratedValue (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
@@ -137,6 +171,7 @@ public class TableValueGenerator extends ValueGenerator
         return value;
     }
 
+    protected boolean _initialized;
     protected String _valueTable;
     protected String _pkColumnName;
     protected String _pkColumnValue;

@@ -34,10 +34,10 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
-import com.samskivert.jdbc.depot.annotation.Id;
 
 import com.samskivert.util.StringUtil;
 
@@ -156,7 +156,7 @@ public abstract class FieldMarshaller<T>
     /**
      * Returns the SQL used to define this field's column.
      */
-    public String getColumnDefinition ()
+    public ColumnDefinition getColumnDefinition ()
     {
         return _columnDefinition;
     }
@@ -458,7 +458,8 @@ public abstract class FieldMarshaller<T>
     }
 
     protected Field _field;
-    protected String _columnName, _columnDefinition;
+    protected String _columnName;
+    ColumnDefinition _columnDefinition;
     protected Computed _computed;
     protected GeneratedValue _generatedValue;
 }

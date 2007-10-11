@@ -49,6 +49,7 @@ import com.samskivert.jdbc.depot.annotation.TableGenerator;
 import com.samskivert.jdbc.depot.annotation.Transient;
 import com.samskivert.jdbc.depot.annotation.UniqueConstraint;
 
+import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.util.ArrayUtil;
 
@@ -539,12 +540,12 @@ public class DepotMarshaller<T extends PersistentRecord>
         // figure out the list of fields that correspond to actual table columns and generate the
         // SQL used to create and migrate our table (unless we're a computed entity)
         _columnFields = new String[_allFields.length];
-        String[] declarations = new String[_allFields.length];
+        ColumnDefinition[] declarations = new ColumnDefinition[_allFields.length];
         int jj = 0;
         for (int ii = 0; ii < _allFields.length; ii++) {
             FieldMarshaller fm = _fields.get(_allFields[ii]);
             // include all persistent non-computed fields
-            String colDef = fm.getColumnDefinition();
+            ColumnDefinition colDef = fm.getColumnDefinition();
             if (colDef != null) {
                 _columnFields[jj] = _allFields[ii];
                 declarations[jj] = colDef;
@@ -566,7 +567,10 @@ public class DepotMarshaller<T extends PersistentRecord>
                 liaison.createTableIfMissing(
                     conn, SCHEMA_VERSION_TABLE,
                     new String[] { "persistentClass", "version" },
-                    new String[] { "VARCHAR(255) NOT NULL", "INTEGER NOT NULL" },
+                    new ColumnDefinition[] {
+                        new ColumnDefinition("VARCHAR(255)", false, true, null),
+                        new ColumnDefinition("INTEGER", false, false, null)
+                    },
                     null,
                     new String[] { "persistentClass" });
                 return 0;
@@ -578,7 +582,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // if the table does not exist, create it
         if (!metaData.tableExists) {
-            final String[] fDeclarations = declarations;
+            final ColumnDefinition[] fDeclarations = declarations;
             final String[][] uniqueConCols = new String[_uniqueConstraints.size()][];
             int kk = 0;
             for (Set<String> colSet : _uniqueConstraints) {
@@ -606,7 +610,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                             getTableName() + "_" + idx.name(), idx.unique());
                     }
 
-                    // its value generators
+                    // initialize our value generators
                     for (ValueGenerator vg : _valueGenerators.values()) {
                         vg.init(conn, liaison);
                     }
@@ -684,13 +688,13 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
 
             // otherwise add the column
-            final String coldef = fmarsh.getColumnDefinition();
-            log.info("Adding column to " + getTableName() + ": " +
-                     fmarsh.getColumnName() + " " + coldef);
+            final ColumnDefinition coldef = fmarsh.getColumnDefinition();
+            log.info("Adding column to " + getTableName() + ": " + fmarsh.getColumnName());
             ctx.invoke(new Modifier.Simple() {
                 protected String createQuery (DatabaseLiaison liaison) {
                     return "alter table " + liaison.tableSQL(getTableName()) +
-                        " add column " + liaison.columnSQL(fmarsh.getColumnName()) + " " + coldef;
+                        " add column " + liaison.columnSQL(fmarsh.getColumnName()) + " " +
+                        liaison.expandDefinition(coldef);
                 }
             });
 
@@ -699,8 +703,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             // TIMESTAMP columns a value of "0000-00-00 00:00:00" regardless of whether we
             // explicitly provide a "DEFAULT" value for the column or not, and DATETIME columns
             // cannot accept CURRENT_TIME or NOW() defaults at all.
-            if (coldef.toLowerCase().indexOf(" timestamp") != -1 ||
-                coldef.toLowerCase().indexOf(" datetime") != -1) {
+            if (coldef.getType().equalsIgnoreCase("timestamp") ||
+                coldef.getType().equalsIgnoreCase("datetime")) {
                 log.info("Assigning current time to " + fmarsh.getColumnName() + ".");
                 ctx.invoke(new Modifier.Simple() {
                     protected String createQuery (DatabaseLiaison liaison) {
@@ -821,6 +825,18 @@ public class DepotMarshaller<T extends PersistentRecord>
                 migration.init(getTableName(), _fields);
                 ctx.invoke(migration);
             }
+        }
+
+        // last of all (re-)initialize our value generators, since one might've been added
+        if (_valueGenerators.size() > 0) {
+            ctx.invoke(new Modifier() {
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    for (ValueGenerator vg : _valueGenerators.values()) {
+                        vg.init(conn, liaison);
+                    }
+                    return 0;
+                }
+            });
         }
 
         // record our new version in the database

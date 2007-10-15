@@ -47,6 +47,7 @@ import com.samskivert.jdbc.depot.FieldMarshaller.ObjectMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ShortMarshaller;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.Log;
@@ -88,6 +89,9 @@ public class PostgreSQLBuilder
             //   'ho! who goes there?' -> 'ho|who|goes|there'
 
             String[] searchTerms = match.getQuery().toLowerCase().split("\\W+");
+            if (searchTerms.length > 0 && searchTerms[0].length() == 0) {
+                searchTerms = ArrayUtil.splice(searchTerms, 0, 1);
+            }
             String query = StringUtil.join(searchTerms, "|");
             _stmt.setString(_argIdx ++, query);
         }

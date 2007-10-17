@@ -459,7 +459,7 @@ public abstract class FieldMarshaller<T>
 
     protected Field _field;
     protected String _columnName;
-    ColumnDefinition _columnDefinition;
+    protected ColumnDefinition _columnDefinition;
     protected Computed _computed;
     protected GeneratedValue _generatedValue;
 }

@@ -154,15 +154,16 @@ public abstract class SQLBuilder
                 "Primitive Java type cannot be nullable [field=" + field.getName() + "]");
         }
 
-        if (defaultValue == null) {
+        // Java primitive types cannot be null, so we provide a default value for these columns
+        // that matches Java's default for primitive types; however, if the column has a generated
+        // value, don't provide a default because that will anger the database Gods
+        if (defaultValue == null && genValue == null) {
             if (field.getType().equals(Byte.TYPE) ||
-                    field.getType().equals(Short.TYPE) ||
-                    field.getType().equals(Integer.TYPE) ||
-                    field.getType().equals(Long.TYPE) ||
-                    field.getType().equals(Float.TYPE) ||
-                    field.getType().equals(Double.TYPE)) {
-                // Java primitive types cannot be null, so we provide a default value for these
-                // columns that matches Java's default for primitive types
+                field.getType().equals(Short.TYPE) ||
+                field.getType().equals(Integer.TYPE) ||
+                field.getType().equals(Long.TYPE) ||
+                field.getType().equals(Float.TYPE) ||
+                field.getType().equals(Double.TYPE)) {
                 defaultValue = "0";
 
             } else if (field.getType().equals(Boolean.TYPE)) {

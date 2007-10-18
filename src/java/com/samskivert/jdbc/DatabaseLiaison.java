@@ -58,14 +58,6 @@ public interface DatabaseLiaison
     public boolean isTransientException (SQLException sqe);
 
     /**
-     * This method initializes the column value auto-generator described in {@link
-     * #lastInsertedId}.
-     */
-    public void initializeGenerator (
-        Connection conn, String table, String column, int first, int step)
-        throws SQLException;
-
-    /**
      * This method deletes the column value auto-generator described in {@link
      * #lastInsertedId}.
      */

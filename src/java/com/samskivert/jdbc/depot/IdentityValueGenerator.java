@@ -46,8 +46,7 @@ public class IdentityValueGenerator extends ValueGenerator
     public void init (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
-        liaison.initializeGenerator(
-            conn, _dm.getTableName(), _fm.getColumnName(), _initialValue, _allocationSize);
+        // identity value generators are auto-created by the database
     }
 
     @Override // from ValueGenerator

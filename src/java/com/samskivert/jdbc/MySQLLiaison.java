@@ -51,14 +51,6 @@ public class MySQLLiaison extends BaseLiaison
                                 msg.indexOf("Broken pipe") != -1));
     }
 
-    // from DatabaseLiaison
-    public void initializeGenerator (
-        Connection conn, String table, String column, int first, int step)
-        throws SQLException
-    {
-        // AUTO_INCREMENT does not allow this kind of control
-    }
-
     public void deleteGenerator (Connection conn, String tableName, String columnName)
         throws SQLException
     {

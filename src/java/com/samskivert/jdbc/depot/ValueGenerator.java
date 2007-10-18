@@ -53,7 +53,7 @@ public abstract class ValueGenerator
     public abstract boolean isPostFactum ();
 
     /**
-     * Prepares the generator for operation.
+     * Ensures the generator is prepared for operation, creating it (only) if necessary.
      */
     public abstract void init (Connection conn, DatabaseLiaison liaison)
         throws SQLException;

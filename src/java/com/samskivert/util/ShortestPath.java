@@ -87,7 +87,7 @@ public class ShortestPath
         // now execute the main part of the search
         while (uptight.size() > 0) {
             // remove the cheapest known node
-            NodeInfo info = (NodeInfo)uptight.remove(uptight.size()-1);
+            NodeInfo info = uptight.remove(uptight.size()-1);
             // make a note that it is now relaxed
             relaxed.add(info.node);
             // relax its uptight neighbors
@@ -101,7 +101,7 @@ public class ShortestPath
                 // if the path through this node to its neighbor is
                 // cheaper than the existing known shortest path, update
                 // the neighbor to reflect this new shorter path
-                NodeInfo oinfo = (NodeInfo)nodes.get(onode);
+                NodeInfo oinfo = nodes.get(onode);
                 int weight = graph.computeWeight(edge, info.node);
                 if (oinfo.weightTo > info.weightTo + weight) {
                     oinfo.weightTo = info.weightTo + weight;

@@ -196,7 +196,7 @@ public class RadialMenu
     {
         int icount = _items.size();
         for (int i = 0; i < icount; i++) {
-            RadialMenuItem item = (RadialMenuItem)_items.get(i);
+            RadialMenuItem item = _items.get(i);
             if (item.command.equals(command)) {
                 _items.remove(i);
                 return true;
@@ -357,7 +357,7 @@ public class RadialMenu
         // render each of our items in turn
         int icount = _items.size();
         for (int i = 0; i < icount; i++) {
-            RadialMenuItem item = (RadialMenuItem)_items.get(i);
+            RadialMenuItem item = _items.get(i);
             if (!item.isIncluded(this)) {
                 continue;
             }
@@ -412,7 +412,7 @@ public class RadialMenu
 
             int icount = _items.size();
             for (int i = 0; i < icount; i++) {
-                RadialMenuItem item = (RadialMenuItem)_items.get(i);
+                RadialMenuItem item = _items.get(i);
                 if (item.isIncluded(this) &&
                     item.closedBounds.contains(x, y)) {
                     _activeItem = item;
@@ -514,7 +514,7 @@ public class RadialMenu
         int icount = _items.size();
         ArrayList<RadialMenuItem> items = new ArrayList<RadialMenuItem>();
         for (int i = 0; i < icount; i++) {
-            RadialMenuItem item = (RadialMenuItem)_items.get(i);
+            RadialMenuItem item = _items.get(i);
             if (item.isIncluded(this)) {
                 items.add(item);
             }
@@ -524,7 +524,7 @@ public class RadialMenu
         int maxwid = 0, maxhei = 0;
         icount = items.size();
         for (int i = 0; i < icount; i++) {
-            RadialMenuItem item = (RadialMenuItem)items.get(i);
+            RadialMenuItem item = items.get(i);
             item.layout(gfx, font);
 
             // track maximum menu item size
@@ -552,7 +552,7 @@ public class RadialMenu
         // now position each item accordingly
         double angle = -Math.PI/2;
         for (int i = 0; i < icount; i++) {
-            RadialMenuItem item = (RadialMenuItem)items.get(i);
+            RadialMenuItem item = items.get(i);
             int ix = (int)(radius * Math.cos(angle));
             int iy = (int)(radius * Math.sin(angle));
             item.openBounds.x = item.closedBounds.x = ix - maxwid/2;
@@ -581,7 +581,7 @@ public class RadialMenu
 
         // include the bounds for all menu items
         for (int i = 0; i < icount; i++) {
-            RadialMenuItem item = (RadialMenuItem)items.get(i);
+            RadialMenuItem item = items.get(i);
             // we need the open bounds rather than the closed ones
             _bounds.add(item.openBounds);
         }
@@ -593,7 +593,7 @@ public class RadialMenu
             _centerLabel.closedBounds.translate(-_bounds.x, -_bounds.y);
         }
         for (int i = 0; i < icount; i++) {
-            RadialMenuItem item = (RadialMenuItem)items.get(i);
+            RadialMenuItem item = items.get(i);
             item.openBounds.translate(-_bounds.x, -_bounds.y);
             item.closedBounds.translate(-_bounds.x, -_bounds.y);
         }

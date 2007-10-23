@@ -141,13 +141,10 @@ public class ScrollBox extends JPanel
         _hFactor = (_active.width) / (float) (_horz.getMaximum() - hmin);
         _vFactor = (_active.height) / (float) (_vert.getMaximum() - vmin);
 
-        _box.x = _active.x + (int) Math.round((_horz.getValue() - hmin) *
-            _hFactor);
-        _box.width = (int) Math.round(_horz.getExtent() * _hFactor);
-
-        _box.y = _active.y + (int) Math.round((_vert.getValue() - vmin) *
-            _vFactor);
-        _box.height = (int) Math.round(_vert.getExtent() * _vFactor);
+        _box.x = _active.x + Math.round((_horz.getValue() - hmin) * _hFactor);
+        _box.width = Math.round(_horz.getExtent() * _hFactor);
+        _box.y = _active.y + Math.round((_vert.getValue() - vmin) * _vFactor);
+        _box.height = Math.round(_vert.getExtent() * _vFactor);
     }
 
     /**
@@ -194,10 +191,8 @@ public class ScrollBox extends JPanel
         {
             if (_lastPoint != null) {
                 Point p = e.getPoint();
-                _horz.setValue(_horz.getValue() +
-                    (int) Math.round((p.x - _lastPoint.x) / _hFactor));
-                _vert.setValue(_vert.getValue() +
-                    (int) Math.round((p.y - _lastPoint.y) / _vFactor));
+                _horz.setValue(_horz.getValue() + Math.round((p.x - _lastPoint.x) / _hFactor));
+                _vert.setValue(_vert.getValue() + Math.round((p.y - _lastPoint.y) / _vFactor));
                 _lastPoint = p;
             }
         }

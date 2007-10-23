@@ -179,7 +179,7 @@ public class MethodFinder
                 "No member in " + _clazz.getName() + " matching given args");
         }
         if (matchingMembers.size() == 1) {
-            return (Member)matchingMembers.get(0);
+            return matchingMembers.get(0);
         }
 
         return findMostSpecificMemberIn(matchingMembers);
@@ -240,7 +240,7 @@ public class MethodFinder
                 "Ambiguous request for member in " + _clazz.getName() + " matching given args" ); 
         }
 
-        return (Member)mostSpecificMembers.get(0);
+        return mostSpecificMembers.get(0);
     }
 
     @Override // from Object

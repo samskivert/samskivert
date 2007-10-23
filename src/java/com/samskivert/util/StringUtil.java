@@ -1268,7 +1268,7 @@ public class StringUtil
         int code = 0;
         for (int ii = 0, uu = 0; ii < value.length(); ii++) {
             char c = Character.toLowerCase(value.charAt(ii));
-            Integer cc = (Integer)_letterToBits.get(c);
+            Integer cc = _letterToBits.get(c);
             if (cc == null) {
                 continue;
             }

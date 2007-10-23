@@ -64,13 +64,13 @@ public class ScaledIcon implements Icon
     // documentation inherited from interface Icon
     public int getIconWidth ()
     {
-        return (int) Math.round(_icon.getIconWidth() * _scale);
+        return Math.round(_icon.getIconWidth() * _scale);
     }
 
     // documentation inherited from interface Icon
     public int getIconHeight ()
     {
-        return (int) Math.round(_icon.getIconHeight() * _scale);
+        return Math.round(_icon.getIconHeight() * _scale);
     }
 
     // documentation inherited from interface Icon

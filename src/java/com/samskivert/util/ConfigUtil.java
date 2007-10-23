@@ -331,13 +331,13 @@ public class ConfigUtil
 
         if (rsrcs.size() == 1) {
             // parse the metadata for our only properties file
-            root = parseMetaData(path, (URL)rsrcs.get(0));
+            root = parseMetaData(path, rsrcs.get(0));
 
         } else {
             map = new HashMap<String,PropRecord>();
             for (int ii = 0; ii < rsrcs.size(); ii++) {
                 // parse the metadata for this properties file
-                PropRecord record = parseMetaData(path, (URL)rsrcs.get(ii));
+                PropRecord record = parseMetaData(path, rsrcs.get(ii));
 
                 // make sure the record we parseded is valid because we're
                 // going to be doing overrides

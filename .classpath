@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/ehcache-1.2.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/velocity-1.5-dev.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/servlet-2.3.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/mail.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/commons-logging.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/commons-io.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/commons-collections.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/ant.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/commons-digester.jar"/>
+	<classpathentry exported="true" kind="var" path="LIBS_DIR/junit-4.3.1.jar"/>
+	<classpathentry kind="output" path="dist/classes"/>
+</classpath>

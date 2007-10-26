@@ -38,6 +38,11 @@ public abstract class Logic
      */
     public static class Or extends SQLOperator.MultiOperator
     {
+        public Or (Collection<? extends SQLExpression> conditions)
+        {
+            super(conditions.toArray(new SQLExpression[conditions.size()]));
+        }
+
         public Or (SQLExpression... conditions)
         {
             super(conditions);
@@ -55,6 +60,11 @@ public abstract class Logic
      */
     public static class And extends SQLOperator.MultiOperator
     {
+        public And (Collection<? extends SQLExpression> conditions)
+        {
+            super(conditions.toArray(new SQLExpression[conditions.size()]));
+        }
+
         public And (SQLExpression... conditions)
         {
             super(conditions);

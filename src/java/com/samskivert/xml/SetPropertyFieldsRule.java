@@ -30,8 +30,8 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.util.ValueMarshaller;
 
 /**
- * Sets the fields in the object on the top of the stack from the
- * attributes available in the matched element.
+ * Sets the fields in the object on the top of the stack from the attributes available in the
+ * matched element.
  */
 public class SetPropertyFieldsRule extends Rule
 {
@@ -73,8 +73,8 @@ public class SetPropertyFieldsRule extends Rule
     }
 
     /**
-     * Configures this rule to warn or not when it skips properties for
-     * which there are no associated object fields.
+     * Configures this rule to warn or not when it skips properties for which there are no
+     * associated object fields.
      */
     public void setWarnNonFields (boolean warnNonFields)
     {
@@ -87,8 +87,7 @@ public class SetPropertyFieldsRule extends Rule
         Object top = digester.peek();
         Class topclass = top.getClass();
 
-        // iterate over the attributes, setting public fields where
-        // applicable
+        // iterate over the attributes, setting public fields where applicable
 	for (int i = 0; i < attrs.getLength(); i++) {
 	    String lname = attrs.getLocalName(i);
             if (StringUtil.isBlank(lname)) {
@@ -102,8 +101,7 @@ public class SetPropertyFieldsRule extends Rule
             } catch (NoSuchFieldException nsfe) {
                 if (_warnNonFields) {
                     digester.getLogger().warn(
-                        "Skipping property '" + lname +
-                        "' for which there is no field.");
+                        "Skipping property '" + lname + "' for which there is no field.");
                 }
                 continue;
             } 
@@ -118,14 +116,14 @@ public class SetPropertyFieldsRule extends Rule
                 ((parser = _parsers.get(lname)) != null)) {
                 value = parser.parse(valstr);
             } else {
-                // otherwise use the value marshaller to parse the
-                // property based on the type of the target object field
+                // otherwise use the value marshaller to parse the property based on the type of
+                // the target object field
                 value = ValueMarshaller.unmarshal(field.getType(), valstr);
             }
 
             if (digester.getLogger().isDebugEnabled()) {
-                digester.getLogger().debug("  Setting property '" + lname +
-                                           "' to '" + valstr + "'");
+                digester.getLogger().debug(
+                    "  Setting property '" + lname + "' to '" + valstr + "'");
             }
 
             // and finally set the field

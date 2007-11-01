@@ -101,7 +101,7 @@ public class Invoker extends LoopingThread
          */
         public long getLongThreshold ()
         {
-            return DEFAULT_LONG_THRESHOLD;
+            return _defaultLongThreshold;
         }
 
         /** Returns the name of this invoker. */
@@ -111,6 +111,15 @@ public class Invoker extends LoopingThread
         }
 
         protected String _name;
+    }
+
+    /**
+     * Configures the default duration (in milliseconds) for an invoker unit to be reported as
+     * "long". Long units will result in a warning message written to the log.
+     */
+    public static void setDefaultLongThreshold (long millis)
+    {
+        _defaultLongThreshold = millis;
     }
 
     /**
@@ -280,7 +289,7 @@ public class Invoker extends LoopingThread
     protected int _unitsRun;
 
     /** The duration of time after which we consider a unit to be delinquent and log a warning. */
-    protected static final long DEFAULT_LONG_THRESHOLD = 500L;
+    protected static long _defaultLongThreshold = 500L;
 
     /** Whether or not to track invoker unit performance. */
     protected static final boolean PERF_TRACK = true;

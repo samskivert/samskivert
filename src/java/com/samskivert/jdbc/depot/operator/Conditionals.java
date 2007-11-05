@@ -23,6 +23,7 @@ package com.samskivert.jdbc.depot.operator;
 import java.util.Collection;
 
 import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
@@ -247,6 +248,32 @@ public abstract class Conditionals
         }
     }
 
+    /** The SQL ' exists' operator. */
+    public static class Exists<T extends PersistentRecord> implements SQLOperator
+    {
+        public Exists (SelectClause<T> clause)
+        {
+            _clause = clause;
+        }
+
+        public void accept (ExpressionVisitor builder) throws Exception
+        {
+            builder.visit(this);
+        }
+
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
+        {
+            _clause.addClasses(classSet);
+        }
+
+        public SelectClause<T> getSubClause ()
+        {
+            return _clause;
+        }
+
+        protected SelectClause<T> _clause;
+    }
+
     /**
      * An attempt at a dialect-agnostic full-text search condition, such as MySQL's MATCH() and
      * PostgreSQL's @@ TO_TSQUERY(...) abilities.
@@ -265,7 +292,7 @@ public abstract class Conditionals
         {
             return _pClass;
         }
-        
+
         public String getQuery ()
         {
             return _query;

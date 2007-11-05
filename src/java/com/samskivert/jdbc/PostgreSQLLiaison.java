@@ -75,14 +75,6 @@ public class PostgreSQLLiaison extends BaseLiaison
         }
     }
 
-    public void initializeGenerator (
-        Connection conn, String table, String column, int first, int step)
-        throws SQLException
-    {
-        executeQuery(conn, "alter sequence \"" + table + "_" + column + "_seq\" " +
-                     " restart with " + first + " increment " + step);
-    }
-
     // from DatabaseLiaison
     public void deleteGenerator (Connection conn, String table, String column)
         throws SQLException

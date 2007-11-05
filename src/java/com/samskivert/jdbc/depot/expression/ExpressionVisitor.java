@@ -38,6 +38,7 @@ import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
 import com.samskivert.jdbc.depot.clause.Where;
 
+import com.samskivert.jdbc.depot.operator.Conditionals.Exists;
 import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
@@ -91,6 +92,8 @@ public interface ExpressionVisitor
     public void visit (LiteralExp literalExp)
         throws Exception;
     public void visit (ValueExp valueExp)
+        throws Exception;
+    public void visit (Exists<? extends PersistentRecord> exists)
         throws Exception;
     public void visit (SelectClause<? extends PersistentRecord> selectClause)
         throws Exception;

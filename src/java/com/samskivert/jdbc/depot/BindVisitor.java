@@ -43,6 +43,7 @@ import com.samskivert.jdbc.depot.expression.FunctionExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
+import com.samskivert.jdbc.depot.operator.Conditionals.Exists;
 import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
@@ -189,6 +190,12 @@ public class BindVisitor implements ExpressionVisitor
         } else {
             _stmt.setObject(_argIdx ++, valueExp.getValue());
         }
+    }
+
+    public void visit (Exists<? extends PersistentRecord> exists)
+        throws Exception
+    {
+        exists.getSubClause().accept(this);
     }
 
     public void visit (SelectClause<? extends PersistentRecord> selectClause)

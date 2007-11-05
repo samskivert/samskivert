@@ -55,14 +55,6 @@ public class DefaultLiaison extends BaseLiaison
     }
 
     // from DatabaseLiaison
-    public void initializeGenerator (
-        Connection conn, String table, String column, int value, int size)
-        throws SQLException
-    {
-        // nothing doing
-    }
-
-    // from DatabaseLiaison
     public int lastInsertedId (Connection conn, String table, String column)
         throws SQLException
     {

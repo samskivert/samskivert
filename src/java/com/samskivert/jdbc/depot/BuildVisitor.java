@@ -47,6 +47,7 @@ import com.samskivert.jdbc.depot.expression.FunctionExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
+import com.samskivert.jdbc.depot.operator.Conditionals.Exists;
 import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
@@ -310,6 +311,13 @@ public abstract class BuildVisitor implements ExpressionVisitor
         throws Exception
     {
         _builder.append("?");
+    }
+
+    public void visit (Exists<? extends PersistentRecord> exists)
+        throws Exception
+    {
+        _builder.append("exists ");
+        exists.getSubClause().accept(this);
     }
 
     public void visit (SelectClause<? extends PersistentRecord> selectClause)

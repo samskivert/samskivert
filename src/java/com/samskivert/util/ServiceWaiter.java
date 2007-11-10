@@ -20,8 +20,6 @@
 
 package com.samskivert.util;
 
-import com.samskivert.Log;
-
 /**
  * A handy base class for issuing server-side service requests and
  * awaiting their responses from within a servlet.

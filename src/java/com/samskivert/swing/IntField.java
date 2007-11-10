@@ -34,9 +34,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 
-import com.samskivert.Log;
-import com.samskivert.swing.util.SwingUtil;
-
 /**
  * A text field that will only allow editing of integer values within
  * the specified range.

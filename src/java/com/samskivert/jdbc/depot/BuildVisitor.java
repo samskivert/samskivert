@@ -21,6 +21,7 @@
 package com.samskivert.jdbc.depot;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +99,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
     {
         Class<? extends PersistentRecord> pClass = whereCondition.getPersistentClass();
         String[] keyFields = Key.getKeyFields(pClass);
-        Comparable[] values = whereCondition.getValues();
+        List<Comparable> values = whereCondition.getValues();
         for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
                 _builder.append(" and ");
@@ -109,7 +110,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             _enableOverrides = true;
             appendRhsColumn(pClass, keyFields[ii]);
             _enableOverrides = saved;
-            _builder.append(values[ii] == null ? " is null " : " = ? ");
+            _builder.append(values.get(ii) == null ? " is null " : " = ? ");
         }
     }
 

@@ -23,7 +23,6 @@ package com.samskivert.jdbc.depot;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,9 +43,10 @@ public class Key<T extends PersistentRecord> extends WhereClause
     implements SQLExpression, CacheKey, ValidatingCacheInvalidator, Serializable
 {
     /** An expression that contains our key columns and values. */
-    public static class WhereCondition<U extends PersistentRecord> implements SQLExpression
+    public static class WhereCondition<U extends PersistentRecord>
+        implements SQLExpression, Serializable
     {
-        public WhereCondition (Class<U> pClass, Comparable[] values)
+        public WhereCondition (Class<U> pClass, ArrayList<Comparable> values)
         {
             _pClass = pClass;
             _values = values;
@@ -69,7 +69,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
             return _pClass;
         }
 
-        public Comparable[] getValues ()
+        public ArrayList<Comparable> getValues ()
         {
             return _values;
         }
@@ -84,17 +84,17 @@ public class Key<T extends PersistentRecord> extends WhereClause
                 return false;
             }
             WhereCondition other = (WhereCondition) obj;
-            return _pClass == other._pClass && Arrays.equals(_values, other._values);
+            return _pClass == other._pClass && _values.equals(other.getValues());
         }
 
         @Override
         public int hashCode ()
         {
-            return _pClass.hashCode() ^ Arrays.hashCode(_values);
+            return _pClass.hashCode() ^ _values.hashCode();
         }
 
         protected Class<U> _pClass;
-        protected Comparable[] _values;
+        protected ArrayList<Comparable> _values;
     }
 
     /** The expression that identifies our row. */
@@ -145,13 +145,19 @@ public class Key<T extends PersistentRecord> extends WhereClause
         String[] keyFields = getKeyFields(pClass);
 
         // now extract the values in field order and ensure none are extra or missing
-        Comparable[] newValues = new Comparable[fields.length];
+        ArrayList<Comparable> newValues = new ArrayList<Comparable>();
         for (int ii = 0; ii < keyFields.length; ii++) {
-            newValues[ii] = map.remove(keyFields[ii]);
-            // make sure we were provided with a value for this primary key field
-            if (newValues[ii] == null) {
+            Comparable nugget = map.remove(keyFields[ii]);
+            if (nugget == null) {
+                // make sure we were provided with a value for this primary key field
                 throw new IllegalArgumentException("Missing value for key field: " + keyFields[ii]);
             }
+            if (nugget instanceof Serializable) {
+                newValues.add(nugget);
+                continue;
+            }
+            throw new IllegalArgumentException(
+                "Non-serializable argument [key=" + keyFields[ii] + ", arg=" + nugget + "]");
         }
 
         // finally make sure we were not given any fields that are not in fact primary key fields
@@ -185,7 +191,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     // from CacheKey
     public Serializable getCacheKey ()
     {
-        return this; // TODO: Optimally return a special class here containing only _values.
+        return condition.getValues();
     }
 
     // from ValidatingCacheInvalidator
@@ -240,7 +246,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
             if (ii > 0) {
                 builder.append(", ");
             }
-            builder.append(keyFields[ii]).append("=").append(condition.getValues()[ii]);
+            builder.append(keyFields[ii]).append("=").append(condition.getValues().get(ii));
         }
         builder.append(")");
         return builder.toString();

@@ -72,10 +72,9 @@ public class BindVisitor implements ExpressionVisitor
     public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
         throws Exception
     {
-        Comparable[] values = whereCondition.getValues();
-        for (int ii = 0; ii < values.length; ii ++) {
-            if (values[ii] != null) {
-                _stmt.setObject(_argIdx ++, values[ii]);
+        for (Comparable value : whereCondition.getValues()) {
+            if (value != null) {
+                _stmt.setObject(_argIdx ++, value);
             }
         }
     }

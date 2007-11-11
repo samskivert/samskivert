@@ -25,6 +25,11 @@ import java.io.Serializable;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.distribution.CacheManagerPeerListener;
+import net.sf.ehcache.distribution.CacheManagerPeerProvider;
+import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
+
+import static com.samskivert.jdbc.depot.Log.log;
 
 /**
  * An implementation of {@link CacheAdapter} for ehcache.
@@ -35,6 +40,18 @@ public class EHCacheAdapter
     public EHCacheAdapter ()
     {
         _cachemgr = CacheManager.getInstance();
+
+        CacheManagerPeerListener listener = _cachemgr.getCachePeerListener();
+        CacheManagerPeerProvider provider = _cachemgr.getCachePeerProvider();
+        if ((provider != null) != (listener != null)) {
+            // we want either both listener and provider, or neither
+            log.warning("EHCache misconfigured, distributed mode disabled [listener =" +
+                listener + ", provider=" + provider);
+            _distributed = false;
+
+        } else {
+            _distributed = (listener != null);
+        }
     }
 
     public <T> CacheBin<T> getCache (String id)
@@ -90,6 +107,14 @@ public class EHCacheAdapter
             _cache = _cachemgr.getCache(id);
             if (_cache == null) {
                 _cache = new Cache(id, 5000, false, false, 600, 60);
+
+                if (_distributed) {
+                    // for reasons unknown we have to add this event listener programmatically
+                    // rather than include it in the defaultCache portion of the ehcache.xml
+                    // configuration file.
+                    _cache.getCacheEventNotificationService().registerListener(
+                        new RMIAsynchronousCacheReplicator(true, true, true, true, 1000));
+                }
                 _cachemgr.addCache(_cache);
             }
         }
@@ -103,5 +128,6 @@ public class EHCacheAdapter
         CacheManager.getInstance().shutdown();
     }
 
+    protected boolean _distributed;
     protected CacheManager _cachemgr;
 }

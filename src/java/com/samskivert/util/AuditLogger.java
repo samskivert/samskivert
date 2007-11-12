@@ -36,10 +36,9 @@ import java.util.Date;
 import com.samskivert.Log;
 
 /**
- * Used by various services to generate audit logs which can be useful for
- * auditing, debugging and other logly necessities. The audit logger
- * automatically rolls over its logs at midnight to facilitate the
- * collection, processing and possible archiving of the logs.
+ * Used by various services to generate audit logs which can be useful for auditing, debugging and
+ * other logly necessities. The audit logger automatically rolls over its logs at midnight to
+ * facilitate the collection, processing and possible archiving of the logs.
  */
 public class AuditLogger
 {
@@ -65,14 +64,13 @@ public class AuditLogger
     }
 
     /**
-     * Writes the supplied message to the log, prefixed by a date and
-     * timestamp. A newline will be appended to the message.
+     * Writes the supplied message to the log, prefixed by a date and timestamp. A newline will be
+     * appended to the message.
      */
     public synchronized void log (String message)
     {
         // construct the message
-        StringBuffer buf = new StringBuffer(
-            message.length() + TIMESTAMP_LENGTH);
+        StringBuffer buf = new StringBuffer(message.length() + TIMESTAMP_LENGTH);
         _format.format(new Date(), buf, _fpos);
         buf.append(message);
 
@@ -85,27 +83,24 @@ public class AuditLogger
 
         // log an error if we failed to write the log message
         if (!wrote) {
-            // be careful about logging zillions of errors if something
-            // bad happens to our log file
+            // be careful about logging zillions of errors if something bad happens to our log file
             if (_throttle.throttleOp()) {
                 _throttled++;
             } else {
                 if (_throttled > 0) {
-                    Log.warning("Suppressed " + _throttled +
-                                " intervening error messages.");
+                    Log.warning("Suppressed " + _throttled + " intervening error messages.");
                     _throttled = 0;
                 }
-                Log.warning("Failed to write audit log message " +
-                            "[file=" + _logPath + ", msg=" + message + "].");
+                Log.warning("Failed to write audit log message [file=" + _logPath +
+                            ", msg=" + message + "].");
             }
         }
     }
 
     /**
-     * Closes this audit log (generally only done when the server is
-     * shutting down.
+     * Closes this audit log (generally only done when the server is shutting down.
      */
-    public void close ()
+    public synchronized void close ()
     {
         if (_logWriter != null) {
             log("log_closed");
@@ -115,8 +110,8 @@ public class AuditLogger
     }
 
     /**
-     * Opens our log file, sets up our print writer and writes a message
-     * to it indicating that it was opened.
+     * Opens our log file, sets up our print writer and writes a message to it indicating that it
+     * was opened.
      */
     protected void openLog (boolean freakout)
     {
@@ -156,8 +151,8 @@ public class AuditLogger
             // rename the old file
             String npath = _logPath.getPath() + "." + _dayStamp;
             if (!_logPath.renameTo(new File(npath))) {
-                Log.warning("Failed to rename audit log file " +
-                    "[path=" + _logPath + ", npath=" + npath + "].");
+                Log.warning("Failed to rename audit log file [path=" + _logPath +
+                            ", npath=" + npath + "].");
             }
 
             // open our new log file
@@ -185,18 +180,18 @@ public class AuditLogger
         _rollover.schedule(nextCheck);
     }
 
-    /** The path to our log file. */
-    protected File _logPath;
-
-    /** We actually write to this feller here. */
-    protected PrintWriter _logWriter;
-
     /** The interval that rolls over the log file. */
     protected Interval _rollover = new Interval() {
         public void expired () {
             checkRollOver();
         }
     };
+
+    /** The path to our log file. */
+    protected File _logPath;
+
+    /** We actually write to this feller here. */
+    protected PrintWriter _logWriter;
 
     /** Suppress freakouts if our log file becomes hosed. */
     protected Throttle _throttle = new Throttle(2, 5*60*1000L);
@@ -210,19 +205,16 @@ public class AuditLogger
     /** Used to format log file suffixes. */
     protected SimpleDateFormat _dayFormat = new SimpleDateFormat("yyyyMMdd");
 
+    /** Used to format timestamps. */
+    protected SimpleDateFormat _format = new SimpleDateFormat(TIMESTAMP_FORMAT);
+
+    /** Annoying parameter required by the Format.format() method that appends to a string
+     * buffer. */
+    protected FieldPosition _fpos = new FieldPosition(SimpleDateFormat.DATE_FIELD);
+
     /** Timestamp format used on all log messages. */
-    protected static final String TIMESTAMP_FORMAT =
-        "yyyy/MM/dd HH:mm:ss:SSS ";
+    protected static final String TIMESTAMP_FORMAT = "yyyy/MM/dd HH:mm:ss:SSS ";
 
     /** The length of the timestamp format. */
     protected static final int TIMESTAMP_LENGTH = TIMESTAMP_FORMAT.length();
-
-    /** Used to format timestamps. */
-    protected SimpleDateFormat _format =
-        new SimpleDateFormat(TIMESTAMP_FORMAT);
-
-    /** Annoying parameter required by the Format.format() method that
-     * appends to a string buffer. */
-    protected FieldPosition _fpos =
-        new FieldPosition(SimpleDateFormat.DATE_FIELD);
 }

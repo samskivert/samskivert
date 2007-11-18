@@ -72,7 +72,9 @@ public class EHCacheAdapter
                 return null;
             }
 
-            @SuppressWarnings("unchecked") final T value = (T) hit.getValue();
+            Serializable rawValue = hit.getValue();
+            @SuppressWarnings("unchecked")
+                final T value = (T) (rawValue instanceof NullValue ? null : rawValue);
             return new CachedValue<T>() {
                 public T getValue () {
                     return value;
@@ -86,7 +88,7 @@ public class EHCacheAdapter
         // from CacheBin
         public void store (Serializable key, T value)
         {
-            _cache.put(new Element(key, value));
+            _cache.put(new Element(key, value != null ? value : NULL));
         }
 
         // from CacheBin
@@ -106,12 +108,19 @@ public class EHCacheAdapter
         {
             _cache = _cachemgr.getCache(id);
             if (_cache == null) {
-                _cache = new Cache(id, 5000, false, false, 600, 60);
+                // create the cache programatically with reasonable settings
+                // TODO: we will eventually need this to be configurable in .properties
+
+                _cache = new Cache(id,
+                    5000,       // keep 5000 elements in RAM
+                    true,       // overflow the rest to disk
+                    false,      // don't keep records around eternally
+                    600,        // but do keep them for 10 minutes after they're created
+                    60);        // or 1 minute after last access
 
                 if (_distributed) {
-                    // for reasons unknown we have to add this event listener programmatically
-                    // rather than include it in the defaultCache portion of the ehcache.xml
-                    // configuration file.
+                    // a programatically created cache has to have its replicator event listener
+                    // programatically added.
                     _cache.getCacheEventNotificationService().registerListener(
                         new RMIAsynchronousCacheReplicator(true, true, true, true, 1000));
                 }
@@ -130,4 +139,26 @@ public class EHCacheAdapter
 
     protected boolean _distributed;
     protected CacheManager _cachemgr;
+
+    // this is just for convenience and memory use; we don't rely on pointer equality anywhere
+    protected static Serializable NULL = new NullValue() {};
+
+    /** A class to represent an explicitly Serializable concept of null for EHCache. */
+    protected static class NullValue implements Serializable
+    {
+        public String toString ()
+        {
+            return "<EHCache Null>";
+        }
+
+        public boolean equals (Object other)
+        {
+            return other != null && other.getClass().equals(NullValue.class);
+        }
+
+        public int hashCode ()
+        {
+            return 1;
+        }
+    }
 }

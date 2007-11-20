@@ -439,6 +439,21 @@ public class JDBCUtil
     }
 
     /**
+     * Returns a string representation of the default value for the specified column in the 
+     * specified table. This may be null.
+     */
+    public static String getColumnDefaultValue (Connection conn, String table, String column)
+        throws SQLException
+    {
+        ResultSet rs = getColumnMetaData(conn, table, column);
+        try {
+            return rs.getString("COLUMN_DEF");
+        } finally {
+            rs.close();
+        }
+    }
+
+    /**
      * Adds a column (with name 'cname' and definition 'cdef') to the specified table.
      *
      * @param afterCname (optional) the name of the column after which to add the new column.

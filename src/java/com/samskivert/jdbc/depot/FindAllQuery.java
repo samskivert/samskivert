@@ -56,7 +56,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
      */
     public static class WithCache<T extends PersistentRecord> extends FindAllQuery<T>
     {
-        public WithCache (PersistenceContext ctx, Class<T> type, QueryClause[] clauses)
+        public WithCache (PersistenceContext ctx, Class<T> type, List<QueryClause> clauses)
             throws PersistenceException
         {
             super(ctx, type);
@@ -167,7 +167,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             return result;
         }
 
-        protected QueryClause[] _clauses;
+        protected List<QueryClause> _clauses;
     }
 
     /**
@@ -175,7 +175,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
      */
     public static class Explicitly<T extends PersistentRecord> extends FindAllQuery<T>
     {
-        public Explicitly (PersistenceContext ctx, Class<T> type, QueryClause[] clauses)
+        public Explicitly (PersistenceContext ctx, Class<T> type, List<QueryClause> clauses)
             throws PersistenceException
         {
             super(ctx, type);

@@ -21,6 +21,7 @@
 package com.samskivert.jdbc.depot.clause;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
      * class, as dictated by the key and query clauses.  A persistence context is supplied for
      * instantiation of marshallers, which may trigger table creations and schema migrations.
      */
-    public SelectClause (Class<T> pClass, String[] fields, QueryClause... clauses)
+    public SelectClause (Class<T> pClass, String[] fields, List<QueryClause> clauses)
     {
         _pClass = pClass;
         _fields = fields;
@@ -100,6 +101,14 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
                 _forUpdate = (ForUpdate) clause;
             }
         }
+    }
+
+    /**
+     * A varargs version of the constructor.
+     */
+    public SelectClause (Class<T> pClass, String[] fields, QueryClause... clauses)
+    {
+        this(pClass, fields, Arrays.asList(clauses));
     }
 
     public FieldDefinition lookupDefinition (String field)

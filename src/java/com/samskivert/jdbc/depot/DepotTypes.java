@@ -22,6 +22,7 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.SQLException;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ public class DepotTypes
      * are interrogated for their class definition sets through {@link SQLExpression#addClasses}.
      */
     public static <T extends PersistentRecord> DepotTypes getDepotTypes (
-        PersistenceContext ctx, QueryClause... clauses)
+        PersistenceContext ctx, Collection<QueryClause> clauses)
         throws PersistenceException
     {
         Set<Class<? extends PersistentRecord>> classSet =
@@ -65,6 +66,16 @@ public class DepotTypes
             }
         }
         return new DepotTypes(ctx, classSet);
+    }
+
+    /**
+     * A varargs version of {@link #getDepotTypes(PersistenceContext,Collection<QueryClause>)}.
+     */
+    public static <T extends PersistentRecord> DepotTypes getDepotTypes (
+        PersistenceContext ctx, QueryClause... clauses)
+        throws PersistenceException
+    {
+        return getDepotTypes(ctx, Arrays.asList(clauses));
     }
 
     /**

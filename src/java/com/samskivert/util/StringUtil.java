@@ -711,7 +711,7 @@ public class StringUtil
     public static String safeToString (Object object)
     {
         try {
-            return object.toString();
+            return toString(object);
         } catch (Throwable t) {
             // We catch any throwable, even Errors. Someone is just trying to debug something,
             // probably inside another catch block.

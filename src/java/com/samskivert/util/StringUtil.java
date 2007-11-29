@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -927,6 +927,29 @@ public class StringUtil
             try {
                 // trim the whitespace from the token
                 vals[i] = Float.parseFloat(tok.nextToken().trim());
+            } catch (NumberFormatException nfe) {
+                return null;
+            }
+        }
+        return vals;
+    }
+
+    /**
+     * Parses an array of doubles from its string representation. The array should be represented
+     * as a bare list of numbers separated by commas, for example:
+     *
+     * <pre>25.0, .5, 1, 0.99</pre>
+     *
+     * Any inability to parse the array will result in the function returning null.
+     */
+    public static double[] parseDoubleArray (String source)
+    {
+        StringTokenizer tok = new StringTokenizer(source, ",");
+        double[] vals = new double[tok.countTokens()];
+        for (int i = 0; tok.hasMoreTokens(); i++) {
+            try {
+                // trim the whitespace from the token
+                vals[i] = Double.parseDouble(tok.nextToken().trim());
             } catch (NumberFormatException nfe) {
                 return null;
             }

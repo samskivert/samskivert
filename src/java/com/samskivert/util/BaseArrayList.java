@@ -168,7 +168,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
         try {
             BaseArrayList<T> dup = (BaseArrayList<T>)super.clone();
             if (_elements != null) {
-                dup._elements = (T[])_elements.clone();
+                dup._elements = _elements.clone();
             }
             return dup;
 

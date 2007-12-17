@@ -56,7 +56,7 @@ public class ObjectUtil
      */
     public static <T extends Comparable<? super T>> int compareTo (T left, T right)
     {
-        if (left == null && right == null) {
+        if (left == right) { // instances are both null or both the same instance
             return 0;
         } else if (left == null) {
             return -1;

@@ -417,7 +417,7 @@ public abstract class FieldMarshaller<T>
     }
 
     protected static class ByteEnumMarshaller extends FieldMarshaller<ByteEnum> {
-        public ByteEnumMarshaller (Class clazz) {
+        public ByteEnumMarshaller (Class<?> clazz) {
             try {
                 _factmeth = clazz.getMethod("fromByte", new Class[] { Byte.TYPE });
             } catch (Exception e) {

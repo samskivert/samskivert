@@ -51,6 +51,23 @@ public class ObjectUtil
     }
 
     /**
+     * Compares two objects, returning -1 if left is null and right is not and 1 if left is
+     * non-null and right is null.
+     */
+    public static <T extends Comparable<? super T>> int compareTo (T left, T right)
+    {
+        if (left == null && right == null) {
+            return 0;
+        } else if (left == null) {
+            return -1;
+        } else if (right == null) {
+            return 1;
+        } else {
+            return left.compareTo(right);
+        }
+    }
+
+    /**
      * Dumps the contents of the supplied object instance, listing the
      * class name, hash code and <code>toString()</code> data for each
      * field in the supplied object and then dumps each field in turn.

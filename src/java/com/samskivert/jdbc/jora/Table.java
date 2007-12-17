@@ -910,7 +910,7 @@ public class Table<T>
     static {
         try {
 	    serializableClass = Serializable.class;
-	    Class c = Class.forName("java.lang.reflect.AccessibleObject");
+	    Class<?> c = Class.forName("java.lang.reflect.AccessibleObject");
 	    Class[] param = { Boolean.TYPE };
 	    setBypass = c.getMethod("setAccessible", param);
         } catch(Exception ex) {}

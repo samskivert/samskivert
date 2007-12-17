@@ -642,7 +642,7 @@ public class StringUtil
     public static void fieldsToString (
             StringBuilder buf, Object object, String sep)
     {
-        Class clazz = object.getClass();
+        Class<?> clazz = object.getClass();
         Field[] fields = clazz.getFields();
         int written = 0;
 

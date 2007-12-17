@@ -165,10 +165,10 @@ public class ClassUtil
      * @return the nearest method located, or null if there is no such method.
      */
     public static Method getAccessibleMethodFrom (
-        Class clazz, String methodName, Class[] parameterTypes)
+        Class<?> clazz, String methodName, Class[] parameterTypes)
     {
         // Look for overridden method in the superclass.
-        Class superclass = clazz.getSuperclass();
+        Class<?> superclass = clazz.getSuperclass();
         Method overriddenMethod = null;
 
         if (superclass != null && classIsAccessible(superclass)) {
@@ -185,7 +185,7 @@ public class ClassUtil
 
         // If here, then clazz represents Object, or an interface, or the superclass did not have
         // an override.  Check implemented interfaces.
-        Class[] interfaces = clazz.getInterfaces();
+        Class<?>[] interfaces = clazz.getInterfaces();
         for (int i = 0; i < interfaces.length; ++i) {
             overriddenMethod = null;
 

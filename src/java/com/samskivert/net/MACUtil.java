@@ -40,8 +40,7 @@ public class MACUtil
 /**
     public static void main (String[] args)
     {
-        String testOutput =
-            "YOUR TEST STRING GOES HERE";
+        String testOutput = "YOUR TEST STRING GOES HERE";
 
         String[] macs = parseMACs(testOutput);
         for (int ii = 0; ii < macs.length; ii++) {
@@ -51,8 +50,7 @@ public class MACUtil
 */
 
     /**
-     * Get all the MAC addresses of the hardware we are running on that we
-     * can find.
+     * Get all the MAC addresses of the hardware we are running on that we can find.
      */
     public static String[] getMACAddresses ()
     {
@@ -79,8 +77,7 @@ public class MACUtil
             mac = mac.replace(':', '-');
 
             // "Didn't you get that memo?" Apparently some people are not
-            // up on MAC addresses actually being unique, so we will
-            // ignore those.
+            // up on MAC addresses actually being unique, so we will ignore those.
             //
             // 44-45-53-XX-XX-XX - PPP Adaptor
             // 00-53-45-XX-XX-XX - PPP Adaptor
@@ -115,8 +112,8 @@ public class MACUtil
     }
 
     /**
-     * Takes a lists of commands and trys to run each one till one works.
-     * The idea being to beable to 'gracefully' cope with not knowing
+     * Takes a lists of commands and tries to run each one till one works.
+     * The idea being to be able to 'gracefully' cope with not knowing
      * where a command is installed on different installations.
      */
     protected static String tryCommands (String[] cmds)
@@ -138,14 +135,13 @@ public class MACUtil
     }
 
     /**
-     * Run the specificed command and return the output as a string.
+     * Run the specified command and return the output as a string.
      */
     protected static String runCommand (String cmd)
     {
         try {
             Process p = Runtime.getRuntime().exec(cmd);
-            BufferedReader cin = new BufferedReader(
-                new InputStreamReader(p.getInputStream()));
+            BufferedReader cin = new BufferedReader(new InputStreamReader(p.getInputStream()));
             StringBuilder buffer= new StringBuilder();
 
             String line = "";
@@ -158,18 +154,16 @@ public class MACUtil
 
             return buffer.toString();
         } catch (IOException e) {
-            // don't want to log anything for the client to know what we
-            // are doing.  This will almost always be thrown/caught when
-            // the cmd isn't there.
+            // don't want to log anything for the client to know what we are doing.
+            // This will almost always be thrown/caught when the cmd isn't there.
             return null;
         }
     }
 
-    /** Look for 2 hex values in a row followed by a ':' or '-' repeated 5
-        times, followed by 2 hex values. */
+    /** Look for 2 hex values in a row followed by a ':' or '-' repeated 5 times, followed by 2 hex
+     * values. */
     protected static Pattern MACRegex =
-        Pattern.compile("((?:\\p{XDigit}{2}+[:\\-]){5}+\\p{XDigit}{2}+)",
-                        Pattern.CASE_INSENSITIVE);
+        Pattern.compile("((?:\\p{XDigit}{2}+[:\\-]){5}+\\p{XDigit}{2}+)", Pattern.CASE_INSENSITIVE);
 
     // TODO maybe we should obfuscate these with rot13 or something so
     // that people can't run 'strings' on us and instantly see what we try

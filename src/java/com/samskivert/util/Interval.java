@@ -46,16 +46,13 @@ public abstract class Interval
     }
 
     /**
-     * Clears out the {@link Timer} currently being used to schedule intervals. This method is
-     * normally not needed as a single timer thread can be used for the lifetime of the VM, but in
-     * certain situations (in applets) the timer thread will be forcibly killed when the applet is
-     * destroyed but the classes will not be unloaded. In that case, the applet should call this
-     * method in its own destroy method. A new timer thread will then be created the next time an
-     * interval is scheduled.
+     * This may be removed.
+     *
+     * @deprecated
      */
-    public static synchronized void resetTimer ()
+    @Deprecated
+    public static void resetTimer ()
     {
-        _timer = null;
     }
 
     /**
@@ -108,10 +105,29 @@ public abstract class Interval
         TimerTask task = new IntervalTask();
         _task = task;
 
-        if (repeatDelay == 0L) {
-            getTimer().schedule(task, initialDelay);
-        } else {
-            getTimer().scheduleAtFixedRate(task, initialDelay, repeatDelay);
+        // try twice to schedule the task- see comment inside the catch
+        for (int tryCount = 0; tryCount < 2; tryCount++) {
+            try {
+                if (repeatDelay == 0L) {
+                    _timer.schedule(task, initialDelay);
+                } else {
+                    _timer.scheduleAtFixedRate(task, initialDelay, repeatDelay);
+                }
+                return;
+
+            } catch (IllegalStateException ise) {
+                // Timer.schedule will only throw this if the TimerThead was shut down.
+                // This may happen automatically in Applets, so we need to create a new
+                // Timer now. Note that in a multithreaded environment it may be possible
+                // to have more than one Timer, but that shouldn't be an issue.
+                if (tryCount == 0) {
+                    _timer = createTimer();
+
+                } else {
+                    // the second time through? Throw it!
+                    throw ise;
+                }
+            }
         }
     }
 
@@ -156,12 +172,9 @@ public abstract class Interval
         }
     }
 
-    protected static synchronized Timer getTimer ()
+    protected static Timer createTimer ()
     {
-        if (_timer == null) {
-            _timer = new Timer(/*JDK1.5 "samskivert Interval Timer",*/ true);
-        }
-        return _timer;
+        return new Timer(/*JDK1.5 "samskivert Interval Timer",*/ true);
     }
 
     /**
@@ -205,5 +218,5 @@ public abstract class Interval
     protected volatile TimerTask _task;
 
     /** The daemon timer used to schedule all intervals. */
-    protected static Timer _timer;
+    protected static Timer _timer = createTimer();
 }

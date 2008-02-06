@@ -33,6 +33,14 @@ package com.samskivert.util;
 public class ExpiringReference<T>
 {
     /**
+     * Creates an expiring reference with the supplied value and expiration time.
+     */
+    public static <T> ExpiringReference<T> create (T value, long expireMillis)
+    {
+        return new ExpiringReference<T>(value, expireMillis);
+    }
+
+    /**
      * Gets the value from an expiring reference but returns null if the supplied reference
      * reference is null.
      */

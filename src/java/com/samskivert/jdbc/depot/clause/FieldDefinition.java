@@ -22,7 +22,6 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.util.Collection;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
@@ -41,19 +40,16 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 public class FieldDefinition extends QueryClause
 {
     public FieldDefinition (String field, String str)
-        throws PersistenceException
     {
         this(field, new LiteralExp(str));
     }
 
     public FieldDefinition (String field, Class<? extends PersistentRecord> pClass, String pCol)
-        throws PersistenceException
     {
         this(field, new ColumnExp(pClass, pCol));
     }
 
     public FieldDefinition (String field, SQLExpression override)
-        throws PersistenceException
     {
         _field = field;
         _definition = override;

@@ -20,7 +20,6 @@
 
 package com.samskivert.jdbc.depot.clause;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
@@ -37,19 +36,16 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 public class FieldOverride extends FieldDefinition
 {
     public FieldOverride (String field, String str)
-        throws PersistenceException
     {
         super(field, str);
     }
 
     public FieldOverride (String field, Class<? extends PersistentRecord> pClass, String pCol)
-        throws PersistenceException
     {
         super(field, pClass, pCol);
     }
 
     public FieldOverride (String field, SQLExpression override)
-        throws PersistenceException
     {
         super(field, override);
     }

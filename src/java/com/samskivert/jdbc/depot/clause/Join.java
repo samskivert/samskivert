@@ -22,7 +22,6 @@ package com.samskivert.jdbc.depot.clause;
 
 import java.util.Collection;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
@@ -39,14 +38,12 @@ public class Join extends QueryClause
 
     public Join (Class<? extends PersistentRecord> pClass, String pCol,
                  Class<? extends PersistentRecord> joinClass, String jCol)
-        throws PersistenceException
     {
         _joinClass = joinClass;
         _joinCondition = new Equals(new ColumnExp(joinClass, jCol), new ColumnExp(pClass, pCol));
     }
 
     public Join (ColumnExp primary, ColumnExp join)
-        throws PersistenceException
     {
         _joinClass = join.getPersistentClass();
         _joinCondition = new Equals(primary, join);

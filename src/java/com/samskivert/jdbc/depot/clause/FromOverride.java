@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 
@@ -34,21 +33,18 @@ import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 public class FromOverride extends QueryClause
 {
     public FromOverride (Class<? extends PersistentRecord> fromClass)
-        throws PersistenceException
     {
         _fromClasses.add(fromClass);
     }
 
     public FromOverride (Class<? extends PersistentRecord> fromClass1,
                          Class<? extends PersistentRecord> fromClass2)
-        throws PersistenceException
     {
         _fromClasses.add(fromClass1);
         _fromClasses.add(fromClass2);
     }
 
     public FromOverride (Collection<Class<? extends PersistentRecord>> fromClasses)
-        throws PersistenceException
     {
         _fromClasses.addAll(fromClasses);
     }

@@ -93,6 +93,26 @@ public abstract class Conditionals
         }
     }
 
+    /** The SQL '!=' operator. */
+    public static class NotEquals extends SQLOperator.BinaryOperator
+    {
+        public NotEquals (SQLExpression column, Comparable value)
+        {
+            super(column, value);
+        }
+
+        public NotEquals (SQLExpression column, SQLExpression value)
+        {
+            super(column, value);
+        }
+
+        @Override
+        public String operator()
+        {
+            return "!=";
+        }
+    }
+
     /** The SQL '<' operator. */
     public static class LessThan extends SQLOperator.BinaryOperator
     {

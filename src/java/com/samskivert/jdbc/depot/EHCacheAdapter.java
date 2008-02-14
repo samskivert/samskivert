@@ -106,25 +106,26 @@ public class EHCacheAdapter
 
         protected EHCacheBin (String id)
         {
-            _cache = _cachemgr.getCache(id);
-            if (_cache == null) {
-                // create the cache programatically with reasonable settings
-                // TODO: we will eventually need this to be configurable in .properties
+            synchronized (_cachemgr) {
+                _cache = _cachemgr.getCache(id);
+                if (_cache == null) {
+                    // create the cache programatically with reasonable settings
+                    // TODO: we will eventually need this to be configurable in .properties
+                    _cache = new Cache(id,
+                                       5000,   // keep 5000 elements in RAM
+                                       true,   // overflow the rest to disk
+                                       false,  // don't keep records around eternally
+                                       600,    // keep them for 10 minutes after they're created
+                                       60);    // or 1 minute after last access
 
-                _cache = new Cache(id,
-                    5000,       // keep 5000 elements in RAM
-                    true,       // overflow the rest to disk
-                    false,      // don't keep records around eternally
-                    600,        // but do keep them for 10 minutes after they're created
-                    60);        // or 1 minute after last access
-
-                if (_distributed) {
-                    // a programatically created cache has to have its replicator event listener
-                    // programatically added.
-                    _cache.getCacheEventNotificationService().registerListener(
-                        new RMIAsynchronousCacheReplicator(true, true, true, true, 1000));
+                    if (_distributed) {
+                        // a programatically created cache has to have its replicator event
+                        // listener programatically added.
+                        _cache.getCacheEventNotificationService().registerListener(
+                            new RMIAsynchronousCacheReplicator(true, true, true, true, 1000));
+                    }
+                    _cachemgr.addCache(_cache);
                 }
-                _cachemgr.addCache(_cache);
             }
         }
 

@@ -811,12 +811,17 @@ public class StringUtil
      */
     public static String md5hex (String source)
     {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            return hexlate(digest.digest(source.getBytes()));
-        } catch (NoSuchAlgorithmException nsae) {
-            throw new RuntimeException("MD5 codec not available");
-        }
+        return digest("MD5", source);
+    }
+
+    /**
+     * Returns a hex string representing the SHA-1 encoded source.
+     *
+     * @exception RuntimeException thrown if the SHA-1 codec was not available in this JVM.
+     */
+    public static String sha1hex (String source)
+    {
+        return digest("SHA-1", source);
     }
 
     /**
@@ -1060,23 +1065,6 @@ public class StringUtil
     }
 
     /**
-     * Helper function for the various <code>join</code> methods.
-     */
-    protected static String join (Object[] values, String separator, boolean escape)
-    {
-        StringBuilder buf = new StringBuilder();
-        int vlength = values.length;
-        for (int i = 0; i < vlength; i++) {
-            if (i > 0) {
-                buf.append(separator);
-            }
-            String value = (values[i] == null) ? "" : values[i].toString();
-            buf.append((escape) ? replace(value, ",", ",,") : value);
-        }
-        return buf.toString();
-    }
-
-    /**
      * Joins an array of strings into a single string, separated by commas, and escaping commas
      * that occur in the individual string values such that a subsequent call to {@link
      * #parseStringArray} would recreate the string array properly. Any elements in the values
@@ -1305,6 +1293,36 @@ public class StringUtil
             code <<= 4;
         }
         return code;
+    }
+
+    /**
+     * Helper function for the various <code>join</code> methods.
+     */
+    protected static String join (Object[] values, String separator, boolean escape)
+    {
+        StringBuilder buf = new StringBuilder();
+        int vlength = values.length;
+        for (int i = 0; i < vlength; i++) {
+            if (i > 0) {
+                buf.append(separator);
+            }
+            String value = (values[i] == null) ? "" : values[i].toString();
+            buf.append((escape) ? replace(value, ",", ",,") : value);
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Helper function for {@link #md5hex} and {@link #sha1hex}.
+     */
+    protected static String digest (String codec, String source)
+    {
+        try {
+            MessageDigest digest = MessageDigest.getInstance(codec);
+            return hexlate(digest.digest(source.getBytes()));
+        } catch (NoSuchAlgorithmException nsae) {
+            throw new RuntimeException(codec + " codec not available");
+        }
     }
 
     /** Used to easily format floats with sensible defaults. */

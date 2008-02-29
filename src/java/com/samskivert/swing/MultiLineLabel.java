@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -29,6 +29,8 @@ import java.awt.RenderingHints;
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+
+import com.samskivert.swing.util.SwingUtil;
 
 /**
  * A Swing component that displays a {@link Label}.
@@ -248,7 +250,14 @@ public class MultiLineLabel extends JComponent
         }
 
         // draw the label
+        Object oalias = null;
+        if (_antialiased) {
+            oalias = SwingUtil.activateAntiAliasing(gfx);
+        }
         _label.render(gfx, dx, dy);
+        if (_antialiased) {
+            SwingUtil.restoreAntiAliasing(gfx, oalias);
+        }
     }
 
     // documentation inherited

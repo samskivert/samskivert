@@ -89,6 +89,7 @@ public class Join extends QueryClause
     public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
         classSet.add(_joinClass);
+        _joinCondition.addClasses(classSet);
     }
 
     /** Indicates the type of join to be performed. */

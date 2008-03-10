@@ -418,6 +418,9 @@ public abstract class BuildVisitor implements ExpressionVisitor
     public void visit (UpdateClause<? extends PersistentRecord> updateClause)
         throws Exception
     {
+        if (updateClause.getWhereClause() == null) {
+            throw new SQLException("I dare not currently perform UPDATE without a WHERE clause.");
+        }
         Class<? extends PersistentRecord> pClass = updateClause.getPersistentClass();
         _innerClause = true;
 

@@ -572,26 +572,30 @@ public abstract class DepotRepository
         final UpdateClause<T> update =
             new UpdateClause<T>(pClass, key, marsh._columnFields, record);
         final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, update));
-        builder.newQuery(update);
+
+        // if our primary key isn't null, we start by trying to update rather than insert
+        if (key != null) {
+            builder.newQuery(update);
+        }
 
         final boolean[] created = new boolean[1];
         _ctx.invoke(new CachingModifier<T>(record, key, key) {
             public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
-                    // if our primary key isn't null, update rather than insert the record before
-                    // been persisted and insert
                     if (_key != null) {
+                        // run the update
                         stmt = builder.prepare(conn);
                         int mods = stmt.executeUpdate();
                         if (mods > 0) {
+                            // if it succeeded, we're done
                             return mods;
                         }
                         JDBCUtil.close(stmt);
                     }
 
                     // if the update modified zero rows or the primary key was obviously unset, do
-                    // an insertion: first,  set any auto-generated column values
+                    // an insertion: first, set any auto-generated column values
                     Set<String> identityFields =
                         marsh.generateFieldValues(conn, liaison, _result, false);
 

@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -54,7 +54,7 @@ public class FieldMask
     {
         // create a mapping from field name to descriptor index
         _descripMap = new HashMap<String,Integer>();
-        int dcount = descrips.length;
+        int dcount = (descrips == null ? 0 : descrips.length);
         for (int i = 0; i < dcount; i++) {
             _descripMap.put(descrips[i].field.getName(), Integer.valueOf(i));
         }

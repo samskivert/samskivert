@@ -28,9 +28,8 @@ import java.util.Random;
 import com.samskivert.Log;
 
 /**
- * Provides miscellaneous utility routines to simplify obtaining useful random
- * number values and to centralize seeding and proper care and feeding of the
- * pseudo-random number generator.
+ * Provides miscellaneous utility routines to simplify obtaining useful random number values and to
+ * centralize seeding and proper care and feeding of the pseudo-random number generator.
  */
 public class RandomUtil
 {
@@ -38,8 +37,8 @@ public class RandomUtil
     public static final Random rand = new Random();
 
     /**
-     * Returns a pseudorandom, uniformly distributed <code>int</code>
-     * value between 0 (inclusive) and the specified value (exclusive).
+     * Returns a pseudorandom, uniformly distributed <code>int</code> value between 0 (inclusive)
+     * and the specified value (exclusive).
      *
      * @param high the high value limiting the random number sought.
      */
@@ -49,21 +48,20 @@ public class RandomUtil
     }
 
     /**
-     * Returns a pseudorandom, uniformly distributed <code>int</code>
-     * value between <code>high</code> and <code>low</code>, exclusive of each.
+     * Returns a pseudorandom, uniformly distributed <code>int</code> value between
+     * <code>high</code> and <code>low</code>, exclusive of each.
      */
     public static int getInt (int high, int low)
     {
         if (high - low - 1 <= 0) {
-            throw new IllegalArgumentException(
-                "Invalid range [high=" + high + ", low=" + low + "]");
+            throw new IllegalArgumentException("Invalid range [high=" + high + ", low=" + low + "]");
         }
         return low + 1 + rand.nextInt(high - low - 1);
     }
 
     /**
-     * Returns a pseudorandom, uniformly distributed float value between
-     * 0.0 (inclusive) and the specified value (exclusive).
+     * Returns a pseudorandom, uniformly distributed float value between 0.0 (inclusive) and the
+     * specified value (exclusive).
      *
      * @param high the high value limiting the random number sought.
      */
@@ -73,26 +71,26 @@ public class RandomUtil
     }
 
     /**
-     * Returns a pseudorandom, uniformly distributed float value between
-     * 0.0 (inclusive) and the specified value (exclusive).
+     * Returns a pseudorandom, uniformly distributed float value between 0.0 (inclusive) and the
+     * specified value (exclusive).
      *
      * @param high the high value limiting the random number sought.
      * @param r the random number generator to use
      */
     public static float getFloat (float high, Random r)
     {
-         return r.nextFloat() * high;
-     }
+        return r.nextFloat() * high;
+    }
 
     /**
-     * Pick a random index from the array, weighted by the value of the
-     * corresponding array element.
+     * Pick a random index from the array, weighted by the value of the corresponding array
+     * element.
      *
      * @param weights an array of non-negative integers.
-     * @return an index into the array, or -1 if the sum of the weights
-     * is less than 1. 
      *
-     * For example, passing in {1, 0, 3, 4} will return
+     * @return an index into the array, or -1 if the sum of the weights is less than 1.  For
+     * example, passing in {1, 0, 3, 4} will return:
+     *
      * <table><tr><td>0</td><td>1/8th of the time</td></tr>
      * <tr><td>1</td><td>never</td></tr>
      * <tr><td>2</td><td>3/8th of the time</td></tr>
@@ -111,21 +109,20 @@ public class RandomUtil
                 return ii;
             }
         }
-
-        // Impossible!
-        Log.logStackTrace(new Throwable());
+        Log.logStackTrace(new Throwable()); // Impossible!
         return 0;
     }
 
     /**
-     * Pick a random index from the array, weighted by the value of the
-     * corresponding array element.
+     * Pick a random index from the array, weighted by the value of the corresponding array
+     * element.
      *
      * @param weights an array of non-negative floats.
-     * @return an index into the array, or -1 if the sum of the weights
-     * is less than or equal to 0.0 or any individual element is negative. 
      *
-     * For example, passing in {0.2, 0.0, 0.6, 0.8} will return
+     * @return an index into the array, or -1 if the sum of the weights is less than or equal to
+     * 0.0 or any individual element is negative.  For example, passing in {0.2, 0.0, 0.6, 0.8}
+     * will return:
+     *
      * <table><tr><td>0</td><td>1/8th of the time</td></tr>
      * <tr><td>1</td><td>never</td></tr>
      * <tr><td>2</td><td>3/8th of the time</td></tr>
@@ -137,14 +134,15 @@ public class RandomUtil
     }
 
     /**
-     * Pick a random index from the array, weighted by the value of the
-     * corresponding array element.
+     * Pick a random index from the array, weighted by the value of the corresponding array
+     * element.
      *
      * @param weights an array of non-negative floats.
-     * @return an index into the array, or -1 if the sum of the weights
-     * is less than or equal to 0.0 or any individual element is negative. 
      *
-     * For example, passing in {0.2, 0.0, 0.6, 0.8} will return
+     * @return an index into the array, or -1 if the sum of the weights is less than or equal to
+     * 0.0 or any individual element is negative.  For example, passing in {0.2, 0.0, 0.6, 0.8}
+     * will return:
+     *
      * <table><tr><td>0</td><td>1/8th of the time</td></tr>
      * <tr><td>1</td><td>never</td></tr>
      * <tr><td>2</td><td>3/8th of the time</td></tr>
@@ -171,17 +169,15 @@ public class RandomUtil
             }
         }
 
-        // Impossible!
-        Log.logStackTrace(new Throwable());
+        Log.logStackTrace(new Throwable()); // Impossible!
         return 0;
     }
 
     /**
-     * Picks a random object from the supplied array of values. Even
-     * weight is given to all elements of the array.
+     * Picks a random object from the supplied array of values. Even weight is given to all
+     * elements of the array.
      *
-     * @return a randomly selected item or null if the array is null or of
-     * length zero.
+     * @return a randomly selected item or null if the array is null or of length zero.
      */
     public static <T> T pickRandom (T[] values)
     {
@@ -190,15 +186,13 @@ public class RandomUtil
     }
 
     /**
-     * Picks a random object from the supplied array of values, not
-     * including the specified skip object as a possible selection
-     * (equality with the skipped object is referential rather than via
-     * {@link Object#equals}). The element to be skipped must exist in the
-     * array exactly once. Even weight is given to all elements of the
-     * array except the skipped element.
+     * Picks a random object from the supplied array of values, not including the specified skip
+     * object as a possible selection (equality with the skipped object is referential rather than
+     * via {@link Object#equals}). The element to be skipped must exist in the array exactly
+     * once. Even weight is given to all elements of the array except the skipped element.
      *
-     * @return a randomly selected item or null if the array is null, of
-     * length zero or contains only the skip item.
+     * @return a randomly selected item or null if the array is null, of length zero or contains
+     * only the skip item.
      */
     public static <T> T pickRandom (T[] values, T skip)
     {
@@ -238,9 +232,8 @@ public class RandomUtil
     }
 
     /**
-     * Picks a random object from the supplied List. The specified skip
-     * object will be skipped when selecting a random value. The skipped
-     * object must exist exactly once in the List.
+     * Picks a random object from the supplied List. The specified skip object will be skipped when
+     * selecting a random value. The skipped object must exist exactly once in the List.
      *
      * @return a randomly selected item.
      */
@@ -250,9 +243,8 @@ public class RandomUtil
     }
 
     /**
-     * Picks a random object from the supplied List. The specified skip
-     * object will be skipped when selecting a random value. The skipped
-     * object must exist exactly once in the List.
+     * Picks a random object from the supplied List. The specified skip object will be skipped when
+     * selecting a random value. The skipped object must exist exactly once in the List.
      *
      * @return a randomly selected item.
      */
@@ -275,13 +267,13 @@ public class RandomUtil
     }
 
     /**
-     * Picks a random object from the supplied iterator (which must
-     * iterate over exactly <code>count</code> objects.
+     * Picks a random object from the supplied iterator (which must iterate over exactly
+     * <code>count</code> objects.
      *
      * @return a randomly selected item.
      *
-     * @exception NoSuchElementException thrown if the iterator provides
-     * fewer than <code>count</code> elements.
+     * @exception NoSuchElementException thrown if the iterator provides fewer than
+     * <code>count</code> elements.
      */
     public static <T> T pickRandom (Iterator<T> iter, int count)
     {
@@ -298,16 +290,15 @@ public class RandomUtil
     }
 
     /**
-     * Picks a random object from the supplied iterator (which must
-     * iterate over exactly <code>count</code> objects. The specified skip
-     * object will be skipped when selecting a random value. The skipped
-     * object must exist exactly once in the set of objects returned by
+     * Picks a random object from the supplied iterator (which must iterate over exactly
+     * <code>count</code> objects. The specified skip object will be skipped when selecting a
+     * random value. The skipped object must exist exactly once in the set of objects returned by
      * the iterator.
      *
      * @return a randomly selected item.
      *
-     * @exception NoSuchElementException thrown if the iterator provides
-     * fewer than <code>count</code> elements.
+     * @exception NoSuchElementException thrown if the iterator provides fewer than
+     * <code>count</code> elements.
      */
     public static <T> T pickRandom (Iterator<T> iter, int count, T skip)
     {

@@ -54,6 +54,7 @@ public class ProcessLogger
         public StreamReader (Logger target, String name, InputStream input)
         {
             setDaemon(true);
+            _target = target;
             _name = name;
             _reader = new BufferedReader(new InputStreamReader(input));
         }

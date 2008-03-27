@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -121,9 +121,36 @@ public class PropertiesUtil
                 return source.getProperty(dprefix + key,
                     source.getProperty(key, defaultValue));
             }
+            public Enumeration propertyNames () {
+                return new Enumeration() {
+                    public boolean hasMoreElements () {
+                        return next != null;
+                    }
+                    public Object nextElement () {
+                        Object onext = next;
+                        next = findNext();
+                        return onext;
+                    }
+                    protected Object findNext () {
+                        while (senum.hasMoreElements()) {
+                            String name = (String)senum.nextElement();
+                            if (!name.startsWith(dprefix)) {
+                                return name;
+                            }
+                            name = name.substring(dprefix.length());
+                            if (!source.containsKey(name)) {
+                                return name;
+                            }
+                        }
+                        return null;
+                    }
+                    protected Enumeration senum = source.propertyNames();
+                    protected Object next = findNext();
+                };
+            }
         };
     }
-    
+
     /**
      * A helper function used by the {@link #getSubProperties} methods.
      */

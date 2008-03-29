@@ -331,8 +331,7 @@ public abstract class DepotRepository
         Class<T> type, Comparable primaryKey, Object... fieldsValues)
         throws PersistenceException
     {
-        Key<T> key = _ctx.getMarshaller(type).makePrimaryKey(primaryKey);
-        return updatePartial(type, key, key, fieldsValues);
+        return updatePartial(_ctx.getMarshaller(type).makePrimaryKey(primaryKey), fieldsValues);
     }
 
     /**
@@ -351,8 +350,7 @@ public abstract class DepotRepository
         Object... fieldsValues)
         throws PersistenceException
     {
-        Key<T> key = new Key<T>(type, ix1, val1, ix2, val2);
-        return updatePartial(type, key, key, fieldsValues);
+        return updatePartial(new Key<T>(type, ix1, val1, ix2, val2), fieldsValues);
     }
 
     /**
@@ -371,8 +369,22 @@ public abstract class DepotRepository
         String ix3, Comparable val3, Object... fieldsValues)
         throws PersistenceException
     {
-        Key<T> key = new Key<T>(type, ix1, val1, ix2, val2, ix3, val3);
-        return updatePartial(type, key, key, fieldsValues);
+        return updatePartial(new Key<T>(type, ix1, val1, ix2, val2, ix3, val3), fieldsValues);
+    }
+
+    /**
+     * Updates the specified columns for all persistent objects matching the supplied key.
+     *
+     * @param key the key for the persistent objects to be modified.
+     * @param fieldsValues an array containing the names of the fields/columns and the values to be
+     * assigned, in key, value, key, value, etc. order.
+     *
+     * @return the number of rows modified by this action.
+     */
+    protected <T extends PersistentRecord> int updatePartial (Key<T> key, Object... fieldsValues)
+        throws PersistenceException
+    {
+        return updatePartial(key.condition.getPersistentClass(), key, key, fieldsValues);
     }
 
     /**

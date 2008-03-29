@@ -351,26 +351,29 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         try {
             Comparable[] values = new Comparable[_pkColumns.size()];
-            boolean hasNulls = false;
+            int nulls = 0;
             for (int ii = 0; ii < _pkColumns.size(); ii++) {
                 FieldMarshaller field = _pkColumns.get(ii);
-                values[ii] = (Comparable) field.getField().get(object);
-                if (values[ii] == null || Integer.valueOf(0).equals(values[ii])) {
-                    // if this is the first null we see but not the first field, freak out
-                    if (!hasNulls && ii > 0) {
-                        throw new IllegalArgumentException(
-                            "Persistent object's primary key fields are mixed null and non-null.");
-                    }
-                    hasNulls = true;
-                } else if (hasNulls) {
-                    // if this is a non-null field and we've previously seen nulls, also freak
-                    throw new IllegalArgumentException(
-                        "Persistent object's primary key fields are mixed null and non-null.");
+                if ((values[ii] = (Comparable)field.getField().get(object)) == null) {
+                    nulls++;
                 }
             }
 
-            // if all the fields were null, return null, else build a key
-            return hasNulls ? null : makePrimaryKey(values);
+            // make sure the keys are all null or all non-null
+            if (nulls == 0) {
+                return makePrimaryKey(values);
+            } else if (nulls == values.length) {
+                return null;
+            }
+
+            // throw an informative error message
+            StringBuilder keys = new StringBuilder();
+            for (int ii = 0; ii < _pkColumns.size(); ii++) {
+                keys.append(", ").append(_pkColumns.get(ii).getField().getName());
+                keys.append("=").append(values[ii]);
+            }
+            throw new IllegalArgumentException("Primary key fields are mixed null and non-null " +
+                                               "[class=" + _pClass.getName() + keys + "].");
 
         } catch (IllegalAccessException iae) {
             throw new RuntimeException(iae);

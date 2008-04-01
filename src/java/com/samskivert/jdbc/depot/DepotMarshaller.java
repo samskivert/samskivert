@@ -44,7 +44,6 @@ import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.annotation.Id;
 import com.samskivert.jdbc.depot.annotation.Index;
-import com.samskivert.jdbc.depot.annotation.Table;
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
 import com.samskivert.jdbc.depot.annotation.Transient;
 import com.samskivert.jdbc.depot.annotation.UniqueConstraint;
@@ -183,12 +182,12 @@ public class DepotMarshaller<T extends PersistentRecord>
         // generate our full list of fields/columns for use in queries
         _allFields = fields.toArray(new String[fields.size()]);
 
-        // now check for @Entity and @Table annotations on the entire superclass chain
+        // now check for @Entity annotations on the entire superclass chain
         Class<?> iterClass = pClass;
         do {
-            Table table = iterClass.getAnnotation(Table.class);
-            if (table != null) {
-                for (UniqueConstraint constraint : table.uniqueConstraints()) {
+            entity = iterClass.getAnnotation(Entity.class);
+            if (entity != null) {
+                for (UniqueConstraint constraint : entity.uniqueConstraints()) {
                     String[] conFields = constraint.fieldNames();
                     Set<String> colSet = new HashSet<String>();
                     for (int ii = 0; ii < conFields.length; ii ++) {
@@ -202,22 +201,19 @@ public class DepotMarshaller<T extends PersistentRecord>
                     _uniqueConstraints.add(colSet);
                 }
 
-                // if there are FTS indexes in the Table, map those out here for future use
-                for (FullTextIndex fti : table.fullTextIndexes()) {
-                    if (_fullTextIndexes.containsKey(fti.name())) {
-                        continue;
-                    }
-                    _fullTextIndexes.put(fti.name(), fti);
-                }
-            }
-
-            entity = iterClass.getAnnotation(Entity.class);
-            if (entity != null) {
                 for (Index index : entity.indices()) {
                     if (_indexes.containsKey(index.name())) {
                         continue;
                     }
                     _indexes.put(index.name(), index);
+                }
+
+                // if there are FTS indexes in the Table, map those out here for future use
+                for (FullTextIndex fti : entity.fullTextIndexes()) {
+                    if (_fullTextIndexes.containsKey(fti.name())) {
+                        continue;
+                    }
+                    _fullTextIndexes.put(fti.name(), fti);
                 }
             }
 

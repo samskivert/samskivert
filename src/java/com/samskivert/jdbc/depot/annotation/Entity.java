@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -35,6 +35,14 @@ public @interface Entity
     /** The name of an entity. Defaults to the unqualified name of the entity class. */
     String name () default "";
 
-    /** Defines indices to add to this entity's table. */
+    /** Unique constraints that are to be placed on this entity's table. These constraints apply in
+     * addition to any constraints specified by the Column annotation and constraints entailed by
+     * primary key mappings. Defaults to no additional constraints. */
+    UniqueConstraint[] uniqueConstraints () default {};
+
+    /** Indices to add to this entity's table. */
     Index[] indices () default {};
+
+    /** Full-text search indexes defined on this entity, if any. Defaults to none. */
+    FullTextIndex[] fullTextIndexes () default {};
 }

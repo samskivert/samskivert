@@ -756,7 +756,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             });
         }
 
-        // now check if there are any @Table(uniqueConstraints) that need to be created
+        // now check if there are any @Entity(uniqueConstraints) that need to be created
         Set<Set<String>> uniqueIndices = new HashSet<Set<String>>(metaData.indexColumns.values());
 
         // unique constraints are unordered and may be unnamed, so we view them only as column sets
@@ -989,7 +989,7 @@ public class DepotMarshaller<T extends PersistentRecord>
     /** The indexes defined in @Entity annotations for this record. */
     protected Map<String, Index> _indexes = new HashMap<String, Index>();
 
-    /** The unique constraints defined in @Table annotations for this record. */
+    /** The unique constraints defined in @Entity annotations for this record. */
     protected Set<Set<String>> _uniqueConstraints = new HashSet<Set<String>>();
 
     protected Map<String, FullTextIndex> _fullTextIndexes = new HashMap<String, FullTextIndex>();

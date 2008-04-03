@@ -43,11 +43,6 @@ public class AttachableURLFactory implements URLStreamHandlerFactory
     public static void attachHandler (
         String protocol, Class<? extends URLStreamHandler> handlerClass)
     {
-        if (!URLStreamHandler.class.isAssignableFrom(handlerClass)) {
-            throw new IllegalArgumentException(
-                "Specified class is not a java.net.URLStreamHandler.");
-        }
-
         // set up the factory.
         if (_handlers == null) {
             _handlers = new HashMap<String,Class<? extends URLStreamHandler>>();
@@ -92,8 +87,7 @@ public class AttachableURLFactory implements URLStreamHandlerFactory
     // documentation inherited from interface URLStreamHandlerFactory
     public URLStreamHandler createURLStreamHandler (String protocol)
     {
-        Class<? extends URLStreamHandler> handler =
-            _handlers.get(protocol.toLowerCase());
+        Class<? extends URLStreamHandler> handler = _handlers.get(protocol.toLowerCase());
         if (handler != null) {
             try {
                 return handler.newInstance();
@@ -106,6 +100,5 @@ public class AttachableURLFactory implements URLStreamHandlerFactory
     }
 
     /** A mapping of protocol name to handler classes. */
-    protected static HashMap<String,Class<? extends URLStreamHandler>>
-        _handlers;
+    protected static HashMap<String,Class<? extends URLStreamHandler>> _handlers;
 }

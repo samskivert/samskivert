@@ -136,6 +136,9 @@ public class Invoker extends LoopingThread
      */
     public void postUnit (Unit unit)
     {
+        if (!isRunning()) {
+            throw new IllegalStateException("Invoker has been shutdown");
+        }
         // note the time
         unit.queueStamp = System.currentTimeMillis();
         // and append it to the queue

@@ -348,6 +348,10 @@ public class MultiLineLabel extends JComponent
     // documentation inherited
     public Dimension getPreferredSize ()
     {
+        if (isPreferredSizeSet()) {
+            return super.getPreferredSize();
+        }
+
         if (_dirty) {
             // attempt to lay out the label before obtaining its preferred
             // dimensions

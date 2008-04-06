@@ -26,8 +26,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
 
@@ -82,7 +84,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
         {
             Map<Key<T>, T> entities = new HashMap<Key<T>, T>();
             List<Key<T>> allKeys = new ArrayList<Key<T>>();
-            List<Key<T>> fetchKeys = new ArrayList<Key<T>>();
+            Set<Key<T>> fetchKeys = new HashSet<Key<T>>();
 
             _builder.newQuery(new SelectClause<T>(_type, _marsh.getPrimaryKeyFields(), _clauses));
             PreparedStatement stmt = _builder.prepare(conn);
@@ -116,16 +118,18 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 if (_marsh.getPrimaryKeyFields().length == 1) {
                     // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
                     Comparable[] keyFieldValues = new Comparable[fetchKeys.size()];
-                    for (int ii = 0; ii < keyFieldValues.length; ii ++) {
-                        keyFieldValues[ii] = fetchKeys.get(ii).condition.getValues().get(0);
+                    int ii = 0;
+                    for (Key<T> key : fetchKeys) {
+                        keyFieldValues[ii ++] = key.condition.getValues().get(0);
                     }
                     condition = new In(_type, _marsh.getPrimaryKeyFields()[0], keyFieldValues);
 
                 } else {
                     // Multi-column keys result in OR'd AND's, of unknown efficiency (TODO check).
                     SQLExpression[] keyArray = new SQLExpression[fetchKeys.size()];
-                    for (int ii = 0; ii < keyArray.length; ii ++) {
-                        keyArray[ii] = fetchKeys.get(ii).condition;
+                    int ii = 0;
+                    for (Key<T> key : fetchKeys) {
+                        keyArray[ii ++] = key.condition;
                     }
                     condition = new Or(keyArray);
                 }

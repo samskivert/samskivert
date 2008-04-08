@@ -35,6 +35,14 @@ public class Tuple<L,R> implements Serializable
     /** The right object. */
     public R right;
 
+    /**
+     * Creates a tuple with the specified two objects.
+     */
+    public static <L, R> Tuple<L, R> create (L left, R right)
+    {
+        return new Tuple<L, R>(left, right);
+    }
+
     /** Construct a tuple with the specified two objects. */
     public Tuple (L left, R right)
     {

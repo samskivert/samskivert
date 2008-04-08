@@ -22,8 +22,9 @@ package com.samskivert.util;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * An interface for doing operations after some delay. Allows expiration to occur on a specific
@@ -154,8 +155,7 @@ public abstract class Interval
             try {
                 expired();
             } catch (Throwable t) {
-                Log.warning("Interval broken in expired(): " + t);
-                Log.logStackTrace(t);
+                log.log(Level.WARNING, "Interval broken in expired() " + this, t);
             }
 
         } else {
@@ -203,7 +203,12 @@ public abstract class Interval
                         }
                     };
                 }
-                _runQueue.postRunnable(_runner);
+                try {
+                    _runQueue.postRunnable(_runner);
+                } catch (Exception e) {
+                    log.log(Level.WARNING, "Failed to execute interval on run-queue " +
+                            "[queue=" + _runQueue + ", interval=" + Interval.this + "].", e);
+                }
             }
         }
 

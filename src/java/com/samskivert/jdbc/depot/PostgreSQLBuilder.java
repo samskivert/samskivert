@@ -126,7 +126,7 @@ public class PostgreSQLBuilder
         Class<T> pClass = marshaller.getPersistentClass();
         DatabaseLiaison liaison = LiaisonRegistry.getLiaison(conn);
 
-        String[] fields = fts.fieldNames();
+        String[] fields = fts.fields();
 
         String table = marshaller.getTableName();
         String column = "ftsCol_" + fts.name();

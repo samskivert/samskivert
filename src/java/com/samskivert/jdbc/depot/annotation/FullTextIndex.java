@@ -40,5 +40,5 @@ public @interface FullTextIndex
     /**
      * An array of the field names that should be indexed.
      */
-    public String[] fieldNames (); 
+    public String[] fields (); 
 }

@@ -61,7 +61,7 @@ public class MySQLBuilder
             _builder.append("match(");
             Class<? extends PersistentRecord> pClass = match.getPersistentRecord();
             String[] fields =
-                _types.getMarshaller(pClass).getFullTextIndex(match.getName()).fieldNames();
+                _types.getMarshaller(pClass).getFullTextIndex(match.getName()).fields();
             for (int ii = 0; ii < fields.length; ii ++) {
                 if (ii > 0) {
                     _builder.append(", ");
@@ -150,7 +150,7 @@ public class MySQLBuilder
         StringBuilder update = new StringBuilder("ALTER TABLE ").
             append(marshaller.getTableName()).append(" ADD FULLTEXT INDEX ftsIx_").
             append(fts.name()).append(" (");
-        String[] fields = fts.fieldNames();
+        String[] fields = fts.fields();
         for (int ii = 0; ii < fields.length; ii ++) {
             if (ii > 0) {
                 update.append(", ");

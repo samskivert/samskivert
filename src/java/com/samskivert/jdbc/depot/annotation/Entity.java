@@ -44,5 +44,5 @@ public @interface Entity
     Index[] indices () default {};
 
     /** Full-text search indexes defined on this entity, if any. Defaults to none. */
-    FullTextIndex[] fullTextIndexes () default {};
+    FullTextIndex[] fullTextIndices () default {};
 }

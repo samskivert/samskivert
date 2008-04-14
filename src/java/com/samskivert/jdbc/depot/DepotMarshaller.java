@@ -209,7 +209,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                 }
 
                 // if there are FTS indexes in the Table, map those out here for future use
-                for (FullTextIndex fti : entity.fullTextIndexes()) {
+                for (FullTextIndex fti : entity.fullTextIndices()) {
                     if (_fullTextIndexes.containsKey(fti.name())) {
                         continue;
                     }

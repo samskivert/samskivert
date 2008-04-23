@@ -32,6 +32,8 @@ import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.SelectClause;
 
+import static com.samskivert.jdbc.depot.Log.log;
+
 /**
  * The implementation of {@link DepotRepository#find) functionality.
  */
@@ -66,6 +68,10 @@ public class FindOneQuery<T extends PersistentRecord>
     {
         PreparedStatement stmt = _builder.prepare(conn);
         try {
+            if (PersistenceContext.DEBUG) {
+                log.info("KEY QUERY: " + stmt);
+            }
+
             T result = null;
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

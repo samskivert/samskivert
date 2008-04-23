@@ -49,6 +49,9 @@ import static com.samskivert.jdbc.depot.Log.log;
  */
 public class PersistenceContext
 {
+    /** Allow toggling of query logging and other debug output via a system property. */
+    public static final boolean DEBUG = Boolean.getBoolean("com.samskivert.jdbc.depot.debug");
+
     /** Map {@link TableGenerator} instances by name. */
     public HashMap<String, TableGenerator> tableGenerators = new HashMap<String, TableGenerator>();
 

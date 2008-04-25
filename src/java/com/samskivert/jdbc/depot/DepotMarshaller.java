@@ -702,8 +702,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             // TIMESTAMP columns a value of "0000-00-00 00:00:00" regardless of whether we
             // explicitly provide a "DEFAULT" value for the column or not, and DATETIME columns
             // cannot accept CURRENT_TIME or NOW() defaults at all.
-            if (coldef.getType().equalsIgnoreCase("timestamp") ||
-                coldef.getType().equalsIgnoreCase("datetime")) {
+            if (!coldef.isNullable() && (coldef.getType().equalsIgnoreCase("timestamp") ||
+                                         coldef.getType().equalsIgnoreCase("datetime"))) {
                 log.info("Assigning current time to " + fmarsh.getColumnName() + ".");
                 ctx.invoke(new Modifier.Simple() {
                     protected String createQuery (DatabaseLiaison liaison) {

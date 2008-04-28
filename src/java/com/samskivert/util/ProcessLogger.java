@@ -49,6 +49,18 @@ public class ProcessLogger
         new StreamReader(target, name + " stderr", process.getErrorStream()).start();
     }
 
+    /**
+     * Starts a thread to copy the output of the supplied process's stdout stream to the supplied
+     * target logger (it assumes the process was created with a ProcessBuilder and the stdout and
+     * stderr streams have been merged).
+     *
+     * @see #copyOutput
+     */
+    public static void copyMergedOutput (Logger target, String name, Process process)
+    {
+        new StreamReader(target, name + " output", process.getInputStream()).start();
+    }
+
     protected static class StreamReader extends Thread
     {
         public StreamReader (Logger target, String name, InputStream input)

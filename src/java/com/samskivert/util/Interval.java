@@ -61,7 +61,7 @@ public abstract class Interval
      */
     public Interval ()
     {
-        this(null);
+        // _runQueue stays null
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class Interval
     public final void schedule (long initialDelay, long repeatDelay)
     {
         cancel();
-        TimerTask task = new IntervalTask();
+        IntervalTask task = new IntervalTask(this);
         _task = task;
 
         // try twice to schedule the task- see comment inside the catch
@@ -138,7 +138,7 @@ public abstract class Interval
      */
     public final void cancel ()
     {
-        TimerTask task = _task;
+        IntervalTask task = _task;
         if (task != null) {
             _task = null;
             task.cancel();
@@ -148,7 +148,7 @@ public abstract class Interval
     /**
      * Safely expire the interval.
      */
-    protected final void safelyExpire (TimerTask task)
+    protected final void safelyExpire (IntervalTask task)
     {
         // only expire the interval if the task is still valid
         if (_task == task) {
@@ -180,47 +180,77 @@ public abstract class Interval
     /**
      * The task that schedules actually runs the interval.
      */
-    protected class IntervalTask extends TimerTask
+    protected static class IntervalTask extends TimerTask
     {
+        public IntervalTask (Interval interval)
+        {
+            _interval = interval;
+        }
+
+        @Override
+        public boolean cancel ()
+        {
+            // remove the reference back to the interval, allowing the Interval itself
+            // to be gc'd even as this Task potentially sits on the Timer queue.
+            _interval = null;
+            return super.cancel();
+        }
+
         // documentation inherited
         public void run () {
-            if (_runQueue == null) {
-                safelyExpire(this);
+            Interval ival = _interval;
+            if (ival == null) {
+                return;
+
+            } else if (ival._runQueue == null) {
+                ival.safelyExpire(this);
 
             } else {
                 if (_runner == null) { // lazy initialize _runner
                     _runner = new RunBuddy() {
                         public void run () {
-                            safelyExpire(IntervalTask.this);
+                            Interval ival = _interval;
+                            if (ival != null) {
+                                ival.safelyExpire(IntervalTask.this);
+                            }
                         }
 
                         public Interval getInterval () {
-                            return Interval.this;
+                            return _interval;
                         }
 
                         public String toString () {
-                            return Interval.this.toString();
+                            Interval ival = _interval;
+                            return (ival != null) ? ival.toString() : "(Interval was cancelled)";
                         }
                     };
                 }
                 try {
-                    _runQueue.postRunnable(_runner);
+                    ival._runQueue.postRunnable(_runner);
                 } catch (Exception e) {
                     log.log(Level.WARNING, "Failed to execute interval on run-queue " +
-                            "[queue=" + _runQueue + ", interval=" + Interval.this + "].", e);
+                            "[queue=" + ival._runQueue + ", interval=" + ival + "].", e);
                 }
             }
         }
 
         /** If we are using a RunQueue, the Runnable we post to it. */
         protected RunBuddy _runner;
-    }
+
+        /** The interval this task is for. We have this reference back to our interval rather
+         * than just being a non-static inner class because when a TimerTask is cancelled
+         * it still sits on the Timer's queue until its execution time is reached. We want
+         * any references held by the interval to be collectable during this period, so our
+         * cancel removes the reference back to the Interval. */
+        protected Interval _interval;
+
+    } // end: static class IntervalTask
 
     /** If non-null, the RunQueue used to run the expired() method for each Interval. */
     protected RunQueue _runQueue;
 
     /** The task that actually schedules our execution with the static Timer. */
-    protected volatile TimerTask _task;
+    protected volatile IntervalTask _task;
 
     /** The daemon timer used to schedule all intervals. */
     protected static Timer _timer = createTimer();

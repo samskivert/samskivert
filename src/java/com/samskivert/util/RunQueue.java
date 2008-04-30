@@ -27,21 +27,16 @@ import java.awt.EventQueue;
  */
 public interface RunQueue
 {
-    /**
-     * A useful RunQueue that uses the AWT dispatch thread.
-     */
-    public static final RunQueue AWT = new RunQueue()
-    {
-        public void postRunnable (Runnable r)
-        {
-            EventQueue.invokeLater(r);
-        }
+    /** A useful RunQueue that uses the AWT dispatch thread. */
+    public static final RunQueue AWT = new RunQueue() {
+            public void postRunnable (Runnable r) {
+                EventQueue.invokeLater(r);
+            }
 
-        public boolean isDispatchThread ()
-        {
-            return EventQueue.isDispatchThread();
-        }
-    };
+            public boolean isDispatchThread () {
+                return EventQueue.isDispatchThread();
+            }
+        };
 
     /**
      * Post the specified Runnable to be run on the RunQueue.

@@ -65,10 +65,60 @@ public class Comparators
     };
 
     /**
-     * Compares two integers in an overflow safe manner.
+     * Compares two bytes, returning 1, 0, or -1.
+     * TODO: remove when Java finally has this method in Byte.
+     */
+    public static int compare (byte value1, byte value2)
+    {
+	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+    }
+
+    /**
+     * Compares two chars, returning 1, 0, or -1.
+     * TODO: remove when Java finally has this method in Character.
+     */
+    public static int compare (char value1, char value2)
+    {
+	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+    }
+
+    /**
+     * Compares two shorts, returning 1, 0, or -1.
+     * TODO: remove when Java finally has this method in Character.
+     */
+    public static int compare (short value1, short value2)
+    {
+	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+    }
+
+    /**
+     * Compares two integers in an overflow safe manner, returning 1, 0, or -1.
+     * TODO: remove when Java finally has this method in Integer.
      */
     public static int compare (int value1, int value2)
     {
 	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+    }
+
+    /**
+     * Compares two longs in an overflow safe manner, returning 1, 0, or -1.
+     * TODO: remove when Java finally has this method in Long.
+     */
+    public static int compare (long value1, long value2)
+    {
+	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+    }
+
+    // Double.compare() exists
+
+    // Float.compare() exists
+
+    /**
+     * Compares two booleans, returning 1, 0, or -1.
+     * TODO: remove when Java finally has this method in Boolean.
+     */
+    public static int compare (boolean value1, boolean value2)
+    {
+        return (value1 == value2) ? 0 : (value1 ? 1 : -1);
     }
 }

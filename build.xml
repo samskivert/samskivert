@@ -68,8 +68,10 @@
       <exclude name="com/samskivert/swing/**" unless="build.swing"/>
       <exclude name="com/samskivert/test/**" unless="build.test"/>
       <exclude name="com/samskivert/util/**" unless="build.util"/>
+      <exclude name="com/samskivert/util/FileUtil*" unless="build.fileutil"/>
       <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
       <exclude name="com/samskivert/xml/**" unless="build.xml"/>
+      <exclude name="com/samskivert/**/tests/**" unless="build.tests"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
@@ -92,8 +94,10 @@
         <exclude name="com/samskivert/swing/**" unless="build.swing"/>
         <exclude name="com/samskivert/test/**" unless="build.test"/>
         <exclude name="com/samskivert/util/**" unless="build.util"/>
+        <exclude name="com/samskivert/util/FileUtil*" unless="build.fileutil"/>
         <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
         <exclude name="com/samskivert/xml/**" unless="build.xml"/>
+        <exclude name="com/samskivert/**/tests/**" unless="build.tests"/>
       </packageset>
       <bottom>Copyright &#169; 2000-${year} ${copyright.holder}.
               All Rights Reserved.</bottom>

@@ -66,6 +66,10 @@
     <available property="ehcache.present" classpathref="classpath"
      classname="net.sf.ehcache.Element"/>
     <echo level="info">EH Cache: ${ehcache.present}</echo>
+
+    <available property="junit.present" classpathref="classpath"
+     classname="junit.framework.Test"/>
+    <echo level="info">JUnit: ${junit.present}</echo>
   </target>
 
   <!-- combines package availability into build controls -->
@@ -108,14 +112,6 @@
     </condition>
     <echo level="info">com.samskivert.jdbc.depot.tools: ${build.depot.tools}</echo>
 
-    <condition property="build.mail">
-      <and>
-        <isset property="build.io"/>
-        <isset property="mail.present"/>
-      </and>
-    </condition>
-    <echo level="info">com.samskivert.net.MailUtil: ${build.mail}</echo>
-
     <condition property="build.servlet">
       <and>
         <isset property="build.io"/>
@@ -156,6 +152,28 @@
       </and>
     </condition>
     <echo level="info">com.samskivert.xml: ${build.xml}</echo>
+
+    <condition property="build.tests">
+      <and>
+        <isset property="junit.present"/>
+      </and>
+    </condition>
+    <echo level="info">com.samskivert.*.tests: ${build.tests}</echo>
+
+    <condition property="build.fileutil">
+      <and>
+        <isset property="jakarta.commons-io.present"/>
+      </and>
+    </condition>
+    <echo level="info">com.samskivert.util.FileUtil: ${build.fileutil}</echo>
+
+    <condition property="build.mail">
+      <and>
+        <isset property="build.io"/>
+        <isset property="mail.present"/>
+      </and>
+    </condition>
+    <echo level="info">com.samskivert.net.MailUtil: ${build.mail}</echo>
   </target>
 
 </project>

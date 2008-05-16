@@ -106,7 +106,7 @@ public abstract class Arithmetic
         @Override
         public String operator()
         {
-            return "/";
+            return " / "; // Pad with spaces to work-around a MySQL bug.
         }
     }
 

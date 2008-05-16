@@ -188,9 +188,11 @@ public abstract class BuildVisitor implements ExpressionVisitor
     public void visit (BinaryOperator binaryOperator)
         throws Exception
     {
+        _builder.append('(');
         binaryOperator.getLeftHandSide().accept(this);
         _builder.append(binaryOperator.operator());
         binaryOperator.getRightHandSide().accept(this);
+        _builder.append(')');
     }
 
     public void visit (IsNull isNull)

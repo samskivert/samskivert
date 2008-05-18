@@ -20,23 +20,12 @@
 
 package com.samskivert.jdbc;
 
-import java.util.logging.Level;
-
-import com.samskivert.Log;
-import com.samskivert.io.PersistenceException;
-import com.samskivert.util.Invoker;
-
 /**
- * Extends the {@link com.samskivert.util.Invoker.Unit} and specializes it for doing database
- * repository manipulation.
+ * Extends {@link WriteOnlyUnit} and allows for processing of results back on the event processing
+ * thread.
  */
-public abstract class RepositoryUnit extends Invoker.Unit
+public abstract class RepositoryUnit extends WriteOnlyUnit
 {
-    /** The default constructor. */
-    public RepositoryUnit ()
-    {
-    }
-
     /**
      * Create a RepositoryUnit which will report the supplied name in {@link #toString}.
      */
@@ -45,7 +34,7 @@ public abstract class RepositoryUnit extends Invoker.Unit
         super(name);
     }
 
-    // from abstract Invoker.Unit
+    @Override // from WriteOnlyUnit
     public boolean invoke ()
     {
         try {
@@ -56,7 +45,7 @@ public abstract class RepositoryUnit extends Invoker.Unit
         return true;
     }
 
-    @Override // from Invoker.Unit
+    @Override // from WriteOnlyUnit
     public void handleResult ()
     {
         if (_error != null) {
@@ -67,34 +56,7 @@ public abstract class RepositoryUnit extends Invoker.Unit
     }
 
     /**
-     * Called to perform our persistent actions.
-     */
-    public abstract void invokePersist ()
-        throws Exception;
-
-    /**
      * Called if our persistent actions have succeeded, back on the non-invoker thread.
      */
     public abstract void handleSuccess ();
-
-    /**
-     * Called if our persistent actions failed, back on the non-invoker thread.  Note that this may
-     * be either an {@link Exception} thrown by {@link #invokePersist} or a {@link
-     * RuntimeException} thrown by same. The default implementation logs an error message and a
-     * stack trace.
-     */
-    public void handleFailure (Exception pe)
-    {
-        Log.log.log(Level.WARNING, getFailureMessage(), pe);
-    }
-
-    /**
-     * Returns the error message to be logged if {@link #invokePersist} throws an exception.
-     */
-    protected String getFailureMessage ()
-    {
-        return this + " failed.";
-    }
-
-    protected Exception _error;
 }

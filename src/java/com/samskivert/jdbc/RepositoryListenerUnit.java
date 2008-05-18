@@ -34,6 +34,7 @@ public abstract class RepositoryListenerUnit<T> extends RepositoryUnit
      */
     public RepositoryListenerUnit (ResultListener<T> listener)
     {
+        super(String.valueOf(listener));
         _listener = listener;
     }
 

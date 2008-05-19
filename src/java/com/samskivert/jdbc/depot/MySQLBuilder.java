@@ -47,6 +47,7 @@ import com.samskivert.jdbc.depot.FieldMarshaller.ShortMarshaller;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.EpochSeconds;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 
 public class MySQLBuilder
@@ -87,6 +88,14 @@ public class MySQLBuilder
             } finally {
                 _types.setUseTableAbbreviations(savedFlag);
             }
+        }
+
+        public void visit (EpochSeconds epochSeconds)
+            throws Exception
+        {
+            _builder.append("unix_timestamp(");
+            epochSeconds.getArgument().accept(this);
+            _builder.append(")");
         }
 
         protected MSBuildVisitor (DepotTypes types)

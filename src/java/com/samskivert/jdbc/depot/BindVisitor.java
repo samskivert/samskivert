@@ -38,6 +38,7 @@ import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
 import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.EpochSeconds;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.FunctionExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
@@ -103,6 +104,12 @@ public class BindVisitor implements ExpressionVisitor
         throws Exception
     {
         visit(functionExp.getArguments());
+    }
+
+    public void visit (EpochSeconds epochSeconds)
+        throws Exception
+    {
+        epochSeconds.getArgument().accept(this);
     }
 
     public void visit (MultiOperator multiOperator)

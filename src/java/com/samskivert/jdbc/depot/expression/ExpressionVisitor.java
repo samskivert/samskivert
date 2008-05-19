@@ -61,6 +61,8 @@ public interface ExpressionVisitor
         throws Exception;
     public void visit (FunctionExp functionExp)
         throws Exception;
+    public void visit (EpochSeconds epochSeconds)
+        throws Exception;
     public void visit (FromOverride fromOverride)
         throws Exception;
     public void visit (MultiOperator multiOperator)

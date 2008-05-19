@@ -46,6 +46,7 @@ import com.samskivert.jdbc.depot.FieldMarshaller.LongMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ObjectMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ShortMarshaller;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
+import com.samskivert.jdbc.depot.expression.EpochSeconds;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
@@ -63,6 +64,14 @@ public class PostgreSQLBuilder
         {
             appendIdentifier("ftsCol_" + match.getName());
             _builder.append(" @@ TO_TSQUERY('default', ?)");
+        }
+
+        public void visit (EpochSeconds epochSeconds)
+            throws Exception
+        {
+            _builder.append("date_part('epoch', ");
+            epochSeconds.getArgument().accept(this);
+            _builder.append(")");
         }
 
         protected PGBuildVisitor (DepotTypes types)

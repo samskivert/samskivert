@@ -115,6 +115,10 @@ public abstract class Interval
      * expired calls will match the amount of time elapsed. If false, it uses
      * {@link Timer#schedule(TimerTask, long, long)} which ensures that there will be close to
      * <code>repeateDelay</code> milliseconds between expirations.
+     * Note that scheduling things with a fixed delay on an Interval that uses a RunQueue is sort
+     * of sketchy, because the Timer task will be considered "run" when all that's happened
+     * is the RunBuddy has been posted to the RunQueue, and the interval hasn't actually expired
+     * yet.
      */
     public final void schedule (long initialDelay, long repeatDelay, boolean fixedRate)
     {

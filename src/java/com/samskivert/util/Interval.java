@@ -88,8 +88,8 @@ public abstract class Interval
     }
 
     /**
-     * Schedule the interval to execute repeatedly, with the same delay.  Supersedes any previous
-     * schedule that this Interval may have had.
+     * Schedule the interval to execute repeatedly with fixed-rate scheduling between repeats,
+     * with the same delay. Supersedes any previous schedule that this Interval may have had.
      */
     public final void schedule (long delay, boolean repeat)
     {
@@ -98,9 +98,25 @@ public abstract class Interval
 
     /**
      * Schedule the interval to execute repeatedly with the specified initial delay and repeat
-     * delay.  Supersedes any previous schedule that this Interval may have had.
+     * delay with fixed-rate scheduling between repeats. Supersedes any previous schedule that
+     * this Interval may have had.
      */
     public final void schedule (long initialDelay, long repeatDelay)
+    {
+        schedule(initialDelay, repeatDelay, true);
+    }
+
+    /**
+     * Schedule the interval to execute repeatedly with the specified initial delay and repeat
+     * delay. Supersedes any previous schedule that this Interval may have had.
+     * 
+     * @param fixedRate - if true, this interval schedules repeated expirations using
+     * {@link Timer#scheduleAtFixedRate(TimerTask, long, long)} ensuring that the number of
+     * expired calls will match the amount of time elapsed. If false, it uses
+     * {@link Timer#schedule(TimerTask, long, long)} which ensures that there will be close to
+     * <code>repeateDelay</code> milliseconds between expirations.
+     */
+    public final void schedule (long initialDelay, long repeatDelay, boolean fixedRate)
     {
         cancel();
         IntervalTask task = new IntervalTask(this);
@@ -111,8 +127,10 @@ public abstract class Interval
             try {
                 if (repeatDelay == 0L) {
                     _timer.schedule(task, initialDelay);
-                } else {
+                } else if (fixedRate) {
                     _timer.scheduleAtFixedRate(task, initialDelay, repeatDelay);
+                } else {
+                    _timer.schedule(task, initialDelay, repeatDelay);
                 }
                 return;
 

@@ -115,10 +115,10 @@ public abstract class Interval
      * expired calls will match the amount of time elapsed. If false, it uses
      * {@link Timer#schedule(TimerTask, long, long)} which ensures that there will be close to
      * <code>repeateDelay</code> milliseconds between expirations.
-     * Note that scheduling things with a fixed delay on an Interval that uses a RunQueue is sort
-     * of sketchy, because the Timer task will be considered "run" when all that's happened
-     * is the RunBuddy has been posted to the RunQueue, and the interval hasn't actually expired
-     * yet.
+     *
+     * @exception IllegalArgumentException if fixedRate is false and a RunQueue has been specified.
+     * That doesn't make sense because the fixed delay cannot account for the time that the
+     * RunBuddy sits on the RunQueue waiting to call expire().
      */
     public final void schedule (long initialDelay, long repeatDelay, boolean fixedRate)
     {
@@ -133,6 +133,9 @@ public abstract class Interval
                     _timer.schedule(task, initialDelay);
                 } else if (fixedRate) {
                     _timer.scheduleAtFixedRate(task, initialDelay, repeatDelay);
+                } else if (_runQueue != null) {
+                    throw new IllegalArgumentException(
+                        "Cannot schedule at a fixed delay when using a RunQueue.");
                 } else {
                     _timer.schedule(task, initialDelay, repeatDelay);
                 }
@@ -142,7 +145,8 @@ public abstract class Interval
                 // Timer.schedule will only throw this if the TimerThead was shut down.
                 // This may happen automatically in Applets, so we need to create a new
                 // Timer now. Note that in a multithreaded environment it may be possible
-                // to have more than one Timer, but that shouldn't be an issue.
+                // to have more than one Timer after this happens. That would be slightly
+                // undesirable but should not break anything.
                 if (tryCount == 0) {
                     _timer = createTimer();
 

@@ -25,7 +25,7 @@ import java.net.URL;
 import java.security.AccessControlException;
 import java.util.*;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * The config util class provides routines for loading configuration
@@ -51,7 +51,7 @@ public class ConfigUtil
             try {
                 value = Integer.parseInt(valstr);
             } catch (NumberFormatException nfe) {
-                Log.warning("'" + key + "' must be a numeric value " +
+                log.warning("'" + key + "' must be a numeric value " +
                             "[value=" + valstr + ", error=" + nfe + "].");
             }
         }
@@ -314,7 +314,7 @@ public class ConfigUtil
             // best to work around it
             InputStream in = getStream(path, loader);
             if (in != null) {
-                Log.warning("Buggy classloader: getResources() returned " +
+                log.warning("Buggy classloader: getResources() returned " +
                             "no resources, but getResourceAsStream() " +
                             "returned a resource [path=" + path +
                             ", loader=" + StringUtil.shortClassName(loader) +

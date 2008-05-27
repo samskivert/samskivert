@@ -22,7 +22,6 @@ package com.samskivert.util;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
 
 import static com.samskivert.Log.log;
 
@@ -181,7 +180,7 @@ public abstract class Interval
             try {
                 expired();
             } catch (Throwable t) {
-                log.log(Level.WARNING, "Interval broken in expired() " + this, t);
+                log.warning("Interval broken in expired() " + this, t);
             }
 
         } else {
@@ -254,7 +253,7 @@ public abstract class Interval
                 try {
                     ival._runQueue.postRunnable(_runner);
                 } catch (Exception e) {
-                    log.log(Level.WARNING, "Failed to execute interval on run-queue " +
+                    log.warning("Failed to execute interval on run-queue " +
                             "[queue=" + ival._runQueue + ", interval=" + ival + "].", e);
                 }
             }

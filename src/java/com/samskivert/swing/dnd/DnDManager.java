@@ -43,9 +43,9 @@ import javax.swing.Timer;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.MouseInputAdapter;
 
-import com.samskivert.Log;
-
 import com.samskivert.swing.event.AncestorAdapter;
+
+import static com.samskivert.Log.log;
 
 /**
  * A custom Drag and Drop manager for use within a single JVM. Does what we
@@ -228,7 +228,7 @@ public class DnDManager
     protected void assertComponentCursorCleared ()
     {
         if (_lastComp != null) {
-            Log.warning("In DnDManager, last component cursor not cleared.");
+            log.warning("In DnDManager, last component cursor not cleared.");
             clearComponentCursor();
         }
     }
@@ -236,7 +236,7 @@ public class DnDManager
     protected void assertTopCursorCleared ()
     {
         if (_topComp != null) {
-            Log.warning("In DnDManager, top component cursor not cleared.");
+            log.warning("In DnDManager, top component cursor not cleared.");
             _topComp.setCursor(_topCursor);
             _topComp = null;
         }

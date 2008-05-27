@@ -31,7 +31,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import com.samskivert.Log;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.FieldMarshaller.BooleanMarshaller;
 import com.samskivert.jdbc.depot.FieldMarshaller.ByteArrayMarshaller;
@@ -49,6 +48,8 @@ import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 import com.samskivert.jdbc.depot.expression.EpochSeconds;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
+
+import static com.samskivert.Log.log;
 
 public class MySQLBuilder
     extends SQLBuilder
@@ -170,7 +171,7 @@ public class MySQLBuilder
 
         Statement stmt = conn.createStatement();
         try {
-            Log.info("Adding full-text search index: ftsIx_" + fts.name());
+            log.info("Adding full-text search index: ftsIx_" + fts.name());
             stmt.executeUpdate(update.toString());
         } finally {
             JDBCUtil.close(stmt);

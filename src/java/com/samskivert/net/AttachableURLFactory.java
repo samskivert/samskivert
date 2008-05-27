@@ -26,7 +26,7 @@ import java.net.URLStreamHandlerFactory;
 
 import java.util.HashMap;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Allows other entities in an application to register URLStreamHandler
@@ -92,7 +92,7 @@ public class AttachableURLFactory implements URLStreamHandlerFactory
             try {
                 return handler.newInstance();
             } catch (Exception e) {
-                Log.warning("Unable to instantiate URLStreamHandler" +
+                log.warning("Unable to instantiate URLStreamHandler" +
                     " [protocol=" + protocol + ", cause=" + e + "].");
             }
         }

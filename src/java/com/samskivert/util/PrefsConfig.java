@@ -34,7 +34,7 @@ import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Extends the {@link Config} mechanism to allow the modification of configuration values, which
@@ -58,7 +58,7 @@ public class PrefsConfig extends Config
             _prefs = Preferences.userRoot().node(path);
         } catch (AccessControlException ace) {
             // security manager won't let us access prefs, no problem!
-            Log.info("Can't access preferences [path=" + path + "].");
+            log.info("Can't access preferences [path=" + path + "].");
             _prefs = new NullPreferences();
         }
     }
@@ -75,7 +75,7 @@ public class PrefsConfig extends Config
             _prefs = Preferences.userRoot().node(path);
         } catch (AccessControlException ace) {
             // security manager won't let us access prefs, no problem!
-            Log.info("Can't access preferences [path=" + path + "].");
+            log.info("Can't access preferences [path=" + path + "].");
             _prefs = new NullPreferences();
         }
     }
@@ -282,7 +282,7 @@ public class PrefsConfig extends Config
                 keys.add(key);
             }
         } catch (BackingStoreException bse) {
-            Log.warning("Unable to enumerate preferences keys [error=" + bse + "].");
+            log.warning("Unable to enumerate preferences keys [error=" + bse + "].");
         }
     }
 

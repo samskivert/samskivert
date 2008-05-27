@@ -73,8 +73,7 @@ public class DefaultLogProvider implements LogProvider
 	}
     }
 
-    public synchronized void logStackTrace (
-        int level, String moduleName, Throwable t)
+    public synchronized void logStackTrace (int level, String moduleName, Throwable t)
     {
 	Integer tlevel = _levels.get(moduleName);
 	if (level >= getLevel(moduleName)) {

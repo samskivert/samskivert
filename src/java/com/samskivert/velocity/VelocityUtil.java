@@ -26,7 +26,7 @@ import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Handy Velocity-related routines.
@@ -83,22 +83,14 @@ public class VelocityUtil
             // nothing doing
         }
         public void log (int level, String message) {
-            switch (level) {
-            case ERROR_ID:
-            case WARN_ID:
-                Log.warning(message);
-                break;
-            default:
-            case INFO_ID:
-            case DEBUG_ID:
-                // velocity insists on sending info and debug messages even
-                // though isLevelEnabled() returns false
-                break;
+            if (level == ERROR_ID || level == WARN_ID) {
+                log.warning(message);
             }
         }
         public void log (int level, String message, Throwable t) {
-            log(level, message);
-            Log.logStackTrace(t);
+            if (level == ERROR_ID || level == WARN_ID) {
+                log.warning(message, t);
+            }
         }
         public boolean isLevelEnabled (int level) {
             return (level == WARN_ID || level == ERROR_ID);

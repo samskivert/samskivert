@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.annotation.Computed;
@@ -109,7 +108,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                 try {
                     _schemaVersion = (Integer)field.get(null);
                 } catch (Exception e) {
-                    log.log(Level.WARNING, "Failed to read schema version " +
+                    log.warning("Failed to read schema version " +
                         "[class=" + _pClass + "].", e);
                 }
             }

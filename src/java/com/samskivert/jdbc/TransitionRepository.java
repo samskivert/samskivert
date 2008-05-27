@@ -25,7 +25,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
 
@@ -75,7 +74,7 @@ public class TransitionRepository extends SimpleRepository
                 try {
                     clearTransition(clazz, name);
                 } catch (PersistenceException pe) {
-                    log.log(Level.WARNING, "Failed to clear failed transition [class=" + clazz +
+                    log.warning("Failed to clear failed transition [class=" + clazz +
                             ", name=" + name + "].", pe);
                 }
                 throw e;
@@ -84,7 +83,7 @@ public class TransitionRepository extends SimpleRepository
                 try {
                     clearTransition(clazz, name);
                 } catch (PersistenceException pe) {
-                    log.log(Level.WARNING, "Failed to clear failed transition [class=" + clazz +
+                    log.warning("Failed to clear failed transition [class=" + clazz +
                             ", name=" + name + "].", pe);
                 }
                 throw rte;

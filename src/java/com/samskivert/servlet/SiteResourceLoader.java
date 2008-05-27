@@ -30,8 +30,9 @@ import java.util.jar.JarFile;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.samskivert.Log;
 import com.samskivert.util.HashIntMap;
+
+import static com.samskivert.Log.log;
 
 /**
  * Web applications may wish to load resources in such a way that the site
@@ -317,7 +318,7 @@ public class SiteResourceLoader
                     jarFile.close();
                 }
 
-                Log.info("Opened site bundle [path=" + file.getPath() + "].");
+                log.info("Opened site bundle [path=" + file.getPath() + "].");
 
                 // and open a new one
                 jarFile = new JarFile(file);
@@ -341,7 +342,7 @@ public class SiteResourceLoader
             try {
                 return _bundle.getResourceAsStream(path);
             } catch (IOException ioe) {
-                Log.warning("Error loading resource from jarfile " +
+                log.warning("Error loading resource from jarfile " +
                             "[bundle=" + _bundle + ", path=" + path +
                             ", error=" + ioe + "].");
                 return null;

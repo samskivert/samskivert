@@ -29,9 +29,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * A repository for JDBC related utility functions.
@@ -114,7 +115,7 @@ public class JDBCUtil
     {
         int modified = stmt.executeUpdate();
         if (modified != expectedCount) {
-            Log.warning("Statement did not modify expected number of rows [stmt=" + stmt +
+            log.warning("Statement did not modify expected number of rows [stmt=" + stmt +
                         ", expected=" + expectedCount + ", modified=" + modified + "]");
         }
     }
@@ -183,7 +184,7 @@ public class JDBCUtil
     {
         int modified = stmt.executeUpdate(query);
         if (modified != expectedCount) {
-            Log.warning("Statement did not modify expected number of rows [stmt=" + stmt +
+            log.warning("Statement did not modify expected number of rows [stmt=" + stmt +
                         ", expected=" + expectedCount + ", modified=" + modified + "]");
         }
     }
@@ -230,7 +231,7 @@ public class JDBCUtil
         try {
             return new String(text.getBytes("UTF8"), "8859_1");
         } catch (UnsupportedEncodingException uee) {
-            Log.logStackTrace(uee);
+            log.warning("jigger failed", uee);
             return text;
         }
     }
@@ -246,7 +247,7 @@ public class JDBCUtil
         try {
             return new String(text.getBytes("8859_1"), "UTF8");
         } catch (UnsupportedEncodingException uee) {
-            Log.logStackTrace(uee);
+            log.warning("unjigger failed", uee);
             return text;
         }
     }
@@ -281,7 +282,7 @@ public class JDBCUtil
             close(stmt);
         }
 
-        Log.info("Database table '" + table + "' created.");
+        log.info("Database table '" + table + "' created.");
         return true;
     }
 
@@ -480,7 +481,7 @@ public class JDBCUtil
         } finally {
             close(stmt);
         }
-        Log.info("Database column '" + cname + "' added to table '" + table + "'.");
+        log.info("Database column '" + cname + "' added to table '" + table + "'.");
         return true;
     }
 
@@ -502,7 +503,7 @@ public class JDBCUtil
         } finally {
             close(stmt);
         }
-        Log.info("Database column '" + cname + "' of table '" + table +
+        log.info("Database column '" + cname + "' of table '" + table +
                  "' modified to have this def '" + cdef + "'.");
     }
 
@@ -523,7 +524,7 @@ public class JDBCUtil
         try {
             stmt = conn.prepareStatement(update);
             if (stmt.executeUpdate() == 1) {
-                Log.info("Database index '" + cname + "' removed from table '" + table + "'.");
+                log.info("Database index '" + cname + "' removed from table '" + table + "'.");
             }
         } finally {
             close(stmt);
@@ -548,7 +549,7 @@ public class JDBCUtil
         try {
             stmt = conn.prepareStatement(update);
             if (stmt.executeUpdate() == 1) {
-                Log.info("Database index '" + iname + "' removed from table '" + table + "'.");
+                log.info("Database index '" + iname + "' removed from table '" + table + "'.");
             }
         } finally {
             close(stmt);
@@ -567,7 +568,7 @@ public class JDBCUtil
         try {
             stmt = conn.prepareStatement(update);
             if (stmt.executeUpdate() == 1) {
-                Log.info("Database primary key removed from '" + table + "'.");
+                log.info("Database primary key removed from '" + table + "'.");
             }
         } finally {
             close(stmt);
@@ -600,7 +601,7 @@ public class JDBCUtil
         } finally {
             close(stmt);
         }
-        Log.info("Database index '" + idx_name + "' added to table '" + table + "'");
+        log.info("Database index '" + idx_name + "' added to table '" + table + "'");
         return true;
     }
 

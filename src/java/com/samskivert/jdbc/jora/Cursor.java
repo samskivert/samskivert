@@ -23,7 +23,7 @@ package com.samskivert.jdbc.jora;
 import java.util.*;
 import java.sql.*;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Cursor is used for successive access to records fetched by SELECT statement.
@@ -96,7 +96,7 @@ public class Cursor<V>
                 spurious++;
             }
             if (spurious > 0) {
-                Log.warning("Cursor.get() quietly tossed " + spurious +
+                log.warning("Cursor.get() quietly tossed " + spurious +
                             " spurious additional records. " +
                             "[query=" + _query + "].");
             }

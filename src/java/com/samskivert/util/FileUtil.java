@@ -31,8 +31,9 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.io.IOUtils;
 
-import com.samskivert.Log;
 import com.samskivert.io.StreamUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * Utility methods for files.
@@ -89,7 +90,7 @@ public class FileUtil
             // entries that allow us to create our directories first
             if (entry.isDirectory()) {
                 if (!efile.exists() && !efile.mkdir()) {
-                    Log.warning("Failed to create jar entry path [jar=" + jar +
+                    log.warning("Failed to create jar entry path [jar=" + jar +
                                 ", entry=" + entry + "].");
                 }
                 continue;
@@ -99,7 +100,7 @@ public class FileUtil
             // prior to getting down and funky
             File parent = new File(efile.getParent());
             if (!parent.exists() && !parent.mkdirs()) {
-                Log.warning("Failed to create jar entry parent [jar=" + jar +
+                log.warning("Failed to create jar entry parent [jar=" + jar +
                             ", parent=" + parent + "].");
                 continue;
             }
@@ -111,7 +112,7 @@ public class FileUtil
                 jin = jar.getInputStream(entry);
                 IOUtils.copy(jin, fout);
             } catch (Exception e) {
-                Log.warning("Failure unpacking [jar=" + jar +
+                log.warning("Failure unpacking [jar=" + jar +
                             ", entry=" + efile + ", error=" + e + "].");
                 failure = true;
             } finally {
@@ -123,7 +124,7 @@ public class FileUtil
         try {
             jar.close();
         } catch (Exception e) {
-            Log.warning("Failed to close jar file [jar=" + jar +
+            log.warning("Failed to close jar file [jar=" + jar +
                         ", error=" + e + "].");
         }
 
@@ -143,7 +144,7 @@ public class FileUtil
         }
         if (wipeMe) {
             if (!file.delete()) {
-                Log.warning("Failed to delete " + file + ".");
+                log.warning("Failed to delete " + file + ".");
             }
         }
     }

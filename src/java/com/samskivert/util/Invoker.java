@@ -23,7 +23,7 @@ package com.samskivert.util;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * The invoker is used to invoke self-contained units of code on an invoking thread. Each invoker
@@ -192,8 +192,7 @@ public class Invoker extends LoopingThread
             didInvokeUnit(unit, start);
 
         } catch (Throwable t) {
-            Log.warning("Invocation unit failed [unit=" + unit + "].");
-            Log.logStackTrace(t);
+            log.warning("Invocation unit failed [unit=" + unit + "].", t);
         }
     }
 
@@ -240,7 +239,7 @@ public class Invoker extends LoopingThread
             // report long runners
             if (duration > unit.getLongThreshold()) {
                 String howLong = (duration >= 10*unit.getLongThreshold()) ? "Really long" : "Long";
-                Log.warning(howLong + " invoker unit [unit=" + unit + " (" + key +
+                log.warning(howLong + " invoker unit [unit=" + unit + " (" + key +
                             "), time=" + duration + "ms].");
             }
         }

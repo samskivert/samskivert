@@ -51,7 +51,7 @@ import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 public class PostgreSQLBuilder
     extends SQLBuilder
@@ -178,7 +178,7 @@ public class PostgreSQLBuilder
 
         Statement stmt = conn.createStatement();
         try {
-            Log.info(
+            log.info(
                 "Adding full-text search column, index and trigger: " + column + ", " +
                 index + ", " + trigger);
             liaison.addColumn(conn, table, column, "TSVECTOR", true);

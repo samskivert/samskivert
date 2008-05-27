@@ -111,9 +111,9 @@ public class SiteJarResourceLoader extends ResourceLoader
                 return (resource.getLastModified() <
                         _loader.getLastModified(skey.siteId));
             } catch (IOException ioe) {
-                Log.warning("Failure obtaining last modified time of " +
-                            "site-specific jar file [siteId=" + skey.siteId +
-                            ", error=" + ioe + "].");
+                Log.log.warning("Failure obtaining last modified time of " +
+                                "site-specific jar file [siteId=" + skey.siteId +
+                                ", error=" + ioe + "].");
                 return false;
             }
         }
@@ -140,9 +140,9 @@ public class SiteJarResourceLoader extends ResourceLoader
             try {
                 return _loader.getLastModified(skey.siteId);
             } catch (IOException ioe) {
-                Log.warning("Failure obtaining last modified time of " +
-                            "site-specific jar file [siteId=" + skey.siteId +
-                            ", error=" + ioe + "].");
+                Log.log.warning("Failure obtaining last modified time of " +
+                                "site-specific jar file [siteId=" + skey.siteId +
+                                ", error=" + ioe + "].");
                 return 0;
             }
         }

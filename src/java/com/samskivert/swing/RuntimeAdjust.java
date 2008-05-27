@@ -46,12 +46,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.Scrollable;
 
-import com.samskivert.Log;
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.PrefsConfig;
 import com.samskivert.util.DebugChords;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * Provides a service where named variables can be registered as adjustable by the developer at
@@ -278,7 +279,7 @@ public class RuntimeAdjust
         public void setValue (String value)
         {
             if (!ListUtil.contains(_values, value)) {
-                Log.warning("Refusing invalid adjustment [name=" + _name +
+                log.warning("Refusing invalid adjustment [name=" + _name +
                             ", values=" + StringUtil.toString(_values) +
                             ", value=" + value + "].");
             } else {
@@ -486,7 +487,7 @@ public class RuntimeAdjust
             // validate the structure of the name
             int fdidx = _name.indexOf("."), ldidx = _name.lastIndexOf(".");
             if (fdidx == -1 || ldidx == -1) {
-                Log.warning("Invalid adjustment name '" + _name +
+                log.warning("Invalid adjustment name '" + _name +
                             "', must be of the form " +
                             "'library.package.adjustment'.");
                 return;
@@ -495,7 +496,7 @@ public class RuntimeAdjust
             // make sure there isn't another with the same name
             int idx = _adjusts.binarySearch(this);
             if (idx >= 0) {
-                Log.warning("Error: duplicate adjust registration " +
+                log.warning("Error: duplicate adjust registration " +
                             "[new=" + this +
                             ", old=" + _adjusts.get(idx) + "].");
                 return;

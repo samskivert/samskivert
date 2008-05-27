@@ -31,6 +31,8 @@ import java.util.RandomAccess;
 
 import java.lang.reflect.Array;
 
+import static com.samskivert.Log.log;
+
 /**
  * Provides a base for extending the standard Java {@link ArrayList}
  * functionality (which we'd just extend directly if those pig fuckers hadn't
@@ -173,7 +175,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
             return dup;
 
         } catch (CloneNotSupportedException cnse) {
-            com.samskivert.Log.logStackTrace(cnse); // won't happen.
+            log.warning("clone failed", cnse); // won't happen.
             return null;
         }
     }

@@ -26,7 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * The simple parser class provides an extensible object that is
@@ -119,7 +119,7 @@ public class SimpleParser extends DefaultHandler
         try {
             return (val == null) ? -1 : Integer.parseInt(val);
         } catch (NumberFormatException nfe) {
-            Log.warning("Malformed integer value [val=" + val + "].");
+            log.warning("Malformed integer value [val=" + val + "].");
             return -1;
         }
     }

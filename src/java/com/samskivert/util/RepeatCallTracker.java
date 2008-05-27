@@ -23,7 +23,7 @@ package com.samskivert.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * A class used to debug situations where a method that should be called
@@ -53,8 +53,8 @@ public class RepeatCallTracker
             return false;
         }
 
-        Log.logStackTrace(new Exception(warning));
-        Log.logStackTrace(_firstCall);
+        log.warning(warning, new Exception());
+        log.warning("First call:", _firstCall);
         return true;
     }
 

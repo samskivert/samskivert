@@ -24,7 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Utilities used by unit tests for the samskivert library which are
@@ -49,7 +49,7 @@ public class TestUtil
     {
         String testdir = System.getProperty("test_dir");
         if (testdir == null) {
-            Log.warning("The 'test_dir' system property was not set " +
+            log.warning("The 'test_dir' system property was not set " +
                         "to the top-level test directory.");
             // fake it and hope for the best
             testdir = ".";

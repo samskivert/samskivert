@@ -30,7 +30,7 @@ import java.awt.Rectangle;
 
 import java.util.HashMap;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Used to lay out components at absolute coordinates. This layout manager
@@ -85,7 +85,7 @@ public class AbsoluteLayout
 
             Object constr = _constraints.get(comp);
             if (constr == null) {
-                Log.warning("No constraints for child!? [cont=" + parent +
+                log.warning("No constraints for child!? [cont=" + parent +
                             ", comp=" + comp + "].");
                 continue;
             }
@@ -137,7 +137,7 @@ public class AbsoluteLayout
 
             Object constr = _constraints.get(comp);
             if (constr == null) {
-                Log.warning("No constraints for child!? [cont=" + parent +
+                log.warning("No constraints for child!? [cont=" + parent +
                             ", comp=" + comp + "].");
                 continue;
             }

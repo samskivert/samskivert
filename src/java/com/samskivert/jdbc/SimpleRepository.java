@@ -22,9 +22,10 @@ package com.samskivert.jdbc;
 
 import java.sql.*;
 
-import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * The simple repository should be used for a repository that only needs access to a single JDBC
@@ -90,8 +91,7 @@ public class SimpleRepository extends Repository
                 }
             });
         } catch (PersistenceException pe) {
-            Log.warning("Failure migrating schema [dbident=" + _dbident + "].");
-            Log.logStackTrace(pe);
+            log.warning("Failure migrating schema [dbident=" + _dbident + "].", pe);
         }
     }
 
@@ -143,7 +143,7 @@ public class SimpleRepository extends Repository
 
         // check our pre-condition
         if (_precond != null && !_precond.validate(_dbident, op)) {
-            Log.warning("Repository operation failed pre-condition check! [dbident=" + _dbident +
+            log.warning("Repository operation failed pre-condition check! [dbident=" + _dbident +
                         ", op=" + op + "].");
             Thread.dumpStack();
         }
@@ -193,7 +193,7 @@ public class SimpleRepository extends Repository
                             conn.rollback();
                         }
                     } catch (SQLException rbe) {
-                        Log.warning("Unable to roll back operation [err=" + sqe +
+                        log.warning("Unable to roll back operation [err=" + sqe +
                                     ", rberr=" + rbe + "].");
                     }
                 }
@@ -215,7 +215,7 @@ public class SimpleRepository extends Repository
                 // stack trace in the message of their outer exception; if I want a fucking stack
                 // trace, I'll call printStackTrace() thanksverymuch
                 String msg = StringUtil.split("" + sqe, "\n")[0];
-                Log.info("Transient failure executing operation, retrying [error=" + msg + "].");
+                log.info("Transient failure executing operation, retrying [error=" + msg + "].");
 
             } catch (PersistenceException pe) {
                 // back out our changes if something got hosed
@@ -224,7 +224,7 @@ public class SimpleRepository extends Repository
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
-                    Log.warning("Unable to roll back operation [origerr=" + pe +
+                    log.warning("Unable to roll back operation [origerr=" + pe +
                                 ", rberr=" + rbe + "].");
                 }
                 throw pe;
@@ -236,7 +236,7 @@ public class SimpleRepository extends Repository
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
-                    Log.warning("Unable to roll back operation [origerr=" + rte +
+                    log.warning("Unable to roll back operation [origerr=" + rte +
                                 ", rberr=" + rbe + "].");
                 }
                 throw rte;
@@ -249,7 +249,7 @@ public class SimpleRepository extends Repository
                             conn.setAutoCommit(oldAutoCommit);
                         }
                     } catch (SQLException sace) {
-                        Log.warning("Unable to restore auto-commit [err=" + sace + "].");
+                        log.warning("Unable to restore auto-commit [err=" + sace + "].");
                     }
                     // release the database connection
                     _provider.releaseConnection(_dbident, readOnly, conn);
@@ -354,7 +354,7 @@ public class SimpleRepository extends Repository
                         String result = rs.getString("Msg_text");
                         if (result == null ||
                             (result.indexOf("up to date") == -1 && !result.equals("OK"))) {
-                            Log.info("Table maintenance [" + SimpleRepository.toString(rs) + "].");
+                            log.info("Table maintenance [" + SimpleRepository.toString(rs) + "].");
                         }
                     }
 

@@ -32,8 +32,9 @@ import javax.mail.internet.MimeMessage;
 import java.util.regex.PatternSyntaxException;
 import java.util.regex.Pattern;
 
-import com.samskivert.Log;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * The mail util class encapsulates some utility functions related to
@@ -179,8 +180,7 @@ public class MailUtil
         try {
             _emailre = Pattern.compile(EMAIL_REGEX);
         } catch (PatternSyntaxException pse) {
-            Log.warning("Unable to initialize email regexp?!");
-            Log.logStackTrace(pse);
+            log.warning("Unable to initialize email regexp?!", pse);
         }
     }
 }

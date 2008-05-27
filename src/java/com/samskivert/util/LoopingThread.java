@@ -20,7 +20,7 @@
 
 package com.samskivert.util;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * The looping thread provides the basic functionality for a thread that
@@ -136,8 +136,7 @@ public class LoopingThread extends Thread
     protected void handleIterateFailure (Exception e)
     {
         // log the exception
-        Log.warning("LoopingThread.iterate() uncaught exception.");
-        Log.logStackTrace(e);
+        log.warning("LoopingThread.iterate() uncaught exception.", e);
 
         // and shut the thread down
         shutdown();

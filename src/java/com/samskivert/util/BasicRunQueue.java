@@ -20,7 +20,7 @@
 
 package com.samskivert.util;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * A very basic implementation of RunQueue for general purpose use.
@@ -57,8 +57,7 @@ public class BasicRunQueue extends LoopingThread
             r.run();
 
         } catch (Throwable t) {
-            Log.warning("Runnable posted to RunQueue barfed.");
-            Log.logStackTrace(t);
+            log.warning("Runnable posted to RunQueue barfed.", t);
         }
     }
 

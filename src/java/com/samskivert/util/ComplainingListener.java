@@ -21,7 +21,6 @@
 package com.samskivert.util;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A ResultListener that does nothing on success and logs a warning message on failure, that's all.
@@ -29,15 +28,15 @@ import java.util.logging.Logger;
 public class ComplainingListener<T>
     implements ResultListener<T>
 {
-    public ComplainingListener (Log log, String errorText)
+    public ComplainingListener (Logger logger, String errorText)
     {
-        _log = log;
+        _slogger = logger;
         _errorText = errorText;
     }
 
-    public ComplainingListener (Logger logger, String errorText)
+    public ComplainingListener (java.util.logging.Logger logger, String errorText)
     {
-        _logger = logger;
+        _jlogger = logger;
         _errorText = errorText;
     }
 
@@ -47,20 +46,20 @@ public class ComplainingListener<T>
     // documentation inherited from interface ResultListener
     public void requestFailed (Exception cause)
     {
-        if (_log != null) {
-            _log.warning(_errorText + " [cause=" + cause + "].");
-        } else if (_logger != null) {
-            _logger.log(Level.WARNING, _errorText, cause);
+        if (_slogger != null) {
+            _slogger.warning(_errorText, cause);
+        } else if (_jlogger != null) {
+            _jlogger.log(Level.WARNING, _errorText, cause);
         } else {
             System.err.println(_errorText + " [cause=" + cause + "].");
         }
     }
 
     /** The log to which we'll log our error, may be null. */
-    protected Log _log;
+    protected Logger _slogger;
 
     /** The logger to which we'll log our error, may be null. */
-    protected Logger _logger;
+    protected java.util.logging.Logger _jlogger;
 
     /** The text to output if the error happens. */
     protected String _errorText;

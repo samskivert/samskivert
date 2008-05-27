@@ -25,7 +25,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * The liaison registry provides access to the appropriate database liaison implementation for a
@@ -52,7 +52,7 @@ public class LiaisonRegistry
 
             // if we didn't find a matching liaison, use the default
             if (liaison == null) {
-                Log.warning("Unable to match liaison for database [url=" + url + "]. " +
+                log.warning("Unable to match liaison for database [url=" + url + "]. " +
                             "Using default.");
                 liaison = new DefaultLiaison();
             }
@@ -79,7 +79,7 @@ public class LiaisonRegistry
         try {
             _liaisons.add(lclass.newInstance());
         } catch (Exception e) {
-            Log.warning("Unable to instantiate liaison [class=" + lclass.getName() +
+            log.warning("Unable to instantiate liaison [class=" + lclass.getName() +
                         ", error=" + e + "].");
         }
     }

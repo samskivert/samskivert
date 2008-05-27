@@ -43,7 +43,7 @@ import com.samskivert.jdbc.SimpleRepository;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Accomplishes the process of site identification based on a mapping from domains (e.g.
@@ -187,8 +187,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
             try {
                 _repo.refreshSiteData();
             } catch (PersistenceException pe) {
-                Log.warning("Error refreshing site data.");
-                Log.logStackTrace(pe);
+                log.warning("Error refreshing site data.", pe);
             }
         }
     }

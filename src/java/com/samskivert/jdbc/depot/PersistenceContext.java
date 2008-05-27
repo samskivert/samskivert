@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -162,7 +161,7 @@ public class PersistenceContext
                 _cache.shutdown();
             }
         } catch (Throwable t) {
-            log.log(Level.WARNING, "Failure shutting down Depot cache.", t);
+            log.warning("Failure shutting down Depot cache.", t);
         }
         _conprov.shutdown();
     }
@@ -250,15 +249,15 @@ public class PersistenceContext
         if (key != null && _cache != null) {
             CacheAdapter.CachedValue<T> cacheHit = cacheLookup(key);
             if (cacheHit != null) {
-                log.fine("cache hit [key=" + key + ", hit=" + cacheHit + "]");
+                log.debug("cache hit [key=" + key + ", hit=" + cacheHit + "]");
                 T value = cacheHit.getValue();
                 value = query.transformCacheHit(key, value);
                 if (value != null) {
                     return value;
                 }
-                log.fine("transformCacheHit returned null; rejecting cached value.");
+                log.debug("transformCacheHit returned null; rejecting cached value.");
             }
-            log.fine("cache miss [key=" + key + "]");
+            log.debug("cache miss [key=" + key + "]");
         }
         // otherwise, perform the query
         @SuppressWarnings("unchecked") T result = (T) invoke(query, null, true);
@@ -314,7 +313,7 @@ public class PersistenceContext
             Thread.dumpStack();
             return;
         }
-        log.fine("storing [key=" + key + ", value=" + entry + "]");
+        log.debug("storing [key=" + key + ", value=" + entry + "]");
 
         CacheAdapter.CacheBin<T> bin = _cache.getCache(key.getCacheId());
         CacheAdapter.CachedValue element = bin.lookup(key.getCacheKey());
@@ -328,7 +327,7 @@ public class PersistenceContext
         Set<CacheListener<?>> listeners = _listenerSets.get(key.getCacheId());
         if (listeners != null && listeners.size() > 0) {
             for (CacheListener<?> listener : listeners) {
-                log.fine("cascading [listener=" + listener + "]");
+                log.debug("cascading [listener=" + listener + "]");
                 @SuppressWarnings("unchecked")
                     CacheListener<T> casted = (CacheListener<T>)listener;
                 casted.entryCached(key, entry, oldEntry);
@@ -368,7 +367,7 @@ public class PersistenceContext
         if (_cache == null) {
             return;
         }
-        log.fine("invalidating [cacheId=" + cacheId + ", cacheKey=" + cacheKey + "]");
+        log.debug("invalidating [cacheId=" + cacheId + ", cacheKey=" + cacheKey + "]");
 
         CacheAdapter.CacheBin<T> bin = _cache.getCache(cacheId);
         CacheAdapter.CachedValue<T> element = bin.lookup(cacheKey);
@@ -384,7 +383,7 @@ public class PersistenceContext
             if (listeners != null && listeners.size() > 0) {
                 CacheKey key = new SimpleCacheKey(cacheId, cacheKey);
                 for (CacheListener<?> listener : listeners) {
-                    log.fine("cascading [listener=" + listener + "]");
+                    log.debug("cascading [listener=" + listener + "]");
                     @SuppressWarnings("unchecked") CacheListener<T> casted =
                         (CacheListener<T>)listener;
                     casted.entryInvalidated(key, oldEntry);
@@ -393,7 +392,7 @@ public class PersistenceContext
         }
 
         // then evict the keyed entry, if needed
-        log.fine("evicting [cacheKey=" + cacheKey + "]");
+        log.debug("evicting [cacheKey=" + cacheKey + "]");
         bin.remove(cacheKey);
     }
 

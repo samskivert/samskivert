@@ -33,7 +33,7 @@ import java.text.FieldPosition;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Used by various services to generate audit logs which can be useful for auditing, debugging and
@@ -88,10 +88,10 @@ public class AuditLogger
                 _throttled++;
             } else {
                 if (_throttled > 0) {
-                    Log.warning("Suppressed " + _throttled + " intervening error messages.");
+                    log.warning("Suppressed " + _throttled + " intervening error messages.");
                     _throttled = 0;
                 }
-                Log.warning("Failed to write audit log message [file=" + _logPath +
+                log.warning("Failed to write audit log message [file=" + _logPath +
                             ", msg=" + message + "].");
             }
         }
@@ -129,7 +129,7 @@ public class AuditLogger
             if (freakout) {
                 throw new RuntimeException(errmsg, ioe);
             } else {
-                Log.warning(errmsg + " [ioe=" + ioe + "].");
+                log.warning(errmsg + " [ioe=" + ioe + "].");
             }
         }
     }
@@ -151,7 +151,7 @@ public class AuditLogger
             // rename the old file
             String npath = _logPath.getPath() + "." + _dayStamp;
             if (!_logPath.renameTo(new File(npath))) {
-                Log.warning("Failed to rename audit log file [path=" + _logPath +
+                log.warning("Failed to rename audit log file [path=" + _logPath +
                             ", npath=" + npath + "].");
             }
 

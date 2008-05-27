@@ -25,7 +25,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.servlet.RedirectException;
@@ -35,6 +34,8 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
+
+import static com.samskivert.Log.log;
 
 /**
  * The user manager provides easy access to user objects for servlets. It takes care of cookie
@@ -123,7 +124,7 @@ public class UserManager
         // fetch the login URL from the properties
         _loginURL = config.getProperty("login_url");
         if (_loginURL == null) {
-            Log.warning("No login_url supplied in user manager config. Authentication won't work.");
+            log.warning("No login_url supplied in user manager config. Authentication won't work.");
             _loginURL = "/missing_login_url";
         }
 
@@ -134,7 +135,7 @@ public class UserManager
         }
 
         if (USERMGR_DEBUG) {
-            Log.info("UserManager initialized [acook=" + _userAuthCookie +
+            log.info("UserManager initialized [acook=" + _userAuthCookie +
                      ", login=" + _loginURL + "].");
         }
 
@@ -144,8 +145,7 @@ public class UserManager
                 try {
                     _repository.pruneSessions();
                 } catch (PersistenceException pe) {
-                    Log.warning("Error pruning session table.");
-                    Log.logStackTrace(pe);
+                    log.warning("Error pruning session table.", pe);
                 }
             }
         };
@@ -178,7 +178,7 @@ public class UserManager
     {
         String authcook = CookieUtil.getCookieValue(req, _userAuthCookie);
         if (USERMGR_DEBUG) {
-            Log.info("Loading user by cookie [" + _userAuthCookie + "=" + authcook + "].");
+            log.info("Loading user by cookie [" + _userAuthCookie + "=" + authcook + "].");
         }
         return loadUser(authcook);
     }
@@ -191,7 +191,7 @@ public class UserManager
     {
         User user = (authcode == null) ? null : _repository.loadUserBySession(authcode);
         if (USERMGR_DEBUG) {
-            Log.info("Loaded user by authcode [code=" + authcode + ", user=" + user + "].");
+            log.info("Loaded user by authcode [code=" + authcode + ", user=" + user + "].");
         }
         return user;
     }
@@ -214,7 +214,7 @@ public class UserManager
             String eurl = RequestUtils.getLocationEncoded(req);
             String target = StringUtil.replace(_loginURL, "%R", eurl);
             if (USERMGR_DEBUG) {
-                Log.info("No user found in require, redirecting [to=" + target + "].");
+                log.info("No user found in require, redirecting [to=" + target + "].");
             }
             throw new RedirectException(target);
         }
@@ -252,7 +252,7 @@ public class UserManager
         // potentially convert the user's legacy password
         if (password != null && password.getCleartext() != null &&
             user.updateLegacyPassword(password.getCleartext())) {
-            Log.info("Updated legacy password " + user.username + ".");
+            log.info("Updated legacy password " + user.username + ".");
             _repository.updateUser(user);
         }
 
@@ -291,7 +291,7 @@ public class UserManager
         // potentially convert the user's legacy password
         if (password != null && password.getCleartext() != null &&
             user.updateLegacyPassword(password.getCleartext())) {
-            Log.info("Updated legacy password " + user.username + ".");
+            log.info("Updated legacy password " + user.username + ".");
             _repository.updateUser(user);
         }
 
@@ -301,7 +301,7 @@ public class UserManager
         // register a session for this user
         String authcode = _repository.registerSession(user, expires);
         if (USERMGR_DEBUG) {
-            Log.info("Session started [user=" + username + ", code=" + authcode + "].");
+            log.info("Session started [user=" + username + ", code=" + authcode + "].");
         }
         return new Tuple<User,String>(user, authcode);
     }
@@ -326,7 +326,7 @@ public class UserManager
         acookie.setPath("/");
         acookie.setMaxAge((expires > 0) ? (expires*24*60*60) : -1);
         if (USERMGR_DEBUG) {
-            Log.info("Setting cookie " + acookie + ".");
+            log.info("Setting cookie " + acookie + ".");
         }
         rsp.addCookie(acookie);
     }
@@ -348,7 +348,7 @@ public class UserManager
         c.setMaxAge(0);
         CookieUtil.widenDomain(req, c);
         if (USERMGR_DEBUG) {
-            Log.info("Clearing cookie " + c + ".");
+            log.info("Clearing cookie " + c + ".");
         }
         rsp.addCookie(c);
 

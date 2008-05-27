@@ -26,9 +26,10 @@ import java.awt.event.KeyEvent;
 
 import java.util.ArrayList;
 
-import com.samskivert.Log;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
+
+import static com.samskivert.Log.log;
 
 /**
  * Provides a mechanism for causing code to be invoked when a particular
@@ -125,9 +126,7 @@ public class DebugChords
                     tup.right.invoke();
                     handled = true;
                 } catch (Throwable t) {
-                    Log.warning("Hook failed [event=" + e +
-                                ", hook=" + tup.right + "].");
-                    Log.logStackTrace(t);
+                    log.warning("Hook failed [event=" + e + ", hook=" + tup.right + "].", t);
                 }
             }
         }

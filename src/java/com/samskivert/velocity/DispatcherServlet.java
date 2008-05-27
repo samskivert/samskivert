@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -422,7 +421,7 @@ public class DispatcherServlet extends HttpServlet
     public Object methodException (Class clazz, String method, Exception e)
         throws Exception
     {
-        log.log(Level.WARNING, "Exception [class=" + clazz.getName() +
+        log.warning("Exception [class=" + clazz.getName() +
                 ", method=" + method + "].", e);
         return "";
     }
@@ -459,7 +458,7 @@ public class DispatcherServlet extends HttpServlet
             }
 
         } catch (Exception e) {
-            log.log(Level.WARNING, "doRequest failed [uri=" + request.getRequestURI() + "].", e);
+            log.warning("doRequest failed [uri=" + request.getRequestURI() + "].", e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
@@ -588,7 +587,7 @@ public class DispatcherServlet extends HttpServlet
                 // nothing interesting to report
 
             } catch (Throwable t) {
-                log.log(Level.WARNING, "Unable to instantiate logic for application [path=" + path +
+                log.warning("Unable to instantiate logic for application [path=" + path +
                         ", lclass=" + lclass + "].", t);
             }
 

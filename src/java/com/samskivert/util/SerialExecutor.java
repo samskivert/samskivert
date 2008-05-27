@@ -22,7 +22,7 @@ package com.samskivert.util;
 
 import java.util.ArrayList;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Executes tasks serially, but each one on a separate thread. If a task times
@@ -162,7 +162,7 @@ public class SerialExecutor
                         try {
                             task.timedOut();
                         } catch (Throwable t) {
-                            Log.logStackTrace(t);
+                            log.warning("Unit failed", t);
                         }
                         checkNext();
                     }
@@ -188,7 +188,7 @@ public class SerialExecutor
                     _task = null;
                 }
             } catch (Throwable t) {
-                Log.logStackTrace(t);
+                log.warning("Unit failed", t);
             }
 
             _receiver.postRunnable(new Runnable() {
@@ -196,7 +196,7 @@ public class SerialExecutor
                     try {
                         task.resultReceived();
                     } catch (Throwable t) {
-                        Log.logStackTrace(t);
+                        log.warning("Unit failed", t);
                     }
                     checkNext();
                 }

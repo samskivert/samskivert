@@ -44,10 +44,11 @@ import java.util.regex.Pattern;
 
 import javax.swing.SwingConstants;
 
-import com.samskivert.Log;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
+
+import static com.samskivert.Log.log;
 
 /**
  * The label is a multipurpose text display mechanism that can display
@@ -538,9 +539,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             }
 
         } catch (Throwable t) {
-            Log.warning("Label layout failed [text=" + _text +
-                        ", t=" + t + "].");
-            Log.logStackTrace(t);
+            log.warning("Label layout failed [text=" + _text + "].", t);
         }
 
         return layouts;
@@ -554,7 +553,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         // nothing to do if we haven't been laid out
         if (_layouts == null) {
-            Log.warning(hashCode() + " Unlaid-out label asked to render " +
+            log.warning(hashCode() + " Unlaid-out label asked to render " +
                         "[text=" + _text +
 //                         ", last=" + _invalidator +
                         "].");
@@ -683,7 +682,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                     try {
                         lastColor = new Color(Integer.parseInt(group, 16));
                     } catch (NumberFormatException nfe) {
-                        Log.warning("This shouldn't be possible, the regex " +
+                        log.warning("This shouldn't be possible, the regex " +
                             "is precise [badcolor=" + group + "].");
                     }
                 }

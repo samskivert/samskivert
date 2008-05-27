@@ -23,9 +23,10 @@ package com.samskivert.servlet.util;
 import java.io.*;
 import java.util.*;
 
-import com.samskivert.Log;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * The exception map is used to map exceptions to error messages based on
@@ -88,7 +89,7 @@ public class ExceptionMap
 	ClassLoader cld = ExceptionMap.class.getClassLoader();
 	InputStream config = ConfigUtil.getStream(PROPS_NAME, cld);
 	if (config == null) {
-	    Log.warning("Unable to load " + PROPS_NAME + " from CLASSPATH.");
+	    log.warning("Unable to load " + PROPS_NAME + " from CLASSPATH.");
 
 	} else {
 	    // otherwise process ye old config file.
@@ -117,7 +118,7 @@ public class ExceptionMap
 			_keys.add(cl);
 
 		    } catch (Throwable t) {
-			Log.warning("Unable to resolve exception class. " +
+			log.warning("Unable to resolve exception class. " +
 				    "[class=" + exclass +
 				    ", error=" + t + "].");
 			_values.remove(i);
@@ -126,7 +127,7 @@ public class ExceptionMap
 		}
 
 	    } catch (IOException ioe) {
-		Log.warning("Error reading exception mapping file: " + ioe);
+		log.warning("Error reading exception mapping file: " + ioe);
 	    }
 	}
     }

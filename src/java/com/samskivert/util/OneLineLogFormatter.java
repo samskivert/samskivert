@@ -78,7 +78,8 @@ public class OneLineLogFormatter extends Formatter
                 // strip the package name from the logging class
                 where = where.substring(where.lastIndexOf(".")+1);
             }
-            boolean legacy = where.equals("Log") || where.equals("LoggingLogProvider");
+            boolean legacy = where.equals("Log") || where.equals("LoggingLogProvider") ||
+                where.startsWith("JDK14Logger$Impl");
             if (legacy) {
                 where = record.getLoggerName();
             }
@@ -142,10 +143,8 @@ public class OneLineLogFormatter extends Formatter
 
     protected boolean _showWhere;
     protected Date _date = new Date();
-    protected SimpleDateFormat _format =
-        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
-    protected FieldPosition _fpos =
-        new FieldPosition(SimpleDateFormat.DATE_FIELD);
+    protected SimpleDateFormat _format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
+    protected FieldPosition _fpos = new FieldPosition(SimpleDateFormat.DATE_FIELD);
 
     protected static String LINE_SEPARATOR = "\n";
     protected static final String DATE_FORMAT = "{0,date} {0,time}";

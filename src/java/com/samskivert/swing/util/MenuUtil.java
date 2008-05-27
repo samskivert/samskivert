@@ -30,7 +30,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * The menu util class provides miscellaneous useful utility routines for
@@ -226,7 +226,7 @@ public class MenuUtil
                 _target = target;
 
             } catch (Exception e) {
-                Log.warning("Unable to obtain menu callback method " +
+                log.warning("Unable to obtain menu callback method " +
                             "[target=" + target + ", method=" + _method +
                             ", error=" + e + "]. Item will not function.");
             }
@@ -238,10 +238,9 @@ public class MenuUtil
                 try {
                     _method.invoke(_target, new Object[] { event });
                 } catch (Exception e) {
-                    Log.warning("Failure invoking menu callback " +
+                    log.warning("Failure invoking menu callback " +
                                 "[target=" + _target +
-                                ", method=" + _method + "].");
-                    Log.logStackTrace(e);
+                                ", method=" + _method + "].", e);
                 }
             }
         }

@@ -22,7 +22,7 @@ package com.samskivert.jdbc;
 
 import java.sql.*;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * A database liaison for the MySQL database.
@@ -99,7 +99,7 @@ public class MySQLLiaison extends BaseLiaison
         update.append(")");
 
         executeQuery(conn, update.toString());
-        Log.info("Database index '" + ixName + "' added to table '" + table + "'");
+        log.info("Database index '" + ixName + "' added to table '" + table + "'");
         return true;
     }
 
@@ -127,7 +127,7 @@ public class MySQLLiaison extends BaseLiaison
         }
         executeQuery(conn, "ALTER TABLE " + table + " CHANGE " + oldColumnName + " " +
                      newColumnName + " " + expandDefinition(newColumnDef));
-        Log.info("Renamed column '" + oldColumnName + "' on table '" + table + "' to '" +
+        log.info("Renamed column '" + oldColumnName + "' on table '" + table + "' to '" +
                  newColumnName + "'");
         return true;
     }

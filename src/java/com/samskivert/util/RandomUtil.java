@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Provides miscellaneous utility routines to simplify obtaining useful random number values and to
@@ -109,7 +109,7 @@ public class RandomUtil
                 return ii;
             }
         }
-        Log.logStackTrace(new Throwable()); // Impossible!
+        log.warning("getWeightedIndex failed", new Throwable()); // Impossible!
         return 0;
     }
 
@@ -169,7 +169,7 @@ public class RandomUtil
             }
         }
 
-        Log.logStackTrace(new Throwable()); // Impossible!
+        log.warning("getWeightedIndex failed", new Throwable()); // Impossible!
         return 0;
     }
 

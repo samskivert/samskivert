@@ -38,7 +38,7 @@ import com.samskivert.util.ClassUtil;
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ListUtil;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Allows simple displaying and editing of Objects in a table format.
@@ -87,7 +87,7 @@ public class ObjectEditorTable extends JTable
             try {
                 return field.get(obj);
             } catch (IllegalAccessException iae) {
-                Log.logStackTrace(iae);
+                log.warning("Failed to get value", "field", field, iae);
                 return null;
             }
         }
@@ -101,7 +101,7 @@ public class ObjectEditorTable extends JTable
             try {
                 field.set(obj, value);
             } catch (IllegalAccessException iae) {
-                Log.logStackTrace(iae);
+                log.warning("Failed to set value", "field", field, iae);
             }
         }
     }

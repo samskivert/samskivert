@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.samskivert.Log;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * Provides a simplified mechanism for maintaining a list of observers (or
@@ -264,7 +265,7 @@ public class ObserverList<T> extends ArrayList<T>
     {
         // make sure we're not violating the list constraints
         if (!_allowDups && contains(obs)) {
-            Log.warning("Observer attempted to observe list it's already " +
+            log.warning("Observer attempted to observe list it's already " +
                         "observing! [obs=" + obs + "].");
             Thread.dumpStack();
             return true;
@@ -281,10 +282,8 @@ public class ObserverList<T> extends ArrayList<T>
         try {
             return obop.apply(obs);
         } catch (Throwable thrown) {
-            Log.warning("ObserverOp choked during notification " +
-                        "[op=" + obop +
-                        ", obs=" + StringUtil.safeToString(obs) + "].");
-            Log.logStackTrace(thrown);
+            log.warning("ObserverOp choked during notification [op=" + obop +
+                        ", obs=" + StringUtil.safeToString(obs) + "].", thrown);
             // if they booched it, definitely don't remove them
             return true;
         }

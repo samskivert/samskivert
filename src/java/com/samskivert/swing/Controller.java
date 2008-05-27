@@ -34,8 +34,9 @@ import javax.swing.JComponent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 
-import com.samskivert.Log;
 import com.samskivert.swing.event.CommandEvent;
+
+import static com.samskivert.Log.log;
 
 /**
  * The controller class provides a basis for the separation of user interface
@@ -296,7 +297,7 @@ public abstract class Controller
             }
 
         } catch (Exception e) {
-            Log.warning("Error searching for action handler method " +
+            log.warning("Error searching for action handler method " +
                         "[controller=" + this + ", action=" + action + "].");
             return false;
         }
@@ -310,9 +311,8 @@ public abstract class Controller
             }
 
         } catch (Exception e) {
-            Log.warning("Error invoking action handler [controller=" + this +
-                        ", action=" + action + "].");
-            Log.logStackTrace(e);
+            log.warning("Error invoking action handler [controller=" + this +
+                        ", action=" + action + "].", e);
             // even though we choked, we still "handled" the action
             return true;
         }
@@ -369,7 +369,7 @@ public abstract class Controller
                 return new Object[] { source, argument };
             }
 
-            Log.warning("Unable to map argumentless event to handler method " +
+            log.warning("Unable to map argumentless event to handler method " +
                         "that requires an argument [controller=" + this +
                         ", method=" + method + ", source=" + source + "].");
         }
@@ -394,7 +394,7 @@ public abstract class Controller
             // do some sanity checking on the source
             Object src = _action.getSource();
             if (src == null || !(src instanceof Component)) {
-                Log.warning("Requested to dispatch action on " +
+                log.warning("Requested to dispatch action on " +
                             "non-component source [source=" + src +
                             ", action=" + _action + "].");
                 return;
@@ -410,7 +410,7 @@ public abstract class Controller
 
                 Controller ctrl = ((ControllerProvider)source).getController();
                 if (ctrl == null) {
-                    Log.warning("Provider returned null controller " +
+                    log.warning("Provider returned null controller " +
                                 "[provider=" + source + "].");
                     continue;
                 }
@@ -423,15 +423,14 @@ public abstract class Controller
                     }
 
                 } catch (Exception e) {
-                    Log.warning("Controller choked on action " +
+                    log.warning("Controller choked on action " +
                                 "[ctrl=" + ctrl +
-                                ", action=" + _action + "].");
-                    Log.logStackTrace(e);
+                                ", action=" + _action + "].", e);
                 }
             }
 
             // if we got here, we didn't find a controller
-            Log.warning("Unable to find a controller to process action " +
+            log.warning("Unable to find a controller to process action " +
                         "[action=" + _action + "].");
         }
 

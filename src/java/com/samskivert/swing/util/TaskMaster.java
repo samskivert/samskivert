@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import javax.swing.SwingUtilities;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * The task master provides the ability for swing applications to invoke
@@ -126,9 +126,7 @@ public class TaskMaster
                 try {
                     _observer.taskCompleted(_name, _result);
                 } catch (Throwable t) {
-                    Log.warning("Observer choked in " +
-                                "taskCompleted(): " + t);
-                    Log.logStackTrace(t);
+                    log.warning("Observer choked in taskCompleted()", t);
                 }
                 break;
 
@@ -136,8 +134,7 @@ public class TaskMaster
                 try {
                     _observer.taskFailed(_name, (Throwable)_result);
                 } catch (Throwable ot) {
-                    Log.warning("Observer choked in taskFailed(): " + ot);
-                    Log.logStackTrace(ot);
+                    log.warning("Observer choked in taskFailed()", ot);
                 }
                 break;
             }
@@ -145,7 +142,7 @@ public class TaskMaster
 
 	public void abort ()
 	{
-	    Log.warning("abort() not currently supported.");
+	    log.warning("abort() not currently supported.");
 	}
 
 	protected String _name;

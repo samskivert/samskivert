@@ -20,8 +20,6 @@
 
 package com.samskivert.jdbc;
 
-import java.util.logging.Level;
-
 import com.samskivert.util.Invoker;
 
 import static com.samskivert.Log.log;
@@ -70,7 +68,7 @@ public abstract class WriteOnlyUnit extends Invoker.Unit
      */
     public void handleFailure (Exception e)
     {
-        log.log(Level.WARNING, getFailureMessage(), e);
+        log.warning(getFailureMessage(), e);
     }
 
     /**

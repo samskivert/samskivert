@@ -20,8 +20,7 @@
 
 package com.samskivert.jdbc.depot;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.samskivert.util.Logger;
 
 /**
  * Contains a reference to the log object used by this package.

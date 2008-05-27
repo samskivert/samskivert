@@ -26,9 +26,10 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.samskivert.Log;
 import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * The message manager handles the translation messages for a web application. The webapp should
@@ -183,7 +184,7 @@ public class MessageManager
 
         if (reportMissing) {
             // if there's no translation for this path, complain about it
-            Log.warning("Missing translation message [path=" + path +
+            log.warning("Missing translation message [path=" + path +
                         ", url=" + getURL(req) + "].");
             return path;
         }
@@ -217,7 +218,7 @@ public class MessageManager
                 try {
                     siteLoader = _siteLoader.getSiteClassLoader(siteId);
                 } catch (IOException ioe) {
-                    Log.warning("Unable to fetch site-specific classloader " +
+                    log.warning("Unable to fetch site-specific classloader " +
                                 "[siteId=" + siteId + ", error=" + ioe + "].");
                 }
             }
@@ -292,7 +293,7 @@ public class MessageManager
                 if (!silent) {
                     // if we were unable even to find a default bundle, we may want to log a
                     // warning
-                    Log.warning("Unable to resolve any message bundle [req=" + getURL(req) +
+                    log.warning("Unable to resolve any message bundle [req=" + getURL(req) +
                                 ", locale=" + locale + ", bundlePath=" + bundlePath +
                                 ", classLoader=" + loader + ", siteBundlePath=" + _siteBundlePath +
                                 ", siteLoader=" + _siteLoader + "].");

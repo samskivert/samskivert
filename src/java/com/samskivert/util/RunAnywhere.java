@@ -22,7 +22,7 @@ package com.samskivert.util;
 
 import java.awt.event.InputEvent;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * <cite>Write once, run anywhere.</cite> Well, at least that's what it
@@ -72,7 +72,7 @@ public class RunAnywhere
         if (stamp < _lastStamp) {
             // only warn once per time anomaly
             if (stamp > _lastWarning) {
-                Log.warning("Someone call Einstein! The clock is " +
+                log.warning("Someone call Einstein! The clock is " +
                             "running backwards [dt=" +
                             (stamp - _lastStamp) + "].");
                 _lastWarning = _lastStamp;

@@ -20,7 +20,7 @@
 
 package com.samskivert.velocity;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Decodes a compound Velocity resource name plus site identifier.
@@ -43,7 +43,7 @@ public class SiteKey
             try {
                 siteId = Integer.parseInt(path.substring(0, cidx));
             } catch (Exception e) {
-                Log.warning("Invalid site path [path=" + path + "].");
+                log.warning("Invalid site path [path=" + path + "].");
             }
             this.path = path.substring(cidx+1);
         }

@@ -22,7 +22,7 @@ package com.samskivert.xml;
 
 import org.apache.commons.digester.Rule;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Used to compare a file format version number in an XML file with the
@@ -52,7 +52,7 @@ public class CheckVersionRule extends Rule
     {
         int version = Integer.parseInt(bodyText.trim());
         if (version > _version) {
-            Log.warning(_parserIdentifier + " only knows about version " +
+            log.warning(_parserIdentifier + " only knows about version " +
                         _version + ", but is being asked to parse a file " +
                         "with version " + version + ". Wackiness may ensue.");
         }

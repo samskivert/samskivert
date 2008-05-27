@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.velocity.app.Velocity;
 
-import com.samskivert.Log;
 import com.samskivert.servlet.HttpErrorException;
 import com.samskivert.servlet.IndiscriminateSiteIdentifier;
 import com.samskivert.servlet.MessageManager;
@@ -40,6 +39,8 @@ import com.samskivert.servlet.util.ExceptionMap;
 import com.samskivert.servlet.util.FriendlyException;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * The servlet API defines the concept of a web application and associates certain attributes with
@@ -121,7 +122,7 @@ public class Application
                 _msgmgr.activateSiteSpecificMessages(siteBundlePath, _siteLoader);
 
             } else {
-                Log.info("No '" + SITE_MESSAGE_BUNDLE_PATH_KEY + "' specified in servlet " +
+                log.info("No '" + SITE_MESSAGE_BUNDLE_PATH_KEY + "' specified in servlet " +
                          "configuration. This is required to allow the message manager to load " +
                          "site-specific translation resources.");
             }
@@ -213,8 +214,7 @@ public class Application
      */
     protected String handleException (HttpServletRequest req, Logic logic, Exception error)
     {
-        Log.warning(logic + " failed on: " + RequestUtils.reconstructURL(req));
-        Log.logStackTrace(error);
+        log.warning(logic + " failed on: " + RequestUtils.reconstructURL(req), error);
         return ExceptionMap.getMessage(error);
     }
 

@@ -25,7 +25,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * Used to enable or disable a source component based on some
@@ -83,7 +83,7 @@ public class EnablingAdapter
                 if (value instanceof Boolean) {
                     stateChanged(((Boolean)value).booleanValue());
                 } else {
-                    Log.warning("PropertyChangeEnabler connected to " +
+                    log.warning("PropertyChangeEnabler connected to " +
                                 "non-Boolean property [got=" + value + "].");
                 }
             }

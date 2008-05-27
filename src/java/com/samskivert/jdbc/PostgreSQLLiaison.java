@@ -22,7 +22,7 @@ package com.samskivert.jdbc;
 
 import java.sql.*;
 
-import com.samskivert.Log;
+import static com.samskivert.Log.log;
 
 /**
  * A database liaison for the MySQL database.
@@ -87,34 +87,34 @@ public class PostgreSQLLiaison extends BaseLiaison
                                  Boolean nullable, Boolean unique, String defaultValue)
         throws SQLException
     {
-        StringBuilder log = new StringBuilder();
+        StringBuilder lbuf = new StringBuilder();
         if (type != null) {
             executeQuery(
                 conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
                 " TYPE " + type);
-            log.append("type=" + type);
+            lbuf.append("type=" + type);
         }
         if (nullable != null) {
             executeQuery(
                 conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
                 " " + (nullable.booleanValue() ? "SET NOT NULL" : "DROP NOT NULL"));
-            if (log.length() > 0) log.append(", ");
-            log.append("nullable=" + nullable);
+            if (lbuf.length() > 0) lbuf.append(", ");
+            lbuf.append("nullable=" + nullable);
         }
         if (unique != null) {
             // TODO: I think this requires ALTER TABLE DROP CONSTRAINT and so on
-            if (log.length() > 0) log.append(", ");
-            log.append("unique=" + unique + " (not implemented yet)");
+            if (lbuf.length() > 0) lbuf.append(", ");
+            lbuf.append("unique=" + unique + " (not implemented yet)");
         }
         if (defaultValue != null) {
             executeQuery(
                 conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
                 " " + (defaultValue.length() > 0 ? "SET DEFAULT " + defaultValue : "DROP DEFAULT"));
-            if (log.length() > 0) log.append(", ");
-            log.append("defaultValue=" + defaultValue);
+            if (lbuf.length() > 0) lbuf.append(", ");
+            lbuf.append("defaultValue=" + defaultValue);
         }
-        Log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
-                 "definition [" + log + "].");
+        log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
+                 "definition [" + lbuf + "].");
         return true;
     }
 

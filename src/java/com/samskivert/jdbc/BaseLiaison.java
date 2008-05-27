@@ -25,8 +25,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.samskivert.Log;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * A superclass to help with the shrinking subset of SQL our supported dialects can agree on,
@@ -108,7 +109,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         update.append(")");
 
         executeQuery(conn, update.toString());
-        Log.info("Database index '" + ixName + "' added to table '" + table + "'");
+        log.info("Database index '" + ixName + "' added to table '" + table + "'");
         return true;
     }
 
@@ -127,7 +128,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         String update = "ALTER TABLE " + tableSQL(table) + " ADD PRIMARY KEY " + fields.toString();
 
         executeQuery(conn, update.toString());
-        Log.info("Primary key " + fields + " added to table '" + table + "'");
+        log.info("Primary key " + fields + " added to table '" + table + "'");
     }
 
     // from DatabaseLiaison
@@ -155,7 +156,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ADD COLUMN " +
                      columnSQL(column) + " " + definition);
-        Log.info("Database column '" + column + "' added to table '" + table + "'.");
+        log.info("Database column '" + column + "' added to table '" + table + "'.");
         return true;
     }
 
@@ -170,7 +171,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " CHANGE " +
                      columnSQL(column) + " " + columnSQL(column) + " " + defStr);
-        Log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
+        log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
                  "definition '" + defStr + "'.");
         return true;
     }
@@ -182,7 +183,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " RENAME COLUMN " +
                      columnSQL(from) + " TO " + columnSQL(to));
-        Log.info("Renamed column '" + from + "' on table '" + table + "' to '" + to + "'");
+        log.info("Renamed column '" + from + "' on table '" + table + "' to '" + to + "'");
         return true;
     }
 
@@ -193,7 +194,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
             return false;
         }
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " DROP COLUMN " + columnSQL(column));
-        Log.info("Database column '" + column + "' removed from table '" + table + "'.");
+        log.info("Database column '" + column + "' removed from table '" + table + "'.");
         return true;
     }
 
@@ -247,7 +248,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         builder.append(")");
 
         executeQuery(conn, builder.toString());
-        Log.info("Database table '" + table + "' created.");
+        log.info("Database table '" + table + "' created.");
         return true;
     }
 

@@ -24,11 +24,12 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
-import com.samskivert.Log;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * The static connection provider generates JDBC connections based on configuration information
@@ -131,7 +132,7 @@ public class StaticConnectionProvider implements ConnectionProvider
             String key = username + "@" + url + ":" + readOnly;
             conmap = _keys.get(key);
             if (conmap == null) {
-                Log.debug("Creating " + key + " for " + ident + ".");
+                log.debug("Creating " + key + " for " + ident + ".");
                 conmap = new Mapping();
                 conmap.key = key;
                 conmap.connection = openConnection(driver, url, username, password);
@@ -151,7 +152,7 @@ public class StaticConnectionProvider implements ConnectionProvider
                 _keys.put(key, conmap);
 
             } else {
-                Log.debug("Reusing " + key + " for " + ident + ".");
+                log.debug("Reusing " + key + " for " + ident + ".");
             }
 
             // cache the connection
@@ -175,7 +176,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         String mapkey = ident + ":" + readOnly;
         Mapping conmap = _idents.get(mapkey);
         if (conmap == null) {
-            Log.warning("Unknown connection failed!? [key=" + mapkey + "].");
+            log.warning("Unknown connection failed!? [key=" + mapkey + "].");
             return;
         }
 
@@ -200,7 +201,7 @@ public class StaticConnectionProvider implements ConnectionProvider
             try {
                 conmap.connection.close();
             } catch (SQLException sqe) {
-                Log.warning("Error shutting down connection [key=" + key + ", err=" + sqe + "].");
+                log.warning("Error shutting down connection [key=" + key + ", err=" + sqe + "].");
             }
         }
 
@@ -240,7 +241,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         try {
             conn.close();
         } catch (SQLException sqe) {
-            Log.warning("Error closing failed connection [ident=" + ident +
+            log.warning("Error closing failed connection [ident=" + ident +
                         ", error=" + sqe + "].");
         }
     }

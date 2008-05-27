@@ -9,7 +9,7 @@
     <echo level="info">followed by 'true' indicates that the package ispresent. One</echo>
     <echo level="info">followed by '${package.present}' indicates that it was not</echo>
     <echo level="info">found. Jar files can be placed into the lib/ directory or</echo>
-    <echo level="info">copied into dist/lib if samskivert isbeing built as a part of a</echo>
+    <echo level="info">copied into dist/lib if samskivert is being built as a part of a</echo>
     <echo level="info">larger project.</echo>
 
     <echo level="info"></echo>

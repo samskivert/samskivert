@@ -5,12 +5,6 @@
 ROOT=`dirname $0`
 ROOT=`cd $ROOT/.. ; pwd`
 
-JAVA_VM="$JAVA_HOME/bin/java"
-if [ ! -e $JAVA_VM ]; then
-    echo "$0: Cannot find JVM in $JAVA_HOME. Exiting."
-    exit 255
-fi
-
 CLASSPATH="$JAVA_HOME/jre/lib/rt.jar"
 for JAR in $ROOT/dist/lib/*.jar; do
     CLASSPATH=$CLASSPATH:$JAR
@@ -18,4 +12,4 @@ done
 CLASSPATH=$ROOT/dist/classes:$ROOT:$CLASSPATH
 export CLASSPATH
 
-eval $JAVA_VM $JAVA_ARGS "$@"
+eval java $JAVA_ARGS "$@"

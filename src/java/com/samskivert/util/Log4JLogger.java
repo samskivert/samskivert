@@ -55,7 +55,7 @@ public class Log4JLogger implements Logger.Factory
         public void debug (Object message, Object... args)
         {
             if (_impl.isEnabledFor(Level.DEBUG)) {
-                _impl.log(Level.DEBUG, format(message, args), getException(message, args));
+                _impl.log(_self, Level.DEBUG, format(message, args), getException(message, args));
             }
         }
 
@@ -63,7 +63,7 @@ public class Log4JLogger implements Logger.Factory
         public void info (Object message, Object... args)
         {
             if (_impl.isEnabledFor(Level.INFO)) {
-                _impl.log(Level.INFO, format(message, args), getException(message, args));
+                _impl.log(_self, Level.INFO, format(message, args), getException(message, args));
             }
         }
 
@@ -71,7 +71,7 @@ public class Log4JLogger implements Logger.Factory
         public void warning (Object message, Object... args)
         {
             if (_impl.isEnabledFor(Level.WARN)) {
-                _impl.log(Level.WARN, format(message, args), getException(message, args));
+                _impl.log(_self, Level.WARN, format(message, args), getException(message, args));
             }
         }
 
@@ -79,10 +79,11 @@ public class Log4JLogger implements Logger.Factory
         public void error (Object message, Object... args)
         {
             if (_impl.isEnabledFor(Level.ERROR)) {
-                _impl.log(Level.ERROR, format(message, args), getException(message, args));
+                _impl.log(_self, Level.ERROR, format(message, args), getException(message, args));
             }
         }
 
-        protected org.apache.log4j.Logger _impl;
+        protected final org.apache.log4j.Logger _impl;
+        protected final String _self = getClass().getName();
     }
 }

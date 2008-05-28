@@ -135,7 +135,16 @@ public abstract class Logger
         // if a custom class was specified as a system property, use that
         _factory = createConfiguredFactory();
 
-        // TODO: create and try a log4j logger
+        // create and a log4j logger if the log4j configuration system property is set
+        try {
+            if (_factory == null && System.getProperty("log4j.configuration") != null) {
+                _factory = (Factory)Class.forName("com.samskivert.util.Log4JLogger").newInstance();
+            }
+        } catch (SecurityException se) {
+            // in a sandbox, no biggie
+        } catch (Throwable t) {
+            System.err.println("Unable to instantiate Log4JLogger: " + t);
+        }
 
         // lastly, fall back to the Java logging system
         if (_factory == null) {

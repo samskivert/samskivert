@@ -70,6 +70,10 @@
     <available property="junit.present" classpathref="classpath"
      classname="junit.framework.Test"/>
     <echo level="info">JUnit: ${junit.present}</echo>
+
+    <available property="log4j.present" classpathref="classpath"
+     classname="org.apache.log4j.Logger"/>
+    <echo level="info">log4j: ${log4j.present}</echo>
   </target>
 
   <!-- combines package availability into build controls -->

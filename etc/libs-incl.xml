@@ -10,6 +10,7 @@
     <include name="ehcache-1.2.jar"/>
     <include name="junit-3.7.jar"/>
     <include name="junit4.jar"/>
+    <include name="log4j.jar"/>
     <include name="mail.jar"/>
     <include name="servlet-api.jar"/>
     <include name="velocity-1.5-dev.jar"/>

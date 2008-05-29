@@ -12,5 +12,6 @@
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/mail.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/servlet-api.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/velocity-1.5-dev.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/log4j.jar"/>
 	<classpathentry kind="output" path="dist/classes"/>
 </classpath>

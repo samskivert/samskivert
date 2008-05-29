@@ -160,7 +160,13 @@ public abstract class Logger
      */
     protected static Factory createConfiguredFactory ()
     {
-        String implClass = System.getProperty("com.samskivert.util.Log");
+        String implClass;
+        try {
+            implClass = System.getProperty("com.samskivert.util.Log");
+        } catch (SecurityException se) {
+            // in a sandbox
+            return null;
+        }
         if (!StringUtil.isBlank(implClass)) {
             try {
                 return (Factory)Class.forName(implClass).newInstance();

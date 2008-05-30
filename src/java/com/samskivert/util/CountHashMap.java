@@ -2,8 +2,8 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001-2007 Michael Bayne
-// 
+// Copyright (C) 2001-2008 Michael Bayne
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -134,6 +134,14 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         return new CountEntrySet(super.entrySet());
     }
 
+    /**
+     * Returns a set of {@link Entry} records which can be used to easily obtain our count.
+     */
+    public Set<Entry<K>> countEntrySet ()
+    {
+        return new CountEntrySet<K>(super.entrySet());
+    }
+
     protected static class CountEntryImpl<K>
         implements Entry<K>
     {
@@ -156,7 +164,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         {
             return _entry.getValue();
         }
-        
+
         public int hashCode ()
         {
             return _entry.hashCode();
@@ -226,7 +234,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         {
             return CountHashMap.this.size();
         }
-        
+
         public void clear ()
         {
             CountHashMap.this.clear();

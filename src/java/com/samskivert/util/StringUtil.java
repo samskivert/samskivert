@@ -973,8 +973,9 @@ public class StringUtil
         StringTokenizer tok = new StringTokenizer(source, ",");
         boolean[] vals = new boolean[tok.countTokens()];
         for (int i = 0; tok.hasMoreTokens(); i++) {
-            // trim the whitespace from the token
-            vals[i] = Boolean.parseBoolean(tok.nextToken().trim());
+            // accept a lone 't' for true for compatibility with toString(boolean[])
+            String token = tok.nextToken().trim();
+            vals[i] = Boolean.parseBoolean(token) || token.equalsIgnoreCase("t");
         }
         return vals;
     }

@@ -40,6 +40,17 @@ package com.samskivert.util;
 public abstract class Logger
 {
     /**
+     * Used to create logger instances. This is only public so that the log factory can be
+     * configured programmatically via {@link Logger#setFactory}.
+     */
+    public static interface Factory
+    {
+        public void init ();
+        public Logger getLogger (String name);
+        public Logger getLogger (Class clazz);
+    }
+
+    /**
      * Obtains a logger with the specified name.
      */
     public static Logger getLogger (String name)
@@ -53,6 +64,18 @@ public abstract class Logger
     public static Logger getLogger (Class clazz)
     {
         return _factory.getLogger(clazz);
+    }
+
+    /**
+     * Configures the logging factory be used by the logging system. Normally you would not do this
+     * and would instead use the <code>com.samskivert.util.Logger</code> system property instead,
+     * but in some situations, like in an applet, you cannot pass system properties and we can't
+     * read them anyway because we're running in a security sandbox.
+     */
+    public static void setFactory (Factory factory)
+    {
+        _factory = factory;
+        _factory.init();
     }
 
     /**
@@ -133,12 +156,12 @@ public abstract class Logger
     protected static void initLogger ()
     {
         // if a custom class was specified as a system property, use that
-        _factory = createConfiguredFactory();
+        Factory factory = createConfiguredFactory();
 
         // create and a log4j logger if the log4j configuration system property is set
         try {
-            if (_factory == null && System.getProperty("log4j.configuration") != null) {
-                _factory = (Factory)Class.forName("com.samskivert.util.Log4JLogger").newInstance();
+            if (factory == null && System.getProperty("log4j.configuration") != null) {
+                factory = (Factory)Class.forName("com.samskivert.util.Log4JLogger").newInstance();
             }
         } catch (SecurityException se) {
             // in a sandbox, no biggie
@@ -147,12 +170,12 @@ public abstract class Logger
         }
 
         // lastly, fall back to the Java logging system
-        if (_factory == null) {
-            _factory = new JDK14Logger();
+        if (factory == null) {
+            factory = new JDK14Logger();
         }
 
-        // and finally initialize our factory
-        _factory.init();
+        // and finally configure our factory
+        setFactory(factory);
     }
 
     /**
@@ -176,16 +199,6 @@ public abstract class Logger
             }
         }
         return null;
-    }
-
-    /**
-     * Used to create logger instances.
-     */
-    protected static interface Factory
-    {
-        public void init ();
-        public Logger getLogger (String name);
-        public Logger getLogger (Class clazz);
     }
 
     protected static Factory _factory;

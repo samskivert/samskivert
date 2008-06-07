@@ -121,6 +121,33 @@ public class ObserverList<T> extends ArrayList<T>
     public static final int FAST_UNSAFE_NOTIFY = 2;
 
     /**
+     * A convenience method for creating an observer list that avoids duplicating the type
+     * parameter on the right hand side.
+     */
+    public static <T> ObserverList<T> createSafeInOrder ()
+    {
+        return new ObserverList<T>(SAFE_IN_ORDER_NOTIFY);
+    }
+
+    /**
+     * A convenience method for creating an observer list that avoids duplicating the type
+     * parameter on the right hand side.
+     */
+    public static <T> ObserverList<T> createFastUnsafe ()
+    {
+        return new ObserverList<T>(FAST_UNSAFE_NOTIFY);
+    }
+
+    /**
+     * A convenience method for creating an observer list that avoids duplicating the type
+     * parameter on the right hand side.
+     */
+    public static <T> ObserverList<T> create (int notifyPolicy, boolean allowDups)
+    {
+        return new ObserverList<T>(notifyPolicy, allowDups);
+    }
+
+    /**
      * Creates an empty observer list with the supplied notification
      * policy and that only allows observers to observe the list once.
      *

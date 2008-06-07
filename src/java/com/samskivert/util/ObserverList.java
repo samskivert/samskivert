@@ -124,7 +124,7 @@ public class ObserverList<T> extends ArrayList<T>
      * A convenience method for creating an observer list that avoids duplicating the type
      * parameter on the right hand side.
      */
-    public static <T> ObserverList<T> createSafeInOrder ()
+    public static <T> ObserverList<T> newSafeInOrder ()
     {
         return new ObserverList<T>(SAFE_IN_ORDER_NOTIFY);
     }
@@ -133,7 +133,7 @@ public class ObserverList<T> extends ArrayList<T>
      * A convenience method for creating an observer list that avoids duplicating the type
      * parameter on the right hand side.
      */
-    public static <T> ObserverList<T> createFastUnsafe ()
+    public static <T> ObserverList<T> newFastUnsafe ()
     {
         return new ObserverList<T>(FAST_UNSAFE_NOTIFY);
     }
@@ -142,7 +142,7 @@ public class ObserverList<T> extends ArrayList<T>
      * A convenience method for creating an observer list that avoids duplicating the type
      * parameter on the right hand side.
      */
-    public static <T> ObserverList<T> create (int notifyPolicy, boolean allowDups)
+    public static <T> ObserverList<T> newList (int notifyPolicy, boolean allowDups)
     {
         return new ObserverList<T>(notifyPolicy, allowDups);
     }

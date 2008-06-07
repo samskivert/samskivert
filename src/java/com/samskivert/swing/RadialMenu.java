@@ -673,5 +673,5 @@ public class RadialMenu
     protected MouseHijacker _hijacker;
 
     /** Maintains a list of action listeners. */
-    protected ObserverList<ActionListener> _actlist = ObserverList.createSafeInOrder();
+    protected ObserverList<ActionListener> _actlist = ObserverList.newSafeInOrder();
 }

@@ -35,8 +35,7 @@ public class ArrayUtil
      * Looks for an element that tests true for Object equality with the supplied value and
      * returns its index in the array.
      *
-     * @return the index of the first matching value if one was found, -1
-     * otherwise.
+     * @return the index of the first matching value if one was found, -1 otherwise.
      */
     public static <T extends Object> int indexOf (T[] values, T value)
     {
@@ -50,11 +49,9 @@ public class ArrayUtil
     }
 
     /**
-     * Looks for an element that is equal to the supplied value and
-     * returns its index in the array.
+     * Looks for an element that is equal to the supplied value and returns its index in the array.
      *
-     * @return the index of the first matching value if one was found, -1
-     * otherwise.
+     * @return the index of the first matching value if one was found, -1 otherwise.
      */
     public static int indexOf (byte[] values, byte value)
     {
@@ -68,11 +65,9 @@ public class ArrayUtil
     }
 
     /**
-     * Looks for an element that is equal to the supplied value and
-     * returns its index in the array.
+     * Looks for an element that is equal to the supplied value and returns its index in the array.
      *
-     * @return the index of the first matching value if one was found, -1
-     * otherwise.
+     * @return the index of the first matching value if one was found, -1 otherwise.
      */
     public static int indexOf (float[] values, float value)
     {
@@ -159,8 +154,7 @@ public class ArrayUtil
      * Shuffles the elements in the given array into a random sequence.
      *
      * @param values the array to shuffle.
-     * @param rnd the source from which random values for shuffling the
-     * array are obtained.
+     * @param rnd the source from which random values for shuffling the array are obtained.
      */
     public static void shuffle (byte[] values, Random rnd)
     {
@@ -168,8 +162,7 @@ public class ArrayUtil
     }
 
     /**
-     * Shuffles a subset of elements within the specified array into a
-     * random sequence.
+     * Shuffles a subset of elements within the specified array into a random sequence.
      *
      * @param values the array containing elements to shuffle.
      * @param offset the index at which to start shuffling elements.
@@ -181,14 +174,12 @@ public class ArrayUtil
     }
 
     /**
-     * Shuffles a subset of elements within the specified array into a
-     * random sequence.
+     * Shuffles a subset of elements within the specified array into a random sequence.
      *
      * @param values the array containing elements to shuffle.
      * @param offset the index at which to start shuffling elements.
      * @param length the number of elements to shuffle.
-     * @param rnd the source from which random values for shuffling the
-     * array are obtained.
+     * @param rnd the source from which random values for shuffling the array are obtained.
      */
     public static void shuffle (
         byte[] values, int offset, int length, Random rnd)
@@ -218,8 +209,7 @@ public class ArrayUtil
      * Shuffles the elements in the given array into a random sequence.
      *
      * @param values the array to shuffle.
-     * @param rnd the source from which random values for shuffling the
-     * array are obtained.
+     * @param rnd the source from which random values for shuffling the array are obtained.
      */
     public static void shuffle (int[] values, Random rnd)
     {
@@ -227,8 +217,7 @@ public class ArrayUtil
     }
 
     /**
-     * Shuffles a subset of elements within the specified array into a
-     * random sequence.
+     * Shuffles a subset of elements within the specified array into a random sequence.
      *
      * @param values the array containing elements to shuffle.
      * @param offset the index at which to start shuffling elements.
@@ -240,17 +229,14 @@ public class ArrayUtil
     }
 
     /**
-     * Shuffles a subset of elements within the specified array into a
-     * random sequence.
+     * Shuffles a subset of elements within the specified array into a random sequence.
      *
      * @param values the array containing elements to shuffle.
      * @param offset the index at which to start shuffling elements.
      * @param length the number of elements to shuffle.
-     * @param rnd the source from which random values for shuffling the
-     * array are obtained.
+     * @param rnd the source from which random values for shuffling the array are obtained.
      */
-    public static void shuffle (
-        int[] values, int offset, int length, Random rnd)
+    public static void shuffle (int[] values, int offset, int length, Random rnd)
     {
         // starting from the end of the specified region, repeatedly swap
         // the element in question with a random element previous to it
@@ -277,8 +263,7 @@ public class ArrayUtil
      * Shuffles the elements in the given array into a random sequence.
      *
      * @param values the array to shuffle.
-     * @param rnd the source from which random values for shuffling the
-     * array are obtained.
+     * @param rnd the source from which random values for shuffling the array are obtained.
      */
     public static void shuffle (Object[] values, Random rnd)
     {
@@ -286,8 +271,7 @@ public class ArrayUtil
     }
 
     /**
-     * Shuffles a subset of elements within the specified array into a
-     * random sequence.
+     * Shuffles a subset of elements within the specified array into a random sequence.
      *
      * @param values the array containing elements to shuffle.
      * @param offset the index at which to start shuffling elements.
@@ -299,17 +283,14 @@ public class ArrayUtil
     }
 
     /**
-     * Shuffles a subset of elements within the specified array into a
-     * random sequence.
+     * Shuffles a subset of elements within the specified array into a random sequence.
      *
      * @param values the array containing elements to shuffle.
      * @param offset the index at which to start shuffling elements.
      * @param length the number of elements to shuffle.
-     * @param rnd the source from which random values for shuffling the
-     * array are obtained.
+     * @param rnd the source from which random values for shuffling the array are obtained.
      */
-    public static void shuffle (
-        Object[] values, int offset, int length, Random rnd)
+    public static void shuffle (Object[] values, int offset, int length, Random rnd)
     {
         // starting from the end of the specified region, repeatedly swap
         // the element in question with a random element previous to it
@@ -329,8 +310,7 @@ public class ArrayUtil
      * (and actually be comparable to one another).
      *
      * @param array the array of {@link Comparable}s to be searched.
-     * @param offset the index of the first element in the array to be
-     * considered.
+     * @param offset the index of the first element in the array to be considered.
      * @param length the number of elements including and following the
      * element at <code>offset</code> to consider when searching.
      * @param key the object to be located.
@@ -342,20 +322,20 @@ public class ArrayUtil
     public static <T extends Comparable<? super T>> int binarySearch (
         T[] array, int offset, int length, T key)
     {
-	int low = offset, high = offset+length-1;
-	while (low <= high) {
-	    int mid = (low + high) >>> 1;
-	    T midVal = array[mid];
-	    int cmp = midVal.compareTo(key);
-	    if (cmp < 0) {
-		low = mid + 1;
-	    } else if (cmp > 0) {
-		high = mid - 1;
-	    } else {
-		return mid; // key found
+        int low = offset, high = offset+length-1;
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            T midVal = array[mid];
+            int cmp = midVal.compareTo(key);
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return mid; // key found
             }
-	}
-	return -(low + 1); // key not found.
+        }
+        return -(low + 1); // key not found.
     }
 
     /**
@@ -364,8 +344,7 @@ public class ArrayUtil
      * {@link Comparator} for this to operate correctly.
      *
      * @param array the array of objects to be searched.
-     * @param offset the index of the first element in the array to be
-     * considered.
+     * @param offset the index of the first element in the array to be* considered.
      * @param length the number of elements including and following the
      * element at <code>offset</code> to consider when searching.
      * @param key the object to be located.
@@ -378,20 +357,20 @@ public class ArrayUtil
     public static <T> int binarySearch (
         T[] array, int offset, int length, T key, Comparator<T> comp)
     {
-	int low = offset, high = offset+length-1;
-	while (low <= high) {
-	    int mid = (low + high) >>> 1;
-	    T midVal = array[mid];
-	    int cmp = comp.compare(midVal, key);
-	    if (cmp < 0) {
-		low = mid + 1;
-	    } else if (cmp > 0) {
-		high = mid - 1;
-	    } else {
-		return mid; // key found
+        int low = offset, high = offset+length-1;
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            T midVal = array[mid];
+            int cmp = comp.compare(midVal, key);
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return mid; // key found
             }
-	}
-	return -(low + 1); // key not found.
+        }
+        return -(low + 1); // key not found.
     }
 
     /**
@@ -596,8 +575,7 @@ public class ArrayUtil
      * <code>offset + length</code> must be a valid index within the
      * <code>values</code> array.
      */
-    public static <T extends Object> T[] splice (
-        T[] values, int offset, int length)
+    public static <T extends Object> T[] splice (T[] values, int offset, int length)
     {
         // make sure we've something to work with
         if (values == null) {
@@ -619,8 +597,7 @@ public class ArrayUtil
 
         // create a new array and populate it with the spliced-in values
         @SuppressWarnings("unchecked")
-        T[] nvalues = (T[])Array.newInstance(
-            values.getClass().getComponentType(), size - length);
+        T[] nvalues = (T[])Array.newInstance(values.getClass().getComponentType(), size - length);
         System.arraycopy(values, 0, nvalues, 0, offset);
         System.arraycopy(values, tstart, nvalues, offset, size - tstart);
         return nvalues;
@@ -695,8 +672,7 @@ public class ArrayUtil
         }
         nvalues[index] = value;
         if (index < values.length) {
-            System.arraycopy(
-                values, index, nvalues, index+1, values.length-index);
+            System.arraycopy(values, index, nvalues, index+1, values.length-index);
         }
         return nvalues;
     }
@@ -713,8 +689,7 @@ public class ArrayUtil
         }
         nvalues[index] = value;
         if (index < values.length) {
-            System.arraycopy(
-                values, index, nvalues, index+1, values.length-index);
+            System.arraycopy(values, index, nvalues, index+1, values.length-index);
         }
         return nvalues;
     }
@@ -749,8 +724,7 @@ public class ArrayUtil
         }
         nvalues[index] = value;
         if (index < values.length) {
-            System.arraycopy(
-                values, index, nvalues, index+1, values.length-index);
+            System.arraycopy(values, index, nvalues, index+1, values.length-index);
         }
         return nvalues;
     }
@@ -763,15 +737,13 @@ public class ArrayUtil
     public static <T extends Object> T[] insert (T[] values, T value, int index)
     {
         @SuppressWarnings("unchecked")
-        T[] nvalues = (T[])Array.newInstance(
-            values.getClass().getComponentType(), values.length+1);
+        T[] nvalues = (T[])Array.newInstance(values.getClass().getComponentType(), values.length+1);
         if (index > 0) {
             System.arraycopy(values, 0, nvalues, 0, index);
         }
         nvalues[index] = value;
         if (index < values.length) {
-            System.arraycopy(
-                values, index, nvalues, index+1, values.length-index);
+            System.arraycopy(values, index, nvalues, index+1, values.length-index);
         }
         return nvalues;
     }
@@ -859,8 +831,7 @@ public class ArrayUtil
     {
         @SuppressWarnings("unchecked")
         T[] dest = (store.length >= values.length) ? store :
-            (T[])Array.newInstance(store.getClass().getComponentType(),
-                values.length);
+            (T[])Array.newInstance(store.getClass().getComponentType(), values.length);
         System.arraycopy(values, 0, dest, 0, values.length);
         return dest;
     }

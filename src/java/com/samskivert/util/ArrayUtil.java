@@ -32,6 +32,24 @@ import java.util.Random;
 public class ArrayUtil
 {
     /**
+     * Looks for an element that tests true for Object equality with the supplied value and
+     * returns its index in the array.
+     *
+     * @return the index of the first matching value if one was found, -1
+     * otherwise.
+     */
+    public static <T extends Object> int indexOf (T[] values, T value)
+    {
+        int count = (values == null) ? 0 : values.length;
+        for (int ii = 0; ii < count; ii++) {
+            if (ObjectUtil.equals(values[ii], value)) {
+                return ii;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Looks for an element that is equal to the supplied value and
      * returns its index in the array.
      *

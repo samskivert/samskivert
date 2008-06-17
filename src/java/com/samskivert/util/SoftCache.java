@@ -22,7 +22,6 @@ package com.samskivert.util;
 
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Implements a {@link SoftReference} cache wherein the values in the hashmap are not prevented
@@ -48,7 +47,7 @@ public class SoftCache<K,V>
     /**
      * Returns a reference to the underlying map.
      */
-    public Map<K,SoftReference<V>> getMap ()
+    public HashMap<K,SoftReference<V>> getMap ()
     {
         return _map;
     }

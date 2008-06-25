@@ -1297,6 +1297,44 @@ public class StringUtil
     }
 
     /**
+     * Wordwraps a string. Treats any whitespace character as a single character.
+     *
+     * @param str String to word-wrap.
+     * @param width Maximum line length.
+     */
+    public static String wordWrap (String str, int width)
+    {
+        int size = str.length();
+        StringBuffer buf = new StringBuffer(size + size/width);
+        int lastidx = 0;
+        while (lastidx < size) {
+            if (lastidx + width >= size) {
+                buf.append(str.substring(lastidx));
+                break;
+            }
+            int lastws = lastidx;
+            for (int ii = lastidx, ll = lastidx + width; ii < ll; ii++) {
+                char c = str.charAt(ii);
+                if (c == '\n') {
+                    buf.append(str.substring(lastidx, ii + 1));
+                    lastidx = ii + 1;
+                    break;
+                } else if (Character.isWhitespace(c)) {
+                    lastws = ii;
+                }
+            }
+            if (lastws == lastidx) {
+                buf.append(str.substring(lastidx, lastidx + width)).append('\n');
+                lastidx += width;
+            } else if (lastws > lastidx) {
+                buf.append(str.substring(lastidx, lastws)).append('\n');
+                lastidx = lastws + 1;
+            }
+        }
+        return buf.toString();
+    }
+
+    /**
      * Helper function for the various <code>join</code> methods.
      */
     protected static String join (Object[] values, String separator, boolean escape)

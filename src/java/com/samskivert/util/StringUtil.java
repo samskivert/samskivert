@@ -1299,13 +1299,16 @@ public class StringUtil
     /**
      * Wordwraps a string. Treats any whitespace character as a single character.
      *
+     * <p>If you want the text to wrap for a graphical display, use a wordwrapping component
+     * such as {@link Label} instead.
+     *
      * @param str String to word-wrap.
      * @param width Maximum line length.
      */
     public static String wordWrap (String str, int width)
     {
         int size = str.length();
-        StringBuffer buf = new StringBuffer(size + size/width);
+        StringBuilder buf = new StringBuilder(size + size/width);
         int lastidx = 0;
         while (lastidx < size) {
             if (lastidx + width >= size) {

@@ -148,7 +148,7 @@ public class UserRepository extends JORARepository
     {
         HashIntMap<User> data = new HashIntMap<User>();
         if (userIds.length > 0) {
-            String query = "where userid in (" + genIdString(userIds) + ")";
+            String query = "where userId in (" + genIdString(userIds) + ")";
             for (User user : loadAll(_utable, query)) {
                 user.setDirtyMask(_utable.getFieldMask());
                 data.put(user.userId, user);
@@ -496,7 +496,7 @@ public class UserRepository extends JORARepository
 
     /**
      * Take the passed in int array and create the a string suitable for using in a SQL set query
-     * (I.e., "select foo, from bar where userid in (genIdString(userIds))"; )
+     * (I.e., "select foo, from bar where userId in (genIdString(userIds))"; )
      */
     protected String genIdString (int[] userIds)
     {

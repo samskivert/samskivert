@@ -80,6 +80,8 @@ public class LoopingThread extends Thread
             }
 
         } finally {
+            // Running needs to be false even if this exited due to a Throwable from iterate
+            _running = false;
             didShutdown();
         }
     }

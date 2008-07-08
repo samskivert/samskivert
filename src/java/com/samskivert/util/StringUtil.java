@@ -1121,8 +1121,7 @@ public class StringUtil
      *  39 15 12 80 16
      * </pre>
      */
-    public static String toMatrixString (
-        int[] values, int colCount, int fieldWidth)
+    public static String toMatrixString (int[] values, int colCount, int fieldWidth)
     {
         StringBuilder buf = new StringBuilder();
         StringBuilder valbuf = new StringBuilder();
@@ -1145,7 +1144,7 @@ public class StringUtil
             // newline
             if (i % colCount == (colCount-1) &&
                 i != values.length-1) {
-                buf.append("\n");
+                buf.append(LINE_SEPARATOR);
             }
         }
 
@@ -1327,10 +1326,10 @@ public class StringUtil
                 }
             }
             if (lastws == lastidx) {
-                buf.append(str.substring(lastidx, lastidx + width)).append('\n');
+                buf.append(str.substring(lastidx, lastidx + width)).append(LINE_SEPARATOR);
                 lastidx += width;
             } else if (lastws > lastidx) {
-                buf.append(str.substring(lastidx, lastws)).append('\n');
+                buf.append(str.substring(lastidx, lastws)).append(LINE_SEPARATOR);
                 lastidx = lastws + 1;
             }
         }
@@ -1380,12 +1379,21 @@ public class StringUtil
 
     /** Maps the 16 most frequent letters in the English language to a number between 0 and
      * 15. Used by {@link #stringCode}. */
-    protected static final HashIntMap<Integer> _letterToBits = new HashIntMap<Integer>();
+    protected static final IntMap<Integer> _letterToBits = IntMaps.newHashIntMap();
     static {
         String mostCommon = "etaoinsrhldcumfp";
         for (int ii = mostCommon.length() - 1; ii >= 0; ii--) {
             _letterToBits.put(mostCommon.charAt(ii), Integer.valueOf(ii));
         }
         // sorry g, w, y, b, v, k, x, j, q, z
+    }
+
+    /** The line separator for this platform. */
+    protected static String LINE_SEPARATOR = "\n";
+    static {
+        try {
+            LINE_SEPARATOR = System.getProperty("line.separator");
+        } catch (Exception e) {
+        }
     }
 }

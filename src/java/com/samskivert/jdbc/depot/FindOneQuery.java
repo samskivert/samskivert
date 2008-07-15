@@ -68,10 +68,6 @@ public class FindOneQuery<T extends PersistentRecord>
     {
         PreparedStatement stmt = _builder.prepare(conn);
         try {
-            if (PersistenceContext.DEBUG) {
-                log.info("KEY QUERY: " + stmt);
-            }
-
             T result = null;
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

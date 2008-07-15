@@ -33,6 +33,8 @@ import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 
+import static com.samskivert.jdbc.depot.Log.log;
+
 /**
  * At the heart of Depot's SQL generation, this object constructs two {@link ExpressionVisitor}
  * objects and executes them, one after another; the first one constructs SQL as it recurses, the
@@ -88,6 +90,11 @@ public abstract class SQLBuilder
         } catch (Exception e) {
             throw new RuntimeException("Failed to find SQL parameters", e);
         }
+
+        if (PersistenceContext.DEBUG) {
+            log.info("SQL: " + stmt.toString());
+        }
+
         return stmt;
     }
 

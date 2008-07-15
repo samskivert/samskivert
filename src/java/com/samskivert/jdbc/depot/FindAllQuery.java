@@ -89,10 +89,6 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             _builder.newQuery(new SelectClause<T>(_type, _marsh.getPrimaryKeyFields(), _clauses));
             PreparedStatement stmt = _builder.prepare(conn);
             try {
-                if (PersistenceContext.DEBUG) {
-                    log.info("KEY QUERY: " + stmt);
-                }
-
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     Key<T> key = _marsh.makePrimaryKey(rs);
@@ -145,10 +141,6 @@ public abstract class FindAllQuery<T extends PersistentRecord>
 
                 // and execute it
                 try {
-                    if (PersistenceContext.DEBUG) {
-                        log.info("VALUE QUERY: " + stmt);
-                    }
-
                     ResultSet rs = stmt.executeQuery();
                     int cnt = 0, dups = 0;
                     while (rs.next()) {
@@ -201,10 +193,6 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             List<T> result = new ArrayList<T>();
             PreparedStatement stmt = _builder.prepare(conn);
             try {
-                if (PersistenceContext.DEBUG) {
-                    log.info("QUERY: " + stmt);
-                }
-
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     result.add(_marsh.createObject(rs));

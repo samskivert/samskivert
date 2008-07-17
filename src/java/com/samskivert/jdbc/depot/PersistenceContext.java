@@ -371,28 +371,25 @@ public class PersistenceContext
 
         CacheAdapter.CacheBin<T> bin = _cache.getCache(cacheId);
         CacheAdapter.CachedValue<T> element = bin.lookup(cacheKey);
-        if (element == null) {
-            return;
-        }
-
-        // find the old entry, if any
-        T oldEntry = element.getValue();
-        if (oldEntry != null) {
-            // if there was one, do (possibly cascading) cache invalidations
-            Set<CacheListener<?>> listeners = _listenerSets.get(cacheId);
-            if (listeners != null && listeners.size() > 0) {
-                CacheKey key = new SimpleCacheKey(cacheId, cacheKey);
-                for (CacheListener<?> listener : listeners) {
-                    log.debug("cascading [listener=" + listener + "]");
-                    @SuppressWarnings("unchecked") CacheListener<T> casted =
-                        (CacheListener<T>)listener;
-                    casted.entryInvalidated(key, oldEntry);
+        if (element != null) {
+            // find the old entry, if any
+            T oldEntry = element.getValue();
+            if (oldEntry != null) {
+                // if there was one, do (possibly cascading) cache invalidations
+                Set<CacheListener<?>> listeners = _listenerSets.get(cacheId);
+                if (listeners != null && listeners.size() > 0) {
+                    CacheKey key = new SimpleCacheKey(cacheId, cacheKey);
+                    for (CacheListener<?> listener : listeners) {
+                        log.debug("cascading [listener=" + listener + "]");
+                        @SuppressWarnings("unchecked") CacheListener<T> casted =
+                            (CacheListener<T>)listener;
+                        casted.entryInvalidated(key, oldEntry);
+                    }
                 }
             }
         }
 
-        // then evict the keyed entry, if needed
-        log.debug("evicting [cacheKey=" + cacheKey + "]");
+        // then remove the keyed entry from the cache system
         bin.remove(cacheKey);
     }
 

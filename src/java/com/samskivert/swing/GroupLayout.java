@@ -145,6 +145,9 @@ public abstract class GroupLayout
     /** A justification constant. */
     public final static Justification BOTTOM = new Justification(4);
 
+    /** The default gap between components, in pixels. */
+    public static final int DEFAULT_GAP = 5;
+
     public void setPolicy (Policy policy)
     {
 	_policy = policy;
@@ -481,8 +484,6 @@ public abstract class GroupLayout
     protected static final int MINIMUM = 0;
     protected static final int PREFERRED = 1;
     protected static final int MAXIMUM = 2;
-
-    protected static final int DEFAULT_GAP = 5;
 
     /** All children added without a Constraints object are
      * constrained by this Constraints object. */

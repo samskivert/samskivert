@@ -346,25 +346,24 @@ public abstract class GroupLayout
     }
 
     /**
-     * Creates a {@link JPanel} that is configured with an {@link
-     * HGroupLayout} with a configuration conducive to containing a row of
-     * buttons.
+     * Creates a {@link JPanel} that is configured with a center-justified {@link HGroupLayout}
+     * with a configuration conducive to containing a row of buttons. Any supplied buttons are
+     * added to the box.
      */
-    public static JPanel makeButtonBox (Justification justification)
+    public static JPanel makeButtonBox (JComponent... buttons)
     {
-        return makeButtonBox(justification, null);
+        return makeButtonBox(GroupLayout.CENTER, buttons);
     }
 
     /**
-     * Creates a {@link JPanel} that is configured with an {@link
-     * HGroupLayout} with a configuration conducive to containing a row of
-     * buttons. The supplied button is added to the box.
+     * Creates a {@link JPanel} that is configured with an {@link HGroupLayout} with a
+     * configuration conducive to containing a row of buttons. Any supplied buttons are added to
+     * the box.
      */
-    public static JPanel makeButtonBox (
-        Justification justification, JComponent button)
+    public static JPanel makeButtonBox (Justification justification, JComponent... buttons)
     {
         JPanel box = new JPanel(new HGroupLayout(NONE, justification));
-        if (button != null) {
+        for (JComponent button : buttons) {
             box.add(button);
             box.setOpaque(false);
         }

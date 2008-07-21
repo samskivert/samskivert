@@ -173,6 +173,10 @@ public class DepotMarshaller<T extends PersistentRecord>
                     _valueGenerators.put(
                         field.getName(), new TableValueGenerator(generator, gv, this, fm));
                     break;
+
+                case SEQUENCE: // TODO
+                    throw new IllegalArgumentException(
+                        "SEQUENCE key generation strategy not yet supported.");
                 }
             }
 

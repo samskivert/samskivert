@@ -36,46 +36,38 @@ public class GenUtil
      */
     public static String simpleName (Field field)
     {
-        String cname;
-        Class<?> clazz = field.getType();
-        if (clazz.isArray()) {
-            if (field.getGenericType() instanceof GenericArrayType) {
-                GenericArrayType atype = (GenericArrayType)field.getGenericType();
-                cname = atype.getGenericComponentType().toString();
-            } else {
-                return simpleName(clazz.getComponentType(), field.getGenericType()) + "[]";
-            }
-        } else if (field.getGenericType() instanceof ParameterizedType) {
-            cname = field.getGenericType().toString();
-        } else {
-            cname = clazz.getName();
-        }
-        return simpleName(clazz, cname);
+        return simpleName(field.getGenericType());
     }
 
     /**
      * Returns the name of the supplied class as it would likely appear in code using the class (no
      * package prefix, arrays specified as <code>type[]</code>).
      */
-    public static String simpleName (Class<?> clazz, Type type)
+    public static String simpleName (Type type)
     {
-        if (clazz.isArray()) {
-            return simpleName(clazz.getComponentType(), type) + "[]";
-        }
-        String cname = clazz.getName();
-        if (type instanceof ParameterizedType) {
-            cname = type.toString();
-        }
-        return simpleName(clazz, cname);
-    }
+        if (type instanceof Class) {
+            Class clazz = (Class)type;
+            if (clazz.isArray()) {
+                return simpleName(clazz.getComponentType()) + "[]";
+            } else {
+                Package pkg = clazz.getPackage();
+                int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
+                return StringUtil.replace(clazz.getName().substring(offset), "$", ".");
+            }
 
-    /**
-     * A helper function for the public simpleName methods.
-     */
-    protected static String simpleName (Class<?> clazz, String cname)
-    {
-        Package pkg = clazz.getPackage();
-        int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
-        return StringUtil.replace(cname.substring(offset), "$", ".");
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType)type;
+            StringBuilder buf = new StringBuilder();
+            for (Type arg : pt.getActualTypeArguments()) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                buf.append(simpleName(arg));
+            }
+            return simpleName(pt.getRawType()) + "<" + buf + ">";
+        } else {
+            throw new IllegalArgumentException("Can't generate simple name [type=" + type +
+                                               ", tclass=" + StringUtil.shortClassName(type) + "]");
+        }
     }
 }

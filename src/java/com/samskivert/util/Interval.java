@@ -20,6 +20,7 @@
 
 package com.samskivert.util;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -76,6 +77,15 @@ public abstract class Interval
      * The main method where your interval should do its work.
      */
     public abstract void expired ();
+
+    /**
+     * Schedules this interval to execute once at <code>when</code>. Supersedes any previous
+     * schedule that this Interval may have had.
+     */
+    public final void schedule (Date when)
+    {
+        schedule(when.getTime() - System.currentTimeMillis());
+    }
 
     /**
      * Schedule the interval to execute once, after the specified delay.  Supersedes any previous

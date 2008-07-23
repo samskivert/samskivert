@@ -44,7 +44,19 @@ public class RandomUtil
      */
     public static int getInt (int high)
     {
-	return rand.nextInt(high);
+        return getInt(high, rand);
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed <code>int</code> value between 0 (inclusive)
+     * and the specified value (exclusive).
+     *
+     * @param high the high value limiting the random number sought.
+     * @param r the random number generator to use
+     */
+    public static int getInt (int high, Random r)
+    {
+	return r.nextInt(high);
     }
 
     /**
@@ -98,11 +110,31 @@ public class RandomUtil
      */
     public static int getWeightedIndex (int[] weights)
     {
+        return getWeightedIndex(weights, rand);
+    }
+
+    /**
+     * Pick a random index from the array, weighted by the value of the corresponding array
+     * element.
+     *
+     * @param weights an array of non-negative integers.
+     * @param r the random number generator to use
+     *
+     * @return an index into the array, or -1 if the sum of the weights is less than 1.  For
+     * example, passing in {1, 0, 3, 4} will return:
+     *
+     * <table><tr><td>0</td><td>1/8th of the time</td></tr>
+     * <tr><td>1</td><td>never</td></tr>
+     * <tr><td>2</td><td>3/8th of the time</td></tr>
+     * <tr><td>3</td><td>half of the time</td></tr></table>
+     */
+    public static int getWeightedIndex (int[] weights, Random r)
+    {
         int sum = IntListUtil.sum(weights);
         if (sum < 1) {
             return -1;
         }
-        int pick = getInt(sum);
+        int pick = getInt(sum, r);
         for (int ii=0, nn=weights.length; ii < nn; ii++) {
             pick -= weights[ii];
             if (pick < 0) {

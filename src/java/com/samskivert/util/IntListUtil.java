@@ -175,13 +175,7 @@ public class IntListUtil
      */
     public static boolean contains (int[] list, int value)
     {
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            if (list[i] == value) {
-                return true;
-            }
-        }
-        return false;
+        return (-1 != indexOf(list, value));
     }
 
     /**
@@ -195,13 +189,7 @@ public class IntListUtil
      */
     public static int indexOf (int[] list, int value)
     {
-        int llength = list.length; // no optimizing bastards
-        for (int i = 0; i < llength; i++) {
-            if (list[i] == value) {
-                return i;
-            }
-        }
-        return -1;
+        return ArrayUtil.indexOf(list, value);
     }
 
     /**

@@ -24,11 +24,11 @@ package com.samskivert.util;
  * The pessimist's dream.  This ResultListener silently eats requestCompleted but makes subclasses
  * handle requestFailed.
  */
-public abstract class FailureListener
-    implements ResultListener
+public abstract class FailureListener<T>
+    implements ResultListener<T>
 {
     // documentation inherited from interface ResultListener
-    public void requestCompleted (Object result)
+    public void requestCompleted (T result)
     {
         // Yeah, yeah, yeah. You did something. Good for you.
     }

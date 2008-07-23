@@ -45,7 +45,9 @@ public class GenUtil
      */
     public static String simpleName (Type type)
     {
-        if (type instanceof Class) {
+        if (type instanceof GenericArrayType) {
+            return simpleName(((GenericArrayType)type).getGenericComponentType()) + "[]";
+        } else if (type instanceof Class) {
             Class clazz = (Class)type;
             if (clazz.isArray()) {
                 return simpleName(clazz.getComponentType()) + "[]";

@@ -20,7 +20,6 @@
 
 package com.samskivert.velocity;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;

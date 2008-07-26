@@ -20,15 +20,12 @@
 
 package com.samskivert.velocity;
 
-import javax.servlet.ServletContext;
-
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.ResourceFactory;
 import org.apache.velocity.runtime.resource.ResourceManagerImpl;
-import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
 /**
  * A resource manager implementation for Velocity that loads resources from the servlet context.

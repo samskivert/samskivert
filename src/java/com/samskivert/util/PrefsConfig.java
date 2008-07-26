@@ -23,11 +23,8 @@ package com.samskivert.util;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.security.AccessControlException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Properties;
 
 import java.util.prefs.AbstractPreferences;

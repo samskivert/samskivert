@@ -106,7 +106,6 @@ public class ObjectEditorTable extends JTable
         }
     }
 
-
     /**
      * Construct a table to display the specified class.
      *

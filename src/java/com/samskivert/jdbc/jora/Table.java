@@ -25,7 +25,6 @@ import java.util.*;
 import java.sql.*;
 import java.lang.reflect.*;
 
-import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.util.StringUtil;
 
 /**

@@ -21,7 +21,6 @@
 package com.samskivert.util;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import static com.samskivert.Log.log;
 

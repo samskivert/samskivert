@@ -122,7 +122,6 @@ public class CollectionUtil
         return subset;
     }
 
-
     /**
      * If a collection contains only <code>Integer</code> objects, it can be
      * passed to this function and converted into an int array.

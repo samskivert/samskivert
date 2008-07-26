@@ -25,7 +25,6 @@ import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 
 /**
  * A convenient container for implementations of arithmetic operators. Classes that value brevity
- * over disambiguation will import Arithmetic.* and construct queries with Add() and Sub(); classes
  * that feel otherwise will use Arithmetic.Add() and Arithmetic.Sub().
  */
 public abstract class Arithmetic

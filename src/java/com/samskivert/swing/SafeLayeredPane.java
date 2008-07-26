@@ -22,7 +22,6 @@ package com.samskivert.swing;
 
 import java.awt.Component;
 import javax.swing.JLayeredPane;
-import javax.swing.Popup;
 
 /**
  * A JLayeredPane that removes all popups when a non-popup component is removed.

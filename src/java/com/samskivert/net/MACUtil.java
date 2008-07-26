@@ -28,7 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.samskivert.util.RunAnywhere;
-import com.samskivert.util.StringUtil;
 
 /**
  * Attempts to find all the MAC addresses on the machine.

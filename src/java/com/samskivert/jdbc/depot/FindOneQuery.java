@@ -32,8 +32,6 @@ import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.SelectClause;
 
-import static com.samskivert.jdbc.depot.Log.log;
-
 /**
  * The implementation of {@link DepotRepository#find) functionality.
  */

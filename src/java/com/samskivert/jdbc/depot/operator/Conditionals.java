@@ -30,7 +30,6 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
  * A convenient container for implementations of conditional operators.  Classes that value brevity
- * over disambiguation will import Conditionals.* and construct queries with Equals() and In();
  * classes that feel otherwise will use Conditionals.Equals() and Conditionals.In().
  */
 public abstract class Conditionals

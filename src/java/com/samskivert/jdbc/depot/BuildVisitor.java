@@ -21,7 +21,6 @@
 package com.samskivert.jdbc.depot;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

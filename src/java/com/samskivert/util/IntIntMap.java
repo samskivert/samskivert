@@ -57,7 +57,6 @@ public class IntIntMap
      */
     public final static float DEFAULT_LOAD_FACTOR = 1.75f;
 
-
     public IntIntMap (int buckets, float loadFactor)
     {
 	_buckets = new Record[buckets];

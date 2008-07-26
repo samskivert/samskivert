@@ -28,7 +28,6 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
  * A convenient container for implementations of logical operators.  Classes that value brevity
- * over disambiguation will import Logic.* and construct queries with And() and Not(); classes that
  * feel otherwise will use Logic.And() and Logic.Not().
  */
 public abstract class Logic

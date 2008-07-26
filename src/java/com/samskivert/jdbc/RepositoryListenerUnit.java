@@ -20,7 +20,6 @@
 
 package com.samskivert.jdbc;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.util.ResultListener;
 
 /**

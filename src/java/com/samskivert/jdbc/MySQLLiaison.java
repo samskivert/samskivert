@@ -57,7 +57,6 @@ public class MySQLLiaison extends BaseLiaison
         // AUTO_INCREMENT does not create any database entities that we need to delete
     }
 
-
     // from DatabaseLiaison
     public int lastInsertedId (Connection conn, String table, String column) throws SQLException
     {

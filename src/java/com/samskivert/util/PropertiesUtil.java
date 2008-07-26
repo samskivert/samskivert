@@ -121,8 +121,8 @@ public class PropertiesUtil
                 return source.getProperty(dprefix + key,
                     source.getProperty(key, defaultValue));
             }
-            public Enumeration propertyNames () {
-                return new Enumeration() {
+            public Enumeration<?> propertyNames () {
+                return new Enumeration<Object>() {
                     public boolean hasMoreElements () {
                         return next != null;
                     }
@@ -144,7 +144,7 @@ public class PropertiesUtil
                         }
                         return null;
                     }
-                    protected Enumeration senum = source.propertyNames();
+                    protected Enumeration<?> senum = source.propertyNames();
                     protected Object next = findNext();
                 };
             }

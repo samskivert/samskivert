@@ -339,7 +339,7 @@ public class ObjectEditorTable extends JTable
         }
 
         // documentation inherited
-        public Class getColumnClass (int col)
+        public Class<?> getColumnClass (int col)
         {
             return _interp.getClass(_fields[col]);
         }

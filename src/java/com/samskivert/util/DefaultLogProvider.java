@@ -67,30 +67,28 @@ public class DefaultLogProvider implements LogProvider
     public synchronized void log (
         int level, String moduleName, String message)
     {
-	Integer tlevel = _levels.get(moduleName);
-	if (level >= getLevel(moduleName)) {
-	    System.err.println(formatEntry(moduleName, level, message));
-	}
+        if (level >= getLevel(moduleName)) {
+            System.err.println(formatEntry(moduleName, level, message));
+        }
     }
 
     public synchronized void logStackTrace (int level, String moduleName, Throwable t)
     {
-	Integer tlevel = _levels.get(moduleName);
-	if (level >= getLevel(moduleName)) {
-	    System.err.print(formatEntry(moduleName, level, ""));
-	    t.printStackTrace(System.err);
-	}
+        if (level >= getLevel(moduleName)) {
+            System.err.print(formatEntry(moduleName, level, ""));
+            t.printStackTrace(System.err);
+        }
     }
 
     public synchronized void setLevel (String moduleName, int level)
     {
-	_levels.put(moduleName, level);
+        _levels.put(moduleName, level);
     }
 
     public synchronized void setLevel (int level)
     {
-	_level = level;
-	_levels.clear();
+        _level = level;
+        _levels.clear();
     }
 
     public synchronized int getLevel (String moduleName)
@@ -200,13 +198,11 @@ public class DefaultLogProvider implements LogProvider
     protected HashMap<String,Integer> _levels = new HashMap<String,Integer>();
 
     /** Used to accompany log messages with time stamps. */
-    protected SimpleDateFormat _format =
-        new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
+    protected SimpleDateFormat _format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
 
     /** Needed for the more efficient {@link
      * SimpleDateFormat#format(Date,StringBuffer,FieldPosition)}. */
-    protected FieldPosition _fpos =
-        new FieldPosition(SimpleDateFormat.DATE_FIELD);
+    protected FieldPosition _fpos = new FieldPosition(SimpleDateFormat.DATE_FIELD);
 
     /** Contains the dimensions of the terminal window in which we're
      * running, if it was possible to obtain them. Otherwise, it contains

@@ -385,7 +385,7 @@ public class QuickSort
             return;
         }
 
-        T e1, e2, t;
+        T e1, e2;
 
         // if this is a two element file, do a simple sort on it
         if (hi0 - lo0 == 1) {

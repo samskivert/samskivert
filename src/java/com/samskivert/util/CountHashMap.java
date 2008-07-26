@@ -191,26 +191,26 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         protected Map.Entry<K, int[]> _entry;
     }
 
-    protected class CountEntrySet<K>
-        extends AbstractSet<Entry<K>>
+    protected class CountEntrySet<E>
+        extends AbstractSet<Entry<E>>
     {
-        public CountEntrySet (Set<Map.Entry<K,int[]>> superset)
+        public CountEntrySet (Set<Map.Entry<E,int[]>> superset)
         {
             _superset = superset;
         }
 
-        public Iterator<Entry<K>> iterator ()
+        public Iterator<Entry<E>> iterator ()
         {
-            final Iterator<Map.Entry<K, int[]>> itr = _superset.iterator();
-            return new Iterator<Entry<K>>() {
+            final Iterator<Map.Entry<E, int[]>> itr = _superset.iterator();
+            return new Iterator<Entry<E>>() {
                 public boolean hasNext ()
                 {
                     return itr.hasNext();
                 }
 
-                public Entry<K> next ()
+                public Entry<E> next ()
                 {
-                    return new CountEntryImpl<K>(itr.next());
+                    return new CountEntryImpl<E>(itr.next());
                 }
 
                 public void remove ()
@@ -240,6 +240,6 @@ public class CountHashMap<K> extends HashMap<K, int[]>
             CountHashMap.this.clear();
         }
 
-        protected Set<Map.Entry<K,int[]>> _superset;
+        protected Set<Map.Entry<E,int[]>> _superset;
     }
 }

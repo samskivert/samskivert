@@ -365,12 +365,12 @@ public class Collections
      * default access and pointlessly preventing people from properly
      * reusing their code. Yay!
      */
-    protected static class SynchronizedSet<T>
-        extends SynchronizedCollection<T> implements Set<T> {
-	SynchronizedSet(Set<T> s) {
+    protected static class SynchronizedSet<E>
+        extends SynchronizedCollection<E> implements Set<E> {
+	SynchronizedSet(Set<E> s) {
             super(s);
         }
-	SynchronizedSet(Set<T> s, Object mutex) {
+	SynchronizedSet(Set<E> s, Object mutex) {
             super(s, mutex);
         }
 
@@ -426,18 +426,18 @@ public class Collections
      * default access and pointlessly preventing people from properly
      * reusing their code. Yay!
      */
-    protected static class SynchronizedCollection<T>
-        implements Collection<T> {
-	Collection<T> c;   // Backing Collection
+    protected static class SynchronizedCollection<E>
+        implements Collection<E> {
+	Collection<E> c;   // Backing Collection
 	Object	   mutex;  // Object on which to synchronize
 
-	SynchronizedCollection(Collection<T> c) {
+	SynchronizedCollection(Collection<E> c) {
             if (c==null)
                 throw new NullPointerException();
 	    this.c = c;
             mutex = this;
         }
-	SynchronizedCollection(Collection<T> c, Object mutex) {
+	SynchronizedCollection(Collection<E> c, Object mutex) {
 	    this.c = c;
             this.mutex = mutex;
         }
@@ -458,11 +458,11 @@ public class Collections
 	    synchronized(mutex) {return c.toArray(a);}
         }
 
-	public Iterator<T> iterator() {
+	public Iterator<E> iterator() {
             return c.iterator(); // Must be manually synched by user!
         }
 
-	public boolean add(T o) {
+	public boolean add(E o) {
 	    synchronized(mutex) {return c.add(o);}
         }
 	public boolean remove(Object o) {
@@ -472,7 +472,7 @@ public class Collections
 	public boolean containsAll(Collection<?> coll) {
 	    synchronized(mutex) {return c.containsAll(coll);}
         }
-	public boolean addAll(Collection<? extends T> coll) {
+	public boolean addAll(Collection<? extends E> coll) {
 	    synchronized(mutex) {return c.addAll(coll);}
         }
 	public boolean removeAll(Collection<?> coll) {

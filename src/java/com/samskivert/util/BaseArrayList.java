@@ -36,8 +36,8 @@ import static com.samskivert.Log.log;
  * functionality (which we'd just extend directly if those pig fuckers hadn't
  * made the instance variables private).
  */
-public abstract class BaseArrayList<T> extends AbstractList<T>
-    implements List<T>, RandomAccess, Cloneable, Serializable
+public abstract class BaseArrayList<E> extends AbstractList<E>
+    implements List<E>, RandomAccess, Cloneable, Serializable
 {
     // documentation inherited from interface
     public int size ()
@@ -88,9 +88,9 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
     }
 
     @SuppressWarnings("unchecked") // documentation inherited from interface
-    public boolean add (T o)
+    public boolean add (E o)
     {
-        _elements = (T[])ListUtil.add(_elements, _size, o);
+        _elements = (E[])ListUtil.add(_elements, _size, o);
         _size++;
         return true;
     }
@@ -106,34 +106,34 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
     }
 
     // documentation inherited from interface
-    public T get (int index)
+    public E get (int index)
     {
         rangeCheck(index, false);
         return _elements[index];
     }
 
     // documentation inherited from interface
-    public T set (int index, T element)
+    public E set (int index, E element)
     {
         rangeCheck(index, false);
-        T old = _elements[index];
+        E old = _elements[index];
         _elements[index] = element;
         return old;
     }
 
     @SuppressWarnings("unchecked") // documentation inherited from interface
-    public void add (int index, T element)
+    public void add (int index, E element)
     {
         rangeCheck(index, true);
-        _elements = (T[])ListUtil.insert(_elements, index, element);
+        _elements = (E[])ListUtil.insert(_elements, index, element);
         _size++;
     }
 
     @SuppressWarnings("unchecked") // documentation inherited from interface
-    public T remove (int index)
+    public E remove (int index)
     {
         rangeCheck(index, false);
-        T oval = (T)ListUtil.remove(_elements, index);
+        E oval = (E)ListUtil.remove(_elements, index);
         _size--;
         return oval;
     }
@@ -166,7 +166,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
     public Object clone ()
     {
         try {
-            BaseArrayList<T> dup = (BaseArrayList<T>)super.clone();
+            BaseArrayList<E> dup = (BaseArrayList<E>)super.clone();
             if (_elements != null) {
                 dup._elements = _elements.clone();
             }
@@ -179,7 +179,7 @@ public abstract class BaseArrayList<T> extends AbstractList<T>
     }
 
     /** The array of elements in our list. */
-    protected T[] _elements;
+    protected E[] _elements;
 
     /** The number of elements in our list. */
     protected int _size;

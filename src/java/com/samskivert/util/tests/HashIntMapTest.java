@@ -75,7 +75,7 @@ public class HashIntMapTest extends TestCase
 
             // check the table contents
             for (int i = 10; i < 20; i++) {
-                Integer val = table.get(i);
+                Integer val = map.get(i);
                 assertTrue("get(" + i + ") == " + i, val.intValue() == i);
             }
 

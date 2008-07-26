@@ -554,7 +554,7 @@ public class SwingUtil
         int w = img.getWidth(null);
         int h = img.getHeight(null);
         Dimension d = tk.getBestCursorSize(w, h);
-        int colors = tk.getMaximumCursorColors();
+//         int colors = tk.getMaximumCursorColors();
 //         Log.debug("Creating custom cursor [desiredSize=" + w + "x" + h +
 //                   ", bestSize=" + d.width + "x" + d.height +
 //                   ", maxcolors=" + colors + "].");

@@ -90,7 +90,6 @@ public class Histogram
      */
     public String summarize ()
     {
-        long total = 0;
         StringBuilder buf = new StringBuilder();
         buf.append(_count).append(":");
         for (int ii = 0; ii < _buckets.length; ii++) {

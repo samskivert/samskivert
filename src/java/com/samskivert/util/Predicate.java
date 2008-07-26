@@ -260,7 +260,7 @@ public abstract class Predicate<T>
             {
                 // oh god, oh god: we iterate and count
                 int size = 0;
-                for (E elem : this) {
+                for (Iterator<E> iter = iterator(); iter.hasNext(); ) {
                     size++;
                 }
                 return size;

@@ -33,7 +33,7 @@ public class LabelDemo extends JPanel
         // create our labels
         String text = "The quick brown fox jumped over the lazy dog. " +
             "He then popped into the butcher's and picked up some mutton.";
-        Font font = new Font("Courier", Font.PLAIN, 10);
+        // Font font = new Font("Courier", Font.PLAIN, 10);
 
         int idx = 0;
         _labels[idx] = new Label("\u307e\u305b\u3002Amores\u30d1\u30a4\u30e9");

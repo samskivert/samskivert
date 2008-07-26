@@ -34,7 +34,7 @@ public class SystemInfoDemo
         // allocate a bit of data
         System.out.println("\nAllocating test data.");
         for (int ii = 0; ii < 10000; ii++) {
-            int[] data = new int[100];
+            @SuppressWarnings("unused") int[] data = new int[100];
         }
 
         // update and output the latest system information

@@ -376,7 +376,6 @@ public class JDBCUtil
                                        String column)
         throws SQLException
     {
-        boolean matched = false;
         ResultSet rs = conn.getMetaData().getIndexInfo("", "", table, false, true);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");

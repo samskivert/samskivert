@@ -32,7 +32,7 @@ public class CDDBTest
 	CDDB cddb = new CDDB();
 
 	try {
-	    String rsp = cddb.connect(hostname);
+	    /* String rsp = */ cddb.connect(hostname);
 
 	    // set the timeout to 30 seconds
 	    cddb.setTimeout(30*1000);

@@ -265,7 +265,7 @@ public class ObserverList<T> extends ArrayList<T>
                     _snap.length > (ocount << 3)) {
                 _snap = (T[])new Object[ocount];
             }
-            Object[] obs = toArray(_snap);
+            toArray(_snap);
             for (int ii = 0; ii < ocount; ii++) {
                 if (!checkedApply(obop, _snap[ii])) {
                     remove(_snap[ii]);

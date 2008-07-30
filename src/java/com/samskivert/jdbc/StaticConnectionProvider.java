@@ -194,14 +194,12 @@ public class StaticConnectionProvider implements ConnectionProvider
     public void shutdown ()
     {
         // close all of the connections
-        Iterator iter = _keys.keySet().iterator();
-        while (iter.hasNext()) {
-            String key = (String)iter.next();
-            Mapping conmap = _keys.get(key);
+        for (Map.Entry<String, Mapping> entry : _keys.entrySet()) {
+            Mapping conmap = entry.getValue();
             try {
                 conmap.connection.close();
             } catch (SQLException sqe) {
-                log.warning("Error shutting down connection [key=" + key + ", err=" + sqe + "].");
+                log.warning("Error shutting down connection", "key", entry.getKey(), "err", sqe);
             }
         }
 

@@ -117,7 +117,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
 
                 if (_marsh.getPrimaryKeyFields().length == 1) {
                     // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
-                    Comparable[] keyFieldValues = new Comparable[fetchKeys.size()];
+                    Comparable<?>[] keyFieldValues = new Comparable<?>[fetchKeys.size()];
                     int ii = 0;
                     for (Key<T> key : fetchKeys) {
                         keyFieldValues[ii ++] = key.condition.getValues().get(0);

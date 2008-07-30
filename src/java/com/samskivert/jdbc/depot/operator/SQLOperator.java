@@ -83,7 +83,7 @@ public interface SQLOperator extends SQLExpression
             _rhs = rhs;
         }
 
-        public BinaryOperator (SQLExpression lhs, Comparable rhs)
+        public BinaryOperator (SQLExpression lhs, Comparable<?> rhs)
         {
             this(lhs, new ValueExp(rhs));
         }

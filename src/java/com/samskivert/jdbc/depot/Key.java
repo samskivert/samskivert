@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     public static class WhereCondition<U extends PersistentRecord>
         implements SQLExpression, Serializable
     {
-        public WhereCondition (Class<U> pClass, ArrayList<Comparable> values)
+        public WhereCondition (Class<U> pClass, ArrayList<Comparable<?>> values)
         {
             _pClass = pClass;
             _values = values;
@@ -69,7 +70,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
             return _pClass;
         }
 
-        public ArrayList<Comparable> getValues ()
+        public ArrayList<Comparable<?>> getValues ()
         {
             return _values;
         }
@@ -83,7 +84,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
             if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            WhereCondition other = (WhereCondition) obj;
+            WhereCondition<?> other = (WhereCondition<?>) obj;
             return _pClass == other._pClass && _values.equals(other.getValues());
         }
 
@@ -94,7 +95,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
         }
 
         protected Class<U> _pClass;
-        protected ArrayList<Comparable> _values;
+        protected ArrayList<Comparable<?>> _values; // List is not Serializable
     }
 
     /** The expression that identifies our row. */
@@ -103,7 +104,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new single-column {@code Key} with the given value.
      */
-    public Key (Class<T> pClass, String ix, Comparable val)
+    public Key (Class<T> pClass, String ix, Comparable<?> val)
     {
         this(pClass, new String[] { ix }, new Comparable[] { val });
     }
@@ -111,8 +112,8 @@ public class Key<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new two-column {@code Key} with the given values.
      */
-    public Key (Class<T> pClass, String ix1, Comparable val1,
-                String ix2, Comparable val2)
+    public Key (Class<T> pClass, String ix1, Comparable<?> val1,
+                String ix2, Comparable<?> val2)
     {
         this(pClass, new String[] { ix1, ix2 }, new Comparable[] { val1, val2 });
     }
@@ -120,8 +121,8 @@ public class Key<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new three-column {@code Key} with the given values.
      */
-    public Key (Class<T> pClass, String ix1, Comparable val1,
-                String ix2, Comparable val2, String ix3, Comparable val3)
+    public Key (Class<T> pClass, String ix1, Comparable<?> val1,
+                String ix2, Comparable<?> val2, String ix3, Comparable<?> val3)
     {
         this(pClass, new String[] { ix1, ix2, ix3 }, new Comparable[] { val1, val2, val3 });
     }
@@ -129,14 +130,14 @@ public class Key<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new multi-column {@code Key} with the given values.
      */
-    public Key (Class<T> pClass, String[] fields, Comparable[] values)
+    public Key (Class<T> pClass, String[] fields, Comparable<?>[] values)
     {
         if (fields.length != values.length) {
             throw new IllegalArgumentException("Field and Value arrays must be of equal length.");
         }
 
         // build a local map of field name -> field value
-        Map<String, Comparable> map = new HashMap<String, Comparable>();
+        Map<String, Comparable<?>> map = new HashMap<String, Comparable<?>>();
         for (int i = 0; i < fields.length; i ++) {
             map.put(fields[i], values[i]);
         }
@@ -145,9 +146,9 @@ public class Key<T extends PersistentRecord> extends WhereClause
         String[] keyFields = getKeyFields(pClass);
 
         // now extract the values in field order and ensure none are extra or missing
-        ArrayList<Comparable> newValues = new ArrayList<Comparable>();
+        ArrayList<Comparable<?>> newValues = new ArrayList<Comparable<?>>();
         for (int ii = 0; ii < keyFields.length; ii++) {
-            Comparable nugget = map.remove(keyFields[ii]);
+            Comparable<?> nugget = map.remove(keyFields[ii]);
             if (nugget == null) {
                 // make sure we were provided with a value for this primary key field
                 throw new IllegalArgumentException("Missing value for key field: " + keyFields[ii]);
@@ -227,7 +228,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        return condition.equals(((Key) obj).condition);
+        return condition.equals(((Key<?>) obj).condition);
     }
 
     @Override
@@ -260,7 +261,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     {
         String[] fields = _keyFields.get(pClass);
         if (fields == null) {
-            ArrayList<String> kflist = new ArrayList<String>();
+            List<String> kflist = new ArrayList<String>();
             for (Field field : pClass.getFields()) {
                 // look for @Id fields
                 if (field.getAnnotation(Id.class) != null) {

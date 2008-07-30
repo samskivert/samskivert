@@ -101,7 +101,7 @@ public abstract class EntityMigration extends Modifier
             return true;
         }
 
-        protected void init (String tableName, Map<String,FieldMarshaller> marshallers) {
+        protected void init (String tableName, Map<String,FieldMarshaller<?>> marshallers) {
             super.init(tableName, marshallers);
             _newColumnDef = marshallers.get(_newColumnName).getColumnDefinition();
         }
@@ -133,7 +133,7 @@ public abstract class EntityMigration extends Modifier
             return false;
         }
 
-        protected void init (String tableName, Map<String,FieldMarshaller> marshallers) {
+        protected void init (String tableName, Map<String,FieldMarshaller<?>> marshallers) {
             super.init(tableName, marshallers);
             _columnName = marshallers.get(_fieldName).getColumnName();
             _newColumnDef = marshallers.get(_fieldName).getColumnDefinition();
@@ -174,7 +174,7 @@ public abstract class EntityMigration extends Modifier
      * migration has been determined to be runnable so one cannot rely on this method having been
      * called in {@link #shouldRunMigration}.
      */
-    protected void init (String tableName, Map<String,FieldMarshaller> marshallers)
+    protected void init (String tableName, Map<String,FieldMarshaller<?>> marshallers)
     {
         _tableName = tableName;
     }

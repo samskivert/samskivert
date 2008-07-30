@@ -212,7 +212,7 @@ public class PostgreSQLBuilder
     }
 
     @Override
-    protected <T> String getColumnType (FieldMarshaller fm, int length)
+    protected <T> String getColumnType (FieldMarshaller<?> fm, int length)
     {
         if (fm instanceof ByteMarshaller) {
             return "SMALLINT";

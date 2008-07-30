@@ -32,7 +32,7 @@ public abstract class Arithmetic
     /** The SQL '+' operator. */
     public static class Add extends BinaryOperator
     {
-        public Add (SQLExpression column, Comparable value)
+        public Add (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -52,7 +52,7 @@ public abstract class Arithmetic
     /** The SQL '-' operator. */
     public static class Sub extends BinaryOperator
     {
-        public Sub (SQLExpression column, Comparable value)
+        public Sub (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -72,7 +72,7 @@ public abstract class Arithmetic
     /** The SQL '*' operator. */
     public static class Mul extends BinaryOperator
     {
-        public Mul (SQLExpression column, Comparable value)
+        public Mul (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -92,7 +92,7 @@ public abstract class Arithmetic
     /** The SQL '/' operator. */
     public static class Div extends BinaryOperator
     {
-        public Div (SQLExpression column, Comparable value)
+        public Div (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -112,7 +112,7 @@ public abstract class Arithmetic
     /** The SQL '&' operator. */
     public static class BitAnd extends BinaryOperator
     {
-        public BitAnd (SQLExpression column, Comparable value)
+        public BitAnd (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -132,7 +132,7 @@ public abstract class Arithmetic
     /** The SQL '|' operator. */
     public static class BitOr extends BinaryOperator
     {
-        public BitOr (SQLExpression column, Comparable value)
+        public BitOr (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }

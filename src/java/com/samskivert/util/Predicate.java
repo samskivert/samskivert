@@ -53,7 +53,7 @@ public abstract class Predicate<T>
      */
     public static class InstanceOf<T> extends Predicate<T>
     {
-        public InstanceOf (Class clazz)
+        public InstanceOf (Class<?> clazz)
         {
             _class = clazz;
         }
@@ -65,7 +65,7 @@ public abstract class Predicate<T>
         }
 
         /** The class that must be implemented by applicants. */
-        protected Class _class;
+        protected Class<?> _class;
     }
 
     /**

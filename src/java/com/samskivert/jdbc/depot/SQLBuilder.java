@@ -109,7 +109,7 @@ public abstract class SQLBuilder
      * TODO: This method should be split into several parts that are more easily overridden on a
      * case-by-case basis in the dialectal subclasses.
      */
-    public ColumnDefinition buildColumnDefinition (FieldMarshaller fm)
+    public ColumnDefinition buildColumnDefinition (FieldMarshaller<?> fm)
     {
         // if this field is @Computed, it has no SQL definition
         if (fm.getComputed() != null) {
@@ -228,7 +228,7 @@ public abstract class SQLBuilder
      * Overridden by subclasses to figure the dialect-specific SQL type of the given field.
      * @param length
      */
-    protected abstract <T> String getColumnType (FieldMarshaller fm, int length);
+    protected abstract <T> String getColumnType (FieldMarshaller<?> fm, int length);
 
     /** The class that maps persistent classes to marshallers. */
     protected DepotTypes _types;

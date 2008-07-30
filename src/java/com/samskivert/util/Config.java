@@ -390,9 +390,8 @@ public class Config
         }
 
         // build the sub-properties
-        Iterator iter = keys();
-        while (iter.hasNext()) {
-            String key = (String)iter.next();
+        for (Iterator<String> iter = keys(); iter.hasNext(); ) {
+            String key = iter.next();
             if (!key.startsWith(prefix)) {
                 continue;
             }
@@ -416,7 +415,7 @@ public class Config
 
     protected void enumerateKeys (HashSet<String> keys)
     {
-        Enumeration defkeys = _props.propertyNames();
+        Enumeration<?> defkeys = _props.propertyNames();
         while (defkeys.hasMoreElements()) {
             keys.add((String)defkeys.nextElement());
         }

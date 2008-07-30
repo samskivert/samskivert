@@ -116,7 +116,7 @@ public class InvocationContext extends VelocityContext
     @Deprecated
     public void putAllParameters ()
     {
-        Enumeration e = _req.getParameterNames();
+        Enumeration<?> e = _req.getParameterNames();
         while (e.hasMoreElements()) {
             String param = (String)e.nextElement();
             put(param, _req.getParameter(param));
@@ -130,7 +130,7 @@ public class InvocationContext extends VelocityContext
     public String encodeAllParameters ()
     {
         StringBuilder buf = new StringBuilder();
-        Enumeration e = _req.getParameterNames();
+        Enumeration<?> e = _req.getParameterNames();
         while (e.hasMoreElements()) {
             if (buf.length() > 0) {
                 buf.append('&');

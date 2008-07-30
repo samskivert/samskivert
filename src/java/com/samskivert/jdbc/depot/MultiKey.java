@@ -38,7 +38,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new single-column {@code MultiKey} with the given value range.
      */
-    public MultiKey (Class<T> pClass, String ix, Comparable... val)
+    public MultiKey (Class<T> pClass, String ix, Comparable<?>... val)
     {
         this(pClass, new String[0], new Comparable[0], ix, val);
     }
@@ -46,7 +46,8 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new two-column {@code MultiKey} with the given value range.
      */
-    public MultiKey (Class<T> pClass, String ix1, Comparable val1, String ix2, Comparable... val2)
+    public MultiKey (Class<T> pClass, String ix1, Comparable<?> val1, String ix2, 
+        Comparable<?>... val2)
     {
         this(pClass, new String[] { ix1 }, new Comparable[] { val1 }, ix2, val2);
     }
@@ -54,8 +55,8 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new three-column {@code MultiKey} with the given value range.
      */
-    public MultiKey (Class<T> pClass, String ix1, Comparable val1, String ix2, Comparable val2,
-                     String ix3, Comparable... val3)
+    public MultiKey (Class<T> pClass, String ix1, Comparable<?> val1,
+                     String ix2, Comparable<?> val2, String ix3, Comparable<?>... val3)
     {
         this(pClass, new String[] { ix1, ix2 }, new Comparable[] { val1, val2 }, ix3, val3);
     }
@@ -64,8 +65,8 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
      * Constructs a new multi-column {@code MultiKey} with the given value range.
      * @TODO: See {@link Key#Key(Class, String[], Comparable[]) for somewhat relevant comments.
      */
-    public MultiKey (Class<T> pClass, String[] sFields, Comparable[] sValues,
-                     String mField, Comparable[] mValues)
+    public MultiKey (Class<T> pClass, String[] sFields, Comparable<?>[] sValues,
+                     String mField, Comparable<?>[] mValues)
     {
         if (sFields.length != sValues.length) {
             throw new IllegalArgumentException(
@@ -74,7 +75,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
         _pClass = pClass;
         _mField = mField;
         _mValues = mValues;
-        _map = new HashMap<String, Comparable>();
+        _map = new HashMap<String, Comparable<?>>();
         for (int i = 0; i < sFields.length; i ++) {
             _map.put(sFields[i], sValues[i]);
         }
@@ -85,7 +86,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
         return _pClass;
     }
 
-    public Map<String, Comparable> getSingleFieldsMap ()
+    public Map<String, Comparable<?>> getSingleFieldsMap ()
     {
         return _map;
     }
@@ -95,7 +96,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
         return _mField;
     }
 
-    public Comparable[] getMultiValues ()
+    public Comparable<?>[] getMultiValues ()
     {
         return _mValues;
     }
@@ -126,7 +127,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
     // from CacheInvalidator
     public void invalidate (PersistenceContext ctx)
     {
-        HashMap<String, Comparable> newMap = new HashMap<String, Comparable>(_map);
+        HashMap<String, Comparable<?>> newMap = new HashMap<String, Comparable<?>>(_map);
         for (int i = 0; i < _mValues.length; i ++) {
             newMap.put(_mField, _mValues[i]);
             ctx.cacheInvalidate(new SimpleCacheKey(_pClass, newMap));
@@ -141,7 +142,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
     }
 
     protected String _mField;
-    protected Comparable[] _mValues;
+    protected Comparable<?>[] _mValues;
     protected Class<T> _pClass;
-    protected HashMap<String, Comparable> _map;
+    protected HashMap<String, Comparable<?>> _map;
 }

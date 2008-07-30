@@ -62,7 +62,7 @@ public class TransitionRepository extends SimpleRepository
     /**
      * Perform a transition if it has not already been applied, and record that it was applied.
      */
-    public void transition (Class clazz, String name, Transition trans)
+    public void transition (Class<?> clazz, String name, Transition trans)
         throws PersistenceException
     {
         if (!isTransitionApplied(clazz, name)) {
@@ -94,7 +94,7 @@ public class TransitionRepository extends SimpleRepository
     /**
      * Has the specified name transition been applied.
      */
-    public boolean isTransitionApplied (Class clazz, final String name)
+    public boolean isTransitionApplied (Class<?> clazz, final String name)
         throws PersistenceException
     {
         final String cname = clazz.getName();
@@ -130,7 +130,7 @@ public class TransitionRepository extends SimpleRepository
      * @return true if the transition was noted, false if it could not be noted because another
      * process noted it first.
      */
-    public boolean noteTransition (Class clazz, final String name)
+    public boolean noteTransition (Class<?> clazz, final String name)
         throws PersistenceException
     {
         final String cname = clazz.getName();
@@ -168,7 +168,7 @@ public class TransitionRepository extends SimpleRepository
     /**
      * Clear the transition.
      */
-    public void clearTransition (Class clazz, final String name)
+    public void clearTransition (Class<?> clazz, final String name)
         throws PersistenceException
     {
         final String cname = clazz.getName();

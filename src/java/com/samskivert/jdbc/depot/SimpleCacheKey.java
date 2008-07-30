@@ -42,7 +42,7 @@ public class SimpleCacheKey
      * Construct a {@link SimpleCacheKey} associated with the given persistent class with
      * the given cache key.
      */
-    public SimpleCacheKey (Class cacheClass, Serializable cacheKey)
+    public SimpleCacheKey (Class<?> cacheClass, Serializable cacheKey)
     {
         this(cacheClass.getName(), cacheKey);
     }

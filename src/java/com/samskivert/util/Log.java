@@ -213,7 +213,7 @@ public final class Log
         try {
             provider = System.getProperty("log_provider");
             if (provider != null) {
-                Class lpclass = Class.forName(provider);
+                Class<?> lpclass = Class.forName(provider);
                 _provider = (LogProvider)lpclass.newInstance();
             }
 

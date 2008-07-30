@@ -316,9 +316,8 @@ public class PersistenceContext
         log.debug("storing [key=" + key + ", value=" + entry + "]");
 
         CacheAdapter.CacheBin<T> bin = _cache.getCache(key.getCacheId());
-        CacheAdapter.CachedValue element = bin.lookup(key.getCacheKey());
-        @SuppressWarnings("unchecked") T oldEntry =
-            (element != null ? (T) element.getValue() : null);
+        CacheAdapter.CachedValue<T> element = bin.lookup(key.getCacheKey());
+        T oldEntry = (element != null ? element.getValue() : null);
 
         // update the cache
         bin.store(key.getCacheKey(), entry);
@@ -353,7 +352,7 @@ public class PersistenceContext
      * Evicts the cache entry indexed under the given class and cache key, if there is one.  The
      * eviction may trigger further cache invalidations.
      */
-    public void cacheInvalidate (Class pClass, Serializable cacheKey)
+    public void cacheInvalidate (Class<? extends PersistentRecord> pClass, Serializable cacheKey)
     {
         cacheInvalidate(pClass.getName(), cacheKey);
     }
@@ -397,7 +396,8 @@ public class PersistenceContext
      * Brutally iterates over the entire contents of the cache associated with the given class,
      * invoking the callback for each cache entry.
      */
-    public <T extends Serializable> void cacheTraverse (Class pClass, CacheTraverser<T> filter)
+    public <T extends Serializable> void cacheTraverse (
+        Class<? extends PersistentRecord> pClass, CacheTraverser<T> filter)
     {
         cacheTraverse(pClass.getName(), filter);
     }

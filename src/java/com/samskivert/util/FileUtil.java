@@ -81,7 +81,7 @@ public class FileUtil
     public static boolean unpackJar (JarFile jar, File target)
     {
         boolean failure = false;
-        Enumeration entries = jar.entries();
+        Enumeration<?> entries = jar.entries();
         while (!failure && entries.hasMoreElements()) {
             JarEntry entry = (JarEntry)entries.nextElement();
             File efile = new File(target, entry.getName());

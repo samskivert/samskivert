@@ -120,14 +120,14 @@ public class DepotMarshaller<T extends PersistentRecord>
                 continue;
             }
 
-            FieldMarshaller fm = FieldMarshaller.createMarshaller(field);
+            FieldMarshaller<?> fm = FieldMarshaller.createMarshaller(field);
             _fields.put(field.getName(), fm);
             fields.add(field.getName());
 
             // check to see if this is our primary key
             if (field.getAnnotation(Id.class) != null) {
                 if (_pkColumns == null) {
-                    _pkColumns = new ArrayList<FieldMarshaller>();
+                    _pkColumns = new ArrayList<FieldMarshaller<?>>();
                 }
                 _pkColumns.add(fm);
             }
@@ -194,7 +194,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                     String[] conFields = constraint.fieldNames();
                     Set<String> colSet = new HashSet<String>();
                     for (int ii = 0; ii < conFields.length; ii ++) {
-                        FieldMarshaller fm = _fields.get(conFields[ii]);
+                        FieldMarshaller<?> fm = _fields.get(conFields[ii]);
                         if (fm == null) {
                             throw new IllegalArgumentException(
                                 "Unknown unique constraint field: " + conFields[ii]);
@@ -287,7 +287,7 @@ public class DepotMarshaller<T extends PersistentRecord>
     /**
      * Returns the {@link FieldMarshaller} for a named field on our persistent class.
      */
-    public FieldMarshaller getFieldMarshaller (String fieldName)
+    public FieldMarshaller<?> getFieldMarshaller (String fieldName)
     {
         return _fields.get(fieldName);
     }
@@ -349,11 +349,11 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
 
         try {
-            Comparable[] values = new Comparable[_pkColumns.size()];
+            Comparable<?>[] values = new Comparable<?>[_pkColumns.size()];
             int nulls = 0;
             for (int ii = 0; ii < _pkColumns.size(); ii++) {
-                FieldMarshaller field = _pkColumns.get(ii);
-                if ((values[ii] = (Comparable)field.getField().get(object)) == null) {
+                FieldMarshaller<?> field = _pkColumns.get(ii);
+                if ((values[ii] = (Comparable<?>)field.getField().get(object)) == null) {
                     nulls++;
                 }
             }
@@ -383,7 +383,7 @@ public class DepotMarshaller<T extends PersistentRecord>
      * Creates a primary key record for the type of object handled by this marshaller, using the
      * supplied primary key value.
      */
-    public Key<T> makePrimaryKey (Comparable... values)
+    public Key<T> makePrimaryKey (Comparable<?>... values)
     {
         if (!hasPrimaryKey()) {
             throw new UnsupportedOperationException(
@@ -407,14 +407,14 @@ public class DepotMarshaller<T extends PersistentRecord>
             throw new UnsupportedOperationException(
                 getClass().getName() + " does not define a primary key");
         }
-        Comparable[] values = new Comparable[_pkColumns.size()];
+        Comparable<?>[] values = new Comparable<?>[_pkColumns.size()];
         for (int ii = 0; ii < _pkColumns.size(); ii++) {
             Object keyValue = _pkColumns.get(ii).getFromSet(rs);
-            if (!(keyValue instanceof Comparable)) {
-                throw new IllegalArgumentException("Key field must be Comparable [field=" +
+            if (!(keyValue instanceof Comparable<?>)) {
+                throw new IllegalArgumentException("Key field must be Comparable<?> [field=" +
                                                    _pkColumns.get(ii).getColumnName() + "]");
             }
-            values[ii] = (Comparable) keyValue;
+            values[ii] = (Comparable<?>) keyValue;
         }
         return makePrimaryKey(values);
     }
@@ -445,7 +445,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
             // then create and populate the persistent object
             T po = _pClass.newInstance();
-            for (FieldMarshaller fm : _fields.values()) {
+            for (FieldMarshaller<?> fm : _fields.values()) {
                 if (!fields.contains(fm.getColumnName())) {
                     // this field was not in the result set, make sure that's OK
                     if (fm.getComputed() != null && !fm.getComputed().required()) {
@@ -530,7 +530,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         final SQLBuilder builder = ctx.getSQLBuilder(new DepotTypes(ctx, _pClass));
 
         // perform the context-sensitive initialization of the field marshallers
-        for (FieldMarshaller fm : _fields.values()) {
+        for (FieldMarshaller<?> fm : _fields.values()) {
             fm.init(builder);
         }
 
@@ -545,7 +545,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         ColumnDefinition[] declarations = new ColumnDefinition[_allFields.length];
         int jj = 0;
         for (int ii = 0; ii < _allFields.length; ii++) {
-            FieldMarshaller fm = _fields.get(_allFields[ii]);
+            FieldMarshaller<?> fm = _fields.get(_allFields[ii]);
             // include all persistent non-computed fields
             ColumnDefinition colDef = fm.getColumnDefinition();
             if (colDef != null) {
@@ -684,7 +684,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // add any missing columns
         for (String fname : _columnFields) {
-            final FieldMarshaller fmarsh = _fields.get(fname);
+            final FieldMarshaller<?> fmarsh = _fields.get(fname);
             if (metaData.tableColumns.remove(fmarsh.getColumnName())) {
                 continue;
             }
@@ -873,7 +873,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         throws PersistenceException
     {
         for (String fname : _columnFields) {
-            FieldMarshaller fmarsh = _fields.get(fname);
+            FieldMarshaller<?> fmarsh = _fields.get(fname);
             meta.tableColumns.remove(fmarsh.getColumnName());
         }
         for (String column : meta.tableColumns) {
@@ -977,11 +977,11 @@ public class DepotMarshaller<T extends PersistentRecord>
     protected Map<String, ValueGenerator> _valueGenerators = new HashMap<String, ValueGenerator>();
 
     /** A field marshaller for each persistent field in our object. */
-    protected Map<String, FieldMarshaller> _fields = new HashMap<String, FieldMarshaller>();
+    protected Map<String, FieldMarshaller<?>> _fields = new HashMap<String, FieldMarshaller<?>>();
 
     /** The field marshallers for our persistent object's primary key columns or null if it did not
      * define a primary key. */
-    protected ArrayList<FieldMarshaller> _pkColumns;
+    protected ArrayList<FieldMarshaller<?>> _pkColumns;
 
     /** The persisent fields of our object, in definition order. */
     protected String[] _allFields;

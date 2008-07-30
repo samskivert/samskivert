@@ -55,7 +55,7 @@ public interface ExpressionVisitor
         throws Exception;
     public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
         throws Exception;
-    public void visit (Key key)
+    public void visit (Key<? extends PersistentRecord> key)
         throws Exception;
     public void visit (MultiKey<? extends PersistentRecord> key)
         throws Exception;

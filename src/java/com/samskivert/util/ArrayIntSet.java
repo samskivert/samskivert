@@ -295,7 +295,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
     }
 
     // documentation inherited from interface
-    public boolean containsAll (Collection c)
+    public boolean containsAll (Collection<?> c)
     {
         if (c instanceof Interable) {
             Interator inter = ((Interable) c).interator();

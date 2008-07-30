@@ -100,7 +100,7 @@ public class FieldMask
      * Returns true only if the set of modified fields is a subset of the
      * fields specified.
      */
-    public final boolean onlySubsetModified (Set fieldSet)
+    public final boolean onlySubsetModified (Set<String> fieldSet)
     {
         for (String field : _descripMap.keySet()) {
             if (isModified(field) && (!fieldSet.contains(field))) {

@@ -75,7 +75,7 @@ public abstract class Conditionals
     /** The SQL '=' operator. */
     public static class Equals extends SQLOperator.BinaryOperator
     {
-        public Equals (SQLExpression column, Comparable value)
+        public Equals (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -95,7 +95,7 @@ public abstract class Conditionals
     /** The SQL '!=' operator. */
     public static class NotEquals extends SQLOperator.BinaryOperator
     {
-        public NotEquals (SQLExpression column, Comparable value)
+        public NotEquals (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -115,7 +115,7 @@ public abstract class Conditionals
     /** The SQL '<' operator. */
     public static class LessThan extends SQLOperator.BinaryOperator
     {
-        public LessThan (SQLExpression column, Comparable value)
+        public LessThan (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -135,7 +135,7 @@ public abstract class Conditionals
     /** The SQL '<=' operator. */
     public static class LessThanEquals extends SQLOperator.BinaryOperator
     {
-        public LessThanEquals (SQLExpression column, Comparable value)
+        public LessThanEquals (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -155,7 +155,7 @@ public abstract class Conditionals
     /** The SQL '>' operator. */
     public static class GreaterThan extends SQLOperator.BinaryOperator
     {
-        public GreaterThan (SQLExpression column, Comparable value)
+        public GreaterThan (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -175,7 +175,7 @@ public abstract class Conditionals
     /** The SQL '>=' operator. */
     public static class GreaterThanEquals extends SQLOperator.BinaryOperator
     {
-        public GreaterThanEquals (SQLExpression column, Comparable value)
+        public GreaterThanEquals (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }
@@ -196,18 +196,18 @@ public abstract class Conditionals
     public static class In
         implements SQLOperator
     {
-        public In (Class<? extends PersistentRecord> pClass, String pColumn, Comparable... values)
+        public In (Class<? extends PersistentRecord> pClass, String pColumn, Comparable<?>... values)
         {
             this(new ColumnExp(pClass, pColumn), values);
         }
 
         public In (Class<? extends PersistentRecord> pClass, String pColumn,
-                   Collection<? extends Comparable> values)
+                   Collection<? extends Comparable<?>> values)
         {
-            this(new ColumnExp(pClass, pColumn), values.toArray(new Comparable[values.size()]));
+            this(new ColumnExp(pClass, pColumn), values.toArray(new Comparable<?>[values.size()]));
         }
 
-        public In (ColumnExp column, Comparable... values)
+        public In (ColumnExp column, Comparable<?>... values)
         {
             if (values.length == 0) {
                 throw new IllegalArgumentException("In() condition needs at least one value.");
@@ -216,9 +216,9 @@ public abstract class Conditionals
             _values = values;
         }
 
-        public In (ColumnExp pColumn, Collection<? extends Comparable> values)
+        public In (ColumnExp pColumn, Collection<? extends Comparable<?>> values)
         {
-            this(pColumn, values.toArray(new Comparable[values.size()]));
+            this(pColumn, values.toArray(new Comparable<?>[values.size()]));
         }
 
         public ColumnExp getColumn ()
@@ -226,7 +226,7 @@ public abstract class Conditionals
             return _column;
         }
 
-        public Comparable[] getValues ()
+        public Comparable<?>[] getValues ()
         {
             return _values;
         }
@@ -244,13 +244,13 @@ public abstract class Conditionals
         }
 
         protected ColumnExp _column;
-        protected Comparable[] _values;
+        protected Comparable<?>[] _values;
     }
 
     /** The SQL ' like ' operator. */
     public static class Like extends SQLOperator.BinaryOperator
     {
-        public Like (SQLExpression column, Comparable value)
+        public Like (SQLExpression column, Comparable<?> value)
         {
             super(column, value);
         }

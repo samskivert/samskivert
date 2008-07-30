@@ -538,8 +538,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
 
     protected Record<V>[] createBuckets (int size)
     {
-        @SuppressWarnings("unchecked") Record<V>[] recs =
-            (Record<V>[]) new Record[size];
+        @SuppressWarnings("unchecked") Record<V>[] recs = new Record[size];
         return recs;
     }
 
@@ -582,7 +581,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             if (!(o instanceof IntEntry)) {
                 return false;
             }
-            IntEntry that = (IntEntry)o;
+            IntEntry<?> that = (IntEntry<?>)o;
             return (this.key == that.getIntKey()) &&
                 ObjectUtil.equals(this.value, that.getValue());
         }

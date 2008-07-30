@@ -50,7 +50,7 @@ public class MethodFinder
      * @exception IllegalArgumentException if clazz is null, or represents a primitive, or
      * represents an array type.
      */
-    public MethodFinder (Class clazz)
+    public MethodFinder (Class<?> clazz)
     {
         if (clazz == null) {
             throw new IllegalArgumentException("null Class parameter");
@@ -91,7 +91,7 @@ public class MethodFinder
      * @exception NoSuchMethodException if no constructors match the criteria, or if the reflective
      * call is ambiguous based on the parameter types.
      */
-    public Constructor findConstructor (Class[] parameterTypes)
+    public Constructor<?> findConstructor (Class<?>[] parameterTypes)
         throws NoSuchMethodException
     {
         // make sure the constructor list is loaded
@@ -101,7 +101,7 @@ public class MethodFinder
             parameterTypes = new Class[0];
         }
 
-        return (Constructor)findMemberIn(_ctorList, parameterTypes);
+        return (Constructor<?>)findMemberIn(_ctorList, parameterTypes);
     }
 
     /**
@@ -121,7 +121,7 @@ public class MethodFinder
      * @exception NoSuchMethodException if no methods match the criteria, or if the reflective call
      * is ambiguous based on the parameter types, or if methodName is null.
      */
-    public Method findMethod (String methodName, Class[] parameterTypes)
+    public Method findMethod (String methodName, Class<?>[] parameterTypes)
         throws NoSuchMethodException
     {
         // make sure the constructor list is loaded
@@ -155,14 +155,14 @@ public class MethodFinder
      * Basis of {@link #findConstructor} and {@link #findMethod}.  The member list fed to this
      * method will be either all {@link Constructor} objects or all {@link Method} objects.
      */
-    protected Member findMemberIn (List<Member> memberList, Class[] parameterTypes)
+    protected Member findMemberIn (List<Member> memberList, Class<?>[] parameterTypes)
         throws NoSuchMethodException
     {
         List<Member> matchingMembers = new ArrayList<Member>();
 
         for (Iterator<Member> it = memberList.iterator(); it.hasNext();) {
             Member member = it.next();
-            Class[] methodParamTypes = _paramMap.get(member);
+            Class<?>[] methodParamTypes = _paramMap.get(member);
 
             // check for exactly equal method signature
             if (Arrays.equals(methodParamTypes, parameterTypes)) {
@@ -256,7 +256,7 @@ public class MethodFinder
     {
         if (_ctorList == null) {
             _ctorList = new ArrayList<Member>();
-            Constructor[] ctors = _clazz.getConstructors();
+            Constructor<?>[] ctors = _clazz.getConstructors();
             for (int i = 0; i < ctors.length; ++i) {
                 _ctorList.add(ctors[i]);
                 _paramMap.put(ctors[i], ctors[i].getParameterTypes());
@@ -276,7 +276,7 @@ public class MethodFinder
             for (int i = 0; i < methods.length; ++i) {
                 Method m = methods[i];
                 String methodName = m.getName();
-                Class[] paramTypes = m.getParameterTypes();
+                Class<?>[] paramTypes = m.getParameterTypes();
 
                 List<Member> list = _methodMap.get(methodName);
                 if (list == null) {
@@ -306,13 +306,13 @@ public class MethodFinder
      */
     protected boolean memberIsMoreSpecific (Member first, Member second)
     {
-        Class[] firstParamTypes = _paramMap.get(first);
-        Class[] secondParamTypes = _paramMap.get(second);
+        Class<?>[] firstParamTypes = _paramMap.get(first);
+        Class<?>[] secondParamTypes = _paramMap.get(second);
         return ClassUtil.compatibleClasses(secondParamTypes, firstParamTypes);
     }
 
     /** The target class to look for methods and constructors in. */
-    protected Class _clazz;
+    protected Class<?> _clazz;
 
     /** Mapping from method name to the Methods in the target class with that name. */
     protected Map<String,List<Member>> _methodMap = null;
@@ -322,5 +322,5 @@ public class MethodFinder
 
     /** Mapping from a Constructor or Method object to the Class objects representing its formal
      * parameters. */
-    protected Map<Member,Class[]> _paramMap = new HashMap<Member,Class[]>();
+    protected Map<Member,Class<?>[]> _paramMap = new HashMap<Member,Class<?>[]>();
 }

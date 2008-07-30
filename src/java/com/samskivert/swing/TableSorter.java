@@ -108,8 +108,8 @@ public class TableSorter extends AbstractTableModel {
     private JTableHeader tableHeader;
     private MouseListener mouseListener;
     private TableModelListener tableModelListener;
-    private Map<Class,Comparator<Object>> columnComparators =
-        new HashMap<Class,Comparator<Object>>();
+    private Map<Class<?>,Comparator<Object>> columnComparators =
+        new HashMap<Class<?>,Comparator<Object>>();
     private List<Directive> sortingColumns = new ArrayList<Directive>();
 
     public TableSorter() {
@@ -221,7 +221,7 @@ public class TableSorter extends AbstractTableModel {
         sortingStatusChanged();
     }
 
-    public void setColumnComparator(Class type, Comparator<Object> comparator) {
+    public void setColumnComparator(Class<?> type, Comparator<Object> comparator) {
         if (comparator == null) {
             columnComparators.remove(type);
         } else {
@@ -230,7 +230,7 @@ public class TableSorter extends AbstractTableModel {
     }
 
     protected Comparator<Object> getComparator(int column) {
-        Class columnType = tableModel.getColumnClass(column);
+        Class<?> columnType = tableModel.getColumnClass(column);
         Comparator<Object> comparator = columnComparators.get(columnType);
         if (comparator != null) {
             return comparator;

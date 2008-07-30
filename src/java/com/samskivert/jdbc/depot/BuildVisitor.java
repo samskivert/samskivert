@@ -98,7 +98,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
     {
         Class<? extends PersistentRecord> pClass = whereCondition.getPersistentClass();
         String[] keyFields = Key.getKeyFields(pClass);
-        List<Comparable> values = whereCondition.getValues();
+        List<Comparable<?>> values = whereCondition.getValues();
         for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
                 _builder.append(" and ");
@@ -113,7 +113,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
     }
 
-    public void visit (Key key)
+    public void visit (Key<? extends PersistentRecord> key)
         throws Exception
     {
         _builder.append(" where ");
@@ -125,7 +125,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
     {
         _builder.append(" where ");
         boolean first = true;
-        for (Map.Entry<String, Comparable> entry : key.getSingleFieldsMap().entrySet()) {
+        for (Map.Entry<String, Comparable<?>> entry : key.getSingleFieldsMap().entrySet()) {
             if (first) {
                 first = false;
             } else {
@@ -145,7 +145,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
         appendRhsColumn(key.getPersistentClass(), key.getMultiField());
         _builder.append(" in (");
 
-        Comparable[] values = key.getMultiValues();
+        Comparable<?>[] values = key.getMultiValues();
         for (int ii = 0; ii < values.length; ii ++) {
             if (ii > 0) {
                 _builder.append(", ");
@@ -206,7 +206,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
     {
         in.getColumn().accept(this);
         _builder.append(" in (");
-        Comparable[] values = in.getValues();
+        Comparable<?>[] values = in.getValues();
         for (int ii = 0; ii < values.length; ii ++) {
             if (ii > 0) {
                 _builder.append(", ");
@@ -465,7 +465,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
         throws Exception
     {
         Class<? extends PersistentRecord> pClass = insertClause.getPersistentClass();
-        DepotMarshaller marsh = _types.getMarshaller(pClass);
+        DepotMarshaller<?> marsh = _types.getMarshaller(pClass);
         _innerClause = true;
 
         String[] fields = marsh.getColumnFieldNames();
@@ -514,8 +514,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
     protected void appendLhsColumn (Class<? extends PersistentRecord> type, String field)
         throws Exception
     {
-        DepotMarshaller dm = _types.getMarshaller(type);
-        FieldMarshaller fm = dm.getFieldMarshaller(field);
+        DepotMarshaller<?> dm = _types.getMarshaller(type);
+        FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
         if (dm == null) {
             throw new IllegalArgumentException(
                 "Unknown field on persistent record [record=" + type + ", field=" + field + "]");
@@ -529,8 +529,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
     protected void appendRhsColumn (Class<? extends PersistentRecord> type, String field)
         throws Exception
     {
-        DepotMarshaller dm = _types.getMarshaller(type);
-        FieldMarshaller fm = dm.getFieldMarshaller(field);
+        DepotMarshaller<?> dm = _types.getMarshaller(type);
+        FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
         if (dm == null) {
             throw new IllegalArgumentException(
                 "Unknown field on persistent record [record=" + type + ", field=" + field + "]");

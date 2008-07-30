@@ -38,26 +38,26 @@ import com.samskivert.jdbc.depot.operator.Logic.And;
  */
 public class Where extends WhereClause
 {
-    public Where (ColumnExp column, Comparable value)
+    public Where (ColumnExp column, Comparable<?> value)
     {
-        this(new ColumnExp[] { column }, new Comparable[] { value });
+        this(new ColumnExp[] { column }, new Comparable<?>[] { value });
     }
 
-    public Where (ColumnExp index1, Comparable value1,
-                ColumnExp index2, Comparable value2)
+    public Where (ColumnExp index1, Comparable<?> value1,
+                ColumnExp index2, Comparable<?> value2)
     {
-        this(new ColumnExp[] { index1, index2 }, new Comparable[] { value1, value2 });
+        this(new ColumnExp[] { index1, index2 }, new Comparable<?>[] { value1, value2 });
     }
 
-    public Where (ColumnExp index1, Comparable value1,
-                ColumnExp index2, Comparable value2,
-                ColumnExp index3, Comparable value3)
+    public Where (ColumnExp index1, Comparable<?> value1,
+                ColumnExp index2, Comparable<?> value2,
+                ColumnExp index3, Comparable<?> value3)
     {
         this(new ColumnExp[] { index1, index2, index3 },
-             new Comparable[] { value1, value2, value3 });
+             new Comparable<?>[] { value1, value2, value3 });
     }
 
-    public Where (ColumnExp[] columns, Comparable[] values)
+    public Where (ColumnExp[] columns, Comparable<?>[] values)
     {
         this(toCondition(columns, values));
     }
@@ -84,7 +84,7 @@ public class Where extends WhereClause
         _condition.addClasses(classSet);
     }
     
-    protected static SQLExpression toCondition (ColumnExp[] columns, Comparable[] values)
+    protected static SQLExpression toCondition (ColumnExp[] columns, Comparable<?>[] values)
     {
         SQLExpression[] comparisons = new SQLExpression[columns.length];
         for (int ii = 0; ii < columns.length; ii ++) {

@@ -47,7 +47,7 @@ public abstract class Logger
     {
         public void init ();
         public Logger getLogger (String name);
-        public Logger getLogger (Class clazz);
+        public Logger getLogger (Class<?> clazz);
     }
 
     /**
@@ -61,7 +61,7 @@ public abstract class Logger
     /**
      * Obtains a logger with a name equal to the supplied class's name.
      */
-    public static Logger getLogger (Class clazz)
+    public static Logger getLogger (Class<?> clazz)
     {
         return _factory.getLogger(clazz);
     }

@@ -45,7 +45,7 @@ public class SetNextFieldRule extends Rule
 	// identify the objects to be used
 	Object child = digester.peek(0);
 	Object parent = digester.peek(1);
-        Class pclass = parent.getClass();
+	Class<?> pclass = parent.getClass();
 
 	if (digester.getLogger().isDebugEnabled()) {
             digester.getLogger().debug("Set " + pclass.getName() + "." +

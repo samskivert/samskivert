@@ -391,7 +391,7 @@ class FieldDescriptor
     protected String name;    // full (compound) name of component
     protected Field  field;   // field info from java.lang.reflect
 
-    protected Constructor constructor; // constructor of object component
+    protected Constructor<?> constructor; // constructor of object component
 
     protected static final int t_byte         = 0;
     protected static final int t_short        = 1;

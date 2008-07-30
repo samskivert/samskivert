@@ -73,14 +73,14 @@ public class BindVisitor implements ExpressionVisitor
     public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
         throws Exception
     {
-        for (Comparable value : whereCondition.getValues()) {
+        for (Comparable<?> value : whereCondition.getValues()) {
             if (value != null) {
                 _stmt.setObject(_argIdx ++, value);
             }
         }
     }
 
-    public void visit (Key key)
+    public void visit (Key<? extends PersistentRecord> key)
         throws Exception
     {
         key.condition.accept(this);
@@ -89,12 +89,13 @@ public class BindVisitor implements ExpressionVisitor
     public void visit (MultiKey<? extends PersistentRecord> key)
         throws Exception
     {
-        for (Map.Entry entry : key.getSingleFieldsMap().entrySet()) {
+
+        for (Map.Entry<String, Comparable<?>> entry : key.getSingleFieldsMap().entrySet()) {
             if (entry.getValue() != null) {
                 _stmt.setObject(_argIdx ++, entry.getValue());
             }
         }
-        Comparable[] values = key.getMultiValues();
+        Comparable<?>[] values = key.getMultiValues();
         for (int ii = 0; ii < values.length; ii++) {
             _stmt.setObject(_argIdx ++, values[ii]);
         }
@@ -130,7 +131,7 @@ public class BindVisitor implements ExpressionVisitor
 
     public void visit (In in) throws Exception
     {
-        Comparable[] values = in.getValues();
+        Comparable<?>[] values = in.getValues();
         for (int ii = 0; ii < values.length; ii++) {
             _stmt.setObject(_argIdx ++, values[ii]);
         }
@@ -229,7 +230,7 @@ public class BindVisitor implements ExpressionVisitor
 
     public void visit (UpdateClause<? extends PersistentRecord> updateClause) throws Exception
     {
-        DepotMarshaller marsh = _types.getMarshaller(updateClause.getPersistentClass());
+        DepotMarshaller<?> marsh = _types.getMarshaller(updateClause.getPersistentClass());
 
         // bind the update arguments
         String[] fields = updateClause.getFields();
@@ -251,7 +252,7 @@ public class BindVisitor implements ExpressionVisitor
 
     public void visit (InsertClause<? extends PersistentRecord> insertClause) throws Exception
     {
-        DepotMarshaller marsh = _types.getMarshaller(insertClause.getPersistentClass());
+        DepotMarshaller<?> marsh = _types.getMarshaller(insertClause.getPersistentClass());
 
         Object pojo = insertClause.getPojo();
         Set<String> idFields = insertClause.getIdentityFields();

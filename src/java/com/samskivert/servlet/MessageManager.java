@@ -258,7 +258,7 @@ public class MessageManager
         ResourceBundle bundle = null;
 
         if (req != null) {
-            Enumeration locales = req.getLocales();
+            Enumeration<?> locales = req.getLocales();
             while (locales.hasMoreElements()) {
                 Locale locale = (Locale)locales.nextElement();
 

@@ -52,10 +52,10 @@ public abstract class FieldMarshaller<T>
      * Creates and returns a field marshaller for the specified field. Throws an exception if the
      * field in question cannot be marshalled.
      */
-    public static FieldMarshaller createMarshaller (Field field)
+    public static FieldMarshaller<?> createMarshaller (Field field)
     {
         Class<?> ftype = field.getType();
-        FieldMarshaller marshaller;
+        FieldMarshaller<?> marshaller;
 
         // primitive types
         if (ftype.equals(Boolean.TYPE)) {

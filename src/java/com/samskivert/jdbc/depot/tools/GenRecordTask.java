@@ -140,7 +140,7 @@ public class GenRecordTask extends Task
     }
 
     /** Processes a resolved persistent record class instance. */
-    protected void processRecord (File source, Class rclass)
+    protected void processRecord (File source, Class<?> rclass)
     {
         // make sure we extend persistent record
         if (!_prclass.isAssignableFrom(rclass)) {

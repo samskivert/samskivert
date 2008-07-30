@@ -62,7 +62,7 @@ public class ConfigTest extends TestCase
         config.setValue("prop2", "three");
         System.out.println("prop2: " + config.getValue("prop2", "two"));
 
-        Iterator iter = config.keys();
+        Iterator<String> iter = config.keys();
         System.out.println("Keys: " + StringUtil.toString(iter));
 
         config.setValue("sub.sub3", "three");

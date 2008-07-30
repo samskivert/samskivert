@@ -41,7 +41,7 @@ public class ClassUtil
      * @return true if the class is accessible, false otherwise.  Presently returns true if the
      * class is declared public.
      */
-    public static boolean classIsAccessible (Class clazz)
+    public static boolean classIsAccessible (Class<?> clazz)
     {
         return Modifier.isPublic(clazz.getModifiers());
     }
@@ -49,7 +49,7 @@ public class ClassUtil
     /**
      * Get the fields contained in the class and its superclasses.
      */
-    public static Field[] getFields (Class clazz)
+    public static Field[] getFields (Class<?> clazz)
     {
         ArrayList<Field> list = new ArrayList<Field>();
         getFields(clazz, list);
@@ -60,10 +60,10 @@ public class ClassUtil
      * Add all the fields of the specifed class (and its ancestors) to the list. Note, if we are
      * running in a sandbox, this will only enumerate public members.
      */
-    public static void getFields (Class clazz, List<Field> addTo)
+    public static void getFields (Class<?> clazz, List<Field> addTo)
     {
         // first get the fields of the superclass
-        Class pclazz = clazz.getSuperclass();
+        Class<?> pclazz = clazz.getSuperclass();
         if (pclazz != null && !pclazz.equals(Object.class)) {
             getFields(pclazz, addTo);
         }
@@ -100,16 +100,16 @@ public class ClassUtil
      * Object array.  If args is null, a zero-length Class array is returned.  If an element in
      * args is null, then Void.TYPE is the corresponding Class in the return array.
      */
-    public static Class[] getParameterTypesFrom (Object[] args)
+    public static Class<?>[] getParameterTypesFrom (Object[] args)
     {
-        Class[] argTypes = null;
+        Class<?>[] argTypes = null;
         if (args != null) {
             argTypes = new Class[args.length];
             for (int i = 0; i < args.length; ++i) {
                 argTypes[i] = (args[i] == null) ? Void.TYPE : args[i].getClass();
             }
         } else {
-            argTypes = new Class[0];
+            argTypes = new Class<?>[0];
         }
         return argTypes;
     }
@@ -165,7 +165,7 @@ public class ClassUtil
      * @return the nearest method located, or null if there is no such method.
      */
     public static Method getAccessibleMethodFrom (
-        Class<?> clazz, String methodName, Class[] parameterTypes)
+        Class<?> clazz, String methodName, Class<?>[] parameterTypes)
     {
         // Look for overridden method in the superclass.
         Class<?> superclass = clazz.getSuperclass();
@@ -229,7 +229,7 @@ public class ClassUtil
      * @return the class's primitive equivalent, if clazz is a primitive wrapper.  If clazz is
      * primitive, returns clazz.  Otherwise, returns null.
      */
-    public static Class<?> primitiveEquivalentOf (Class clazz)
+    public static Class<?> primitiveEquivalentOf (Class<?> clazz)
     {
         return clazz.isPrimitive() ? clazz : _objectToPrimitiveMap.get(clazz);
     }
@@ -237,7 +237,7 @@ public class ClassUtil
     /**
      * @return the class's object equivalent if the class is a primitive type.
      */
-    public static Class<?> objectEquivalentOf (Class clazz)
+    public static Class<?> objectEquivalentOf (Class<?> clazz)
     {
         return clazz.isPrimitive() ? _primitiveToObjectMap.get(clazz) : clazz;
     }
@@ -252,7 +252,7 @@ public class ClassUtil
      * @return true if compatible, false otherwise. If either argument is <code>null</code>, or one
      * of the parameters does not represent a primitive (e.g. Byte.TYPE), returns false.
      */
-    public static boolean primitiveIsAssignableFrom (Class lhs, Class rhs)
+    public static boolean primitiveIsAssignableFrom (Class<?> lhs, Class<?> rhs)
     {
         if (lhs == null || rhs == null) {
             return false;
@@ -263,7 +263,7 @@ public class ClassUtil
         if (lhs.equals(rhs)) {
             return true;
         }
-        Set<Class> wideningSet = _primitiveWideningsMap.get(rhs);
+        Set<Class<?>> wideningSet = _primitiveWideningsMap.get(rhs);
         if (wideningSet == null) {
             return false;
         }
@@ -298,11 +298,11 @@ public class ClassUtil
 
     /** Mapping from primitive wrapper Classes to the sets of primitive classes whose instances can
      * be assigned an instance of the first. */
-    protected static final Map<Class,Set<Class>> _primitiveWideningsMap =
-        new HashMap<Class,Set<Class>>(11);
+    protected static final Map<Class<?>,Set<Class<?>>> _primitiveWideningsMap = 
+        new HashMap<Class<?>,Set<Class<?>>>(11);
 
     static {
-        Set<Class> set = new HashSet<Class>();
+        Set<Class<?>> set = new HashSet<Class<?>>();
         set.add(Short.TYPE);
         set.add(Integer.TYPE);
         set.add(Long.TYPE);
@@ -310,7 +310,7 @@ public class ClassUtil
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Byte.TYPE, set);
 
-        set = new HashSet<Class>();
+        set = new HashSet<Class<?>>();
         set.add(Integer.TYPE);
         set.add(Long.TYPE);
         set.add(Float.TYPE);
@@ -318,18 +318,18 @@ public class ClassUtil
         _primitiveWideningsMap.put(Short.TYPE, set);
         _primitiveWideningsMap.put(Character.TYPE, set);
 
-        set = new HashSet<Class>();
+        set = new HashSet<Class<?>>();
         set.add(Long.TYPE);
         set.add(Float.TYPE);
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Integer.TYPE, set);
 
-        set = new HashSet<Class>();
+        set = new HashSet<Class<?>>();
         set.add(Float.TYPE);
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Long.TYPE, set);
 
-        set = new HashSet<Class>();
+        set = new HashSet<Class<?>>();
         set.add(Double.TYPE);
         _primitiveWideningsMap.put(Float.TYPE, set);
     }

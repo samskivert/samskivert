@@ -72,9 +72,9 @@ public class ObjectEditorTable extends JTable
          * the field is used, or its object equivalent if it is a primitive
          * class.
          */
-        public Class getClass (Field field)
+        public Class<?> getClass (Field field)
         {
-            Class clazz = field.getType();
+            Class<?> clazz = field.getType();
             return ClassUtil.objectEquivalentOf(clazz);
         }
 
@@ -111,7 +111,7 @@ public class ObjectEditorTable extends JTable
      *
      * @param protoClass the Class of the data that will be displayed.
      */
-    public ObjectEditorTable (Class protoClass)
+    public ObjectEditorTable (Class<?> protoClass)
     {
         this(protoClass, null);
     }
@@ -122,7 +122,7 @@ public class ObjectEditorTable extends JTable
      * @param protoClass the Class of the data that will be displayed.
      * @param editableFields the names of the fields that are editable.
      */
-    public ObjectEditorTable (Class protoClass, String[] editableFields)
+    public ObjectEditorTable (Class<?> protoClass, String[] editableFields)
     {
         this(protoClass, editableFields, null);
     }
@@ -134,7 +134,7 @@ public class ObjectEditorTable extends JTable
      * @param editableFields the names of the fields that are editable.
      * @param interp The {@link FieldInterpreter} to use.
      */
-    public ObjectEditorTable (Class protoClass, String[] editableFields,
+    public ObjectEditorTable (Class<?> protoClass, String[] editableFields,
                               FieldInterpreter interp)
     {
         this(protoClass, editableFields, interp, null);
@@ -148,7 +148,7 @@ public class ObjectEditorTable extends JTable
      * @param interp The {@link FieldInterpreter} to use.
      * @param displayFields the fields to display, or null to display all.
      */
-    public ObjectEditorTable (Class protoClass, String[] editableFields,
+    public ObjectEditorTable (Class<?> protoClass, String[] editableFields,
                               FieldInterpreter interp, String[] displayFields)
     {
         _interp = (interp != null) ? interp : new FieldInterpreter();

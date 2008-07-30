@@ -37,7 +37,7 @@ public class SimpleRepository extends Repository
     public static interface PreCondition
     {
         /** See {@link #setExecutePreCondition}. */
-        public boolean validate (String dbident, Operation op);
+        public boolean validate (String dbident, Operation<?> op);
     }
 
     /**
@@ -102,7 +102,7 @@ public class SimpleRepository extends Repository
      * @return whatever value is returned by the invoked operation.
      */
     protected <V> V execute (Operation<V> op)
-	throws PersistenceException
+        throws PersistenceException
     {
         return execute(op, true, true);
     }
@@ -114,7 +114,7 @@ public class SimpleRepository extends Repository
      * @return whatever value is returned by the invoked operation.
      */
     protected <V> V executeUpdate (Operation<V> op)
-	throws PersistenceException
+        throws PersistenceException
     {
         return execute(op, true, false);
     }
@@ -132,7 +132,7 @@ public class SimpleRepository extends Repository
      * @return whatever value is returned by the invoked operation.
      */
     protected <V> V execute (Operation<V> op, boolean retryOnTransientFailure, boolean readOnly)
-	throws PersistenceException
+        throws PersistenceException
     {
         Connection conn = null;
         DatabaseLiaison liaison = null;

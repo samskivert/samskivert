@@ -253,6 +253,5 @@ public class MenuUtil
     }
 
     /** The method signature for menu callback methods. */
-    protected static final Class[] METHOD_ARGS =
-        new Class[] { ActionEvent.class };
+    protected static final Class<?>[] METHOD_ARGS = new Class<?>[] { ActionEvent.class };
 }

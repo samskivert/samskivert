@@ -36,7 +36,7 @@ import static com.samskivert.jdbc.depot.Log.log;
  */
 public abstract class ValueGenerator
 {
-    public ValueGenerator (GeneratedValue gv, DepotMarshaller dm, FieldMarshaller fm)
+    public ValueGenerator (GeneratedValue gv, DepotMarshaller<?> dm, FieldMarshaller<?> fm)
     {
         _allocationSize = gv.allocationSize();
         _initialValue = gv.initialValue();
@@ -101,12 +101,12 @@ public abstract class ValueGenerator
         }
     }
 
-    public DepotMarshaller getDepotMarshaller ()
+    public DepotMarshaller<?> getDepotMarshaller ()
     {
         return _dm;
     }
 
-    public FieldMarshaller getFieldMarshaller ()
+    public FieldMarshaller<?> getFieldMarshaller ()
     {
         return _fm;
     }
@@ -115,6 +115,6 @@ public abstract class ValueGenerator
     protected int _allocationSize;
     protected boolean _migrateIfExists;
 
-    protected DepotMarshaller _dm;
-    protected FieldMarshaller _fm;
+    protected DepotMarshaller<?> _dm;
+    protected FieldMarshaller<?> _fm;
 }

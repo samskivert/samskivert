@@ -193,13 +193,13 @@ public class TGraphics2D extends Graphics2D
         return _primary.getRenderingHint(k);
     }
 
-    public void setRenderingHints (Map m)
+    public void setRenderingHints (Map<?, ?> m)
     {
         _copy.setRenderingHints(m);
         _primary.setRenderingHints(m);
     }
 
-    public void addRenderingHints (Map m)
+    public void addRenderingHints (Map<?, ?> m)
     {
         _copy.addRenderingHints(m);
         _primary.addRenderingHints(m);
@@ -553,7 +553,7 @@ public class TGraphics2D extends Graphics2D
         return _primary.toString();
     }
 
-    @SuppressWarnings("deprecation")
+    @Deprecated
     public Rectangle getClipRect ()
     {
         // getClipRect is deprecated, but getClipBounds is the new way to do the same thing. We

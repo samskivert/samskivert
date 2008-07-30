@@ -160,7 +160,7 @@ public class SwingUtil
      * be left at it's original location.
      */
     public static boolean positionRect (
-        Rectangle r, Rectangle bounds, Collection avoidShapes)
+        Rectangle r, Rectangle bounds, Collection<? extends Shape> avoidShapes)
     {
         Point origPos = r.getLocation();
         Comparator<Point> comp = createPointComparator(origPos);
@@ -182,8 +182,8 @@ public class SwingUtil
             }
 
             // see if it hits any shapes we're trying to avoid
-            for (Iterator iter=avoidShapes.iterator(); iter.hasNext(); ) {
-                Shape shape = (Shape) iter.next();
+            for (Iterator<? extends Shape> iter = avoidShapes.iterator(); iter.hasNext(); ) {
+                Shape shape = iter.next();
 
                 if (shape.intersects(r)) {
                     // remove that shape from our avoid list

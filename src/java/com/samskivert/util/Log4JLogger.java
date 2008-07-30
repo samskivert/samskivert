@@ -39,7 +39,7 @@ public class Log4JLogger implements Logger.Factory
     }
 
     // from interface Logger.Factory
-    public Logger getLogger (Class clazz)
+    public Logger getLogger (Class<?> clazz)
     {
         return getLogger(clazz.getName());
     }

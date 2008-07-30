@@ -37,7 +37,8 @@ import com.samskivert.jdbc.JDBCUtil;
  */
 public class TableValueGenerator extends ValueGenerator
 {
-    public TableValueGenerator (TableGenerator tg, GeneratedValue gv, DepotMarshaller dm, FieldMarshaller fm)
+    public TableValueGenerator (
+        TableGenerator tg, GeneratedValue gv, DepotMarshaller<?> dm, FieldMarshaller<?> fm)
     {
         super(gv, dm, fm);
         _valueTable = defStr(tg.table(), "IdSequences");

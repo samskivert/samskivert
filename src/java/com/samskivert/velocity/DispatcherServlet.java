@@ -149,7 +149,7 @@ public class DispatcherServlet extends HttpServlet
             if (StringUtil.isBlank(appcl)) {
                 _app = new Application();
             } else {
-                Class appclass = Class.forName(appcl);
+                Class<?> appclass = Class.forName(appcl);
                 _app = (Application)appclass.newInstance();
             }
 
@@ -418,6 +418,7 @@ public class DispatcherServlet extends HttpServlet
      * Called when a method throws an exception during template
      * evaluation.
      */
+    @SuppressWarnings("unchecked")
     public Object methodException (Class clazz, String method, Exception e)
         throws Exception
     {
@@ -580,7 +581,7 @@ public class DispatcherServlet extends HttpServlet
 
         if (logic == null) {
             try {
-                Class pcl = Class.forName(lclass);
+                Class<?> pcl = Class.forName(lclass);
                 logic = (Logic)pcl.newInstance();
 
             } catch (ClassNotFoundException cnfe) {

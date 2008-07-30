@@ -31,7 +31,7 @@ import com.samskivert.jdbc.depot.annotation.GeneratedValue;
  */
 public class IdentityValueGenerator extends ValueGenerator
 {
-    public IdentityValueGenerator (GeneratedValue gv, DepotMarshaller dm, FieldMarshaller fm)
+    public IdentityValueGenerator (GeneratedValue gv, DepotMarshaller<?> dm, FieldMarshaller<?> fm)
     {
         super(gv, dm, fm);
     }

@@ -38,7 +38,7 @@ public class ValueMarshaller
      * @exception Exception thrown if no field parser exists for the
      * target type or if an error occurs while parsing the value.
      */
-    public static Object unmarshal (Class type, String source)
+    public static Object unmarshal (Class<?> type, String source)
         throws Exception
     {
         // look up an argument parser for the field type
@@ -56,10 +56,10 @@ public class ValueMarshaller
         public Object parse (String source) throws Exception;
     }
 
-    protected static HashMap<Class,Parser> _parsers;
+    protected static HashMap<Class<?>,Parser> _parsers;
 
     static {
-        _parsers = new HashMap<Class,Parser>();
+        _parsers = new HashMap<Class<?>,Parser>();
 
         // we can parse strings
         _parsers.put(String.class, new Parser() {

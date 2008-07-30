@@ -61,7 +61,7 @@ public class ValidatedSetNextRule extends Rule
      * specified parameter type.
      */
     public ValidatedSetNextRule (
-        String methodName, Class paramType, Validator validator)
+        String methodName, Class<?> paramType, Validator validator)
     {
         // keep this for later
         _methodName = methodName;
@@ -81,14 +81,14 @@ public class ValidatedSetNextRule extends Rule
             return;
         }
 
-        Class pclass = parent.getClass();
+        Class<?> pclass = parent.getClass();
         if (digester.getLogger().isDebugEnabled()) {
             digester.getLogger().debug("Call " + pclass.getName() + "." +
                                        _methodName + " (" + child + ")");
         }
 
         // call the specified method
-        Class[] paramTypes = new Class[1];
+        Class<?>[] paramTypes = new Class<?>[1];
         paramTypes[0] = (_paramType == null) ? child.getClass() : _paramType;
         Method method = parent.getClass().getMethod(_methodName, paramTypes);
         method.invoke(parent, new Object[] { child });
@@ -111,6 +111,6 @@ public class ValidatedSetNextRule extends Rule
     }
 
     protected String _methodName;
-    protected Class _paramType;
+    protected Class<?> _paramType;
     protected Validator _validator;
 }

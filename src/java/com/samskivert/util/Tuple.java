@@ -71,7 +71,7 @@ public class Tuple<L,R> implements Serializable
     public boolean equals (Object other)
     {
         if (other instanceof Tuple) {
-            Tuple to = (Tuple)other;
+            Tuple<?, ?> to = (Tuple<?, ?>)other;
             return (left.equals(to.left) && right.equals(to.right));
         } else {
             return false;

@@ -69,7 +69,7 @@ public class MapEntry<K,V> implements Map.Entry<K,V>
         if (!(o instanceof Map.Entry)) {
             return false;
         }
-        Map.Entry e = (Map.Entry)o;
+        Map.Entry<?, ?> e = (Map.Entry<?, ?>)o;
         return ObjectUtil.equals(_key, e.getKey()) &&
             ObjectUtil.equals(_value, e.getValue());
     }

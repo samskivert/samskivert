@@ -481,11 +481,11 @@ public class StringUtil
             buf.append(closeBox);
 
         } else if (val instanceof Iterable) {
-            toString(buf, ((Iterable)val).iterator(), openBox, closeBox);
+            toString(buf, ((Iterable<?>)val).iterator(), openBox, closeBox);
 
         } else if (val instanceof Iterator) {
             buf.append(openBox);
-            Iterator iter = (Iterator)val;
+            Iterator<?> iter = (Iterator<?>)val;
             for (int i = 0; iter.hasNext(); i++) {
                 if (i > 0) {
                     buf.append(sep);
@@ -496,7 +496,7 @@ public class StringUtil
 
         } else if (val instanceof Enumeration) {
             buf.append(openBox);
-            Enumeration enm = (Enumeration)val;
+            Enumeration<?> enm = (Enumeration<?>)val;
             for (int i = 0; enm.hasMoreElements(); i++) {
                 if (i > 0) {
                     buf.append(sep);
@@ -551,7 +551,7 @@ public class StringUtil
     {
         // get an iterator if this is a collection
         if (val instanceof Iterable) {
-            val = ((Iterable)val).iterator();
+            val = ((Iterable<?>)val).iterator();
         }
 
         String openBox = formatter.getOpenBox();
@@ -570,7 +570,7 @@ public class StringUtil
 
         } else if (val instanceof Iterator) {
             buf.append(openBox);
-            Iterator iter = (Iterator)val;
+            Iterator<?> iter = (Iterator<?>)val;
             for (int i = 0; iter.hasNext(); i++) {
                 if (i > 0) {
                     buf.append(", ");
@@ -581,7 +581,7 @@ public class StringUtil
 
         } else if (val instanceof Enumeration) {
             buf.append(openBox);
-            Enumeration enm = (Enumeration)val;
+            Enumeration<?> enm = (Enumeration<?>)val;
             for (int i = 0; enm.hasMoreElements(); i++) {
                 if (i > 0) {
                     buf.append(", ");
@@ -759,7 +759,7 @@ public class StringUtil
         char[] chars = new char[count*2];
 
         for (int i = 0; i < count; i++) {
-            int val = (int)bytes[i];
+            int val = bytes[i];
             if (val < 0) {
                 val += 256;
             }
@@ -1199,7 +1199,7 @@ public class StringUtil
      * name. For example, <code>com.samskivert.util.StringUtil</code> would be reported as
      * <code>util.StringUtil</code>.
      */
-    public static String shortClassName (Class clazz)
+    public static String shortClassName (Class<?> clazz)
     {
         return shortClassName(clazz.getName());
     }

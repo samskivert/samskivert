@@ -20,7 +20,6 @@
 
 package com.samskivert.servlet.util;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -109,13 +108,15 @@ public class RequestUtils
     public static String reconstructURL (HttpServletRequest req)
     {
         StringBuffer buf = req.getRequestURL();
-        Map map = req.getParameterMap();
+        @SuppressWarnings("unchecked") Map<String, String[]> map = req.getParameterMap();
         if (map.size() > 0) {
             buf.append("?");
-            for (Iterator iter = map.entrySet().iterator(); iter.hasNext(); ) {
-                Map.Entry entry = (Map.Entry)iter.next();
+            for (Map.Entry<String, String[]> entry : map.entrySet()) {
+                if (buf.charAt(buf.length()-1) != '?') {
+                    buf.append("&");
+                }
                 buf.append(entry.getKey()).append("=");
-                String[] values = (String[])entry.getValue();
+                String[] values = entry.getValue();
                 if (values.length == 1) {
                     buf.append(values[0]);
                 } else {
@@ -127,9 +128,6 @@ public class RequestUtils
                         buf.append(values[ii]);
                     }
                     buf.append(")");
-                }
-                if (iter.hasNext()) {
-                    buf.append("&");
                 }
             }
         }

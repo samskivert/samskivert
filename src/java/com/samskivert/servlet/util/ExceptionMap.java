@@ -81,7 +81,7 @@ public class ExceptionMap
 	if (_keys != null) {
 	    return;
 	} else {
-	    _keys = new ArrayList<Class>();
+	    _keys = new ArrayList<Class<?>>();
 	    _values = new ArrayList<String>();
 	}
 
@@ -113,7 +113,7 @@ public class ExceptionMap
 		for (int i = 0; i < classes.size(); i++) {
 		    String exclass = classes.get(i);
 		    try {
-			Class cl = Class.forName(exclass);
+			Class<?> cl = Class.forName(exclass);
 			// replace the string with the class object
 			_keys.add(cl);
 
@@ -146,7 +146,7 @@ public class ExceptionMap
     {
 	String msg = DEFAULT_ERROR_MSG;
 	for (int i = 0; i < _keys.size(); i++) {
-	    Class cl = _keys.get(i);
+	    Class<?> cl = _keys.get(i);
 	    if (cl.isInstance(ex)) {
 		msg = _values.get(i);
 		break;
@@ -155,7 +155,7 @@ public class ExceptionMap
 	return StringUtil.replace(msg, MESSAGE_MARKER, ex.getMessage());
     }
 
-    protected static List<Class> _keys;
+    protected static List<Class<?>> _keys;
     protected static List<String> _values;
 
     // initialize ourselves

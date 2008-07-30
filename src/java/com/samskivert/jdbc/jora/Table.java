@@ -486,11 +486,11 @@ public class Table<T>
     }
 
     protected final int buildFieldsList (ArrayList<FieldDescriptor> buf,
-                                       Class _rowClass, String prefix)
+                                         Class<?> _rowClass, String prefix)
     {
 	Field[] f = _rowClass.getDeclaredFields();
 
-	Class superclass = _rowClass;
+	Class<?> superclass = _rowClass;
 	while ((superclass = superclass.getSuperclass()) != null) {
 	    Field[] inheritedFields = superclass.getDeclaredFields();
 	    Field[] allFields = new Field[inheritedFields.length + f.length];
@@ -908,10 +908,11 @@ public class Table<T>
 
     static {
         try {
-	    serializableClass = Serializable.class;
-	    Class<?> c = Class.forName("java.lang.reflect.AccessibleObject");
-	    Class[] param = { Boolean.TYPE };
-	    setBypass = c.getMethod("setAccessible", param);
-        } catch(Exception ex) {}
+            serializableClass = Serializable.class;
+            Class<?> c = Class.forName("java.lang.reflect.AccessibleObject");
+            setBypass = c.getMethod("setAccessible", new Class<?>[] { Boolean.TYPE });
+        } catch(Exception ex) {
+            // nothing to do
+        }
     }
 }

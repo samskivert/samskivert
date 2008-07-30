@@ -152,9 +152,9 @@ public class DepotTypes
      *
      * @exception IllegalArgumentException thrown if the specified class is not known.
      */
-    public DepotMarshaller getMarshaller (Class<? extends PersistentRecord> cl)
+    public DepotMarshaller<?> getMarshaller (Class<? extends PersistentRecord> cl)
     {
-        DepotMarshaller marsh = _classMap.get(cl);
+        DepotMarshaller<?> marsh = _classMap.get(cl);
         if (marsh == null) {
             throw new IllegalArgumentException("Persistent class not known: " + cl);
         }
@@ -202,10 +202,11 @@ public class DepotTypes
     }
 
     /** Classes mapped to integers, used for table abbreviation indexing. */
-    protected Map<Class, Integer> _classIx = new HashMap<Class, Integer>();
+    protected Map<Class<?>, Integer> _classIx = new HashMap<Class<?>, Integer>();
 
     /** Classes mapped to marshallers, used for table names and field lists. */
-    protected Map<Class, DepotMarshaller> _classMap = new HashMap<Class, DepotMarshaller>();
+    protected Map<Class<?>, DepotMarshaller<?>> _classMap = 
+        new HashMap<Class<?>, DepotMarshaller<?>>();
 
     /** When false, override the normal table abbreviations and return full table names instead. */
     protected boolean _useTableAbbreviations = true;

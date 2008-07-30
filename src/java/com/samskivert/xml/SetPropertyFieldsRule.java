@@ -85,10 +85,10 @@ public class SetPropertyFieldsRule extends Rule
         throws Exception
     {
         Object top = digester.peek();
-        Class topclass = top.getClass();
+        Class<?> topclass = top.getClass();
 
         // iterate over the attributes, setting public fields where applicable
-	for (int i = 0; i < attrs.getLength(); i++) {
+        for (int i = 0; i < attrs.getLength(); i++) {
 	    String lname = attrs.getLocalName(i);
             if (StringUtil.isBlank(lname)) {
                 lname = attrs.getQName(i);

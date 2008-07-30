@@ -356,7 +356,7 @@ public abstract class Controller
         Method method, Object source, Object argument)
     {
         // figure out what sort of arguments are required by the method
-        Class[] atypes = method.getParameterTypes();
+        Class<?>[] atypes = method.getParameterTypes();
 
         if (atypes == null || atypes.length == 0) {
             return new Object[0];

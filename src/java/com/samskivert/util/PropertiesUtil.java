@@ -162,7 +162,7 @@ public class PropertiesUtil
 	int preflen = prefix.length();
 
 	// scan the source properties
-	Enumeration names = source.propertyNames();
+	Enumeration<?> names = source.propertyNames();
 	while (names.hasMoreElements()) {
 	    String name = (String)names.nextElement();
 	    // skip unrelated properties

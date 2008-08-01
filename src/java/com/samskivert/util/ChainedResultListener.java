@@ -25,14 +25,14 @@ package com.samskivert.util;
  * passed directly, but allows for success to be handled in whatever way is
  * desired by the chaining result listener.
  */
-public abstract class ChainedResultListener<T>
+public abstract class ChainedResultListener<T,TT>
     implements ResultListener<T>
 {
     /**
      * Creates a chained result listener that will pass failure through to the
      * specified target.
      */
-    public ChainedResultListener (ResultListener<T> target)
+    public ChainedResultListener (ResultListener<TT> target)
     {
         _target = target;
     }
@@ -43,5 +43,5 @@ public abstract class ChainedResultListener<T>
         _target.requestFailed(cause);
     }
 
-    protected ResultListener<T> _target;
+    protected ResultListener<TT> _target;
 }

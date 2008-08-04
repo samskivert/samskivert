@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -175,7 +175,7 @@ public class ObjectEditorTable extends JTable
         } else {
             _fields = fields; // use all the fields
         }
-        
+
         // figure out which fields are editable
         for (int ii=0, nn=_fields.length; ii < nn; ii++) {
             if (ListUtil.contains(editableFields, _fields[ii].getName())) {

@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -52,16 +52,16 @@ public class ImportDirective extends Directive
     public String getName ()
     {
         return "import";
-    }        
-    
+    }
+
     /**
      * Return type of this directive.
      */
     public int getType ()
     {
         return LINE;
-    }        
-    
+    }
+
     /**
      * Loads and renders the imported template.
      */
@@ -126,7 +126,7 @@ public class ImportDirective extends Directive
         // locate the requested template
         Template t = null;
         try {
-            t = rsvc.getTemplate(path, encoding);   
+            t = rsvc.getTemplate(path, encoding);
 
         } catch (ResourceNotFoundException rnfe) {
             rsvc.getLog().error("#import(): cannot find template '" + path +
@@ -137,7 +137,7 @@ public class ImportDirective extends Directive
         } catch (ParseErrorException pee) {
             rsvc.getLog().error("#import(): syntax error in #import()-ed template '" + path +
                                 "', called from template " + context.getCurrentTemplateName() +
-                                " at (" + getLine() + ", " + getColumn() + ")");    
+                                " at (" + getLine() + ", " + getColumn() + ")");
             throw pee;
 
         } catch (Exception e) {	
@@ -150,7 +150,7 @@ public class ImportDirective extends Directive
             context.pushCurrentTemplateName(path);
             ((SimpleNode)t.getData()).render(context, writer);
 
-        } catch (Throwable th) {        
+        } catch (Throwable th) {
             rsvc.getLog().error("Exception rendering #import(" + path + "): " + th);
             // we want to pass method invocation exceptions through
             if (th instanceof MethodInvocationException) {

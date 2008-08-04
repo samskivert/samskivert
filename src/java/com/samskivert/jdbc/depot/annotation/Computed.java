@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -50,11 +50,11 @@ public @interface Computed
      * querying for objects that that contain large subsets of some other persistent object's
      * fields -- in other words, when you use a computed entity to query only some of the columns
      * from a table.
-     * 
+     *
      * The shadowed class must have been brought into the query using e.g. {@link FromOverride}
      * or {@link Join} clauses. The referenced fields must be simple concrete columns in a table;
      * they must themselves be computed or overridden or shadowing.
-     * 
+     *
      * TODO: Do in fact let the shadowed field be computed, overriden or shadowing.
      */
     Class<? extends PersistentRecord> shadowOf () default PersistentRecord.class;

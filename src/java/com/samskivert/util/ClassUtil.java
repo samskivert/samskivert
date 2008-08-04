@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -117,7 +117,7 @@ public class ClassUtil
     /**
      * Tells whether instances of the classes in the 'rhs' array could be used as parameters to a
      * reflective method invocation whose parameter list has types denoted by the 'lhs' array.
-     * 
+     *
      * @param lhs Class array representing the types of the formal parameters of a method.
      * @param rhs Class array representing the types of the actual parameters of a method.  A null
      * value or Void.TYPE is considered to match a corresponding Object or array class in lhs, but
@@ -241,7 +241,7 @@ public class ClassUtil
     /**
      * Tells whether an instance of the primitive class represented by 'rhs' can be assigned to an
      * instance of the primitive class represented by 'lhs'.
-     * 
+     *
      * @param lhs assignee class.
      * @param rhs assigned class.
      *
@@ -294,7 +294,7 @@ public class ClassUtil
 
     /** Mapping from primitive wrapper Classes to the sets of primitive classes whose instances can
      * be assigned an instance of the first. */
-    protected static final Map<Class<?>,Set<Class<?>>> _primitiveWideningsMap = 
+    protected static final Map<Class<?>,Set<Class<?>>> _primitiveWideningsMap =
         new HashMap<Class<?>,Set<Class<?>>>(11);
 
     static {

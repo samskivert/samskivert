@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -40,7 +40,7 @@ public @interface TableGenerator
      * generator for id values.
      */
     String name ();
-    
+
     /**
      * Name of table that stores the generated id values. Defaults to a name chosen by persistence
      * provider.
@@ -54,13 +54,13 @@ public @interface TableGenerator
 
     /**
      * Name of the column that stores the last value generated Defaults to a provider-chosen name.
-     */    
+     */
     String valueColumnName () default "";
 
     /**
      * The primary key value in the generator table that distinguishes this set of generated values
      * from others that may be stored in the table Defaults to a provider-chosen value to store in
      * the primary key column of the generator table
-     */    
+     */
     String pkColumnValue () default "";
 }

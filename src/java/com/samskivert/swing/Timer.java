@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -33,7 +33,7 @@ public class Timer extends javax.swing.Timer
      * Construct a samskivert timer.
      *
      * @param delay the delay between posts.
-     * @param source the source component to use for finding the 
+     * @param source the source component to use for finding the
      * appropriate controller.
      * @param command the command to post.
      */

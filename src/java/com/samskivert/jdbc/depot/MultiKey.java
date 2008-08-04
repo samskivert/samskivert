@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -46,7 +46,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
     /**
      * Constructs a new two-column {@code MultiKey} with the given value range.
      */
-    public MultiKey (Class<T> pClass, String ix1, Comparable<?> val1, String ix2, 
+    public MultiKey (Class<T> pClass, String ix1, Comparable<?> val1, String ix2,
         Comparable<?>... val2)
     {
         this(pClass, new String[] { ix1 }, new Comparable[] { val1 }, ix2, val2);

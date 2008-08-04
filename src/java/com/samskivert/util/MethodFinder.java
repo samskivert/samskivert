@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -82,7 +82,7 @@ public class MethodFinder
      *
      * <p> A null value or Void.TYPE parameterTypes matches a corresponding Object or array
      * reference in a constructor's formal parameter list, but not a primitive formal parameter.
-     * 
+     *
      * @param parameterTypes array representing the number and types of parameters to look for in
      * the constructor's signature.  A null array is treated as a zero-length array.
      *
@@ -111,7 +111,7 @@ public class MethodFinder
      *
      * <p> A null value or Void.TYPE in parameterTypes will match a corresponding Object or array
      * reference in a method's formal parameter list, but not a primitive formal parameter.
-     * 
+     *
      * @param methodName name of the method to search for.
      * @param parameterTypes array representing the number and types of parameters to look for in
      * the method's signature.  A null array is treated as a zero-length array.
@@ -237,7 +237,7 @@ public class MethodFinder
 
         if (mostSpecificMembers.size() > 1) {
             throw new NoSuchMethodException(
-                "Ambiguous request for member in " + _clazz.getName() + " matching given args" ); 
+                "Ambiguous request for member in " + _clazz.getName() + " matching given args" );
         }
 
         return mostSpecificMembers.get(0);

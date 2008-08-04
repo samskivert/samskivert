@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -232,7 +232,7 @@ public class DnDManager
             clearComponentCursor();
         }
     }
-    
+
     protected void assertTopCursorCleared ()
     {
         if (_topComp != null) {
@@ -241,7 +241,7 @@ public class DnDManager
             _topComp = null;
         }
     }
-    
+
     /**
      * Clear out the component-level cursor.
      */
@@ -252,20 +252,20 @@ public class DnDManager
             _lastComp = null;
         }
     }
-    
+
     /**
      * Are we currently involved in a drag?
      */
     protected boolean isDragging ()
     {
         boolean dragging = (_source != null);
-        
+
         if (!dragging) {
             // make sure there's no component/top cursor
             assertComponentCursorCleared();
             assertTopCursorCleared();
         }
-        
+
         return dragging;
     }
 
@@ -289,7 +289,7 @@ public class DnDManager
     }
 
     /**
-     * Check to see if we want to enter autoscrolling mode. 
+     * Check to see if we want to enter autoscrolling mode.
      */
     protected void checkAutoscroll (MouseEvent exitEvent)
     {

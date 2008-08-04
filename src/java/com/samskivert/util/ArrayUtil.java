@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -821,7 +821,7 @@ public class ArrayUtil
         System.arraycopy(v2, 0, values, v1.length, v2.length);
         return values;
     }
-    
+
     /**
      * Creates a new array that contains the contents of the first parameter
      * array followed by those of the second.
@@ -835,7 +835,7 @@ public class ArrayUtil
         System.arraycopy(v2, 0, values, v1.length, v2.length);
         return values;
     }
-    
+
     /**
      * Similar to {@link Collection#toArray}, this method copies the contents
      * of the first parameter to the second, creating a new array of the same
@@ -851,7 +851,7 @@ public class ArrayUtil
         System.arraycopy(values, 0, dest, 0, values.length);
         return dest;
     }
-    
+
     /** The default random object used when shuffling an array. */
     protected static Random _rnd = new Random();
 }

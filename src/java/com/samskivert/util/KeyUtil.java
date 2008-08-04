@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -105,7 +105,7 @@ public class KeyUtil
 
     public static void main (String[] args)
     {
-        String base = "888888888888888888"; 
+        String base = "888888888888888888";
         for (int ii = 0; ii < 10; ii++) {
             System.out.println(makeLuhnVerifiable(base + ii));
         }

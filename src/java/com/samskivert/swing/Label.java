@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -213,7 +213,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         return _textColor;
     }
-    
+
     /**
      * Sets the color used to render the text.  Setting the text color to
      * <code>null</code> will render the label in the graphics context
@@ -232,7 +232,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         return _alternateColor;
     }
-    
+
     /**
      * Instructs the label to render the text with the specified alternate
      * color when rendering. The text itself will be rendered in whatever
@@ -257,7 +257,7 @@ public class Label implements SwingConstants, LabelStyleConstants
      * SwingConstants#LEFT}, {@link SwingConstants#RIGHT}, or {@link
      * SwingConstants#CENTER}. The default alignment is selected to be
      * appropriate for the locale of the text being rendered.
-     * 
+     *
      * <p> This should be followed by a call to {@link #layout} before a
      * call is made to {@link #render} as this method invalidates the
      * layout information.
@@ -670,7 +670,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                 // color the segment just passed
                 endSeg += m.start();
                 if (lastColor != null) {
-                    text.addAttribute(TextAttribute.FOREGROUND, lastColor, 
+                    text.addAttribute(TextAttribute.FOREGROUND, lastColor,
                         startSeg, endSeg);
                 }
 
@@ -696,7 +696,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             }
             // apply any final color to the tail segment
             if (lastColor != null) {
-                text.addAttribute(TextAttribute.FOREGROUND, lastColor, 
+                text.addAttribute(TextAttribute.FOREGROUND, lastColor,
                     startSeg, _text.length());
             }
         }

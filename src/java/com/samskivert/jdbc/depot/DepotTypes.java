@@ -205,7 +205,7 @@ public class DepotTypes
     protected Map<Class<?>, Integer> _classIx = new HashMap<Class<?>, Integer>();
 
     /** Classes mapped to marshallers, used for table names and field lists. */
-    protected Map<Class<?>, DepotMarshaller<?>> _classMap = 
+    protected Map<Class<?>, DepotMarshaller<?>> _classMap =
         new HashMap<Class<?>, DepotMarshaller<?>>();
 
     /** When false, override the normal table abbreviations and return full table names instead. */

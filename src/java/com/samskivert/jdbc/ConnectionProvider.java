@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -80,7 +80,7 @@ public interface ConnectionProvider
      */
     public void connectionFailed (String ident, boolean readOnly, Connection conn,
                                   SQLException error);
-    
+
     /**
      * Returns the URL associated with this database identifier. This should be the same value that
      * would be used if {@link #getConnection} were called.

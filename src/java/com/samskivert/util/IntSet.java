@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -52,7 +52,7 @@ public interface IntSet extends Set<Integer>, Interable
      *
      * @return <tt>true</tt> if this set did not already contain the
      * specified element.
-     * 
+     *
      * @throws UnsupportedOperationException if the <tt>add</tt> method is
      * not supported by this set.
      */

@@ -41,7 +41,7 @@ public class UpdateClause<T extends PersistentRecord> extends QueryClause
         _values = null;
         _pojo = pojo;
     }
-    
+
     public UpdateClause (Class<? extends PersistentRecord> pClass, WhereClause where,
                          String[] fields, SQLExpression[] values)
     {
@@ -51,7 +51,7 @@ public class UpdateClause<T extends PersistentRecord> extends QueryClause
         _values = values;
         _pojo = null;
     }
-    
+
     public WhereClause getWhereClause ()
     {
         return _where;
@@ -105,10 +105,10 @@ public class UpdateClause<T extends PersistentRecord> extends QueryClause
 
     /** The persistent fields to update. */
     protected String[] _fields;
-    
+
     /** The field values, or null. */
     protected SQLExpression[] _values;
-    
+
     /** The object from which to fetch values, or null. */
     protected Object _pojo;
 }

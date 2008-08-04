@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -421,7 +421,7 @@ public class JDBCUtil
             rs.close();
         }
     }
-    
+
     /**
      * Returns the size for the specified column in the specified table. For char or date types
      * this is the maximum number of characters, for numeric or decimal types this is the
@@ -439,7 +439,7 @@ public class JDBCUtil
     }
 
     /**
-     * Returns a string representation of the default value for the specified column in the 
+     * Returns a string representation of the default value for the specified column in the
      * specified table. This may be null.
      */
     public static String getColumnDefaultValue (Connection conn, String table, String column)

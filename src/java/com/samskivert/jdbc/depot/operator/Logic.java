@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -86,7 +86,7 @@ public abstract class Logic
         {
             _condition = condition;
         }
-        
+
         public SQLExpression getCondition ()
         {
             return _condition;
@@ -103,7 +103,7 @@ public abstract class Logic
         {
             _condition.addClasses(classSet);
         }
-        
+
         protected SQLExpression _condition;
     }
 }

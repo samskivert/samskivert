@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2007 Michael Bayne
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -165,7 +165,7 @@ public class HTMLUtil
 
     /**
      * Restrict HTML except for the specified tags.
-     * 
+     *
      * @param allowFormatting enables &lt;i&gt;, &lt;b&gt;, &lt;u&gt;,
      *                        &lt;font&gt;, &lt;br&gt;, &lt;p&gt;, and
      *                        &lt;hr&gt;.

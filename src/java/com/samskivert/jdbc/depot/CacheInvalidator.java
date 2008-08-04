@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2006-2007 Michael Bayne, Pär Winzell
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 /**
  * Implementors of this interface performs perform cache invalidation for calls to
- * {@link DepotRepository#updateLiteral}, {@link DepotRepository#updatePartial} and 
+ * {@link DepotRepository#updateLiteral}, {@link DepotRepository#updatePartial} and
  * {@link DepotRepository#deleteAll).
  */
 public interface CacheInvalidator

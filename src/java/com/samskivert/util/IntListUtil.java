@@ -258,7 +258,7 @@ public class IntListUtil
     public static int removeAt (int[] list, int index)
     {
         int llength = list.length;
-        if (list == null || llength <= index) {
+        if (llength <= index) {
             return 0;
         }
 

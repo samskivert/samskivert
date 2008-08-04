@@ -515,12 +515,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
         throws Exception
     {
         DepotMarshaller<?> dm = _types.getMarshaller(type);
-        FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
         if (dm == null) {
             throw new IllegalArgumentException(
                 "Unknown field on persistent record [record=" + type + ", field=" + field + "]");
         }
 
+        FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
         appendIdentifier(fm.getColumnName());
     }
 
@@ -530,12 +530,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
         throws Exception
     {
         DepotMarshaller<?> dm = _types.getMarshaller(type);
-        FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
         if (dm == null) {
             throw new IllegalArgumentException(
                 "Unknown field on persistent record [record=" + type + ", field=" + field + "]");
         }
 
+        FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
         Map<String, FieldDefinition> fieldOverrides = _definitions.get(type);
         if (fieldOverrides != null) {
             // first, see if there's a field override

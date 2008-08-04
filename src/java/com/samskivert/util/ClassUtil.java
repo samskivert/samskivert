@@ -187,8 +187,6 @@ public class ClassUtil
         // an override.  Check implemented interfaces.
         Class<?>[] interfaces = clazz.getInterfaces();
         for (int i = 0; i < interfaces.length; ++i) {
-            overriddenMethod = null;
-
             if (classIsAccessible(interfaces[i])) {
                 try {
                     overriddenMethod = interfaces[i].getMethod(methodName, parameterTypes);
@@ -200,8 +198,6 @@ public class ClassUtil
                 }
             }
         }
-
-        overriddenMethod = null;
 
         // Try superclass's superclass and implemented interfaces.
         if (superclass != null) {

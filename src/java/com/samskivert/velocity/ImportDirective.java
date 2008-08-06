@@ -49,6 +49,7 @@ public class ImportDirective extends Directive
     /**
      * Returns name of this directive.
      */
+    @Override
     public String getName ()
     {
         return "import";
@@ -57,6 +58,7 @@ public class ImportDirective extends Directive
     /**
      * Return type of this directive.
      */
+    @Override
     public int getType ()
     {
         return LINE;
@@ -65,6 +67,7 @@ public class ImportDirective extends Directive
     /**
      * Loads and renders the imported template.
      */
+    @Override
     public boolean render (
         InternalContextAdapter context, Writer writer, Node node)
         throws IOException, ResourceNotFoundException, ParseErrorException,
@@ -131,7 +134,7 @@ public class ImportDirective extends Directive
         } catch (ResourceNotFoundException rnfe) {
             rsvc.getLog().error("#import(): cannot find template '" + path +
                                 "', called from template " + context.getCurrentTemplateName() +
-                                " at (" + getLine() + ", " + getColumn() + ")");       	
+                                " at (" + getLine() + ", " + getColumn() + ")");
             throw rnfe;
 
         } catch (ParseErrorException pee) {
@@ -140,7 +143,7 @@ public class ImportDirective extends Directive
                                 " at (" + getLine() + ", " + getColumn() + ")");
             throw pee;
 
-        } catch (Exception e) {	
+        } catch (Exception e) {
             rsvc.getLog().error("#import(): Error [path=" + path + ", error=" + e + "].");
             return false;
         }

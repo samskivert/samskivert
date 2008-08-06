@@ -93,6 +93,7 @@ public class RadialMenuItem extends RadialLabelSausage
      * displayed. Calls through to the {@link RadialMenu.Predicate} if we
      * have one.
      */
+    @Override
     public boolean isEnabled (RadialMenu menu)
     {
         return (predicate == null || predicate.isEnabled(menu, this));
@@ -103,6 +104,7 @@ public class RadialMenuItem extends RadialLabelSausage
      * declare ourselves to be equal to a string with the same value
      * as our command.
      */
+    @Override
     public boolean equals (Object other)
     {
         if (other instanceof RadialMenuItem) {
@@ -123,7 +125,7 @@ public class RadialMenuItem extends RadialLabelSausage
         paint(gfx, x, y, menu);
     }
 
-    // documentation inherited
+    @Override
     protected void drawIcon (Graphics2D gfx, int x, int y, Object cliData)
     {
         super.drawIcon(gfx, x, y, cliData);

@@ -243,6 +243,7 @@ public class Queue<T>
         return (T[])new Object[size];
     }
 
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder();

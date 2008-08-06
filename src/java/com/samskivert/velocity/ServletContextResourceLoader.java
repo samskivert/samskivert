@@ -56,6 +56,7 @@ public class ServletContextResourceLoader extends ResourceLoader
     /**
      * Called by Velocity to initialize this resource loader.
      */
+    @Override
     public void init (ExtendedProperties config)
     {
         // the web framework was kind enough to slip this into the runtime when it started up
@@ -79,6 +80,7 @@ public class ServletContextResourceLoader extends ResourceLoader
      *
      * @exception ResourceNotFoundException if the resource was not found.
      */
+    @Override
     public InputStream getResourceStream (String path)
         throws ResourceNotFoundException
     {
@@ -104,6 +106,7 @@ public class ServletContextResourceLoader extends ResourceLoader
      * because they came from the webapp .war file and if that is
      * reloaded, everything will be thrown away and started afresh.
      */
+    @Override
     public boolean isSourceModified (Resource resource)
     {
         return false;
@@ -115,6 +118,7 @@ public class ServletContextResourceLoader extends ResourceLoader
      * reloaded, everything will be thrown away and started afresh. So we
      * can punt here and return zero.
      */
+    @Override
     public long getLastModified (Resource resource)
     {
         return 0;

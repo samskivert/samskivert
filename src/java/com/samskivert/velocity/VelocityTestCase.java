@@ -137,13 +137,13 @@ public abstract class VelocityTestCase extends TestCase
         MessageManager msgmgr = getMessageManager();
         if (msgmgr != null) {
             ctx.put(DispatcherServlet.I18NTOOL_KEY, new I18nTool(null, msgmgr) {
-                protected Locale getLocale () {
+                @Override protected Locale getLocale () {
                     return Locale.getDefault();
                 }
             });
         }
         ctx.put(DispatcherServlet.FORMTOOL_KEY, new FormTool(null) {
-            protected String getParameter (String name) {
+            @Override protected String getParameter (String name) {
                 return null;
             }
         });

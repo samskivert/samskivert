@@ -49,7 +49,7 @@ public class BasicRunQueue extends LoopingThread
         return Thread.currentThread() == this;
     }
 
-    // documentation inherited
+    @Override
     protected void iterate ()
     {
         Runnable r = _queue.get();
@@ -61,7 +61,7 @@ public class BasicRunQueue extends LoopingThread
         }
     }
 
-    // documentation inherited
+    @Override
     protected void kick ()
     {
         postRunnable(new Runnable() {

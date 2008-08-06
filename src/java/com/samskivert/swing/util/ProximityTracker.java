@@ -207,9 +207,7 @@ public class ProximityTracker
         return _records[minidx].object;
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[size=" + _size +
@@ -276,7 +274,7 @@ public class ProximityTracker
             this.object = object;
         }
 
-        public String toString ()
+        @Override public String toString ()
         {
             return "[x=" + x + ", y=" + y + "]"; // + ", object=" + object + "]";
         }

@@ -35,6 +35,7 @@ public class LRUHashMapTest extends TestCase
         super(LRUHashMapTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         LRUHashMap<String,Integer> map =

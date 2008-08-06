@@ -37,6 +37,7 @@ public class HashIntMapTest extends TestCase
         super(HashIntMapTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         HashIntMap<Integer> table = new HashIntMap<Integer>();

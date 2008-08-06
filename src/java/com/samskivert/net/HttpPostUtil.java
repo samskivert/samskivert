@@ -52,7 +52,7 @@ public class HttpPostUtil
         final ServiceWaiter<String> waiter = new ServiceWaiter<String>(
             (timeout < 0) ? ServiceWaiter.NO_TIMEOUT : timeout);
         Thread tt = new Thread() {
-            public void run () {
+            @Override public void run () {
                 try {
                     HttpURLConnection conn =
                         (HttpURLConnection) url.openConnection();

@@ -20,6 +20,10 @@
 
 package com.samskivert.swing;
 
+import javax.swing.table.*;
+import javax.swing.event.TableModelListener;
+import javax.swing.event.TableModelEvent;
+
 /**
  * In a chain of data manipulators some behaviour is common. TableMap
  * provides most of this behavour and can be subclassed by filters
@@ -30,14 +34,11 @@ package com.samskivert.swing;
  * should have no effect.
  *
  * @version 1.4 12/17/97
- * @author Philip Milne */
-
-import javax.swing.table.*;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TableModelEvent;
-
+ * @author Philip Milne
+ */
 public class TableMap extends AbstractTableModel
-                      implements TableModelListener {
+    implements TableModelListener
+{
     protected TableModel model;
 
     public TableModel getModel() {
@@ -56,6 +57,7 @@ public class TableMap extends AbstractTableModel
         return model.getValueAt(aRow, aColumn);
     }
 
+    @Override
     public void setValueAt(Object aValue, int aRow, int aColumn) {
         model.setValueAt(aValue, aRow, aColumn);
     }
@@ -68,17 +70,21 @@ public class TableMap extends AbstractTableModel
         return (model == null) ? 0 : model.getColumnCount();
     }
 
+    @Override
     public String getColumnName(int aColumn) {
         return model.getColumnName(aColumn);
     }
 
+    @Override
     public Class<?> getColumnClass(int aColumn) {
         return model.getColumnClass(aColumn);
     }
 
+    @Override
     public boolean isCellEditable(int row, int column) {
-         return model.isCellEditable(row, column);
+        return model.isCellEditable(row, column);
     }
+
 //
 // Implementation of the TableModelListener interface,
 //

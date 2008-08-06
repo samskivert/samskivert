@@ -346,15 +346,18 @@ public class Collections
             }
         }
 
-	public boolean equals(Object o) {
+	@Override
+    public boolean equals(Object o) {
             synchronized(mutex) {return m.equals(o);}
         }
 
-	public int hashCode() {
+	@Override
+    public int hashCode() {
             synchronized(mutex) {return m.hashCode();}
         }
 
-	public String toString() {
+	@Override
+    public String toString() {
 	    synchronized(mutex) {return m.toString();}
         }
     }
@@ -374,10 +377,12 @@ public class Collections
             super(s, mutex);
         }
 
-	public boolean equals(Object o) {
+	@Override
+    public boolean equals(Object o) {
 	    synchronized(mutex) {return c.equals(o);}
         }
-	public int hashCode() {
+	@Override
+    public int hashCode() {
 	    synchronized(mutex) {return c.hashCode();}
         }
     }
@@ -484,7 +489,8 @@ public class Collections
 	public void clear() {
 	    synchronized(mutex) {c.clear();}
         }
-	public String toString() {
+	@Override
+    public String toString() {
 	    synchronized(mutex) {return c.toString();}
         }
     }

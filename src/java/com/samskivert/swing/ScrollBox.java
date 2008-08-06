@@ -62,7 +62,7 @@ public class ScrollBox extends JPanel
         addMouseMotionListener(_mouser);
     }
 
-    // documentation inherited
+    @Override
     public void addNotify ()
     {
         super.addNotify();
@@ -73,7 +73,7 @@ public class ScrollBox extends JPanel
         updateBox();
     }
 
-    // documentation inherited
+    @Override
     public void removeNotify ()
     {
         super.removeNotify();
@@ -82,7 +82,7 @@ public class ScrollBox extends JPanel
         _vert.removeChangeListener(_changebob);
     }
 
-    // documentation inherited
+    @Override
     public void setBounds (int x, int y, int w, int h)
     {
         super.setBounds(x, y, w, h);
@@ -90,7 +90,7 @@ public class ScrollBox extends JPanel
         updateBox();
     }
 
-    // documentation inherited
+    @Override
     public void paintComponent (Graphics g)
     {
         paintBackground(g);
@@ -169,8 +169,7 @@ public class ScrollBox extends JPanel
      */
     protected MouseInputAdapter _mouser = new MouseInputAdapter ()
     {
-        // documentation inherited
-        public void mousePressed (MouseEvent e)
+        @Override public void mousePressed (MouseEvent e)
         {
             if (isActiveButton(e)) {
                 setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
@@ -186,8 +185,7 @@ public class ScrollBox extends JPanel
             }
         }
 
-        // documentation inherited
-        public void mouseDragged (MouseEvent e)
+        @Override public void mouseDragged (MouseEvent e)
         {
             if (_lastPoint != null) {
                 Point p = e.getPoint();
@@ -197,8 +195,7 @@ public class ScrollBox extends JPanel
             }
         }
 
-        // documentation inherited
-        public void mouseReleased (MouseEvent e)
+        @Override public void mouseReleased (MouseEvent e)
         {
             if (isActiveButton(e)) {
                 setCursor(null);

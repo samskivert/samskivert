@@ -57,7 +57,7 @@ public class OneLineLogFormatter extends Formatter
         _showWhere = showWhere;
     }
 
-    // documentation inherited
+    @Override
     public String format (LogRecord record)
     {
 	StringBuffer buf = new StringBuffer();

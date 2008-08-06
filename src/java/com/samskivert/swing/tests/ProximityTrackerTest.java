@@ -36,6 +36,7 @@ public class ProximityTrackerTest extends TestCase
         super(ProximityTrackerTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         Random rand = new Random();

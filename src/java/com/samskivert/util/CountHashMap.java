@@ -108,8 +108,8 @@ public class CountHashMap<K> extends HashMap<K, int[]>
     public int getTotalCount ()
     {
         int count = 0;
-        for (Iterator<int[]> itr = values().iterator(); itr.hasNext(); ) {
-            count += itr.next()[0];
+        for (int[] name : values()) {
+            count += name[0];
         }
         return count;
     }
@@ -126,7 +126,8 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         }
     }
 
-    @SuppressWarnings("unchecked") // documentation inherited
+    @Override
+    @SuppressWarnings("unchecked")
     public Set<Map.Entry<K, int[]>> entrySet ()
     {
         // a giant mess of hoop-jumpery so that we can convert each Map.Entry
@@ -150,7 +151,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
             _entry = entry;
         }
 
-        public boolean equals (Object o)
+        @Override public boolean equals (Object o)
         {
             return _entry.equals(o);
         }
@@ -165,7 +166,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
             return _entry.getValue();
         }
 
-        public int hashCode ()
+        @Override public int hashCode ()
         {
             return _entry.hashCode();
         }
@@ -199,7 +200,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
             _superset = superset;
         }
 
-        public Iterator<Entry<E>> iterator ()
+        @Override public Iterator<Entry<E>> iterator ()
         {
             final Iterator<Map.Entry<E, int[]>> itr = _superset.iterator();
             return new Iterator<Entry<E>>() {
@@ -220,22 +221,22 @@ public class CountHashMap<K> extends HashMap<K, int[]>
             };
         }
 
-        public boolean contains (Object o)
+        @Override public boolean contains (Object o)
         {
             return _superset.contains(o);
         }
 
-        public boolean remove (Object o)
+        @Override public boolean remove (Object o)
         {
             return _superset.remove(o);
         }
 
-        public int size ()
+        @Override public int size ()
         {
             return CountHashMap.this.size();
         }
 
-        public void clear ()
+        @Override public void clear ()
         {
             CountHashMap.this.clear();
         }

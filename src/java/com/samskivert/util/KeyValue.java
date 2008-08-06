@@ -56,21 +56,20 @@ public class KeyValue<K extends Comparable<? super K>,V>
         this.value = value;
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return key + "=" + value;
     }
 
+    @Override
     @SuppressWarnings("unchecked") // documentation inherited
     public boolean equals (Object other)
     {
         return key.equals(((KeyValue<K,V>)other).key);
     }
 
-    // documentation inherited
+    @Override
     public int hashCode ()
     {
         return key.hashCode();

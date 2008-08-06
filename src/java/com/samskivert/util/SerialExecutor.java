@@ -129,7 +129,7 @@ public class SerialExecutor
             // start up a timer that will abort this thread after the specified
             // timeout
             new Interval() {
-                public void expired () {
+                @Override public void expired () {
                     // this will NOOP if the task has already completed
                     thread.abort();
                 }
@@ -174,7 +174,7 @@ public class SerialExecutor
             }
         }
 
-        public void run ()
+        @Override public void run ()
         {
             final ExecutorTask task = _task;
             try {

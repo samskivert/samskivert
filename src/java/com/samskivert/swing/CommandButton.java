@@ -47,7 +47,7 @@ public class CommandButton extends JButton
         return _argument;
     }
 
-    // documentation inherited
+    @Override
     protected void fireActionPerformed (ActionEvent event)
     {
         Object[] listeners = listenerList.getListenerList();

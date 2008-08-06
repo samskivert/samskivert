@@ -174,9 +174,7 @@ public class SiteResourceLoader
         }
     }
 
-    /**
-     * Returns a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[jarPath=" + _jarPath + "]";
@@ -285,10 +283,7 @@ public class SiteResourceLoader
             return _lastModified;
         }
 
-        /**
-         * Returns a string representation of this instance.
-         */
-        public String toString ()
+        @Override public String toString ()
         {
             return "[bundle=" + file + "]";
         }
@@ -337,7 +332,7 @@ public class SiteResourceLoader
             _bundle = bundle;
         }
 
-        public InputStream getResourceAsStream (String path)
+        @Override public InputStream getResourceAsStream (String path)
         {
             try {
                 return _bundle.getResourceAsStream(path);
@@ -349,7 +344,7 @@ public class SiteResourceLoader
             }
         }
 
-        public String toString ()
+        @Override public String toString ()
         {
             return _bundle.toString();
         }

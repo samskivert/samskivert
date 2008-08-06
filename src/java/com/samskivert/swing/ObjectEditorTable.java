@@ -326,20 +326,17 @@ public class ObjectEditorTable extends JTable
             return _data.size();
         }
 
-        // documentation inherited
-        public String getColumnName (int col)
+        @Override public String getColumnName (int col)
         {
             return _interp.getName(_fields[col]);
         }
 
-        // documentation inherited
-        public boolean isCellEditable (int row, int col)
+        @Override public boolean isCellEditable (int row, int col)
         {
             return _editable.get(col);
         }
 
-        // documentation inherited
-        public Class<?> getColumnClass (int col)
+        @Override public Class<?> getColumnClass (int col)
         {
             return _interp.getClass(_fields[col]);
         }
@@ -351,8 +348,7 @@ public class ObjectEditorTable extends JTable
             return _interp.getValue(o, _fields[col]);
         }
 
-        // documentation inherited
-        public void setValueAt (Object value, int row, int col)
+        @Override public void setValueAt (Object value, int row, int col)
         {
             Object o = getObjectAt(row);
             Object oldValue = _interp.getValue(o, _fields[col]);

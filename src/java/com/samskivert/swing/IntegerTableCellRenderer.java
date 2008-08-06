@@ -36,7 +36,7 @@ public class IntegerTableCellRenderer extends DefaultTableCellRenderer
         setHorizontalAlignment(RIGHT);
     }
 
-    // documentation inherited
+    @Override
     protected void setValue (Object value)
     {
         if ((value instanceof Integer) || (value instanceof Long)) {

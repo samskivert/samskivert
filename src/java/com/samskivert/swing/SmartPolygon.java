@@ -34,6 +34,7 @@ public class SmartPolygon extends Polygon
      * Returns the internally cached bounds rectangle for this polygon.
      * <em>Don't modify it!</em>
      */
+    @Override
     @SuppressWarnings("deprecation")
     public Rectangle getBoundingBox ()
     {

@@ -187,7 +187,7 @@ public abstract class DepotRepository
 
         // key will be null if record was supplied without a primary key
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 // set any auto-generated column values
                 Set<String> identityFields =
                     marsh.generateFieldValues(conn, liaison, _result, false);
@@ -241,7 +241,7 @@ public abstract class DepotRepository
         builder.newQuery(update);
 
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
@@ -282,7 +282,7 @@ public abstract class DepotRepository
         builder.newQuery(update);
 
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 // clear out _result so that we don't rewrite this partial record to the cache
                 _result = null;
@@ -424,7 +424,7 @@ public abstract class DepotRepository
         builder.newQuery(update);
 
         return _ctx.invoke(new Modifier(invalidator) {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
@@ -556,7 +556,7 @@ public abstract class DepotRepository
         builder.newQuery(update);
 
         return _ctx.invoke(new Modifier(invalidator) {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
@@ -593,7 +593,7 @@ public abstract class DepotRepository
 
         final boolean[] created = new boolean[1];
         _ctx.invoke(new CachingModifier<T>(record, key, key) {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
                     if (_key != null) {
@@ -701,7 +701,7 @@ public abstract class DepotRepository
         builder.newQuery(delete);
 
         return _ctx.invoke(new Modifier(invalidator) {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();

@@ -49,8 +49,7 @@ public abstract class MouseArmingAdapter
     public MouseArmingAdapter (final Component component, final Shape bounds)
     {
         MouseInputAdapter mia = new MouseInputAdapter() {
-            // documentation inherited
-            public void mousePressed (MouseEvent e)
+            @Override public void mousePressed (MouseEvent e)
             {
                 if (button1(e) && contains(e)) {
                     _armed = _startedArmed = true;
@@ -58,8 +57,7 @@ public abstract class MouseArmingAdapter
                 }
             }
 
-            // documentation inherited
-            public void mouseReleased (MouseEvent e)
+            @Override public void mouseReleased (MouseEvent e)
             {
                 if (button1(e)) {
                     if (_armed && contains(e)) {
@@ -69,8 +67,7 @@ public abstract class MouseArmingAdapter
                 }
             }
 
-            // documentation inherited
-            public void mouseDragged (MouseEvent e)
+            @Override public void mouseDragged (MouseEvent e)
             {
                 if (_startedArmed && (contains(e) != _armed)) {
                     _armed = !_armed;

@@ -64,6 +64,7 @@ public class MethodFinder
         _clazz = clazz;
     }
 
+    @Override
     public boolean equals (Object o)
     {
         if (this == o) {

@@ -85,6 +85,7 @@ public class LabelDemo extends JPanel
         }
     }
 
+    @Override
     public void doLayout ()
     {
         super.doLayout();
@@ -99,6 +100,7 @@ public class LabelDemo extends JPanel
         }
     }
 
+    @Override
     public void paintComponent (Graphics g)
     {
         super.paintComponent(g);
@@ -131,6 +133,7 @@ public class LabelDemo extends JPanel
         }
     }
 
+    @Override
     public Dimension getPreferredSize ()
     {
         return new Dimension(400, 300);

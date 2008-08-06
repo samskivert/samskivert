@@ -42,7 +42,7 @@ public interface CacheInvalidator
 
         public void invalidate (PersistenceContext ctx) {
             ctx.cacheTraverse(_cacheId, new PersistenceContext.CacheEvictionFilter<T>() {
-                protected boolean testForEviction (Serializable key, T record) {
+                @Override protected boolean testForEviction (Serializable key, T record) {
                     return TraverseWithFilter.this.testForEviction(key, record);
                 }
             });

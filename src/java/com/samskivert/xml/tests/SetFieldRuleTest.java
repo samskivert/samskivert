@@ -47,7 +47,7 @@ public class SetFieldRuleTest extends TestCase
         public int[] intArrayField;
         public String[] stringArrayField;
 
-        public String toString ()
+        @Override public String toString ()
         {
             return "[intField=" + intField + ", stringField=" + stringField +
                 ", integerField=" + integerField +
@@ -57,6 +57,7 @@ public class SetFieldRuleTest extends TestCase
         }
     }
 
+    @Override
     public void runTest ()
     {
         Digester digester = new Digester();

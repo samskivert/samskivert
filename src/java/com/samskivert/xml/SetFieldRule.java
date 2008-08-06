@@ -42,12 +42,14 @@ public class SetFieldRule extends Rule
         _fieldName = fieldName;
     }
 
+    @Override
     public void body (String namespace, String name, String bodyText)
         throws Exception
     {
         _bodyText = bodyText.trim();
     }
 
+    @Override
     public void end (String namespace, String name)
         throws Exception
     {

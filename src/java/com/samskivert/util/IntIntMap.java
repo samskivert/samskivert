@@ -280,9 +280,7 @@ public class IntIntMap
         return toIntArray(false);
     }
 
-    /**
-     * Returns a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder("[");
@@ -317,11 +315,11 @@ public class IntIntMap
     public Set<IntIntEntry> entrySet ()
     {
         return new AbstractSet<IntIntEntry>() {
-            public int size () {
+            @Override public int size () {
                 return _size;
             }
 
-            public Iterator<IntIntEntry> iterator() {
+            @Override public Iterator<IntIntEntry> iterator() {
                 return new IntEntryIterator();
             }
         };
@@ -405,7 +403,7 @@ public class IntIntMap
             return oldVal;
         }
 
-        public boolean equals (Object o) {
+        @Override public boolean equals (Object o) {
             if (o instanceof IntIntEntry) {
                 IntIntEntry that = (IntIntEntry) o;
                 return (this.key == that.getIntKey()) &&
@@ -414,7 +412,7 @@ public class IntIntMap
             return false;
         }
 
-        public int hashCode () {
+        @Override public int hashCode () {
             return key;
         }
     }

@@ -179,7 +179,8 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         long now = System.currentTimeMillis();
         boolean reload = false;
         synchronized (this) {
-            if (reload = (now - _lastReload > RELOAD_INTERVAL)) {
+            reload = (now - _lastReload > RELOAD_INTERVAL);
+            if (reload) {
                 _lastReload = now;
             }
         }
@@ -306,8 +307,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
             return other._rdomain.compareTo(_rdomain);
         }
 
-        /** Returns a string representation of this site mapping. */
-        public String toString ()
+        @Override public String toString ()
         {
             return "[" + domain + " => " + siteId + "]";
         }

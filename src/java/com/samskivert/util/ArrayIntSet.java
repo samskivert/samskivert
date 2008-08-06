@@ -60,7 +60,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         this(DEFAULT_CAPACITY);
     }
 
-    // documentation inherited from interface
+    @Override
     public int size ()
     {
         return _size;
@@ -78,13 +78,13 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return _values[index];
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean isEmpty ()
     {
         return _size == 0;
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean contains (Object o)
     {
         return contains(((Integer)o).intValue());
@@ -132,13 +132,13 @@ public class ArrayIntSet extends AbstractSet<Integer>
         };
     }
 
-    // documentation inherited from interface
+    @Override
     public Iterator<Integer> iterator ()
     {
         return interator();
     }
 
-    // documentation inherited from interface
+    @Override
     public Object[] toArray ()
     {
         return toArray(new Integer[_size]);
@@ -188,7 +188,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return values;
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean add (Integer o)
     {
         return add(o.intValue());
@@ -245,7 +245,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return modified;
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean remove (Object o)
     {
         return remove(((Integer)o).intValue());
@@ -294,7 +294,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return modified;
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean containsAll (Collection<?> c)
     {
         if (c instanceof Interable) {
@@ -311,7 +311,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean addAll (Collection<? extends Integer> c)
     {
         if (c instanceof Interable) {
@@ -329,7 +329,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean retainAll (Collection<?> c)
     {
         if (c instanceof IntSet) {
@@ -357,14 +357,14 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    // documentation inherited from interface
+    @Override
     public void clear ()
     {
         Arrays.fill(_values, 0);
         _size = 0;
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean equals (Object o)
     {
         if (o instanceof ArrayIntSet) {
@@ -384,7 +384,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return false;
     }
 
-    // documentation inherited from interface
+    @Override
     public int hashCode ()
     {
         int hashCode = 0;
@@ -394,7 +394,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return hashCode;
     }
 
-    // documentation inherited from interface
+    @Override
     public Object clone ()
     {
         try {
@@ -407,9 +407,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    /**
-     * Returns a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return StringUtil.toString(iterator());

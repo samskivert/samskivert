@@ -41,6 +41,7 @@ import com.samskivert.servlet.SiteResourceLoader;
  */
 public class SiteResourceManager extends ResourceManagerImpl
 {
+    @Override
     public void initialize (RuntimeServices rsvc)
         throws Exception
     {
@@ -80,6 +81,7 @@ public class SiteResourceManager extends ResourceManagerImpl
         Log.log.info("SiteResourceManager initialization complete.");
     }
 
+    @Override
     protected Resource loadResource(String resourceName, int resourceType, String encoding)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {

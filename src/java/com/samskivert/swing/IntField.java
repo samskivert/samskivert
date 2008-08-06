@@ -90,7 +90,7 @@ public class IntField extends JTextField
         // remove operation is modified to do the sneaky highlighting we do.
         final IntDocument doc = (IntDocument) getDocument();
         doc.setDocumentFilter(new DocumentFilter() {
-            public void remove (FilterBypass fb, int offset, int length)
+            @Override public void remove (FilterBypass fb, int offset, int length)
                 throws BadLocationException
             {
                 String current = doc.getText(0, doc.getLength());
@@ -131,7 +131,7 @@ public class IntField extends JTextField
                 setSelectionStart(selStart - 1);
             }
 
-            public void insertString (FilterBypass fb, int offset,
+            @Override public void insertString (FilterBypass fb, int offset,
                 String s, AttributeSet attr)
                 throws BadLocationException
             {
@@ -141,7 +141,7 @@ public class IntField extends JTextField
                 transform(fb, current, potential);
             }
 
-            public void replace (FilterBypass fb, int offset, int length,
+            @Override public void replace (FilterBypass fb, int offset, int length,
                 String text, AttributeSet attrs)
                 throws BadLocationException
             {
@@ -327,8 +327,7 @@ public class IntField extends JTextField
      */
     protected static class IntDocument extends PlainDocument
     {
-        // documentation inherited
-        protected void fireRemoveUpdate (DocumentEvent e)
+        @Override protected void fireRemoveUpdate (DocumentEvent e)
         {
             // suppress: the DocumentFilter implements replace by doing
             // a remove and then an insert. We do not want listeners to ever

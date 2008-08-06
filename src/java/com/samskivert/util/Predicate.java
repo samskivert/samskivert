@@ -58,8 +58,7 @@ public abstract class Predicate<T>
             _class = clazz;
         }
 
-        // from Predicate
-        public boolean isMatch (T obj)
+        @Override public boolean isMatch (T obj)
         {
             return _class.isInstance(obj);
         }
@@ -82,8 +81,7 @@ public abstract class Predicate<T>
             _preds = preds;
         }
 
-        // from Predicate
-        public boolean isMatch (T obj)
+        @Override public boolean isMatch (T obj)
         {
             for (Predicate<T> pred : _preds) {
                 if (!pred.isMatch(obj)) {
@@ -111,8 +109,7 @@ public abstract class Predicate<T>
             _preds = preds;
         }
 
-        // from Predicate
-        public boolean isMatch (T obj)
+        @Override public boolean isMatch (T obj)
         {
             for (Predicate<T> pred : _preds) {
                 if (pred.isMatch(obj)) {
@@ -135,8 +132,7 @@ public abstract class Predicate<T>
             _pred = negated;
         }
 
-        // from Predicate
-        public boolean isMatch (T obj)
+        @Override public boolean isMatch (T obj)
         {
             return !_pred.isMatch(obj);
         }
@@ -255,8 +251,7 @@ public abstract class Predicate<T>
     {
         // TODO: create a collection of the same type?
         return new AbstractCollection<E>() {
-            // from abstract AbstractCollection
-            public int size ()
+            @Override public int size ()
             {
                 // oh god, oh god: we iterate and count
                 int size = 0;
@@ -266,20 +261,17 @@ public abstract class Predicate<T>
                 return size;
             }
 
-            @Override
-            public boolean add (E element)
+            @Override public boolean add (E element)
             {
                 return input.add(element);
             }
 
-            @Override
-            public boolean remove (Object element)
+            @Override public boolean remove (Object element)
             {
                 return input.remove(element);
             }
 
-            @Override
-            public boolean contains (Object element)
+            @Override public boolean contains (Object element)
             {
                 try {
                     @SuppressWarnings("unchecked")
@@ -292,8 +284,7 @@ public abstract class Predicate<T>
                 }
             }
 
-            // from abstract AbstractCollection
-            public Iterator<E> iterator ()
+            @Override public Iterator<E> iterator ()
             {
                 return filter(input.iterator());
             }

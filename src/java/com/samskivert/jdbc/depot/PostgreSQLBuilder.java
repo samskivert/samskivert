@@ -58,8 +58,7 @@ public class PostgreSQLBuilder
 {
     public class PGBuildVisitor extends BuildVisitor
     {
-        @Override
-        public void visit (FullTextMatch match)
+        @Override public void visit (FullTextMatch match)
             throws Exception
         {
             appendIdentifier("ftsCol_" + match.getName());
@@ -79,7 +78,7 @@ public class PostgreSQLBuilder
             super(types);
         }
 
-        protected void appendIdentifier (String field)
+        @Override protected void appendIdentifier (String field)
         {
             _builder.append("\"").append(field).append("\"");
         }
@@ -87,8 +86,7 @@ public class PostgreSQLBuilder
 
     public class PGBindVisitor extends BindVisitor
     {
-        @Override
-        public void visit (FullTextMatch match)
+        @Override public void visit (FullTextMatch match)
             throws Exception
         {
             // The tsearch2 engine takes queries on the form

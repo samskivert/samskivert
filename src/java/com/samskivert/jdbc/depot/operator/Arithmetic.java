@@ -42,8 +42,7 @@ public abstract class Arithmetic
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "+";
         }
@@ -62,8 +61,7 @@ public abstract class Arithmetic
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "-";
         }
@@ -82,8 +80,7 @@ public abstract class Arithmetic
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "*";
         }
@@ -102,8 +99,7 @@ public abstract class Arithmetic
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return " / "; // Pad with spaces to work-around a MySQL bug.
         }
@@ -122,8 +118,7 @@ public abstract class Arithmetic
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "&";
         }
@@ -142,8 +137,7 @@ public abstract class Arithmetic
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "|";
         }

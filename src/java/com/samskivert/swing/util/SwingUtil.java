@@ -371,8 +371,7 @@ public class SwingUtil
         // set up the filter.
         ((AbstractDocument) doc).setDocumentFilter(new DocumentFilter()
         {
-            // documentation inherited
-            public void remove (FilterBypass fb, int offset, int length)
+            @Override public void remove (FilterBypass fb, int offset, int length)
                 throws BadLocationException
             {
                 if (replaceOk(offset, length, "")) {
@@ -381,8 +380,7 @@ public class SwingUtil
                 }
             }
 
-            // documentation inherited
-            public void insertString (
+            @Override public void insertString (
                 FilterBypass fb, int offset, String string, AttributeSet attr)
                 throws BadLocationException
             {
@@ -392,8 +390,7 @@ public class SwingUtil
                 }
             }
 
-            // documentation inherited
-            public void replace (
+            @Override public void replace (
                 FilterBypass fb, int offset, int length, String text,
                 AttributeSet attrs)
                 throws BadLocationException

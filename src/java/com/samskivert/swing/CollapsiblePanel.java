@@ -95,7 +95,7 @@ public class CollapsiblePanel extends JPanel
 
         // When the content is shown, make sure it's scrolled visible
         _content.addComponentListener(new ComponentAdapter() {
-            public void componentShown (ComponentEvent event)
+            @Override public void componentShown (ComponentEvent event)
             {
                 // we can't do it just yet, the content doesn't know its size
                 EventQueue.invokeLater(new Runnable() {

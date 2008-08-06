@@ -107,7 +107,7 @@ public class ComboButtonBox extends JPanel
         addButtons(0, _model.getSize());
     }
 
-    // documentation inherited
+    @Override
     public void setEnabled (boolean enabled)
     {
         super.setEnabled(enabled);

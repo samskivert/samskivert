@@ -32,6 +32,7 @@ public class StringUtilTest extends TestCase
         super(StringUtilTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         String source = "mary, had, a,, little, lamb, and, a, comma,,";

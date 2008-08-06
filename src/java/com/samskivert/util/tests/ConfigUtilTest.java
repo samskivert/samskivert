@@ -73,6 +73,7 @@ public class ConfigUtilTest extends TestCase
         super(ConfigUtilTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         try {

@@ -81,6 +81,7 @@ public class SetPropertyFieldsRule extends Rule
         _warnNonFields = warnNonFields;
     }
 
+    @Override
     public void begin (String namespace, String name, Attributes attrs)
         throws Exception
     {

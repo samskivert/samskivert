@@ -47,7 +47,7 @@ public abstract class EntityMigration extends Modifier
             _columnName = columnName;
         }
 
-        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+        @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             if (!liaison.tableContainsColumn(conn, _tableName, _columnName)) {
                 // we'll accept this inconsistency
                 log.warning(_tableName + "." + _columnName + " already dropped.");
@@ -72,7 +72,7 @@ public abstract class EntityMigration extends Modifier
             _newColumnName = newColumnName;
         }
 
-        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+        @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             if (!liaison.tableContainsColumn(conn, _tableName, _oldColumnName)) {
                 if (liaison.tableContainsColumn(conn, _tableName, _newColumnName)) {
                     // we'll accept this inconsistency
@@ -97,11 +97,11 @@ public abstract class EntityMigration extends Modifier
                 conn, _tableName, _oldColumnName, _newColumnName, _newColumnDef) ? 1 : 0;
         }
 
-        public boolean runBeforeDefault () {
+        @Override public boolean runBeforeDefault () {
             return true;
         }
 
-        protected void init (String tableName, Map<String,FieldMarshaller<?>> marshallers) {
+        @Override protected void init (String tableName, Map<String,FieldMarshaller<?>> marshallers) {
             super.init(tableName, marshallers);
             _newColumnDef = marshallers.get(_newColumnName).getColumnDefinition();
         }
@@ -122,18 +122,18 @@ public abstract class EntityMigration extends Modifier
             _fieldName = fieldName;
         }
 
-        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+        @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             log.info("Updating type of '" + _fieldName + "' in " + _tableName);
             return liaison.changeColumn(conn, _tableName, _fieldName, _newColumnDef.getType(),
                 _newColumnDef.isNullable(), _newColumnDef.isUnique(),
                 _newColumnDef.getDefaultValue()) ? 1 : 0;
         }
 
-        public boolean runBeforeDefault () {
+        @Override public boolean runBeforeDefault () {
             return false;
         }
 
-        protected void init (String tableName, Map<String,FieldMarshaller<?>> marshallers) {
+        @Override protected void init (String tableName, Map<String,FieldMarshaller<?>> marshallers) {
             super.init(tableName, marshallers);
             _columnName = marshallers.get(_fieldName).getColumnName();
             _newColumnDef = marshallers.get(_fieldName).getColumnDefinition();

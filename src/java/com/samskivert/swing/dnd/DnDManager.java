@@ -369,7 +369,7 @@ public class DnDManager
     /** A handy helper that removes components when they're no longer in
      * the hierarchy. */
     protected AncestorAdapter _remover = new AncestorAdapter() {
-        public void ancestorRemoved (AncestorEvent ae)
+        @Override public void ancestorRemoved (AncestorEvent ae)
         {
             JComponent comp = ae.getComponent();
             // try both..
@@ -399,7 +399,7 @@ public class DnDManager
 
     /** Listens to registered drag source components. */
     protected MouseInputAdapter _sourceListener = new MouseInputAdapter() {
-        public void mouseDragged (MouseEvent me)
+        @Override public void mouseDragged (MouseEvent me)
         {
             // make sure a drag hasn't already started.
             if (isDragging()) {
@@ -442,7 +442,7 @@ public class DnDManager
             setComponentCursor(_sourceComp);
         }
 
-        public void mouseReleased (MouseEvent event)
+        @Override public void mouseReleased (MouseEvent event)
         {
             if (!isDragging()) {
                 return;
@@ -463,14 +463,14 @@ public class DnDManager
             reset();
         }
 
-        public void mouseExited (MouseEvent event)
+        @Override public void mouseExited (MouseEvent event)
         {
             if (isDragging()) {
                 clearComponentCursor();
             }
         }
 
-        public void mouseEntered (MouseEvent event)
+        @Override public void mouseEntered (MouseEvent event)
         {
             if (isDragging()) {
                 setComponentCursor(event.getComponent());
@@ -480,7 +480,7 @@ public class DnDManager
 
     /** Listens to registered drop targets and their children. */
     protected MouseInputAdapter _targetListener = new MouseInputAdapter() {
-        public void mouseEntered (MouseEvent event)
+        @Override public void mouseEntered (MouseEvent event)
         {
             if (!isDragging()) {
                 return;
@@ -500,7 +500,7 @@ public class DnDManager
             setComponentCursor(newcomp);
         }
 
-        public void mouseExited (MouseEvent event)
+        @Override public void mouseExited (MouseEvent event)
         {
             if (!isDragging()) {
                 return;
@@ -517,7 +517,7 @@ public class DnDManager
             checkAutoscroll(event);
         }
 
-        public void mouseDragged (MouseEvent event)
+        @Override public void mouseDragged (MouseEvent event)
         {
             if (!isDragging()) {
                 return;

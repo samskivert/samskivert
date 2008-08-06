@@ -39,6 +39,7 @@ public class ConfigTest extends TestCase
         super(ConfigTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         PrefsConfig config = new PrefsConfig("rsrc/util/test");

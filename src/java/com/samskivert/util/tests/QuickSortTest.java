@@ -37,6 +37,7 @@ public class QuickSortTest extends TestCase
         super(QuickSortTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         Integer[] a = new Integer[100];

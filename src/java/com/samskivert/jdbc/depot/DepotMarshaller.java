@@ -565,7 +565,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // check to see if our schema version table exists, create it if not
         ctx.invoke(new Modifier() {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 liaison.createTableIfMissing(
                     conn, SCHEMA_VERSION_TABLE,
                     new String[] { "persistentClass", "version" },
@@ -592,7 +592,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
             final Iterable<Index> indexen = _indexes.values();
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     // create the table
                     String[] primaryKeyColumns = null;
                     if (_pkColumns != null) {
@@ -640,7 +640,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // make sure the versions match
         int currentVersion = ctx.invoke(new Modifier() {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 String query =
                     " select " + liaison.columnSQL("version") +
                     "   from " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
@@ -693,7 +693,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             final ColumnDefinition coldef = fmarsh.getColumnDefinition();
             log.info("Adding column to " + getTableName() + ": " + fmarsh.getColumnName());
             ctx.invoke(new Modifier.Simple() {
-                protected String createQuery (DatabaseLiaison liaison) {
+                @Override protected String createQuery (DatabaseLiaison liaison) {
                     return "alter table " + liaison.tableSQL(getTableName()) +
                         " add column " + liaison.columnSQL(fmarsh.getColumnName()) + " " +
                         liaison.expandDefinition(coldef);
@@ -709,7 +709,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                                          coldef.getType().equalsIgnoreCase("datetime"))) {
                 log.info("Assigning current time to " + fmarsh.getColumnName() + ".");
                 ctx.invoke(new Modifier.Simple() {
-                    protected String createQuery (DatabaseLiaison liaison) {
+                    @Override protected String createQuery (DatabaseLiaison liaison) {
                         // TODO: is NOW() standard SQL?
                         return "update " + liaison.tableSQL(getTableName()) +
                             " set " + liaison.columnSQL(fmarsh.getColumnName()) + " = NOW()";
@@ -722,7 +722,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         if (hasPrimaryKey() && metaData.pkName == null) {
             log.info("Adding primary key.");
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addPrimaryKey(
                         conn, getTableName(), fieldsToColumns(getPrimaryKeyFields()));
                     return 0;
@@ -733,7 +733,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             final String pkName = metaData.pkName;
             log.info("Dropping primary key: " + pkName);
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.dropPrimaryKey(conn, getTableName(), pkName);
                     return 0;
                 }
@@ -750,7 +750,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
             // but this is a new, named index, so we create it
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(
                         conn, getTableName(), fieldsToColumns(index.fields()),
                         ixName, index.unique());
@@ -785,7 +785,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             final String[] colArr = colSet.toArray(new String[colSet.size()]);
             final String fName = indexName;
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(conn, getTableName(), colArr, fName, true);
                     return 0;
                 }
@@ -806,7 +806,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
             // but not this one, so let's create it
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     builder.addFullTextSearch(conn, DepotMarshaller.this, recordFts);
                     return 0;
                 }
@@ -832,7 +832,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         // last of all (re-)initialize our value generators, since one might've been added
         if (_valueGenerators.size() > 0) {
             ctx.invoke(new Modifier() {
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     for (ValueGenerator vg : _valueGenerators.values()) {
                         vg.init(conn, liaison);
                     }
@@ -843,7 +843,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // record our new version in the database
         ctx.invoke(new Modifier() {
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 updateVersion(conn, liaison, _schemaVersion);
                 return 0;
             }
@@ -916,7 +916,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             throws PersistenceException
         {
             return ctx.invoke(new Query.TrivialQuery<TableMetaData>() {
-                public TableMetaData invoke (Connection conn, DatabaseLiaison dl)
+                @Override public TableMetaData invoke (Connection conn, DatabaseLiaison dl)
                     throws SQLException {
                     return new TableMetaData(conn.getMetaData(), tableName);
                 }

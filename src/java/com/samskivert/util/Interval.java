@@ -222,8 +222,7 @@ public abstract class Interval
             _interval = interval;
         }
 
-        @Override
-        public boolean cancel ()
+        @Override public boolean cancel ()
         {
             // remove the reference back to the interval, allowing the Interval itself
             // to be gc'd even as this Task potentially sits on the Timer queue.
@@ -231,8 +230,7 @@ public abstract class Interval
             return super.cancel();
         }
 
-        // documentation inherited
-        public void run () {
+        @Override public void run () {
             Interval ival = _interval;
             if (ival == null) {
                 return;
@@ -254,7 +252,7 @@ public abstract class Interval
                             return _interval;
                         }
 
-                        public String toString () {
+                        @Override public String toString () {
                             Interval ival = _interval;
                             return (ival != null) ? ival.toString() : "(Interval was cancelled)";
                         }

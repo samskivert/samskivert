@@ -416,9 +416,7 @@ public class Table<T>
 	return nDeleted;
     }
 
-    /**
-     * Generates a string representation of this table.
-     */
+    @Override
     public String toString ()
     {
         return "[name=" + name +

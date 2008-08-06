@@ -54,6 +54,7 @@ public class TestRecord extends PersistentRecord
     @Column(nullable=false)
     public Timestamp lastModified;
 
+    @Override
     public String toString ()
     {
         return StringUtil.fieldsToString(this);

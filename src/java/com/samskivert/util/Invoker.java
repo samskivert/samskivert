@@ -104,7 +104,7 @@ public class Invoker extends LoopingThread
         }
 
         /** Returns the name of this invoker. */
-        public String toString ()
+        @Override public String toString ()
         {
             return _name;
         }
@@ -148,12 +148,12 @@ public class Invoker extends LoopingThread
     public void postRunnable (final Runnable r)
     {
         postUnit(new Unit() {
-            public boolean invoke () {
+            @Override public boolean invoke () {
                 r.run();
                 return false;
             }
 
-            public String toString () {
+            @Override public String toString () {
                 return "Posted Runnable: " + String.valueOf(r);
             }
         });
@@ -165,7 +165,7 @@ public class Invoker extends LoopingThread
         return (this == Thread.currentThread());
     }
 
-    // documentation inherited
+    @Override
     public void iterate ()
     {
         // pop the next item off of the queue
@@ -199,10 +199,11 @@ public class Invoker extends LoopingThread
      * Shuts down the invoker thread by queueing up a unit that will cause the thread to exit after
      * all currently queued units are processed.
      */
+    @Override
     public void shutdown ()
     {
         _queue.append(new Unit() {
-            public boolean invoke () {
+            @Override public boolean invoke () {
                 _running = false;
                 return false;
             }
@@ -266,7 +267,7 @@ public class Invoker extends LoopingThread
             _histo.clear();
         }
 
-        public String toString () {
+        @Override public String toString () {
             int count = _histo.size();
             return _totalElapsed + "ms/" + count + " = " + (_totalElapsed/count) + "ms avg " +
                 StringUtil.toString(_histo.getBuckets());

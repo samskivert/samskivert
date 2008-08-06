@@ -55,6 +55,7 @@ public class SiteJarResourceLoader extends ResourceLoader
     /**
      * This is not called.
      */
+    @Override
     public void init (ExtendedProperties config)
     {
     }
@@ -69,6 +70,7 @@ public class SiteJarResourceLoader extends ResourceLoader
      *
      * @exception ResourceNotFoundException if the resource was not found.
      */
+    @Override
     public InputStream getResourceStream (String path)
         throws ResourceNotFoundException
     {
@@ -95,6 +97,7 @@ public class SiteJarResourceLoader extends ResourceLoader
      * because they came from the webapp .war file and if that is reloaded,
      * everything will be thrown away and started afresh.
      */
+    @Override
     public boolean isSourceModified (Resource resource)
     {
         SiteKey skey = new SiteKey(resource.getName());
@@ -125,6 +128,7 @@ public class SiteJarResourceLoader extends ResourceLoader
      * everything will be thrown away and started afresh. So we can punt here
      * and return zero.
      */
+    @Override
     public long getLastModified (Resource resource)
     {
         SiteKey skey = new SiteKey(resource.getName());

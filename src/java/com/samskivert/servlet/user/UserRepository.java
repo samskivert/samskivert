@@ -508,7 +508,7 @@ public class UserRepository extends JORARepository
         return ids.toString();
     }
 
-    // documentation inherited
+    @Override
     protected void createTables ()
     {
         // create our table object

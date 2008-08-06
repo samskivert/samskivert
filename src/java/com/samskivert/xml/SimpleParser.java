@@ -35,13 +35,13 @@ import static com.samskivert.Log.log;
  */
 public class SimpleParser extends DefaultHandler
 {
-    // documentation inherited
+    @Override
     public void characters (char ch[], int start, int length)
     {
   	_chars.append(ch, start, length);
     }
 
-    // documentation inherited
+    @Override
     public void endElement (String uri, String localName, String qName)
     {
 	finishElement(uri, localName, qName, _chars.toString().trim());

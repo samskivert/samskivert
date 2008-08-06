@@ -39,6 +39,7 @@ public class SerialExecutorTest extends TestCase
         _main = Thread.currentThread();
     }
 
+    @Override
     public void runTest ()
     {
         SerialExecutor executor = new SerialExecutor(this);

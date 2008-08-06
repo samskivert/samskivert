@@ -39,6 +39,7 @@ public class SetNextFieldRule extends Rule
         _fieldName = fieldName;
     }
 
+    @Override
     public void end (String namespace, String name)
         throws Exception
     {
@@ -57,9 +58,7 @@ public class SetNextFieldRule extends Rule
         field.set(parent, child);
     }
 
-    /**
-     * Render a printable version of this rule.
-     */
+    @Override
     public String toString ()
     {
         StringBuilder sb = new StringBuilder("SetNextFieldRule[");

@@ -69,6 +69,7 @@ public class ValidatedSetNextRule extends Rule
         _validator = validator;
     }
 
+    @Override
     public void end (String namespace, String name)
         throws Exception
     {
@@ -97,6 +98,7 @@ public class ValidatedSetNextRule extends Rule
     /**
      * Render a printable version of this rule.
      */
+    @Override
     public String toString ()
     {
         StringBuilder sb = new StringBuilder("ValidatedSetNextRule[");

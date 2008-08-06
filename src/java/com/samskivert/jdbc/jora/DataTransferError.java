@@ -20,16 +20,15 @@
 
 package com.samskivert.jdbc.jora;
 
-/** This error is raised when error is happened during data transfer 
- *  between program and database server (for example IOException was thrown 
+/** This error is raised when error is happened during data transfer
+ *  between program and database server (for example IOException was thrown
  *  while operation with InputStream field)
- */ 
-public class DataTransferError extends java.lang.Error { 
-    DataTransferError() { 
+ */
+public class DataTransferError extends java.lang.Error {
+    DataTransferError() {
         super("Database data transfer error");
-    } 
-    DataTransferError(Exception ex) { 
+    }
+    DataTransferError(Exception ex) {
         super(ex.getMessage());
-    } 
+    }
 }
-

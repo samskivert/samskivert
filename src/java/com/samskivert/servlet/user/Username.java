@@ -51,7 +51,7 @@ public class Username
         return _username;
     }
 
-    /** Returns a string representation of this instance. */
+    @Override
     public String toString ()
     {
         return _username;

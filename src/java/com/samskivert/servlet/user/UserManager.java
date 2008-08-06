@@ -141,7 +141,7 @@ public class UserManager
 
         // register a cron job to prune the session table every hour
         _pruner = new Interval(pruneQueue) {
-            public void expired () {
+            @Override public void expired () {
                 try {
                     _repository.pruneSessions();
                 } catch (PersistenceException pe) {

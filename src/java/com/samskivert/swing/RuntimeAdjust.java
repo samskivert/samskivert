@@ -177,7 +177,7 @@ public class RuntimeAdjust
             _config.setValue(_name, value);
         }
 
-        protected void populateEditor (JPanel editor)
+        @Override protected void populateEditor (JPanel editor)
         {
             editor.add(_valbox = new JCheckBox(), GroupLayout.FIXED);
             _valbox.setSelected(getValue());
@@ -226,7 +226,7 @@ public class RuntimeAdjust
             _config.setValue(_name, value);
         }
 
-        protected void populateEditor (JPanel editor)
+        @Override protected void populateEditor (JPanel editor)
         {
             super.populateEditor(editor);
             _valbox.setText("" + getValue());
@@ -287,7 +287,7 @@ public class RuntimeAdjust
             }
         }
 
-        protected void populateEditor (JPanel editor)
+        @Override protected void populateEditor (JPanel editor)
         {
             editor.add(_valbox = new JComboBox(_values), GroupLayout.FIXED);
             _valbox.addActionListener(this);
@@ -341,7 +341,7 @@ public class RuntimeAdjust
             _config.setValue(_name, value);
         }
 
-        protected void populateEditor (JPanel editor)
+        @Override protected void populateEditor (JPanel editor)
         {
             // set up the label
             JPanel p = GroupLayout.makeVBox();
@@ -418,7 +418,7 @@ public class RuntimeAdjust
             super(descrip, name, null);
         }
 
-        protected void populateEditor (JPanel editor)
+        @Override protected void populateEditor (JPanel editor)
         {
             JButton actbut = new JButton("Go");
             editor.add(actbut, GroupLayout.FIXED);
@@ -447,8 +447,7 @@ public class RuntimeAdjust
             super(descrip, name, config);
         }
 
-        // documentation inherited
-        protected void populateEditor (JPanel editor)
+        @Override protected void populateEditor (JPanel editor)
         {
             editor.add(_valbox = new JTextField(), GroupLayout.FIXED);
             _valbox.addFocusListener(this);
@@ -505,7 +504,7 @@ public class RuntimeAdjust
             _adjusts.insertSorted(this); // keep 'em sorted
         }
 
-        public boolean equals (Object other)
+        @Override public boolean equals (Object other)
         {
             return _name.equals(((Adjust)other)._name);
         }
@@ -554,7 +553,7 @@ public class RuntimeAdjust
 
         protected abstract void populateEditor (JPanel editor);
 
-        public String toString ()
+        @Override public String toString ()
         {
             return StringUtil.shortClassName(this) +
                 "[name=" + _name + ", desc=" + _descrip + "]";

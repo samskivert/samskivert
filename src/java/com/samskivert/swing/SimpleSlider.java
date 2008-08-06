@@ -76,7 +76,7 @@ public class SimpleSlider extends JPanel
         }
     }
 
-    // documentation inherited
+    @Override
     public void setFont (Font font)
     {
         super.setFont(font);

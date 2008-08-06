@@ -56,8 +56,7 @@ public class MySQLBuilder
 {
     public class MSBuildVisitor extends BuildVisitor
     {
-        @Override
-        public void visit (FullTextMatch match)
+        @Override public void visit (FullTextMatch match)
             throws Exception
         {
             _builder.append("match(");
@@ -73,8 +72,7 @@ public class MySQLBuilder
             _builder.append(") against (? in boolean mode)");
         }
 
-        @Override
-        public void visit (DeleteClause<? extends PersistentRecord> deleteClause)
+        @Override public void visit (DeleteClause<? extends PersistentRecord> deleteClause)
             throws Exception
         {
             _builder.append("delete from ");
@@ -104,17 +102,17 @@ public class MySQLBuilder
             super(types);
         }
 
-        protected void appendTableName (Class<? extends PersistentRecord> type)
+        @Override protected void appendTableName (Class<? extends PersistentRecord> type)
         {
             _builder.append(_types.getTableName(type));
         }
 
-        protected void appendTableAbbreviation (Class<? extends PersistentRecord> type)
+        @Override protected void appendTableAbbreviation (Class<? extends PersistentRecord> type)
         {
             _builder.append(_types.getTableAbbreviation(type));
         }
 
-        protected void appendIdentifier (String field)
+        @Override protected void appendIdentifier (String field)
         {
             _builder.append(field);
         }
@@ -127,8 +125,7 @@ public class MySQLBuilder
             super(types, stmt);
         }
 
-        @Override
-        public void visit (FullTextMatch match)
+        @Override public void visit (FullTextMatch match)
             throws Exception
         {
             _stmt.setString(_argIdx ++, match.getQuery());

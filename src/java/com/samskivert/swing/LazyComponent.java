@@ -52,7 +52,7 @@ public class LazyComponent extends JComponent
         _creator = creator;
     }
 
-    // documentation inherited
+    @Override
     public void addNotify ()
     {
         super.addNotify();
@@ -60,7 +60,7 @@ public class LazyComponent extends JComponent
         checkCreate();
     }
 
-    // documentation inherited
+    @Override
     public void setVisible (boolean vis)
     {
         super.setVisible(vis);

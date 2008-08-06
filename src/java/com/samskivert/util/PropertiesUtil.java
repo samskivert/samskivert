@@ -114,14 +114,14 @@ public class PropertiesUtil
     {
         final String dprefix = prefix + ".";
         return new Properties() {
-            public String getProperty (String key) {
+            @Override public String getProperty (String key) {
                 return getProperty(key, null);
             }
-            public String getProperty (String key, String defaultValue) {
+            @Override public String getProperty (String key, String defaultValue) {
                 return source.getProperty(dprefix + key,
                     source.getProperty(key, defaultValue));
             }
-            public Enumeration<?> propertyNames () {
+            @Override public Enumeration<?> propertyNames () {
                 return new Enumeration<Object>() {
                     public boolean hasMoreElements () {
                         return next != null;

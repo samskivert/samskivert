@@ -30,12 +30,14 @@ import com.samskivert.util.StringUtil;
  */
 public abstract class CallMethodSpecialRule extends Rule
 {
+    @Override
     public void body (String namespace, String name, String bodyText)
         throws Exception
     {
         _bodyText = bodyText.trim();
     }
 
+    @Override
     public void end (String namespace, String name)
         throws Exception
     {

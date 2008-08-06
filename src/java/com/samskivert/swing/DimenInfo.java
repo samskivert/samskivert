@@ -47,6 +47,7 @@ public class DimenInfo
 
     public Dimension[] dimens;
 
+    @Override
     public String toString ()
     {
 	StringBuilder buf = new StringBuilder();

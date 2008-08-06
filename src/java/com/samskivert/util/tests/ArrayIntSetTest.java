@@ -35,6 +35,7 @@ public class ArrayIntSetTest extends TestCase
         super(ArrayIntSetTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         ArrayIntSet set = new ArrayIntSet();

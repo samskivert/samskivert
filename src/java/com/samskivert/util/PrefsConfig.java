@@ -290,27 +290,27 @@ public class PrefsConfig extends Config
         public NullPreferences () {
             super(null, "");
         }
-        protected void putSpi (String key, String value) {
+        @Override protected void putSpi (String key, String value) {
         }
-        protected String getSpi (String key) {
+        @Override protected String getSpi (String key) {
             return null;
         }
-        protected void removeSpi (String key) {
+        @Override protected void removeSpi (String key) {
         }
-        protected void removeNodeSpi () throws BackingStoreException {
+        @Override protected void removeNodeSpi () throws BackingStoreException {
         }
-        protected String[] keysSpi () throws BackingStoreException {
+        @Override protected String[] keysSpi () throws BackingStoreException {
             return new String[0];
         }
-        protected String[] childrenNamesSpi () throws BackingStoreException {
+        @Override protected String[] childrenNamesSpi () throws BackingStoreException {
             return new String[0];
         }
-        protected AbstractPreferences childSpi (String name) {
+        @Override protected AbstractPreferences childSpi (String name) {
             return null;
         }
-        protected void syncSpi () throws BackingStoreException {
+        @Override protected void syncSpi () throws BackingStoreException {
         }
-        protected void flushSpi () throws BackingStoreException {
+        @Override protected void flushSpi () throws BackingStoreException {
         }
     }
 

@@ -32,6 +32,7 @@ import org.apache.velocity.runtime.resource.ResourceManagerImpl;
  */
 public class ServletContextResourceManager extends ResourceManagerImpl
 {
+    @Override
     public void initialize (RuntimeServices rsvc)
         throws Exception
     {
@@ -56,6 +57,7 @@ public class ServletContextResourceManager extends ResourceManagerImpl
         rsvc.getLog().info("SCRM initialization complete.");
     }
 
+    @Override
     protected Resource loadResource(String resourceName, int resourceType, String encoding)
         throws ResourceNotFoundException, ParseErrorException, Exception
     {

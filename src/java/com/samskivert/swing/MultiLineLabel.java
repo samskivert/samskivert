@@ -218,7 +218,7 @@ public class MultiLineLabel extends JComponent
         repaint();
     }
 
-    // documentation inherited
+    @Override
     public void paintComponent (Graphics g)
     {
         super.paintComponent(g);
@@ -260,7 +260,7 @@ public class MultiLineLabel extends JComponent
         }
     }
 
-    // documentation inherited
+    @Override
     public void doLayout ()
     {
         super.doLayout();
@@ -345,7 +345,7 @@ public class MultiLineLabel extends JComponent
         }
     }
 
-    // documentation inherited
+    @Override
     public Dimension getPreferredSize ()
     {
         if (isPreferredSizeSet()) {

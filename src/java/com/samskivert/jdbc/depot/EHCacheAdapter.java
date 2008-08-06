@@ -79,7 +79,7 @@ public class EHCacheAdapter
                 public T getValue () {
                     return value;
                 }
-                public String toString () {
+                @Override public String toString () {
                     return String.valueOf(value);
                 }
             };
@@ -147,17 +147,17 @@ public class EHCacheAdapter
     /** A class to represent an explicitly Serializable concept of null for EHCache. */
     protected static class NullValue implements Serializable
     {
-        public String toString ()
+        @Override public String toString ()
         {
             return "<EHCache Null>";
         }
 
-        public boolean equals (Object other)
+        @Override public boolean equals (Object other)
         {
             return other != null && other.getClass().equals(NullValue.class);
         }
 
-        public int hashCode ()
+        @Override public int hashCode ()
         {
             return 1;
         }

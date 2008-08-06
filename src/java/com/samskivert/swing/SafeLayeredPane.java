@@ -30,6 +30,7 @@ import javax.swing.JLayeredPane;
  */
 public class SafeLayeredPane extends JLayeredPane
 {
+    @Override
     public void remove (int index)
     {
         Component c = getComponent(index);

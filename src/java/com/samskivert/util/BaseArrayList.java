@@ -39,31 +39,32 @@ import static com.samskivert.Log.log;
 public abstract class BaseArrayList<E> extends AbstractList<E>
     implements List<E>, RandomAccess, Cloneable, Serializable
 {
-    // documentation inherited from interface
+    @Override
     public int size ()
     {
         return _size;
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean isEmpty ()
     {
         return (_size == 0);
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean contains (Object o)
     {
         return ListUtil.contains(_elements, o);
     }
 
-    // documentation inherited from interface
+    @Override
     public Object[] toArray ()
     {
         return toArray(new Object[_size]);
     }
 
-    @SuppressWarnings("unchecked") // documentation inherited from interface
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray (T[] target)
     {
         // create the target array if necessary
@@ -80,14 +81,15 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         return target;
     }
 
-    // documentation inherited
+    @Override
     public void clear ()
     {
         _elements = null;
         _size = 0;
     }
 
-    @SuppressWarnings("unchecked") // documentation inherited from interface
+    @Override
+    @SuppressWarnings("unchecked")
     public boolean add (E o)
     {
         _elements = (E[])ListUtil.add(_elements, _size, o);
@@ -95,7 +97,7 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         return true;
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean remove (Object o)
     {
         if (ListUtil.remove(_elements, o) != null) {
@@ -105,14 +107,14 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         return false;
     }
 
-    // documentation inherited from interface
+    @Override
     public E get (int index)
     {
         rangeCheck(index, false);
         return _elements[index];
     }
 
-    // documentation inherited from interface
+    @Override
     public E set (int index, E element)
     {
         rangeCheck(index, false);
@@ -121,7 +123,8 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         return old;
     }
 
-    @SuppressWarnings("unchecked") // documentation inherited from interface
+    @Override
+    @SuppressWarnings("unchecked")
     public void add (int index, E element)
     {
         rangeCheck(index, true);
@@ -129,7 +132,8 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         _size++;
     }
 
-    @SuppressWarnings("unchecked") // documentation inherited from interface
+    @Override
+    @SuppressWarnings("unchecked")
     public E remove (int index)
     {
         rangeCheck(index, false);
@@ -138,7 +142,7 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         return oval;
     }
 
-    // documentation inherited from interface
+    @Override
     public int indexOf (Object o)
     {
         return ListUtil.indexOf(_elements, o);
@@ -162,7 +166,8 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         }
     }
 
-    @SuppressWarnings("unchecked") // documentation inherited
+    @Override
+    @SuppressWarnings("unchecked")
     public Object clone ()
     {
         try {

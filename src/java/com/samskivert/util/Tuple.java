@@ -58,6 +58,7 @@ public class Tuple<L,R> implements Serializable
     /**
      * Returns the combined hashcode of the two elements.
      */
+    @Override
     public int hashCode ()
     {
         return left.hashCode() ^ right.hashCode();
@@ -68,6 +69,7 @@ public class Tuple<L,R> implements Serializable
      * are equal to the left and right elements (respectively) of the
      * other tuple.
      */
+    @Override
     public boolean equals (Object other)
     {
         if (other instanceof Tuple) {
@@ -78,9 +80,7 @@ public class Tuple<L,R> implements Serializable
         }
     }
 
-    /**
-     * Generates a string representation of this tuple.
-     */
+    @Override
     public String toString ()
     {
         return "[left=" + left + ", right=" + right + "]";

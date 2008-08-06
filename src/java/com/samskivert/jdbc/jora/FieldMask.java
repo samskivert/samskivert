@@ -135,6 +135,7 @@ public class FieldMask
      * Creates a copy of this field mask, with all fields set to
      * not-modified.
      */
+    @Override
     public Object clone ()
     {
         try {
@@ -146,7 +147,7 @@ public class FieldMask
         }
     }
 
-    // documentation inherited
+    @Override
     public String toString ()
     {
         // return a list of the modified fields

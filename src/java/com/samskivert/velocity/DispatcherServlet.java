@@ -135,9 +135,7 @@ public class DispatcherServlet extends HttpServlet
     /** The HTTP content type context key. */
     public static final String CONTENT_TYPE = "default.contentType";
 
-    /**
-     * Performs various initialization.
-     */
+    @Override
     public void init (ServletConfig config)
         throws ServletException
     {
@@ -180,6 +178,7 @@ public class DispatcherServlet extends HttpServlet
     /**
      * Handles HTTP <code>GET</code> requests by calling {@link #doRequest()}.
      */
+    @Override
     public void doGet (HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
@@ -189,6 +188,7 @@ public class DispatcherServlet extends HttpServlet
     /**
      * Handles HTTP <code>POST</code> requests by calling {@link #doRequest()}.
      */
+    @Override
     public void doPost (HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
@@ -198,6 +198,7 @@ public class DispatcherServlet extends HttpServlet
     /**
      * Clean up after ourselves and our application.
      */
+    @Override
     public void destroy ()
     {
         super.destroy();
@@ -415,15 +416,12 @@ public class DispatcherServlet extends HttpServlet
     }
 
     /**
-     * Called when a method throws an exception during template
-     * evaluation.
+     * Called when a method throws an exception during template evaluation.
      */
-    @SuppressWarnings("unchecked")
     public Object methodException (Class clazz, String method, Exception e)
         throws Exception
     {
-        log.warning("Exception [class=" + clazz.getName() +
-                ", method=" + method + "].", e);
+        log.warning("Exception [class=" + clazz.getName() + ", method=" + method + "].", e);
         return "";
     }
 

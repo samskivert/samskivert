@@ -49,6 +49,7 @@ public class IntTuple
     /**
      * Returns the combined hashcode of the two elements.
      */
+    @Override
     public int hashCode ()
     {
         return left ^ right;
@@ -65,6 +66,7 @@ public class IntTuple
      * are equal to the left and right elements (respectively) of the
      * other tuple.
      */
+    @Override
     public boolean equals (Object other)
     {
         if (other instanceof IntTuple) {
@@ -75,6 +77,7 @@ public class IntTuple
         }
     }
 
+    @Override
     public String toString ()
     {
         return "[left=" + left + ", right=" + right + "]";

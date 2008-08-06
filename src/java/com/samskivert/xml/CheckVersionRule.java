@@ -47,6 +47,7 @@ public class CheckVersionRule extends Rule
         _parserIdentifier = parserIdentifier;
     }
 
+    @Override
     public void body (String namespace, String name, String bodyText)
         throws Exception
     {

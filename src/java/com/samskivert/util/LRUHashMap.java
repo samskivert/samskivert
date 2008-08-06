@@ -122,7 +122,8 @@ public class LRUHashMap<K,V> implements Map<K,V>
      */
     public void setCanFlush (boolean canFlush)
     {
-        if (_canFlush = canFlush) {
+        _canFlush = canFlush;
+        if (_canFlush) {
             // if we just reenabled flushing, flush
             flush();
         }
@@ -327,13 +328,13 @@ public class LRUHashMap<K,V> implements Map<K,V>
         return Collections.unmodifiableSet(_delegate.entrySet());
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean equals (Object o)
     {
         return _delegate.equals(o);
     }
 
-    // documentation inherited from interface
+    @Override
     public int hashCode ()
     {
         return _delegate.hashCode();

@@ -38,6 +38,7 @@ public class ArrayUtilTest extends TestCase
         super(ArrayUtilTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         // test reversing an array

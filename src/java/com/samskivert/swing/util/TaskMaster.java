@@ -99,7 +99,8 @@ public class TaskMaster
          * invoke this runnable so run() is synchronized. Oh how I love
          * Chapter 17.
          */
-	public synchronized void run ()
+	@Override
+    public synchronized void run ()
 	{
             switch (_mode) {
             default:

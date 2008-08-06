@@ -75,8 +75,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
             return _values;
         }
 
-        @Override
-        public boolean equals (Object obj)
+        @Override public boolean equals (Object obj)
         {
             if (this == obj) {
                 return true;
@@ -88,8 +87,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
             return _pClass == other._pClass && _values.equals(other.getValues());
         }
 
-        @Override
-        public int hashCode ()
+        @Override public int hashCode ()
         {
             return _pClass.hashCode() ^ _values.hashCode();
         }

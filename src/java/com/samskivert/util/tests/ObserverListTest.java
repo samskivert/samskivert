@@ -35,6 +35,7 @@ public class ObserverListTest extends TestCase
         super(ObserverListTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
 //         Log.info("Testing safe list.");
@@ -110,7 +111,7 @@ public class ObserverListTest extends TestCase
 //             Log.info("foozle! " + _index);
         }
 
-        public String toString ()
+        @Override public String toString ()
         {
             return Integer.toString(_index);
         }

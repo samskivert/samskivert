@@ -99,8 +99,7 @@ public class ExceptionMap
 		// method overloading
                 final ArrayList<String> classes = new ArrayList<String>();
                 Properties loader = new Properties() {
-		    public Object put (Object key, Object value)
-		    {
+		    @Override public Object put (Object key, Object value) {
 			classes.add((String)key);
 			_values.add((String)value);
 			return key;

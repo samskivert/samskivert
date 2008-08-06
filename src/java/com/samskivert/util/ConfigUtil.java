@@ -654,12 +654,12 @@ public class ConfigUtil
             }
         }
 
-        public boolean equals (Object other)
+        @Override public boolean equals (Object other)
         {
             return _package.equals(((PropRecord)other)._package);
         }
 
-        public String toString ()
+        @Override public String toString ()
         {
             return "[package=" + _package +
                 ", overrides=" + StringUtil.toString(_overrides) +

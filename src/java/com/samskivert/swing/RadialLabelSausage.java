@@ -113,7 +113,7 @@ public class RadialLabelSausage extends LabelSausage
         closedBounds.height = closedBounds.width = _size.height;
     }
 
-    // documentation inherited
+    @Override
     protected void drawLabel (Graphics2D gfx, int x, int y)
     {
         if (_active) {
@@ -121,7 +121,7 @@ public class RadialLabelSausage extends LabelSausage
         }
     }
 
-    // documentation inherited
+    @Override
     protected void drawBorder (Graphics2D gfx, int x, int y)
     {
         // then around all that draw the borders
@@ -156,7 +156,7 @@ public class RadialLabelSausage extends LabelSausage
         }
     }
 
-    // documentation inherited
+    @Override
     protected void drawExtras (Graphics2D gfx, int x, int y, Object cliData)
     {
         RadialMenu menu = (RadialMenu) cliData;
@@ -174,6 +174,7 @@ public class RadialLabelSausage extends LabelSausage
      * Draw the base circle or sausage within which all the other
      * decorations are added.
      */
+    @Override
     protected void drawBase (Graphics2D gfx, int x, int y)
     {
         if (_active) {

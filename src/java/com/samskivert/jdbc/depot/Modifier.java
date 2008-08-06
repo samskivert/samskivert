@@ -41,7 +41,7 @@ public abstract class Modifier
             super(null);
         }
 
-        public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+        @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             Statement stmt = conn.createStatement();
             try {
                 return stmt.executeUpdate(createQuery(liaison));

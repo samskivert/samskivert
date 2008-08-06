@@ -53,9 +53,7 @@ public class CommandEvent extends ActionEvent
         return _argument;
     }
 
-    /**
-     * Generates a string representation of this command.
-     */
+    @Override
     public String toString ()
     {
         return "[cmd=" + getActionCommand() + ", src=" + getSource() +

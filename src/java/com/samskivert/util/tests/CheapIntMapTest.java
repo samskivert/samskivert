@@ -35,6 +35,7 @@ public class CheapIntMapTest extends TestCase
         super(CheapIntMapTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         CheapIntMap map = new CheapIntMap(10);

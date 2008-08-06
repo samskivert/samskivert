@@ -70,133 +70,133 @@ public abstract class ExtensiblePrintStream extends PrintStream
      */
     public abstract void handleNewLine ();
 
-    // documentation inherited
+    @Override
     public void print (boolean b)
     {
         super.print(b);
         handlePrinted(b ? "true" : "false");
     }
 
-    // documentation inherited
+    @Override
     public void print (char c)
     {
         super.print(c);
 	handlePrinted(String.valueOf(c));
     }
 
-    // documentation inherited
+    @Override
     public void print (int i)
     {
         super.print(i);
 	handlePrinted(String.valueOf(i));
     }
 
-    // documentation inherited
+    @Override
     public void print (long l)
     {
         super.print(l);
 	handlePrinted(String.valueOf(l));
     }
 
-    // documentation inherited
+    @Override
     public void print (float f)
     {
         super.print(f);
 	handlePrinted(String.valueOf(f));
     }
 
-    // documentation inherited
+    @Override
     public void print (double d)
     {
         super.print(d);
 	handlePrinted(String.valueOf(d));
     }
 
-    // documentation inherited
+    @Override
     public void print (char[] s)
     {
         super.print(s);
 	handlePrinted(String.valueOf(s));
     }
 
-    // documentation inherited
+    @Override
     public void print (String s)
     {
         super.print(s);
 	handlePrinted((s == null) ? "null" : s);
     }
 
-    // documentation inherited
+    @Override
     public void print (Object obj)
     {
         super.print(obj);
 	handlePrinted(String.valueOf(obj));
     }
 
-    // documentation inherited
+    @Override
     public void println ()
     {
         super.println();
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (boolean x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (char x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (int x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (long x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (float x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (double x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (char[] x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (String x)
     {
         super.println(x);
         handleNewLine();
     }
 
-    // documentation inherited
+    @Override
     public void println (Object x)
     {
         super.println(x);

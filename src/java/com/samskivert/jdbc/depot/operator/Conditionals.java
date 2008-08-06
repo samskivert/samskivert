@@ -85,8 +85,7 @@ public abstract class Conditionals
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "=";
         }
@@ -105,8 +104,7 @@ public abstract class Conditionals
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "!=";
         }
@@ -125,8 +123,7 @@ public abstract class Conditionals
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "<";
         }
@@ -145,8 +142,7 @@ public abstract class Conditionals
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "<=";
         }
@@ -165,8 +161,7 @@ public abstract class Conditionals
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return ">";
         }
@@ -185,8 +180,7 @@ public abstract class Conditionals
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return ">=";
         }
@@ -260,8 +254,7 @@ public abstract class Conditionals
             super(column, value);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return " like ";
         }

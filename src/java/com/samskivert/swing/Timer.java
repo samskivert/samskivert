@@ -59,7 +59,7 @@ public class Timer extends javax.swing.Timer
         }
     }
 
-    // documentation inherited
+    @Override
     public String toString ()
     {
         return "Timer [source=" + _source +
@@ -67,7 +67,7 @@ public class Timer extends javax.swing.Timer
             "]";
     }
 
-    // documentation inherited
+    @Override
     protected void fireActionPerformed (ActionEvent e)
     {
         if (_event != null) {
@@ -96,7 +96,7 @@ public class Timer extends javax.swing.Timer
          * due to the repeating nature: the event could get re-fired
          * before your controller has dealt with it.
          */
-        public long getWhen ()
+        @Override public long getWhen ()
         {
             return _when;
         }

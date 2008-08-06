@@ -75,13 +75,13 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         this(DEFAULT_BUCKETS, DEFAULT_LOAD_FACTOR);
     }
 
-    // documentation inherited
+    @Override
     public int size ()
     {
         return _size;
     }
 
-    // documentation inherited
+    @Override
     public boolean containsKey (Object key)
     {
         return containsKey(((Integer)key).intValue());
@@ -93,7 +93,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         return get(key) != null;
     }
 
-    // documentation inherited
+    @Override
     public boolean containsValue (Object o)
     {
         for (int ii = 0, ll = _buckets.length; ii < ll; ii++) {
@@ -106,7 +106,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         return false;
     }
 
-    // documentation inherited
+    @Override
     public V get (Object key)
     {
         return get(((Integer)key).intValue());
@@ -124,7 +124,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         return null;
     }
 
-    // documentation inherited
+    @Override
     public V put (Integer key, V value)
     {
         return put(key.intValue(), value);
@@ -163,7 +163,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         return null;
     }
 
-    // documentation inherited
+    @Override
     public V remove (Object key)
     {
         return remove(((Integer)key).intValue());
@@ -213,7 +213,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         }
     }
 
-    // documentation inherited
+    @Override
     public void clear ()
     {
         // abandon all of our hash chains (the joy of garbage collection)
@@ -291,14 +291,14 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         }
     }
 
-    // documentation inherited
+    @Override
     public Set<Entry<Integer,V>> entrySet ()
     {
         return new AbstractSet<Entry<Integer,V>>() {
-            public int size () {
+            @Override public int size () {
                 return _size;
             }
-            public Iterator<Entry<Integer,V>> iterator () {
+            @Override public Iterator<Entry<Integer,V>> iterator () {
                 return new MapEntryIterator();
             }
         };
@@ -308,10 +308,10 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     public Set<IntEntry<V>> intEntrySet ()
     {
         return new AbstractSet<IntEntry<V>>() {
-            public int size () {
+            @Override public int size () {
                 return _size;
             }
-            public Iterator<IntEntry<V>> iterator () {
+            @Override public Iterator<IntEntry<V>> iterator () {
                 return new IntEntryIterator();
             }
         };
@@ -394,7 +394,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     protected class IntKeySet extends AbstractSet<Integer>
         implements IntSet
     {
-        public Iterator<Integer> iterator () {
+        @Override public Iterator<Integer> iterator () {
             return interator();
         }
 
@@ -416,11 +416,11 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             };
         }
 
-        public int size () {
+        @Override public int size () {
             return HashIntMap.this.size();
         }
 
-        public boolean contains (Object t) {
+        @Override public boolean contains (Object t) {
             return HashIntMap.this.containsKey(t);
         }
 
@@ -432,7 +432,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             throw new UnsupportedOperationException();
         }
 
-        public boolean remove (Object o) {
+        @Override public boolean remove (Object o) {
             return (null != HashIntMap.this.remove(o));
         }
 
@@ -461,7 +461,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         return _keySet;
     }
 
-    // documentation inherited
+    @Override
     public Set<Integer> keySet ()
     {
         return intKeySet();
@@ -484,7 +484,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         return values().iterator();
     }
 
-    // documentation inherited from interface cloneable
+    @Override
     public Object clone ()
     {
         HashIntMap<V> copy = new HashIntMap<V>(_buckets.length, _loadFactor);
@@ -576,7 +576,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             return ovalue;
         }
 
-        public boolean equals (Object o)
+        @Override public boolean equals (Object o)
         {
             if (!(o instanceof IntEntry)) {
                 return false;
@@ -586,12 +586,12 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                 ObjectUtil.equals(this.value, that.getValue());
         }
 
-        public int hashCode ()
+        @Override public int hashCode ()
         {
             return key ^ ((value == null) ? 0 : value.hashCode());
         }
 
-        public String toString ()
+        @Override public String toString ()
         {
             return key + "=" + StringUtil.toString(value);
         }

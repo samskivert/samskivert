@@ -47,8 +47,7 @@ public abstract class Logic
             super(conditions);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "or";
         }
@@ -69,8 +68,7 @@ public abstract class Logic
             super(conditions);
         }
 
-        @Override
-        public String operator()
+        @Override public String operator()
         {
             return "and";
         }

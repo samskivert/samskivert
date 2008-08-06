@@ -70,7 +70,7 @@ public class ProcessLogger
             _reader = new BufferedReader(new InputStreamReader(input));
         }
 
-        public void run ()
+        @Override public void run ()
         {
             String line;
             try {

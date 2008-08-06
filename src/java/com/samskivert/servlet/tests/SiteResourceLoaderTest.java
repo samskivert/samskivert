@@ -45,6 +45,7 @@ public class SiteResourceLoaderTest extends TestCase
         super(SiteResourceLoaderTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         // we need to fake a couple of things to get the test to work

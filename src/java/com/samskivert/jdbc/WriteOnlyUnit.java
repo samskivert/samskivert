@@ -38,7 +38,7 @@ public abstract class WriteOnlyUnit extends Invoker.Unit
         super(name);
     }
 
-    // from abstract Invoker.Unit
+    @Override // from abstract Invoker.Unit
     public boolean invoke ()
     {
         try {

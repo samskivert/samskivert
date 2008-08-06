@@ -101,9 +101,7 @@ public class Histogram
         return buf.toString();
     }
 
-    /**
-     * Returns a string representation of this histogram.
-     */
+    @Override
     public String toString ()
     {
         return "[min=" + _minValue + ", max=" + _maxValue +

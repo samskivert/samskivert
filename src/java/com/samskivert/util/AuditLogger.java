@@ -182,7 +182,7 @@ public class AuditLogger
 
     /** The interval that rolls over the log file. */
     protected Interval _rollover = new Interval() {
-        public void expired () {
+        @Override public void expired () {
             checkRollOver();
         }
     };

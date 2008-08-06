@@ -55,6 +55,7 @@ public class VGroupLayout extends GroupLayout
     {
     }
 
+    @Override
     protected Dimension getLayoutSize (Container parent, int type)
     {
 	DimenInfo info = computeDimens(parent, type);
@@ -80,6 +81,7 @@ public class VGroupLayout extends GroupLayout
 	return dims;
     }
 
+    @Override
     public void layoutContainer (Container parent)
     {
 	Rectangle b = parent.getBounds();

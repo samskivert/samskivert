@@ -41,6 +41,7 @@ public class CollectionUtilTest extends TestCase
         super(CollectionUtil.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         ArrayList<Integer> list = new ArrayList<Integer>();

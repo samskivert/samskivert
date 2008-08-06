@@ -120,7 +120,7 @@ public class MouseHijacker
 
     /** Used to capture each motion event while everything's hijacked. */
     protected MouseMotionListener _motionCatcher = new MouseMotionAdapter() {
-        public void mouseMoved (MouseEvent evt)
+        @Override public void mouseMoved (MouseEvent evt)
         {
             _lastMotion = evt;
         }

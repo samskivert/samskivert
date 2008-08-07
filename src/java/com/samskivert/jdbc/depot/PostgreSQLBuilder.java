@@ -221,9 +221,9 @@ public class PostgreSQLBuilder
         } else if (fm instanceof LongMarshaller) {
             return "BIGINT";
         } else if (fm instanceof FloatMarshaller) {
-            return "FLOAT";
+            return "REAL";
         } else if (fm instanceof DoubleMarshaller) {
-            return "DOUBLE";
+            return "DOUBLE PRECISION";
         } else if (fm instanceof ObjectMarshaller) {
             Class<?> ftype = fm.getField().getType();
             if (ftype.equals(Byte.class)) {

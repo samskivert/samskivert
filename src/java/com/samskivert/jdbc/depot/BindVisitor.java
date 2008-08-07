@@ -21,6 +21,7 @@
 package com.samskivert.jdbc.depot;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,7 +76,7 @@ public class BindVisitor implements ExpressionVisitor
     {
         for (Comparable<?> value : whereCondition.getValues()) {
             if (value != null) {
-                _stmt.setObject(_argIdx ++, value);
+                writeValueToStatement(value);
             }
         }
     }
@@ -89,15 +90,14 @@ public class BindVisitor implements ExpressionVisitor
     public void visit (MultiKey<? extends PersistentRecord> key)
         throws Exception
     {
-
         for (Map.Entry<String, Comparable<?>> entry : key.getSingleFieldsMap().entrySet()) {
             if (entry.getValue() != null) {
-                _stmt.setObject(_argIdx ++, entry.getValue());
+                writeValueToStatement(entry.getValue());
             }
         }
         Comparable<?>[] values = key.getMultiValues();
         for (int ii = 0; ii < values.length; ii++) {
-            _stmt.setObject(_argIdx ++, values[ii]);
+            writeValueToStatement(values[ii]);
         }
     }
 
@@ -133,7 +133,7 @@ public class BindVisitor implements ExpressionVisitor
     {
         Comparable<?>[] values = in.getValues();
         for (int ii = 0; ii < values.length; ii++) {
-            _stmt.setObject(_argIdx ++, values[ii]);
+            writeValueToStatement(values[ii]);
         }
     }
 
@@ -179,8 +179,8 @@ public class BindVisitor implements ExpressionVisitor
 
     public void visit (Limit limit) throws Exception
     {
-        _stmt.setObject(_argIdx++, limit.getCount());
-        _stmt.setObject(_argIdx++, limit.getOffset());
+        _stmt.setInt(_argIdx++, limit.getCount());
+        _stmt.setInt(_argIdx++, limit.getOffset());
     }
 
     public void visit (LiteralExp literalExp) throws Exception
@@ -190,13 +190,7 @@ public class BindVisitor implements ExpressionVisitor
 
     public void visit (ValueExp valueExp) throws Exception
     {
-        // workaround for postgres bug, fixed in next release:
-        // http://archives.postgresql.org/pgsql-jdbc/2007-06/msg00080.php
-        if (valueExp.getValue() instanceof Byte) {
-            _stmt.setByte(_argIdx ++, (Byte) valueExp.getValue());
-        } else {
-            _stmt.setObject(_argIdx ++, valueExp.getValue());
-        }
+        writeValueToStatement(valueExp.getValue());
     }
 
     public void visit (Exists<? extends PersistentRecord> exists)
@@ -275,6 +269,18 @@ public class BindVisitor implements ExpressionVisitor
     {
         for (int ii = 0; ii < expressions.length; ii ++) {
             expressions[ii].accept(this);
+        }
+    }
+
+    // write the value to the next argument slot in the prepared statement
+    protected void writeValueToStatement (Object value)
+        throws SQLException
+    {
+        // setObject handles almost all conversions internally, but enums require special care
+        if (value instanceof ByteEnum) {
+            _stmt.setByte(_argIdx++, ((ByteEnum)value).toByte());
+        } else {
+            _stmt.setObject(_argIdx++, value);
         }
     }
 

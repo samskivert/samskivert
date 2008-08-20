@@ -108,8 +108,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                 try {
                     _schemaVersion = (Integer)field.get(null);
                 } catch (Exception e) {
-                    log.warning("Failed to read schema version " +
-                        "[class=" + _pClass + "].", e);
+                    log.warning("Failed to read schema version [class=" + _pClass + "].", e);
                 }
             }
 
@@ -180,6 +179,12 @@ public class DepotMarshaller<T extends PersistentRecord>
                 }
             }
 
+        }
+
+        // if we did not find a schema version field, freak out
+        if (_schemaVersion <= 0) {
+            throw new IllegalStateException(
+                pClass.getName() + "." + SCHEMA_VERSION_FIELD + " must be greater than zero.");
         }
 
         // generate our full list of fields/columns for use in queries
@@ -518,7 +523,7 @@ public class DepotMarshaller<T extends PersistentRecord>
      * be created. If the schema version specified by the persistent object is newer than the
      * database schema, it will be migrated.
      */
-    protected void init (final PersistenceContext ctx)
+    protected void init (PersistenceContext ctx)
         throws PersistenceException
     {
         if (_initialized) { // sanity check
@@ -557,24 +562,23 @@ public class DepotMarshaller<T extends PersistentRecord>
         _columnFields = ArrayUtil.splice(_columnFields, jj);
         declarations = ArrayUtil.splice(declarations, jj);
 
-        // if we did not find a schema version field, complain
-        if (_schemaVersion < 0) {
-            log.warning("Unable to read " + _pClass.getName() + "." + SCHEMA_VERSION_FIELD +
-                        ". Schema migration disabled.");
-        }
-
         // check to see if our schema version table exists, create it if not
         ctx.invoke(new Modifier() {
-            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            @Override
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 liaison.createTableIfMissing(
                     conn, SCHEMA_VERSION_TABLE,
-                    new String[] { "persistentClass", "version" },
+                    new String[] { P_COLUMN, V_COLUMN, MV_COLUMN },
                     new ColumnDefinition[] {
                         new ColumnDefinition("VARCHAR(255)", false, true, null),
+                        new ColumnDefinition("INTEGER", false, false, null),
                         new ColumnDefinition("INTEGER", false, false, null)
                     },
                     null,
-                    new String[] { "persistentClass" });
+                    new String[] { P_COLUMN });
+                // add our new "migratingVersion" column if it's not already there
+                liaison.addColumn(conn, SCHEMA_VERSION_TABLE, MV_COLUMN,
+                                  "integer not null default 0", true);
                 return 0;
             }
         });
@@ -582,86 +586,143 @@ public class DepotMarshaller<T extends PersistentRecord>
         // fetch all relevant information regarding our table from the database
         TableMetaData metaData = TableMetaData.load(ctx, getTableName());
 
-        // if the table does not exist, create it
-        if (!metaData.tableExists) {
-            final ColumnDefinition[] fDeclarations = declarations;
-            final String[][] uniqueConCols = new String[_uniqueConstraints.size()][];
-            int kk = 0;
-            for (Set<String> colSet : _uniqueConstraints) {
-                uniqueConCols[kk++] = colSet.toArray(new String[colSet.size()]);
-            }
-            final Iterable<Index> indexen = _indexes.values();
-            ctx.invoke(new Modifier() {
-                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                    // create the table
-                    String[] primaryKeyColumns = null;
-                    if (_pkColumns != null) {
-                        primaryKeyColumns = new String[_pkColumns.size()];
-                        for (int ii = 0; ii < primaryKeyColumns.length; ii ++) {
-                            primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
+        // determine whether or not this record has ever been seen
+        int currentVersion = ctx.invoke(new ReadVersion());
+        if (currentVersion == -1) {
+            log.info("Creating initial version record for " + _pClass.getName() + ".");
+            // if not, create a version entry with version zero
+            ctx.invoke(new SimpleModifier() {
+                protected int invoke (DatabaseLiaison liaison, Statement stmt) throws SQLException {
+                    try {
+                        return stmt.executeUpdate(
+                            "insert into " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
+                            " values('" + getTableName() + "', 0 , 0)");
+                    } catch (SQLException e) {
+                        // someone else might be doing this at the exact same time which is OK,
+                        // we'll coordinate with that other process in the next phase
+                        if (liaison.isDuplicateRowException(e)) {
+                            return 0;
+                        } else {
+                            throw e;
                         }
                     }
-                    liaison.createTableIfMissing(
-                        conn, getTableName(), fieldsToColumns(_columnFields),
-                        fDeclarations, uniqueConCols, primaryKeyColumns);
+                }
+            });
+        }
 
-                    // add its indexen
-                    for (Index idx : indexen) {
-                        liaison.addIndexToTable(
-                            conn, getTableName(), fieldsToColumns(idx.fields()),
-                            getTableName() + "_" + idx.name(), idx.unique());
-                    }
+        // now check whether we need to migrate our database schema
+        boolean gotMigrationLock = false;
+        while (!gotMigrationLock) {
+            currentVersion = ctx.invoke(new ReadVersion());
+            if (currentVersion >= _schemaVersion) {
+                checkForStaleness(metaData, ctx, builder);
+                return;
+            }
 
-                    // initialize our value generators
-                    for (ValueGenerator vg : _valueGenerators.values()) {
-                        vg.init(conn, liaison);
-                    }
+            // try to update migratingVersion to the new version to indicate to other processes
+            // that we are handling the migration and that they should wait
+            if (ctx.invoke(new UpdateMigratingVersion(_schemaVersion, 0)) > 0) {
+                log.info("Got migration lock for " + _pClass.getName() + ".");
+                break; // we got the lock, let's go
+            }
 
-                    // and its full text search indexes
-                    for (FullTextIndex fti : _fullTextIndexes.values()) {
-                        builder.addFullTextSearch(conn, DepotMarshaller.this, fti);
-                    }
+            // we didn't get the lock, so wait 5 seconds and then check to see if the other process
+            // finished the update or failed in which case we'll try to grab the lock ourselves
+            try {
+                log.info("Waiting for migration lock for " + _pClass.getName() + ".");
+                Thread.sleep(5000);
+            } catch (InterruptedException ie) {
+                throw new PersistenceException("Interrupted while waiting for migration lock.");
+            }
+        }
 
-                    updateVersion(conn, liaison, _schemaVersion);
-                    return 0;
+        try {
+            if (!metaData.tableExists) {
+                // if the table does not exist, create it
+                createTable(ctx, builder, declarations);
+            } else {
+                // if it does exist, run our migrations
+                runMigrations(ctx, metaData, builder, currentVersion);
+            }
+
+            // check for stale columns now that the table is up to date
+            checkForStaleness(metaData, ctx, builder);
+
+            // and update our version in the schema version table
+            ctx.invoke(new SimpleModifier() {
+                protected int invoke (DatabaseLiaison liaison, Statement stmt) throws SQLException {
+                    return stmt.executeUpdate(
+                        "update " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
+                        "   set " + liaison.columnSQL(V_COLUMN) + " = " + _schemaVersion +
+                        " where " + liaison.columnSQL(P_COLUMN) + " = '" + getTableName() + "'");
                 }
             });
 
-            // and we're done
-            return;
-        }
-
-        // if the table exists, see if should attempt automatic schema migration
-        if (_schemaVersion < 0) {
-            // nope, versioning disabled
-            verifySchemasMatch(metaData, ctx, builder);
-            return;
-        }
-
-        // make sure the versions match
-        int currentVersion = ctx.invoke(new Modifier() {
-            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                String query =
-                    " select " + liaison.columnSQL("version") +
-                    "   from " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
-                    "  where " + liaison.columnSQL("persistentClass") +
-                    " = '" + getTableName() + "'";
-                Statement stmt = conn.createStatement();
-                try {
-                    ResultSet rs = stmt.executeQuery(query);
-                    return (rs.next()) ? rs.getInt(1) : 1;
-                } finally {
-                    stmt.close();
+        } finally {
+            // set our migrating version back to zero
+            try {
+                if (ctx.invoke(new UpdateMigratingVersion(0, _schemaVersion)) == 0) {
+                    log.warning("Failed to restore migrating version to zero!", "record", _pClass);
                 }
+            } catch (Exception e) {
+                log.warning("Failure restoring migrating version! Bad bad!", "record", _pClass, e);
+            }
+        }
+    }
+
+    protected void createTable (PersistenceContext ctx, final SQLBuilder builder,
+                                final ColumnDefinition[] declarations)
+        throws PersistenceException
+    {
+        log.info("Creating initial table '" + getTableName() + "'.");
+
+        final String[][] uniqueConCols = new String[_uniqueConstraints.size()][];
+        int kk = 0;
+        for (Set<String> colSet : _uniqueConstraints) {
+            uniqueConCols[kk++] = colSet.toArray(new String[colSet.size()]);
+        }
+        final Iterable<Index> indexen = _indexes.values();
+        ctx.invoke(new Modifier() {
+            @Override
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                // create the table
+                String[] primaryKeyColumns = null;
+                if (_pkColumns != null) {
+                    primaryKeyColumns = new String[_pkColumns.size()];
+                    for (int ii = 0; ii < primaryKeyColumns.length; ii ++) {
+                        primaryKeyColumns[ii] = _pkColumns.get(ii).getColumnName();
+                    }
+                }
+                liaison.createTableIfMissing(
+                    conn, getTableName(), fieldsToColumns(_columnFields),
+                    declarations, uniqueConCols, primaryKeyColumns);
+
+                // add its indexen
+                for (Index idx : indexen) {
+                    liaison.addIndexToTable(
+                        conn, getTableName(), fieldsToColumns(idx.fields()),
+                        getTableName() + "_" + idx.name(), idx.unique());
+                }
+
+                // initialize our value generators
+                for (ValueGenerator vg : _valueGenerators.values()) {
+                    vg.init(conn, liaison);
+                }
+
+                // and its full text search indexes
+                for (FullTextIndex fti : _fullTextIndexes.values()) {
+                    builder.addFullTextSearch(conn, DepotMarshaller.this, fti);
+                }
+
+                return 0;
             }
         });
+    }
 
-        if (currentVersion >= _schemaVersion) {
-            verifySchemasMatch(metaData, ctx, builder);
-            return;
-        }
-
-        // otherwise try to migrate the schema
+    protected void runMigrations (PersistenceContext ctx, TableMetaData metaData,
+                                  final SQLBuilder builder, int currentVersion)
+        throws PersistenceException
+    {
         log.info("Migrating " + getTableName() + " from " + currentVersion + " to " +
                  _schemaVersion + "...");
 
@@ -722,7 +783,8 @@ public class DepotMarshaller<T extends PersistentRecord>
         if (hasPrimaryKey() && metaData.pkName == null) {
             log.info("Adding primary key.");
             ctx.invoke(new Modifier() {
-                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addPrimaryKey(
                         conn, getTableName(), fieldsToColumns(getPrimaryKeyFields()));
                     return 0;
@@ -733,7 +795,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             final String pkName = metaData.pkName;
             log.info("Dropping primary key: " + pkName);
             ctx.invoke(new Modifier() {
-                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.dropPrimaryKey(conn, getTableName(), pkName);
                     return 0;
                 }
@@ -750,7 +813,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
             // but this is a new, named index, so we create it
             ctx.invoke(new Modifier() {
-                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(
                         conn, getTableName(), fieldsToColumns(index.fields()),
                         ixName, index.unique());
@@ -785,7 +849,8 @@ public class DepotMarshaller<T extends PersistentRecord>
             final String[] colArr = colSet.toArray(new String[colSet.size()]);
             final String fName = indexName;
             ctx.invoke(new Modifier() {
-                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     liaison.addIndexToTable(conn, getTableName(), colArr, fName, true);
                     return 0;
                 }
@@ -806,7 +871,8 @@ public class DepotMarshaller<T extends PersistentRecord>
 
             // but not this one, so let's create it
             ctx.invoke(new Modifier() {
-                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     builder.addFullTextSearch(conn, DepotMarshaller.this, recordFts);
                     return 0;
                 }
@@ -832,7 +898,8 @@ public class DepotMarshaller<T extends PersistentRecord>
         // last of all (re-)initialize our value generators, since one might've been added
         if (_valueGenerators.size() > 0) {
             ctx.invoke(new Modifier() {
-                @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                     for (ValueGenerator vg : _valueGenerators.values()) {
                         vg.init(conn, liaison);
                     }
@@ -840,14 +907,6 @@ public class DepotMarshaller<T extends PersistentRecord>
                 }
             });
         }
-
-        // record our new version in the database
-        ctx.invoke(new Modifier() {
-            @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                updateVersion(conn, liaison, _schemaVersion);
-                return 0;
-            }
-        });
     }
 
     // translate an array of field names to an array of column names
@@ -868,8 +927,7 @@ public class DepotMarshaller<T extends PersistentRecord>
     /**
      * Checks that there are no database columns for which we no longer have Java fields.
      */
-    protected void verifySchemasMatch (
-        TableMetaData meta, PersistenceContext ctx, SQLBuilder builder)
+    protected void checkForStaleness (TableMetaData meta, PersistenceContext ctx, SQLBuilder builder)
         throws PersistenceException
     {
         for (String fname : _columnFields) {
@@ -884,24 +942,45 @@ public class DepotMarshaller<T extends PersistentRecord>
         }
     }
 
-    protected void updateVersion (Connection conn, DatabaseLiaison liaison, int version)
-        throws SQLException
-    {
-        String update =
-            "update " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
-            "   set " + liaison.columnSQL("version") + " = " + version +
-            " where " + liaison.columnSQL("persistentClass") + " = '" + getTableName() + "'";
-        Statement stmt = conn.createStatement();
-        try {
-            if (stmt.executeUpdate(update) == 0) {
-                String insert =
-                    "insert into " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
-                    " values('" + getTableName() + "', " + version + ")";
-                stmt.executeUpdate(insert);
+    protected abstract class SimpleModifier extends Modifier {
+        @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            Statement stmt = conn.createStatement();
+            try {
+                return invoke(liaison, stmt);
+            } finally {
+                stmt.close();
             }
-        } finally {
-            stmt.close();
         }
+
+        protected abstract int invoke (DatabaseLiaison liaison, Statement stmt) throws SQLException;
+    }
+
+    // this is a Modifier not a Query because we want to be sure we're talking to the database
+    // server to whom we would talk if we were doing a modification (ie. the master, not a
+    // read-only slave)
+    protected class ReadVersion extends SimpleModifier {
+        protected int invoke (DatabaseLiaison liaison, Statement stmt) throws SQLException {
+            ResultSet rs = stmt.executeQuery(
+                " select " + liaison.columnSQL(V_COLUMN) +
+                "   from " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
+                "  where " + liaison.columnSQL(P_COLUMN) + " = '" + getTableName() + "'");
+            return (rs.next()) ? rs.getInt(1) : -1;
+        }
+    }
+
+    protected class UpdateMigratingVersion extends SimpleModifier {
+        public UpdateMigratingVersion (int newMigratingVersion, int guardVersion) {
+            _newMigratingVersion = newMigratingVersion;
+            _guardVersion = guardVersion;
+        }
+        protected int invoke (DatabaseLiaison liaison, Statement stmt) throws SQLException {
+            return stmt.executeUpdate(
+                "update " + liaison.tableSQL(SCHEMA_VERSION_TABLE) +
+                "   set " + liaison.columnSQL(MV_COLUMN) + " = " + _newMigratingVersion +
+                " where " + liaison.columnSQL(P_COLUMN) + " = '" + getTableName() + "'" +
+                " and " + liaison.columnSQL(MV_COLUMN) + " = " + _guardVersion);
+        }
+        protected int _newMigratingVersion, _guardVersion;
     }
 
     protected static class TableMetaData
@@ -1008,4 +1087,13 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";
+
+    /** The name of the 'persistentClass' column in the {@link #SCHEMA_VERSION_TABLE}. */
+    protected static final String P_COLUMN = "persistentClass";
+
+    /** The name of the 'version' column in the {@link #SCHEMA_VERSION_TABLE}. */
+    protected static final String V_COLUMN = "version";
+
+    /** The name of the 'migratingVersion' column in the {@link #SCHEMA_VERSION_TABLE}. */
+    protected static final String MV_COLUMN = "migratingVersion";
 }

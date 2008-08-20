@@ -65,8 +65,7 @@ public class TransitionRepository extends SimpleRepository
     public void transition (Class<?> clazz, String name, Transition trans)
         throws PersistenceException
     {
-        if (!isTransitionApplied(clazz, name)) {
-            noteTransition(clazz, name);
+        if (!isTransitionApplied(clazz, name) && noteTransition(clazz, name)) {
             try {
                 trans.run();
 
@@ -92,7 +91,7 @@ public class TransitionRepository extends SimpleRepository
     }
 
     /**
-     * Has the specified name transition been applied.
+     * Returns whether the specified name transition been applied.
      */
     public boolean isTransitionApplied (Class<?> clazz, final String name)
         throws PersistenceException

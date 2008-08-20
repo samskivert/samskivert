@@ -27,6 +27,8 @@ import java.util.Set;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.jdbc.depot.DepotRepository;
+import com.samskivert.jdbc.depot.EntityMigration;
+import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 
 /**
@@ -37,8 +39,13 @@ public class TestRepository extends DepotRepository
     public static void main (String[] args)
         throws Exception
     {
-        TestRepository repo = new TestRepository(
-            new StaticConnectionProvider("depot.properties"));
+        PersistenceContext perCtx = new PersistenceContext(
+            "test", new StaticConnectionProvider("depot.properties"));
+
+// tests a bogus rename migration
+//         perCtx.registerMigration(TestRecord.class, new EntityMigration.Rename(1, "foo", "bar"));
+
+        TestRepository repo = new TestRepository(perCtx);
 
         repo.delete(TestRecord.class, 0);
 
@@ -57,9 +64,9 @@ public class TestRepository extends DepotRepository
         System.out.println(repo.load(TestRecord.class, record.recordId));
     }
 
-    public TestRepository (ConnectionProvider conprov)
+    public TestRepository (PersistenceContext perCtx)
     {
-        super(conprov);
+        super(perCtx);
     }
 
     @Override // from DepotRepository

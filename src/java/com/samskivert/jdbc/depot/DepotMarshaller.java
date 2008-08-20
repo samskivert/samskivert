@@ -181,8 +181,9 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         }
 
-        // if we did not find a schema version field, freak out
-        if (_schemaVersion <= 0) {
+        // if we did not find a schema version field, freak out (but not for computed records, for
+        // whom there is no table)
+        if (_tableName != null && _schemaVersion <= 0) {
             throw new IllegalStateException(
                 pClass.getName() + "." + SCHEMA_VERSION_FIELD + " must be greater than zero.");
         }

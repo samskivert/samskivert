@@ -623,7 +623,6 @@ public class DepotMarshaller<T extends PersistentRecord>
             // try to update migratingVersion to the new version to indicate to other processes
             // that we are handling the migration and that they should wait
             if (ctx.invoke(new UpdateMigratingVersion(_schemaVersion, 0)) > 0) {
-                log.info("Got migration lock for " + _pClass.getName() + ".");
                 break; // we got the lock, let's go
             }
 

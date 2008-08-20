@@ -24,10 +24,10 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Set;
 
-import com.samskivert.jdbc.ConnectionProvider;
+// import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.jdbc.depot.DepotRepository;
-import com.samskivert.jdbc.depot.EntityMigration;
+// import com.samskivert.jdbc.depot.EntityMigration;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 

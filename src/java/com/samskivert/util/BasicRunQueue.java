@@ -29,11 +29,19 @@ public class BasicRunQueue extends LoopingThread
     implements RunQueue
 {
     /**
-     * Construct a BasicRunQueue with a default Queue implementation.
+     * Construct a BasicRunQueue with a default Queue implementation and name.
      */
     public BasicRunQueue ()
     {
-        super("RunQueue");
+        this("RunQueue");
+    }
+
+    /**
+     * Construct a BasicRunQueue with a default Queue implementation and the given name.
+     */
+    public BasicRunQueue (String name)
+    {
+        super(name);
         _queue = new Queue<Runnable>();
     }
 

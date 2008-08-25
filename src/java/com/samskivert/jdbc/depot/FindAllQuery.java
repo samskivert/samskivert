@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.util.IntSet;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;

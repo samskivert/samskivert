@@ -30,6 +30,12 @@ import com.samskivert.util.StringUtil;
  */
 public class StringTool
 {
+    public StringTool ()
+    {
+        _percFormat = NumberFormat.getPercentInstance();
+        _percFormat.setMinimumFractionDigits(2);
+    }
+
     /**
      * Returns true if the supplied string is blank, false if not.
      */
@@ -59,7 +65,7 @@ public class StringTool
      */
     public String percent (float value)
     {
-        return StringUtil.format(value * 100.0);
+        return _percFormat.format(value);
     }
 
     /**
@@ -73,8 +79,11 @@ public class StringTool
     /**
      * Converts a float to a reasonably formatted string.
      */
-    public static String format(float value)
+    public static String format (float value)
     {
         return NumberFormat.getInstance().format(value);
     }
+
+    /** For formatting percentages. */
+    protected NumberFormat _percFormat;
 }

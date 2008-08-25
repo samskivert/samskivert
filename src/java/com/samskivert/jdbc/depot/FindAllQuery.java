@@ -274,5 +274,5 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     protected Class<T> _type;
 
     /** The maximum number of keys allowed in an IN() clause. */
-    protected static final int MAX_IN_KEYS = 16738;
+    protected static final int MAX_IN_KEYS = Short.MAX_VALUE;
 }

@@ -175,12 +175,8 @@ public class Config
         String val = _props.getProperty(name);
         if (val != null) {
             try {
-                // handle hex values
-                if (val.startsWith("0x") || val.startsWith("0X")) {
-                    defval = Integer.parseInt(val.substring(2), 16);
-                } else {
-                    defval = Integer.parseInt(val);
-                }
+                // handles base 10, hex values, etc.
+                return Integer.decode(val).intValue();
             } catch (NumberFormatException nfe) {
                 Log.warning("Malformed integer property [name=" + name +
                             ", value=" + val + "].");

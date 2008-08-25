@@ -27,11 +27,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.IntSet;
 
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
@@ -112,53 +114,22 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 JDBCUtil.close(stmt);
             }
 
-            if (fetchKeys.size() > 0) {
-                SQLExpression condition;
-
-                if (_marsh.getPrimaryKeyFields().length == 1) {
-                    // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
-                    Comparable<?>[] keyFieldValues = new Comparable<?>[fetchKeys.size()];
-                    int ii = 0;
-                    for (Key<T> key : fetchKeys) {
-                        keyFieldValues[ii ++] = key.condition.getValues().get(0);
+            // if we're fetching a huge number of records, we have to do it in multiple queries
+            if (fetchKeys.size() > MAX_IN_KEYS) {
+                int keyCount = fetchKeys.size();
+                do {
+                    Set<Key<T>> keys = new HashSet<Key<T>>();
+                    Iterator<Key<T>> iter = fetchKeys.iterator();
+                    for (int ii = 0; ii < Math.min(keyCount, MAX_IN_KEYS); ii++) {
+                        keys.add(iter.next());
+                        iter.remove();
                     }
-                    condition = new In(_type, _marsh.getPrimaryKeyFields()[0], keyFieldValues);
+                    keyCount -= keys.size();
+                    loadRecords(conn, keys, entities);
+                } while (keyCount > 0);
 
-                } else {
-                    // Multi-column keys result in OR'd AND's, of unknown efficiency (TODO check).
-                    SQLExpression[] keyArray = new SQLExpression[fetchKeys.size()];
-                    int ii = 0;
-                    for (Key<T> key : fetchKeys) {
-                        keyArray[ii ++] = key.condition;
-                    }
-                    condition = new Or(keyArray);
-                }
-
-                Where keyWhere = new Where(condition);
-                // finally build the new query
-                _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(), keyWhere));
-                stmt = _builder.prepare(conn);
-
-                // and execute it
-                try {
-                    ResultSet rs = stmt.executeQuery();
-                    int cnt = 0, dups = 0;
-                    while (rs.next()) {
-                        T obj = _marsh.createObject(rs);
-                        if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
-                            dups++;
-                        }
-                        cnt++;
-                    }
-                    if (cnt != fetchKeys.size()) {
-                        log.warning("Row count mismatch in second pass [query=" + stmt +
-                                    ", wanted=" + fetchKeys.size() + ", got=" + cnt +
-                                    ", dups=" + dups + "]");
-                    }
-
-                } finally {
-                    JDBCUtil.close(stmt);
-                }
+            } else if (fetchKeys.size() > 0) {
+                loadRecords(conn, fetchKeys, entities);
             }
 
             List<T> result = new ArrayList<T>();
@@ -169,6 +140,57 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 }
             }
             return result;
+        }
+
+        protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities)
+            throws SQLException
+        {
+            SQLExpression condition;
+
+            if (_marsh.getPrimaryKeyFields().length == 1) {
+                // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
+                Comparable<?>[] keyFieldValues = new Comparable<?>[keys.size()];
+                int ii = 0;
+                for (Key<T> key : keys) {
+                    keyFieldValues[ii ++] = key.condition.getValues().get(0);
+                }
+                condition = new In(_type, _marsh.getPrimaryKeyFields()[0], keyFieldValues);
+
+            } else {
+                // Multi-column keys result in OR'd AND's, of unknown efficiency (TODO check).
+                SQLExpression[] keyArray = new SQLExpression[keys.size()];
+                int ii = 0;
+                for (Key<T> key : keys) {
+                    keyArray[ii ++] = key.condition;
+                }
+                condition = new Or(keyArray);
+            }
+
+            Where keyWhere = new Where(condition);
+            // finally build the new query
+            _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(), keyWhere));
+            PreparedStatement stmt = _builder.prepare(conn);
+
+            // and execute it
+            try {
+                ResultSet rs = stmt.executeQuery();
+                int cnt = 0, dups = 0;
+                while (rs.next()) {
+                    T obj = _marsh.createObject(rs);
+                    if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
+                        dups++;
+                    }
+                    cnt++;
+                }
+                if (cnt != keys.size()) {
+                    log.warning("Row count mismatch in second pass [query=" + stmt +
+                                ", wanted=" + keys.size() + ", got=" + cnt +
+                                ", dups=" + dups + "]");
+                }
+
+            } finally {
+                JDBCUtil.close(stmt);
+            }
         }
 
         protected List<QueryClause> _clauses;
@@ -250,4 +272,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     protected SQLBuilder _builder;
     protected DepotMarshaller<T> _marsh;
     protected Class<T> _type;
+
+    /** The maximum number of keys allowed in an IN() clause. */
+    protected static final int MAX_IN_KEYS = 16738;
 }

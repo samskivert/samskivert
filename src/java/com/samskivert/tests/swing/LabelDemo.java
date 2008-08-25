@@ -1,11 +1,13 @@
 //
 // $Id: LabelDemo.java,v 1.10 2004/02/25 13:22:25 mdb Exp $
 
-package com.samskivert.swing;
+package com.samskivert.swing.tests;
 
 import java.awt.*;
 import java.io.*;
 import javax.swing.*;
+
+import com.samskivert.swing.Label;
 
 public class LabelDemo extends JPanel
 {
@@ -97,8 +99,8 @@ public class LabelDemo extends JPanel
             g2.setColor(Color.white);
             switch (ii) {
             case 0: break;
-            case 1: g2.fillRect(x, y, 110, size.height);
-            case 2: g2.fillRect(x, y, size.width, 30);
+            case 1: g2.fillRect(x, y, 110, size.height); break;
+            case 2: g2.fillRect(x, y, size.width, 30); break;
             case 3: break;
             }
 

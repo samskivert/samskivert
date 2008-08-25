@@ -1,7 +1,7 @@
 //
 // $Id: TestComboButtonBox.java,v 1.1 2002/03/10 05:10:37 mdb Exp $
 
-package com.samskivert.swing;
+package com.samskivert.swing.tests;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,6 +11,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 
+import com.samskivert.swing.ComboButtonBox;
+
 /**
  * Tests the image button box.
  */
@@ -18,8 +20,7 @@ public class TestComboButtonBox
 {
     protected static Image createImage (Color color)
     {
-        BufferedImage img =
-            new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
         Graphics g = img.getGraphics();
         g.setColor(color);
         g.fillRect(0, 0, 24, 24);
@@ -38,8 +39,7 @@ public class TestComboButtonBox
         model.addElement(createImage(Color.red));
         model.addElement(createImage(Color.yellow));
 
-        ComboButtonBox box =
-            new ComboButtonBox(ComboButtonBox.HORIZONTAL, model);
+        ComboButtonBox box = new ComboButtonBox(ComboButtonBox.HORIZONTAL, model);
         frame.getContentPane().add(box);
         frame.pack();
         frame.show();

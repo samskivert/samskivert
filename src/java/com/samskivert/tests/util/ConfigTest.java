@@ -1,13 +1,16 @@
 //
 // $Id: ConfigTest.java,v 1.3 2002/03/28 22:21:06 mdb Exp $
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import java.util.Iterator;
 import java.util.Properties;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.Config;
+import com.samskivert.util.StringUtil;
 
 /**
  * Tests the {@link Config} class.

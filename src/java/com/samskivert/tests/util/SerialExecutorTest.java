@@ -1,10 +1,14 @@
 //
 // $Id$
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.Queue;
+import com.samskivert.util.RunQueue;
+import com.samskivert.util.SerialExecutor;
 
 /**
  * Tests the {@link SerialExecutor} class.
@@ -41,7 +45,7 @@ public class SerialExecutorTest extends TestCase
 
         // process the results posted on our run queue
         for (int ii = 0; ii < added; ii++) {
-            Runnable r = (Runnable)_queue.get();
+            Runnable r = _queue.get();
             r.run();
         }
 
@@ -134,7 +138,7 @@ public class SerialExecutorTest extends TestCase
     }
 
     protected Thread _main;
-    protected Queue _queue = new Queue();
+    protected Queue<Runnable> _queue = new Queue<Runnable>();
 
     protected int _sleeps, _interrupts, _doubleints, _exits;
     protected int _results, _timeouts;

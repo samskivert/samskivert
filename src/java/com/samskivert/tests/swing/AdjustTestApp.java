@@ -1,13 +1,14 @@
 //
 // $Id: AdjustTestApp.java,v 1.2 2003/01/15 03:24:53 mdb Exp $
 
-package com.samskivert.swing;
+package com.samskivert.swing.tests;
 
 import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.Config;
 
 /**
@@ -40,10 +41,8 @@ public class AdjustTestApp
             new String[] { "debug", "info", "warning" }, "info");
 
         JFrame frame = new JFrame();
-        ((JComponent)frame.getContentPane()).setBorder(
-            BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        frame.getContentPane().add(RuntimeAdjust.createAdjustEditor(),
-                                   BorderLayout.CENTER);
+        ((JComponent)frame.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        frame.getContentPane().add(RuntimeAdjust.createAdjustEditor(), BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.show();

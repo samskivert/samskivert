@@ -18,7 +18,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.servlet;
+package com.samskivert.servlet.tests;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +33,9 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 
+import com.samskivert.servlet.Site;
+import com.samskivert.servlet.SiteIdentifier;
+import com.samskivert.servlet.SiteResourceLoader;
 import com.samskivert.test.TestUtil;
 
 public class SiteResourceLoaderTest extends TestCase
@@ -142,7 +145,7 @@ public class SiteResourceLoaderTest extends TestCase
             }
         }
 
-        public Iterator enumerateSites ()
+        public Iterator<Site> enumerateSites ()
         {
             return null; // not used
         }

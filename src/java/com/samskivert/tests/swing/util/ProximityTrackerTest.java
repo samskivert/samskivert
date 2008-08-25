@@ -18,7 +18,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.swing.util;
+package com.samskivert.swing.tests;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -26,6 +26,8 @@ import java.util.Random;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.swing.util.ProximityTracker;
 
 public class ProximityTrackerTest extends TestCase
 {
@@ -38,7 +40,7 @@ public class ProximityTrackerTest extends TestCase
     {
         Random rand = new Random();
         ProximityTracker tracker = new ProximityTracker();
-        ArrayList points = new ArrayList();
+        ArrayList<Point> points = new ArrayList<Point>();
 
         // create 100 random points and add them to the tracker and our
         // comparison list
@@ -64,7 +66,7 @@ public class ProximityTrackerTest extends TestCase
             Point cp = null;
             int mindist = Integer.MAX_VALUE;
             for (int p = 0; p < points.size(); p++) {
-                Point hp = (Point)points.get(p);
+                Point hp = points.get(p);
                 int dist = ProximityTracker.distance(hp.x, hp.y, x, y);
                 if (dist < mindist) {
                     mindist = dist;

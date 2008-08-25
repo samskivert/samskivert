@@ -1,12 +1,14 @@
 //
 // $Id: ArrayUtilTest.java,v 1.2 2002/09/06 02:12:26 shaper Exp $
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 
 import com.samskivert.Log;
+import com.samskivert.util.ArrayUtil;
+import com.samskivert.util.StringUtil;
 
 /**
  * Tests the {@link ArrayUtil} class.

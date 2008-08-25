@@ -1,10 +1,12 @@
 //
 // $Id: ObserverListTest.java,v 1.2 2004/02/25 13:21:08 mdb Exp $
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.ObserverList;
 
 /**
  * Tests the {@link ObserverList} class.
@@ -19,13 +21,13 @@ public class ObserverListTest extends TestCase
     public void runTest ()
     {
 //         Log.info("Testing safe list.");
-        testList(new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY));
+        testList(new ObserverList<TestObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY));
 
 //         Log.info("Testing unsafe list.");
-        testList(new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY));
+        testList(new ObserverList<TestObserver>(ObserverList.FAST_UNSAFE_NOTIFY));
     }
 
-    public void testList (final ObserverList list)
+    public void testList (final ObserverList<TestObserver> list)
     {
         final int[] notifies = new int[1];
 
@@ -39,10 +41,10 @@ public class ObserverListTest extends TestCase
             int ocount = list.size();
             notifies[0] = 0;
 
-            list.apply(new ObserverList.ObserverOp() {
-                public boolean apply (Object obs) {
+            list.apply(new ObserverList.ObserverOp<TestObserver>() {
+                public boolean apply (TestObserver obs) {
                     notifies[0]++;
-                    ((TestObserver)obs).foozle();
+                    obs.foozle();
 
                     // 1/3 of the time, remove the observer; 1/3 of the
                     // time append a new observer; 1/3 of the time do

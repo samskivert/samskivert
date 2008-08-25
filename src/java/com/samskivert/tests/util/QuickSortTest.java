@@ -1,12 +1,14 @@
 //
 // $Id: QuickSortTest.java,v 1.2 2002/04/11 04:07:42 mdb Exp $
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import java.util.Comparator;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.QuickSort;
 
 /**
  * Tests the {@link QuickSort} class.
@@ -22,9 +24,9 @@ public class QuickSortTest extends TestCase
     {
         Integer[] a = new Integer[100];
 
-        Comparator comp = new Comparator() {
-            public int compare (Object x, Object y) {
-                return ((Integer)x).intValue() - ((Integer)y).intValue();
+        Comparator<Integer> comp = new Comparator<Integer>() {
+            public int compare (Integer x, Integer y) {
+                return x.intValue() - y.intValue();
             }
         };
 

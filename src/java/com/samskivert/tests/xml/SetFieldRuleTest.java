@@ -18,7 +18,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.xml;
+package com.samskivert.xml.tests;
 
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -30,6 +30,7 @@ import org.apache.commons.digester.Digester;
 
 import com.samskivert.test.TestUtil;
 import com.samskivert.util.StringUtil;
+import com.samskivert.xml.SetFieldRule;
 
 public class SetFieldRuleTest extends TestCase
 {
@@ -65,16 +66,11 @@ public class SetFieldRuleTest extends TestCase
         digester.push(object);
 
         // set up some rules
-        digester.addRule("object/intField",
-                         new SetFieldRule("intField"));
-        digester.addRule("object/stringField",
-                         new SetFieldRule("stringField"));
-        digester.addRule("object/integerField",
-                         new SetFieldRule("integerField"));
-        digester.addRule("object/intArrayField",
-                         new SetFieldRule("intArrayField"));
-        digester.addRule("object/stringArrayField",
-                         new SetFieldRule("stringArrayField"));
+        digester.addRule("object/intField", new SetFieldRule("intField"));
+        digester.addRule("object/stringField", new SetFieldRule("stringField"));
+        digester.addRule("object/integerField", new SetFieldRule("integerField"));
+        digester.addRule("object/intArrayField", new SetFieldRule("intArrayField"));
+        digester.addRule("object/stringArrayField", new SetFieldRule("stringArrayField"));
 
         try {
             String xmlpath =

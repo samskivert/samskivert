@@ -1,10 +1,12 @@
 //
 // $Id: LRUHashMapTest.java,v 1.1 2003/01/17 00:40:45 mdb Exp $
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.LRUHashMap;
 
 /**
  * Tests the {@link LRUHashMap} class.
@@ -18,9 +20,10 @@ public class LRUHashMapTest extends TestCase
 
     public void runTest ()
     {
-        LRUHashMap map = new LRUHashMap(10, new LRUHashMap.ItemSizer() {
-            public int computeSize (Object item) {
-                return ((Integer)item).intValue();
+        LRUHashMap<String,Integer> map =
+            new LRUHashMap<String,Integer>(10, new LRUHashMap.ItemSizer<Integer>() {
+            public int computeSize (Integer item) {
+                return item.intValue();
             }
         });
 

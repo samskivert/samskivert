@@ -18,10 +18,12 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.StringUtil;
 
 public class StringUtilTest extends TestCase
 {
@@ -45,8 +47,7 @@ public class StringUtilTest extends TestCase
         // make sure null to empty string works
         tokens = new String[] { "this", null, "is", null, "a", null, "test" };
         joined = StringUtil.joinEscaped(tokens);
-        assertTrue("null elements work",
-                   joined.equals("this, , is, , a, , test"));
+        assertTrue("null elements work", joined.equals("this, , is, , a, , test"));
     }
 
     public static Test suite ()

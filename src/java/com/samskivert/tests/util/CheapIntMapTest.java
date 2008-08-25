@@ -1,10 +1,12 @@
 //
 // $Id: CheapIntMapTest.java,v 1.1 2003/02/06 19:57:29 mdb Exp $
 
-package com.samskivert.util;
+package com.samskivert.util.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.CheapIntMap;
 
 /**
  * Tests the {@link CheapIntMap} class.

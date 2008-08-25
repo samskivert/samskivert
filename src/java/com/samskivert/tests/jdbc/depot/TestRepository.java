@@ -1,13 +1,14 @@
 //
 // $Id$
 
-package com.samskivert.jdbc.depot;
+package com.samskivert.jdbc.tests;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
+import com.samskivert.jdbc.depot.DepotRepository;
 
 /**
  * A test tool for the Depot repository services.

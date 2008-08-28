@@ -143,25 +143,23 @@ public class ServiceWaiter<T>
     {
         if (_success == 0) {
             synchronized (this) {
-                while (_success == 0) {
-                    try {
-                        // wait for the response, timing out after a while
-                        if (_timeout == NO_TIMEOUT) {
-                            wait();
+                try {
+                    // wait for the response, timing out after a while
+                    if (_timeout == NO_TIMEOUT) {
+                        wait();
 
-                        } else {
-                            wait(1000L * _timeout);
-                        }
-
-                        // if we get here without some sort of response, then
-                        // we've timed out
-                        if (_success == 0) {
-                            throw new TimeoutException();
-                        }
-
-                    } catch (InterruptedException ie) {
-                        // fall through and wait again
+                    } else {
+                        wait(1000L * _timeout);
                     }
+                    // if we get here without some sort of response, then
+                    // we've timed out
+                    if (_success == 0) {
+                        throw new TimeoutException();
+                    }
+
+                } catch (InterruptedException ie) {
+                    throw (TimeoutException)
+                        new TimeoutException().initCause(ie);
                 }
             }
         }

@@ -179,6 +179,18 @@ public class WeakObserverList<T> extends AbstractList<T>
     }
 
     /**
+     * Removes all garbage-collected observers from the list.
+     */
+    public void prune ()
+    {
+        for (int ii = _wrappedList.size() - 1; ii >= 0; ii--) {
+            if (_wrappedList.get(ii).get() == null) {
+                _wrappedList.remove(ii);
+            }
+        }
+    }
+
+    /**
      * An operation that resolves a reference and applies a wrapped op.
      */
     protected static class DerefOp<T>

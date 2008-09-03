@@ -42,7 +42,7 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
      * class, as dictated by the key and query clauses.  A persistence context is supplied for
      * instantiation of marshallers, which may trigger table creations and schema migrations.
      */
-    public SelectClause (Class<T> pClass, String[] fields, List<QueryClause> clauses)
+    public SelectClause (Class<T> pClass, String[] fields, Collection<? extends QueryClause> clauses)
     {
         _pClass = pClass;
         _fields = fields;

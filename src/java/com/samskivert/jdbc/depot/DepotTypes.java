@@ -55,7 +55,7 @@ public class DepotTypes
      * are interrogated for their class definition sets through {@link SQLExpression#addClasses}.
      */
     public static <T extends PersistentRecord> DepotTypes getDepotTypes (
-        PersistenceContext ctx, Collection<QueryClause> clauses)
+        PersistenceContext ctx, Collection<? extends QueryClause> clauses)
         throws PersistenceException
     {
         Set<Class<? extends PersistentRecord>> classSet =

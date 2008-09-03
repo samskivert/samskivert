@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,7 +123,17 @@ public abstract class DepotRepository
     }
 
     /**
-     * Loads the first persistent object that matches the supplied key.
+     * Loads the first persistent object that matches the supplied query clauses.
+     */
+    protected <T extends PersistentRecord> T load (
+        Class<T> type, Collection<? extends QueryClause> clauses)
+        throws PersistenceException
+    {
+        return load(type, clauses.toArray(new QueryClause[clauses.size()]));
+    }
+
+    /**
+     * Loads the first persistent object that matches the supplied query clauses.
      */
     protected <T extends PersistentRecord> T load (Class<T> type, QueryClause... clauses)
         throws PersistenceException
@@ -142,7 +153,8 @@ public abstract class DepotRepository
      * complexity is an inherent drawback, and it does execute two separate database queries
      * for what the simple method does in one.
      */
-    protected <T extends PersistentRecord> List<T> findAll (Class<T> type, List<QueryClause> clauses)
+    protected <T extends PersistentRecord> List<T> findAll (
+        Class<T> type, Collection<? extends QueryClause> clauses)
         throws PersistenceException
     {
         DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
@@ -160,7 +172,7 @@ public abstract class DepotRepository
     }
 
     /**
-     * A varargs version of {@link #findAll(Class<T>,List<QueryClause>)}.
+     * A varargs version of {@link #findAll(Class<T>,Collection<QueryClause>)}.
      */
     protected <T extends PersistentRecord> List<T> findAll (Class<T> type, QueryClause... clauses)
         throws PersistenceException

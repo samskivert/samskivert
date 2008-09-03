@@ -2,8 +2,8 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2001-2007 Michael Bayne
-//
+// Copyright (C) 2001-2008 Michael Bayne
+// 
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -18,18 +18,36 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.samskivert.jdbc;
-
-import com.samskivert.io.PersistenceException;
+package com.samskivert.jdbc.depot;
 
 /**
- * Thrown when an insert or update results in a duplicate key on a column that
- * has a uniqueness constraint.
+ * Represents a failure reported by the underlying database.
  */
-public class DuplicateKeyException extends PersistenceException
+public class DatabaseException extends RuntimeException
 {
-    public DuplicateKeyException (String message)
+    /**
+     * Constructs a database exception with the specified error message.
+     */
+    public DatabaseException (String message)
     {
         super(message);
+    }
+
+    /**
+     * Constructs a database exception with the specified error message and the chained causing
+     * event.
+     */
+    public DatabaseException (String message, Throwable cause)
+    {
+        super(message);
+        initCause(cause);
+    }
+
+    /**
+     * Constructs a database exception with the specified chained causing event.
+     */
+    public DatabaseException (Throwable cause)
+    {
+        initCause(cause);
     }
 }

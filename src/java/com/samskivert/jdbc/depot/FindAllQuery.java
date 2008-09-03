@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.io.PersistenceException;
-
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 
@@ -63,7 +61,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     {
         public WithCache (PersistenceContext ctx, Class<T> type,
                           Collection<? extends QueryClause> clauses)
-            throws PersistenceException
+            throws DatabaseException
         {
             super(ctx, type);
 
@@ -84,7 +82,8 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             _clauses = clauses;
         }
 
-        public List<T> invoke (Connection conn, DatabaseLiaison liaison) throws SQLException
+        public List<T> invoke (Connection conn, DatabaseLiaison liaison)
+            throws SQLException
         {
             Map<Key<T>, T> entities = new HashMap<Key<T>, T>();
             List<Key<T>> allKeys = new ArrayList<Key<T>>();
@@ -205,7 +204,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     {
         public Explicitly (PersistenceContext ctx, Class<T> type,
                            Collection<? extends QueryClause> clauses)
-            throws PersistenceException
+            throws DatabaseException
         {
             super(ctx, type);
             SelectClause<T> select = new SelectClause<T>(type, _marsh.getFieldNames(), clauses);
@@ -213,7 +212,8 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             _builder.newQuery(select);
         }
 
-        public List<T> invoke (Connection conn, DatabaseLiaison liaison) throws SQLException
+        public List<T> invoke (Connection conn, DatabaseLiaison liaison)
+            throws SQLException
         {
             List<T> result = new ArrayList<T>();
             PreparedStatement stmt = _builder.prepare(conn);
@@ -230,7 +230,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     }
 
     public FindAllQuery (PersistenceContext ctx, Class<T> type)
-        throws PersistenceException
+        throws DatabaseException
     {
         _ctx = ctx;
         _type = type;

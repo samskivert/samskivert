@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.util.ArrayUtil;
 
 import com.samskivert.jdbc.ConnectionProvider;
@@ -81,7 +80,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> T load (Class<T> type, Comparable<?> primaryKey,
                                                    QueryClause... clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         clauses = ArrayUtil.append(clauses, _ctx.getMarshaller(type).makePrimaryKey(primaryKey));
         return load(type, clauses);
@@ -92,7 +91,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> T load (Class<T> type, String ix, Comparable<?> val,
                                                    QueryClause... clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         clauses = ArrayUtil.append(clauses, new Key<T>(type, ix, val));
         return load(type, clauses);
@@ -104,7 +103,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> T load (Class<T> type, String ix1, Comparable<?> val1,
                                                    String ix2, Comparable<?> val2,
                                                    QueryClause... clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         clauses = ArrayUtil.append(clauses, new Key<T>(type, ix1, val1, ix2, val2));
         return load(type, clauses);
@@ -116,7 +115,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> T load (Class<T> type, String ix1, Comparable<?> val1,
                                                    String ix2, Comparable<?> val2, String ix3,
                                                    Comparable<?> val3, QueryClause... clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         clauses = ArrayUtil.append(clauses, new Key<T>(type, ix1, val1, ix2, val2, ix3, val3));
         return load(type, clauses);
@@ -127,7 +126,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> T load (
         Class<T> type, Collection<? extends QueryClause> clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         return load(type, clauses.toArray(new QueryClause[clauses.size()]));
     }
@@ -136,7 +135,7 @@ public abstract class DepotRepository
      * Loads the first persistent object that matches the supplied query clauses.
      */
     protected <T extends PersistentRecord> T load (Class<T> type, QueryClause... clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         return _ctx.invoke(new FindOneQuery<T>(_ctx, type, clauses));
     }
@@ -155,7 +154,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> List<T> findAll (
         Class<T> type, Collection<? extends QueryClause> clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
         boolean useExplicit =
@@ -175,7 +174,7 @@ public abstract class DepotRepository
      * A varargs version of {@link #findAll(Class<T>,Collection<QueryClause>)}.
      */
     protected <T extends PersistentRecord> List<T> findAll (Class<T> type, QueryClause... clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         return findAll(type, Arrays.asList(clauses));
     }
@@ -187,7 +186,7 @@ public abstract class DepotRepository
      * @return the number of rows modified by this action, this should always be one.
      */
     protected <T extends PersistentRecord> int insert (T record)
-        throws PersistenceException
+        throws DatabaseException
     {
         @SuppressWarnings("unchecked") final Class<T> pClass = (Class<T>) record.getClass();
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(pClass);
@@ -238,7 +237,7 @@ public abstract class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T extends PersistentRecord> int update (T record)
-        throws PersistenceException
+        throws DatabaseException
     {
         @SuppressWarnings("unchecked") Class<T> pClass = (Class<T>) record.getClass();
         requireNotComputed(pClass, "update");
@@ -275,7 +274,7 @@ public abstract class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T extends PersistentRecord> int update (T record, final String... modifiedFields)
-        throws PersistenceException
+        throws DatabaseException
     {
         @SuppressWarnings("unchecked")
         Class<T> pClass = (Class<T>) record.getClass();
@@ -322,7 +321,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int updatePartial (
         Class<T> type, Comparable<?> primaryKey, Map<String,Object> updates)
-        throws PersistenceException
+        throws DatabaseException
     {
         Object[] fieldsValues = new Object[updates.size()*2];
         int idx = 0;
@@ -345,7 +344,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int updatePartial (
         Class<T> type, Comparable<?> primaryKey, Object... fieldsValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         return updatePartial(_ctx.getMarshaller(type).makePrimaryKey(primaryKey), fieldsValues);
     }
@@ -364,7 +363,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int updatePartial (
         Class<T> type, String ix1, Comparable<?> val1, String ix2, Comparable<?> val2,
         Object... fieldsValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         return updatePartial(new Key<T>(type, ix1, val1, ix2, val2), fieldsValues);
     }
@@ -383,7 +382,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int updatePartial (
         Class<T> type, String ix1, Comparable<?> val1, String ix2, Comparable<?> val2,
         String ix3, Comparable<?> val3, Object... fieldsValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         return updatePartial(new Key<T>(type, ix1, val1, ix2, val2, ix3, val3), fieldsValues);
     }
@@ -398,7 +397,7 @@ public abstract class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T extends PersistentRecord> int updatePartial (Key<T> key, Object... fieldsValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         return updatePartial(key.condition.getPersistentClass(), key, key, fieldsValues);
     }
@@ -420,7 +419,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int updatePartial (
         Class<T> type, final WhereClause key, CacheInvalidator invalidator, Object... fieldsValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         if (invalidator instanceof ValidatingCacheInvalidator) {
             ((ValidatingCacheInvalidator)invalidator).validateFlushType(type); // sanity check
@@ -470,7 +469,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, Comparable<?> primaryKey, Map<String, SQLExpression> fieldsToValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         Key<T> key = _ctx.getMarshaller(type).makePrimaryKey(primaryKey);
         return updateLiteral(type, key, key, fieldsToValues);
@@ -496,7 +495,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, String ix1, Comparable<?> val1, String ix2, Comparable<?> val2,
         Map<String, SQLExpression> fieldsToValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         Key<T> key = new Key<T>(type, ix1, val1, ix2, val2);
         return updateLiteral(type, key, key, fieldsToValues);
@@ -522,7 +521,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, String ix1, Comparable<?> val1, String ix2, Comparable<?> val2,
         String ix3, Comparable<?> val3, Map<String, SQLExpression> fieldsToValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         Key<T> key = new Key<T>(type, ix1, val1, ix2, val2, ix3, val3);
         return updateLiteral(type, key, key, fieldsToValues);
@@ -548,7 +547,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, final WhereClause key, CacheInvalidator invalidator,
         Map<String, SQLExpression> fieldsToValues)
-        throws PersistenceException
+        throws DatabaseException
     {
         requireNotComputed(type, "updateLiteral");
 
@@ -592,7 +591,7 @@ public abstract class DepotRepository
      * @return true if the record was created, false if it was updated.
      */
     protected <T extends PersistentRecord> boolean store (T record)
-        throws PersistenceException
+        throws DatabaseException
     {
         @SuppressWarnings("unchecked") final Class<T> pClass = (Class<T>) record.getClass();
         requireNotComputed(pClass, "store");
@@ -665,7 +664,7 @@ public abstract class DepotRepository
      * @return the number of rows deleted by this action.
      */
     protected <T extends PersistentRecord> int delete (T record)
-        throws PersistenceException
+        throws DatabaseException
     {
         @SuppressWarnings("unchecked") Class<T> type = (Class<T>)record.getClass();
         Key<T> primaryKey = _ctx.getMarshaller(type).getPrimaryKey(record);
@@ -683,7 +682,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int delete (
         Class<T> type, Comparable<?> primaryKeyValue)
-        throws PersistenceException
+        throws DatabaseException
     {
         return delete(type, _ctx.getMarshaller(type).makePrimaryKey(primaryKeyValue));
     }
@@ -695,7 +694,7 @@ public abstract class DepotRepository
      * @return the number of rows deleted by this action.
      */
     protected <T extends PersistentRecord> int delete (Class<T> type, Key<T> primaryKey)
-        throws PersistenceException
+        throws DatabaseException
     {
         return deleteAll(type, primaryKey, primaryKey);
     }
@@ -707,7 +706,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int deleteAll (
         Class<T> type, final WhereClause key, CacheInvalidator invalidator)
-        throws PersistenceException
+        throws DatabaseException
     {
         if (invalidator instanceof ValidatingCacheInvalidator) {
             ((ValidatingCacheInvalidator)invalidator).validateFlushType(type); // sanity check
@@ -733,14 +732,14 @@ public abstract class DepotRepository
 
     // make sure the given type corresponds to a concrete class
     protected void requireNotComputed (Class<? extends PersistentRecord> type, String action)
-        throws PersistenceException
+        throws DatabaseException
     {
         DepotMarshaller<?> marsh = _ctx.getMarshaller(type);
         if (marsh == null) {
-            throw new PersistenceException("Unknown persistent type [class=" + type + "]");
+            throw new DatabaseException("Unknown persistent type [class=" + type + "]");
         }
         if (marsh.getTableName() == null) {
-            throw new PersistenceException(
+            throw new DatabaseException(
                 "Can't " + action + " computed entities [class=" + type + "]");
         }
     }

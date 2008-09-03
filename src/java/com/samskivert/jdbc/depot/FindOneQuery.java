@@ -25,8 +25,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.samskivert.io.PersistenceException;
-
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.QueryClause;
@@ -39,7 +37,7 @@ public class FindOneQuery<T extends PersistentRecord>
     implements Query<T>
 {
     public FindOneQuery (PersistenceContext ctx, Class<T> type, QueryClause[] clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         _marsh = ctx.getMarshaller(type);
         _select = new SelectClause<T>(type, _marsh.getFieldNames(), clauses);

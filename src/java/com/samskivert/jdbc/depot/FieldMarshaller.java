@@ -33,7 +33,6 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.Computed;
@@ -116,7 +115,7 @@ public abstract class FieldMarshaller<T>
      * definition according to the appropriate database dialect.
      */
     public void init (SQLBuilder builder)
-        throws PersistenceException
+        throws DatabaseException
     {
         _columnDefinition = builder.buildColumnDefinition(this);
     }

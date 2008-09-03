@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.annotation.Entity;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
@@ -525,7 +524,7 @@ public class DepotMarshaller<T extends PersistentRecord>
      * database schema, it will be migrated.
      */
     protected void init (PersistenceContext ctx)
-        throws PersistenceException
+        throws DatabaseException
     {
         if (_initialized) { // sanity check
             throw new IllegalStateException(
@@ -632,7 +631,7 @@ public class DepotMarshaller<T extends PersistentRecord>
                 log.info("Waiting for migration lock for " + _pClass.getName() + ".");
                 Thread.sleep(5000);
             } catch (InterruptedException ie) {
-                throw new PersistenceException("Interrupted while waiting for migration lock.");
+                throw new DatabaseException("Interrupted while waiting for migration lock.");
             }
         }
 
@@ -672,7 +671,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     protected void createTable (PersistenceContext ctx, final SQLBuilder builder,
                                 final ColumnDefinition[] declarations)
-        throws PersistenceException
+        throws DatabaseException
     {
         log.info("Creating initial table '" + getTableName() + "'.");
 
@@ -721,7 +720,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     protected void runMigrations (PersistenceContext ctx, TableMetaData metaData,
                                   final SQLBuilder builder, int currentVersion)
-        throws PersistenceException
+        throws DatabaseException
     {
         log.info("Migrating " + getTableName() + " from " + currentVersion + " to " +
                  _schemaVersion + "...");
@@ -928,7 +927,7 @@ public class DepotMarshaller<T extends PersistentRecord>
      * Checks that there are no database columns for which we no longer have Java fields.
      */
     protected void checkForStaleness (TableMetaData meta, PersistenceContext ctx, SQLBuilder builder)
-        throws PersistenceException
+        throws DatabaseException
     {
         for (String fname : _columnFields) {
             FieldMarshaller<?> fmarsh = _fields.get(fname);
@@ -992,7 +991,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         public Set<String> pkColumns = new HashSet<String>();
 
         public static TableMetaData load (PersistenceContext ctx, final String tableName)
-            throws PersistenceException
+            throws DatabaseException
         {
             return ctx.invoke(new Query.TrivialQuery<TableMetaData>() {
                 @Override public TableMetaData invoke (Connection conn, DatabaseLiaison dl)

@@ -34,7 +34,6 @@ import com.samskivert.util.StringUtil;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.DatabaseLiaison;
-import com.samskivert.jdbc.DuplicateKeyException;
 import com.samskivert.jdbc.LiaisonRegistry;
 import com.samskivert.jdbc.MySQLLiaison;
 import com.samskivert.jdbc.PostgreSQLLiaison;
@@ -219,7 +218,7 @@ public class PersistenceContext
      * it if necessary.
      */
     public <T extends PersistentRecord> DepotMarshaller<T> getMarshaller (Class<T> type)
-        throws PersistenceException
+        throws DatabaseException
     {
         DepotMarshaller<T> marshaller = getRawMarshaller(type);
         try {
@@ -231,8 +230,8 @@ public class PersistenceContext
                     log.warning("Record initialized lazily [type=" + type.getName() + "].");
                 }
             }
-        } catch (PersistenceException pe) {
-            throw (PersistenceException)new PersistenceException(
+        } catch (DatabaseException pe) {
+            throw (DatabaseException)new DatabaseException(
                 "Failed to initialize marshaller [type=" + type + "].").initCause(pe);
         }
         return marshaller;
@@ -242,7 +241,7 @@ public class PersistenceContext
      * Invokes a non-modifying query and returns its result.
      */
     public <T> T invoke (Query<T> query)
-        throws PersistenceException
+        throws DatabaseException
     {
         CacheKey key = query.getCacheKey();
         // if there is a cache key, check the cache
@@ -270,7 +269,7 @@ public class PersistenceContext
      * Invokes a modifying query and returns the number of rows modified.
      */
     public int invoke (Modifier modifier)
-        throws PersistenceException
+        throws DatabaseException
     {
         modifier.cacheInvalidation(this);
         int rows = (Integer) invoke(null, modifier, true);
@@ -456,7 +455,7 @@ public class PersistenceContext
      * to ensure that those records are properly registered prior to this call.
      */
     public void initializeManagedRecords (boolean warnOnLazyInit)
-        throws PersistenceException
+        throws DatabaseException
     {
         for (Class<? extends PersistentRecord> rclass : _managedRecords) {
             getMarshaller(rclass);
@@ -495,10 +494,16 @@ public class PersistenceContext
      */
     protected <T> Object invoke (
         Query<T> query, Modifier modifier, boolean retryOnTransientFailure)
-        throws PersistenceException
+        throws DatabaseException
     {
         boolean isReadOnlyQuery = (query != null);
-        Connection conn = _conprov.getConnection(_ident, isReadOnlyQuery);
+        Connection conn;
+        try {
+            conn = _conprov.getConnection(_ident, isReadOnlyQuery);
+        } catch (PersistenceException pe) {
+            throw new DatabaseException(pe.getMessage(), pe.getCause());
+        }
+
         // TEMP: we synchronize on the connection to cooperate with SimpleRepository when used in
         // conjunction with a StaticConnectionProvider; at some point we'll switch to standard JDBC
         // connection pooling which will block in getConnection() instead of returning a connection
@@ -538,7 +543,7 @@ public class PersistenceContext
                 } else {
                     String msg = isReadOnlyQuery ?
                         "Query failure " + query : "Modifier failure " + modifier;
-                    throw new PersistenceException(msg, sqe);
+                    throw new DatabaseException(msg, sqe);
                 }
 
             } finally {

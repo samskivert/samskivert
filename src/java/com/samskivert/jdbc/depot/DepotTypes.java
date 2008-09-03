@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 
@@ -40,9 +39,9 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
  * constructed.
  *
  * The main motivation for breaking this functionality out into its own class is to encapsulate the
- * operation that throws {@link PersistenceException} as separate from the operations that throw
+ * operation that throws {@link DatabaseException} as separate from the operations that throw
  * {@link SQLException}. Once this class has been constructed, it may be used to create {@link
- * SQLBuilder} instances without any {@link PersistenceException} worries.
+ * SQLBuilder} instances without any {@link DatabaseException} worries.
  */
 public class DepotTypes
 {
@@ -56,7 +55,7 @@ public class DepotTypes
      */
     public static <T extends PersistentRecord> DepotTypes getDepotTypes (
         PersistenceContext ctx, Collection<? extends QueryClause> clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         Set<Class<? extends PersistentRecord>> classSet =
             new HashSet<Class<? extends PersistentRecord>>();
@@ -73,7 +72,7 @@ public class DepotTypes
      */
     public static <T extends PersistentRecord> DepotTypes getDepotTypes (
         PersistenceContext ctx, QueryClause... clauses)
-        throws PersistenceException
+        throws DatabaseException
     {
         return getDepotTypes(ctx, Arrays.asList(clauses));
     }
@@ -83,7 +82,7 @@ public class DepotTypes
      * persistent record classes.
      */
     public DepotTypes (PersistenceContext ctx, Collection<Class<? extends PersistentRecord>> others)
-        throws PersistenceException
+        throws DatabaseException
     {
         for (Class<? extends PersistentRecord> c : others) {
             addClass(ctx, c);
@@ -95,7 +94,7 @@ public class DepotTypes
      * persistent record.
      */
     public DepotTypes (PersistenceContext ctx, Class<? extends PersistentRecord> pClass)
-        throws PersistenceException
+        throws DatabaseException
     {
         addClass(ctx, pClass);
     }
@@ -165,7 +164,7 @@ public class DepotTypes
      * Register a new persistent class with this object.
      */
     public void addClass (PersistenceContext ctx, Class <? extends PersistentRecord> type)
-        throws PersistenceException
+        throws DatabaseException
     {
         if (_classMap.containsKey(type)) {
             return;

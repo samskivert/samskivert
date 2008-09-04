@@ -10,11 +10,12 @@
   <property name="copyright.holder" value="Michael Bayne"/>
 
   <!-- things you probably don't want to change -->
-  <property name="src.dir"       value="src/java"/>
-  <property name="deploy.dir"    value="dist"/>
-  <property name="javadoc.dir"   value="${deploy.dir}/docs"/>
-  <property name="savedoc.dir"   value="docs"/>
-  <property name="libs.dir"      value="lib"/>
+  <property name="src.dir"     value="src/java"/>
+  <property name="deploy.dir"  value="dist"/>
+  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+  <property name="savedoc.dir" value="docs"/>
+  <property name="libs.dir"    value="lib"/>
+  <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
 
   <!-- declare our classpath business -->
   <path id="classpath">
@@ -46,6 +47,7 @@
   <target name="clean">
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
+    <delete dir="${gwtjar.dir}"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
   </target>
 
@@ -155,6 +157,12 @@
     <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${deploy.dir}/classes">
       <exclude name="**/tests/**"/>
     </jar>
+    <!-- we export a small selection of classes for use by GWT -->
+    <copy todir="${gwtjar.dir}">
+      <fileset dir="src/java" includes="com/samskivert/text/MessageUtil.java"/>
+    </copy>
+    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
+    <delete dir="${gwtjar.dir}"/>
   </target>
 
   <!-- converts our 1.5 code to a 1.4 compatible format -->

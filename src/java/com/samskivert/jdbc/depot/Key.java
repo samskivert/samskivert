@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.samskivert.jdbc.depot.annotation.Id;
@@ -123,7 +124,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     /**
      * Returns the values bound to this key.
      */
-    public ArrayList<Comparable<?>> getValues ()
+    public List<Comparable<?>> getValues ()
     {
         return _values;
     }
@@ -219,5 +220,5 @@ public class Key<T extends PersistentRecord> extends WhereClause
     protected final Class<T> _pClass;
 
     /** The expression that identifies our row. */
-    protected final ArrayList<Comparable<?>> _values;
+    protected final ArrayList<Comparable<?>> _values; // must declare as ArrayList for Serializable
 }

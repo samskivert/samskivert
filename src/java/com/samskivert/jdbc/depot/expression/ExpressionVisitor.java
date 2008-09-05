@@ -52,8 +52,6 @@ import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
 public interface ExpressionVisitor
 {
     public void visit (FieldDefinition fieldOverride);
-    public void visit (Key<? extends PersistentRecord> key);
-    public void visit (MultiKey<? extends PersistentRecord> key);
     public void visit (FunctionExp functionExp);
     public void visit (EpochSeconds epochSeconds);
     public void visit (FromOverride fromOverride);
@@ -67,11 +65,13 @@ public interface ExpressionVisitor
     public void visit (GroupBy groupBy);
     public void visit (ForUpdate forUpdate);
     public void visit (OrderBy orderBy);
-    public void visit (WhereClause where);
     public void visit (Join join);
     public void visit (Limit limit);
     public void visit (LiteralExp literalExp);
     public void visit (ValueExp valueExp);
+    public void visit (WhereClause where);
+    public void visit (Key<? extends PersistentRecord> key);
+    public void visit (MultiKey<? extends PersistentRecord> key);
     public void visit (Exists<? extends PersistentRecord> exists);
     public void visit (SelectClause<? extends PersistentRecord> selectClause);
     public void visit (UpdateClause<? extends PersistentRecord> updateClause);

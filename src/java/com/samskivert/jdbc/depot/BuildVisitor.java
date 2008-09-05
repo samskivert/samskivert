@@ -90,6 +90,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
     }
 
+    public void visit (WhereClause where)
+    {
+        _builder.append(" where ");
+        where.getWhereExpression().accept(this);
+    }
+
     public void visit (Key<? extends PersistentRecord> key)
     {
         _builder.append(" where ");
@@ -108,12 +114,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
             _enableOverrides = saved;
             _builder.append(values.get(ii) == null ? " is null " : " = ? ");
         }
-    }
-
-    public void visit (WhereClause where)
-    {
-        _builder.append(" where ");
-        where.getWhereExpression().accept(this);
     }
 
     public void visit (MultiKey<? extends PersistentRecord> key)

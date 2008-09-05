@@ -185,39 +185,72 @@ public abstract class DepotRepository
 
     /**
      * Looks up and returns {@link Key} records for all rows that match the supplied query clauses.
+     *
+     * @param forUpdate if true, the query will be run using a read-write connection to ensure that
+     * it talks to the master database, if false, the query will be run on a read-only connection
+     * and may load keys from a slave. For performance reasons, you should always pass false unless
+     * you know you will be modifying the database as a result of this query and absolutely need
+     * the latest data.
      */
     protected <T extends PersistentRecord> List<Key<T>> findAllKeys (
-        Class<T> type, QueryClause... clause)
+        Class<T> type, boolean forUpdate, QueryClause... clause)
     {
-        return findAllKeys(type, Arrays.asList(clause));
+        return findAllKeys(type, forUpdate, Arrays.asList(clause));
     }
 
     /**
      * Looks up and returns {@link Key} records for all rows that match the supplied query clauses.
+     *
+     * @param forUpdate if true, the query will be run using a read-write connection to ensure that
+     * it talks to the master database, if false, the query will be run on a read-only connection
+     * and may load keys from a slave. For performance reasons, you should always pass false unless
+     * you know you will be modifying the database as a result of this query and absolutely need
+     * the latest data.
      */
     protected <T extends PersistentRecord> List<Key<T>> findAllKeys (
-        Class<T> type, Collection<? extends QueryClause> clauses)
+        Class<T> type, boolean forUpdate, Collection<? extends QueryClause> clauses)
     {
-        // first look up the primary keys for all the rows that match our where clause
+        final List<Key<T>> keys = new ArrayList<Key<T>>();
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
         final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, clauses));
         builder.newQuery(new SelectClause<T>(type, marsh.getPrimaryKeyFields(), clauses));
-        return _ctx.invoke(new Query.Trivial<List<Key<T>>>() {
-            @Override public List<Key<T>> invoke (Connection conn, DatabaseLiaison liaison)
-                throws SQLException {
-                List<Key<T>> keys = new ArrayList<Key<T>>();
-                PreparedStatement stmt = builder.prepare(conn);
-                try {
-                    ResultSet rs = stmt.executeQuery();
-                    while (rs.next()) {
-                        keys.add(marsh.makePrimaryKey(rs));
+
+        if (forUpdate) {
+            _ctx.invoke(new Modifier(null) {
+                @Override
+                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    PreparedStatement stmt = builder.prepare(conn);
+                    try {
+                        ResultSet rs = stmt.executeQuery();
+                        while (rs.next()) {
+                            keys.add(marsh.makePrimaryKey(rs));
+                        }
+                        return 0;
+                    } finally {
+                        JDBCUtil.close(stmt);
                     }
-                    return keys;
-                } finally {
-                    JDBCUtil.close(stmt);
                 }
-            }
-        });
+            });
+
+        } else {
+            _ctx.invoke(new Query.Trivial<Void>() {
+                @Override
+                public Void invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                    PreparedStatement stmt = builder.prepare(conn);
+                    try {
+                        ResultSet rs = stmt.executeQuery();
+                        while (rs.next()) {
+                            keys.add(marsh.makePrimaryKey(rs));
+                        }
+                        return null;
+                    } finally {
+                        JDBCUtil.close(stmt);
+                    }
+                }
+            });
+        }
+
+        return keys;
     }
 
     /**
@@ -749,7 +782,7 @@ public abstract class DepotRepository
         throws DatabaseException
     {
         // look up the primary keys for all rows matching our where clause and delete using those
-        KeySet<T> pwhere = new KeySet<T>(type, findAllKeys(type, where));
+        KeySet<T> pwhere = new KeySet<T>(type, findAllKeys(type, true, where));
         return deleteAll(type, pwhere, pwhere);
     }
 

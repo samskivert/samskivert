@@ -132,7 +132,7 @@ public class PrimaryKeySet<T extends PersistentRecord> extends WhereClause
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        return _condition.equals(((Key<?>) obj)._condition);
+        return _condition.equals(((PrimaryKeySet<?>) obj)._condition);
     }
 
     @Override

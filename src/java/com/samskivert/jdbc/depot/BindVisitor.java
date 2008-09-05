@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.jdbc.depot.Key.WhereCondition;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.clause.FieldDefinition;
 import com.samskivert.jdbc.depot.clause.ForUpdate;
@@ -73,9 +72,9 @@ public class BindVisitor implements ExpressionVisitor
         // nothing needed
     }
 
-    public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
+    public void visit (Key<? extends PersistentRecord> key)
     {
-        for (Comparable<?> value : whereCondition.getValues()) {
+        for (Comparable<?> value : key.getValues()) {
             if (value != null) {
                 writeValueToStatement(value);
             }

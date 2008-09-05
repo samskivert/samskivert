@@ -52,7 +52,7 @@ import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
 public interface ExpressionVisitor
 {
     public void visit (FieldDefinition fieldOverride);
-    public void visit (Key.WhereCondition<? extends PersistentRecord> whereCondition);
+    public void visit (Key<? extends PersistentRecord> key);
     public void visit (MultiKey<? extends PersistentRecord> key);
     public void visit (FunctionExp functionExp);
     public void visit (EpochSeconds epochSeconds);

@@ -42,58 +42,6 @@ import com.samskivert.util.StringUtil;
 public class Key<T extends PersistentRecord> extends WhereClause
     implements SQLExpression, CacheKey, ValidatingCacheInvalidator, Serializable
 {
-    /** An expression that contains our key columns and values. */
-    public static class WhereCondition<U extends PersistentRecord>
-        implements SQLExpression, Serializable
-    {
-        public WhereCondition (Class<U> pClass, ArrayList<Comparable<?>> values)
-        {
-            _pClass = pClass;
-            _values = values;
-        }
-
-        // from SQLExpression
-        public void accept (ExpressionVisitor builder)
-        {
-            builder.visit(this);
-        }
-
-        // from SQLExpression
-        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
-        {
-        }
-
-        public Class<U> getPersistentClass ()
-        {
-            return _pClass;
-        }
-
-        public ArrayList<Comparable<?>> getValues ()
-        {
-            return _values;
-        }
-
-        @Override public boolean equals (Object obj)
-        {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-            WhereCondition<?> other = (WhereCondition<?>) obj;
-            return _pClass == other._pClass && _values.equals(other.getValues());
-        }
-
-        @Override public int hashCode ()
-        {
-            return _pClass.hashCode() ^ _values.hashCode();
-        }
-
-        protected Class<U> _pClass;
-        protected ArrayList<Comparable<?>> _values; // List is not Serializable
-    }
-
     /**
      * Constructs a new single-column {@code Key} with the given value.
      */
@@ -129,6 +77,9 @@ public class Key<T extends PersistentRecord> extends WhereClause
             throw new IllegalArgumentException("Field and Value arrays must be of equal length.");
         }
 
+        // keep this for posterity
+        _pClass = pClass;
+
         // build a local map of field name -> field value
         Map<String, Comparable<?>> map = new HashMap<String, Comparable<?>>();
         for (int i = 0; i < fields.length; i ++) {
@@ -139,7 +90,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
         String[] keyFields = KeyUtil.getKeyFields(pClass);
 
         // now extract the values in field order and ensure none are extra or missing
-        ArrayList<Comparable<?>> newValues = new ArrayList<Comparable<?>>();
+        _values = new ArrayList<Comparable<?>>();
         for (int ii = 0; ii < keyFields.length; ii++) {
             Comparable<?> nugget = map.remove(keyFields[ii]);
             if (nugget == null) {
@@ -147,7 +98,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
                 throw new IllegalArgumentException("Missing value for key field: " + keyFields[ii]);
             }
             if (nugget instanceof Serializable) {
-                newValues.add(nugget);
+                _values.add(nugget);
                 continue;
             }
             throw new IllegalArgumentException(
@@ -159,8 +110,6 @@ public class Key<T extends PersistentRecord> extends WhereClause
             throw new IllegalArgumentException(
                 "Non-key columns given: " +  StringUtil.join(map.keySet().toArray(), ", "));
         }
-
-        _condition = new WhereCondition<T>(pClass, newValues);
     }
 
     /**
@@ -168,7 +117,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
      */
     public Class<T> getPersistentClass ()
     {
-        return _condition.getPersistentClass();
+        return _pClass;
     }
 
     /**
@@ -176,19 +125,19 @@ public class Key<T extends PersistentRecord> extends WhereClause
      */
     public ArrayList<Comparable<?>> getValues ()
     {
-        return _condition.getValues();
+        return _values;
     }
 
     // from WhereClause
     public SQLExpression getWhereExpression ()
     {
-        return _condition;
+        throw new UnsupportedOperationException("Key is bound specially.");
     }
 
     // from SQLExpression
     public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        classSet.add(_condition.getPersistentClass());
+        classSet.add(_pClass);
     }
 
     // from SQLExpression
@@ -200,23 +149,22 @@ public class Key<T extends PersistentRecord> extends WhereClause
     // from CacheKey
     public String getCacheId ()
     {
-        return _condition.getPersistentClass().getName();
+        return _pClass.getName();
     }
 
     // from CacheKey
     public Serializable getCacheKey ()
     {
-        return _condition.getValues();
+        return _values;
     }
 
     // from ValidatingCacheInvalidator
     public void validateFlushType (Class<?> pClass)
     {
-        if (!pClass.equals(_condition.getPersistentClass())) {
+        if (!pClass.equals(_pClass)) {
             throw new IllegalArgumentException(
                 "Class mismatch between persistent record and cache invalidator " +
-                "[record=" + pClass.getSimpleName() +
-                ", invtype=" + _condition.getPersistentClass().getSimpleName() + "].");
+                "[record=" + pClass.getSimpleName() + ", invtype=" + _pClass.getSimpleName() + "].");
         }
     }
 
@@ -230,7 +178,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     public void validateQueryType (Class<?> pClass)
     {
         super.validateQueryType(pClass);
-        validateTypesMatch(pClass, _condition.getPersistentClass());
+        validateTypesMatch(pClass, _pClass);
     }
 
     @Override
@@ -242,31 +190,34 @@ public class Key<T extends PersistentRecord> extends WhereClause
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        return _condition.equals(((Key<?>) obj)._condition);
+        return _values.equals(((Key<?>) obj)._values);
     }
 
     @Override
     public int hashCode ()
     {
-        return _condition.hashCode();
+        return _values.hashCode();
     }
 
     @Override
     public String toString ()
     {
-        StringBuilder builder = new StringBuilder(_condition.getPersistentClass().getSimpleName());
+        StringBuilder builder = new StringBuilder(_pClass.getSimpleName());
         builder.append("(");
-        String[] keyFields = KeyUtil.getKeyFields(_condition.getPersistentClass());
+        String[] keyFields = KeyUtil.getKeyFields(_pClass);
         for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
                 builder.append(", ");
             }
-            builder.append(keyFields[ii]).append("=").append(_condition.getValues().get(ii));
+            builder.append(keyFields[ii]).append("=").append(_values.get(ii));
         }
         builder.append(")");
         return builder.toString();
     }
 
+    /** The persistent record type for which we are a key. */
+    protected final Class<T> _pClass;
+
     /** The expression that identifies our row. */
-    protected final WhereCondition<T> _condition;
+    protected final ArrayList<Comparable<?>> _values;
 }

@@ -40,9 +40,6 @@ import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.SelectClause;
-import com.samskivert.jdbc.depot.clause.Where;
-import com.samskivert.jdbc.depot.expression.SQLExpression;
-import com.samskivert.jdbc.depot.operator.Logic.*;
 import com.samskivert.jdbc.depot.operator.Conditionals.*;
 
 import static com.samskivert.jdbc.depot.Log.log;

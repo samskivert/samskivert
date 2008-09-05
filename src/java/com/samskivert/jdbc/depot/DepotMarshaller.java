@@ -45,8 +45,6 @@ import com.samskivert.jdbc.depot.annotation.Index;
 import com.samskivert.jdbc.depot.annotation.TableGenerator;
 import com.samskivert.jdbc.depot.annotation.Transient;
 import com.samskivert.jdbc.depot.annotation.UniqueConstraint;
-import com.samskivert.jdbc.depot.operator.Conditionals;
-import com.samskivert.jdbc.depot.operator.Logic;
 
 import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.DatabaseLiaison;

@@ -9,6 +9,7 @@
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/java"/>
   <property name="deploy.dir"  value="dist"/>
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
   <property name="savedoc.dir" value="docs"/>
   <property name="libs.dir"    value="lib"/>
@@ -16,7 +17,7 @@
 
   <!-- declare our classpath business -->
   <path id="classpath">
-    <pathelement location="${deploy.dir}/classes"/>
+    <pathelement location="${classes.dir}"/>
     <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
   </path>
 
@@ -29,9 +30,9 @@
     <tstamp><format property="year" pattern="yyyy" /></tstamp>
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/lib"/>
-    <mkdir dir="${deploy.dir}/classes"/>
+    <mkdir dir="${classes.dir}"/>
     <mkdir dir="${javadoc.dir}"/>
-    <copy todir="${deploy.dir}/classes">
+    <copy todir="${classes.dir}">
       <fileset dir="${src.dir}" includes="**/*.properties"/>
       <fileset dir="${src.dir}" includes="**/*.tmpl"/>
     </copy>
@@ -40,9 +41,25 @@
     </copy>
   </target>
 
+  <!-- generates fields for persistent record classes -->
+  <target name="genrecord" depends="prepare">
+    <taskdef name="grecord" classname="com.samskivert.jdbc.depot.tools.GenRecordTask"
+             classpathref="classpath"/>
+    <!-- make sure the record class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" optimize="${build.optimize}" deprecation="on">
+      <classpath refid="classpath"/>
+      <include name="**/*Record.java"/>
+    </javac>
+    <!-- now update the source files -->
+    <grecord classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Record.java"/>
+    </grecord>
+  </target>
+
   <!-- cleans out the intermediate build files -->
   <target name="clean">
-    <delete dir="${deploy.dir}/classes"/>
+    <delete dir="${classes.dir}"/>
     <delete dir="${deploy.dir}/docs"/>
     <delete dir="${gwtjar.dir}"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
@@ -55,7 +72,7 @@
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare,compute-builds">
-    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes" includeAntRuntime="false"
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
       <classpath refid="classpath"/>
       <exclude name="com/samskivert/io/**" unless="build.io"/>
@@ -124,7 +141,7 @@
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
     <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
       <classpath>
-        <pathelement location="${deploy.dir}/classes"/>
+        <pathelement location="${classes.dir}"/>
         <pathelement location="${basedir}"/> <!-- for rsrc/ -->
         <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
         <fileset dir="lib/test" includes="*.jar"/>
@@ -151,7 +168,7 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${deploy.dir}/classes">
+    <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}">
       <exclude name="**/tests/**"/>
     </jar>
     <!-- we export a small selection of classes for use by GWT -->

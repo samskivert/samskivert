@@ -211,8 +211,9 @@ public abstract class DepotRepository
     {
         final List<Key<T>> keys = new ArrayList<Key<T>>();
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, clauses));
-        builder.newQuery(new SelectClause<T>(type, marsh.getPrimaryKeyFields(), clauses));
+        SelectClause<T> select = new SelectClause<T>(type, marsh.getPrimaryKeyFields(), clauses);
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, select));
+        builder.newQuery(select);
 
         if (forUpdate) {
             _ctx.invoke(new Modifier(null) {

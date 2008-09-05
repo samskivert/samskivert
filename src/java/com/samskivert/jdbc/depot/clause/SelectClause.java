@@ -99,6 +99,10 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
                         "Query can't contain multiple For Update clauses.");
                 }
                 _forUpdate = (ForUpdate) clause;
+
+            } else {
+                throw new IllegalArgumentException(
+                    "Unknown clause provided in select " + clause + ".");
             }
         }
     }

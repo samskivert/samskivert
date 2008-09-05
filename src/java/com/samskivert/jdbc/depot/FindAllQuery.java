@@ -64,7 +64,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
 
             if (_marsh.getComputed() != null) {
                 throw new IllegalArgumentException(
-                "This algorithm doesn't work on @Computed records.");
+                    "This algorithm doesn't work on @Computed records.");
             }
             for (QueryClause clause : clauses) {
                 if (clause instanceof FieldOverride) {
@@ -73,10 +73,10 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 }
             }
 
-            DepotTypes types = DepotTypes.getDepotTypes(ctx, clauses);
-            types.addClass(ctx, type);
-            _builder = _ctx.getSQLBuilder(types);
-            _clauses = clauses;
+            SelectClause<T> select =
+                new SelectClause<T>(_type, _marsh.getPrimaryKeyFields(), clauses);
+            _builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(ctx, select));
+            _builder.newQuery(select);
         }
 
         public List<T> invoke (Connection conn, DatabaseLiaison liaison)
@@ -86,7 +86,6 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             List<Key<T>> allKeys = new ArrayList<Key<T>>();
             Set<Key<T>> fetchKeys = new HashSet<Key<T>>();
 
-            _builder.newQuery(new SelectClause<T>(_type, _marsh.getPrimaryKeyFields(), _clauses));
             PreparedStatement stmt = _builder.prepare(conn);
             try {
                 ResultSet rs = stmt.executeQuery();
@@ -166,8 +165,6 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 JDBCUtil.close(stmt);
             }
         }
-
-        protected Collection<? extends QueryClause> _clauses;
     }
 
     /**

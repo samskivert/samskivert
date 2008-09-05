@@ -59,14 +59,12 @@ public class PostgreSQLBuilder
     public class PGBuildVisitor extends BuildVisitor
     {
         @Override public void visit (FullTextMatch match)
-            throws Exception
         {
             appendIdentifier("ftsCol_" + match.getName());
             _builder.append(" @@ TO_TSQUERY('default', ?)");
         }
 
         public void visit (EpochSeconds epochSeconds)
-            throws Exception
         {
             _builder.append("date_part('epoch', ");
             epochSeconds.getArgument().accept(this);
@@ -86,25 +84,26 @@ public class PostgreSQLBuilder
 
     public class PGBindVisitor extends BindVisitor
     {
-        @Override public void visit (FullTextMatch match)
-            throws Exception
-        {
+        @Override public void visit (FullTextMatch match) {
             // The tsearch2 engine takes queries on the form
             //   (foo&bar)|goop
             // so in this first simple implementation, we just take the user query, chop it into
             // words by space/punctuation and 'or' those together like so:
             //   'ho! who goes there?' -> 'ho|who|goes|there'
-
             String[] searchTerms = match.getQuery().toLowerCase().split("\\W+");
             if (searchTerms.length > 0 && searchTerms[0].length() == 0) {
                 searchTerms = ArrayUtil.splice(searchTerms, 0, 1);
             }
             String query = StringUtil.join(searchTerms, "|");
-            _stmt.setString(_argIdx ++, query);
+            try {
+                _stmt.setString(_argIdx++, query);
+            } catch (SQLException sqe) {
+                throw new DatabaseException("Failed to configure full-text match column " +
+                                            "[idx=" + (_argIdx-1) + ", query=" + query + "]", sqe);
+            }
         }
 
-        protected PGBindVisitor (DepotTypes types, PreparedStatement stmt)
-        {
+        protected PGBindVisitor (DepotTypes types, PreparedStatement stmt) {
             super(types, stmt);
         }
     }

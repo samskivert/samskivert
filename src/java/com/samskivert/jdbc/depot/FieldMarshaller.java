@@ -161,10 +161,10 @@ public abstract class FieldMarshaller<T>
     }
 
     /**
-     * Reads and returns this field from the result set.
+     * Reads this field from the given persistent object.
      */
-    public abstract T getFromSet (ResultSet rs)
-        throws SQLException;
+    public abstract T getFromObject (Object po)
+        throws IllegalArgumentException, IllegalAccessException;
 
     /**
      * Sets the specified column of the given prepared statement to the given value.
@@ -173,10 +173,20 @@ public abstract class FieldMarshaller<T>
         throws SQLException;
 
     /**
-     * Reads this field from the given persistent object.
+     * Reads the value of our field from the supplied persistent object and sets that value into
+     * the specified column of the supplied prepared statement.
      */
-    public abstract T getFromObject (Object po)
-        throws IllegalArgumentException, IllegalAccessException;
+    public void getAndWriteToStatement (PreparedStatement ps, int column, Object po)
+        throws SQLException, IllegalAccessException
+    {
+        writeToStatement(ps, column, getFromObject(po));
+    }
+
+    /**
+     * Reads and returns this field from the result set.
+     */
+    public abstract T getFromSet (ResultSet rs)
+        throws SQLException;
 
     /**
      * Writes the given value to the given persistent value.
@@ -185,20 +195,10 @@ public abstract class FieldMarshaller<T>
         throws IllegalArgumentException, IllegalAccessException;
 
     /**
-     * Reads the value of our field from the persistent object and sets that
-     * value into the specified column of the supplied prepared statement.
+     * Reads the specified column from the supplied result set and writes it to the appropriate
+     * field of the persistent object.
      */
-    public void readFromObject (Object po, PreparedStatement ps, int column)
-        throws SQLException, IllegalAccessException
-    {
-        writeToStatement(ps, column, getFromObject(po));
-    }
-
-    /**
-     * Reads the specified column from the supplied result set and writes it to
-     * the appropriate field of the persistent object.
-     */
-    public void writeToObject (ResultSet rset, Object po)
+    public void getAndWriteToObject (ResultSet rset, Object po)
         throws SQLException, IllegalAccessException
     {
         writeToObject(po, getFromSet(rset));

@@ -46,7 +46,7 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public void accept (ExpressionVisitor builder) throws Exception
+        public void accept (ExpressionVisitor builder)
         {
             builder.visit(this);
         }
@@ -89,7 +89,7 @@ public interface SQLOperator extends SQLExpression
         }
 
         // from SQLExpression
-        public void accept (ExpressionVisitor builder) throws Exception
+        public void accept (ExpressionVisitor builder)
         {
             builder.visit(this);
         }

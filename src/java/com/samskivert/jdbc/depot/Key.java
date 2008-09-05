@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +54,6 @@ public class Key<T extends PersistentRecord> extends WhereClause
 
         // from SQLExpression
         public void accept (ExpressionVisitor builder)
-            throws Exception
         {
             builder.visit(this);
         }
@@ -95,9 +93,6 @@ public class Key<T extends PersistentRecord> extends WhereClause
         protected Class<U> _pClass;
         protected ArrayList<Comparable<?>> _values; // List is not Serializable
     }
-
-    /** The expression that identifies our row. */
-    public final WhereCondition<T> condition;
 
     /**
      * Constructs a new single-column {@code Key} with the given value.
@@ -141,7 +136,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
         }
 
         // look up the cached primary key fields for this object
-        String[] keyFields = getKeyFields(pClass);
+        String[] keyFields = KeyUtil.getKeyFields(pClass);
 
         // now extract the values in field order and ensure none are extra or missing
         ArrayList<Comparable<?>> newValues = new ArrayList<Comparable<?>>();
@@ -165,18 +160,39 @@ public class Key<T extends PersistentRecord> extends WhereClause
                 "Non-key columns given: " +  StringUtil.join(map.keySet().toArray(), ", "));
         }
 
-        condition = new WhereCondition<T>(pClass, newValues);
+        _condition = new WhereCondition<T>(pClass, newValues);
+    }
+
+    /**
+     * Returns the persistent class for which we represent a key.
+     */
+    public Class<T> getPersistentClass ()
+    {
+        return _condition.getPersistentClass();
+    }
+
+    /**
+     * Returns the values bound to this key.
+     */
+    public ArrayList<Comparable<?>> getValues ()
+    {
+        return _condition.getValues();
+    }
+
+    // from WhereClause
+    public SQLExpression getWhereExpression ()
+    {
+        return _condition;
     }
 
     // from SQLExpression
     public void addClasses (Collection<Class<? extends PersistentRecord>> classSet)
     {
-        classSet.add(condition.getPersistentClass());
+        classSet.add(_condition.getPersistentClass());
     }
 
     // from SQLExpression
     public void accept (ExpressionVisitor builder)
-        throws Exception
     {
         builder.visit(this);
     }
@@ -184,23 +200,23 @@ public class Key<T extends PersistentRecord> extends WhereClause
     // from CacheKey
     public String getCacheId ()
     {
-        return condition.getPersistentClass().getName();
+        return _condition.getPersistentClass().getName();
     }
 
     // from CacheKey
     public Serializable getCacheKey ()
     {
-        return condition.getValues();
+        return _condition.getValues();
     }
 
     // from ValidatingCacheInvalidator
     public void validateFlushType (Class<?> pClass)
     {
-        if (!pClass.equals(condition.getPersistentClass())) {
+        if (!pClass.equals(_condition.getPersistentClass())) {
             throw new IllegalArgumentException(
                 "Class mismatch between persistent record and cache invalidator " +
                 "[record=" + pClass.getSimpleName() +
-                ", invtype=" + condition.getPersistentClass().getSimpleName() + "].");
+                ", invtype=" + _condition.getPersistentClass().getSimpleName() + "].");
         }
     }
 
@@ -214,7 +230,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     public void validateQueryType (Class<?> pClass)
     {
         super.validateQueryType(pClass);
-        validateTypesMatch(pClass, condition.getPersistentClass());
+        validateTypesMatch(pClass, _condition.getPersistentClass());
     }
 
     @Override
@@ -226,52 +242,31 @@ public class Key<T extends PersistentRecord> extends WhereClause
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        return condition.equals(((Key<?>) obj).condition);
+        return _condition.equals(((Key<?>) obj)._condition);
     }
 
     @Override
     public int hashCode ()
     {
-        return condition.hashCode();
+        return _condition.hashCode();
     }
 
     @Override
     public String toString ()
     {
-        StringBuilder builder = new StringBuilder(condition.getPersistentClass().getSimpleName());
+        StringBuilder builder = new StringBuilder(_condition.getPersistentClass().getSimpleName());
         builder.append("(");
-        String[] keyFields = getKeyFields(condition.getPersistentClass());
+        String[] keyFields = KeyUtil.getKeyFields(_condition.getPersistentClass());
         for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
                 builder.append(", ");
             }
-            builder.append(keyFields[ii]).append("=").append(condition.getValues().get(ii));
+            builder.append(keyFields[ii]).append("=").append(_condition.getValues().get(ii));
         }
         builder.append(")");
         return builder.toString();
     }
 
-    /**
-     * Returns an array containing the names of the primary key fields for the supplied persistent
-     * class. The values are introspected and cached for the lifetime of the VM.
-     */
-    protected static String[] getKeyFields (Class<?> pClass)
-    {
-        String[] fields = _keyFields.get(pClass);
-        if (fields == null) {
-            List<String> kflist = new ArrayList<String>();
-            for (Field field : pClass.getFields()) {
-                // look for @Id fields
-                if (field.getAnnotation(Id.class) != null) {
-                    kflist.add(field.getName());
-                }
-            }
-            _keyFields.put(pClass, fields = kflist.toArray(new String[kflist.size()]));
-        }
-        return fields;
-    }
-
-    /** A (never expiring) cache of primary key field names for all persistent classes (of which
-     * there are merely dozens, so we don't need to worry about expiring). */
-    protected static HashMap<Class<?>,String[]> _keyFields = new HashMap<Class<?>,String[]>();
+    /** The expression that identifies our row. */
+    protected final WhereCondition<T> _condition;
 }

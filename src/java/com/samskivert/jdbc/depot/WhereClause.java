@@ -21,12 +21,18 @@
 package com.samskivert.jdbc.depot;
 
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
  * Currently only exists as a type without any functionality of its own.
  */
 public abstract class WhereClause extends QueryClause
 {
+    /**
+     * Returns the condition associated with this where clause.
+     */
+    public abstract SQLExpression getWhereExpression ();
+
     /**
      * Validates that the supplied persistent record type is the type matched by this where clause.
      * Not all clauses will be able to perform this validation, but those that can, should do so to

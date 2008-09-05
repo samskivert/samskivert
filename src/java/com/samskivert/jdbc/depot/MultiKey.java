@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
+import com.samskivert.jdbc.depot.expression.SQLExpression;
 
 /**
  * A special form of {@link Where} clause that specifies an explicit range of database rows. It
@@ -101,8 +102,14 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
         return _mValues;
     }
 
+    // from WhereClause
+    public SQLExpression getWhereExpression ()
+    {
+        throw new RuntimeException("Not used");
+    }
+
     // from SQLExpression
-    public void accept (ExpressionVisitor builder) throws Exception
+    public void accept (ExpressionVisitor builder)
     {
         builder.visit(this);
     }

@@ -76,7 +76,6 @@ public class FieldDefinition extends QueryClause
 
     // from SQLExpression
     public void accept (ExpressionVisitor visitor)
-        throws Exception
     {
         visitor.visit(this);
     }

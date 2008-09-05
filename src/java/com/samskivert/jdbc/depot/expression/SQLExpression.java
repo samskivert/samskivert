@@ -36,8 +36,7 @@ public interface SQLExpression
      *
      * @see SQLBuilder
      */
-    public void accept (ExpressionVisitor builder)
-        throws Exception;
+    public void accept (ExpressionVisitor builder);
 
     /**
      * Adds all persistent classes that are brought into the SQL context by this clause: FROM

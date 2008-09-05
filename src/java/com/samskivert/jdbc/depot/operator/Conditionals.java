@@ -59,7 +59,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void accept (ExpressionVisitor builder) throws Exception
+        public void accept (ExpressionVisitor builder)
         {
             builder.visit(this);
         }
@@ -190,6 +190,9 @@ public abstract class Conditionals
     public static class In
         implements SQLOperator
     {
+        /** The maximum number of keys allowed in an IN() clause. */
+        public static final int MAX_KEYS = Short.MAX_VALUE;
+
         public In (Class<? extends PersistentRecord> pClass, String pColumn, Comparable<?>... values)
         {
             this(new ColumnExp(pClass, pColumn), values);
@@ -226,7 +229,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void accept (ExpressionVisitor builder) throws Exception
+        public void accept (ExpressionVisitor builder)
         {
             builder.visit(this);
         }
@@ -268,7 +271,7 @@ public abstract class Conditionals
             _clause = clause;
         }
 
-        public void accept (ExpressionVisitor builder) throws Exception
+        public void accept (ExpressionVisitor builder)
         {
             builder.visit(this);
         }
@@ -316,7 +319,7 @@ public abstract class Conditionals
         }
 
         // from SQLExpression
-        public void accept (ExpressionVisitor builder) throws Exception
+        public void accept (ExpressionVisitor builder)
         {
             builder.visit(this);
         }

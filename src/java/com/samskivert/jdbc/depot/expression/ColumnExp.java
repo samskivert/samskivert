@@ -38,7 +38,7 @@ public class ColumnExp
     }
 
     // from SQLExpression
-    public void accept (ExpressionVisitor builder) throws Exception
+    public void accept (ExpressionVisitor builder)
     {
         builder.visit(this);
     }

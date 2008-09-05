@@ -57,7 +57,6 @@ public class MySQLBuilder
     public class MSBuildVisitor extends BuildVisitor
     {
         @Override public void visit (FullTextMatch match)
-            throws Exception
         {
             _builder.append("match(");
             Class<? extends PersistentRecord> pClass = match.getPersistentRecord();
@@ -73,7 +72,6 @@ public class MySQLBuilder
         }
 
         @Override public void visit (DeleteClause<? extends PersistentRecord> deleteClause)
-            throws Exception
         {
             _builder.append("delete from ");
             appendTableName(deleteClause.getPersistentClass());
@@ -90,7 +88,6 @@ public class MySQLBuilder
         }
 
         public void visit (EpochSeconds epochSeconds)
-            throws Exception
         {
             _builder.append("unix_timestamp(");
             epochSeconds.getArgument().accept(this);
@@ -120,15 +117,17 @@ public class MySQLBuilder
 
     public class MSBindVisitor extends BindVisitor
     {
-        protected MSBindVisitor (DepotTypes types, PreparedStatement stmt)
-        {
+        protected MSBindVisitor (DepotTypes types, PreparedStatement stmt) {
             super(types, stmt);
         }
 
-        @Override public void visit (FullTextMatch match)
-            throws Exception
-        {
-            _stmt.setString(_argIdx ++, match.getQuery());
+        @Override public void visit (FullTextMatch match) {
+            try {
+                _stmt.setString(_argIdx++, match.getQuery());
+            } catch (SQLException sqe) {
+                throw new DatabaseException("Failed to configure full-text match column " +
+                                            "[idx=" + (_argIdx-1) + ", match=" + match + "]", sqe);
+            }
         }
     }
 

@@ -20,10 +20,10 @@
 
 package com.samskivert.jdbc.depot.expression;
 
-import com.samskivert.jdbc.depot.Key.WhereCondition;
 import com.samskivert.jdbc.depot.Key;
 import com.samskivert.jdbc.depot.MultiKey;
 import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.WhereClause;
 
 import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.clause.FieldDefinition;
@@ -51,58 +51,30 @@ import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
  */
 public interface ExpressionVisitor
 {
-    public void visit (FieldDefinition fieldOverride)
-        throws Exception;
-    public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
-        throws Exception;
-    public void visit (Key<? extends PersistentRecord> key)
-        throws Exception;
-    public void visit (MultiKey<? extends PersistentRecord> key)
-        throws Exception;
-    public void visit (FunctionExp functionExp)
-        throws Exception;
-    public void visit (EpochSeconds epochSeconds)
-        throws Exception;
-    public void visit (FromOverride fromOverride)
-        throws Exception;
-    public void visit (MultiOperator multiOperator)
-        throws Exception;
-    public void visit (BinaryOperator binaryOperator)
-        throws Exception;
-    public void visit (IsNull isNull)
-        throws Exception;
-    public void visit (In in)
-        throws Exception;
-    public void visit (FullTextMatch match)
-        throws Exception;
-    public void visit (ColumnExp columnExp)
-        throws Exception;
-    public void visit (Not not)
-        throws Exception;
-    public void visit (GroupBy groupBy)
-        throws Exception;
-    public void visit (ForUpdate forUpdate)
-        throws Exception;
-    public void visit (OrderBy orderBy)
-        throws Exception;
-    public void visit (Where where)
-        throws Exception;
-    public void visit (Join join)
-        throws Exception;
-    public void visit (Limit limit)
-        throws Exception;
-    public void visit (LiteralExp literalExp)
-        throws Exception;
-    public void visit (ValueExp valueExp)
-        throws Exception;
-    public void visit (Exists<? extends PersistentRecord> exists)
-        throws Exception;
-    public void visit (SelectClause<? extends PersistentRecord> selectClause)
-        throws Exception;
-    public void visit (UpdateClause<? extends PersistentRecord> updateClause)
-        throws Exception;
-    public void visit (DeleteClause<? extends PersistentRecord> deleteClause)
-        throws Exception;
-    public void visit (InsertClause<? extends PersistentRecord> insertClause)
-        throws Exception;
+    public void visit (FieldDefinition fieldOverride);
+    public void visit (Key.WhereCondition<? extends PersistentRecord> whereCondition);
+    public void visit (MultiKey<? extends PersistentRecord> key);
+    public void visit (FunctionExp functionExp);
+    public void visit (EpochSeconds epochSeconds);
+    public void visit (FromOverride fromOverride);
+    public void visit (MultiOperator multiOperator);
+    public void visit (BinaryOperator binaryOperator);
+    public void visit (IsNull isNull);
+    public void visit (In in);
+    public void visit (FullTextMatch match);
+    public void visit (ColumnExp columnExp);
+    public void visit (Not not);
+    public void visit (GroupBy groupBy);
+    public void visit (ForUpdate forUpdate);
+    public void visit (OrderBy orderBy);
+    public void visit (WhereClause where);
+    public void visit (Join join);
+    public void visit (Limit limit);
+    public void visit (LiteralExp literalExp);
+    public void visit (ValueExp valueExp);
+    public void visit (Exists<? extends PersistentRecord> exists);
+    public void visit (SelectClause<? extends PersistentRecord> selectClause);
+    public void visit (UpdateClause<? extends PersistentRecord> updateClause);
+    public void visit (DeleteClause<? extends PersistentRecord> deleteClause);
+    public void visit (InsertClause<? extends PersistentRecord> insertClause);
 }

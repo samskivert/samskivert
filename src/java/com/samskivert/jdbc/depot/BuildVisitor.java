@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.jdbc.depot.Key.WhereCondition;
 import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.clause.FieldDefinition;
@@ -48,9 +47,9 @@ import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
 import com.samskivert.jdbc.depot.operator.Conditionals.Exists;
+import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.jdbc.depot.operator.Conditionals.IsNull;
-import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
 import com.samskivert.jdbc.depot.operator.Logic.Not;
 import com.samskivert.jdbc.depot.operator.SQLOperator.BinaryOperator;
 import com.samskivert.jdbc.depot.operator.SQLOperator.MultiOperator;
@@ -69,7 +68,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (FromOverride override)
-        throws Exception
     {
         _builder.append(" from " );
         List<Class<? extends PersistentRecord>> from = override.getFromClasses();
@@ -84,7 +82,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (FieldDefinition definition)
-        throws Exception
     {
         definition.getDefinition().accept(this);
         if (_enableAliasing) {
@@ -93,11 +90,10 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
     }
 
-    public void visit (WhereCondition<? extends PersistentRecord> whereCondition)
-        throws Exception
+    public void visit (Key.WhereCondition<? extends PersistentRecord> whereCondition)
     {
         Class<? extends PersistentRecord> pClass = whereCondition.getPersistentClass();
-        String[] keyFields = Key.getKeyFields(pClass);
+        String[] keyFields = KeyUtil.getKeyFields(pClass);
         List<Comparable<?>> values = whereCondition.getValues();
         for (int ii = 0; ii < keyFields.length; ii ++) {
             if (ii > 0) {
@@ -113,15 +109,13 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
     }
 
-    public void visit (Key<? extends PersistentRecord> key)
-        throws Exception
+    public void visit (WhereClause where)
     {
         _builder.append(" where ");
-        key.condition.accept(this);
+        where.getWhereExpression().accept(this);
     }
 
     public void visit (MultiKey<? extends PersistentRecord> key)
-        throws Exception
     {
         _builder.append(" where ");
         boolean first = true;
@@ -156,7 +150,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (FunctionExp functionExp)
-        throws Exception
     {
         _builder.append(functionExp.getFunction());
         _builder.append("(");
@@ -171,7 +164,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (MultiOperator multiOperator)
-        throws Exception
     {
         SQLExpression[] conditions = multiOperator.getConditions();
         for (int ii = 0; ii < conditions.length; ii++) {
@@ -185,7 +177,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (BinaryOperator binaryOperator)
-        throws Exception
     {
         _builder.append('(');
         binaryOperator.getLeftHandSide().accept(this);
@@ -195,14 +186,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (IsNull isNull)
-        throws Exception
     {
         isNull.getColumn().accept(this);
         _builder.append(" is null");
     }
 
     public void visit (In in)
-        throws Exception
     {
         in.getColumn().accept(this);
         _builder.append(" in (");
@@ -216,17 +205,14 @@ public abstract class BuildVisitor implements ExpressionVisitor
         _builder.append(")");
     }
 
-    public abstract void visit (FullTextMatch match)
-        throws Exception;
+    public abstract void visit (FullTextMatch match);
 
     public void visit (ColumnExp columnExp)
-        throws Exception
     {
         appendRhsColumn(columnExp.getPersistentClass(), columnExp.getField());
     }
 
     public void visit (Not not)
-        throws Exception
     {
         _builder.append(" not (");
         not.getCondition().accept(this);
@@ -234,7 +220,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (GroupBy groupBy)
-        throws Exception
     {
         _builder.append(" group by ");
 
@@ -248,13 +233,11 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (ForUpdate forUpdate)
-        throws Exception
     {
         _builder.append(" for update ");
     }
 
     public void visit (OrderBy orderBy)
-        throws Exception
     {
         _builder.append(" order by ");
 
@@ -269,15 +252,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
     }
 
-    public void visit (Where where)
-        throws Exception
-    {
-        _builder.append(" where ");
-        where.getCondition().accept(this);
-    }
-
     public void visit (Join join)
-        throws Exception
     {
         switch (join.getType()) {
         case INNER:
@@ -298,32 +273,27 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (Limit limit)
-        throws Exception
     {
         _builder.append(" limit ? offset ? ");
     }
 
     public void visit (LiteralExp literalExp)
-        throws Exception
     {
         _builder.append(literalExp.getText());
     }
 
     public void visit (ValueExp valueExp)
-        throws Exception
     {
         _builder.append("?");
     }
 
     public void visit (Exists<? extends PersistentRecord> exists)
-        throws Exception
     {
         _builder.append("exists ");
         exists.getSubClause().accept(this);
     }
 
     public void visit (SelectClause<? extends PersistentRecord> selectClause)
-        throws Exception
     {
         Class<? extends PersistentRecord> pClass = selectClause.getPersistentClass();
         boolean isInner = _innerClause;
@@ -381,7 +351,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
                 } else if (_types.getTableName(pClass) != null) {
                     tClass = pClass;
                 } else {
-                    throw new SQLException("Query on @Computed entity with no FromOverrideClause.");
+                    throw new IllegalStateException(
+                        "Query on @Computed entity with no FromOverrideClause.");
                 }
                 _builder.append(" from ");
                 appendTableName(tClass);
@@ -417,10 +388,10 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (UpdateClause<? extends PersistentRecord> updateClause)
-        throws Exception
     {
         if (updateClause.getWhereClause() == null) {
-            throw new SQLException("I dare not currently perform UPDATE without a WHERE clause.");
+            throw new IllegalArgumentException(
+                "I dare not currently perform UPDATE without a WHERE clause.");
         }
         Class<? extends PersistentRecord> pClass = updateClause.getPersistentClass();
         _innerClause = true;
@@ -451,7 +422,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (DeleteClause<? extends PersistentRecord> deleteClause)
-        throws Exception
     {
         _builder.append("delete from ");
         appendTableName(deleteClause.getPersistentClass());
@@ -462,7 +432,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     }
 
     public void visit (InsertClause<? extends PersistentRecord> insertClause)
-        throws Exception
     {
         Class<? extends PersistentRecord> pClass = insertClause.getPersistentClass();
         DepotMarshaller<?> marsh = _types.getMarshaller(pClass);
@@ -512,7 +481,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     // We do not prepend this identifier with a table abbreviation, nor do we expand
     // field overrides, shadowOf declarations, or the like: it is just a column name.
     protected void appendLhsColumn (Class<? extends PersistentRecord> type, String field)
-        throws Exception
     {
         DepotMarshaller<?> dm = _types.getMarshaller(type);
         if (dm == null) {
@@ -527,7 +495,6 @@ public abstract class BuildVisitor implements ExpressionVisitor
     // Appends an expression for the given field on the given persistent record; this can
     // appear in a SELECT list, in WHERE clauses, etc, etc.
     protected void appendRhsColumn (Class<? extends PersistentRecord> type, String field)
-        throws Exception
     {
         DepotMarshaller<?> dm = _types.getMarshaller(type);
         if (dm == null) {

@@ -42,7 +42,7 @@ public class GroupBy extends QueryClause
     }
 
     // from SQLExpression
-    public void accept (ExpressionVisitor builder) throws Exception
+    public void accept (ExpressionVisitor builder)
     {
         builder.visit(this);
     }

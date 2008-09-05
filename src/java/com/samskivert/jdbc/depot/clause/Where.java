@@ -67,13 +67,14 @@ public class Where extends WhereClause
         _condition = condition;
     }
 
-    public SQLExpression getCondition ()
+    // from WhereClause
+    public SQLExpression getWhereExpression ()
     {
         return _condition;
     }
 
     // from SQLExpression
-    public void accept (ExpressionVisitor builder) throws Exception
+    public void accept (ExpressionVisitor builder)
     {
         builder.visit(this);
     }

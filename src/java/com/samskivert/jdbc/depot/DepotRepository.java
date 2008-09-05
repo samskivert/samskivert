@@ -22,10 +22,12 @@ package com.samskivert.jdbc.depot;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +43,7 @@ import com.samskivert.jdbc.depot.clause.DeleteClause;
 import com.samskivert.jdbc.depot.clause.FieldOverride;
 import com.samskivert.jdbc.depot.clause.InsertClause;
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
@@ -399,7 +402,7 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int updatePartial (Key<T> key, Object... fieldsValues)
         throws DatabaseException
     {
-        return updatePartial(key.condition.getPersistentClass(), key, key, fieldsValues);
+        return updatePartial(key.getPersistentClass(), key, key, fieldsValues);
     }
 
     /**
@@ -700,20 +703,54 @@ public abstract class DepotRepository
     }
 
     /**
+     * Deletes all persistent objects from the database that match the supplied where clause.
+     *
+     * @return the number of rows deleted by this action.
+     */
+    protected <T extends PersistentRecord> int deleteAll (Class<T> type, final WhereClause where)
+        throws DatabaseException
+    {
+        // first look up the primary keys for all the rows that match our where clause
+        final Set<Key<T>> keys = new HashSet<Key<T>>();
+        final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
+        final SQLBuilder fbuilder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, where));
+        fbuilder.newQuery(new SelectClause<T>(type, marsh.getPrimaryKeyFields(), where));
+        _ctx.invoke(new Modifier(null) {
+            @Override
+            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                PreparedStatement stmt = fbuilder.prepare(conn);
+                try {
+                    ResultSet rs = stmt.executeQuery();
+                    while (rs.next()) {
+                        keys.add(marsh.makePrimaryKey(rs));
+                    }
+                    return 0;
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+            }
+        });
+
+        // now delete using that primary key set
+        PrimaryKeySet<T> pwhere = new PrimaryKeySet<T>(type, keys);
+        return deleteAll(type, pwhere, pwhere);
+    }
+
+    /**
      * Deletes all persistent objects from the database that match the supplied key.
      *
      * @return the number of rows deleted by this action.
      */
     protected <T extends PersistentRecord> int deleteAll (
-        Class<T> type, final WhereClause key, CacheInvalidator invalidator)
+        Class<T> type, final WhereClause where, CacheInvalidator invalidator)
         throws DatabaseException
     {
         if (invalidator instanceof ValidatingCacheInvalidator) {
             ((ValidatingCacheInvalidator)invalidator).validateFlushType(type); // sanity check
         }
-        key.validateQueryType(type); // and another
+        where.validateQueryType(type); // and another
 
-        DeleteClause<T> delete = new DeleteClause<T>(type, key);
+        DeleteClause<T> delete = new DeleteClause<T>(type, where);
         final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, delete));
         builder.newQuery(delete);
 

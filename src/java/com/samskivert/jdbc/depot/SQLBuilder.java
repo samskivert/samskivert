@@ -58,12 +58,7 @@ public abstract class SQLBuilder
     {
         _clause = clause;
         _buildVisitor = getBuildVisitor();
-
-        try {
-            _clause.accept(_buildVisitor);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to build SQL", e);
-        }
+        _clause.accept(_buildVisitor);
     }
 
     /**
@@ -80,16 +75,10 @@ public abstract class SQLBuilder
         if (_buildVisitor == null) {
             throw new IllegalArgumentException("Cannot prepare query until it's been built.");
         }
+
         PreparedStatement stmt = conn.prepareStatement(_buildVisitor.getQuery());
         _bindVisitor = getBindVisitor(stmt);
-
-        try {
-            _clause.accept(_bindVisitor);
-        } catch (SQLException se) {
-            throw se;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to find SQL parameters", e);
-        }
+        _clause.accept(_bindVisitor);
 
         if (PersistenceContext.DEBUG) {
             log.info("SQL: " + stmt.toString());

@@ -31,7 +31,7 @@ import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 public class ForUpdate extends QueryClause
 {
     // from SQLExpression
-    public void accept (ExpressionVisitor builder) throws Exception
+    public void accept (ExpressionVisitor builder)
     {
         builder.visit(this);
     }

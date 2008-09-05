@@ -116,12 +116,12 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             }
 
             // if we're fetching a huge number of records, we have to do it in multiple queries
-            if (fetchKeys.size() > MAX_IN_KEYS) {
+            if (fetchKeys.size() > In.MAX_KEYS) {
                 int keyCount = fetchKeys.size();
                 do {
                     Set<Key<T>> keys = new HashSet<Key<T>>();
                     Iterator<Key<T>> iter = fetchKeys.iterator();
-                    for (int ii = 0; ii < Math.min(keyCount, MAX_IN_KEYS); ii++) {
+                    for (int ii = 0; ii < Math.min(keyCount, In.MAX_KEYS); ii++) {
                         keys.add(iter.next());
                         iter.remove();
                     }
@@ -146,33 +146,9 @@ public abstract class FindAllQuery<T extends PersistentRecord>
         protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities)
             throws SQLException
         {
-            SQLExpression condition;
-
-            if (_marsh.getPrimaryKeyFields().length == 1) {
-                // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
-                Comparable<?>[] keyFieldValues = new Comparable<?>[keys.size()];
-                int ii = 0;
-                for (Key<T> key : keys) {
-                    keyFieldValues[ii ++] = key.condition.getValues().get(0);
-                }
-                condition = new In(_type, _marsh.getPrimaryKeyFields()[0], keyFieldValues);
-
-            } else {
-                // Multi-column keys result in OR'd AND's, of unknown efficiency (TODO check).
-                SQLExpression[] keyArray = new SQLExpression[keys.size()];
-                int ii = 0;
-                for (Key<T> key : keys) {
-                    keyArray[ii ++] = key.condition;
-                }
-                condition = new Or(keyArray);
-            }
-
-            Where keyWhere = new Where(condition);
-            // finally build the new query
-            _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(), keyWhere));
+            _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(),
+                                                  new PrimaryKeySet<T>(_type, keys)));
             PreparedStatement stmt = _builder.prepare(conn);
-
-            // and execute it
             try {
                 ResultSet rs = stmt.executeQuery();
                 int cnt = 0, dups = 0;
@@ -275,7 +251,4 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     protected SQLBuilder _builder;
     protected DepotMarshaller<T> _marsh;
     protected Class<T> _type;
-
-    /** The maximum number of keys allowed in an IN() clause. */
-    protected static final int MAX_IN_KEYS = Short.MAX_VALUE;
 }

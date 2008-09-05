@@ -62,7 +62,6 @@ public class FromOverride extends QueryClause
 
     // from SQLExpression
     public void accept (ExpressionVisitor builder)
-        throws Exception
     {
         builder.visit(this);
     }

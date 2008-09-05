@@ -39,7 +39,6 @@ public class EpochSeconds implements SQLExpression
 
     // from SQLExpression
     public void accept (ExpressionVisitor builder)
-        throws Exception
     {
         builder.visit(this);
     }

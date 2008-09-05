@@ -147,7 +147,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             throws SQLException
         {
             _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(),
-                                                  new PrimaryKeySet<T>(_type, keys)));
+                                                  new KeySet<T>(_type, keys)));
             PreparedStatement stmt = _builder.prepare(conn);
             try {
                 ResultSet rs = stmt.executeQuery();

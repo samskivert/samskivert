@@ -33,17 +33,17 @@ import com.samskivert.jdbc.depot.operator.Logic;
  * Contains a set of primary keys that match a set of persistent records. This is used internally
  * in Depot when decomposing queries into two parts: first a query for the primary keys that
  * identify the records that match a free-form query and then another query that operates on the
- * previously identified keys. The keys obtained in the first query are used to create a
- * PrimaryKeySet and modifications and deletons using this set will automatically flush the
- * appropriate records from the cache.
+ * previously identified keys. The keys obtained in the first query are used to create a KeySet and
+ * modifications and deletons using this set will automatically flush the appropriate records from
+ * the cache.
  */
-public class PrimaryKeySet<T extends PersistentRecord> extends WhereClause
+public class KeySet<T extends PersistentRecord> extends WhereClause
     implements SQLExpression, ValidatingCacheInvalidator
 {
     /**
      * Creates a set from the supplied primary keys.
      */
-    public PrimaryKeySet (Class<T> pClass, Set<Key<T>> keys)
+    public KeySet (Class<T> pClass, Set<Key<T>> keys)
     {
         _pClass = pClass;
         _keys = keys;
@@ -132,7 +132,7 @@ public class PrimaryKeySet<T extends PersistentRecord> extends WhereClause
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        return _condition.equals(((PrimaryKeySet<?>) obj)._condition);
+        return _condition.equals(((KeySet<?>) obj)._condition);
     }
 
     @Override

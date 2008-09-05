@@ -732,7 +732,7 @@ public abstract class DepotRepository
         });
 
         // now delete using that primary key set
-        PrimaryKeySet<T> pwhere = new PrimaryKeySet<T>(type, keys);
+        KeySet<T> pwhere = new KeySet<T>(type, keys);
         return deleteAll(type, pwhere, pwhere);
     }
 

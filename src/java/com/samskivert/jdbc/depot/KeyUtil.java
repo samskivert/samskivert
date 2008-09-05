@@ -29,7 +29,7 @@ import java.util.Map;
 import com.samskivert.jdbc.depot.annotation.Id;
 
 /**
- * Simple utility methods used by {@link Key} and {@link PrimaryKeySet}.
+ * Simple utility methods used by {@link Key} and {@link KeySet}.
  */
 public class KeyUtil
 {

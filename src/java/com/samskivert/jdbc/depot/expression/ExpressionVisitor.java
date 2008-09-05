@@ -36,7 +36,6 @@ import com.samskivert.jdbc.depot.clause.Limit;
 import com.samskivert.jdbc.depot.clause.OrderBy;
 import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
-import com.samskivert.jdbc.depot.clause.Where;
 
 import com.samskivert.jdbc.depot.operator.Conditionals.Exists;
 import com.samskivert.jdbc.depot.operator.Conditionals.In;

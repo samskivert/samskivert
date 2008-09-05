@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
-
-<!-- build configuration -->
 <project name="samskivert" default="compile" basedir=".">
-
   <!-- things you may want to change -->
   <property name="app.name"         value="samskivert"/>
   <property name="doc.packages"     value="com.samskivert.*"/>
@@ -192,5 +189,4 @@
       <classpath refid="classpath"/>
     </viztool>
   </target>
-
 </project>

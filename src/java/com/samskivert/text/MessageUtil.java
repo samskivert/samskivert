@@ -20,30 +20,26 @@
 
 package com.samskivert.text;
 
-import java.text.MessageFormat;
-
-import com.samskivert.util.StringUtil;
-
 /**
  * Utility functions for translation string handling.
  */
 public class MessageUtil
 {
-    /** Text prefixed by this character will be considered tainted when
-     * doing recursive translations and won't be translated. */
+    /** Text prefixed by this character will be considered tainted when doing recursive
+     * translations and won't be translated. */
     public static final String TAINT_CHAR = "~";
 
     /** Used to mark fully qualified message keys. */
     public static final String QUAL_PREFIX = "%";
 
-    /** Used to separate the bundle qualifier from the message key in a
-     * fully qualified message key. */
+    /** Used to separate the bundle qualifier from the message key in a fully qualified message
+     * key. */
     public static final String QUAL_SEP = ":";
 
     /**
-     * Call this to "taint" any string that has been entered by an entity
-     * outside the application so that the translation code knows not to
-     * attempt to translate this string when doing recursive translations.
+     * Call this to "taint" any string that has been entered by an entity outside the application
+     * so that the translation code knows not to attempt to translate this string when doing
+     * recursive translations.
      */
     public static String taint (Object text)
     {
@@ -51,9 +47,8 @@ public class MessageUtil
     }
 
     /**
-     * Composes a message key with an array of arguments. The message can
-     * subsequently be decomposed and translated without prior knowledge
-     * of how many arguments were provided.
+     * Composes a message key with an array of arguments. The message can subsequently be
+     * decomposed and translated without prior knowledge of how many arguments were provided.
      */
     public static String compose (String key, Object... args)
     {
@@ -82,8 +77,8 @@ public class MessageUtil
     }
 
     /**
-     * Compose a message with String args. This is just a convenience so
-     * callers do not have to cast their String[] to an Object[].
+     * Compose a message with String args. This is just a convenience so callers do not have to
+     * cast their String[] to an Object[].
      */
     public static String compose (String key, String... args)
     {
@@ -91,12 +86,11 @@ public class MessageUtil
     }
 
     /**
-     * Used to escape single quotes so that they are not interpreted by
-     * {@link MessageFormat}. As we assume all single quotes are to be
-     * escaped, we cannot use the characters <code>{</code> and
-     * <code>}</code> in our translation strings, but this is a small
-     * price to pay to have to differentiate between messages that will
-     * and won't eventually be parsed by a {@link MessageFormat} instance.
+     * Used to escape single quotes so that they are not interpreted by <code>MessageFormat</code>.
+     * As we assume all single quotes are to be escaped, we cannot use the characters
+     * <code>{</code> and <code>}</code> in our translation strings, but this is a small price to
+     * pay to have to differentiate between messages that will and won't eventually be parsed by a
+     * <code>MessageFormat</code> instance.
      */
     public static String escape (String message)
     {
@@ -130,9 +124,8 @@ public class MessageUtil
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with an array of arguments that will be automatically tainted (see
-     * {@link #taint}).
+     * A convenience method for calling {@link #compose(String,Object[])} with an array of
+     * arguments that will be automatically tainted (see {@link #taint}).
      */
     public static String tcompose (String key, Object... args)
     {
@@ -145,8 +138,8 @@ public class MessageUtil
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,String[])}
-     * with an array of argument that will be automatically tainted.
+     * A convenience method for calling {@link #compose(String,String[])} with an array of argument
+     * that will be automatically tainted.
      */
     public static String tcompose (String key, String... args)
     {
@@ -157,8 +150,8 @@ public class MessageUtil
     }
 
     /**
-     * Decomposes a compound key into its constituent parts. Arguments
-     * that were tainted during composition will remain tainted.
+     * Decomposes a compound key into its constituent parts. Arguments that were tainted during
+     * composition will remain tainted.
      */
     public static String[] decompose (String compoundKey)
     {
@@ -170,9 +163,8 @@ public class MessageUtil
     }
 
     /**
-     * Returns a fully qualified message key which, when translated by
-     * some other bundle, will know to resolve and utilize the supplied
-     * bundle to translate this particular key.
+     * Returns a fully qualified message key which, when translated by some other bundle, will know
+     * to resolve and utilize the supplied bundle to translate this particular key.
      */
     public static String qualify (String bundle, String key)
     {
@@ -209,8 +201,7 @@ public class MessageUtil
     }
 
     /**
-     * Returns the unqualified portion of the key from a fully qualified
-     * message key.
+     * Returns the unqualified portion of the key from a fully qualified message key.
      *
      * @see #qualify
      */

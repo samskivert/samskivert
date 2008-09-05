@@ -993,7 +993,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         public static TableMetaData load (PersistenceContext ctx, final String tableName)
             throws DatabaseException
         {
-            return ctx.invoke(new Query.TrivialQuery<TableMetaData>() {
+            return ctx.invoke(new Query.Trivial<TableMetaData>() {
                 @Override public TableMetaData invoke (Connection conn, DatabaseLiaison dl)
                     throws SQLException {
                     return new TableMetaData(conn.getMetaData(), tableName);

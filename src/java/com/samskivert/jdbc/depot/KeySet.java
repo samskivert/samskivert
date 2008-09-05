@@ -21,7 +21,6 @@
 package com.samskivert.jdbc.depot;
 
 import java.util.Collection;
-import java.util.Set;
 
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
@@ -43,7 +42,7 @@ public class KeySet<T extends PersistentRecord> extends WhereClause
     /**
      * Creates a set from the supplied primary keys.
      */
-    public KeySet (Class<T> pClass, Set<Key<T>> keys)
+    public KeySet (Class<T> pClass, Collection<Key<T>> keys)
     {
         _pClass = pClass;
         _keys = keys;
@@ -148,6 +147,6 @@ public class KeySet<T extends PersistentRecord> extends WhereClause
     }
 
     protected Class<T> _pClass;
-    protected Set<Key<T>> _keys;
+    protected Collection<Key<T>> _keys;
     protected SQLExpression _condition;
 }

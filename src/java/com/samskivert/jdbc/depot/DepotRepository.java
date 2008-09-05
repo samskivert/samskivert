@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -180,6 +181,43 @@ public abstract class DepotRepository
         throws DatabaseException
     {
         return findAll(type, Arrays.asList(clauses));
+    }
+
+    /**
+     * Looks up and returns {@link Key} records for all rows that match the supplied query clauses.
+     */
+    protected <T extends PersistentRecord> List<Key<T>> findAllKeys (
+        Class<T> type, QueryClause... clause)
+    {
+        return findAllKeys(type, Arrays.asList(clause));
+    }
+
+    /**
+     * Looks up and returns {@link Key} records for all rows that match the supplied query clauses.
+     */
+    protected <T extends PersistentRecord> List<Key<T>> findAllKeys (
+        Class<T> type, Collection<? extends QueryClause> clauses)
+    {
+        // first look up the primary keys for all the rows that match our where clause
+        final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
+        final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, clauses));
+        builder.newQuery(new SelectClause<T>(type, marsh.getPrimaryKeyFields(), clauses));
+        return _ctx.invoke(new Query.Trivial<List<Key<T>>>() {
+            @Override public List<Key<T>> invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException {
+                List<Key<T>> keys = new ArrayList<Key<T>>();
+                PreparedStatement stmt = builder.prepare(conn);
+                try {
+                    ResultSet rs = stmt.executeQuery();
+                    while (rs.next()) {
+                        keys.add(marsh.makePrimaryKey(rs));
+                    }
+                    return keys;
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+            }
+        });
     }
 
     /**
@@ -710,29 +748,8 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int deleteAll (Class<T> type, final WhereClause where)
         throws DatabaseException
     {
-        // first look up the primary keys for all the rows that match our where clause
-        final Set<Key<T>> keys = new HashSet<Key<T>>();
-        final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        final SQLBuilder fbuilder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, where));
-        fbuilder.newQuery(new SelectClause<T>(type, marsh.getPrimaryKeyFields(), where));
-        _ctx.invoke(new Modifier(null) {
-            @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                PreparedStatement stmt = fbuilder.prepare(conn);
-                try {
-                    ResultSet rs = stmt.executeQuery();
-                    while (rs.next()) {
-                        keys.add(marsh.makePrimaryKey(rs));
-                    }
-                    return 0;
-                } finally {
-                    JDBCUtil.close(stmt);
-                }
-            }
-        });
-
-        // now delete using that primary key set
-        KeySet<T> pwhere = new KeySet<T>(type, keys);
+        // look up the primary keys for all rows matching our where clause and delete using those
+        KeySet<T> pwhere = new KeySet<T>(type, findAllKeys(type, where));
         return deleteAll(type, pwhere, pwhere);
     }
 

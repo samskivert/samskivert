@@ -31,7 +31,7 @@ import com.samskivert.jdbc.DatabaseLiaison;
 public interface Query<T>
 {
     /** A simple base class for non-complex queries. */
-    public abstract class TrivialQuery<T> implements Query<T>
+    public abstract class Trivial<T> implements Query<T>
     {
         public abstract T invoke (Connection conn, DatabaseLiaison liaison) throws SQLException;
 

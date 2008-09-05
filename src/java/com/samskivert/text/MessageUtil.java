@@ -94,7 +94,7 @@ public class MessageUtil
      */
     public static String escape (String message)
     {
-        return StringUtil.replace(message, "'", "''");
+        return message.replace("'", "''");
     }
 
     /**
@@ -155,7 +155,7 @@ public class MessageUtil
      */
     public static String[] decompose (String compoundKey)
     {
-        String[] args = StringUtil.split(compoundKey, "|");
+        String[] args = compoundKey.split("\\|");
         for (int ii = 0; ii < args.length; ii++) {
             args[ii] = unescape(args[ii]);
         }

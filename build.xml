@@ -156,6 +156,7 @@
     </jar>
     <!-- we export a small selection of classes for use by GWT -->
     <copy todir="${gwtjar.dir}">
+      <fileset dir="src/java" includes="com/samskivert/Utils.gwt.xml"/>
       <fileset dir="src/java" includes="com/samskivert/text/MessageUtil.java"/>
       <fileset dir="src/java" includes="com/samskivert/jdbc/depot/ByteEnum.java"/>
     </copy>

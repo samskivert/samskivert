@@ -745,7 +745,7 @@ public abstract class DepotRepository
         if (primaryKey == null) {
             throw new IllegalArgumentException("Can't delete record with null primary key.");
         }
-        return deleteAll(type, primaryKey, primaryKey);
+        return delete(type, primaryKey);
     }
 
     /**
@@ -754,8 +754,7 @@ public abstract class DepotRepository
      *
      * @return the number of rows deleted by this action.
      */
-    protected <T extends PersistentRecord> int delete (
-        Class<T> type, Comparable<?> primaryKeyValue)
+    protected <T extends PersistentRecord> int delete (Class<T> type, Comparable<?> primaryKeyValue)
         throws DatabaseException
     {
         return delete(type, _ctx.getMarshaller(type).makePrimaryKey(primaryKeyValue));

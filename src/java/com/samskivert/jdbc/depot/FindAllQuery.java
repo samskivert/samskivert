@@ -111,60 +111,45 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 JDBCUtil.close(stmt);
             }
 
-            // if we're fetching a huge number of records, we have to do it in multiple queries
-            if (fetchKeys.size() > In.MAX_KEYS) {
-                int keyCount = fetchKeys.size();
-                do {
-                    Set<Key<T>> keys = new HashSet<Key<T>>();
-                    Iterator<Key<T>> iter = fetchKeys.iterator();
-                    for (int ii = 0; ii < Math.min(keyCount, In.MAX_KEYS); ii++) {
-                        keys.add(iter.next());
-                        iter.remove();
-                    }
-                    keyCount -= keys.size();
-                    loadRecords(conn, keys, entities);
-                } while (keyCount > 0);
+            return loadAndResolve(conn, allKeys, fetchKeys, entities);
+        }
+    }
 
-            } else if (fetchKeys.size() > 0) {
-                loadRecords(conn, fetchKeys, entities);
-            }
-
-            List<T> result = new ArrayList<T>();
-            for (Key<T> key : allKeys) {
-                T value = entities.get(key);
-                if (value != null) {
-                    result.add(value);
-                }
-            }
-            return result;
+    /**
+     * The two-pass collection query implementation. {@see DepotRepository#findAll} for details.
+     */
+    public static class WithKeys<T extends PersistentRecord> extends FindAllQuery<T>
+    {
+        public WithKeys (PersistenceContext ctx, Class<T> type, Collection<Key<T>> keys)
+            throws DatabaseException
+        {
+            super(ctx, type);
+            _keys = keys;
         }
 
-        protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities)
+        public List<T> invoke (Connection conn, DatabaseLiaison liaison)
             throws SQLException
         {
-            _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(),
-                                                  new KeySet<T>(_type, keys)));
-            PreparedStatement stmt = _builder.prepare(conn);
-            try {
-                ResultSet rs = stmt.executeQuery();
-                int cnt = 0, dups = 0;
-                while (rs.next()) {
-                    T obj = _marsh.createObject(rs);
-                    if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
-                        dups++;
+            Map<Key<T>, T> entities = new HashMap<Key<T>, T>();
+            Set<Key<T>> fetchKeys = new HashSet<Key<T>>();
+            for (Key<T> key : _keys) {
+                // TODO: All this cache fiddling needs to move to PersistenceContext?
+                CacheAdapter.CachedValue<T> hit = _ctx.cacheLookup(key);
+                if (hit != null) {
+                    T value = hit.getValue();
+                    if (value != null) {
+                        @SuppressWarnings("unchecked") T newValue = (T) value.clone();
+                        entities.put(key, newValue);
+                        continue;
                     }
-                    cnt++;
                 }
-                if (cnt != keys.size()) {
-                    log.warning("Row count mismatch in second pass [query=" + stmt +
-                                ", wanted=" + keys.size() + ", got=" + cnt +
-                                ", dups=" + dups + "]");
-                }
-
-            } finally {
-                JDBCUtil.close(stmt);
+                fetchKeys.add(key);
             }
+
+            return loadAndResolve(conn, _keys, fetchKeys, entities);
         }
+
+        protected Collection<Key<T>> _keys;
     }
 
     /**
@@ -236,6 +221,65 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 result.add(cbit);
             } else {
                 result.add(null);
+            }
+        }
+        return result;
+    }
+
+    protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities)
+        throws SQLException
+    {
+        _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(),
+                                              new KeySet<T>(_type, keys)));
+        PreparedStatement stmt = _builder.prepare(conn);
+        try {
+            ResultSet rs = stmt.executeQuery();
+            int cnt = 0, dups = 0;
+            while (rs.next()) {
+                T obj = _marsh.createObject(rs);
+                if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
+                    dups++;
+                }
+                cnt++;
+            }
+            if (cnt != keys.size()) {
+                log.warning("Row count mismatch in second pass [query=" + stmt +
+                            ", wanted=" + keys.size() + ", got=" + cnt +
+                            ", dups=" + dups + "]");
+            }
+
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+    }
+
+    protected List<T> loadAndResolve (Connection conn, Collection<Key<T>> allKeys,
+                                      Set<Key<T>> fetchKeys, Map<Key<T>, T> entities)
+        throws SQLException
+    {
+        // if we're fetching a huge number of records, we have to do it in multiple queries
+        if (fetchKeys.size() > In.MAX_KEYS) {
+            int keyCount = fetchKeys.size();
+            do {
+                Set<Key<T>> keys = new HashSet<Key<T>>();
+                Iterator<Key<T>> iter = fetchKeys.iterator();
+                for (int ii = 0; ii < Math.min(keyCount, In.MAX_KEYS); ii++) {
+                    keys.add(iter.next());
+                    iter.remove();
+                }
+                keyCount -= keys.size();
+                loadRecords(conn, keys, entities);
+            } while (keyCount > 0);
+
+        } else if (fetchKeys.size() > 0) {
+            loadRecords(conn, fetchKeys, entities);
+        }
+
+        List<T> result = new ArrayList<T>();
+        for (Key<T> key : allKeys) {
+            T value = entities.get(key);
+            if (value != null) {
+                result.add(value);
             }
         }
         return result;

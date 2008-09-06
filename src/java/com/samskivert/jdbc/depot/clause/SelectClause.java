@@ -175,15 +175,6 @@ public class SelectClause<T extends PersistentRecord> extends QueryClause
     {
         classSet.add(_pClass);
 
-        // TODO: This should not have to do a getAnnotation().
-        Computed computed = _pClass.getAnnotation(Computed.class);
-        if (computed != null) {
-            Class<? extends PersistentRecord> shadowClass = computed.shadowOf();
-            if (!PersistentRecord.class.equals(shadowClass)) {
-                classSet.add(shadowClass);
-            }
-        }
-
         if (_fromOverride != null) {
             _fromOverride.addClasses(classSet);
         }

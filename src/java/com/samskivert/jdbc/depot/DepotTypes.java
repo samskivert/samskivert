@@ -169,8 +169,17 @@ public class DepotTypes
         if (_classMap.containsKey(type)) {
             return;
         }
-        _classMap.put(type, ctx.getMarshaller(type));
+
+        // add the class in question
+        DepotMarshaller<?> marsh = ctx.getMarshaller(type);
+        _classMap.put(type, marsh);
         _classIx.put(type, _classIx.size());
+
+        // if this class is @Computed and has a shadow, add its shadow
+        if (marsh.getComputed() != null &&
+            !PersistentRecord.class.equals(marsh.getComputed().shadowOf())) {
+            addClass(ctx, marsh.getComputed().shadowOf());
+        }
     }
 
     /**

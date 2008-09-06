@@ -144,6 +144,15 @@ public abstract class DepotRepository
     }
 
     /**
+     * A varargs version of {@link #findAll(Class<T>,Collection<QueryClause>)}.
+     */
+    protected <T extends PersistentRecord> List<T> findAll (Class<T> type, QueryClause... clauses)
+        throws DatabaseException
+    {
+        return findAll(type, Arrays.asList(clauses));
+    }
+
+    /**
      * Loads all persistent objects that match the specified clauses.
      *
      * We have two strategies for doing this: one performs the query as-is, the second executes
@@ -174,15 +183,6 @@ public abstract class DepotRepository
     }
 
     /**
-     * A varargs version of {@link #findAll(Class<T>,Collection<QueryClause>)}.
-     */
-    protected <T extends PersistentRecord> List<T> findAll (Class<T> type, QueryClause... clauses)
-        throws DatabaseException
-    {
-        return findAll(type, Arrays.asList(clauses));
-    }
-
-    /**
      * Looks up and returns {@link Key} records for all rows that match the supplied query clauses.
      *
      * @param forUpdate if true, the query will be run using a read-write connection to ensure that
@@ -193,6 +193,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> List<Key<T>> findAllKeys (
         Class<T> type, boolean forUpdate, QueryClause... clause)
+        throws DatabaseException
     {
         return findAllKeys(type, forUpdate, Arrays.asList(clause));
     }
@@ -208,6 +209,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> List<Key<T>> findAllKeys (
         Class<T> type, boolean forUpdate, Collection<? extends QueryClause> clauses)
+        throws DatabaseException
     {
         final List<Key<T>> keys = new ArrayList<Key<T>>();
         final DepotMarshaller<T> marsh = _ctx.getMarshaller(type);

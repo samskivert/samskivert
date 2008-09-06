@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -144,11 +145,9 @@ public abstract class DepotRepository
     }
 
     /**
-     * Converts the supplied set of raw keys into {@link Key} records so they can easily be passed
-     * to {@link #loadAll}. We'd just accept a collection of raw keys, but that would have the same
-     * type erasure as the loadAll version that accepts a collection of keys. Alas.
+     * Loads up all persistent records that match the supplied set of raw primary keys.
      */
-    protected <T extends PersistentRecord> List<Key<T>> makeKeys (
+    protected <T extends PersistentRecord> List<T> loadAll (
         Class<T> type, Collection<? extends Comparable<?>> primaryKeys)
         throws DatabaseException
     {
@@ -158,18 +157,17 @@ public abstract class DepotRepository
         for (Comparable<?> key : primaryKeys) {
             keys.add(marsh.makePrimaryKey(key));
         }
-        return keys;
+        return loadAll(keys);
     }
 
     /**
      * Loads up all persistent records that match the supplied set of primary keys.
      */
-    protected <T extends PersistentRecord> List<T> loadAll (Class<T> type, Collection<Key<T>> keys)
+    protected <T extends PersistentRecord> List<T> loadAll (Collection<Key<T>> keys)
         throws DatabaseException
     {
-        // if we have precisely one query clause and it's a KeySet, then we can skip the key lookup
-        // phase and go right to phase two of our two phase query process
-        return _ctx.invoke(new FindAllQuery.WithKeys<T>(_ctx, type, keys));
+        return (keys.size() == 0) ? Collections.<T>emptyList() :
+            _ctx.invoke(new FindAllQuery.WithKeys<T>(_ctx, keys));
     }
 
     /**

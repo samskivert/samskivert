@@ -120,10 +120,10 @@ public abstract class FindAllQuery<T extends PersistentRecord>
      */
     public static class WithKeys<T extends PersistentRecord> extends FindAllQuery<T>
     {
-        public WithKeys (PersistenceContext ctx, Class<T> type, Collection<Key<T>> keys)
+        public WithKeys (PersistenceContext ctx, Collection<Key<T>> keys)
             throws DatabaseException
         {
-            super(ctx, type);
+            super(ctx, keys.iterator().next().getPersistentClass());
             _keys = keys;
         }
 

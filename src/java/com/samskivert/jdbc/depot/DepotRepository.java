@@ -149,7 +149,7 @@ public abstract class DepotRepository
      * type erasure as the loadAll version that accepts a collection of keys. Alas.
      */
     protected <T extends PersistentRecord> List<Key<T>> makeKeys (
-        Class<T> type, Collection<Comparable<?>> primaryKeys)
+        Class<T> type, Collection<? extends Comparable<?>> primaryKeys)
         throws DatabaseException
     {
         // convert the raw keys into real key records

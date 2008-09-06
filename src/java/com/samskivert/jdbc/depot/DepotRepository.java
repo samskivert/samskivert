@@ -155,21 +155,34 @@ public abstract class DepotRepository
     /**
      * Loads all persistent objects that match the specified clauses.
      *
-     * We have two strategies for doing this: one performs the query as-is, the second executes
-     * two passes: first fetching only key columns and consulting the cache for each such key;
-     * then, in the second pass, fetching the full entity only for keys that were not found in
-     * the cache.
+     * We have two strategies for doing this: one performs the query as-is, the second executes two
+     * passes: first fetching only key columns and consulting the cache for each such key; then, in
+     * the second pass, fetching the full entity only for keys that were not found in the cache.
      *
      * The more complex strategy could save a lot of data shuffling. On the other hand, its
-     * complexity is an inherent drawback, and it does execute two separate database queries
-     * for what the simple method does in one.
+     * complexity is an inherent drawback, and it does execute two separate database queries for
+     * what the simple method does in one.
      */
     protected <T extends PersistentRecord> List<T> findAll (
         Class<T> type, Collection<? extends QueryClause> clauses)
         throws DatabaseException
     {
+        return findAll(type, false, clauses);
+    }
+
+    /**
+     * Loads all persistent objects that match the specified clauses.
+     *
+     * @param skipCache if true, our normal mixed select strategy that allows cached records to be
+     * loaded from the cache will not be used even if it otherwise could. See {@link
+     * #findAll(Class,Collection)} for details on the mixed strategy.
+     */
+    protected <T extends PersistentRecord> List<T> findAll (
+        Class<T> type, boolean skipCache, Collection<? extends QueryClause> clauses)
+        throws DatabaseException
+    {
         DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        boolean useExplicit =
+        boolean useExplicit = !skipCache ||
             (marsh.getTableName() == null) || !marsh.hasPrimaryKey() || !_ctx.isUsingCache();
 
         // queries on @Computed records or the presence of FieldOverrides use the simple algorithm
@@ -177,9 +190,8 @@ public abstract class DepotRepository
             useExplicit |= (clause instanceof FieldOverride);
         }
 
-        return _ctx.invoke(useExplicit ?
-            new FindAllQuery.Explicitly<T>(_ctx, type, clauses) :
-            new FindAllQuery.WithCache<T>(_ctx, type, clauses));
+        return _ctx.invoke(useExplicit ? new FindAllQuery.Explicitly<T>(_ctx, type, clauses) :
+                           new FindAllQuery.WithCache<T>(_ctx, type, clauses));
     }
 
     /**

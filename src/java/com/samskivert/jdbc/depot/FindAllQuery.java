@@ -125,6 +125,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
         {
             super(ctx, keys.iterator().next().getPersistentClass());
             _keys = keys;
+            _builder = ctx.getSQLBuilder(new DepotTypes(ctx, _type));
         }
 
         public List<T> invoke (Connection conn, DatabaseLiaison liaison)
@@ -226,33 +227,6 @@ public abstract class FindAllQuery<T extends PersistentRecord>
         return result;
     }
 
-    protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities)
-        throws SQLException
-    {
-        _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(),
-                                              new KeySet<T>(_type, keys)));
-        PreparedStatement stmt = _builder.prepare(conn);
-        try {
-            ResultSet rs = stmt.executeQuery();
-            int cnt = 0, dups = 0;
-            while (rs.next()) {
-                T obj = _marsh.createObject(rs);
-                if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
-                    dups++;
-                }
-                cnt++;
-            }
-            if (cnt != keys.size()) {
-                log.warning("Row count mismatch in second pass [query=" + stmt +
-                            ", wanted=" + keys.size() + ", got=" + cnt +
-                            ", dups=" + dups + "]");
-            }
-
-        } finally {
-            JDBCUtil.close(stmt);
-        }
-    }
-
     protected List<T> loadAndResolve (Connection conn, Collection<Key<T>> allKeys,
                                       Set<Key<T>> fetchKeys, Map<Key<T>, T> entities)
         throws SQLException
@@ -283,6 +257,33 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             }
         }
         return result;
+    }
+
+    protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities)
+        throws SQLException
+    {
+        _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(),
+                                              new KeySet<T>(_type, keys)));
+        PreparedStatement stmt = _builder.prepare(conn);
+        try {
+            ResultSet rs = stmt.executeQuery();
+            int cnt = 0, dups = 0;
+            while (rs.next()) {
+                T obj = _marsh.createObject(rs);
+                if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
+                    dups++;
+                }
+                cnt++;
+            }
+            if (cnt != keys.size()) {
+                log.warning("Row count mismatch in second pass [query=" + stmt +
+                            ", wanted=" + keys.size() + ", got=" + cnt +
+                            ", dups=" + dups + "]");
+            }
+
+        } finally {
+            JDBCUtil.close(stmt);
+        }
     }
 
     protected PersistenceContext _ctx;

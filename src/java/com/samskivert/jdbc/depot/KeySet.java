@@ -58,7 +58,6 @@ public class KeySet<T extends PersistentRecord> extends WhereClause
             }
 
             // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
-            
             Comparable<?>[] keyFieldValues = new Comparable<?>[keys.size()];
             int ii = 0;
             for (Key<T> key : keys) {
@@ -73,7 +72,7 @@ public class KeySet<T extends PersistentRecord> extends WhereClause
             SQLExpression[] keyArray = new SQLExpression[keys.size()];
             int ii = 0;
             for (Key<T> key : keys) {
-                keyArray[ii ++] = key.getWhereExpression();
+                keyArray[ii++] = key;
             }
             _condition = new Logic.Or(keyArray);
         }

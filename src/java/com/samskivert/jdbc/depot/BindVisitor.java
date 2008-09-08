@@ -71,7 +71,7 @@ public class BindVisitor implements ExpressionVisitor
         // nothing needed
     }
 
-    public void visit (Key<? extends PersistentRecord> key)
+    public void visit (Key<? extends PersistentRecord>.Expression key)
     {
         for (Comparable<?> value : key.getValues()) {
             if (value != null) {

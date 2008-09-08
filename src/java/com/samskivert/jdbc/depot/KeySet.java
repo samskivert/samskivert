@@ -72,7 +72,7 @@ public class KeySet<T extends PersistentRecord> extends WhereClause
             SQLExpression[] keyArray = new SQLExpression[keys.size()];
             int ii = 0;
             for (Key<T> key : keys) {
-                keyArray[ii++] = key;
+                keyArray[ii++] = key.getWhereExpression();
             }
             _condition = new Logic.Or(keyArray);
         }

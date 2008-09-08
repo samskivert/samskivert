@@ -69,7 +69,7 @@ public interface ExpressionVisitor
     public void visit (LiteralExp literalExp);
     public void visit (ValueExp valueExp);
     public void visit (WhereClause where);
-    public void visit (Key<? extends PersistentRecord> key);
+    public void visit (Key<? extends PersistentRecord>.Expression key);
     public void visit (MultiKey<? extends PersistentRecord> key);
     public void visit (Exists<? extends PersistentRecord> exists);
     public void visit (SelectClause<? extends PersistentRecord> selectClause);

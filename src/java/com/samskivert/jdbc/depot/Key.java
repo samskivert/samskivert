@@ -41,6 +41,24 @@ import com.samskivert.util.StringUtil;
 public class Key<T extends PersistentRecord> extends WhereClause
     implements SQLExpression, CacheKey, ValidatingCacheInvalidator, Serializable
 {
+    /** Handles the matching of the key columns to its bound values. This is needed so that we can
+     * combine a buncy of keys into a {@link KeySet}. */
+    public class Expression implements SQLExpression
+    {
+        public Class<T> getPersistentClass () {
+            return Key.this.getPersistentClass();
+        }
+        public List<Comparable<?>> getValues () {
+            return Key.this.getValues();
+        }
+        public void accept (ExpressionVisitor builder) {
+            builder.visit(this);
+        }
+        public void addClasses (Collection<Class<? extends PersistentRecord>> classSet) {
+            classSet.add(getPersistentClass());
+        }
+    }
+
     /**
      * Constructs a new single-column {@code Key} with the given value.
      */
@@ -130,7 +148,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     // from WhereClause
     public SQLExpression getWhereExpression ()
     {
-        throw new UnsupportedOperationException("Key is bound specially.");
+        return new Expression();
     }
 
     // from SQLExpression

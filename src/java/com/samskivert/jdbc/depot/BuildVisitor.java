@@ -94,9 +94,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
         where.getWhereExpression().accept(this);
     }
 
-    public void visit (Key<? extends PersistentRecord> key)
+    public void visit (Key<? extends PersistentRecord>.Expression key)
     {
-        _builder.append(" where ");
         Class<? extends PersistentRecord> pClass = key.getPersistentClass();
         String[] keyFields = KeyUtil.getKeyFields(pClass);
         List<Comparable<?>> values = key.getValues();

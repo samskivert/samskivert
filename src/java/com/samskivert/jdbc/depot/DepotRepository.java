@@ -821,9 +821,15 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int deleteAll (Class<T> type, final WhereClause where)
         throws DatabaseException
     {
-        // look up the primary keys for all rows matching our where clause and delete using those
-        KeySet<T> pwhere = new KeySet<T>(type, findAllKeys(type, true, where));
-        return deleteAll(type, pwhere, pwhere);
+        if (_ctx.getMarshaller(type).hasPrimaryKey()) {
+            // look up the primary keys for all rows matching our where clause and delete using those
+            KeySet<T> pwhere = new KeySet<T>(type, findAllKeys(type, true, where));
+            return deleteAll(type, pwhere, pwhere);
+        } else {
+            // otherwise just do the delete directly as we can't have cached a record that has no
+            // primary key in the first place
+            return deleteAll(type, where, null);
+        }
     }
 
     /**

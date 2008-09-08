@@ -209,7 +209,7 @@ public abstract class DepotRepository
         throws DatabaseException
     {
         DepotMarshaller<T> marsh = _ctx.getMarshaller(type);
-        boolean useExplicit = !skipCache || (marsh.getTableName() == null) ||
+        boolean useExplicit = skipCache || (marsh.getTableName() == null) ||
             !marsh.hasPrimaryKey() || !_ctx.isUsingCache();
 
         // queries on @Computed records or the presence of FieldOverrides use the simple algorithm

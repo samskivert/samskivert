@@ -43,13 +43,17 @@ public class Key<T extends PersistentRecord> extends WhereClause
 {
     /** Handles the matching of the key columns to its bound values. This is needed so that we can
      * combine a buncy of keys into a {@link KeySet}. */
-    public class Expression implements SQLExpression
+    public static class Expression<U extends PersistentRecord> implements SQLExpression
     {
-        public Class<T> getPersistentClass () {
-            return Key.this.getPersistentClass();
+        public Expression (Class<U> pClass, List<Comparable<?>> values) {
+            _pClass = pClass;
+            _values = values;
+        }
+        public Class<U> getPersistentClass () {
+            return _pClass;
         }
         public List<Comparable<?>> getValues () {
-            return Key.this.getValues();
+            return _values;
         }
         public void accept (ExpressionVisitor builder) {
             builder.visit(this);
@@ -57,6 +61,8 @@ public class Key<T extends PersistentRecord> extends WhereClause
         public void addClasses (Collection<Class<? extends PersistentRecord>> classSet) {
             classSet.add(getPersistentClass());
         }
+        protected Class<U> _pClass;
+        protected List<Comparable<?>> _values;
     }
 
     /**
@@ -148,7 +154,7 @@ public class Key<T extends PersistentRecord> extends WhereClause
     // from WhereClause
     public SQLExpression getWhereExpression ()
     {
-        return new Expression();
+        return new Expression<T>(_pClass, _values);
     }
 
     // from SQLExpression

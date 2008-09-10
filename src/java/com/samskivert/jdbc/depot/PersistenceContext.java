@@ -227,7 +227,8 @@ public class PersistenceContext
                 // underlying persistent object
                 marshaller.init(this);
                 if (marshaller.getTableName() != null && _warnOnLazyInit) {
-                    log.warning("Record initialized lazily [type=" + type.getName() + "].");
+                    log.warning("Record initialized lazily", "type", type.getName(),
+                                new Exception());
                 }
             }
         } catch (DatabaseException pe) {

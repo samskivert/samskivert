@@ -151,6 +151,52 @@ public abstract class EntityMigration extends Modifier
     }
 
     /**
+     * A convenient migration for adding a new column that requires a default value to be specified
+     * during the addition. Normally Depot will automatically handle column addition, but if you
+     * have a column that normally does not have a default value but needs one when it is added to
+     * a table with existing rows, you can use this migration.
+     *
+     * @see Column#defaultValue
+     */
+    public static class Add extends EntityMigration
+    {
+        public Add (int targetVersion, String fieldName, String defaultValue) {
+            super(targetVersion);
+            _fieldName = fieldName;
+            _defaultValue = defaultValue;
+        }
+
+        @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            // override the default value in the column definition with the one provided
+            ColumnDefinition defColumnDef = new ColumnDefinition(
+                _newColumnDef.getType(), _newColumnDef.isNullable(),
+                _newColumnDef.isUnique(), _defaultValue);
+            // first add the column with the overridden default value
+            if (liaison.addColumn(conn, _tableName, _fieldName, defColumnDef, true)) {
+                // then change the column to the permanent default value
+                liaison.changeColumn(conn, _tableName, _fieldName, _newColumnDef.getType(),
+                                     null, null, _newColumnDef.getDefaultValue());
+                return 1;
+            }
+            return 0;
+        }
+
+        @Override public boolean runBeforeDefault () {
+            return true;
+        }
+
+        @Override
+        protected void init (String tableName, Map<String, FieldMarshaller<?>> marshallers) {
+            super.init(tableName, marshallers);
+            _columnName = marshallers.get(_fieldName).getColumnName();
+            _newColumnDef = marshallers.get(_fieldName).getColumnDefinition();
+        }
+
+        protected String _fieldName, _columnName, _defaultValue;
+        protected ColumnDefinition _newColumnDef;
+    }
+
+    /**
      * If this method returns true, this migration will be run <b>before</b> the default
      * migrations, if false it will be run after.
      */

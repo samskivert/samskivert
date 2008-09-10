@@ -115,10 +115,18 @@ public interface DatabaseLiaison
         throws SQLException;
 
     /**
+     * Adds a column to a table with the given definition. Tests for the previous existence of
+     * the column iff 'check' is true.
+     */
+    public boolean addColumn (
+        Connection conn, String table, String column, ColumnDefinition columnDef, boolean check)
+        throws SQLException;
+
+    /**
      * Alter the definition, but not the name, of a given column on a given table. Returns true or
-     * false if the database did or did not report a schema modification. Any of the type,
-     * nullable, unique and defaultValue arguments may be null, in which case the implementation
-     * will attempt to leave that aspect of the column unchanged.
+     * false if the database did or did not report a schema modification. Any of the nullable,
+     * unique and defaultValue arguments may be null, in which case the implementation will attempt
+     * to leave that aspect of the column unchanged.
      */
     public boolean changeColumn (
         Connection conn, String table, String column, String type, Boolean nullable,

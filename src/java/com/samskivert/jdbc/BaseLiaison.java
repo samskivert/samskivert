@@ -161,6 +161,21 @@ public abstract class BaseLiaison implements DatabaseLiaison
     }
 
     // from DatabaseLiaison
+    public boolean addColumn (Connection conn, String table, String column,
+                              ColumnDefinition newColumnDef, boolean check)
+        throws SQLException
+    {
+        if (check && tableContainsColumn(conn, table, column)) {
+            return false;
+        }
+
+        executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ADD COLUMN " +
+                     columnSQL(column) + " " + expandDefinition(newColumnDef));
+        log.info("Database column '" + column + "' added to table '" + table + "'.");
+        return true;
+    }
+
+    // from DatabaseLiaison
     public boolean changeColumn (Connection conn, String table, String column, String type,
                                  Boolean nullable, Boolean unique, String defaultValue)
         throws SQLException

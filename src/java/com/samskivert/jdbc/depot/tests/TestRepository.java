@@ -24,11 +24,10 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Set;
 
-// import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.util.RandomUtil;
 import com.samskivert.jdbc.depot.DepotRepository;
-// import com.samskivert.jdbc.depot.EntityMigration;
+import com.samskivert.jdbc.depot.EntityMigration;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
@@ -46,8 +45,12 @@ public class TestRepository extends DepotRepository
         PersistenceContext perCtx = new PersistenceContext(
             "test", new StaticConnectionProvider("depot.properties"));
 
-// tests a bogus rename migration
-//         perCtx.registerMigration(TestRecord.class, new EntityMigration.Rename(1, "foo", "bar"));
+        // tests a bogus rename migration
+        // perCtx.registerMigration(TestRecord.class, new EntityMigration.Rename(1, "foo", "bar"));
+
+        // tests a custom add column migration
+        perCtx.registerMigration(TestRecord.class,
+                                 new EntityMigration.Add(2, TestRecord.HOME_TOWN, "'Anytown USA'"));
 
         TestRepository repo = new TestRepository(perCtx);
 
@@ -60,6 +63,7 @@ public class TestRepository extends DepotRepository
         record.name = "Elvis";
         record.age = 99;
         record.created = now;
+        record.homeTown = "Right here";
         record.lastModified = tnow;
 
         repo.insert(record);
@@ -75,6 +79,7 @@ public class TestRepository extends DepotRepository
             record.recordId = ii;
             record.name = "Spam!";
             record.age = RandomUtil.getInt(150);
+            record.homeTown = "Over there";
             record.created = now;
             record.lastModified = tnow;
             repo.insert(record);

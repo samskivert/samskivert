@@ -61,6 +61,13 @@ public class TestRecord extends PersistentRecord
     public static final ColumnExp AGE_C =
         new ColumnExp(TestRecord.class, AGE);
 
+    /** The column identifier for the {@link #homeTown} field. */
+    public static final String HOME_TOWN = "homeTown";
+
+    /** The qualified column identifier for the {@link #homeTown} field. */
+    public static final ColumnExp HOME_TOWN_C =
+        new ColumnExp(TestRecord.class, HOME_TOWN);
+
     /** The column identifier for the {@link #created} field. */
     public static final String CREATED = "created";
 
@@ -76,21 +83,19 @@ public class TestRecord extends PersistentRecord
         new ColumnExp(TestRecord.class, LAST_MODIFIED);
     // AUTO-GENERATED: FIELDS END
 
-    public static final int SCHEMA_VERSION = 1;
+    public static final int SCHEMA_VERSION = 2;
 
     @Id
     public int recordId;
 
-    @Column(nullable=false)
     public String name;
 
-    @Column(nullable=false)
     public int age;
 
-    @Column(nullable=false)
+    public String homeTown;
+
     public Date created;
 
-    @Column(nullable=false)
     public Timestamp lastModified;
 
     @Override

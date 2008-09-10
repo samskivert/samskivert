@@ -103,6 +103,15 @@ public class Invoker extends LoopingThread
             return _defaultLongThreshold;
         }
 
+        /**
+         * Detail specific to this invoker to be included with the warning if this invoker takes
+         * longer than the long threshold.  By default, no detail is included.
+         */
+        public String getDetail ()
+        {
+            return null;
+        }
+
         /** Returns the name of this invoker. */
         @Override public String toString ()
         {
@@ -238,9 +247,14 @@ public class Invoker extends LoopingThread
 
             // report long runners
             if (duration > unit.getLongThreshold()) {
-                String howLong = (duration >= 10*unit.getLongThreshold()) ? "Really long" : "Long";
-                log.warning(howLong + " invoker unit [unit=" + unit + " (" + key +
-                            "), time=" + duration + "ms].");
+                StringBuilder msg = new StringBuilder();
+                msg.append((duration >= 10*unit.getLongThreshold()) ? "Really long" : "Long");
+                msg.append(" invoker unit [unit=").append(unit);
+                msg.append(" (").append(key).append("), time=").append(duration).append("ms");
+                if (unit.getDetail() != null) {
+                    msg.append(", detail=").append(unit.getDetail());
+                }
+                log.warning(msg.append("].").toString());
             }
         }
     }

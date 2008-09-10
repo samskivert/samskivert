@@ -87,6 +87,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             Set<Key<T>> fetchKeys = new HashSet<Key<T>>();
 
             PreparedStatement stmt = _builder.prepare(conn);
+            String stmtString = stmt.toString(); // for debugging
             try {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
@@ -111,7 +112,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 JDBCUtil.close(stmt);
             }
 
-            return loadAndResolve(conn, allKeys, fetchKeys, entities);
+            return loadAndResolve(conn, allKeys, fetchKeys, entities, stmtString);
         }
     }
 
@@ -147,7 +148,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 fetchKeys.add(key);
             }
 
-            return loadAndResolve(conn, _keys, fetchKeys, entities);
+            return loadAndResolve(conn, _keys, fetchKeys, entities, null);
         }
 
         protected Collection<Key<T>> _keys;
@@ -228,7 +229,8 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     }
 
     protected List<T> loadAndResolve (Connection conn, Collection<Key<T>> allKeys,
-                                      Set<Key<T>> fetchKeys, Map<Key<T>, T> entities)
+                                      Set<Key<T>> fetchKeys, Map<Key<T>, T> entities,
+                                      String origStmt)
         throws SQLException
     {
         // if we're fetching a huge number of records, we have to do it in multiple queries
@@ -242,11 +244,11 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                     iter.remove();
                 }
                 keyCount -= keys.size();
-                loadRecords(conn, keys, entities);
+                loadRecords(conn, keys, entities, origStmt);
             } while (keyCount > 0);
 
         } else if (fetchKeys.size() > 0) {
-            loadRecords(conn, fetchKeys, entities);
+            loadRecords(conn, fetchKeys, entities, origStmt);
         }
 
         List<T> result = new ArrayList<T>();
@@ -259,7 +261,8 @@ public abstract class FindAllQuery<T extends PersistentRecord>
         return result;
     }
 
-    protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities)
+    protected void loadRecords (Connection conn, Set<Key<T>> keys, Map<Key<T>, T> entities,
+                                String origStmt)
         throws SQLException
     {
         _builder.newQuery(new SelectClause<T>(_type, _marsh.getFieldNames(),
@@ -276,8 +279,8 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 cnt++;
             }
             if (cnt != keys.size()) {
-                log.warning("Row count mismatch in second pass [query=" + stmt +
-                            ", wanted=" + keys.size() + ", got=" + cnt +
+                log.warning("Row count mismatch in second pass [origQuery=" + origStmt +
+                            ", wanted=" + keys + ", got=" + entities.keySet() +
                             ", dups=" + dups + "]");
             }
 

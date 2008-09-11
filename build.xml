@@ -11,7 +11,6 @@
   <property name="deploy.dir"  value="dist"/>
   <property name="classes.dir" value="${deploy.dir}/classes"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
-  <property name="savedoc.dir" value="docs"/>
   <property name="libs.dir"    value="lib"/>
   <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
 
@@ -121,15 +120,6 @@
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
     </javadoc>
-  </target>
-
-  <!-- builds the javadocs and stuffs them in a directory where they won't -->
-  <!-- be blown away when we do "clean" next time -->
-  <target name="savedoc" depends="javadoc">
-    <delete dir="${savedoc.dir}/api"/>
-    <copy todir="${savedoc.dir}/api">
-      <fileset dir="${javadoc.dir}" includes="**/*"/>
-    </copy>
   </target>
 
   <!-- a target for rebuilding everything -->

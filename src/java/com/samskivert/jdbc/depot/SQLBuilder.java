@@ -159,7 +159,8 @@ public abstract class SQLBuilder
                 field.getType().equals(Integer.TYPE) ||
                 field.getType().equals(Long.TYPE) ||
                 field.getType().equals(Float.TYPE) ||
-                field.getType().equals(Double.TYPE)) {
+                field.getType().equals(Double.TYPE) ||
+                ByteEnum.class.isAssignableFrom(field.getType())) {
                 defaultValue = "0";
 
             } else if (field.getType().equals(Boolean.TYPE)) {

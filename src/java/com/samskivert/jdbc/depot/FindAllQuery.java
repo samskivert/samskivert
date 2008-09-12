@@ -269,19 +269,21 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                                               new KeySet<T>(_type, keys)));
         PreparedStatement stmt = _builder.prepare(conn);
         try {
+            Set<Key<T>> got = new HashSet<Key<T>>();
             ResultSet rs = stmt.executeQuery();
             int cnt = 0, dups = 0;
             while (rs.next()) {
                 T obj = _marsh.createObject(rs);
-                if (entities.put(_marsh.getPrimaryKey(obj), obj) != null) {
+                Key<T> key = _marsh.getPrimaryKey(obj);
+                if (entities.put(key, obj) != null) {
                     dups++;
                 }
+                got.add(key);
                 cnt++;
             }
             if (cnt != keys.size()) {
-                log.warning("Row count mismatch in second pass [origQuery=" + origStmt +
-                            ", wanted=" + keys + ", got=" + entities.keySet() +
-                            ", dups=" + dups + "]", new Exception());
+                log.warning("Row count mismatch in second pass", "origQuery", origStmt,
+                            "wanted", keys, "got", got, "dups", dups, new Exception());
             }
 
         } finally {

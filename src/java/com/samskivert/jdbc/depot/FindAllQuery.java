@@ -281,7 +281,7 @@ public abstract class FindAllQuery<T extends PersistentRecord>
             if (cnt != keys.size()) {
                 log.warning("Row count mismatch in second pass [origQuery=" + origStmt +
                             ", wanted=" + keys + ", got=" + entities.keySet() +
-                            ", dups=" + dups + "]");
+                            ", dups=" + dups + "]", new Exception());
             }
 
         } finally {

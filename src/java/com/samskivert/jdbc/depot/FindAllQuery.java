@@ -281,7 +281,9 @@ public abstract class FindAllQuery<T extends PersistentRecord>
                 got.add(key);
                 cnt++;
             }
-            if (cnt != keys.size()) {
+            // if we get more results than we planned, or if we're doing a two-phase query and got
+            // fewer, then complain
+            if (cnt > keys.size() || (origStmt != null && cnt < keys.size())) {
                 log.warning("Row count mismatch in second pass", "origQuery", origStmt,
                             "wanted", keys, "got", got, "dups", dups, new Exception());
             }

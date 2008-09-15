@@ -500,13 +500,12 @@ public abstract class BuildVisitor implements ExpressionVisitor
                 "Unknown field on persistent record [record=" + type + ", field=" + field + "]");
         }
 
+        // first, see if there's a field definition
         FieldMarshaller<?> fm = dm.getFieldMarshaller(field);
-        Map<String, FieldDefinition> fieldOverrides = _definitions.get(type);
-        if (fieldOverrides != null) {
-            // first, see if there's a field override
-            FieldDefinition override = fieldOverrides.get(field);
-
-            if (override != null) {
+        Map<String, FieldDefinition> fieldDefs = _definitions.get(type);
+        if (fieldDefs != null) {
+            FieldDefinition fieldDef = fieldDefs.get(field);
+            if (fieldDef != null) {
                 boolean useOverride;
                 if (override instanceof FieldOverride) {
                     if (fm.getComputed() != null && dm.getComputed() != null) {
@@ -522,14 +521,13 @@ public abstract class BuildVisitor implements ExpressionVisitor
                 }
 
                 if (useOverride) {
-                    // If a FieldOverride's target is in turn another FieldOverride, the second
-                    // one is ignored. As an example, when creating ItemRecords from CloneRecords,
-                    // we make Item.itemId = Clone.itemId. We also make Item.parentId = Item.itemId
+                    // If a FieldOverride's target is in turn another FieldOverride, the second one
+                    // is ignored. As an example, when creating ItemRecords from CloneRecords, we
+                    // make Item.itemId = Clone.itemId. We also make Item.parentId = Item.itemId
                     // and would be dismayed to find Item.parentID = Item.itemId = Clone.itemId.
-
                     boolean saved = _enableOverrides;
                     _enableOverrides = false;
-                    override.accept(this);
+                    fieldDef.accept(this);
                     _enableOverrides = saved;
                     return;
                 }
@@ -544,10 +542,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
         Class<? extends PersistentRecord> tableClass;
         if (entityComputed == null) {
             tableClass = type;
-
         } else if (!PersistentRecord.class.equals(entityComputed.shadowOf())) {
             tableClass = entityComputed.shadowOf();
-
         } else {
             tableClass = null;
         }

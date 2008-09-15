@@ -509,7 +509,7 @@ public abstract class BuildVisitor implements ExpressionVisitor
             if (override != null) {
                 boolean useOverride;
                 if (override instanceof FieldOverride) {
-                    if (fm.getComputed() != null || dm.getComputed() != null) {
+                    if (fm.getComputed() != null) {
                         throw new IllegalArgumentException(
                             "FieldOverride cannot be used on @Computed field: " + field);
                     }

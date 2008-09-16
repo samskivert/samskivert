@@ -23,6 +23,7 @@ package com.samskivert.jdbc.depot;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
 
 import java.sql.Blob;
 import java.sql.Clob;
@@ -396,20 +397,32 @@ public abstract class FieldMarshaller<T>
         }
     }
 
-    protected static class IntArrayMarshaller extends FieldMarshaller<int[]> {
-        @Override public int[] getFromObject (Object po)
+    protected static class IntArrayMarshaller extends FieldMarshaller<byte[]> {
+        @Override public byte[] getFromObject (Object po)
             throws IllegalArgumentException, IllegalAccessException {
-            return (int[]) _field.get(po);
+            int[] values = (int[]) _field.get(po);
+            if (values == null) {
+                return null;
+            }
+            ByteBuffer bbuf = ByteBuffer.allocate(values.length * 4);
+            bbuf.asIntBuffer().put(values);
+            return bbuf.array();
+            
         }
-        @Override public int[] getFromSet (ResultSet rs)
+        @Override public byte[] getFromSet (ResultSet rs)
             throws SQLException {
-            return (int[]) rs.getObject(getColumnName());
+            return (byte[]) rs.getObject(getColumnName());
         }
-        @Override public void writeToObject (Object po, int[] value)
+        @Override public void writeToObject (Object po, byte[] data)
             throws IllegalArgumentException, IllegalAccessException {
+            int[] value = null;
+            if (data != null) {
+                value = new int[data.length/4];
+                ByteBuffer.wrap(data).asIntBuffer().get(value);
+            }
             _field.set(po, value);
         }
-        @Override public void writeToStatement (PreparedStatement ps, int column, int[] value)
+        @Override public void writeToStatement (PreparedStatement ps, int column, byte[] value)
             throws SQLException {
             ps.setObject(column, value);
         }

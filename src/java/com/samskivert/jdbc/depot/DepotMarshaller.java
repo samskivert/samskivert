@@ -358,7 +358,9 @@ public class DepotMarshaller<T extends PersistentRecord>
             int nulls = 0;
             for (int ii = 0; ii < _pkColumns.size(); ii++) {
                 FieldMarshaller<?> field = _pkColumns.get(ii);
-                if ((values[ii] = (Comparable<?>)field.getField().get(object)) == null) {
+                values[ii] = (Comparable<?>)field.getField().get(object);
+                if (values[ii] == null ||
+                    (values[ii] instanceof Number && ((Number)values[ii]).intValue() == 0)) {
                     nulls++;
                 }
             }
@@ -474,14 +476,14 @@ public class DepotMarshaller<T extends PersistentRecord>
     }
 
     /**
-     * Go through the registered {@link ValueGenerator}s for our persistent object and run the
-     * ones that match the current postFactum phase, filling in the fields on the supplied object
-     * while we go. This method used to generate a key; that is now a separate step.
+     * Go through the registered {@link ValueGenerator}s for our persistent object and run the ones
+     * that match the current postFactum phase, filling in the fields on the supplied object while
+     * we go.
      *
-     * The return value is only non-empty for the !postFactum phase, in which case it is a set
-     * of field names that are associated with {@link IdentityValueGenerator}, because these need
-     * special handling in the INSERT (specifically, 'DEFAULT' must be supplied as a value in
-     * the eventual SQL).
+     * The return value is only non-empty for the !postFactum phase, in which case it is a set of
+     * field names that are associated with {@link IdentityValueGenerator}, because these need
+     * special handling in the INSERT (specifically, 'DEFAULT' must be supplied as a value in the
+     * eventual SQL).
      */
     public Set<String> generateFieldValues (
         Connection conn, DatabaseLiaison liaison, Object po, boolean postFactum)

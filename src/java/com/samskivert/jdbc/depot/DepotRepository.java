@@ -315,12 +315,11 @@ public abstract class DepotRepository
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             @Override
             public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                // set any auto-generated column values
-                Set<String> identityFields =
-                    marsh.generateFieldValues(conn, liaison, _result, false);
-
                 // if needed, update our modifier's key so that it can cache our results
+                Set<String> identityFields = Collections.emptySet();
                 if (_key == null) {
+                    // set any auto-generated column values
+                    identityFields = marsh.generateFieldValues(conn, liaison, _result, false);
                     updateKey(marsh.getPrimaryKey(_result, false));
                 }
 
@@ -329,15 +328,13 @@ public abstract class DepotRepository
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     int mods = stmt.executeUpdate();
-
-                    // run any post-factum value generators
-                    marsh.generateFieldValues(conn, liaison, _result, true);
-
-                    // and check once more if a key now exists
+                    // run any post-factum value generators and potentially generate our key
                     if (_key == null) {
+                        marsh.generateFieldValues(conn, liaison, _result, true);
                         updateKey(marsh.getPrimaryKey(_result, false));
                     }
                     return mods;
+
                 } finally {
                     JDBCUtil.close(stmt);
                 }
@@ -739,13 +736,12 @@ public abstract class DepotRepository
                         JDBCUtil.close(stmt);
                     }
 
-                    // if the update modified zero rows or the primary key was obviously unset, do
-                    // an insertion: first, set any auto-generated column values
-                    Set<String> identityFields =
-                        marsh.generateFieldValues(conn, liaison, _result, false);
-
-                    // update our modifier's key so that it can cache our results
+                    // if the update modified zero rows or the primary key was unset, insert
+                    Set<String> identityFields = Collections.emptySet();
                     if (_key == null) {
+                        // first, set any auto-generated column values
+                        identityFields = marsh.generateFieldValues(conn, liaison, _result, false);
+                        // update our modifier's key so that it can cache our results
                         updateKey(marsh.getPrimaryKey(_result, false));
                     }
 
@@ -754,11 +750,9 @@ public abstract class DepotRepository
                     stmt = builder.prepare(conn);
                     int mods = stmt.executeUpdate();
 
-                    // run any post-factum value generators
-                    marsh.generateFieldValues(conn, liaison, _result, true);
-
-                    // and check once more if a key now exists
+                    // run any post-factum value generators and potentially generate our key
                     if (_key == null) {
+                        marsh.generateFieldValues(conn, liaison, _result, true);
                         updateKey(marsh.getPrimaryKey(_result, false));
                     }
                     created[0] = true;

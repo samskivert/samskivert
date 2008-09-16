@@ -248,7 +248,11 @@ public class MySQLBuilder
                 throw new IllegalArgumentException(
                     "Don't know how to create SQL for " + ftype + ".");
             }
-        } else if (fm instanceof ByteArrayMarshaller) {
+        } else if (fm instanceof ByteArrayMarshaller ||
+                   fm instanceof IntArrayMarshaller) {
+            if (fm instanceof IntArrayMarshaller) {
+                length *= 4;
+            }
             // semi-arbitrarily use VARBINARY() up to 32767
             if (length < (1 << 15)) {
                 return "VARBINARY(" + length + ")";
@@ -261,9 +265,6 @@ public class MySQLBuilder
                 return "MEDIUMBLOB";
             }
             return "LONGBLOB";
-
-        } else if (fm instanceof IntArrayMarshaller) {
-            return "BLOB";
         } else if (fm instanceof ByteEnumMarshaller) {
             return "TINYINT";
         } else if (fm instanceof BooleanMarshaller) {

@@ -29,7 +29,6 @@ import java.util.Map;
 
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.WhereClause;
-import com.samskivert.jdbc.depot.annotation.Computed;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 
 /**

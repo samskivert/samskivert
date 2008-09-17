@@ -58,18 +58,26 @@ public interface DatabaseLiaison
     public boolean isTransientException (SQLException sqe);
 
     /**
-     * This method deletes the column value auto-generator described in {@link
-     * #lastInsertedId}.
+     * Attempts as dialect-agnostic an interface as possible to the ability of certain databases to
+     * auto-generated numerical values for i.e. key columns; there is MySQL's AUTO_INCREMENT and
+     * PostgreSQL's DEFAULT nextval(sequence), for example.
      */
-    public void deleteGenerator (Connection conn, String tableName, String columnName)
+    public int lastInsertedId (Connection conn, String table, String column)
         throws SQLException;
 
     /**
-     * This method attempts as dialect-agnostic an interface as possible to the ability of certain
-     * databases to auto-generated numerical values for i.e. key columns; there is MySQL's
-     * AUTO_INCREMENT and PostgreSQL's DEFAULT nextval(sequence), for example.
+     * Initializes the column value auto-generator described in {@link #lastInsertedId}. This
+     * should be idempotent (meaning the generator may already exist in which case this method
+     * should have no negative effect like resetting it).
      */
-    public int lastInsertedId (Connection conn, String table, String column)
+    public void createGenerator (Connection conn, String tableName, String columnName,
+                               int initialValue)
+        throws SQLException;
+
+    /**
+     * Deletes the column value auto-generator described in {@link #lastInsertedId}.
+     */
+    public void deleteGenerator (Connection conn, String tableName, String columnName)
         throws SQLException;
 
     /**

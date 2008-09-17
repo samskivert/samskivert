@@ -43,10 +43,10 @@ public class IdentityValueGenerator extends ValueGenerator
     }
 
     @Override // from ValueGenerator
-    public void init (Connection conn, DatabaseLiaison liaison)
+    public void create (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
-        // identity value generators are auto-created by the database
+        liaison.createGenerator(conn, _dm.getTableName(), _fm.getColumnName(), _initialValue);
     }
 
     @Override // from ValueGenerator

@@ -51,6 +51,14 @@ public class MySQLLiaison extends BaseLiaison
                                 msg.indexOf("Broken pipe") != -1));
     }
 
+    // from DatabaseLiaison
+    public void createGenerator (Connection conn, String tableName, String columnName, int initValue)
+        throws SQLException
+    {
+        // TODO: is there any way we can set the initial AUTO_INCREMENT value?
+    }
+
+    // from DatabaseLiaison
     public void deleteGenerator (Connection conn, String tableName, String columnName)
         throws SQLException
     {

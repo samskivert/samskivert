@@ -705,9 +705,9 @@ public class DepotMarshaller<T extends PersistentRecord>
                         getTableName() + "_" + idx.name(), idx.unique());
                 }
 
-                // initialize our value generators
+                // create our value generators
                 for (ValueGenerator vg : _valueGenerators.values()) {
-                    vg.init(conn, liaison);
+                    vg.create(conn, liaison);
                 }
 
                 // and its full text search indexes
@@ -743,6 +743,13 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         // this is a little silly, but we need a copy for name disambiguation later
         Set<String> indicesCopy = new HashSet<String>(metaData.indexColumns.keySet());
+
+        // figure out which columns we have in the table now, so that when all is said and done we
+        // can see what new columns we have in the table and run the creation code for any value
+        // generators that are defined on those columns (we can't just track the columns we add in
+        // our automatic migrations because someone might register custom migrations that add
+        // columns specially)
+        Set<String> preMigrateColumns = new HashSet<String>(metaData.tableColumns);
 
         // add any missing columns
         for (String fname : _columnFields) {
@@ -896,14 +903,31 @@ public class DepotMarshaller<T extends PersistentRecord>
             }
         }
 
-        // last of all (re-)initialize our value generators, since one might've been added
-        if (_valueGenerators.size() > 0) {
+        // now reload our table metadata so that we can see what columns we have now
+        metaData = TableMetaData.load(ctx, getTableName());
+
+        // initialize value generators for any columns that have been newly added
+        for (String column : metaData.tableColumns) {
+            if (preMigrateColumns.contains(column)) {
+                continue;
+            }
+
+            // see if we have a value generator for this new column
+            final ValueGenerator valgen = _valueGenerators.get(column);
+            if (valgen == null) {
+                continue;
+            }
+
+            // note: if someone renames a column that has an identity value generator, things will
+            // break because Postgres automatically creates a table_column_seq sequence that is
+            // used to generate values for that column and god knows what happens when that is
+            // renamed; plus we're potentially going to try to reinitialize it if it has a non-zero
+            // initialValue which will use the new column name to obtain the sequence name which
+            // ain't going to work either; we punt!
             ctx.invoke(new Modifier() {
                 @Override
                 public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
-                    for (ValueGenerator vg : _valueGenerators.values()) {
-                        vg.init(conn, liaison);
-                    }
+                    valgen.create(conn, liaison);
                     return 0;
                 }
             });

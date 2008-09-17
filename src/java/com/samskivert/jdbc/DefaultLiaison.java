@@ -48,6 +48,13 @@ public class DefaultLiaison extends BaseLiaison
     }
 
     // from DatabaseLiaison
+    public void createGenerator (Connection conn, String tableName, String columnName, int initValue)
+        throws SQLException
+    {
+        // nothing doing
+    }
+
+    // from DatabaseLiaison
     public void deleteGenerator (Connection conn, String tableName, String columnName)
         throws SQLException
     {

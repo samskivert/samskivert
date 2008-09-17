@@ -58,21 +58,32 @@ public class PostgreSQLLiaison extends BaseLiaison
         // sequences and DEFAULT nextval(sequence) modifiers in the ID columns. To get the next ID,
         // we use the currval() method which is set in a database sessions when any given sequence
         // is incremented.
-        Statement stmt = null;
-
+        Statement stmt = conn.createStatement();
         try {
-            stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(
                 "select currval('\"" + table + "_" + column + "_seq\"')");
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                return -1;
-            }
-
+            return rs.next() ? rs.getInt(1) :-1;
         } finally {
             JDBCUtil.close(stmt);
         }
+    }
+
+    // from DatabaseLiaison
+    public void createGenerator (Connection conn, String tableName, String columnName, int initValue)
+        throws SQLException
+    {
+        if (initValue == 1) {
+            return; // that's the default! yay, do nothing
+        }
+
+        String seqname = "\"" + tableName + "_" + columnName + "_seq\"";
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.executeQuery("select setval('" + seqname + "', " + initValue + ", false)");
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+        log.info("Initial value of " + seqname  + " set to " + initValue + ".");
     }
 
     // from DatabaseLiaison

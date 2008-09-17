@@ -54,14 +54,9 @@ public class TableValueGenerator extends ValueGenerator
     }
 
     @Override // from ValueGenerator
-    public void init (Connection conn, DatabaseLiaison liaison)
+    public void create (Connection conn, DatabaseLiaison liaison)
         throws SQLException
     {
-        if (_initialized) {
-            return;
-        }
-        _initialized = true;
-
         // make sure our table exists
         liaison.createTableIfMissing(
             conn, _valueTable,
@@ -172,7 +167,6 @@ public class TableValueGenerator extends ValueGenerator
         return value;
     }
 
-    protected boolean _initialized;
     protected String _valueTable;
     protected String _pkColumnName;
     protected String _pkColumnValue;

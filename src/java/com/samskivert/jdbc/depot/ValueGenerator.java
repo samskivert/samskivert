@@ -52,9 +52,13 @@ public abstract class ValueGenerator
     public abstract boolean isPostFactum ();
 
     /**
-     * Ensures the generator is prepared for operation, creating it (only) if necessary.
+     * Ensures the generator is prepared for operation, creating it if necessary. Care is taken to
+     * only run this the first time a column is created. However, if a column with a value
+     * generator is renamed, we can't distinguish that from a newly created column and we call this
+     * method again on the renamed column. If it's possible to not fail in that circumstance, try
+     * to avoid doing so.
      */
-    public abstract void init (Connection conn, DatabaseLiaison liaison)
+    public abstract void create (Connection conn, DatabaseLiaison liaison)
         throws SQLException;
 
     /**

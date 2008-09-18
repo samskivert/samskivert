@@ -144,20 +144,20 @@ public abstract class Predicate<T>
      * Returns a type-safe reference to the shared instance of a predicate that always returns
      * <code>true</code>.
      */
-    @SuppressWarnings("unchecked")
     public static <T> Predicate<T> trueInstance ()
     {
-        return TRUE_INSTANCE;
+        @SuppressWarnings("unchecked") Predicate<T> pred = (Predicate<T>)TRUE_INSTANCE;
+        return pred;
     }
 
     /**
      * Returns a type-safe reference to the shared instance of a predicate that always returns
      * <code>false</code>.
      */
-    @SuppressWarnings("unchecked")
     public static <T> Predicate<T> falseInstance ()
     {
-        return FALSE_INSTANCE;
+        @SuppressWarnings("unchecked") Predicate<T> pred = (Predicate<T>)FALSE_INSTANCE;
+        return pred;
     }
 
     //--------------------------------------------------------------------
@@ -312,14 +312,14 @@ public abstract class Predicate<T>
     }
 
     /** A shared predicate instance that always matches its input. */
-    protected static final Predicate TRUE_INSTANCE = new Predicate() {
+    protected static final Predicate<Object> TRUE_INSTANCE = new Predicate<Object>() {
         public boolean isMatch (Object object) {
             return true;
         }
     };
 
     /** A shared predicate instance that never matches its input. */
-    protected static final Predicate FALSE_INSTANCE = new Predicate() {
+    protected static final Predicate<Object> FALSE_INSTANCE = new Predicate<Object>() {
         public boolean isMatch (Object object) {
             return false;
         }

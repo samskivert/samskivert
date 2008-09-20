@@ -37,9 +37,14 @@ import static com.samskivert.jdbc.depot.Log.log;
 public class EHCacheAdapter
     implements CacheAdapter
 {
-    public EHCacheAdapter ()
+    /**
+     * Creates an adapter using the supplied cache manager. Note: this adapter does not shut down
+     * the supplied manager when it is shutdown. The caller is responsible for shutting down the
+     * cache manager when it knows that Depot and any other clients no longer need it.
+     */
+    public EHCacheAdapter (CacheManager cachemgr)
     {
-        _cachemgr = CacheManager.getInstance();
+        _cachemgr = cachemgr;
 
         CacheManagerPeerListener listener = _cachemgr.getCachePeerListener();
         CacheManagerPeerProvider provider = _cachemgr.getCachePeerProvider();
@@ -135,7 +140,6 @@ public class EHCacheAdapter
     // from CacheAdapter
     public void shutdown ()
     {
-        CacheManager.getInstance().shutdown();
     }
 
     protected boolean _distributed;

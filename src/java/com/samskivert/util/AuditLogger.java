@@ -64,12 +64,14 @@ public class AuditLogger
     }
 
     /**
-     * Writes the supplied message to the log, prefixed by a date and timestamp. A newline will be
-     * appended to the message.
+     * Builds a log entry out of the given message and args using
+     * {@link Logger#format(Object, Object...)}, prefixes it with the current date and time,
+     * appends a newline to it and writes it to the log.
      */
-    public synchronized void log (String message)
+    public synchronized void log (String message, Object...args)
     {
         // construct the message
+        message = Logger.format(message, args);
         StringBuffer buf = new StringBuffer(message.length() + TIMESTAMP_LENGTH);
         _format.format(new Date(), buf, _fpos);
         buf.append(message);

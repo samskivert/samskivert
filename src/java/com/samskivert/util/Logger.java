@@ -40,33 +40,6 @@ package com.samskivert.util;
 public abstract class Logger
 {
     /**
-     * Formats the given message and array of alternating key value pairs like so:
-     *
-     * <pre>message [key=value, key=value, key=value]</pre>
-     */
-    public static String format (Object message, Object... args)
-    {
-        StringBuilder buf = new StringBuilder();
-        buf.append(message);
-        if (args != null && args.length > 1) {
-            buf.append(" [");
-            for (int ii = 0, nn = args.length/2; ii < nn; ii++) {
-                if (ii > 0) {
-                    buf.append(", ");
-                }
-                buf.append(args[2*ii]).append("=");
-                try {
-                    StringUtil.toString(buf, args[2*ii+1]);
-                } catch (Throwable t) {
-                    buf.append("<toString() failure: " + t + ">");
-                }
-            }
-            buf.append("]");
-        }
-        return buf.toString();
-    }
-
-    /**
      * Used to create logger instances. This is only public so that the log factory can be
      * configured programmatically via {@link Logger#setFactory}.
      */
@@ -103,6 +76,33 @@ public abstract class Logger
     {
         _factory = factory;
         _factory.init();
+    }
+
+    /**
+     * Formats the given message and array of alternating key value pairs like so:
+     *
+     * <pre>message [key=value, key=value, key=value]</pre>
+     */
+    public static String format (Object message, Object... args)
+    {
+        StringBuilder buf = new StringBuilder();
+        buf.append(message);
+        if (args != null && args.length > 1) {
+            buf.append(" [");
+            for (int ii = 0, nn = args.length/2; ii < nn; ii++) {
+                if (ii > 0) {
+                    buf.append(", ");
+                }
+                buf.append(args[2*ii]).append("=");
+                try {
+                    StringUtil.toString(buf, args[2*ii+1]);
+                } catch (Throwable t) {
+                    buf.append("<toString() failure: " + t + ">");
+                }
+            }
+            buf.append("]");
+        }
+        return buf.toString();
     }
 
     /**

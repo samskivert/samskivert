@@ -388,21 +388,16 @@ public abstract class DepotRepository
     protected <T extends PersistentRecord> int update (T record, final String... modifiedFields)
         throws DatabaseException
     {
-        @SuppressWarnings("unchecked")
-        Class<T> pClass = (Class<T>) record.getClass();
-
+        @SuppressWarnings("unchecked") Class<T> pClass = (Class<T>) record.getClass();
         requireNotComputed(pClass, "updatePartial");
 
         DepotMarshaller<T> marsh = _ctx.getMarshaller(pClass);
-
         Key<T> key = marsh.getPrimaryKey(record);
-
         if (key == null) {
             throw new IllegalArgumentException("Can't update record with null primary key.");
         }
 
         UpdateClause<T> update = new UpdateClause<T>(pClass, key, modifiedFields, record);
-
         final SQLBuilder builder = _ctx.getSQLBuilder(DepotTypes.getDepotTypes(_ctx, update));
         builder.newQuery(update);
 

@@ -80,9 +80,16 @@ public class TestRecord extends PersistentRecord
     /** The qualified column identifier for the {@link #lastModified} field. */
     public static final ColumnExp LAST_MODIFIED_C =
         new ColumnExp(TestRecord.class, LAST_MODIFIED);
+
+    /** The column identifier for the {@link #numbers} field. */
+    public static final String NUMBERS = "numbers";
+
+    /** The qualified column identifier for the {@link #numbers} field. */
+    public static final ColumnExp NUMBERS_C =
+        new ColumnExp(TestRecord.class, NUMBERS);
     // AUTO-GENERATED: FIELDS END
 
-    public static final int SCHEMA_VERSION = 2;
+    public static final int SCHEMA_VERSION = 3;
 
     @Id
     public int recordId;
@@ -97,6 +104,8 @@ public class TestRecord extends PersistentRecord
 
     public Timestamp lastModified;
 
+    public int[] numbers;
+
     @Override
     public String toString ()
     {
@@ -105,7 +114,7 @@ public class TestRecord extends PersistentRecord
 
     // AUTO-GENERATED: METHODS START
     /**
-     * Create and return a primary {@link Key} to identify a {@link #TestRecord}
+     * Create and return a primary {@link Key} to identify a {@link TestRecord}
      * with the supplied key values.
      */
     public static Key<TestRecord> getKey (int recordId)

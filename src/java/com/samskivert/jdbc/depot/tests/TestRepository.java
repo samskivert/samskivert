@@ -54,32 +54,40 @@ public class TestRepository extends DepotRepository
 
         TestRepository repo = new TestRepository(perCtx);
 
-        repo.delete(TestRecord.class, 0);
+        repo.delete(TestRecord.class, 1);
 
         Date now = new Date(System.currentTimeMillis());
         Timestamp tnow = new Timestamp(System.currentTimeMillis());
 
         TestRecord record = new TestRecord();
+        record.recordId = 1;
         record.name = "Elvis";
         record.age = 99;
         record.created = now;
         record.homeTown = "Right here";
         record.lastModified = tnow;
+        record.numbers = new int[] { 9, 0, 2, 1, 0 };
 
         repo.insert(record);
         System.out.println(repo.load(TestRecord.class, record.recordId));
 
-        record.age = 25;
-        record.name = "Bob";
-        repo.update(record, "age");
+//         record.age = 25;
+//         record.name = "Bob";
+//         record.numbers = new int[] { 1, 2, 3, 4, 5 };
+//         repo.update(record, TestRecord.AGE, TestRecord.NAME, TestRecord.NUMBERS);
+
+        repo.updatePartial(TestRecord.class, record.recordId,
+                           TestRecord.AGE, 25, TestRecord.NAME, "Bob",
+                           TestRecord.NUMBERS, new int[] { 1, 2, 3, 4, 5 });
         System.out.println(repo.load(TestRecord.class, record.recordId));
 
-        for (int ii = 1; ii < CREATE_RECORDS; ii++) {
+        for (int ii = 2; ii < CREATE_RECORDS; ii++) {
             record = new TestRecord();
             record.recordId = ii;
             record.name = "Spam!";
             record.age = RandomUtil.getInt(150);
             record.homeTown = "Over there";
+            record.numbers = new int[] { 5, 4, 3, 2, 1 };
             record.created = now;
             record.lastModified = tnow;
             repo.insert(record);

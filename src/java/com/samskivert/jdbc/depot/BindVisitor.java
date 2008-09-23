@@ -20,6 +20,7 @@
 
 package com.samskivert.jdbc.depot;
 
+import java.nio.ByteBuffer;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
@@ -278,9 +279,16 @@ public class BindVisitor implements ExpressionVisitor
     protected void writeValueToStatement (Object value)
     {
         try {
-            // setObject handles almost all conversions internally, but enums require special care
+            // TODO: how can we abstract this fieldless marshalling
             if (value instanceof ByteEnum) {
+                // byte enums require special conversion
                 _stmt.setByte(_argIdx++, ((ByteEnum)value).toByte());
+            } else if (value instanceof int[]) {
+                // int arrays require conversion to byte arrays
+                int[] data = (int[])value;
+                ByteBuffer bbuf = ByteBuffer.allocate(data.length * 4);
+                bbuf.asIntBuffer().put(data);
+                _stmt.setObject(_argIdx++, bbuf.array());
             } else {
                 _stmt.setObject(_argIdx++, value);
             }

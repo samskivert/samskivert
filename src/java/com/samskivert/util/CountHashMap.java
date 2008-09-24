@@ -199,18 +199,13 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         @Override public Iterator<Entry<E>> iterator () {
             final Iterator<Map.Entry<E, int[]>> itr = _superset.iterator();
             return new Iterator<Entry<E>>() {
-                public boolean hasNext ()
-                {
+                public boolean hasNext () {
                     return itr.hasNext();
                 }
-
-                public Entry<E> next ()
-                {
+                public Entry<E> next () {
                     return new CountEntryImpl<E>(itr.next());
                 }
-
-                public void remove ()
-                {
+                public void remove () {
                     itr.remove();
                 }
             };

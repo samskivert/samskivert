@@ -29,8 +29,8 @@ import java.util.Set;
 /**
  * A hashmap that maintains a count for each key.
  *
- * This implementation should change so that we extend AbstractMap, do our
- * own hashing, and can use our own Entry class.
+ * This implementation should change so that we extend AbstractMap, do our own hashing, and can use
+ * our own Entry class.
  */
 public class CountHashMap<K> extends HashMap<K, int[]>
 {
@@ -49,8 +49,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
     }
 
     /**
-     * Increment the value associated with the specified key, return
-     * the new value.
+     * Increment the value associated with the specified key, return the new value.
      */
     public int incrementCount (K key, int amount)
     {
@@ -61,9 +60,8 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         val[0] += amount;
         return val[0];
 
-        /* Alternate implementation, less hashing on the first increment
-         * but more garbage created every other time.
-         * (this whole method would be more optimal if this class were
+        /* Alternate implementation, less hashing on the first increment but more garbage created
+         * every other time.  (this whole method would be more optimal if this class were
          * rewritten)
          *
         int[] newVal = new int[] { amount };
@@ -130,8 +128,8 @@ public class CountHashMap<K> extends HashMap<K, int[]>
     @SuppressWarnings("unchecked")
     public Set<Map.Entry<K, int[]>> entrySet ()
     {
-        // a giant mess of hoop-jumpery so that we can convert each Map.Entry
-        // returned by the iterator to be a CountEntryImpl
+        // a giant mess of hoop-jumpery so that we can convert each Map.Entry returned by the
+        // iterator to be a CountEntryImpl
         return new CountEntrySet(super.entrySet());
     }
 
@@ -146,62 +144,59 @@ public class CountHashMap<K> extends HashMap<K, int[]>
     protected static class CountEntryImpl<K>
         implements Entry<K>
     {
-        public CountEntryImpl (Map.Entry<K, int[]> entry)
-        {
+        public CountEntryImpl (Map.Entry<K, int[]> entry) {
             _entry = entry;
         }
 
-        @Override public boolean equals (Object o)
-        {
-            return _entry.equals(o);
-        }
-
-        public K getKey ()
-        {
+        public K getKey () {
             return _entry.getKey();
         }
 
-        public int[] getValue ()
-        {
+        public int[] getValue () {
             return _entry.getValue();
         }
 
-        @Override public int hashCode ()
-        {
-            return _entry.hashCode();
-        }
-
-        public int[] setValue (int[] value)
-        {
+        public int[] setValue (int[] value) {
             return _entry.setValue(value);
         }
 
-        public int getCount ()
-        {
+        public int getCount () {
             return getValue()[0];
         }
 
-        public int setCount (int count)
-        {
+        public int setCount (int count) {
             int[] val = getValue();
             int oldVal = val[0];
             val[0] = count;
             return oldVal;
         }
 
+        @Override public int hashCode () {
+            return _entry.hashCode();
+        }
+
+        @Override public boolean equals (Object o) {
+            if (!(o instanceof CountEntryImpl)) {
+                return false;
+            }
+            @SuppressWarnings("unchecked") CountEntryImpl<K> other = (CountEntryImpl<K>)o;
+            return _entry.equals(other._entry);
+        }
+
+        @Override public String toString () {
+            return _entry.toString();
+        }
+
         protected Map.Entry<K, int[]> _entry;
     }
 
-    protected class CountEntrySet<E>
-        extends AbstractSet<Entry<E>>
+    protected class CountEntrySet<E> extends AbstractSet<Entry<E>>
     {
-        public CountEntrySet (Set<Map.Entry<E,int[]>> superset)
-        {
+        public CountEntrySet (Set<Map.Entry<E,int[]>> superset) {
             _superset = superset;
         }
 
-        @Override public Iterator<Entry<E>> iterator ()
-        {
+        @Override public Iterator<Entry<E>> iterator () {
             final Iterator<Map.Entry<E, int[]>> itr = _superset.iterator();
             return new Iterator<Entry<E>>() {
                 public boolean hasNext ()
@@ -221,23 +216,19 @@ public class CountHashMap<K> extends HashMap<K, int[]>
             };
         }
 
-        @Override public boolean contains (Object o)
-        {
+        @Override public boolean contains (Object o) {
             return _superset.contains(o);
         }
 
-        @Override public boolean remove (Object o)
-        {
+        @Override public boolean remove (Object o) {
             return _superset.remove(o);
         }
 
-        @Override public int size ()
-        {
+        @Override public int size () {
             return CountHashMap.this.size();
         }
 
-        @Override public void clear ()
-        {
+        @Override public void clear () {
             CountHashMap.this.clear();
         }
 

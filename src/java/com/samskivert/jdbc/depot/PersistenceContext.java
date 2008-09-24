@@ -125,6 +125,22 @@ public class PersistenceContext
     }
 
     /**
+     * Creates an uninitialized persistence context. {@link #init} must later be called on this
+     * context to prepare it for operation.
+     */
+    public PersistenceContext ()
+    {
+    }
+
+    /**
+     * Creates and initializes a persistence context. See {@link #init}.
+     */
+    public PersistenceContext (String ident, ConnectionProvider conprov, CacheAdapter adapter)
+    {
+        init(ident, conprov, adapter);
+    }
+
+    /**
      * Initializes this context with its connection provider and cache adapter.
      *
      * @param ident the identifier to provide to the connection provider when requesting a

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,22 +57,44 @@ import com.samskivert.jdbc.depot.expression.ValueExp;
 public abstract class DepotRepository
 {
     /**
-     * Creates a repository with the supplied connection provider and its own private persistence
-     * context.
-     */
-    protected DepotRepository (ConnectionProvider conprov)
-    {
-        _ctx = new PersistenceContext(getClass().getName(), conprov);
-        _ctx.repositoryCreated(this);
-    }
-
-    /**
-     * Creates a repository with the supplied persistence context.
+     * Creates a repository with the supplied persistence context. Any schema migrations needed by
+     * this repository should be registered in its constructor. A repository should <em>not</em>
+     * perform any actual database operations in its constructor, only register schema
+     * migrations. Initialization related database operations should be performed in {@link #init}.
      */
     protected DepotRepository (PersistenceContext context)
     {
         _ctx = context;
         _ctx.repositoryCreated(this);
+    }
+
+    /**
+     * Creates a repository with the supplied connection provider and its own private persistence
+     * context. This should generally not be used for new systems, and is only included to
+     * facilitate the integration of small numbers of Depot-based repositories into systems using
+     * the older samskivert SimpleRepository system.
+     */
+    protected DepotRepository (ConnectionProvider conprov)
+    {
+        _ctx = new PersistenceContext();
+        _ctx.init(getClass().getName(), conprov, null);
+        _ctx.repositoryCreated(this);
+    }
+
+    /**
+     * Provides a place where a repository can perform any initialization that requires database
+     * operations. The default implementation resolves all records managed by this repository so
+     * that their schema migrations are run.
+     */
+    protected void init ()
+        throws DatabaseException
+    {
+        Set<Class<? extends PersistentRecord>> classes =
+            new HashSet<Class<? extends PersistentRecord>>();
+        getManagedRecords(classes);
+        for (Class<? extends PersistentRecord> rclass : classes) {
+            _ctx.getMarshaller(rclass);
+        }
     }
 
     /**

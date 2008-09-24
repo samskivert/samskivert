@@ -20,8 +20,10 @@
 
 package com.samskivert.jdbc.depot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,38 +117,27 @@ public class PersistenceContext
     }
 
     /**
-     * Creates a persistence context that will use the supplied provider to obtain JDBC
-     * connections.
-     *
-     * @param ident the identifier to provide to the connection provider when requesting a
-     * connection.
-     */
-    public PersistenceContext (String ident, ConnectionProvider conprov)
-    {
-        this(ident, conprov, null);
-    }
-
-    /**
-     * Creates a persistence context that will use the supplied provider to obtain JDBC
-     * connections.
-     *
-     * @param ident the identifier to provide to the connection provider when requesting a
-     * connection.
-     */
-    public PersistenceContext (String ident, ConnectionProvider conprov, CacheAdapter adapter)
-    {
-        _ident = ident;
-        _conprov = conprov;
-        _liaison = LiaisonRegistry.getLiaison(conprov.getURL(ident));
-        _cache = adapter;
-    }
-
-    /**
      * Returns the cache adapter used by this context or null if caching is disabled.
      */
     public CacheAdapter getCacheAdapter ()
     {
         return _cache;
+    }
+
+    /**
+     * Initializes this context with its connection provider and cache adapter.
+     *
+     * @param ident the identifier to provide to the connection provider when requesting a
+     * connection.
+     * @param conprov provides JDBC {@link Connection} instances.
+     * @param adapter an optional adapter to a cache management system.
+     */
+    public void init (String ident, ConnectionProvider conprov, CacheAdapter adapter)
+    {
+        _ident = ident;
+        _conprov = conprov;
+        _liaison = LiaisonRegistry.getLiaison(conprov.getURL(ident));
+        _cache = adapter;
     }
 
     /**
@@ -220,6 +211,7 @@ public class PersistenceContext
     public <T extends PersistentRecord> DepotMarshaller<T> getMarshaller (Class<T> type)
         throws DatabaseException
     {
+        checkAreInitialized(); // le check du sanity
         DepotMarshaller<T> marshaller = getRawMarshaller(type);
         try {
             if (!marshaller.isInitialized()) {
@@ -447,22 +439,28 @@ public class PersistenceContext
     }
 
     /**
-     * Iterates over all {@link PersistentRecord} classes managed by this context and initializes
-     * their {@link DepotMarshaller}. This forces migrations to run and the database schema to be
-     * created.
+     * Initializes all repositories that have been created and registered with this persistence
+     * context. Any repositories that are constructed after this call will be immediately
+     * initialized at the time they are constructed (which is probably undesirable). When a
+     * repository is initialized, schema migrations for all of its managed persistent records are
+     * run. It is best to do all schema migrations when the system initializes which is why lazy
+     * initialization of repositories is undesirable.
      *
-     * @param warnOnLazyInit if true, any persistent records that are resolved after this method is
-     * called will result in a warning so that the application developer can restructure their code
-     * to ensure that those records are properly registered prior to this call.
+     * @param warnOnLazyInit if true, any repositories are constructed after this method is called
+     * will result in a warning so that the application developer can restructure their code to
+     * ensure that those repositories are properly created prior to this call.
      */
-    public void initializeManagedRecords (boolean warnOnLazyInit)
+    public void initializeRepositories (boolean warnOnLazyInit)
         throws DatabaseException
     {
-        for (Class<? extends PersistentRecord> rclass : _managedRecords) {
-            getMarshaller(rclass);
+        // initialize our repositories
+        for (DepotRepository repo : _repositories) {
+            repo.init();
         }
+        // note that we've now been initialized
+        _repositories = null;
         // now issue a warning if we lazily initialize any other persistent record
-        _warnOnLazyInit = true;
+        _warnOnLazyInit = warnOnLazyInit;
     }
 
     /**
@@ -472,12 +470,18 @@ public class PersistenceContext
      */
     protected void repositoryCreated (DepotRepository repo)
     {
-        repo.getManagedRecords(_managedRecords);
+        if (_repositories == null) {
+            if (_warnOnLazyInit) {
+                log.warning("Repository created lazily: " + repo.getClass().getName());
+            }
+            repo.init();
+        } else {
+            _repositories.add(repo);
+        }
     }
 
     /**
-     * Looks up and creates, but does not initialize, the marshaller for the specified Entity
-     * type.
+     * Looks up and creates, but does not initialize, the marshaller for the specified Entity type.
      */
     protected <T extends PersistentRecord> DepotMarshaller<T> getRawMarshaller (Class<T> type)
     {
@@ -490,13 +494,13 @@ public class PersistenceContext
     }
 
     /**
-     * Internal invoke method that takes care of transient retries
-     * for both queries and modifiers.
+     * Internal invoke method that takes care of transient retries for both queries and modifiers.
      */
-    protected <T> Object invoke (
-        Query<T> query, Modifier modifier, boolean retryOnTransientFailure)
+    protected <T> Object invoke (Query<T> query, Modifier modifier, boolean retryOnTransientFailure)
         throws DatabaseException
     {
+        checkAreInitialized(); // le check du sanity
+
         boolean isReadOnlyQuery = (query != null);
         Connection conn;
         try {
@@ -556,6 +560,15 @@ public class PersistenceContext
         return invoke(query, modifier, false);
     }
 
+    protected void checkAreInitialized ()
+    {
+        if (_conprov == null) {
+            throw new IllegalStateException(
+                "This persistence context has not yet been initialized. You are probably " +
+                "doing something too early, like in a repository's constructor. Don't do that.");
+        }
+    }
+
     protected String _ident;
     protected ConnectionProvider _conprov;
     protected DatabaseLiaison _liaison;
@@ -564,16 +577,14 @@ public class PersistenceContext
     /** The object through which all our caching is relayed, or null, for no caching. */
     protected CacheAdapter _cache;
 
-    protected Map<String, Set<CacheListener<?>>> _listenerSets =
-        new HashMap<String, Set<CacheListener<?>>>();
+    /** Tracks repositories during the pre-initialization phase. */
+    protected List<DepotRepository> _repositories = new ArrayList<DepotRepository>();
 
+    /** A mapping from persistent record class to resolved marshaller. */
     protected Map<Class<?>, DepotMarshaller<?>> _marshallers =
         new HashMap<Class<?>, DepotMarshaller<?>>();
 
-    /**
-     * The set of persistent records for which this context is responsible. This data is used by
-     * {@link #initializeManagedRecords} to force migration/schema initialization.
-     */
-    protected Set<Class<? extends PersistentRecord>> _managedRecords =
-        new HashSet<Class<? extends PersistentRecord>>();
+    /** A mapping of cache listeners by cache id. */
+    protected Map<String, Set<CacheListener<?>>> _listenerSets =
+        new HashMap<String, Set<CacheListener<?>>>();
 }

@@ -42,8 +42,8 @@ public class TestRepository extends DepotRepository
     public static void main (String[] args)
         throws Exception
     {
-        PersistenceContext perCtx = new PersistenceContext(
-            "test", new StaticConnectionProvider("depot.properties"));
+        PersistenceContext perCtx = new PersistenceContext();
+        perCtx.init("test", new StaticConnectionProvider("depot.properties"), null);
 
         // tests a bogus rename migration
         // perCtx.registerMigration(TestRecord.class, new EntityMigration.Rename(1, "foo", "bar"));

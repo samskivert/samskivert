@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +50,8 @@ import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
 import com.samskivert.jdbc.depot.expression.SQLExpression;
 import com.samskivert.jdbc.depot.expression.ValueExp;
+
+import static com.samskivert.jdbc.depot.Log.log;
 
 /**
  * Provides a base for classes that provide access to persistent objects. Also defines the
@@ -82,11 +85,11 @@ public abstract class DepotRepository
     }
 
     /**
-     * Provides a place where a repository can perform any initialization that requires database
-     * operations. The default implementation resolves all records managed by this repository so
-     * that their schema migrations are run.
+     * Resolves all persistent records registered to this repository (via {@link
+     * #getManagedRecords}. This will be done before the repository is initialized via {@link
+     * #init}.
      */
-    protected void init ()
+    protected void resolveRecords ()
         throws DatabaseException
     {
         Set<Class<? extends PersistentRecord>> classes =
@@ -94,6 +97,41 @@ public abstract class DepotRepository
         getManagedRecords(classes);
         for (Class<? extends PersistentRecord> rclass : classes) {
             _ctx.getMarshaller(rclass);
+        }
+    }
+
+    /**
+     * Provides a place where a repository can perform any initialization that requires database
+     * operations.
+     */
+    protected void init ()
+        throws DatabaseException
+    {
+        // run any registered data migrations
+        for (DataMigration migration : _dataMigs) {
+            runMigration(migration);
+        }
+        _dataMigs = null; // note that we've been initialized
+    }
+
+    /**
+     * Registers a data migration for this repository. This migration will only be run once and its
+     * unique identifier will be stored persistently to ensure that it is never run again on the
+     * same database. Nonetheless, migrations should strive to be idempotent because someone might
+     * come along and create a brand new system installation and all registered migrations will be
+     * run once on the freshly created database. As with all database migrations, understand
+     * clearly how the process works and think about edge cases when creating a migration.
+     *
+     * <p> See {@link PersistenceContext#registerMigration} for details on how schema migrations
+     * operate and how they might interact with data migrations.
+     */
+    protected void registerMigration (DataMigration migration)
+    {
+        if (_dataMigs == null) {
+            // we've already been initialized, so we have to run this migration immediately
+            runMigration(migration);
+        } else {
+            _dataMigs.add(migration);
         }
     }
 
@@ -889,5 +927,67 @@ public abstract class DepotRepository
         }
     }
 
+    /**
+     * If the supplied migration has not already been run, it will be run and if it completes, we
+     * will note in the DepotMigrationHistory table that it has been run.
+     */
+    protected void runMigration (DataMigration migration)
+        throws DatabaseException
+    {
+        // attempt to get a lock to run this migration (or detect that it has already been run)
+        DepotMigrationHistoryRecord record;
+        while (true) {
+            // check to see if the migration has already been completed
+            record = load(DepotMigrationHistoryRecord.class, migration.getIdent());
+            if (record != null && record.whenCompleted != null) {
+                return; // great, no need to do anything
+            }
+
+            // if no record exists at all, try to insert one and thereby obtain the migration lock
+            if (record == null) {
+                try {
+                    record = new DepotMigrationHistoryRecord();
+                    record.ident = migration.getIdent();
+                    insert(record);
+                    break; // we got the lock, break out of this loop and run the migration
+                } catch (DuplicateKeyException dke) {
+                    // someone beat us to the punch, so we have to wait for them to finish
+                }
+            }
+
+            // we didn't get the lock, so wait 5 seconds and then check to see if the other process
+            // finished the update or failed in which case we'll try to grab the lock ourselves
+            try {
+                log.info("Waiting on migration lock for " + migration.getIdent() + ".");
+                Thread.sleep(5000);
+            } catch (InterruptedException ie) {
+                throw new DatabaseException("Interrupted while waiting on migration lock.");
+            }
+        }
+
+        log.info("Running data migration", "ident", migration.getIdent());
+        try {
+            // run the migration
+            migration.invoke();
+
+            // report to the world that we've done so
+            record.whenCompleted = new Timestamp(System.currentTimeMillis());
+            update(record);
+
+        } finally {
+            // clear out our migration history record if we failed to get the job done
+            if (record.whenCompleted == null) {
+                try {
+                    delete(record);
+                } catch (Throwable dt) {
+                    log.warning("Oh noez! Failed to delete history record for failed migration. " +
+                                "All clients will loop forever waiting for the lock.",
+                                "ident", migration.getIdent(), dt);
+                }
+            }
+        }
+    }
+
     protected PersistenceContext _ctx;
+    protected List<DataMigration> _dataMigs = new ArrayList<DataMigration>();
 }

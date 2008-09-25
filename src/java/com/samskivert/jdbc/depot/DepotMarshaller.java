@@ -630,10 +630,10 @@ public class DepotMarshaller<T extends PersistentRecord>
             // we didn't get the lock, so wait 5 seconds and then check to see if the other process
             // finished the update or failed in which case we'll try to grab the lock ourselves
             try {
-                log.info("Waiting for migration lock for " + _pClass.getName() + ".");
+                log.info("Waiting on migration lock for " + _pClass.getName() + ".");
                 Thread.sleep(5000);
             } catch (InterruptedException ie) {
-                throw new DatabaseException("Interrupted while waiting for migration lock.");
+                throw new DatabaseException("Interrupted while waiting on migration lock.");
             }
         }
 

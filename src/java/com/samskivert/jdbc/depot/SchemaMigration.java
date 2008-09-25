@@ -30,10 +30,14 @@ import com.samskivert.jdbc.DatabaseLiaison;
 import static com.samskivert.jdbc.depot.Log.log;
 
 /**
- * These can be registered with the {@link PersistenceContext} to effect hand-coded migrations
- * between entity versions. The modifier should override {@link #invoke} to perform its
- * migrations. See {@link PersistenceContext#registerPreMigration} and {@link
- * PersistenceContext#registerPostMigration}.
+ * Encapsulates the migration of a persistent record's database schema. These can be registered
+ * with the {@link PersistenceContext} to effect hand-coded migrations between entity versions. The
+ * modifier should override {@link #invoke} to perform its migrations. See {@link
+ * PersistenceContext#registerPreMigration} for details on the migration process.
+ *
+ * <p> Note: these should only be used for actual schema changes (column additions, removals,
+ * renames, retypes, etc.). It should not be used for data migration, use {@link DataMigration} for
+ * that.
  */
 public abstract class SchemaMigration extends Modifier
 {

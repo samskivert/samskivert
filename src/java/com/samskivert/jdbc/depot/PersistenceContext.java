@@ -212,6 +212,12 @@ public class PersistenceContext
      * <p> If you want a completely predictable migration process, never use the default migrations
      * and register a pre-migration for every single schema migration and they will then be
      * guaranteed to be run in registration order and with predictable pre- and post-conditions.
+     *
+     * <p> Note that if {@link PersistenceContext#initializeRepositories} is used, then all schema
+     * migrations for all known repositories will be run and then all data migrations for all known
+     * repositories will be run. This is recommeneded because schema migrations may fail and it is
+     * generally better to have not yet done the data migration rather than having schema and data
+     * migrations interleaved and potentially leaving the database in a strange state.
      */
     public <T extends PersistentRecord> void registerMigration (
         Class<T> type, SchemaMigration migration)
@@ -468,14 +474,18 @@ public class PersistenceContext
     public void initializeRepositories (boolean warnOnLazyInit)
         throws DatabaseException
     {
-        // initialize our repositories
+        // resolve all persistent records and trigger all schema migrations
+        for (DepotRepository repo : _repositories) {
+            repo.resolveRecords();
+        }
+        // then run all repository initialization methods, triggering all data migrations
         for (DepotRepository repo : _repositories) {
             repo.init();
         }
-        // note that we've now been initialized
-        _repositories = null;
-        // now issue a warning if we lazily initialize any other persistent record
+        // now potentially issue a warning if we lazily initialize any other persistent record
         _warnOnLazyInit = warnOnLazyInit;
+        // finally note that we've now been initialized
+        _repositories = null;
     }
 
     /**
@@ -489,6 +499,7 @@ public class PersistenceContext
             if (_warnOnLazyInit) {
                 log.warning("Repository created lazily: " + repo.getClass().getName());
             }
+            repo.resolveRecords();
             repo.init();
         } else {
             _repositories.add(repo);

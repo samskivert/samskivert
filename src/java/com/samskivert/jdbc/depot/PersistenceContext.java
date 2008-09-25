@@ -189,19 +189,18 @@ public class PersistenceContext
     }
 
     /**
-     * Registers a migration for the specified entity class.
+     * Registers a schema migration for the specified entity class.
      *
      * <p> This method must be called <b>before</b> an Entity is used by any repository. Thus you
-     * should register all migrations immediately after creating your persistence context or if you
-     * are careful to ensure that your Entities are only used by a single repository, you can
-     * register your migrations in the constructor for that repository.
+     * should register all migrations in the constructor of the repository that declares them in
+     * its {@link DepotRepository#getManagedRecords} method.
      *
      * <p> Note that the migration process is as follows:
      *
      * <ul><li> Note the difference between the entity's declared version and the version recorded
      * in the database.
      * <li> Run all registered pre-migrations
-     * <li> Perform all default migrations (column additions and removals)
+     * <li> Perform all default migrations (column and index additions, index removals)
      * <li> Run all registered post-migrations </ul>
      *
      * Thus you must either be prepared for the entity to be at <b>any</b> version prior to your
@@ -215,7 +214,7 @@ public class PersistenceContext
      * guaranteed to be run in registration order and with predictable pre- and post-conditions.
      */
     public <T extends PersistentRecord> void registerMigration (
-        Class<T> type, EntityMigration migration)
+        Class<T> type, SchemaMigration migration)
     {
         getRawMarshaller(type).registerMigration(migration);
     }

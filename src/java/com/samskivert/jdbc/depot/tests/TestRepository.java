@@ -27,7 +27,7 @@ import java.util.Set;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.util.RandomUtil;
 import com.samskivert.jdbc.depot.DepotRepository;
-import com.samskivert.jdbc.depot.EntityMigration;
+import com.samskivert.jdbc.depot.SchemaMigration;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
@@ -46,11 +46,11 @@ public class TestRepository extends DepotRepository
         perCtx.init("test", new StaticConnectionProvider("depot.properties"), null);
 
         // tests a bogus rename migration
-        // perCtx.registerMigration(TestRecord.class, new EntityMigration.Rename(1, "foo", "bar"));
+        // perCtx.registerMigration(TestRecord.class, new SchemaMigration.Rename(1, "foo", "bar"));
 
         // tests a custom add column migration
         perCtx.registerMigration(TestRecord.class,
-                                 new EntityMigration.Add(2, TestRecord.HOME_TOWN, "'Anytown USA'"));
+                                 new SchemaMigration.Add(2, TestRecord.HOME_TOWN, "'Anytown USA'"));
 
         TestRepository repo = new TestRepository(perCtx);
 

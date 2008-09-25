@@ -35,12 +35,12 @@ import static com.samskivert.jdbc.depot.Log.log;
  * migrations. See {@link PersistenceContext#registerPreMigration} and {@link
  * PersistenceContext#registerPostMigration}.
  */
-public abstract class EntityMigration extends Modifier
+public abstract class SchemaMigration extends Modifier
 {
     /**
      * A convenient migration for dropping a column from an entity.
      */
-    public static class Drop extends EntityMigration
+    public static class Drop extends SchemaMigration
     {
         public Drop (int targetVersion, String columnName) {
             super(targetVersion);
@@ -64,7 +64,7 @@ public abstract class EntityMigration extends Modifier
     /**
      * A convenient migration for renaming a column in an entity.
      */
-    public static class Rename extends EntityMigration
+    public static class Rename extends SchemaMigration
     {
         public Rename (int targetVersion, String oldColumnName, String newColumnName) {
             super(targetVersion);
@@ -121,7 +121,7 @@ public abstract class EntityMigration extends Modifier
      * instantiated with the name of a persistent field, not the name of a database column. These
      * can be very different things for classes that use @Column annotations.
      */
-    public static class Retype extends EntityMigration
+    public static class Retype extends SchemaMigration
     {
         public Retype (int targetVersion, String fieldName) {
             super(targetVersion);
@@ -158,7 +158,7 @@ public abstract class EntityMigration extends Modifier
      *
      * @see Column#defaultValue
      */
-    public static class Add extends EntityMigration
+    public static class Add extends SchemaMigration
     {
         public Add (int targetVersion, String fieldName, String defaultValue) {
             super(targetVersion);
@@ -215,7 +215,7 @@ public abstract class EntityMigration extends Modifier
         return (currentVersion < _targetVersion);
     }
 
-    protected EntityMigration (int targetVersion)
+    protected SchemaMigration (int targetVersion)
     {
         super();
         _targetVersion = targetVersion;

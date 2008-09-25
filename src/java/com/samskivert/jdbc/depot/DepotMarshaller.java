@@ -514,9 +514,9 @@ public class DepotMarshaller<T extends PersistentRecord>
      * This is called by the persistence context to register a migration for the entity managed by
      * this marshaller.
      */
-    protected void registerMigration (EntityMigration migration)
+    protected void registerMigration (SchemaMigration migration)
     {
-        _migrations.add(migration);
+        _schemaMigs.add(migration);
     }
 
     /**
@@ -727,9 +727,9 @@ public class DepotMarshaller<T extends PersistentRecord>
         log.info("Migrating " + getTableName() + " from " + currentVersion + " to " +
                  _schemaVersion + "...");
 
-        if (_migrations.size() > 0) {
+        if (_schemaMigs.size() > 0) {
             // run our pre-default-migrations
-            for (EntityMigration migration : _migrations) {
+            for (SchemaMigration migration : _schemaMigs) {
                 if (migration.runBeforeDefault() &&
                         migration.shouldRunMigration(currentVersion, _schemaVersion)) {
                     migration.init(getTableName(), _fields);
@@ -887,7 +887,7 @@ public class DepotMarshaller<T extends PersistentRecord>
             });
         }
 
-        // we do not auto-remove columns but rather require that EntityMigration.Drop records be
+        // we do not auto-remove columns but rather require that SchemaMigration.Drop records be
         // registered by hand to avoid accidentally causing the loss of data
 
         // we don't auto-remove indices either because we'd have to sort out the potentially
@@ -895,7 +895,7 @@ public class DepotMarshaller<T extends PersistentRecord>
         // index was hand defined in a @Column clause)
 
         // run our post-default-migrations
-        for (EntityMigration migration : _migrations) {
+        for (SchemaMigration migration : _schemaMigs) {
             if (!migration.runBeforeDefault() &&
                 migration.shouldRunMigration(currentVersion, _schemaVersion)) {
                 migration.init(getTableName(), _fields);
@@ -1107,8 +1107,8 @@ public class DepotMarshaller<T extends PersistentRecord>
     /** Indicates that we have been initialized (created or migrated our tables). */
     protected boolean _initialized;
 
-    /** A list of hand registered entity migrations to run prior to doing the default migration. */
-    protected ArrayList<EntityMigration> _migrations = new ArrayList<EntityMigration>();
+    /** A list of hand registered schema migrations to run prior to doing the default migration. */
+    protected ArrayList<SchemaMigration> _schemaMigs = new ArrayList<SchemaMigration>();
 
     /** The name of the table we use to track schema versions. */
     protected static final String SCHEMA_VERSION_TABLE = "DepotSchemaVersion";

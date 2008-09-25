@@ -164,7 +164,7 @@ public class SimpleRepository extends Repository
                 }
 
                 // turn off auto-commit
-                if (supportsTransactions) {
+                if (supportsTransactions && conn.getAutoCommit()) {
                     oldAutoCommit = conn.getAutoCommit();
                     conn.setAutoCommit(false);
                 }

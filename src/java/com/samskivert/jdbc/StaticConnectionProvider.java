@@ -126,6 +126,7 @@ public class StaticConnectionProvider implements ConnectionProvider
             String username = requireProp(props, "username", err);
             err = "No driver password specified [ident=" + ident + "].";
             String password = requireProp(props, "password", err);
+            String autoCommit = props.getProperty("autocommit");
 
             // if this is a read-only connection, we cache connections by username+url+readOnly to
             // avoid making more that one connection to a particular database server
@@ -136,6 +137,18 @@ public class StaticConnectionProvider implements ConnectionProvider
                 conmap = new Mapping();
                 conmap.key = key;
                 conmap.connection = openConnection(driver, url, username, password);
+
+                // if we were requested to configure auto-commit, then do so
+                if (autoCommit != null) {
+                    try {
+                        conmap.connection.setAutoCommit(Boolean.valueOf(autoCommit));
+                    } catch (SQLException sqe) {
+                        closeConnection(ident, conmap.connection);
+                        err = "Failed to configure auto-commit [key=" + key +
+                            ", ident=" + ident + ", autoCommit=" + autoCommit + "].";
+                        throw new PersistenceException(err, sqe);
+                    }
+                }
 
                 // make the connection read-only to let the JDBC driver know that it can and should
                 // use the read-only mirror(s)

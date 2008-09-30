@@ -25,7 +25,8 @@ import com.samskivert.util.Invoker;
 import static com.samskivert.Log.log;
 
 /**
- * Extends the {@link Invoker.Unit} and specializes it for writing to a database repository.
+ * Extends {@link com.samskivert.util.Invoker.Unit} and specializes it for writing to a database
+ * repository.
  */
 public abstract class WriteOnlyUnit extends Invoker.Unit
 {

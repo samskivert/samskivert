@@ -482,8 +482,7 @@ public abstract class DepotRepository
      *
      * @param type the type of the persistent object to be modified.
      * @param primaryKey the primary key to match in the update.
-     * @param fieldsValues an mapping from the names of the fields/columns ti the values to be
-     * assigned.
+     * @param updates an mapping from the names of the fields/columns ti the values to be assigned.
      *
      * @return the number of rows modified by this action.
      */
@@ -522,7 +521,6 @@ public abstract class DepotRepository
      * primary key.
      *
      * @param type the type of the persistent object to be modified.
-     * @param primaryKey the primary key to match in the update.
      * @param fieldsValues an array containing the names of the fields/columns and the values to be
      * assigned, in key, value, key, value, etc. order.
      *
@@ -541,7 +539,6 @@ public abstract class DepotRepository
      * primary key.
      *
      * @param type the type of the persistent object to be modified.
-     * @param primaryKey the primary key to match in the update.
      * @param fieldsValues an array containing the names of the fields/columns and the values to be
      * assigned, in key, value, key, value, etc. order.
      *
@@ -636,11 +633,11 @@ public abstract class DepotRepository
      * @return the number of rows modified by this action.
      */
     protected <T extends PersistentRecord> int updateLiteral (
-        Class<T> type, Comparable<?> primaryKey, Map<String, SQLExpression> fieldsToValues)
+        Class<T> type, Comparable<?> primaryKey, Map<String, SQLExpression> fieldsValues)
         throws DatabaseException
     {
         Key<T> key = _ctx.getMarshaller(type).makePrimaryKey(primaryKey);
-        return updateLiteral(type, key, key, fieldsToValues);
+        return updateLiteral(type, key, key, fieldsValues);
     }
 
     /**
@@ -654,7 +651,6 @@ public abstract class DepotRepository
      * </pre>
      *
      * @param type the type of the persistent object to be modified.
-     * @param primaryKey the key to match in the update.
      * @param fieldsValues an array containing the names of the fields/columns and the values to be
      * assigned, in key, literal value, key, literal value, etc. order.
      *
@@ -662,11 +658,11 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, String ix1, Comparable<?> val1, String ix2, Comparable<?> val2,
-        Map<String, SQLExpression> fieldsToValues)
+        Map<String, SQLExpression> fieldsValues)
         throws DatabaseException
     {
         Key<T> key = new Key<T>(type, ix1, val1, ix2, val2);
-        return updateLiteral(type, key, key, fieldsToValues);
+        return updateLiteral(type, key, key, fieldsValues);
     }
 
     /**
@@ -680,7 +676,6 @@ public abstract class DepotRepository
      * </pre>
      *
      * @param type the type of the persistent object to be modified.
-     * @param primaryKey the key to match in the update.
      * @param fieldsValues an array containing the names of the fields/columns and the values to be
      * assigned, in key, literal value, key, literal value, etc. order.
      *
@@ -688,11 +683,11 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, String ix1, Comparable<?> val1, String ix2, Comparable<?> val2,
-        String ix3, Comparable<?> val3, Map<String, SQLExpression> fieldsToValues)
+        String ix3, Comparable<?> val3, Map<String, SQLExpression> fieldsValues)
         throws DatabaseException
     {
         Key<T> key = new Key<T>(type, ix1, val1, ix2, val2, ix3, val3);
-        return updateLiteral(type, key, key, fieldsToValues);
+        return updateLiteral(type, key, key, fieldsValues);
     }
 
     /**
@@ -714,7 +709,7 @@ public abstract class DepotRepository
      */
     protected <T extends PersistentRecord> int updateLiteral (
         Class<T> type, final WhereClause key, CacheInvalidator invalidator,
-        Map<String, SQLExpression> fieldsToValues)
+        Map<String, SQLExpression> fieldsValues)
         throws DatabaseException
     {
         requireNotComputed(type, "updateLiteral");
@@ -725,10 +720,10 @@ public abstract class DepotRepository
         key.validateQueryType(type); // and another
 
         // separate the arguments into keys and values
-        final String[] fields = new String[fieldsToValues.size()];
+        final String[] fields = new String[fieldsValues.size()];
         final SQLExpression[] values = new SQLExpression[fields.length];
         int ii = 0;
-        for (Map.Entry<String, SQLExpression> entry : fieldsToValues.entrySet()) {
+        for (Map.Entry<String, SQLExpression> entry : fieldsValues.entrySet()) {
             fields[ii] = entry.getKey();
             values[ii] = entry.getValue();
             ii ++;

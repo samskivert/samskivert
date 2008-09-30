@@ -232,7 +232,7 @@ public abstract class DepotRepository
     }
 
     /**
-     * A varargs version of {@link #findAll(Class<T>,Collection<QueryClause>)}.
+     * A varargs version of {@link #findAll(Class,Collection)}.
      */
     protected <T extends PersistentRecord> List<T> findAll (Class<T> type, QueryClause... clauses)
         throws DatabaseException

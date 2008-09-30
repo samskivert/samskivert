@@ -68,7 +68,7 @@ public class DepotTypes
     }
 
     /**
-     * A varargs version of {@link #getDepotTypes(PersistenceContext,Collection<QueryClause>)}.
+     * A varargs version of {@link #getDepotTypes(PersistenceContext,Collection)}.
      */
     public static <T extends PersistentRecord> DepotTypes getDepotTypes (
         PersistenceContext ctx, QueryClause... clauses)

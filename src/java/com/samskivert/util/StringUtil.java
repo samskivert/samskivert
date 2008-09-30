@@ -1297,7 +1297,7 @@ public class StringUtil
      * Wordwraps a string. Treats any whitespace character as a single character.
      *
      * <p>If you want the text to wrap for a graphical display, use a wordwrapping component
-     * such as {@link Label} instead.
+     * such as {@link com.samskivert.swing.Label} instead.
      *
      * @param str String to word-wrap.
      * @param width Maximum line length.

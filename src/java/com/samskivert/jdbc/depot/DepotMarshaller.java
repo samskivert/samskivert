@@ -437,7 +437,7 @@ public class DepotMarshaller<T extends PersistentRecord>
 
     /**
      * Creates a persistent object from the supplied result set. The result set must have come from
-     * a query provided by {@link #createQuery}.
+     * a properly constructed query (see {@link BuildVisitor}).
      */
     public T createObject (ResultSet rs)
         throws SQLException

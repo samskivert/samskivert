@@ -31,7 +31,7 @@ import com.samskivert.jdbc.depot.clause.QueryClause;
 import com.samskivert.jdbc.depot.clause.SelectClause;
 
 /**
- * The implementation of {@link DepotRepository#find) functionality.
+ * The implementation of {@link DepotRepository#load} functionality.
  */
 public class FindOneQuery<T extends PersistentRecord>
     implements Query<T>

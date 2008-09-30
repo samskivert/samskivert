@@ -32,6 +32,7 @@ import com.samskivert.jdbc.depot.annotation.Column;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.annotation.GeneratedValue;
 import com.samskivert.jdbc.depot.clause.QueryClause;
+import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -67,7 +68,7 @@ public abstract class SQLBuilder
      * that were defined in the generated SQL.
      *
      * This method throws {@link SQLException} and is thus meant to be called from within
-     * {@link Query#invoke(Connection)} and {@link Modifier#invoke(Connection)}.
+     * {@link Query#invoke} and {@link Modifier#invoke}.
      */
     public PreparedStatement prepare (Connection conn)
         throws SQLException
@@ -176,7 +177,7 @@ public abstract class SQLBuilder
      * the table associated with the given {@link DepotMarshaller}. This is a highly database
      * specific operation and must thus be implemented by each dialect subclass.
      *
-     * {@see Conditionals.FullTextIndex}
+     * @see FullTextIndex
      */
     public abstract <T extends PersistentRecord> boolean addFullTextSearch (
         Connection conn, DepotMarshaller<T> marshaller, FullTextIndex fts)

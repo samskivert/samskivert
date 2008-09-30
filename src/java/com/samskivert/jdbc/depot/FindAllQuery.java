@@ -45,14 +45,15 @@ import com.samskivert.jdbc.depot.operator.Conditionals.*;
 import static com.samskivert.jdbc.depot.Log.log;
 
 /**
- * This class implements the functionality required by {@link DepotRepository#findAll): fetch
+ * This class implements the functionality required by {@link DepotRepository#findAll}: fetch
  * a collection of persistent objects using one of two included strategies.
  */
 public abstract class FindAllQuery<T extends PersistentRecord>
     implements Query<List<T>>
 {
     /**
-     * The two-pass collection query implementation. {@see DepotRepository#findAll} for details.
+     * The two-pass collection query implementation. See {@link DepotRepository#findAll} for 
+     * details.
      */
     public static class WithCache<T extends PersistentRecord> extends FindAllQuery<T>
     {
@@ -117,7 +118,8 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     }
 
     /**
-     * The two-pass collection query implementation. {@see DepotRepository#findAll} for details.
+     * The two-pass collection query implementation. See {@link DepotRepository#findAll} for 
+     * details.
      */
     public static class WithKeys<T extends PersistentRecord> extends FindAllQuery<T>
     {
@@ -155,7 +157,8 @@ public abstract class FindAllQuery<T extends PersistentRecord>
     }
 
     /**
-     * The single-pass collection query implementation. {@see DepotRepository#findAll} for details.
+     * The single-pass collection query implementation. See {@link DepotRepository#findAll} for 
+     * details.
      */
     public static class Explicitly<T extends PersistentRecord> extends FindAllQuery<T>
     {

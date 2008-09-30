@@ -95,7 +95,7 @@ public class PersistenceContext
 
     /**
      * A simple implementation of {@link CacheTraverser} that selectively deletes entries in
-     * a cache depending on the return value of {@link #testCacheEntry}.
+     * a cache depending on the return value of {@link #testForEviction}.
      */
     public static abstract class CacheEvictionFilter<T extends Serializable>
         implements CacheTraverser<T>

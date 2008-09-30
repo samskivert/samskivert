@@ -56,7 +56,7 @@ import com.samskivert.util.StringUtil;
 
 /**
  * Implements the base functionality of the argument-binding pass of {@link SQLBuilder}. Dialectal
- * subclasses of this should be created and returned from {@link SQLBuilder#getBindVisitor()}.
+ * subclasses of this should be created and returned from {@link SQLBuilder#getBindVisitor}.
  *
  * This class is intimately paired with {#link BuildVisitor}.
  */

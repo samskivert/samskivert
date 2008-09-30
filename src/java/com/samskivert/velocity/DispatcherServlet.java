@@ -176,7 +176,7 @@ public class DispatcherServlet extends HttpServlet
     }
 
     /**
-     * Handles HTTP <code>GET</code> requests by calling {@link #doRequest()}.
+     * Handles HTTP <code>GET</code> requests by calling {@link #doRequest}.
      */
     @Override
     public void doGet (HttpServletRequest request, HttpServletResponse response)
@@ -186,7 +186,7 @@ public class DispatcherServlet extends HttpServlet
     }
 
     /**
-     * Handles HTTP <code>POST</code> requests by calling {@link #doRequest()}.
+     * Handles HTTP <code>POST</code> requests by calling {@link #doRequest}.
      */
     @Override
     public void doPost (HttpServletRequest request, HttpServletResponse response)

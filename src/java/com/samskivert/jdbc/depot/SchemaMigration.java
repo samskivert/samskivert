@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.jdbc.DatabaseLiaison;
+import com.samskivert.jdbc.depot.annotation.Column;
 
 import static com.samskivert.jdbc.depot.Log.log;
 
@@ -33,7 +34,7 @@ import static com.samskivert.jdbc.depot.Log.log;
  * Encapsulates the migration of a persistent record's database schema. These can be registered
  * with the {@link PersistenceContext} to effect hand-coded migrations between entity versions. The
  * modifier should override {@link #invoke} to perform its migrations. See {@link
- * PersistenceContext#registerPreMigration} for details on the migration process.
+ * PersistenceContext#registerMigration} for details on the migration process.
  *
  * <p> Note: these should only be used for actual schema changes (column additions, removals,
  * renames, retypes, etc.). It should not be used for data migration, use {@link DataMigration} for

@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.samskivert.jdbc.DatabaseLiaison;
+import com.samskivert.jdbc.depot.PersistenceContext.CacheListener;
 
 /**
  * The base of all read-only queries.

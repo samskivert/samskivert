@@ -31,7 +31,7 @@ import com.samskivert.jdbc.depot.expression.SQLExpression;
 /**
  * A special form of {@link Where} clause that specifies an explicit range of database rows. It
  * does not implement {@link CacheKey} but it does implement {@link CacheInvalidator} which means
- * it can be sent into e.g. {@link DepotRepository#deleteAll) and have it clean up after itself.
+ * it can be sent into e.g. {@link DepotRepository#deleteAll} and have it clean up after itself.
  */
 public class MultiKey<T extends PersistentRecord> extends WhereClause
     implements ValidatingCacheInvalidator
@@ -64,7 +64,7 @@ public class MultiKey<T extends PersistentRecord> extends WhereClause
 
     /**
      * Constructs a new multi-column {@code MultiKey} with the given value range.
-     * @TODO: See {@link Key#Key(Class, String[], Comparable[]) for somewhat relevant comments.
+     * See {@link Key#Key(Class,String[],Comparable[])} for somewhat relevant comments.
      */
     public MultiKey (Class<T> pClass, String[] sFields, Comparable<?>[] sValues,
                      String mField, Comparable<?>[] mValues)

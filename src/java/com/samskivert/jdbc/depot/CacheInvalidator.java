@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * Implementors of this interface performs perform cache invalidation for calls to
  * {@link DepotRepository#updateLiteral}, {@link DepotRepository#updatePartial} and
- * {@link DepotRepository#deleteAll).
+ * {@link DepotRepository#deleteAll}.
  */
 public interface CacheInvalidator
 {

@@ -26,6 +26,7 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
+import com.samskivert.util.Config;
 import com.samskivert.util.PrefsConfig;
 import com.samskivert.util.StringUtil;
 

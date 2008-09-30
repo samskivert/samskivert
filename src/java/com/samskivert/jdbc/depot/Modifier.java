@@ -55,8 +55,8 @@ public abstract class Modifier
 
     /**
      * A convenience modifier that can perform cache updates in addition to invalidation:
-     * - Before {@link #invoke(Connection)}, the {@link CacheInvalidator} is run, if given.
-     * - After {@link #invoke(Connection)}, the cache is updated with the modified object,
+     * - Before {@link #invoke}, the {@link CacheInvalidator} is run, if given.
+     * - After {@link #invoke}, the cache is updated with the modified object,
      * presuming both _key and _result are non-null. These variables may be set or modified
      * during execution in addition to being supplied to the constructor.
      */

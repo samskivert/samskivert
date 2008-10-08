@@ -64,6 +64,35 @@ public class Throttle
     }
 
     /**
+     * Updates the number of operations for this throttle to a new maximum, retaining the current
+     * history of operations if the limit is being increased and truncating the oldest operations
+     * if the limit is decreased.
+     *
+     * @param operations the new maximum number of operations.
+     * @param period the new period.
+     */
+    public void reinit (int operations, long period)
+    {
+        long[] ops = new long[operations];
+        if (operations > _ops.length) {
+            // copy to a larger buffer, leaving zeroes at the beginning
+            int lastOp = _lastOp + operations - _ops.length;
+            System.arraycopy(_ops, 0, ops, 0, _lastOp);
+            System.arraycopy(_ops, _lastOp, ops, lastOp, _ops.length - _lastOp);
+
+        } else if (operations < _ops.length) {
+            // copy to a smaller buffer, truncating older operations
+            int lastOp = (_lastOp + _ops.length - operations) % _ops.length;
+            int endCount = Math.min(_ops.length - lastOp, operations);
+            System.arraycopy(_ops, lastOp, ops, 0, endCount);
+            System.arraycopy(_ops, 0, ops, endCount, operations - endCount);
+            _lastOp = 0;
+        }
+        _ops = ops;
+        _period = period;
+    }
+
+    /**
      * Registers an attempt at an operation and returns true if the operation should be performed
      * or false if it should be throttled (meaning N operations have already been performed in the
      * last M seconds).
@@ -132,6 +161,13 @@ public class Throttle
     public long getLatestOperation ()
     {
         return _ops[(_lastOp + _ops.length - 1) % _ops.length];
+    }
+
+    @Override // from Object
+    public String toString ()
+    {
+        long oldest = System.currentTimeMillis() - _ops[_lastOp];
+        return _ops.length + " ops per " + _period + "ms (oldest " + oldest + ")";
     }
 
     /**

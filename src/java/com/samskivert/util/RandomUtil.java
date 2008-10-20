@@ -136,7 +136,7 @@ public class RandomUtil
             return -1;
         }
         int pick = getInt(sum, r);
-        for (int ii=0, nn=weights.length; ii < nn; ii++) {
+        for (int ii = 0, nn = weights.length; ii < nn; ii++) {
             pick -= weights[ii];
             if (pick < 0) {
                 return ii;
@@ -184,18 +184,18 @@ public class RandomUtil
     public static int getWeightedIndex (float[] weights, Random r)
     {
         float sum = 0.0f;
-        for (int ii = 0; ii < weights.length; ii++) {
-            if (weights[ii] < 0.0f) {
+        for (float weight : weights) {
+            if (weight < 0.0f) {
                 return -1;
             }
-            sum += weights[ii];
+            sum += weight;
         }
 
         if (sum <= 0.0) {
             return -1;
         }
         float pick = getFloat(sum, r);
-        for (int ii=0, nn=weights.length; ii < nn; ii++) {
+        for (int ii = 0, nn = weights.length; ii < nn; ii++) {
             pick -= weights[ii];
             if (pick < 0.0) {
                 return ii;
@@ -214,8 +214,7 @@ public class RandomUtil
      */
     public static <T> T pickRandom (T[] values)
     {
-        return (values == null || values.length == 0) ? null :
-            values[getInt(values.length)];
+        return (values == null || values.length == 0) ? null : values[getInt(values.length)];
     }
 
     /**
@@ -246,7 +245,17 @@ public class RandomUtil
      */
     public static <T> T pickRandom (Collection<T> values)
     {
-        return pickRandom(values.iterator(), values.size());
+        return pickRandom(values, rand);
+    }
+
+    /**
+     * Picks a random object from the supplied {@link Collection}.
+     *
+     * @param r the random number generator to use.
+     */
+    public static <T> T pickRandom (Collection<T> values, Random r)
+    {
+        return pickRandom(values.iterator(), values.size(), r);
     }
 
     /**
@@ -279,6 +288,8 @@ public class RandomUtil
      * Picks a random object from the supplied List. The specified skip object will be skipped when
      * selecting a random value. The skipped object must exist exactly once in the List.
      *
+     * @param r the random number generator to use.
+     *
      * @return a randomly selected item.
      */
     public static <T> T pickRandom (List<T> values, T skip, Random r)
@@ -310,13 +321,29 @@ public class RandomUtil
      */
     public static <T> T pickRandom (Iterator<T> iter, int count)
     {
+        return pickRandom(iter, count, rand);
+    }
+
+    /**
+     * Picks a random object from the supplied iterator (which must iterate over exactly
+     * <code>count</code> objects using the given Random.
+     *
+     * @param r the random number generator to use.
+     *
+     * @return a randomly selected item.
+     *
+     * @exception NoSuchElementException thrown if the iterator provides fewer than
+     * <code>count</code> elements.
+     */
+    public static <T> T pickRandom (Iterator<T> iter, int count, Random r)
+    {
         if (count < 1) {
             throw new IllegalArgumentException(
                 "Must have at least one element [count=" + count + "]");
         }
 
         T value = iter.next();
-        for (int ii = 0, ll = getInt(count); ii < ll; ii++) {
+        for (int ii = 0, ll = getInt(count, r); ii < ll; ii++) {
             value = iter.next();
         }
         return value;

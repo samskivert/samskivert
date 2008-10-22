@@ -57,7 +57,7 @@ public class RandomUtil
      */
     public static int getInt (int high, Random r)
     {
-	return r.nextInt(high);
+        return r.nextInt(high);
     }
 
     /**
@@ -93,6 +93,24 @@ public class RandomUtil
     public static float getFloat (float high, Random r)
     {
         return r.nextFloat() * high;
+    }
+
+    /**
+     * Returns true approximately one in n times.
+     */
+    public static boolean getChance (int n)
+    {
+        return getChance(n, rand);
+    }
+
+    /**
+     * Returns true approximately one in n times.
+     *
+     * @param r the random number generator to use
+     */
+    public static boolean getChance (int n, Random r)
+    {
+        return getInt(n, r) == 0;
     }
 
     /**

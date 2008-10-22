@@ -641,9 +641,10 @@ public class DepotMarshaller<T extends PersistentRecord>
             if (!metaData.tableExists) {
                 // if the table does not exist, create it
                 createTable(ctx, builder, declarations);
+                metaData = TableMetaData.load(ctx, getTableName());
             } else {
                 // if it does exist, run our migrations
-                runMigrations(ctx, metaData, builder, currentVersion);
+                metaData = runMigrations(ctx, metaData, builder, currentVersion);
             }
 
             // check for stale columns now that the table is up to date
@@ -720,8 +721,8 @@ public class DepotMarshaller<T extends PersistentRecord>
         });
     }
 
-    protected void runMigrations (PersistenceContext ctx, TableMetaData metaData,
-                                  final SQLBuilder builder, int currentVersion)
+    protected TableMetaData runMigrations (PersistenceContext ctx, TableMetaData metaData,
+                                           final SQLBuilder builder, int currentVersion)
         throws DatabaseException
     {
         log.info("Migrating " + getTableName() + " from " + currentVersion + " to " +
@@ -932,6 +933,8 @@ public class DepotMarshaller<T extends PersistentRecord>
                 }
             });
         }
+
+        return metaData;
     }
 
     // translate an array of field names to an array of column names

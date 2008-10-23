@@ -93,6 +93,14 @@ public class StringUtil
     }
 
     /**
+     * Calls {@link String#trim} on non-null values, returns null for null values.
+     */
+    public static String trim (String value)
+    {
+        return (value == null) ? null : value.trim();
+    }
+
+    /**
      * @return the supplied string if it is non-null, "" if it is null.
      */
     public static String deNull (String value)

@@ -355,18 +355,24 @@ public class DepotMarshaller<T extends PersistentRecord>
 
         try {
             Comparable<?>[] values = new Comparable<?>[_pkColumns.size()];
-            int nulls = 0;
+            int nulls = 0, zeros = 0;
             for (int ii = 0; ii < _pkColumns.size(); ii++) {
                 FieldMarshaller<?> field = _pkColumns.get(ii);
                 values[ii] = (Comparable<?>)field.getField().get(object);
-                if (values[ii] == null ||
-                    (values[ii] instanceof Number && ((Number)values[ii]).intValue() == 0)) {
+                if (values[ii] == null) {
                     nulls++;
+                } else if (values[ii] instanceof Number && ((Number)values[ii]).intValue() == 0) {
+                    nulls++; // zeros are considered nulls; see below
+                    zeros++;
                 }
             }
 
-            // make sure the keys are all null or all non-null
-            if (nulls == 0) {
+            // make sure the keys are all null or all non-null; we also allow primary keys where
+            // there are zero-valued primitive primary key columns as along as there is at least
+            // one non-zero valued additional key column; this is a compromise that allows sensible
+            // things like (id=99, type=0) but unfortunately also allows less sensible things like
+            // (id=0, type=5) while continuing to disallow the dangerous (id=0)
+            if (nulls == 0 || (nulls == zeros)) {
                 return makePrimaryKey(values);
             } else if (nulls == values.length) {
                 return null;

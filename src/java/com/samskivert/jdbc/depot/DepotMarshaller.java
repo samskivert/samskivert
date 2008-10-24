@@ -367,15 +367,18 @@ public class DepotMarshaller<T extends PersistentRecord>
                 }
             }
 
-            // make sure the keys are all null or all non-null; we also allow primary keys where
-            // there are zero-valued primitive primary key columns as along as there is at least
-            // one non-zero valued additional key column; this is a compromise that allows sensible
-            // things like (id=99, type=0) but unfortunately also allows less sensible things like
-            // (id=0, type=5) while continuing to disallow the dangerous (id=0)
-            if (nulls == 0 || (nulls == zeros)) {
+            // make sure the keys are all null or all non-null
+            if (nulls == 0) {
                 return makePrimaryKey(values);
             } else if (nulls == values.length) {
                 return null;
+            } else if (nulls == zeros) {
+                // we also allow primary keys where there are zero-valued primitive primary key
+                // columns as along as there is at least one non-zero valued additional key column;
+                // this is a compromise that allows sensible things like (id=99, type=0) but
+                // unfortunately also allows less sensible things like (id=0, type=5) while
+                // continuing to disallow the dangerous (id=0)
+                return makePrimaryKey(values);
             }
 
             // throw an informative error message

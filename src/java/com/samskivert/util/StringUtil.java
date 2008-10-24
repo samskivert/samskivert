@@ -89,7 +89,12 @@ public class StringUtil
      */
     public static boolean isBlank (String value)
     {
-        return (value == null || value.trim().length() == 0);
+        for (int ii = 0, ll = (value == null) ? 0 : value.length(); ii < ll; ii++) {
+            if (!Character.isWhitespace(value.charAt(ii))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

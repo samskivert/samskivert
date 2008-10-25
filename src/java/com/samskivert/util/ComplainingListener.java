@@ -28,16 +28,32 @@ import java.util.logging.Level;
 public class ComplainingListener<T>
     implements ResultListener<T>
 {
-    public ComplainingListener (Logger logger, String errorText)
+    /**
+     * Creates a listener that will log failures to the supplied logger.
+     *
+     * @param logger the logger to which to log failures.
+     * @param errorText the text to log when the error is received.
+     * @param arguments to log along with the error text. See {@link Logger#format} for info on how
+     * they will be formatted.
+     */
+    public ComplainingListener (Logger logger, String errorText, Object... args)
     {
+        this(errorText, args);
         _slogger = logger;
-        _errorText = errorText;
     }
 
-    public ComplainingListener (java.util.logging.Logger logger, String errorText)
+    /**
+     * Creates a listener that will log failures to the supplied logger.
+     *
+     * @param logger the logger to which to log failures.
+     * @param errorText the text to log when the error is received.
+     * @param arguments to log along with the error text. See {@link Logger#format} for info on how
+     * they will be formatted.
+     */
+    public ComplainingListener (java.util.logging.Logger logger, String errorText, Object... args)
     {
+        this(errorText, args);
         _jlogger = logger;
-        _errorText = errorText;
     }
 
     // documentation inherited from interface ResultListener
@@ -46,13 +62,25 @@ public class ComplainingListener<T>
     // documentation inherited from interface ResultListener
     public void requestFailed (Exception cause)
     {
+        Object[] args = _args != null ? ArrayUtil.append(_args, cause) : new Object[] { cause };
         if (_slogger != null) {
-            _slogger.warning(_errorText, cause);
+            _slogger.warning(_errorText, args);
         } else if (_jlogger != null) {
-            _jlogger.log(Level.WARNING, _errorText, cause);
+            _jlogger.log(Level.WARNING, Logger.format(_errorText, args), cause);
         } else {
-            System.err.println(_errorText + " [cause=" + cause + "].");
+            System.err.println(Logger.format(_errorText, args));
         }
+    }
+
+    protected ComplainingListener (String errorText, Object[] args)
+    {
+        if (args != null && args.length % 2 == 1) {
+            throw new IllegalArgumentException(
+                "Got odd number of arguments (" + args.length + "). " +
+                "args must be a list of key/value pairs.");
+        }
+        _errorText = errorText;
+        _args = args;
     }
 
     /** The log to which we'll log our error, may be null. */
@@ -63,4 +91,7 @@ public class ComplainingListener<T>
 
     /** The text to output if the error happens. */
     protected String _errorText;
+
+    /** Key-value pairs for extra information about the error. */
+    protected Object[] _args;
 }

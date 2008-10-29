@@ -33,7 +33,7 @@ public class ComplainingListener<T>
      *
      * @param logger the logger to which to log failures.
      * @param errorText the text to log when the error is received.
-     * @param arguments to log along with the error text. See {@link Logger#format} for info on how
+     * @param args to log along with the error text. See {@link Logger#format} for info on how
      * they will be formatted.
      */
     public ComplainingListener (Logger logger, String errorText, Object... args)
@@ -47,7 +47,7 @@ public class ComplainingListener<T>
      *
      * @param logger the logger to which to log failures.
      * @param errorText the text to log when the error is received.
-     * @param arguments to log along with the error text. See {@link Logger#format} for info on how
+     * @param args to log along with the error text. See {@link Logger#format} for info on how
      * they will be formatted.
      */
     public ComplainingListener (java.util.logging.Logger logger, String errorText, Object... args)

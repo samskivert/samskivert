@@ -25,8 +25,7 @@ import java.util.logging.Level;
 /**
  * A ResultListener that does nothing on success and logs a warning message on failure, that's all.
  */
-public class ComplainingListener<T>
-    implements ResultListener<T>
+public class ComplainingListener<T> extends FailureListener<T>
 {
     /**
      * Creates a listener that will log failures to the supplied logger.
@@ -56,10 +55,7 @@ public class ComplainingListener<T>
         _jlogger = logger;
     }
 
-    // documentation inherited from interface ResultListener
-    public void requestCompleted (T result) { /* nada */ }
-
-    // documentation inherited from interface ResultListener
+    // from interface ResultListener
     public void requestFailed (Exception cause)
     {
         Object[] args = _args != null ? ArrayUtil.append(_args, cause) : new Object[] { cause };

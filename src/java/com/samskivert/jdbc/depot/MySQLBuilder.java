@@ -117,8 +117,8 @@ public class MySQLBuilder
 
     public class MSBindVisitor extends BindVisitor
     {
-        protected MSBindVisitor (DepotTypes types, PreparedStatement stmt) {
-            super(types, stmt);
+        protected MSBindVisitor (DepotTypes types, Connection conn, PreparedStatement stmt) {
+            super(types, conn, stmt);
         }
 
         @Override public void visit (FullTextMatch match) {
@@ -195,9 +195,9 @@ public class MySQLBuilder
     }
 
     @Override
-    protected BindVisitor getBindVisitor (PreparedStatement stmt)
+    protected BindVisitor getBindVisitor (Connection conn, PreparedStatement stmt)
     {
-        return new MSBindVisitor(_types, stmt);
+        return new MSBindVisitor(_types, conn, stmt);
     }
 
     @Override

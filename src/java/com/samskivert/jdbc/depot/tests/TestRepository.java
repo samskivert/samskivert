@@ -22,17 +22,21 @@ package com.samskivert.jdbc.depot.tests;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
-import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.util.RandomUtil;
+
+import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.jdbc.depot.DepotRepository;
-import com.samskivert.jdbc.depot.SchemaMigration;
+import com.samskivert.jdbc.depot.Key;
+import com.samskivert.jdbc.depot.KeySet;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.SchemaMigration;
+import com.samskivert.jdbc.depot.clause.Where;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
 import com.samskivert.jdbc.depot.operator.Conditionals;
-import com.samskivert.jdbc.depot.clause.Where;
 
 /**
  * A test tool for the Depot repository services.
@@ -98,6 +102,12 @@ public class TestRepository extends DepotRepository
                                                        TestRecord.RECORD_ID_C, CREATE_RECORDS/2)));
         System.out.println("Now have " + repo.findAll(TestRecord.class).size() + " records.");
         repo.deleteAll(TestRecord.class, new Where(new LiteralExp("true")));
+//         // TODO: try to break our In() clause
+//         Set<Key<TestRecord>> ids = new HashSet<Key<TestRecord>>();
+//         for (int ii = 1; ii <= Conditionals.In.MAX_KEYS*2+3; ii++) {
+//             ids.add(TestRecord.getKey(ii));
+//         }
+//         repo.deleteAll(TestRecord.class, new KeySet<TestRecord>(TestRecord.class, ids));
         System.out.println("Now have " + repo.findAll(TestRecord.class).size() + " records.");
     }
 

@@ -78,7 +78,7 @@ public abstract class SQLBuilder
         }
 
         PreparedStatement stmt = conn.prepareStatement(_buildVisitor.getQuery());
-        _bindVisitor = getBindVisitor(stmt);
+        _bindVisitor = getBindVisitor(conn, stmt);
         _clause.accept(_bindVisitor);
 
         if (PersistenceContext.DEBUG) {
@@ -213,7 +213,7 @@ public abstract class SQLBuilder
     /**
      * Overridden by subclasses to create a dialect-specific {@link BindVisitor}.
      */
-    protected abstract BindVisitor getBindVisitor (PreparedStatement stmt);
+    protected abstract BindVisitor getBindVisitor (Connection conn, PreparedStatement stmt);
 
     /**
      * Overridden by subclasses to figure the dialect-specific SQL type of the given field.

@@ -21,6 +21,7 @@
 package com.samskivert.jdbc.depot;
 
 import java.nio.ByteBuffer;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
@@ -261,9 +262,10 @@ public class BindVisitor implements ExpressionVisitor
         deleteClause.getWhereClause().accept(this);
     }
 
-    protected BindVisitor (DepotTypes types, PreparedStatement stmt)
+    protected BindVisitor (DepotTypes types, Connection conn, PreparedStatement stmt)
     {
         _types = types;
+        _conn = conn;
         _stmt = stmt;
         _argIdx = 1;
     }
@@ -299,6 +301,7 @@ public class BindVisitor implements ExpressionVisitor
     }
 
     protected DepotTypes _types;
+    protected Connection _conn;
     protected PreparedStatement _stmt;
     protected int _argIdx;
 }

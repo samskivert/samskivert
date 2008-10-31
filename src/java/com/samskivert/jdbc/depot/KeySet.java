@@ -52,13 +52,22 @@ public class KeySet<T extends PersistentRecord> extends WhereClause
             _condition = new LiteralExp("false");
 
         } else if (keyFields.length == 1) {
+            // TODO: remove when we update to 1.6 and change Postgres In handling
             if (keys.size() > Conditionals.In.MAX_KEYS) {
                 throw new IllegalArgumentException("Cannot create where clause for more than " +
                                                    Conditionals.In.MAX_KEYS + " at a time.");
             }
 
             // Single-column keys result in the compact IN(keyVal1, keyVal2, ...)
-            Comparable<?>[] keyFieldValues = new Comparable<?>[keys.size()];
+            Comparable<?> first = keys.iterator().next().getValues().get(0);
+            Comparable<?>[] keyFieldValues;
+            if (first instanceof Integer) {
+                keyFieldValues = new Integer[keys.size()];
+            } else if (first instanceof Integer) {
+                keyFieldValues = new String[keys.size()];
+            } else {
+                keyFieldValues = new Comparable<?>[keys.size()];
+            }
             int ii = 0;
             for (Key<T> key : keys) {
                 keyFieldValues[ii++] = key.getValues().get(0);

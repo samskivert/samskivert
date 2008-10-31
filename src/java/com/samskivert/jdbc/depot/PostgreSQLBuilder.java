@@ -48,6 +48,7 @@ import com.samskivert.jdbc.depot.FieldMarshaller.ShortMarshaller;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.expression.EpochSeconds;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
+import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
@@ -58,26 +59,28 @@ public class PostgreSQLBuilder
 {
     public class PGBuildVisitor extends BuildVisitor
     {
-        @Override public void visit (FullTextMatch match)
-        {
+        @Override public void visit (FullTextMatch match) {
             appendIdentifier("ftsCol_" + match.getName());
             _builder.append(" @@ TO_TSQUERY('default', ?)");
         }
 
-        public void visit (EpochSeconds epochSeconds)
-        {
+        @Override public void visit (EpochSeconds epochSeconds) {
             _builder.append("date_part('epoch', ");
             epochSeconds.getArgument().accept(this);
             _builder.append(")");
         }
 
-        protected PGBuildVisitor (DepotTypes types)
-        {
+// TODO: enable when we can require 1.6 support
+//         @Override public void visit (In in) {
+//             in.getColumn().accept(this);
+//             _builder.append(" = any (?)");
+//         }
+
+        protected PGBuildVisitor (DepotTypes types) {
             super(types);
         }
 
-        @Override protected void appendIdentifier (String field)
-        {
+        @Override protected void appendIdentifier (String field) {
             _builder.append("\"").append(field).append("\"");
         }
     }
@@ -103,8 +106,32 @@ public class PostgreSQLBuilder
             }
         }
 
-        protected PGBindVisitor (DepotTypes types, PreparedStatement stmt) {
-            super(types, stmt);
+// TODO: enable when we can require 1.6 support
+//         @Override public void visit (In in) {
+//             Comparable<?>[] values = in.getValues();
+//             try {
+//                 _stmt.setObject(
+//                     _argIdx++, _conn.createArrayOf(getElementType(values), (Object[])values));
+//             } catch (SQLException sqe) {
+//                 throw new DatabaseException(
+//                     "Failed to write value to statement [idx=" + (_argIdx-1) +
+//                     ", values=" + StringUtil.safeToString(values) + "]", sqe);
+//             }
+//         }
+
+//         protected String getElementType (Comparable<?>[] values) {
+//             if (values instanceof Integer[]) {
+//                 return "integer";
+//             } else if (values instanceof String[]) {
+//                 return "character varying";
+//             } else {
+//                 throw new DatabaseException(
+//                     "Don't know how to make Postgres array for " + values.getClass());
+//             }
+//         }
+
+        protected PGBindVisitor (DepotTypes types, Connection conn, PreparedStatement stmt) {
+            super(types, conn, stmt);
         }
     }
 
@@ -203,9 +230,9 @@ public class PostgreSQLBuilder
     }
 
     @Override
-    protected BindVisitor getBindVisitor (PreparedStatement stmt)
+    protected BindVisitor getBindVisitor (Connection conn, PreparedStatement stmt)
     {
-        return new PGBindVisitor(_types, stmt);
+        return new PGBindVisitor(_types, conn, stmt);
     }
 
     @Override

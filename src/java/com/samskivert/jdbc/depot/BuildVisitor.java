@@ -39,6 +39,7 @@ import com.samskivert.jdbc.depot.clause.OrderBy;
 import com.samskivert.jdbc.depot.clause.SelectClause;
 import com.samskivert.jdbc.depot.clause.UpdateClause;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
+import com.samskivert.jdbc.depot.expression.EpochSeconds;
 import com.samskivert.jdbc.depot.expression.ExpressionVisitor;
 import com.samskivert.jdbc.depot.expression.FunctionExp;
 import com.samskivert.jdbc.depot.expression.LiteralExp;
@@ -202,6 +203,8 @@ public abstract class BuildVisitor implements ExpressionVisitor
         }
         _builder.append(")");
     }
+
+    public abstract void visit (EpochSeconds seconds);
 
     public abstract void visit (FullTextMatch match);
 

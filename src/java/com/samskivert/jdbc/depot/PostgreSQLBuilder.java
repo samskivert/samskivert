@@ -48,7 +48,6 @@ import com.samskivert.jdbc.depot.FieldMarshaller.ShortMarshaller;
 import com.samskivert.jdbc.depot.annotation.FullTextIndex;
 import com.samskivert.jdbc.depot.expression.EpochSeconds;
 import com.samskivert.jdbc.depot.operator.Conditionals.FullTextMatch;
-import com.samskivert.jdbc.depot.operator.Conditionals.In;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 

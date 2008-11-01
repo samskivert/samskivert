@@ -22,15 +22,15 @@ package com.samskivert.jdbc.depot.tests;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.HashSet;
+// import java.util.HashSet;
 import java.util.Set;
 
 import com.samskivert.util.RandomUtil;
 
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.jdbc.depot.DepotRepository;
-import com.samskivert.jdbc.depot.Key;
-import com.samskivert.jdbc.depot.KeySet;
+// import com.samskivert.jdbc.depot.Key;
+// import com.samskivert.jdbc.depot.KeySet;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
 import com.samskivert.jdbc.depot.SchemaMigration;

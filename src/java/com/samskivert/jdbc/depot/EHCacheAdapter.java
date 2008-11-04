@@ -117,11 +117,11 @@ public class EHCacheAdapter
                     // create the cache programatically with reasonable settings
                     // TODO: we will eventually need this to be configurable in .properties
                     _cache = new Cache(id,
-                                       5000,   // keep 5000 elements in RAM
+                                       1000,   // keep 1000 elements in RAM
                                        true,   // overflow the rest to disk
                                        false,  // don't keep records around eternally
-                                       600,    // keep them for 10 minutes after they're created
-                                       60);    // or 1 minute after last access
+                                       300,    // keep them for 5 minutes after they're created
+                                       20);    // or 20 seconds after last access
 
                     if (_distributed) {
                         // a programatically created cache has to have its replicator event

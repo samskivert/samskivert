@@ -81,10 +81,9 @@ public class Throttle
             System.arraycopy(_ops, _lastOp, ops, lastOp, _ops.length - _lastOp);
 
         } else if (operations < _ops.length) {
-            // copy to a smaller buffer, truncating older operations
-            int lastOp = (_lastOp + _ops.length - operations) % _ops.length;
-            int endCount = Math.min(_ops.length - lastOp, operations);
-            System.arraycopy(_ops, lastOp, ops, 0, endCount);
+            // if we're truncating, copy the first (oldest) stamps into ops[0..]
+            int endCount = Math.min(operations, _ops.length - _lastOp);
+            System.arraycopy(_ops, _lastOp, ops, 0, endCount);
             System.arraycopy(_ops, 0, ops, endCount, operations - endCount);
             _lastOp = 0;
         }

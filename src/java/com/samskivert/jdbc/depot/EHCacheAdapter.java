@@ -44,7 +44,17 @@ public class EHCacheAdapter
      */
     public EHCacheAdapter (CacheManager cachemgr)
     {
+        this(cachemgr, 1000, 300, 20);
+    }
+
+    public EHCacheAdapter (CacheManager cachemgr, int maxElementsInMemory,
+                           int timeToIdleSeconds, int timeToLiveSeconds)
+    {
         _cachemgr = cachemgr;
+
+        _maxElementsInMemory = maxElementsInMemory;
+        _timeToIdleSeconds = timeToIdleSeconds;
+        _timeToLiveSeconds = timeToLiveSeconds;
 
         CacheManagerPeerListener listener = _cachemgr.getCachePeerListener();
         CacheManagerPeerProvider provider = _cachemgr.getCachePeerProvider();

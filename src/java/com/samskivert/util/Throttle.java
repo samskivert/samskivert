@@ -73,22 +73,25 @@ public class Throttle
      */
     public void reinit (int operations, long period)
     {
-        long[] ops = new long[operations];
-        if (operations > _ops.length) {
-            // copy to a larger buffer, leaving zeroes at the beginning
-            int lastOp = _lastOp + operations - _ops.length;
-            System.arraycopy(_ops, 0, ops, 0, _lastOp);
-            System.arraycopy(_ops, _lastOp, ops, lastOp, _ops.length - _lastOp);
-
-        } else if (operations < _ops.length) {
-            // if we're truncating, copy the first (oldest) stamps into ops[0..]
-            int endCount = Math.min(operations, _ops.length - _lastOp);
-            System.arraycopy(_ops, _lastOp, ops, 0, endCount);
-            System.arraycopy(_ops, 0, ops, endCount, operations - endCount);
-            _lastOp = 0;
-        }
-        _ops = ops;
         _period = period;
+        if (operations != _ops.length) {
+            long[] ops = new long[operations];
+
+            if (operations > _ops.length) {
+                // copy to a larger buffer, leaving zeroes at the beginning
+                int lastOp = _lastOp + operations - _ops.length;
+                System.arraycopy(_ops, 0, ops, 0, _lastOp);
+                System.arraycopy(_ops, _lastOp, ops, lastOp, _ops.length - _lastOp);
+
+            } else {
+                // if we're truncating, copy the first (oldest) stamps into ops[0..]
+                int endCount = Math.min(operations, _ops.length - _lastOp);
+                System.arraycopy(_ops, _lastOp, ops, 0, endCount);
+                System.arraycopy(_ops, 0, ops, endCount, operations - endCount);
+                _lastOp = 0;
+            }
+            _ops = ops;
+        }
     }
 
     /**

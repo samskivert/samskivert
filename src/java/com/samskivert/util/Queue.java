@@ -28,6 +28,11 @@ package com.samskivert.util;
  */
 public class Queue<T>
 {
+    public static <T> Queue<T> newQueue ()
+    {
+        return new Queue<T>();
+    }
+
     public Queue (int suggestedSize)
     {
         _size = _suggestedSize = suggestedSize;

@@ -45,19 +45,26 @@ public class BasicRunQueue extends LoopingThread
         _queue = new Queue<Runnable>();
     }
 
-    // documentation inherited from interface
+    // from interface RunQueue
     public void postRunnable (Runnable r)
     {
         _queue.append(r);
     }
 
-    // documentation inherited from interface
+    // from interface RunQueue
     public boolean isDispatchThread ()
     {
-        return Thread.currentThread() == this;
+        return Thread.currentThread() == _dispatcher;
     }
 
-    @Override
+    @Override // from LoopingThread
+    protected void willStart ()
+    {
+        super.willStart();
+        _dispatcher = Thread.currentThread();
+    }
+
+    @Override // from LoopingThread
     protected void iterate ()
     {
         Runnable r = _queue.get();
@@ -69,7 +76,7 @@ public class BasicRunQueue extends LoopingThread
         }
     }
 
-    @Override
+    @Override // from LoopingThread
     protected void kick ()
     {
         postRunnable(new Runnable() {
@@ -81,4 +88,8 @@ public class BasicRunQueue extends LoopingThread
 
     /** The queue of things to run. */
     protected Queue<Runnable> _queue;
+
+    /** Our dispatcher thread (may == this or may be something else if we're being used directly
+     * rather than in separate thread mode). */
+    protected Thread _dispatcher;
 }

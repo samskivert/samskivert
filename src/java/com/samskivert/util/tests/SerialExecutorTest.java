@@ -98,6 +98,11 @@ public class SerialExecutorTest extends TestCase
         return Thread.currentThread() == _main;
     }
 
+    public boolean isRunning ()
+    {
+        return true;
+    }
+
     public static Test suite ()
     {
         return new SerialExecutorTest();

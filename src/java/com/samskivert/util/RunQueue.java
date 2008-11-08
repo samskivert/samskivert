@@ -29,22 +29,29 @@ public interface RunQueue
 {
     /** A useful RunQueue that uses the AWT dispatch thread. */
     public static final RunQueue AWT = new RunQueue() {
-            public void postRunnable (Runnable r) {
-                EventQueue.invokeLater(r);
-            }
-
-            public boolean isDispatchThread () {
-                return EventQueue.isDispatchThread();
-            }
-        };
+        public void postRunnable (Runnable r) {
+            EventQueue.invokeLater(r);
+        }
+        public boolean isDispatchThread () {
+            return EventQueue.isDispatchThread();
+        }
+        public boolean isRunning () {
+            return true;
+        }
+    };
 
     /**
      * Post the specified Runnable to be run on the RunQueue.
      */
-    public void postRunnable (Runnable r);
+    void postRunnable (Runnable r);
 
     /**
      * @return true if the calling thread is the RunQueue dispatch thread.
      */
-    public boolean isDispatchThread ();
+    boolean isDispatchThread ();
+
+    /**
+     * @return true if this run queue is still processing runnables, false if it has been shutdown.
+     */
+    boolean isRunning ();
 }

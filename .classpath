@@ -7,7 +7,7 @@
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-digester.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-io.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-logging.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/ehcache-1.2.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/ehcache.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/junit4.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/mail.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/servlet-api.jar"/>

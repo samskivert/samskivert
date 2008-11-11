@@ -80,6 +80,9 @@ public class LoopingThread extends Thread
                 }
             }
 
+        } catch (Throwable t) {
+            log.warning("Looping thread terminated with exception.", "thread", this, t);
+
         } finally {
             // Running needs to be false even if this exited due to a Throwable from iterate
             _running = false;

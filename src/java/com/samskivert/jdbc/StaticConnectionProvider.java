@@ -280,7 +280,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         public Connection connection;
 
         /** The database identifiers that are mapped to this connection. */
-        public ArrayList<String> idents = new ArrayList<String>();
+        public List<String> idents = new ArrayList<String>();
     }
 
     /** Our configuration in the form of a properties object. */

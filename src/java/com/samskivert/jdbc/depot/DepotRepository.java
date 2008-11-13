@@ -319,8 +319,8 @@ public abstract class DepotRepository
 
         if (forUpdate) {
             _ctx.invoke(new Modifier(null) {
-                @Override
-                public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+                @Override public Integer invoke (Connection conn, DatabaseLiaison liaison)
+                    throws SQLException {
                     PreparedStatement stmt = builder.prepare(conn);
                     try {
                         ResultSet rs = stmt.executeQuery();
@@ -375,7 +375,7 @@ public abstract class DepotRepository
         // key will be null if record was supplied without a primary key
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 // if needed, update our modifier's key so that it can cache our results
                 Set<String> identityFields = Collections.emptySet();
                 if (_key == null) {
@@ -427,7 +427,7 @@ public abstract class DepotRepository
 
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
@@ -464,7 +464,7 @@ public abstract class DepotRepository
 
         return _ctx.invoke(new CachingModifier<T>(record, key, key) {
             @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 // clear out _result so that we don't rewrite this partial record to the cache
                 _result = null;
@@ -604,7 +604,7 @@ public abstract class DepotRepository
 
         return _ctx.invoke(new Modifier(invalidator) {
             @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
@@ -735,7 +735,7 @@ public abstract class DepotRepository
 
         return _ctx.invoke(new Modifier(invalidator) {
             @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();
@@ -773,7 +773,7 @@ public abstract class DepotRepository
         final boolean[] created = new boolean[1];
         _ctx.invoke(new CachingModifier<T>(record, key, key) {
             @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = null;
                 try {
                     if (_key != null) {
@@ -897,7 +897,7 @@ public abstract class DepotRepository
 
         return _ctx.invoke(new Modifier(invalidator) {
             @Override
-            public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
                 PreparedStatement stmt = builder.prepare(conn);
                 try {
                     return stmt.executeUpdate();

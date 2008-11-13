@@ -29,7 +29,7 @@ import com.samskivert.jdbc.DatabaseLiaison;
 /**
  * Encapsulates a modification of persistent objects.
  */
-public abstract class Modifier
+public abstract class Modifier implements Operation<Integer>
 {
     /**
      * A simple modifier that executes a single SQL statement. No cache flushing is done as a
@@ -41,7 +41,8 @@ public abstract class Modifier
             super(null);
         }
 
-        @Override public int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
+        @Override
+        public Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException {
             Statement stmt = conn.createStatement();
             try {
                 return stmt.executeUpdate(createQuery(liaison));
@@ -102,7 +103,7 @@ public abstract class Modifier
      * Overriden to perform the actual database modifications represented by this object; should
      * return the number of modified rows.
      */
-    public abstract int invoke (Connection conn, DatabaseLiaison liaison) throws SQLException;
+    public abstract Integer invoke (Connection conn, DatabaseLiaison liaison) throws SQLException;
 
     /**
      * Constructs a {@link Modifier} without a cache invalidator.

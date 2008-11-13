@@ -29,7 +29,7 @@ import com.samskivert.jdbc.depot.PersistenceContext.CacheListener;
 /**
  * The base of all read-only queries.
  */
-public interface Query<T>
+public interface Query<T> extends Operation<T>
 {
     /** A simple base class for non-complex queries. */
     public abstract class Trivial<T> implements Query<T>
@@ -59,12 +59,6 @@ public interface Query<T>
      * {@link CacheInvalidator}.
      */
     public CacheKey getCacheKey ();
-
-    /**
-     * Performs the actual JDBC operations associated with this query.
-     */
-    public T invoke (Connection conn, DatabaseLiaison liaison)
-        throws SQLException;
 
     /**
      * Overriden by subclasses to perform special operations when the query would return a cache

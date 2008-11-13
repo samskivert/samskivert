@@ -273,7 +273,7 @@ public class PersistenceContext
             log.debug("cache miss [key=" + key + "]");
         }
         // otherwise, perform the query
-        @SuppressWarnings("unchecked") T result = (T) invoke(query, null, true);
+        T result = invoke(query, true);
         // and let the caller figure out if it wants to cache itself somehow
         query.updateCache(this, result);
         return result;
@@ -286,7 +286,7 @@ public class PersistenceContext
         throws DatabaseException
     {
         modifier.cacheInvalidation(this);
-        int rows = (Integer) invoke(null, modifier, true);
+        int rows = invoke(modifier, true);
         if (rows > 0) {
             modifier.cacheUpdate(this);
         }
@@ -522,15 +522,15 @@ public class PersistenceContext
     /**
      * Internal invoke method that takes care of transient retries for both queries and modifiers.
      */
-    protected <T> Object invoke (Query<T> query, Modifier modifier, boolean retryOnTransientFailure)
+    protected <T> T invoke (Operation<T> op, boolean retryOnTransientFailure)
         throws DatabaseException
     {
         checkAreInitialized(); // le check du sanity
 
-        boolean isReadOnlyQuery = (query != null);
+        boolean isReadOnly = !(op instanceof Modifier);
         Connection conn;
         try {
-            conn = _conprov.getConnection(_ident, isReadOnlyQuery);
+            conn = _conprov.getConnection(_ident, isReadOnly);
         } catch (PersistenceException pe) {
             throw new DatabaseException(pe.getMessage(), pe.getCause());
         }
@@ -541,19 +541,12 @@ public class PersistenceContext
         // that someone else may be using
         synchronized (conn) {
             try {
-                if (isReadOnlyQuery) {
-                    // if this becomes more complex than this single statement, then this should
-                    // turn into a method call that contains the complexity
-                    return query.invoke(conn, _liaison);
-
-                } else {
-                    // if this becomes more complex than this single statement, then this should
-                    // turn into a method call that contains the complexity
-                    return modifier.invoke(conn, _liaison);
-                }
+                // if this becomes more complex than this single statement, then this should turn
+                // into a method call that contains the complexity
+                return op.invoke(conn, _liaison);
 
             } catch (SQLException sqe) {
-                if (!isReadOnlyQuery) {
+                if (!isReadOnly) {
                     // convert this exception to a DuplicateKeyException if appropriate
                     if (_liaison.isDuplicateRowException(sqe)) {
                         throw new DuplicateKeyException(sqe.getMessage());
@@ -561,7 +554,7 @@ public class PersistenceContext
                 }
 
                 // let the provider know that the connection failed
-                _conprov.connectionFailed(_ident, isReadOnlyQuery, conn, sqe);
+                _conprov.connectionFailed(_ident, isReadOnly, conn, sqe);
                 conn = null;
 
                 if (retryOnTransientFailure && _liaison.isTransientException(sqe)) {
@@ -572,18 +565,16 @@ public class PersistenceContext
                     log.info("Transient failure executing op, retrying [error=" + msg + "].");
 
                 } else {
-                    String msg = isReadOnlyQuery ?
-                        "Query failure " + query : "Modifier failure " + modifier;
-                    throw new DatabaseException(msg, sqe);
+                    throw new DatabaseException("Operation failure " + op, sqe);
                 }
 
             } finally {
-                _conprov.releaseConnection(_ident, isReadOnlyQuery, conn);
+                _conprov.releaseConnection(_ident, isReadOnly, conn);
             }
         }
 
         // if we got here, we want to retry a transient failure
-        return invoke(query, modifier, false);
+        return invoke(op, false);
     }
 
     protected void checkAreInitialized ()

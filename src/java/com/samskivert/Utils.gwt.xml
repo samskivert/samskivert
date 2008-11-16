@@ -1,6 +1,5 @@
 <!-- $Id$                                          -->
 <!-- Exports various samskivert utilities to GWT.  -->
 <module>
-  <source path="jdbc/depot"/>
   <source path="text"/>
 </module>

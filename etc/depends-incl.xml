@@ -59,14 +59,6 @@
     <echo level="info">---------------</echo>
     <echo level="info">Other libraries</echo>
     <echo level="info">---------------</echo>
-    <available property="ant.present" classpathref="classpath" ignoresystemclasses="true"
-     classname="org.apache.tools.ant.Task"/>
-    <echo level="info">Ant: ${ant.present}</echo>
-
-    <available property="ehcache.present" classpathref="classpath"
-     classname="net.sf.ehcache.Element"/>
-    <echo level="info">EH Cache: ${ehcache.present}</echo>
-
     <available property="junit.present" classpathref="classpath"
      classname="junit.framework.Test"/>
     <echo level="info">JUnit: ${junit.present}</echo>
@@ -99,22 +91,6 @@
       </and>
     </condition>
     <echo level="info">com.samskivert.jdbc: ${build.jdbc}</echo>
-
-    <condition property="build.depot.ehcache">
-      <and>
-        <isset property="build.jdbc"/>
-        <isset property="ehcache.present"/>
-      </and>
-    </condition>
-    <echo level="info">com.samskivert.jdbc.depot.ehcace: ${build.depot.ehcache}</echo>
-
-    <condition property="build.depot.tools">
-      <and>
-        <isset property="build.jdbc"/>
-        <isset property="ant.present"/>
-      </and>
-    </condition>
-    <echo level="info">com.samskivert.jdbc.depot.tools: ${build.depot.tools}</echo>
 
     <condition property="build.servlet">
       <and>

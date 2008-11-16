@@ -40,22 +40,6 @@
     </copy>
   </target>
 
-  <!-- generates fields for persistent record classes -->
-  <target name="genrecord" depends="prepare">
-    <taskdef name="grecord" classname="com.samskivert.jdbc.depot.tools.GenRecordTask"
-             classpathref="classpath"/>
-    <!-- make sure the record class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}"
-           debug="on" optimize="${build.optimize}" deprecation="on">
-      <classpath refid="classpath"/>
-      <include name="**/*Record.java"/>
-    </javac>
-    <!-- now update the source files -->
-    <grecord classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Record.java"/>
-    </grecord>
-  </target>
-
   <!-- cleans out the intermediate build files -->
   <target name="clean">
     <delete dir="${classes.dir}"/>
@@ -76,8 +60,6 @@
       <classpath refid="classpath"/>
       <exclude name="com/samskivert/io/**" unless="build.io"/>
       <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
-      <exclude name="com/samskivert/jdbc/depot/EHCacheAdapter.java" unless="build.depot.ehcache"/>
-      <exclude name="com/samskivert/jdbc/depot/tools/**" unless="build.depot.tools"/>
       <exclude name="com/samskivert/net/MailUtil*" unless="build.mail"/>
       <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
       <exclude name="com/samskivert/swing/**" unless="build.swing"/>
@@ -104,7 +86,6 @@
       <packageset dir="${src.dir}">
         <exclude name="com/samskivert/io/**" unless="build.io"/>
         <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
-        <exclude name="com/samskivert/jdbc/depot/EHCacheAdapter.java" unless="ehcache.present"/>
         <exclude name="com/samskivert/net/**" unless="build.net"/>
         <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
         <exclude name="com/samskivert/swing/**" unless="build.swing"/>
@@ -143,7 +124,6 @@
           <include name="**/tests/**/*Test.java"/>
           <exclude name="com/samskivert/io/**" unless="build.io"/>
           <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
-          <exclude name="com/samskivert/jdbc/depot/EHCacheAdapter.java" unless="ehcache.present"/>
           <exclude name="com/samskivert/net/**" unless="build.net"/>
           <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
           <exclude name="com/samskivert/swing/**" unless="build.swing"/>

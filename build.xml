@@ -145,7 +145,6 @@
     <copy todir="${gwtjar.dir}">
       <fileset dir="src/java" includes="com/samskivert/Utils.gwt.xml"/>
       <fileset dir="src/java" includes="com/samskivert/text/MessageUtil.java"/>
-      <fileset dir="src/java" includes="com/samskivert/jdbc/depot/ByteEnum.java"/>
     </copy>
     <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>

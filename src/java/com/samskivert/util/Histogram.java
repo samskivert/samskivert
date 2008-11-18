@@ -23,15 +23,15 @@ package com.samskivert.util;
 import java.util.Arrays;
 
 /**
- * Used for tracking a set of values that fall into a discrete range of
- * values.
+ * Used for tracking a set of values that fall into a discrete range of values.
  */
 public class Histogram
+    implements Cloneable
 {
     /**
-     * Constructs a histogram that will track values with a granularity
-     * equal to the <code>bucketWidth</code> from <code>minValue</code> to
-     * <code>minValue + bucketWidth*bucketCount</code>.
+     * Constructs a histogram that will track values with a granularity equal to the
+     * <code>bucketWidth</code> from <code>minValue</code> to <code>minValue +
+     * bucketWidth*bucketCount</code>.
      */
     public Histogram (int minValue, int bucketWidth, int bucketCount)
     {
@@ -73,11 +73,10 @@ public class Histogram
     }
 
     /**
-     * Returns the array containing the bucket values. The zeroth element
-     * contains the count of all values less than <code>minValue</code>,
-     * the subsequent <code>bucketCount</code> elements contain the count
-     * of values falling into those buckets and the last element contains
-     * values greater than or equal to <code>maxValue</code>.
+     * Returns the array containing the bucket values. The zeroth element contains the count of all
+     * values less than <code>minValue</code>, the subsequent <code>bucketCount</code> elements
+     * contain the count of values falling into those buckets and the last element contains values
+     * greater than or equal to <code>maxValue</code>.
      */
     public int[] getBuckets ()
     {
@@ -85,8 +84,7 @@ public class Histogram
     }
 
     /**
-     * Generates a terse summary of the count and contents of the values
-     * in this histogram.
+     * Generates a terse summary of the count and contents of the values in this histogram.
      */
     public String summarize ()
     {
@@ -116,8 +114,7 @@ public class Histogram
     @Override // from Object
     public String toString ()
     {
-        return "[min=" + _minValue + ", max=" + _maxValue +
-            ", bwidth=" + _bucketWidth +
+        return "[min=" + _minValue + ", max=" + _maxValue + ", bwidth=" + _bucketWidth +
             ", buckets=" + StringUtil.toString(_buckets) + "]";
     }
 

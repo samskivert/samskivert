@@ -109,7 +109,7 @@ public class Histogram
             chisto._buckets = _buckets.clone();
             return chisto;
         } catch (CloneNotSupportedException cnse) {
-            throw new AssertionError();
+            throw new AssertionError(cnse);
         }
     }
 

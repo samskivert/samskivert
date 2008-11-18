@@ -101,7 +101,19 @@ public class Histogram
         return buf.toString();
     }
 
-    @Override
+    @Override // from Object
+    public Histogram clone ()
+    {
+        try {
+            Histogram chisto = (Histogram)super.clone();
+            chisto._buckets = _buckets.clone();
+            return chisto;
+        } catch (CloneNotSupportedException cnse) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override // from Object
     public String toString ()
     {
         return "[min=" + _minValue + ", max=" + _maxValue +

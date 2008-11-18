@@ -23,72 +23,60 @@ package com.samskivert.util;
 import java.io.Serializable;
 
 /**
- * A tuple is a simple object that holds a reference to two other objects.
- * It provides hashcode and equality semantics that allow it to be used to
- * combine two objects into a single key (for hashtables, etc.).
+ * A tuple is a simple object that holds a reference to two other objects. It provides hashcode and
+ * equality semantics that allow it to be used to combine two objects into a single key (for
+ * hashtables, etc.).
  */
 public class Tuple<L,R> implements Serializable
 {
     /** The left object. */
-    public L left;
+    public final L left;
 
     /** The right object. */
-    public R right;
+    public final R right;
 
     /**
      * Creates a tuple with the specified two objects.
      */
-    public static <L, R> Tuple<L, R> create (L left, R right)
+    public static <L, R> Tuple<L, R> newTuple (L left, R right)
     {
         return new Tuple<L, R>(left, right);
     }
 
-    /** Construct a tuple with the specified two objects. */
+    /**
+     * Constructs a tuple with the supplied values.
+     */
     public Tuple (L left, R right)
     {
         this.left = left;
         this.right = right;
     }
 
-    /** Construct a blank tuple. */
-    public Tuple ()
-    {
-    }
-
-    /**
-     * Returns the combined hashcode of the two elements.
-     */
-    @Override
+    @Override // from Object
     public int hashCode ()
     {
-        return left.hashCode() ^ right.hashCode();
+        int value = 17;
+        value = value * 31 + ((left == null) ? 0 : left.hashCode());
+        value = value * 31 + ((right == null) ? 0 : right.hashCode());
+        return value;
     }
 
-    /**
-     * A tuple is equal to another tuple if the left and right elements
-     * are equal to the left and right elements (respectively) of the
-     * other tuple.
-     */
-    @Override
+    @Override // from Object
     public boolean equals (Object other)
     {
-        if (other instanceof Tuple) {
-            Tuple<?, ?> to = (Tuple<?, ?>)other;
-            return (left.equals(to.left) && right.equals(to.right));
-        } else {
+        if (!(other instanceof Tuple)) {
             return false;
         }
+        Tuple<?, ?> to = (Tuple<?, ?>)other;
+        return ObjectUtil.equals(left, to.left) && ObjectUtil.equals(right, to.right);
     }
 
-    @Override
+    @Override // from Object
     public String toString ()
     {
         return "[left=" + left + ", right=" + right + "]";
     }
 
-    /** Change this if the fields or inheritance hierarchy ever changes
-     * (which is extremely unlikely). We override this because I'm tired
-     * of serialized crap not working depending on whether I compiled with
-     * jikes or javac. */
+    /** Don't you go a changin'. */
     private static final long serialVersionUID = 1;
 }

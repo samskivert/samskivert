@@ -35,13 +35,6 @@ public class ComparableTuple<L extends Comparable<? super L>, R extends Comparab
         super(left, right);
     }
 
-    /**
-     * Constructs a blank tuple.
-     */
-    public ComparableTuple ()
-    {
-    }
-
     // from interface Comparable
     public int compareTo (ComparableTuple<L, R> other)
     {

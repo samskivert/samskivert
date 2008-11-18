@@ -29,15 +29,14 @@ import com.samskivert.util.StringUtil;
 import static com.samskivert.Log.log;
 
 /**
- * Provides a simplified mechanism for maintaining a list of observers (or
- * listeners or whatever you like to call them) and notifying those
- * observers when desired. Notification takes place through a {@link
- * ObserverOp} which allows the list maintainer to call an arbitrary
- * method on its observers.
+ * Provides a simplified mechanism for maintaining a list of observers (or listeners or whatever
+ * you like to call them) and notifying those observers when desired. Notification takes place
+ * through a {@link ObserverOp} which allows the list maintainer to call an arbitrary method on its
+ * observers.
  *
- * <p> A couple of different usage patterns will help to illuminate. The
- * first, where a new notify operation is created every time the observers
- * are notified. This wins on brevity but loses on performance.
+ * <p> A couple of different usage patterns will help to illuminate. The first, where a new notify
+ * operation is created every time the observers are notified. This wins on brevity but loses on
+ * performance.
  *
  * <pre>
  * ...
@@ -53,8 +52,8 @@ import static com.samskivert.Log.log;
  * ...
  * </pre>
  *
- * The second where a singleton instance of the operation class is
- * maintained and is configured each time notification is desired.
+ * The second where a singleton instance of the operation class is maintained and is configured
+ * each time notification is desired.
  *
  * <pre>
  * ...
@@ -86,38 +85,35 @@ import static com.samskivert.Log.log;
  *
  * Bear in mind that this latter case is not thread safe.
  *
- * <p> Other usage patterns are most certainly conceivable, and hopefully
- * these two will give you a useful starting point for determining what is
- * the most appropriate usage for your needs.
+ * <p> Other usage patterns are most certainly conceivable, and hopefully these two will give you a
+ * useful starting point for determining what is the most appropriate usage for your needs.
  */
 public class ObserverList<T> extends ArrayList<T>
 {
     /**
-     * Instances of this interface are used to apply methods to all
-     * observers in a list.
+     * Instances of this interface are used to apply methods to all observers in a list.
      */
     public static interface ObserverOp<T>
     {
         /**
          * Called once for each observer in the list.
          *
-         * @return true if the observer should remain in the list, false
-         * if it should be removed in response to this application.
+         * @return true if the observer should remain in the list, false if it should be removed in
+         * response to this application.
          */
         public boolean apply (T observer);
     }
 
-    /** A notification ordering policy indicating that the observers
-     * should be notified in the order they were added and that the
-     * notification should be done on a snapshot of the array. */
+    /** A notification ordering policy indicating that the observers should be notified in the
+     * order they were added and that the notification should be done on a snapshot of the
+     * array. */
     public static final int SAFE_IN_ORDER_NOTIFY = 1;
 
-    /** A notification ordering policy wherein the observers are notified
-     * last to first so that they can be removed during the notification
-     * process and new observers added will not inadvertently be notified
-     * as well, but no copy of the observer list need be made. This will
-     * not work if observers are added or removed from arbitrary positions
-     * in the list during a notification call. */
+    /** A notification ordering policy wherein the observers are notified last to first so that
+     * they can be removed during the notification process and new observers added will not
+     * inadvertently be notified as well, but no copy of the observer list need be made. This will
+     * not work if observers are added or removed from arbitrary positions in the list during a
+     * notification call. */
     public static final int FAST_UNSAFE_NOTIFY = 2;
 
     /**
@@ -148,11 +144,10 @@ public class ObserverList<T> extends ArrayList<T>
     }
 
     /**
-     * Creates an empty observer list with the supplied notification
-     * policy and that only allows observers to observe the list once.
+     * Creates an empty observer list with the supplied notification policy and that only allows
+     * observers to observe the list once.
      *
-     * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link
-     * #FAST_UNSAFE_NOTIFY}.
+     * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link #FAST_UNSAFE_NOTIFY}.
      */
     public ObserverList (int notifyPolicy)
     {
@@ -160,21 +155,16 @@ public class ObserverList<T> extends ArrayList<T>
     }
 
     /**
-     * Creates an empty observer list with the supplied notification and
-     * duplicate observer policy.
+     * Creates an empty observer list with the supplied notification and duplicate observer policy.
      *
-     * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link
-     * #FAST_UNSAFE_NOTIFY}.
-     * @param allowDups whether to allow observers to be added to the list
-     * more than once.
+     * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link #FAST_UNSAFE_NOTIFY}.
+     * @param allowDups whether to allow observers to be added to the list more than once.
      */
     public ObserverList (int notifyPolicy, boolean allowDups)
     {
         // make sure the policy is valid
-        if (notifyPolicy != SAFE_IN_ORDER_NOTIFY &&
-            notifyPolicy != FAST_UNSAFE_NOTIFY) {
-            throw new RuntimeException("Invalid notification policy " +
-                                       "[policy=" + notifyPolicy + "]");
+        if (notifyPolicy != SAFE_IN_ORDER_NOTIFY && notifyPolicy != FAST_UNSAFE_NOTIFY) {
+            throw new RuntimeException("Invalid notification policy [policy=" + notifyPolicy + "]");
         }
 
         _policy = notifyPolicy ;
@@ -184,6 +174,9 @@ public class ObserverList<T> extends ArrayList<T>
     @Override
     public void add (int index, T element)
     {
+        if (element == null) {
+            throw new NullPointerException("Null observers not allowed.");
+        }
         if (!isDuplicate(element)) {
             super.add(index, element);
         }
@@ -192,26 +185,31 @@ public class ObserverList<T> extends ArrayList<T>
     @Override
     public boolean add (T element)
     {
+        if (element == null) {
+            throw new NullPointerException("Null observers not allowed.");
+        }
         return isDuplicate(element) ? false : super.add(element);
     }
 
     @Override
     public boolean addAll (Collection<? extends T> c)
     {
-        throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
+        throw new UnsupportedOperationException(
+            "Observers may only be added via ObserverList.add(Object).");
     }
 
     @Override
     public boolean addAll (int index, Collection<? extends T> c)
     {
-        throw new UnsupportedOperationException(UNSUPPORTED_ADD_MESSAGE);
+        throw new UnsupportedOperationException(
+            "Observers may only be added via ObserverList.add(Object).");
     }
 
     @Override
     public int indexOf (Object element)
     {
-        // indexOf and lastIndexOf are implemented using reference equality
-        // so that contains() also uses reference equality.
+        // indexOf and lastIndexOf are implemented using reference equality so that contains() also
+        // uses reference equality
         for (int ii = 0, nn = size(); ii < nn; ii++) {
             if (element == get(ii)) {
                 return ii;
@@ -223,8 +221,8 @@ public class ObserverList<T> extends ArrayList<T>
     @Override
     public int lastIndexOf (Object element)
     {
-        // indexOf and lastIndexOf are implemented using reference equality
-        // so that contains() also uses reference equality.
+        // indexOf and lastIndexOf are implemented using reference equality so that contains() also
+        // uses reference equality
         for (int ii = size() - 1; ii >= 0; ii--) {
             if (element == get(ii)) {
                 return ii;
@@ -245,9 +243,8 @@ public class ObserverList<T> extends ArrayList<T>
     }
 
     /**
-     * Applies the supplied observer operation to all observers in the
-     * list in a manner conforming to the notification ordering policy
-     * specified at construct time.
+     * Applies the supplied observer operation to all observers in the list in a manner conforming
+     * to the notification ordering policy specified at construct time.
      */
     @SuppressWarnings("unchecked")
     public void apply (ObserverOp<T> obop)
@@ -257,12 +254,10 @@ public class ObserverList<T> extends ArrayList<T>
             return;
         }
         if (_policy == SAFE_IN_ORDER_NOTIFY) {
-            // if we have to notify our observers in order, we need to
-            // create a snapshot of the observer array at the time we
-            // start the notification to ensure that modifications to the
-            // array during notification don't hose us
-            if (_snap == null || _snap.length < ocount ||
-                    _snap.length > (ocount << 3)) {
+            // if we have to notify our observers in order, we need to create a snapshot of the
+            // observer array at the time we start the notification to ensure that modifications to
+            // the array during notification don't hose us
+            if (_snap == null || _snap.length < ocount || _snap.length > (ocount << 3)) {
                 _snap = (T[])new Object[ocount];
             }
             toArray(_snap);
@@ -284,16 +279,14 @@ public class ObserverList<T> extends ArrayList<T>
     }
 
     /**
-     * Returns true and issues a warning if this list does not allow duplicates
-     * and the supplied observer is already in the list. Returns false if the
-     * supplied observer is not a duplicate.
+     * Returns true and issues a warning if this list does not allow duplicates and the supplied
+     * observer is already in the list. Returns false if the supplied observer is not a duplicate.
      */
     protected boolean isDuplicate (T obs)
     {
         // make sure we're not violating the list constraints
         if (!_allowDups && contains(obs)) {
-            log.warning("Observer attempted to observe list it's already " +
-                        "observing! [obs=" + obs + "].");
+            log.warning("Observer attempted to observe list it's already observing!", "obs", obs);
             Thread.dumpStack();
             return true;
         }
@@ -301,16 +294,15 @@ public class ObserverList<T> extends ArrayList<T>
     }
 
     /**
-     * Applies the operation to the observer, catching and logging any
-     * exceptions thrown in the process.
+     * Applies the operation to the observer, catching and logging any exceptions thrown in the
+     * process.
      */
     protected static <T> boolean checkedApply (ObserverOp<T> obop, T obs)
     {
         try {
             return obop.apply(obs);
         } catch (Throwable thrown) {
-            log.warning("ObserverOp choked during notification [op=" + obop +
-                        ", obs=" + StringUtil.safeToString(obs) + "].", thrown);
+            log.warning("ObserverOp choked during notification", "op", obop, "obs", obs, thrown);
             // if they booched it, definitely don't remove them
             return true;
         }
@@ -322,11 +314,7 @@ public class ObserverList<T> extends ArrayList<T>
     /** Whether to allow observers to observe more than once simultaneously. */
     protected boolean _allowDups;
 
-    /** Used to avoid creating a new snapshot array every time we notify
-     * our observers if the size has not changed. */
+    /** Used to avoid creating a new snapshot array every time we notify our observers if the size
+     * has not changed. */
     protected T[] _snap;
-
-    /** Message reported for unsupported <code>add()</code> variants. */
-    protected static final String UNSUPPORTED_ADD_MESSAGE =
-        "Observers may only be added via ObserverList.add(Object).";
 }

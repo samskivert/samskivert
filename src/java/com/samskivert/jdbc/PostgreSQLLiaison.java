@@ -103,26 +103,32 @@ public class PostgreSQLLiaison extends BaseLiaison
             executeQuery(
                 conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
                 " TYPE " + type);
-            lbuf.append("type=" + type);
+            lbuf.append("type=").append(type);
         }
         if (nullable != null) {
             executeQuery(
                 conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
-                " " + (nullable.booleanValue() ? "SET NOT NULL" : "DROP NOT NULL"));
-            if (lbuf.length() > 0) lbuf.append(", ");
-            lbuf.append("nullable=" + nullable);
+                " " + (nullable ? "SET NOT NULL" : "DROP NOT NULL"));
+            if (lbuf.length() > 0) {
+                lbuf.append(", ");
+            }
+            lbuf.append("nullable=").append(nullable);
         }
         if (unique != null) {
             // TODO: I think this requires ALTER TABLE DROP CONSTRAINT and so on
-            if (lbuf.length() > 0) lbuf.append(", ");
-            lbuf.append("unique=" + unique + " (not implemented yet)");
+            if (lbuf.length() > 0) {
+                lbuf.append(", ");
+            }
+            lbuf.append("unique=").append(unique).append(" (not implemented yet)");
         }
         if (defaultValue != null) {
             executeQuery(
                 conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
                 " " + (defaultValue.length() > 0 ? "SET DEFAULT " + defaultValue : "DROP DEFAULT"));
-            if (lbuf.length() > 0) lbuf.append(", ");
-            lbuf.append("defaultValue=" + defaultValue);
+            if (lbuf.length() > 0) {
+                lbuf.append(", ");
+            }
+            lbuf.append("defaultValue=").append(defaultValue);
         }
         log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
                  "definition [" + lbuf + "].");

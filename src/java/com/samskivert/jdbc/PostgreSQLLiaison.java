@@ -108,7 +108,7 @@ public class PostgreSQLLiaison extends BaseLiaison
         if (nullable != null) {
             executeQuery(
                 conn, "ALTER TABLE " + tableSQL(table) + " ALTER COLUMN " + columnSQL(column) +
-                " " + (nullable ? "SET NOT NULL" : "DROP NOT NULL"));
+                " " + (nullable ? "DROP NOT NULL" : "SET NOT NULL"));
             if (lbuf.length() > 0) {
                 lbuf.append(", ");
             }

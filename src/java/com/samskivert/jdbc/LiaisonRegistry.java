@@ -92,5 +92,6 @@ public class LiaisonRegistry
     static {
         registerLiaisonClass(MySQLLiaison.class);
         registerLiaisonClass(PostgreSQLLiaison.class);
+        registerLiaisonClass(HsqldbLiaison.class);
     }
 }

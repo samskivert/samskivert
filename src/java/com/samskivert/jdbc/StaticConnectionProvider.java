@@ -124,8 +124,7 @@ public class StaticConnectionProvider implements ConnectionProvider
             String url = requireProp(props, "url", err);
             err = "No driver username specified [ident=" + ident + "].";
             String username = requireProp(props, "username", err);
-            err = "No driver password specified [ident=" + ident + "].";
-            String password = requireProp(props, "password", err);
+            String password = props.getProperty("password", "");
             String autoCommit = props.getProperty("autocommit");
 
             // if this is a read-only connection, we cache connections by username+url+readOnly to

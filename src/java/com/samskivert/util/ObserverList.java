@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.samskivert.util.StringUtil;
-
 import static com.samskivert.Log.log;
 
 /**

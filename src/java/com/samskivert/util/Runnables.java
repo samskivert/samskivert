@@ -31,6 +31,13 @@ import static com.samskivert.Log.log;
  */
 public class Runnables
 {
+    /** A runnable that does nothing. Useful for use as the default value for optional callbacks. */
+    public static Runnable NOOP = new Runnable() {
+        public void run () {
+            // noop!
+        }
+    };
+
     /**
      * Creates a runnable that invokes the specified method on the specified instance via
      * reflection.

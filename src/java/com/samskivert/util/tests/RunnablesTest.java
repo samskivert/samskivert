@@ -42,21 +42,26 @@ public class RunnablesTest
 
     @Test public void testWrapInstance ()
     {
-        Runnables.asRunnable(this, "instanceMethod");
+        Runnables.asRunnable(this, "instanceMethod").run();
+        assertTrue(_ranInstance);
     }
 
     @Test public void testWrapStatic ()
     {
-        Runnables.asRunnable(RunnablesTest.class, "staticMethod");
+        Runnables.asRunnable(RunnablesTest.class, "staticMethod").run();
+        assertTrue(_ranStatic);
     }
 
     protected void instanceMethod ()
     {
-        // noop!
+        _ranInstance = true;
     }
 
     protected static void staticMethod ()
     {
-        // noop!
+        _ranStatic = true;
     }
+
+    protected boolean _ranInstance;
+    protected static boolean _ranStatic;
 }

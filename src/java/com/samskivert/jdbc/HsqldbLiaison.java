@@ -21,9 +21,7 @@
 package com.samskivert.jdbc;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Handles liaison for HSQLDB. NOTE: incomplete and doesn't work yet!

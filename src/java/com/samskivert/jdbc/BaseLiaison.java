@@ -274,8 +274,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
      */
     public String expandDefinition (ColumnDefinition def)
     {
-        return expandDefinition(
-            def.getType(), def.isNullable(), def.isUnique(), def.getDefaultValue());
+        return expandDefinition(def.type, def.nullable, def.unique, def.defaultValue);
     }
 
     protected int executeQuery (Connection conn, String query)

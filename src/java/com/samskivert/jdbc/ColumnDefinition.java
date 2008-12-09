@@ -25,6 +25,16 @@ package com.samskivert.jdbc;
  */
 public class ColumnDefinition
 {
+    public String type;
+    public boolean nullable;
+    public boolean unique;
+    public String defaultValue;
+
+    public ColumnDefinition ()
+    {
+        this(null);
+    }
+
     public ColumnDefinition (String type)
     {
         this(type, false, false, null);
@@ -33,42 +43,9 @@ public class ColumnDefinition
     public ColumnDefinition (
         String type, boolean nullable, boolean unique, String defaultValue)
     {
-        if (type == null) {
-            throw new IllegalArgumentException("cannot build column definition without type");
-        }
-
-        _type = type;
-        _nullable = nullable;
-        _unique = unique;
-        _defaultValue = defaultValue;
+        this.type = type;
+        this.nullable = nullable;
+        this.unique = unique;
+        this.defaultValue = defaultValue;
     }
-
-    /** Returns the SQL type of this column, e.g. INTEGER. */
-    public String getType ()
-    {
-        return _type;
-    }
-
-    /** Determines whether or not this column should allow NULL values. */
-    public boolean isNullable ()
-    {
-        return _nullable;
-    }
-
-    /** Determines whether or not this column should reject duplicate values. */
-    public boolean isUnique ()
-    {
-        return _unique;
-    }
-
-    /** Returns the value to insert into this column instead of nulls, if any. */
-    public String getDefaultValue ()
-    {
-        return _defaultValue;
-    }
-
-    protected String _type;
-    protected boolean _nullable;
-    protected boolean _unique;
-    protected String _defaultValue;
 }

@@ -21,11 +21,10 @@
 package com.samskivert.jdbc;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -124,11 +123,12 @@ public class HsqldbLiaison extends BaseLiaison
         String[][] uniqueConstraintColumns, String[] primaryKeyColumns)
         throws SQLException
     {
-        Preconditions.checkArgument(columns.length == definitions.length,
-                                    "Column name and definition number mismatch");
+        if (columns.length != definitions.length) {
+            throw new IllegalArgumentException("Column name and definition number mismatch");
+        }
 
         // make a set of unique constraints already provided
-        Set<List<String>> uColSet = Sets.newHashSet();
+        Set<List<String>> uColSet = new HashSet<List<String>>();
         if (uniqueConstraintColumns != null) {
             for (String[] uCols : uniqueConstraintColumns) {
                 uColSet.add(Arrays.asList(uCols));
@@ -146,7 +146,7 @@ public class HsqldbLiaison extends BaseLiaison
                     def.type, def.nullable, false, def.defaultValue);
                 // if a uniqueness constraint for this column was not in the
                 // uniqueConstraintColumns parameter, add such an entry
-                if (!uColSet.contains(Sets.newHashSet(columns[ii]))) {
+                if (!uColSet.contains(Collections.singletonList(columns[ii]))) {
                     String[] newConstraint = new String[] { columns[ii] };
                     uniqueConstraintColumns = (uniqueConstraintColumns == null) ?
                         new String[][] { newConstraint } :

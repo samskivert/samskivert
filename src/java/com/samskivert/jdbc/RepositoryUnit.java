@@ -21,8 +21,26 @@
 package com.samskivert.jdbc;
 
 /**
- * Extends {@link WriteOnlyUnit} and allows for processing of results back on the event processing
- * thread.
+ * A specialized invoker unit that does one or more database operations and then sends the results
+ * back to the event processing thread. Override {@link #handleSuccess} to process your result on
+ * the event thread and {@link #handleFailure} to handle a failure on the event thread. For
+ * example:
+ *
+ * <pre>
+ * final int userId = 123;
+ * _invoker.postUnit(new RepositoryUnit("loadUser") {
+ *     public void invokePersist () throws Exception {
+ *         _user = _userRepo.loadUser(userId);
+ *     }
+ *     public void handleSuccess () {
+ *         // do something with _user
+ *     }
+ *     public void handleFailure (Exception cause) {
+ *         // report failure to load user
+ *     }
+ *     protected UserRecord _user;
+ * });
+ * </pre>
  */
 public abstract class RepositoryUnit extends WriteOnlyUnit
 {

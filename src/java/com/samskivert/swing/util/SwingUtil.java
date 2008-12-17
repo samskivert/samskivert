@@ -449,31 +449,30 @@ public class SwingUtil
     }
 
     /**
-     * Activates anti-aliasing in the supplied graphics context.
+     * Activates anti-aliasing in the supplied graphics context on both text and 2D drawing
+     * primitives.
      *
-     * @return an object that should be passed to {@link
-     * #restoreAntiAliasing} to restore the graphics context to its
-     * original settings.
+     * @return an object that should be passed to {@link #restoreAntiAliasing} to restore the
+     * graphics context to its original settings.
      */
     public static Object activateAntiAliasing (Graphics2D gfx)
     {
-        Object oalias = gfx.getRenderingHint(
-            RenderingHints.KEY_ANTIALIASING);
-        gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                             RenderingHints.VALUE_ANTIALIAS_ON);
-        return oalias;
+        RenderingHints ohints = gfx.getRenderingHints(), nhints = new RenderingHints(null);
+        nhints.add(ohints);
+        nhints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        nhints.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        gfx.setRenderingHints(nhints);
+        return ohints;
     }
 
     /**
-     * Restores anti-aliasing in the supplied graphics context to its
-     * original setting.
+     * Restores anti-aliasing in the supplied graphics context to its original setting.
      *
-     * @param rock the results of a previous call to {@link
-     * #activateAntiAliasing}.
+     * @param rock the results of a previous call to {@link #activateAntiAliasing}.
      */
     public static void restoreAntiAliasing (Graphics2D gfx, Object rock)
     {
-        gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, rock);
+        gfx.setRenderingHints((RenderingHints)rock);
     }
 
     /**

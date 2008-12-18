@@ -38,6 +38,7 @@ import java.text.AttributedCharacterIterator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,21 +52,16 @@ import com.samskivert.util.Tuple;
 import static com.samskivert.Log.log;
 
 /**
- * The label is a multipurpose text display mechanism that can display
- * small amounts of text wrapped to fit into a variety of constrained
- * spaces. It can be requested to conform to a particular width or height
- * and will expand into the other dimension in order to accomodate the
- * text at hand. It is not a component, but is intended for use by
- * components and other more heavyweight entities.
+ * The label is a multipurpose text display mechanism that can display small amounts of text
+ * wrapped to fit into a variety of constrained spaces. It can be requested to conform to a
+ * particular width or height and will expand into the other dimension in order to accomodate the
+ * text at hand. It is not a component, but is intended for use by components and other more
+ * heavyweight entities.
  */
 public class Label implements SwingConstants, LabelStyleConstants
 {
     /** The pattern used to mark the start/end of color blocks. */
-    public static final Pattern COLOR_PATTERN =
-        Pattern.compile("#([Xx]|[0-9A-Fa-f]{6}+)");
-
-    private static final Pattern ESCAPED_PATTERN =
-        Pattern.compile("#''([Xx]|[0-9A-Fa-f]{6}+)");
+    public static final Pattern COLOR_PATTERN = Pattern.compile("#([Xx]|[0-9A-Fa-f]{6}+)");
 
     /**
      * Filter out any color tags from the specified text.
@@ -77,8 +73,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Escape any special tags so that they won't be interpreted by the
-     * label.
+     * Escape any special tags so that they won't be interpreted by the label.
      */
     public static String escapeColors (String txt)
     {
@@ -87,9 +82,8 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Un-escape special tags so that they again look correct. Called by
-     * rendering components that do not understand the color tags
-     * to filter colors and unescape any escaped colors.
+     * Un-escape special tags so that they again look correct. Called by rendering components that
+     * do not understand the color tags to filter colors and unescape any escaped colors.
      */
     public static String unescapeColors (String txt)
     {
@@ -123,8 +117,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Constructs a label with the supplied text and configuration
-     * parameters.
+     * Constructs a label with the supplied text and configuration parameters.
      */
     public Label (String text, Color textColor, Font font)
     {
@@ -132,11 +125,9 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Constructs a label with the supplied text and configuration
-     * parameters.
+     * Constructs a label with the supplied text and configuration parameters.
      */
-    public Label (
-        String text, int style, Color textColor, Color altColor, Font font)
+    public Label (String text, int style, Color textColor, Color altColor, Font font)
     {
         setText(text);
         setStyle(style);
@@ -156,18 +147,16 @@ public class Label implements SwingConstants, LabelStyleConstants
     /**
      * Sets the text to be displayed by this label.
      *
-     * <p> This should be followed by a call to {@link #layout} before a
-     * call is made to {@link #render} as this method invalidates the
-     * layout information.
+     * <p> This should be followed by a call to {@link #layout} before a call is made to {@link
+     * #render} as this method invalidates the layout information.
      *
-     * @return true if the text changed as a result of being set, false if
-     * the label was already displaying the requested text.
+     * @return true if the text changed as a result of being set, false if the label was already
+     * displaying the requested text.
      */
     public boolean setText (String text)
     {
-        // the Java text stuff freaks out in a variety of ways if it is
-        // asked to deal with the empty string, so we fake blank labels by
-        // just using a space
+        // the Java text stuff freaks out in a variety of ways if it is asked to deal with the
+        // empty string, so we fake blank labels by just using a space
         if (StringUtil.isBlank(text)) {
             text = " ";
         }
@@ -178,8 +167,8 @@ public class Label implements SwingConstants, LabelStyleConstants
         }
 
         // _text should contain the text without any tags
-        // _rawText will be null if there are no tags
         _text = filterColors(text);
+        // _rawText will be null if there are no tags
         _rawText = text.equals(_text) ? null : text;
 
         // if what we were passed contains escaped color tags, unescape them
@@ -193,12 +182,11 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Sets the font to be used by this label. If the font is not set, the
-     * current font of the graphics context will be used.
+     * Sets the font to be used by this label. If the font is not set, the current font of the
+     * graphics context will be used.
      *
-     * <p> This should be followed by a call to {@link #layout} before a
-     * call is made to {@link #render} as this method invalidates the
-     * layout information.
+     * <p> This should be followed by a call to {@link #layout} before a call is made to {@link
+     * #render} as this method invalidates the layout information.
      */
     public void setFont (Font font)
     {
@@ -215,9 +203,8 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Sets the color used to render the text.  Setting the text color to
-     * <code>null</code> will render the label in the graphics context
-     * color (which is the default).
+     * Sets the color used to render the text.  Setting the text color to <code>null</code> will
+     * render the label in the graphics context color (which is the default).
      */
     public void setTextColor (Color color)
     {
@@ -225,8 +212,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Returns the alternate color used to render the text's outline or
-     * shadow, if any.
+     * Returns the alternate color used to render the text's outline or shadow, if any.
      */
     public Color getAlternateColor ()
     {
@@ -234,10 +220,9 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Instructs the label to render the text with the specified alternate
-     * color when rendering. The text itself will be rendered in whatever
-     * color is currently set in the graphics context, but the outline or
-     * shadow (if any) will always be in the specified color.
+     * Instructs the label to render the text with the specified alternate color when
+     * rendering. The text itself will be rendered in whatever color is currently set in the
+     * graphics context, but the outline or shadow (if any) will always be in the specified color.
      */
     public void setAlternateColor (Color color)
     {
@@ -253,14 +238,12 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Sets the alignment of the text within the label to either {@link
-     * SwingConstants#LEFT}, {@link SwingConstants#RIGHT}, or {@link
-     * SwingConstants#CENTER}. The default alignment is selected to be
-     * appropriate for the locale of the text being rendered.
+     * Sets the alignment of the text within the label to either {@link SwingConstants#LEFT},
+     * {@link SwingConstants#RIGHT}, or {@link SwingConstants#CENTER}. The default alignment is
+     * selected to be appropriate for the locale of the text being rendered.
      *
-     * <p> This should be followed by a call to {@link #layout} before a
-     * call is made to {@link #render} as this method invalidates the
-     * layout information.
+     * <p> This should be followed by a call to {@link #layout} before a call is made to {@link
+     * #render} as this method invalidates the layout information.
      */
     public void setAlignment (int align)
     {
@@ -268,13 +251,12 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Sets the style of the text within the label to one of the styles
-     * defined in {@link LabelStyleConstants}. Some styles can be combined
-     * together into a mask, ie. <code>BOLD|UNDERLINE</code>.
+     * Sets the style of the text within the label to one of the styles defined in {@link
+     * LabelStyleConstants}. Some styles can be combined together into a mask,
+     * ie. <code>BOLD|UNDERLINE</code>.
      *
-     * <p> This should be followed by a call to {@link #layout} before a
-     * call is made to {@link #render} as this method invalidates the
-     * layout information.
+     * <p> This should be followed by a call to {@link #layout} before a call is made to {@link
+     * #render} as this method invalidates the layout information.
      */
     public void setStyle (int style)
     {
@@ -283,13 +265,11 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Instructs the label to attempt to achieve a balance between width
-     * and height that approximates the golden ratio (width ~1.618 times
-     * height).
+     * Instructs the label to attempt to achieve a balance between width and height that
+     * approximates the golden ratio (width ~1.618 times height).
      *
-     * <p> This should be followed by a call to {@link #layout} before a
-     * call is made to {@link #render} as this method invalidates the
-     * layout information.
+     * <p> This should be followed by a call to {@link #layout} before a call is made to {@link
+     * #render} as this method invalidates the layout information.
      */
     public void setGoldenLayout ()
     {
@@ -300,15 +280,13 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Sets the target width for this label. Text will be wrapped to fit
-     * into this width, forcibly breaking words on character boundaries if
-     * a single word is too long to fit into the target width. Calling
-     * this method will annul any previously established target height as
-     * we must have one degree of freedom in which to maneuver.
+     * Sets the target width for this label. Text will be wrapped to fit into this width, forcibly
+     * breaking words on character boundaries if a single word is too long to fit into the target
+     * width. Calling this method will annul any previously established target height as we must
+     * have one degree of freedom in which to maneuver.
      *
-     * <p> This should be followed by a call to {@link #layout} before a
-     * call is made to {@link #render} as this method invalidates the
-     * layout information.
+     * <p> This should be followed by a call to {@link #layout} before a call is made to {@link
+     * #render} as this method invalidates the layout information.
      */
     public void setTargetWidth (int targetWidth)
     {
@@ -322,17 +300,15 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Sets the target height for this label. A simple algorithm will be
-     * used to balance the width of the text in order that there are only
-     * as many lines of text as fit into the target height. If rendering
-     * the label as a single line of text causes it to be taller than the
-     * target height, we simply render ourselves anyway. Calling this
-     * method will annul any previously established target width as we
-     * must have one degree of freedom in which to maneuver.
+     * Sets the target height for this label. A simple algorithm will be used to balance the width
+     * of the text in order that there are only as many lines of text as fit into the target
+     * height. If rendering the label as a single line of text causes it to be taller than the
+     * target height, we simply render ourselves anyway. Calling this method will annul any
+     * previously established target width as we must have one degree of freedom in which to
+     * maneuver.
      *
-     * <p> This should be followed by a call to {@link #layout} before a
-     * call is made to {@link #render} as this method invalidates the
-     * layout information.
+     * <p> This should be followed by a call to {@link #layout} before a call is made to {@link
+     * #render} as this method invalidates the layout information.
      */
     public void setTargetHeight (int targetHeight)
     {
@@ -363,8 +339,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Returns our computed dimensions. Only valid after a call to {@link
-     * #layout}.
+     * Returns our computed dimensions. Only valid after a call to {@link #layout}.
      */
     public Dimension getSize ()
     {
@@ -380,8 +355,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Calls {@link #layout(Graphics2D)} with the graphics context for the
-     * given component.
+     * Calls {@link #layout(Graphics2D)} with the graphics context for the given component.
      */
     public void layout (Component comp)
     {
@@ -393,27 +367,24 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Requests that this label lay out its text, obtaining information
-     * from the supplied graphics context to do so. It is expected that
-     * the label will be subsequently rendered in the same graphics
-     * context or at least one that is configured very similarly. If not,
-     * wackiness may ensue.
+     * Requests that this label lay out its text, obtaining information from the supplied graphics
+     * context to do so. It is expected that the label will be subsequently rendered in the same
+     * graphics context or at least one that is configured very similarly. If not, wackiness may
+     * ensue.
      */
     public void layout (Graphics2D gfx)
     {
         FontRenderContext frc = gfx.getFontRenderContext();
-        ArrayList<Tuple<TextLayout,Rectangle2D>> layouts = null;
+        List<Tuple<TextLayout,Rectangle2D>> layouts = null;
 
-        // if we have a target height, do some processing and convert that
-        // into a target width
+        // if we have a target height, do some processing and convert that into a target width
         if (_constraints.height > 0 || _constraints.width == -1) {
             int targetHeight = _constraints.height;
 
-            // if we're approximating the golden ratio, target a height
-            // that gets us near that ratio, then we can err on the side
-            // of being a bit wider which is generally nicer than being
-            // taller (for those of us that don't speak verticall written
-            // languages, anyway)
+            // if we're approximating the golden ratio, target a height that gets us near that
+            // ratio, then we can err on the side of being a bit wider which is generally nicer
+            // than being taller (for those of us that don't speak verticall written languages,
+            // anyway)
             if (_constraints.width == -1) {
                 TextLayout layout = new TextLayout(textIterator(gfx), frc);
                 Rectangle2D bounds = getBounds(layout);
@@ -443,12 +414,11 @@ public class Label implements SwingConstants, LabelStyleConstants
             if (lines > 1) {
                 int targetWidth = (int)Math.round(getWidth(bounds) / lines);
 
-                // attempt to lay the text out in the specified width,
-                // incrementing by 10% each time; limit our attempts to 10
-                // expansions to avoid infinite loops if something is fucked
+                // attempt to lay the text out in the specified width, incrementing by 10% each
+                // time; limit our attempts to 10 expansions to avoid infinite loops if something
+                // is fucked
                 for (int i = 0; i < 10; i++) {
-                    LineBreakMeasurer measurer =
-                        new LineBreakMeasurer(textIterator(gfx), frc);
+                    LineBreakMeasurer measurer = new LineBreakMeasurer(textIterator(gfx), frc);
                     layouts = computeLines(measurer, targetWidth, _size, true);
                     if ((layouts != null) && (layouts.size() <= lines)) {
                         break;
@@ -463,14 +433,13 @@ public class Label implements SwingConstants, LabelStyleConstants
             layouts = computeLines(measurer, _constraints.width, _size, false);
         }
 
-        // if no constraint, or our constraining height puts us on one line
-        // then layout on one line and call it good
+        // if no constraint, or our constraining height puts us on one line then layout on one line
+        // and call it good
         if (layouts == null) {
             TextLayout layout = new TextLayout(textIterator(gfx), frc);
             Rectangle2D bounds = getBounds(layout);
             // for some reason JDK1.3 on Linux chokes on setSize(double,double)
-            _size.setSize(Math.ceil(getWidth(bounds)),
-                          Math.ceil(getHeight(layout)));
+            _size.setSize(Math.ceil(getWidth(bounds)), Math.ceil(getHeight(layout)));
             layouts = new ArrayList<Tuple<TextLayout,Rectangle2D>>();
             layouts.add(new Tuple<TextLayout,Rectangle2D>(layout, bounds));
         }
@@ -492,25 +461,22 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Computes the lines of text for this label given the specified
-     * target width. The overall size of the computed lines is stored into
-     * the <code>size</code> parameter.
+     * Computes the lines of text for this label given the specified target width. The overall size
+     * of the computed lines is stored into the <code>size</code> parameter.
      *
-     * @return an {@link ArrayList} or null if <code>keepWordsWhole</code>
-     * was true and the lines could not be layed out in the target width.
+     * @return an {@link List} or null if <code>keepWordsWhole</code> was true and the lines could
+     * not be layed out in the target width.
      */
-    protected ArrayList<Tuple<TextLayout,Rectangle2D>> computeLines (
-        LineBreakMeasurer measurer, int targetWidth, Dimension size,
-        boolean keepWordsWhole)
+    protected List<Tuple<TextLayout,Rectangle2D>> computeLines (
+        LineBreakMeasurer measurer, int targetWidth, Dimension size, boolean keepWordsWhole)
     {
         // start with a size of zero
         double width = 0, height = 0;
-        ArrayList<Tuple<TextLayout,Rectangle2D>> layouts =
-            new ArrayList<Tuple<TextLayout,Rectangle2D>>();
+        List<Tuple<TextLayout,Rectangle2D>> layouts = new ArrayList<Tuple<TextLayout,Rectangle2D>>();
 
         try {
-            // obtain our new dimensions by using a line break iterator to
-            // lay out our text one line at a time
+            // obtain our new dimensions by using a line break iterator to lay out our text one
+            // line at a time
             TextLayout layout;
             int lastposition = _text.length();
             while (true) {
@@ -518,8 +484,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                 if (nextret == -1) {
                     nextret = lastposition;
                 }
-                layout = measurer.nextLayout(
-                    targetWidth, nextret, keepWordsWhole);
+                layout = measurer.nextLayout(targetWidth, nextret, keepWordsWhole);
                 if (layout == null) {
                     break;
                 }
@@ -529,8 +494,8 @@ public class Label implements SwingConstants, LabelStyleConstants
                 layouts.add(new Tuple<TextLayout,Rectangle2D>(layout, bounds));
             }
 
-            // fill in the computed size; for some reason JDK1.3 on Linux
-            // chokes on setSize(double,double)
+            // fill in the computed size; for some reason JDK1.3 on Linux chokes on
+            // setSize(double,double)
             size.setSize(Math.ceil(width), Math.ceil(height));
 
             // this can only happen if keepWordsWhole is true
@@ -546,17 +511,14 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Renders the layout at the specified position in the supplied
-     * graphics context.
+     * Renders the layout at the specified position in the supplied graphics context.
      */
     public void render (Graphics2D gfx, float x, float y)
     {
         // nothing to do if we haven't been laid out
         if (_layouts == null) {
-            log.warning(hashCode() + " Unlaid-out label asked to render " +
-                        "[text=" + _text +
-//                         ", last=" + _invalidator +
-                        "].");
+            log.warning(hashCode() + " Unlaid-out label asked to render [text=" + _text +
+                        /* ", last=" + _invalidator + */ "].");
             return;
         }
 
@@ -581,21 +543,18 @@ public class Label implements SwingConstants, LabelStyleConstants
             case CENTER: rx = x + extra/2; break;
             }
 
-            // shift over any lines that start with a font that extends
-            // into negative x-land
+            // shift over any lines that start with a font that extends into negative x-land
             rx += _leaders[i];
 
-//             System.out.println(i + " x: " + x + " y: " + y + " rx: " + rx +
-//                                " a: " + _align + " width: " + _size.width +
-//                                " lx: " + lbounds.getX() +
-//                                " lwidth: " + getWidth(lbounds) +
-//                                " extra: " + extra);
+//             System.out.println(i + " x: " + x + " y: " + y + " rx: " + rx + " a: " + _align +
+//                                " width: " + _size.width + " lx: " + lbounds.getX() +
+//                                " lwidth: " + getWidth(lbounds) + " extra: " + extra);
 
             Color textColor;
 
             if ((_style & OUTLINE) != 0) {
-                // render the outline using the hacky, but much nicer than
-                // using "real" outlines (via TextLayout.getOutline), method
+                // render the outline using the hacky, but much nicer than using "real" outlines
+                // (via TextLayout.getOutline), method
                 textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
                 _mainDraw = false;
@@ -637,8 +596,7 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Constructs an attributed character iterator with our text and the
-     * appropriate font.
+     * Constructs an attributed character iterator with our text and the appropriate font.
      */
     protected AttributedCharacterIterator textIterator (Graphics2D gfx)
     {
@@ -647,8 +605,7 @@ public class Label implements SwingConstants, LabelStyleConstants
         HashMap<TextAttribute,Object> map = new HashMap<TextAttribute,Object>();
         map.put(TextAttribute.FONT, font);
         if ((_style & UNDERLINE) != 0) {
-            map.put(TextAttribute.UNDERLINE,
-                    TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
+            map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
         }
 
         AttributedString text = new AttributedString(_text, map);
@@ -670,8 +627,7 @@ public class Label implements SwingConstants, LabelStyleConstants
                 // color the segment just passed
                 endSeg += m.start();
                 if (lastColor != null) {
-                    text.addAttribute(TextAttribute.FOREGROUND, lastColor,
-                        startSeg, endSeg);
+                    text.addAttribute(TextAttribute.FOREGROUND, lastColor, startSeg, endSeg);
                 }
 
                 // parse the tag: start or end a color
@@ -679,32 +635,25 @@ public class Label implements SwingConstants, LabelStyleConstants
                 if ("x".equalsIgnoreCase(group)) {
                     lastColor = null;
                 } else {
-                    try {
-                        lastColor = new Color(Integer.parseInt(group, 16));
-                    } catch (NumberFormatException nfe) {
-                        log.warning("This shouldn't be possible, the regex " +
-                            "is precise [badcolor=" + group + "].");
-                    }
+                    lastColor = new Color(Integer.parseInt(group, 16));
                 }
 
                 // prepare for the next segment
                 startSeg = endSeg;
-                // Subtract the end of the segment from endSeg
-                // so that when we add the start of the next match we have
-                // actually added the length of the characters in between.
+                // Subtract the end of the segment from endSeg so that when we add the start of the
+                // next match we have actually added the length of the characters in between.
                 endSeg -= m.end();
             }
             // apply any final color to the tail segment
             if (lastColor != null) {
-                text.addAttribute(TextAttribute.FOREGROUND, lastColor,
-                    startSeg, _text.length());
+                text.addAttribute(TextAttribute.FOREGROUND, lastColor, startSeg, _text.length());
             }
         }
     }
 
     /**
-     * Computes the total width of a {@link TextLayout} given bounds
-     * returned from a call to {@link TextLayout#getBounds}.
+     * Computes the total width of a {@link TextLayout} given bounds returned from a call to {@link
+     * TextLayout#getBounds}.
      */
     protected double getWidth (Rectangle2D laybounds)
     {
@@ -720,8 +669,8 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Gets the bounds of the supplied text layout in a way that works
-     * around the various befuckeries that currently happen on the Mac.
+     * Gets the bounds of the supplied text layout in a way that works around the various
+     * befuckeries that currently happen on the Mac.
      */
     protected Rectangle2D getBounds (TextLayout layout)
     {
@@ -733,14 +682,12 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Computes the height based on the leading, ascent and descent rather
-     * than what the layout reports via <code>getBounds()</code> which
-     * rarely seems to have any bearing on reality.
+     * Computes the height based on the leading, ascent and descent rather than what the layout
+     * reports via <code>getBounds()</code> which rarely seems to have any bearing on reality.
      */
     protected float getHeight (TextLayout layout)
     {
-        float height = layout.getLeading() + layout.getAscent() +
-            layout.getDescent();
+        float height = layout.getLeading() + layout.getAscent() + layout.getDescent();
         if ((_style & OUTLINE) != 0) {
             height += 2;
         } else if ((_style & SHADOW) != 0) {
@@ -750,8 +697,8 @@ public class Label implements SwingConstants, LabelStyleConstants
     }
 
     /**
-     * Called when the label is changed in such a way that it must be
-     * relaid out before again being rendered.
+     * Called when the label is changed in such a way that it must be relaid out before again being
+     * rendered.
      */
     protected void invalidate (String where)
     {
@@ -777,17 +724,15 @@ public class Label implements SwingConstants, LabelStyleConstants
     /** Our calculated size. */
     protected Dimension _size = new Dimension();
 
-    /** Some fonts (God bless 'em) extend to the left of the position at
-     * which you request that they be rendered. We opt to push such lines
-     * to the right sufficiently that they line up with the rest of the
-     * lines (perhaps not the typographically ideal thing to do, but we're
-     * in computer land and when we say our bounds are (0, 0, width,
-     * height) we damned well better not render outside those bounds,
-     * which these wonderful fonts are choosing to do). */
+    /** Some fonts (God bless 'em) extend to the left of the position at which you request that
+     * they be rendered. We opt to push such lines to the right sufficiently that they line up with
+     * the rest of the lines (perhaps not the typographically ideal thing to do, but we're in
+     * computer land and when we say our bounds are (0, 0, width, height) we damned well better not
+     * render outside those bounds, which these wonderful fonts are choosing to do). */
     protected float[] _leaders;
 
-    /** The font we use when laying out and rendering out text, or null if
-     * we're to use the default font. */
+    /** The font we use when laying out and rendering out text, or null if we're to use the default
+     * font. */
     protected Font _font;
 
     /** Formatted text layout instances that contain each line of text. */
@@ -796,17 +741,16 @@ public class Label implements SwingConstants, LabelStyleConstants
     /** Formatted text layout instances that contain each line of text. */
     protected Rectangle2D[] _lbounds;
 
-    /** The color in which to render the text outline or shadow if we're
-     * rendering in outline or shadow mode. */
+    /** The color in which to render the text outline or shadow if we're rendering in outline or
+     * shadow mode. */
     protected Color _alternateColor = null;
 
-    /** The color in which to render the text or null if the text should
-     * be rendered with the graphics context color. */
+    /** The color in which to render the text or null if the text should be rendered with the
+     * graphics context color. */
     protected Color _textColor = null;
 
-    /** Will be true only when we're drawing a textlayout for the "main"
-     * portion of the label. If we are in OUTLINE mode, we draw each layout
-     * 9 times: the last one is the only main one. */
+    /** Will be true only when we're drawing a textlayout for the "main" portion of the label. If
+     * we are in OUTLINE mode, we draw each layout 9 times: the last one is the only main one. */
     protected boolean _mainDraw = true;
 
 //     /** Used for debugging. */
@@ -814,4 +758,7 @@ public class Label implements SwingConstants, LabelStyleConstants
 
     /** An approximation of the golden ratio. */
     protected static final double GOLDEN_RATIO = 1.618034;
+
+    /** Used by {@link #unescapeColors}. */
+    protected static final Pattern ESCAPED_PATTERN = Pattern.compile("#''([Xx]|[0-9A-Fa-f]{6}+)");
 }

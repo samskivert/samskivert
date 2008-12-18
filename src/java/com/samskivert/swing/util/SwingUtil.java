@@ -440,6 +440,16 @@ public class SwingUtil
     }
 
     /**
+     * Returns true if anti-aliasing is desired by default. This currently checks the value of the
+     * <code>swing.aatext</code> property, but will someday switch to using Java Desktop Properties
+     * which in theory get their values from OS preferences.
+     */
+    public static boolean getDefaultTextAntialiasing ()
+    {
+        return _defaultTextAntialiasing;
+    }
+
+    /**
      * Adjusts the widths and heights of the cells of the supplied table to fit their contents.
      */
     public static void sizeToContents (JTable table)
@@ -631,4 +641,14 @@ public class SwingUtil
 
     /** Used by {@link #addDebugBorders}. */
     protected static Random _rando = new Random();
+
+    /** Used by {@link #getDefaultTextAntialiasing}. */
+    protected static boolean _defaultTextAntialiasing;
+    static {
+        try {
+            _defaultTextAntialiasing = Boolean.getBoolean("swing.aatext");
+        } catch (Exception e) {
+            // security exception due to running in a sandbox, no problem
+        }
+    }
 }

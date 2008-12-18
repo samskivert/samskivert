@@ -386,7 +386,7 @@ public class MultiLineLabel extends JComponent
     protected int _constrainedSize;
 
     /** Whether to render the label with anti-aliasing. */
-    protected boolean _antialiased;
+    protected boolean _antialiased = SwingUtil.getDefaultTextAntialiasing();
 
     /** Whether this label is dirty and should be re-layed out. */
     protected boolean _dirty = true;

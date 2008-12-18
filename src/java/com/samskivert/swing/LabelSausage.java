@@ -29,8 +29,8 @@ import javax.swing.Icon;
 import com.samskivert.swing.util.SwingUtil;
 
 /**
- * An abstract lightweight renderer that sizes and renders a label (with
- * optional icon) in a roundy-ended sausage.
+ * An abstract lightweight renderer that sizes and renders a label (with optional icon) in a
+ * roundy-ended sausage.
  */
 public abstract class LabelSausage
 {
@@ -44,8 +44,8 @@ public abstract class LabelSausage
     }
 
     /**
-     * Lays out the label sausage.  It is assumed that the desired label
-     * font is already set in the label.
+     * Lays out the label sausage.  It is assumed that the desired label font is already set in the
+     * label.
      */
     protected void layout (Graphics2D gfx, int extraPadding)
     {
@@ -53,20 +53,18 @@ public abstract class LabelSausage
     }
 
     /**
-     * Lays out the label sausage.  It is assumed that the desired label
-     * font is already set in the label.
+     * Lays out the label sausage.  It is assumed that the desired label font is already set in the
+     * label.
      *
-     * @param iconPadding the number of pixels in the x direction to pad
-     * around the icon.
+     * @param iconPadding the number of pixels in the x direction to pad around the icon.
      */
     protected void layout (Graphics2D gfx, int iconPadding, int extraPadding)
     {
-        // if we have an icon, let that dictate our size; otherwise just
-        // lay out our label all on one line
+        // if we have an icon, let that dictate our size; otherwise just lay out our label all on
+        // one line
         int sqwid, sqhei;
         if (_icon == null) {
             sqwid = sqhei = 0;
-
         } else {
             sqwid = _icon.getIconWidth();
             sqhei = _icon.getIconHeight();
@@ -83,8 +81,7 @@ public abstract class LabelSausage
             sqwid = extraPadding * 2;
         }
 
-        // compute the diameter of the circle that perfectly encompasses our
-        // icon
+        // compute the diameter of the circle that perfectly encompasses our icon
         int hhei = sqhei / 2;
         int hwid = sqwid / 2;
         _dia = (int) (Math.sqrt(hwid * hwid + hhei * hhei) * 2);
@@ -100,12 +97,12 @@ public abstract class LabelSausage
         // now compute our closed and open sizes
         _size.height = _dia;
 
-        // width is the diameter of the circle that contains
-        // the icon plus space for the label when we're open
+        // width is the diameter of the circle that contains the icon plus space for the label when
+        // we're open
         _size.width = _dia + lsize.width + _xoff;
 
-        // and if we are actually rendering the icon, we need to
-        // account for the space between it and the label.
+        // and if we are actually rendering the icon, we need to account for the space between it
+        // and the label.
         if (_icon != null) {
             // and add the padding needed for the icon
             _size.width += _xoff + (iconPadding * 2);
@@ -117,8 +114,7 @@ public abstract class LabelSausage
     /**
      * Paints the label sausage.
      */
-    protected void paint (
-        Graphics2D gfx, int x, int y, Color background, Object cliData)
+    protected void paint (Graphics2D gfx, int x, int y, Color background, Object cliData)
     {
         // turn on anti-aliasing
         Object oalias = SwingUtil.activateAntiAliasing(gfx);
@@ -140,8 +136,7 @@ public abstract class LabelSausage
     }
 
     /**
-     * Draws the base sausage within which all the other decorations are
-     * added.
+     * Draws the base sausage within which all the other decorations are added.
      */
     protected void drawBase (Graphics2D gfx, int x, int y)
     {
@@ -174,8 +169,7 @@ public abstract class LabelSausage
     {
         // draw the black outer border
         gfx.setColor(Color.black);
-        gfx.drawRoundRect(x, y, _size.width - 1, _size.height - 1,
-                          _dia, _dia);
+        gfx.drawRoundRect(x, y, _size.width - 1, _size.height - 1, _dia, _dia);
     }
 
     /**

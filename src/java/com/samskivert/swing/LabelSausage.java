@@ -72,7 +72,14 @@ public abstract class LabelSausage
         }
 
         // lay out our label
-        _label.layout(gfx);
+        if (SwingUtil.getDefaultTextAntialiasing()) {
+            Object oalias = SwingUtil.activateAntiAliasing(gfx);
+            _label.layout(gfx);
+            SwingUtil.restoreAntiAliasing(gfx, oalias);
+        } else {
+            _label.layout(gfx);
+        }
+
         Dimension lsize = _label.getSize();
 
         // if we have no icon, make sure that the label has enough room

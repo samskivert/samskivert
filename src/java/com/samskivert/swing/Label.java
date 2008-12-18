@@ -376,12 +376,13 @@ public class Label implements SwingConstants, LabelStyleConstants
      */
     public void layout (Graphics2D gfx)
     {
-        FontRenderContext frc = gfx.getFontRenderContext();
-        List<Tuple<TextLayout,Rectangle2D>> layouts = null;
-
         // if text antialiasing is enabled by default, honor that setting
         Object oalias = SwingUtil.getDefaultTextAntialiasing() ?
             SwingUtil.activateAntiAliasing(gfx) : null;
+
+        // now we can get our font render context (antialias settings are part of our context)
+        FontRenderContext frc = gfx.getFontRenderContext();
+        List<Tuple<TextLayout,Rectangle2D>> layouts = null;
 
         // if we have a target height, do some processing and convert that into a target width
         if (_constraints.height > 0 || _constraints.width == -1) {

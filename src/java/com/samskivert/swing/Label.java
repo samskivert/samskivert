@@ -49,6 +49,8 @@ import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
+import com.samskivert.swing.util.SwingUtil;
+
 import static com.samskivert.Log.log;
 
 /**
@@ -377,6 +379,10 @@ public class Label implements SwingConstants, LabelStyleConstants
         FontRenderContext frc = gfx.getFontRenderContext();
         List<Tuple<TextLayout,Rectangle2D>> layouts = null;
 
+        // if text antialiasing is enabled by default, honor that setting
+        Object oalias = SwingUtil.getDefaultTextAntialiasing() ?
+            SwingUtil.activateAntiAliasing(gfx) : null;
+
         // if we have a target height, do some processing and convert that into a target width
         if (_constraints.height > 0 || _constraints.width == -1) {
             int targetHeight = _constraints.height;
@@ -458,6 +464,9 @@ public class Label implements SwingConstants, LabelStyleConstants
                 _leaders[ii] = (float)-_lbounds[ii].getX();
             }
         }
+
+        // finally restore our antialiasing state
+        SwingUtil.restoreAntiAliasing(gfx, oalias);
     }
 
     /**

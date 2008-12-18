@@ -24,7 +24,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
-import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
@@ -88,13 +87,12 @@ public class MultiLineLabel extends JComponent
     }
 
     /**
-     * Sets whether this label's text should be rendered with anti-aliasing.
+     * @deprecated see {@link SwingUtil#getDefaultAntiAliasing} on how to control text
+     * antialiasing.
      */
+    @Deprecated
     public void setAntiAliased (boolean antialiased)
     {
-        _antialiased = antialiased;
-        _dirty = true;
-        repaint();
     }
 
     /**
@@ -245,14 +243,7 @@ public class MultiLineLabel extends JComponent
         }
 
         // draw the label
-        Object oalias = null;
-        if (_antialiased) {
-            oalias = SwingUtil.activateAntiAliasing(gfx);
-        }
         _label.render(gfx, dx, dy);
-        if (_antialiased) {
-            SwingUtil.restoreAntiAliasing(gfx, oalias);
-        }
     }
 
     @Override
@@ -323,9 +314,6 @@ public class MultiLineLabel extends JComponent
         Graphics2D gfx = (Graphics2D)getGraphics();
         if (gfx != null) {
             // re-layout the label
-            gfx.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, (_antialiased) ?
-                                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
-                                 RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
             _label.layout(gfx);
             gfx.dispose();
 
@@ -384,9 +372,6 @@ public class MultiLineLabel extends JComponent
 
     /** The size to which we constrained ourselves when most recently laid out. */
     protected int _constrainedSize;
-
-    /** Whether to render the label with anti-aliasing. */
-    protected boolean _antialiased = SwingUtil.getDefaultTextAntialiasing();
 
     /** Whether this label is dirty and should be re-layed out. */
     protected boolean _dirty = true;

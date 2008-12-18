@@ -432,11 +432,15 @@ public class SwingUtil
     /**
      * Restores anti-aliasing in the supplied graphics context to its original setting.
      *
-     * @param rock the results of a previous call to {@link #activateAntiAliasing}.
+     * @param rock the results of a previous call to {@link #activateAntiAliasing} or null, in
+     * which case this method will NOOP. This alleviates every caller having to conditionally avoid
+     * calling restore if they chose not to activate earlier.
      */
     public static void restoreAntiAliasing (Graphics2D gfx, Object rock)
     {
-        gfx.setRenderingHints((RenderingHints)rock);
+        if (rock != null) {
+            gfx.setRenderingHints((RenderingHints)rock);
+        }
     }
 
     /**

@@ -72,13 +72,10 @@ public abstract class LabelSausage
         }
 
         // lay out our label
-        if (SwingUtil.getDefaultTextAntialiasing()) {
-            Object oalias = SwingUtil.activateAntiAliasing(gfx);
-            _label.layout(gfx);
-            SwingUtil.restoreAntiAliasing(gfx, oalias);
-        } else {
-            _label.layout(gfx);
-        }
+        Object oalias = SwingUtil.getDefaultTextAntialiasing() ?
+            SwingUtil.activateAntiAliasing(gfx) : null;
+        _label.layout(gfx);
+        SwingUtil.restoreAntiAliasing(gfx, oalias);
 
         Dimension lsize = _label.getSize();
 

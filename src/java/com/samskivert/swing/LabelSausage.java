@@ -72,10 +72,7 @@ public abstract class LabelSausage
         }
 
         // lay out our label
-        Object oalias = SwingUtil.getDefaultTextAntialiasing() ?
-            SwingUtil.activateAntiAliasing(gfx) : null;
         _label.layout(gfx);
-        SwingUtil.restoreAntiAliasing(gfx, oalias);
 
         Dimension lsize = _label.getSize();
 
@@ -120,7 +117,7 @@ public abstract class LabelSausage
      */
     protected void paint (Graphics2D gfx, int x, int y, Color background, Object cliData)
     {
-        // turn on anti-aliasing
+        // turn on anti-aliasing (for our sausage lines)
         Object oalias = SwingUtil.activateAntiAliasing(gfx);
 
         // draw the base sausage

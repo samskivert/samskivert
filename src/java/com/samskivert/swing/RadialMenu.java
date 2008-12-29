@@ -435,14 +435,13 @@ public class RadialMenu
     {
         if (_activeItem == null) {
             long when = RunAnywhere.getWhen(event);
-            if (!_msMode &&
-                (when < _poptime + DRAGMODE_DELAY)) {
+            if (!_msMode && (when < _poptime + DRAGMODE_DELAY)) {
                 // if the dragmode delay time hasn't passed, then we're going to leave the menu up
                 // because the user wants it to behave like a MS Windows menu.
                 _msMode = true;
                 return;
 
-                // if they've double clicked, then activate the default item
+            // if they've double clicked, then activate the default item
             } else if (_msMode && (when < _poptime + DOUBLECLICK_DELAY)) {
                 _activeItem = _defaultItem;
             }
@@ -451,8 +450,12 @@ public class RadialMenu
         // deactivate the active item and post a command for it
         if (_activeItem != null) {
             // only process the selection if the item is enabled
-            if (_activeItem.isEnabled(this) && _activeItem.command != null) {
-                // if the item has an overriding argument, use that
+            if (!_activeItem.isEnabled(this)) {
+                return;
+            }
+
+            // if the item has an overriding argument, use that
+            if (_activeItem.command != null) {
                 Object itemArg = _activeItem.argument;
                 Object arg = (itemArg == null) ? _argument : itemArg;
 
@@ -466,6 +469,7 @@ public class RadialMenu
                     }
                 });
             }
+
             _activeItem.setActive(false);
             _activeItem = null;
         }

@@ -183,8 +183,7 @@ public class RadialLabelSausage extends LabelSausage
 
         } else {
             // render the circle
-            gfx.fillOval(
-                x, y, closedBounds.width - 1, closedBounds.height - 1);
+            gfx.fillOval(x, y, closedBounds.width - 1, closedBounds.height - 1);
         }
     }
 
@@ -193,19 +192,17 @@ public class RadialLabelSausage extends LabelSausage
      */
     protected void paint (Graphics2D gfx, int x, int y, RadialMenu menu)
     {
-        paint(gfx, x, y, UIManager.getColor(
-                  "RadialLabelSausage.background"), menu);
+        paint(gfx, x, y, UIManager.getColor("RadialLabelSausage.background"), menu);
     }
 
     /** Indicates whether or not this label is active. */
-    protected boolean _active = false;
+    protected boolean _active;
 
     /** The thickness of the colored active/inactive border. */
     protected static final int BORDER_THICKNESS = 4;
 
     /** The stroke to use when drawing the selected/unselected color. */
-    protected static final Stroke BORDER_STROKE =
-        new BasicStroke(BORDER_THICKNESS);
+    protected static final Stroke BORDER_STROKE = new BasicStroke(BORDER_THICKNESS);
 
     /** The alpha level for how much we dim an inactive menu item by. */
     protected static final Composite DISABLED_ALPHA =

@@ -119,8 +119,7 @@ public class RadialMenuItem extends RadialLabelSausage
     /**
      * Renders this menu item at the specified location.
      */
-    public void render (
-        Component host, RadialMenu menu, Graphics2D gfx, int x, int y)
+    public void render (Component host, RadialMenu menu, Graphics2D gfx, int x, int y)
     {
         paint(gfx, x, y, menu);
     }
@@ -130,8 +129,7 @@ public class RadialMenuItem extends RadialLabelSausage
     {
         super.drawIcon(gfx, x, y, cliData);
         if (predicate instanceof RadialMenu.IconPredicate) {
-            Icon icon = ((RadialMenu.IconPredicate) predicate).getIcon(
-               (RadialMenu) cliData, this);
+            Icon icon = ((RadialMenu.IconPredicate)predicate).getIcon((RadialMenu)cliData, this);
             if (icon != null) {
                 icon.paintIcon(null, gfx, x + _xoff, y + _yoff);
             }

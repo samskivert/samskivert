@@ -134,15 +134,15 @@ public abstract class BaseLiaison implements DatabaseLiaison
     // from DatabaseLiaison
     public void dropIndex (Connection conn, String table, String index) throws SQLException
     {
-        executeQuery(conn, "ALTER TABLE " + tableSQL(table) +
-                     " DROP CONSTRAINT " + columnSQL(index));
+        executeQuery(conn, "DROP INDEX " + columnSQL(index));
     }
 
     // from DatabaseLiaison
     public void dropPrimaryKey (Connection conn, String table, String pkName)
         throws SQLException
     {
-        dropIndex(conn, table, pkName);
+        executeQuery(conn, "ALTER TABLE " + tableSQL(table) +
+            " DROP CONSTRAINT " + columnSQL(pkName));
     }
 
     // from DatabaseLiaison

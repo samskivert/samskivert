@@ -87,7 +87,7 @@ public class MultiLineLabel extends JComponent
     }
 
     /**
-     * @deprecated see {@link SwingUtil#getDefaultAntiAliasing} on how to control text
+     * @deprecated see {@link SwingUtil#getDefaultTextAntialiasing} on how to control text
      * antialiasing.
      */
     @Deprecated

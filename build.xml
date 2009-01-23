@@ -13,6 +13,8 @@
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
   <property name="libs.dir"    value="lib"/>
   <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
+  <property name="deps.root"   value="http://samskivert.googlecode.com/files"/>
+  <property name="deps.url"    value="${deps.root}/samskivert-depends-1.0.zip"/>
 
   <!-- declare our classpath business -->
   <path id="classpath">
@@ -38,6 +40,10 @@
     <copy todir="${deploy.dir}/lib" flatten="true">
       <fileset refid="${app.name}.libs"/>
     </copy>
+    <!-- make sure we have our minimum required dependencies -->
+    <fail message="Missing jar dependencies. Download ${deps.url} and unzip it here.">
+      <condition><not><available file="${deploy.dir}/lib/junit4.jar"/></not></condition>
+    </fail>
   </target>
 
   <!-- cleans out the intermediate build files -->

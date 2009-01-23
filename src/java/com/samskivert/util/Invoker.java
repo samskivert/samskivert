@@ -220,6 +220,18 @@ public class Invoker extends LoopingThread
     }
 
     /**
+     * Sets the parameters of the unit profiling histogram. This only affects unit lasses that have
+     * not yet been run, so should be called early on in program initialization.
+     * @param bucketWidthMs size of time buckets, in milliseconds
+     * @param bucketCount number of time buckets
+     */
+    public void setProfilingParameters (int bucketWidthMs, int bucketCount)
+    {
+        _profileBucketWidth = bucketWidthMs;
+        _profileBucketCount = bucketCount;
+    }
+
+    /**
      * Called before we process an invoker unit.
      *
      * @param unit the unit about to be invoked.
@@ -263,7 +275,7 @@ public class Invoker extends LoopingThread
     {
         UnitProfile prof = _tracker.get(key);
         if (prof == null) {
-            _tracker.put(key, prof = new UnitProfile());
+            _tracker.put(key, prof = new UnitProfile(_profileBucketWidth, _profileBucketCount));
         }
         prof.record(duration);
     }
@@ -271,6 +283,10 @@ public class Invoker extends LoopingThread
     /** Used to track profile information on invoked units. */
     protected static class UnitProfile
     {
+        public UnitProfile (int bucketWidth, int bucketCount) {
+            _histo = new Histogram(0, bucketWidth, bucketCount);
+        }
+
         public void record (long duration) {
             _totalElapsed += duration;
             _histo.addValue((int)duration);
@@ -287,8 +303,7 @@ public class Invoker extends LoopingThread
                 StringUtil.toString(_histo.getBuckets());
         }
 
-        // track in buckets of 50ms up to 500ms
-        protected Histogram _histo = new Histogram(0, 50, 10);
+        protected Histogram _histo;
         protected long _totalElapsed;
     }
 
@@ -303,6 +318,12 @@ public class Invoker extends LoopingThread
 
     /** The total number of invoker units run since the last report. */
     protected int _unitsRun;
+
+    /** Default size of buckets to use when profiling unit times. */
+    protected int _profileBucketWidth = 50;
+
+    /** Default number of buckets to use when profiling unit times. */
+    protected int _profileBucketCount = 10;
 
     /** The duration of time after which we consider a unit to be delinquent and log a warning. */
     protected static long _defaultLongThreshold = 500L;

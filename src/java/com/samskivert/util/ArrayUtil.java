@@ -157,6 +157,36 @@ public class ArrayUtil
     }
 
     /**
+     * Reverses the elements in the given array.
+     *
+     * @param values the array to reverse.
+     */
+    public static void reverse (Object[] values)
+    {
+        reverse(values, 0, values.length);
+    }
+
+    /**
+     * Reverses a subset of elements within the specified array.
+     *
+     * @param values the array containing elements to reverse.
+     * @param offset the index at which to start reversing elements.
+     * @param length the number of elements to reverse.
+     */
+    public static void reverse (Object[] values, int offset, int length)
+    {
+        int aidx = offset;
+        int bidx = offset + length - 1;
+        while (bidx > aidx) {
+            Object value = values[aidx];
+            values[aidx] = values[bidx];
+            values[bidx] = value;
+            aidx++;
+            bidx--;
+        }
+    }
+
+    /**
      * Shuffles the elements in the given array into a random sequence.
      *
      * @param values the array to shuffle.

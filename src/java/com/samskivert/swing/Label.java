@@ -25,6 +25,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import java.awt.font.TextLayout;
 import java.awt.font.FontRenderContext;
@@ -537,6 +538,11 @@ public class Label implements SwingConstants, LabelStyleConstants
             gfx.setColor(_textColor);
         }
 
+        // We're going to do a couple things differently if we're antialiased
+        RenderingHints hints = gfx.getRenderingHints();
+        boolean antialiased = hints.containsKey(RenderingHints.KEY_ANTIALIASING) ||
+            hints.containsKey(RenderingHints.KEY_TEXT_ANTIALIASING);
+
         // render our text
         for (int i = 0; i < _layouts.length; i++) {
             TextLayout layout = _layouts[i];
@@ -568,6 +574,10 @@ public class Label implements SwingConstants, LabelStyleConstants
                 textColor = gfx.getColor();
                 gfx.setColor(_alternateColor);
                 _mainDraw = false;
+                if (antialiased) {
+                    // We need to fill in the actual spot we'll be drawing on top of if antialiased
+                    layout.draw(gfx, rx + 1, y + 1);
+                }
                 layout.draw(gfx, rx, y);
                 layout.draw(gfx, rx, y + 1);
                 layout.draw(gfx, rx, y + 2);
@@ -579,6 +589,11 @@ public class Label implements SwingConstants, LabelStyleConstants
                 _mainDraw = true;
                 gfx.setColor(textColor);
                 layout.draw(gfx, rx + 1, y + 1);
+                if (antialiased) {
+                    // If antialiased, draw a second time to make sure our letters are nice and
+                    // solid looking on top of the outline
+                    layout.draw(gfx, rx + 1, y + 1);
+                }
 
             } else if ((_style & SHADOW) != 0) {
                 textColor = gfx.getColor();

@@ -144,7 +144,7 @@ public class Invoker extends LoopingThread
      */
     public void postUnit (Unit unit)
     {
-        if (!shutdownRequested()) {
+        if (shutdownRequested()) {
             throw new IllegalStateException("Cannot post units to shutdown invoker.");
         }
         // note the time

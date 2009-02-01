@@ -144,8 +144,8 @@ public class Invoker extends LoopingThread
      */
     public void postUnit (Unit unit)
     {
-        if (!isRunning()) {
-            throw new IllegalStateException("Invoker has been shutdown");
+        if (!shutdownRequested()) {
+            throw new IllegalStateException("Cannot post units to shutdown invoker.");
         }
         // note the time
         unit.queueStamp = System.currentTimeMillis();
@@ -211,6 +211,7 @@ public class Invoker extends LoopingThread
     @Override
     public void shutdown ()
     {
+        _shutdownRequested = true;
         _queue.append(new Unit() {
             @Override public boolean invoke () {
                 _running = false;
@@ -229,6 +230,15 @@ public class Invoker extends LoopingThread
     {
         _profileBucketWidth = bucketWidthMs;
         _profileBucketCount = bucketCount;
+    }
+
+    /**
+     * Returns true if {@link #shutdown} has been called. {@link #isRunning} may still return true
+     * until the shutdown unit is reached and processed by the invoker thread.
+     */
+    protected boolean shutdownRequested ()
+    {
+        return _shutdownRequested;
     }
 
     /**
@@ -327,6 +337,10 @@ public class Invoker extends LoopingThread
 
     /** The duration of time after which we consider a unit to be delinquent and log a warning. */
     protected static long _defaultLongThreshold = 500L;
+
+    /** True after {@link #shutdown} has been called but before the invoker has finished processing
+     * any remaining queued units. */
+    protected volatile boolean _shutdownRequested;
 
     /** Whether or not to track invoker unit performance. */
     protected static final boolean PERF_TRACK = true;

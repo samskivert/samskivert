@@ -191,6 +191,12 @@ public interface DatabaseLiaison
     public boolean tableExists (Connection conn, String name) throws SQLException;
 
     /**
+     * Drops the given table and returns true if the table exists, else returns false.
+     * <em>Note:</em> the table name is case sensitive.
+     */
+    public boolean dropTable (Connection conn, String name) throws SQLException;
+    
+    /**
      * Returns the proper SQL to identify a table. Some databases require table names to be quoted.
      */
     public String tableSQL (String table);

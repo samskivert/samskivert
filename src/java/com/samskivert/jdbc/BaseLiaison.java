@@ -267,6 +267,17 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
+    public boolean dropTable (Connection conn, String name)
+        throws SQLException
+    {
+        if (!tableExists(conn, name)) {
+            return false;
+        }
+        executeQuery(conn, "DROP TABLE " + tableSQL(name));
+        log.info("Table '" + name + "' dropped.");
+        return true;
+    }
+
     /**
      * Create an SQL string that summarizes a column definition in that format generally
      * accepted in table creation and column addition statements, e.g.

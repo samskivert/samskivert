@@ -109,6 +109,24 @@ public class Comparators
 	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
     }
 
+    /**
+     * Returns the first non-zero value in the supplied list. This is useful for combining
+     * comparators:
+     * <pre>
+     * return Comparators.compare(name.compareTo(oname), Comparators.compare(price, oprice), ...);
+     * </pre>
+     * If all values in the array are zero, zero is returned.
+     */
+    public static int combine (int ... values)
+    {
+        for (int value : values) {
+            if (value != 0) {
+                return value;
+            }
+        }
+        return 0;
+    }
+
     // Double.compare() exists
 
     // Float.compare() exists

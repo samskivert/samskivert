@@ -70,6 +70,17 @@ public abstract class Interval
      */
     public Interval (RunQueue runQueue)
     {
+        setRunQueue(runQueue);
+    }
+
+    /**
+     * Configures the run queue to be used by this interval. This <em>must</em> be called before
+     * the interval is started and a non-null queue must be provided. This exists for situations
+     * where the caller needs to configure an optional run queue and thus can't easily call the
+     * appropriate constructor.
+     */
+    public void setRunQueue (RunQueue runQueue)
+    {
         if (runQueue == null) {
             throw new IllegalArgumentException("Supplied RunQueue must be non-null");
         }

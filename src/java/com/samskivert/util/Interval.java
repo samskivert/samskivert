@@ -70,6 +70,9 @@ public abstract class Interval
      */
     public Interval (RunQueue runQueue)
     {
+        if (runQueue == null) {
+            throw new IllegalArgumentException("Supplied RunQueue must be non-null");
+        }
         _runQueue = runQueue;
     }
 

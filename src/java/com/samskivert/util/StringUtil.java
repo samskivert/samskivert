@@ -816,13 +816,21 @@ public class StringUtil
     }
 
     /**
+     * Encodes the supplied source text into an MD5 hash.
+     */
+    public static byte[] md5 (String source)
+    {
+        return digest("MD5", source);
+    }
+
+    /**
      * Returns a hex string representing the MD5 encoded source.
      *
      * @exception RuntimeException thrown if the MD5 codec was not available in this JVM.
      */
     public static String md5hex (String source)
     {
-        return digest("MD5", source);
+        return hexlate(md5(source));
     }
 
     /**
@@ -832,7 +840,7 @@ public class StringUtil
      */
     public static String sha1hex (String source)
     {
-        return digest("SHA-1", source);
+        return hexlate(digest("SHA-1", source));
     }
 
     /**
@@ -1367,11 +1375,11 @@ public class StringUtil
     /**
      * Helper function for {@link #md5hex} and {@link #sha1hex}.
      */
-    protected static String digest (String codec, String source)
+    protected static byte[] digest (String codec, String source)
     {
         try {
             MessageDigest digest = MessageDigest.getInstance(codec);
-            return hexlate(digest.digest(source.getBytes()));
+            return digest.digest(source.getBytes());
         } catch (NoSuchAlgorithmException nsae) {
             throw new RuntimeException(codec + " codec not available");
         }

@@ -116,9 +116,9 @@ public class MessageManager
             return "[null message key]";
         }
 
-        // if the key is tainted, just strip the taint character
-        if (path.startsWith(MessageUtil.TAINT_CHAR)) {
-            return path.substring(1);
+        // if the key is tainted, just return the untainted key
+        if (MessageUtil.isTainted(path)) {
+            return MessageUtil.untaint(path);
         }
 
         // attempt to determine whether or not this is a compound key
@@ -128,13 +128,13 @@ public class MessageManager
             String argstr = path.substring(tidx+1);
             String[] args = StringUtil.split(argstr, "|");
             // unescape and translate the arguments
-            for (int i = 0; i < args.length; i++) {
+            for (int ii = 0; ii < args.length; ii++) {
                 // if the argument is tainted, do no further translation (it might contain |s or
                 // other fun stuff)
-                if (args[i].startsWith(MessageUtil.TAINT_CHAR)) {
-                    args[i] = MessageUtil.unescape(args[i].substring(1));
+                if (MessageUtil.isTainted(args[ii])) {
+                    args[ii] = MessageUtil.unescape(MessageUtil.untaint(args[ii]));
                 } else {
-                    args[i] = getMessage(req, MessageUtil.unescape(args[i]));
+                    args[ii] = getMessage(req, MessageUtil.unescape(args[ii]));
                 }
             }
             return getMessage(req, key, args);

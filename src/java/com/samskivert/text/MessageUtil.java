@@ -25,10 +25,6 @@ package com.samskivert.text;
  */
 public class MessageUtil
 {
-    /** Text prefixed by this character will be considered tainted when doing recursive
-     * translations and won't be translated. */
-    public static final String TAINT_CHAR = "~";
-
     /** Used to mark fully qualified message keys. */
     public static final String QUAL_PREFIX = "%";
 
@@ -44,6 +40,24 @@ public class MessageUtil
     public static String taint (Object text)
     {
         return TAINT_CHAR + text;
+    }
+
+    /**
+     * Returns whether or not the provided string is tainted. See {@link #taint()}. Null strings
+     * are considered untainted.
+     */
+    public static boolean isTainted (String text)
+    {
+        return text != null && text.startsWith(TAINT_CHAR);
+    }
+
+    /**
+     * Removes the tainting character added to a string by {@link #taint()}. If the provided string
+     * is not tainted, this silently returns the originally provided string.
+     */
+    public static String untaint (String text)
+    {
+        return isTainted(text) ? text.substring(TAINT_CHAR.length()) : text;
     }
 
     /**
@@ -220,4 +234,8 @@ public class MessageUtil
 
         return qualifiedKey.substring(qsidx+1);
     }
+
+    /** Text prefixed by this character will be considered tainted when doing recursive
+     * translations and won't be translated. */
+    protected static final String TAINT_CHAR = "~";
 }

@@ -67,7 +67,8 @@ public class RandomUtil
     public static int getInt (int high, int low)
     {
         if (high - low - 1 <= 0) {
-            throw new IllegalArgumentException("Invalid range [high=" + high + ", low=" + low + "]");
+            throw new IllegalArgumentException(
+                "Invalid range [high=" + high + ", low=" + low + "]");
         }
         return low + 1 + rand.nextInt(high - low - 1);
     }
@@ -111,6 +112,24 @@ public class RandomUtil
     public static boolean getChance (int n, Random r)
     {
         return getInt(n, r) == 0;
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed boolean.
+     */
+    public static boolean getBoolean ()
+    {
+        return getBoolean(rand);
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed boolean.
+     *
+     * @param r the random number generator to use
+     */
+    public static boolean getBoolean (Random r)
+    {
+        return r.nextBoolean();
     }
 
     /**

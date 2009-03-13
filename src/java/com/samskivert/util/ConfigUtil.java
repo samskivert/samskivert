@@ -272,24 +272,6 @@ public class ConfigUtil
             rsrcs.add(enm.nextElement());
         }
 
-        // if we found no resources in our enumerations, try loading the properties using
-        // getResource() rather than getResources(); this works around a bug in Tomcat 3.3's
-        // classloader wherein it simply returns nothing to all calls to getResources()
-        if (rsrcs.size() == 0) {
-            // if getStream() returns something, but getResources() returned nothing, then we know
-            // there's a bug and we do our best to work around it
-            InputStream in = getStream(path, loader);
-            if (in != null) {
-                log.warning("Buggy classloader: getResources() returned no resources, but " +
-                            "getResourceAsStream() returned a resource. Using the one we could " +
-                            "get our hands on.", "path", path,
-                            "loader", StringUtil.shortClassName(loader));
-                target.load(in);
-                in.close();
-            }
-            throw new FileNotFoundException(path);
-        }
-
         // load up the metadata for the properties files
         PropRecord root = null, crown = null;
         HashMap<String,PropRecord> map = null;
@@ -336,8 +318,7 @@ public class ConfigUtil
                 }
 
                 // wire this guy up to whomever he overrides
-                for (int ii = 0; ii < prec._overrides.length; ii++) {
-                    String ppkg = prec._overrides[ii];
+                for (String ppkg : prec._overrides) {
                     PropRecord parent = map.get(ppkg);
                     if (parent == null) {
                         throw new IOException("Cannot find parent '" + ppkg + "' for " + prec);
@@ -416,8 +397,8 @@ public class ConfigUtil
 
         // first load up properties from all of our parent nodes
         if (prec._overrides != null) {
-            for (int ii = 0; ii < prec._overrides.length; ii++) {
-                PropRecord parent = records.get(prec._overrides[ii]);
+            for (String override : prec._overrides) {
+                PropRecord parent = records.get(override);
                 loadPropertiesOverrides(parent, records, applied, loader, target);
             }
         }

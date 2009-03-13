@@ -31,9 +31,9 @@ import java.util.Properties;
 import static com.samskivert.Log.log;
 
 /**
- * The config class provides a unified interaface to application configuration information. It
- * takes care of loading properties files (done via the classpath) and allows for overriding and
- * inheriting of properties values (see {@link ConfigUtil#loadInheritedProperties}).
+ * The config class provides a unified interaface to application configuration information. See
+ * {@link PrefsConfig} for an extension of Config that allows the default values to be reconfigured
+ * and saved persistently.
  *
  * <p> A common pattern is to create, for each package that shares configuration information, a
  * singleton class containing a config object that is configured to load its data from a single
@@ -97,13 +97,13 @@ public class Config
             String ppath = path + PROPS_SUFFIX;
 
             // load the properties file
-            ConfigUtil.loadInheritedProperties(ppath, _props);
+            ConfigUtil.loadProperties(ppath, getClass().getClassLoader(), _props);
 
         } catch (FileNotFoundException fnfe) {
-            log.debug("No properties file found to back config [path=" + path + "].");
+            log.debug("No properties file found to back config", "path", path);
 
         } catch (IOException ioe) {
-            log.warning("Unable to load configuration [path=" + path + ", ioe=" + ioe + "].");
+            log.warning("Unable to load configuration", "path", path, "ioe", ioe);
         }
     }
 

@@ -313,7 +313,7 @@ public class SiteResourceLoader
                     jarFile.close();
                 }
 
-                log.info("Opened site bundle [path=" + file.getPath() + "].");
+                log.info("Opened site bundle", "path", file.getPath());
 
                 // and open a new one
                 jarFile = new JarFile(file);
@@ -337,9 +337,8 @@ public class SiteResourceLoader
             try {
                 return _bundle.getResourceAsStream(path);
             } catch (IOException ioe) {
-                log.warning("Error loading resource from jarfile " +
-                            "[bundle=" + _bundle + ", path=" + path +
-                            ", error=" + ioe + "].");
+                log.warning("Error loading resource from jarfile", "bundle", _bundle, "path", path,
+                            "error", ioe);
                 return null;
             }
         }

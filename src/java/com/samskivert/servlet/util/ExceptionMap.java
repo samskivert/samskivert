@@ -117,9 +117,8 @@ public class ExceptionMap
 			_keys.add(cl);
 
 		    } catch (Throwable t) {
-			log.warning("Unable to resolve exception class. " +
-				    "[class=" + exclass +
-				    ", error=" + t + "].");
+			log.warning("Unable to resolve exception class.", "class", exclass,
+                                    "error", t);
 			_values.remove(i);
 			i--; // back on up a notch
 		    }

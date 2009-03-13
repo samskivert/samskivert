@@ -279,9 +279,8 @@ public class RuntimeAdjust
         public void setValue (String value)
         {
             if (!ListUtil.contains(_values, value)) {
-                log.warning("Refusing invalid adjustment [name=" + _name +
-                            ", values=" + StringUtil.toString(_values) +
-                            ", value=" + value + "].");
+                log.warning("Refusing invalid adjustment", "name", _name, "values", _values,
+                            "value", value);
             } else {
                 _config.setValue(_name, value);
             }
@@ -486,8 +485,7 @@ public class RuntimeAdjust
             // validate the structure of the name
             int fdidx = _name.indexOf("."), ldidx = _name.lastIndexOf(".");
             if (fdidx == -1 || ldidx == -1) {
-                log.warning("Invalid adjustment name '" + _name +
-                            "', must be of the form " +
+                log.warning("Invalid adjustment name '" + _name + "', must be of the form " +
                             "'library.package.adjustment'.");
                 return;
             }
@@ -495,9 +493,8 @@ public class RuntimeAdjust
             // make sure there isn't another with the same name
             int idx = _adjusts.binarySearch(this);
             if (idx >= 0) {
-                log.warning("Error: duplicate adjust registration " +
-                            "[new=" + this +
-                            ", old=" + _adjusts.get(idx) + "].");
+                log.warning("Error: duplicate adjust registration", "new", this,
+                            "old", _adjusts.get(idx));
                 return;
             }
 

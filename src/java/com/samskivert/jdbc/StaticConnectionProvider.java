@@ -188,7 +188,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         String mapkey = ident + ":" + readOnly;
         Mapping conmap = _idents.get(mapkey);
         if (conmap == null) {
-            log.warning("Unknown connection failed!? [key=" + mapkey + "].");
+            log.warning("Unknown connection failed!?", "key", mapkey);
             return;
         }
 
@@ -251,8 +251,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         try {
             conn.close();
         } catch (SQLException sqe) {
-            log.warning("Error closing failed connection [ident=" + ident +
-                        ", error=" + sqe + "].");
+            log.warning("Error closing failed connection", "ident", ident, "error", sqe);
         }
     }
 

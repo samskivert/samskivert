@@ -184,8 +184,7 @@ public class MessageManager
 
         if (reportMissing) {
             // if there's no translation for this path, complain about it
-            log.warning("Missing translation message [path=" + path +
-                        ", url=" + getURL(req) + "].");
+            log.warning("Missing translation message", "path", path, "url", getURL(req));
             return path;
         }
 
@@ -218,8 +217,8 @@ public class MessageManager
                 try {
                     siteLoader = _siteLoader.getSiteClassLoader(siteId);
                 } catch (IOException ioe) {
-                    log.warning("Unable to fetch site-specific classloader " +
-                                "[siteId=" + siteId + ", error=" + ioe + "].");
+                    log.warning("Unable to fetch site-specific classloader", "siteId", siteId,
+                                "error", ioe);
                 }
             }
         }
@@ -293,10 +292,9 @@ public class MessageManager
                 if (!silent) {
                     // if we were unable even to find a default bundle, we may want to log a
                     // warning
-                    log.warning("Unable to resolve any message bundle [req=" + getURL(req) +
-                                ", locale=" + locale + ", bundlePath=" + bundlePath +
-                                ", classLoader=" + loader + ", siteBundlePath=" + _siteBundlePath +
-                                ", siteLoader=" + _siteLoader + "].");
+                    log.warning("Unable to resolve any message bundle", "req", getURL(req),
+                                "locale", locale, "bundlePath", bundlePath, "classLoader", loader,
+                                "siteBundlePath", _siteBundlePath, "siteLoader", _siteLoader);
                 }
             }
         }

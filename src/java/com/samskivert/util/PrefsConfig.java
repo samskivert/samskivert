@@ -55,7 +55,7 @@ public class PrefsConfig extends Config
             _prefs = Preferences.userRoot().node(path);
         } catch (AccessControlException ace) {
             // security manager won't let us access prefs, no problem!
-            log.info("Can't access preferences [path=" + path + "].");
+            log.info("Can't access preferences", "path", path);
             _prefs = new NullPreferences();
         }
     }
@@ -72,7 +72,7 @@ public class PrefsConfig extends Config
             _prefs = Preferences.userRoot().node(path);
         } catch (AccessControlException ace) {
             // security manager won't let us access prefs, no problem!
-            log.info("Can't access preferences [path=" + path + "].");
+            log.info("Can't access preferences", "path", path);
             _prefs = new NullPreferences();
         }
     }
@@ -279,7 +279,7 @@ public class PrefsConfig extends Config
                 keys.add(key);
             }
         } catch (BackingStoreException bse) {
-            log.warning("Unable to enumerate preferences keys [error=" + bse + "].");
+            log.warning("Unable to enumerate preferences keys", "error", bse);
         }
     }
 

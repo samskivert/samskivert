@@ -226,9 +226,8 @@ public class MenuUtil
                 _target = target;
 
             } catch (Exception e) {
-                log.warning("Unable to obtain menu callback method " +
-                            "[target=" + target + ", method=" + _method +
-                            ", error=" + e + "]. Item will not function.");
+                log.warning("Unable to obtain menu callback method. Item will not function.",
+                            "target", target, "method", _method, "error", e);
             }
         }
 
@@ -238,9 +237,8 @@ public class MenuUtil
                 try {
                     _method.invoke(_target, new Object[] { event });
                 } catch (Exception e) {
-                    log.warning("Failure invoking menu callback " +
-                                "[target=" + _target +
-                                ", method=" + _method + "].", e);
+                    log.warning("Failure invoking menu callback", "target", _target,
+                                "method", _method, e);
                 }
             }
         }

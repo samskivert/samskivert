@@ -96,9 +96,8 @@ public class Cursor<V>
                 spurious++;
             }
             if (spurious > 0) {
-                log.warning("Cursor.get() quietly tossed " + spurious +
-                            " spurious additional records. " +
-                            "[query=" + _query + "].");
+                log.warning("Cursor.get() quietly tossed " + spurious + " spurious additional " +
+                            "records.", "query", _query);
             }
         }
         return result;

@@ -91,7 +91,7 @@ public class SimpleRepository extends Repository
                 }
             });
         } catch (PersistenceException pe) {
-            log.warning("Failure migrating schema [dbident=" + _dbident + "].", pe);
+            log.warning("Failure migrating schema", "dbident", _dbident, pe);
         }
     }
 
@@ -143,8 +143,8 @@ public class SimpleRepository extends Repository
 
         // check our pre-condition
         if (_precond != null && !_precond.validate(_dbident, op)) {
-            log.warning("Repository operation failed pre-condition check! [dbident=" + _dbident +
-                        ", op=" + op + "].");
+            log.warning("Repository operation failed pre-condition check!", "dbident", _dbident,
+                        "op", op);
             Thread.dumpStack();
         }
 
@@ -193,8 +193,7 @@ public class SimpleRepository extends Repository
                             conn.rollback();
                         }
                     } catch (SQLException rbe) {
-                        log.warning("Unable to roll back operation [err=" + sqe +
-                                    ", rberr=" + rbe + "].");
+                        log.warning("Unable to roll back operation", "err", sqe, "rberr", rbe);
                     }
                 }
 
@@ -215,7 +214,7 @@ public class SimpleRepository extends Repository
                 // stack trace in the message of their outer exception; if I want a fucking stack
                 // trace, I'll call printStackTrace() thanksverymuch
                 String msg = StringUtil.split("" + sqe, "\n")[0];
-                log.info("Transient failure executing operation, retrying [error=" + msg + "].");
+                log.info("Transient failure executing operation, retrying", "error", msg);
 
             } catch (PersistenceException pe) {
                 // back out our changes if something got hosed
@@ -224,8 +223,7 @@ public class SimpleRepository extends Repository
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
-                    log.warning("Unable to roll back operation [origerr=" + pe +
-                                ", rberr=" + rbe + "].");
+                    log.warning("Unable to roll back operation", "origerr", pe, "rberr", rbe);
                 }
                 throw pe;
 
@@ -236,8 +234,7 @@ public class SimpleRepository extends Repository
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {
-                    log.warning("Unable to roll back operation [origerr=" + rte +
-                                ", rberr=" + rbe + "].");
+                    log.warning("Unable to roll back operation", "origerr", rte, "rberr", rbe);
                 }
                 throw rte;
 
@@ -249,7 +246,7 @@ public class SimpleRepository extends Repository
                             conn.setAutoCommit(oldAutoCommit);
                         }
                     } catch (SQLException sace) {
-                        log.warning("Unable to restore auto-commit [err=" + sace + "].");
+                        log.warning("Unable to restore auto-commit", "err", sace);
                     }
                     // release the database connection
                     _provider.releaseConnection(_dbident, readOnly, conn);

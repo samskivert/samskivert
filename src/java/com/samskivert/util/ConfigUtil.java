@@ -47,8 +47,7 @@ public class ConfigUtil
             try {
                 value = Integer.parseInt(valstr);
             } catch (NumberFormatException nfe) {
-                log.warning("'" + key + "' must be a numeric value " +
-                            "[value=" + valstr + ", error=" + nfe + "].");
+                log.warning("'" + key + "' must be a numeric value", "value", valstr, "error", nfe);
             }
         }
         return value;
@@ -282,9 +281,9 @@ public class ConfigUtil
             InputStream in = getStream(path, loader);
             if (in != null) {
                 log.warning("Buggy classloader: getResources() returned no resources, but " +
-                            "getResourceAsStream() returned a resource [path=" + path +
-                            ", loader=" + StringUtil.shortClassName(loader) +
-                            "]. Using the one we could get our hands on.");
+                            "getResourceAsStream() returned a resource. Using the one we could " +
+                            "get our hands on.", "path", path,
+                            "loader", StringUtil.shortClassName(loader));
                 target.load(in);
                 in.close();
             }
@@ -532,8 +531,7 @@ public class ConfigUtil
     {
         // make sure the class loader isn't null
         if (loader == null) {
-//              Log.debug("No loader for get resource request " +
-//                        "[path=" + path + "].");
+//             log.debug("No loader for get resource request", "path", path);
             return null;
         }
         // try the path as is
@@ -550,8 +548,7 @@ public class ConfigUtil
     {
         // make sure the class loader isn't null
         if (loader == null) {
-//              Log.debug("No loader for get resource request " +
-//                        "[path=" + path + "].");
+//             log.debug("No loader for get resource request", "path", path);
             return null;
         }
         // try the path as is

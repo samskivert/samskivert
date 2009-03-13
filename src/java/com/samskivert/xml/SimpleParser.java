@@ -119,7 +119,7 @@ public class SimpleParser extends DefaultHandler
         try {
             return (val == null) ? -1 : Integer.parseInt(val);
         } catch (NumberFormatException nfe) {
-            log.warning("Malformed integer value [val=" + val + "].");
+            log.warning("Malformed integer value", "val", val);
             return -1;
         }
     }

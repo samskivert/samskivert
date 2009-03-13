@@ -43,7 +43,7 @@ public class SiteKey
             try {
                 siteId = Integer.parseInt(path.substring(0, cidx));
             } catch (Exception e) {
-                log.warning("Invalid site path [path=" + path + "].");
+                log.warning("Invalid site path", "path", path);
             }
             this.path = path.substring(cidx+1);
         }

@@ -92,8 +92,8 @@ public class AttachableURLFactory implements URLStreamHandlerFactory
             try {
                 return handler.newInstance();
             } catch (Exception e) {
-                log.warning("Unable to instantiate URLStreamHandler" +
-                    " [protocol=" + protocol + ", cause=" + e + "].");
+                log.warning("Unable to instantiate URLStreamHandler", "protocol", protocol,
+                            "cause", e);
             }
         }
         return null;

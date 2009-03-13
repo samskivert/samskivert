@@ -83,8 +83,8 @@ public class EnablingAdapter
                 if (value instanceof Boolean) {
                     stateChanged(((Boolean)value).booleanValue());
                 } else {
-                    log.warning("PropertyChangeEnabler connected to " +
-                                "non-Boolean property [got=" + value + "].");
+                    log.warning("PropertyChangeEnabler connected to non-Boolean property",
+                                "got", value);
                 }
             }
         }

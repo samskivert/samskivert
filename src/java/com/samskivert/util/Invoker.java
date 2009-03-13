@@ -200,7 +200,7 @@ public class Invoker extends LoopingThread
             didInvokeUnit(unit, start);
 
         } catch (Throwable t) {
-            log.warning("Invocation unit failed [unit=" + unit + "].", t);
+            log.warning("Invocation unit failed", "unit", unit, t);
         }
     }
 

@@ -73,8 +73,8 @@ public class TransitionRepository extends SimpleRepository
                 try {
                     clearTransition(clazz, name);
                 } catch (PersistenceException pe) {
-                    log.warning("Failed to clear failed transition [class=" + clazz +
-                            ", name=" + name + "].", pe);
+                    log.warning("Failed to clear failed transition", "class", clazz, "name", name,
+                                pe);
                 }
                 throw e;
 
@@ -82,8 +82,8 @@ public class TransitionRepository extends SimpleRepository
                 try {
                     clearTransition(clazz, name);
                 } catch (PersistenceException pe) {
-                    log.warning("Failed to clear failed transition [class=" + clazz +
-                            ", name=" + name + "].", pe);
+                    log.warning("Failed to clear failed transition", "class", clazz, "name", name,
+                                pe);
                 }
                 throw rte;
             }

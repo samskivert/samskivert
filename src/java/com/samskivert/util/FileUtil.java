@@ -90,8 +90,7 @@ public class FileUtil
             // entries that allow us to create our directories first
             if (entry.isDirectory()) {
                 if (!efile.exists() && !efile.mkdir()) {
-                    log.warning("Failed to create jar entry path [jar=" + jar +
-                                ", entry=" + entry + "].");
+                    log.warning("Failed to create jar entry path", "jar", jar, "entry", entry);
                 }
                 continue;
             }
@@ -100,8 +99,7 @@ public class FileUtil
             // prior to getting down and funky
             File parent = new File(efile.getParent());
             if (!parent.exists() && !parent.mkdirs()) {
-                log.warning("Failed to create jar entry parent [jar=" + jar +
-                            ", parent=" + parent + "].");
+                log.warning("Failed to create jar entry parent", "jar", jar, "parent", parent);
                 continue;
             }
 
@@ -112,8 +110,7 @@ public class FileUtil
                 jin = jar.getInputStream(entry);
                 IOUtils.copy(jin, fout);
             } catch (Exception e) {
-                log.warning("Failure unpacking [jar=" + jar +
-                            ", entry=" + efile + ", error=" + e + "].");
+                log.warning("Failure unpacking", "jar", jar, "entry", efile, "error", e);
                 failure = true;
             } finally {
                 StreamUtil.close(jin);
@@ -124,8 +121,7 @@ public class FileUtil
         try {
             jar.close();
         } catch (Exception e) {
-            log.warning("Failed to close jar file [jar=" + jar +
-                        ", error=" + e + "].");
+            log.warning("Failed to close jar file", "jar", jar, "error", e);
         }
 
         return !failure;

@@ -85,8 +85,7 @@ public class AbsoluteLayout
 
             Object constr = _constraints.get(comp);
             if (constr == null) {
-                log.warning("No constraints for child!? [cont=" + parent +
-                            ", comp=" + comp + "].");
+                log.warning("No constraints for child!?", "cont", parent, "comp", comp);
                 continue;
             }
 
@@ -137,8 +136,7 @@ public class AbsoluteLayout
 
             Object constr = _constraints.get(comp);
             if (constr == null) {
-                log.warning("No constraints for child!? [cont=" + parent +
-                            ", comp=" + comp + "].");
+                log.warning("No constraints for child!?", "cont", parent, "comp", comp);
                 continue;
             }
 

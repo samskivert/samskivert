@@ -115,8 +115,8 @@ public class JDBCUtil
     {
         int modified = stmt.executeUpdate();
         if (modified != expectedCount) {
-            log.warning("Statement did not modify expected number of rows [stmt=" + stmt +
-                        ", expected=" + expectedCount + ", modified=" + modified + "]");
+            log.warning("Statement did not modify expected number of rows", "stmt", stmt,
+                        "expected", expectedCount, "modified", modified);
         }
     }
 
@@ -184,8 +184,8 @@ public class JDBCUtil
     {
         int modified = stmt.executeUpdate(query);
         if (modified != expectedCount) {
-            log.warning("Statement did not modify expected number of rows [stmt=" + stmt +
-                        ", expected=" + expectedCount + ", modified=" + modified + "]");
+            log.warning("Statement did not modify expected number of rows", "stmt", stmt,
+                        "expected", expectedCount, "modified", modified);
         }
     }
 
@@ -231,7 +231,7 @@ public class JDBCUtil
         try {
             return new String(text.getBytes("UTF8"), "8859_1");
         } catch (UnsupportedEncodingException uee) {
-            log.warning("jigger failed", uee);
+            log.warning("Jigger failed", uee);
             return text;
         }
     }
@@ -247,7 +247,7 @@ public class JDBCUtil
         try {
             return new String(text.getBytes("8859_1"), "UTF8");
         } catch (UnsupportedEncodingException uee) {
-            log.warning("unjigger failed", uee);
+            log.warning("Unjigger failed", uee);
             return text;
         }
     }

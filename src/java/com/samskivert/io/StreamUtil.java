@@ -42,7 +42,7 @@ public class StreamUtil
             try {
                 in.close();
             } catch (IOException ioe) {
-                log.warning("Error closing input stream [stream=" + in + ", cause=" + ioe + "].");
+                log.warning("Error closing input stream", "stream", in, "cause", ioe);
             }
         }
     }
@@ -56,7 +56,7 @@ public class StreamUtil
             try {
                 out.close();
             } catch (IOException ioe) {
-                log.warning("Error closing output stream [stream=" + out + ", cause=" + ioe + "].");
+                log.warning("Error closing output stream", "stream", out, "cause", ioe);
             }
         }
     }
@@ -70,7 +70,7 @@ public class StreamUtil
             try {
                 in.close();
             } catch (IOException ioe) {
-                log.warning("Error closing reader [reader=" + in + ", cause=" + ioe + "].");
+                log.warning("Error closing reader", "reader", in, "cause", ioe);
             }
         }
     }
@@ -84,7 +84,7 @@ public class StreamUtil
             try {
                 out.close();
             } catch (IOException ioe) {
-                log.warning("Error closing writer [writer=" + out + ", cause=" + ioe + "].");
+                log.warning("Error closing writer", "writer", out, "cause", ioe);
             }
         }
     }

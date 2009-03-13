@@ -134,7 +134,7 @@ public class Config
             try {
                 return Integer.decode(val).intValue(); // handles base 10, hex values, etc.
             } catch (NumberFormatException nfe) {
-                log.warning("Malformed integer property [name=" + name + ", value=" + val + "].");
+                log.warning("Malformed integer property", "name", name, "value", val);
             }
         }
         return defval;
@@ -159,8 +159,7 @@ public class Config
             try {
                 defval = Long.parseLong(val);
             } catch (NumberFormatException nfe) {
-                log.warning("Malformed long integer property [name=" + name +
-                            ", value=" + val + "].");
+                log.warning("Malformed long integer property", "name", name, "value", val);
             }
         }
         return defval;
@@ -185,8 +184,7 @@ public class Config
             try {
                 defval = Float.parseFloat(val);
             } catch (NumberFormatException nfe) {
-                log.warning("Malformed float property [name=" + name +
-                            ", value=" + val + "].");
+                log.warning("Malformed float property", "name", name, "value", val);
             }
         }
         return defval;
@@ -248,8 +246,7 @@ public class Config
         if (val != null) {
             result = StringUtil.parseIntArray(val);
             if (result == null) {
-                log.warning("Malformed int array property [name=" + name +
-                            ", value=" + val + "].");
+                log.warning("Malformed int array property", "name", name, "value", val);
                 return defval;
             }
         }
@@ -279,8 +276,7 @@ public class Config
         if (val != null) {
             result = StringUtil.parseLongArray(val);
             if (result == null) {
-                log.warning("Malformed int array property [name=" + name +
-                            ", value=" + val + "].");
+                log.warning("Malformed int array property", "name", name, "value", val);
                 return defval;
             }
         }
@@ -310,8 +306,7 @@ public class Config
         if (val != null) {
             result = StringUtil.parseFloatArray(val);
             if (result == null) {
-                log.warning("Malformed int array property [name=" + name +
-                            ", value=" + val + "].");
+                log.warning("Malformed int array property", "name", name, "value", val);
                 return defval;
             }
         }
@@ -341,8 +336,7 @@ public class Config
         if (val != null) {
             result = StringUtil.parseStringArray(val);
             if (result == null) {
-                log.warning("Malformed string array property [name=" + name +
-                            ", value=" + val + "].");
+                log.warning("Malformed string array property", "name", name, "value", val);
                 return defval;
             }
         }

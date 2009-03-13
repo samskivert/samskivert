@@ -275,8 +275,8 @@ public abstract class Interval
                 try {
                     ival._runQueue.postRunnable(_runner);
                 } catch (Exception e) {
-                    log.warning("Failed to execute interval on run-queue " +
-                            "[queue=" + ival._runQueue + ", interval=" + ival + "].", e);
+                    log.warning("Failed to execute interval on run-queue", "queue", ival._runQueue,
+                                "interval", ival, e);
                 }
             }
         }

@@ -422,7 +422,7 @@ public class DispatcherServlet extends HttpServlet
     public Object methodException (Class clazz, String method, Exception e)
         throws Exception
     {
-        log.warning("Exception [class=" + clazz.getName() + ", method=" + method + "].", e);
+        log.warning("Exception", "class", clazz.getName(), "method", method, e);
         return "";
     }
 
@@ -458,7 +458,7 @@ public class DispatcherServlet extends HttpServlet
             }
 
         } catch (Exception e) {
-            log.warning("doRequest failed [uri=" + request.getRequestURI() + "].", e);
+            log.warning("doRequest failed", "uri", request.getRequestURI(), e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
@@ -514,7 +514,7 @@ public class DispatcherServlet extends HttpServlet
             // identifier
             path = siteId + ":" + path;
         }
-        // log.info("Loading template [path=" + path + "].");
+        // log.info("Loading template", "path", path);
         return RuntimeSingleton.getTemplate(path);
     }
 
@@ -545,8 +545,8 @@ public class DispatcherServlet extends HttpServlet
 
         } catch (IOException ioe) {
             // the client probably crashed or aborted the connection ungracefully, so use log.info
-            log.info("Failed to write response [uri=" + context.getRequest().getRequestURI() +
-                     ", error=" + ioe + "]");
+            log.info("Failed to write response", "uri", context.getRequest().getRequestURI(),
+                     "error", ioe);
 
         } finally {
             if (vw != null) {
@@ -587,8 +587,8 @@ public class DispatcherServlet extends HttpServlet
                 // nothing interesting to report
 
             } catch (Throwable t) {
-                log.warning("Unable to instantiate logic for application [path=" + path +
-                        ", lclass=" + lclass + "].", t);
+                log.warning("Unable to instantiate logic for application", "path", path,
+                            "lclass", lclass, t);
             }
 
             // if something failed, use a dummy in it's place so that we don't sit around all day

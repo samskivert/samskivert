@@ -52,8 +52,7 @@ public class LiaisonRegistry
 
             // if we didn't find a matching liaison, use the default
             if (liaison == null) {
-                log.warning("Unable to match liaison for database [url=" + url + "]. " +
-                            "Using default.");
+                log.warning("Unable to match liaison for database. Using default.", "url", url);
                 liaison = new DefaultLiaison();
             }
 
@@ -79,8 +78,7 @@ public class LiaisonRegistry
         try {
             _liaisons.add(lclass.newInstance());
         } catch (Exception e) {
-            log.warning("Unable to instantiate liaison [class=" + lclass.getName() +
-                        ", error=" + e + "].");
+            log.warning("Unable to instantiate liaison", "class", lclass.getName(), "error", e);
         }
     }
 

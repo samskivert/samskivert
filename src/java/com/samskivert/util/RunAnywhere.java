@@ -72,9 +72,8 @@ public class RunAnywhere
         if (stamp < _lastStamp) {
             // only warn once per time anomaly
             if (stamp > _lastWarning) {
-                log.warning("Someone call Einstein! The clock is " +
-                            "running backwards [dt=" +
-                            (stamp - _lastStamp) + "].");
+                log.warning("Someone call Einstein! The clock is running backwards",
+                            "dt", (stamp - _lastStamp));
                 _lastWarning = _lastStamp;
             }
             stamp = _lastStamp;

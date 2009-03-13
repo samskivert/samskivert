@@ -126,7 +126,7 @@ public class DebugChords
                     tup.right.invoke();
                     handled = true;
                 } catch (Throwable t) {
-                    log.warning("Hook failed [event=" + e + ", hook=" + tup.right + "].", t);
+                    log.warning("Hook failed", "event", e, "hook", tup.right, t);
                 }
             }
         }

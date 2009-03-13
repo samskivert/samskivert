@@ -93,8 +93,7 @@ public class AuditLogger
                     log.warning("Suppressed " + _throttled + " intervening error messages.");
                     _throttled = 0;
                 }
-                log.warning("Failed to write audit log message [file=" + _logPath +
-                            ", msg=" + message + "].");
+                log.warning("Failed to write audit log message", "file", _logPath, "msg", message);
             }
         }
     }
@@ -131,7 +130,7 @@ public class AuditLogger
             if (freakout) {
                 throw new RuntimeException(errmsg, ioe);
             } else {
-                log.warning(errmsg + " [ioe=" + ioe + "].");
+                log.warning(errmsg, "ioe", ioe);
             }
         }
     }
@@ -153,8 +152,7 @@ public class AuditLogger
             // rename the old file
             String npath = _logPath.getPath() + "." + _dayStamp;
             if (!_logPath.renameTo(new File(npath))) {
-                log.warning("Failed to rename audit log file [path=" + _logPath +
-                            ", npath=" + npath + "].");
+                log.warning("Failed to rename audit log file", "path", _logPath, "npath", npath);
             }
 
             // open our new log file

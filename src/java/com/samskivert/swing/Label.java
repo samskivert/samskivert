@@ -515,7 +515,7 @@ public class Label implements SwingConstants, LabelStyleConstants
             }
 
         } catch (Throwable t) {
-            log.warning("Label layout failed [text=" + _text + "].", t);
+            log.warning("Label layout failed", "text", _text, t);
         }
 
         return layouts;
@@ -528,8 +528,8 @@ public class Label implements SwingConstants, LabelStyleConstants
     {
         // nothing to do if we haven't been laid out
         if (_layouts == null) {
-            log.warning(hashCode() + " Unlaid-out label asked to render [text=" + _text +
-                        /* ", last=" + _invalidator + */ "].");
+            log.warning(hashCode() + " Unlaid-out label asked to render", "text", _text
+                        /*, "last", _invalidator */);
             return;
         }
 

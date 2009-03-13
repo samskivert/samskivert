@@ -135,8 +135,7 @@ public class UserManager
         }
 
         if (USERMGR_DEBUG) {
-            log.info("UserManager initialized [acook=" + _userAuthCookie +
-                     ", login=" + _loginURL + "].");
+            log.info("UserManager initialized", "acook", _userAuthCookie, "login", _loginURL);
         }
 
         // register a cron job to prune the session table every hour
@@ -181,7 +180,7 @@ public class UserManager
     {
         String authcook = CookieUtil.getCookieValue(req, _userAuthCookie);
         if (USERMGR_DEBUG) {
-            log.info("Loading user by cookie [" + _userAuthCookie + "=" + authcook + "].");
+            log.info("Loading user by cookie", _userAuthCookie, authcook);
         }
         return loadUser(authcook);
     }
@@ -194,7 +193,7 @@ public class UserManager
     {
         User user = (authcode == null) ? null : _repository.loadUserBySession(authcode);
         if (USERMGR_DEBUG) {
-            log.info("Loaded user by authcode [code=" + authcode + ", user=" + user + "].");
+            log.info("Loaded user by authcode", "code", authcode, "user", user);
         }
         return user;
     }
@@ -217,7 +216,7 @@ public class UserManager
             String eurl = RequestUtils.getLocationEncoded(req);
             String target = StringUtil.replace(_loginURL, "%R", eurl);
             if (USERMGR_DEBUG) {
-                log.info("No user found in require, redirecting [to=" + target + "].");
+                log.info("No user found in require, redirecting", "to", target);
             }
             throw new RedirectException(target);
         }
@@ -304,7 +303,7 @@ public class UserManager
         // register a session for this user
         String authcode = _repository.registerSession(user, expires);
         if (USERMGR_DEBUG) {
-            log.info("Session started [user=" + username + ", code=" + authcode + "].");
+            log.info("Session started", "user", username, "code", authcode);
         }
         return new Tuple<User,String>(user, authcode);
     }

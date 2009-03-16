@@ -247,6 +247,9 @@ public class ConfigUtil
      * Like {@link #loadInheritedProperties(String,ClassLoader)} but the properties are loaded into
      * the supplied properties object.  Properties that already exist in the supplied object will
      * be overwritten by the loaded properties where they have the same key.
+     *
+     * @exception FileNotFoundException thrown if no properties files are found for the specified
+     * path.
      */
     public static void loadInheritedProperties (String path, ClassLoader loader, Properties target)
 	throws IOException
@@ -276,7 +279,11 @@ public class ConfigUtil
         PropRecord root = null, crown = null;
         HashMap<String,PropRecord> map = null;
 
-        if (rsrcs.size() == 1) {
+        if (rsrcs.size() == 0) {
+            // if we found no resources in our enumerations, complain
+            throw new FileNotFoundException(path);
+
+        } else if (rsrcs.size() == 1) {
             // parse the metadata for our only properties file
             root = parseMetaData(path, rsrcs.get(0));
 

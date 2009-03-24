@@ -144,8 +144,7 @@ public class SimpleRepository extends Repository
         // check our pre-condition
         if (_precond != null && !_precond.validate(_dbident, op)) {
             log.warning("Repository operation failed pre-condition check!", "dbident", _dbident,
-                        "op", op);
-            Thread.dumpStack();
+                        "op", op, new Exception());
         }
 
         // obtain our database connection and associated goodies

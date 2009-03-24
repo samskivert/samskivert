@@ -43,7 +43,7 @@ public class MessageUtil
     }
 
     /**
-     * Returns whether or not the provided string is tainted. See {@link #taint()}. Null strings
+     * Returns whether or not the provided string is tainted. See {@link #taint}. Null strings
      * are considered untainted.
      */
     public static boolean isTainted (String text)
@@ -52,7 +52,7 @@ public class MessageUtil
     }
 
     /**
-     * Removes the tainting character added to a string by {@link #taint()}. If the provided string
+     * Removes the tainting character added to a string by {@link #taint}. If the provided string
      * is not tainted, this silently returns the originally provided string.
      */
     public static String untaint (String text)

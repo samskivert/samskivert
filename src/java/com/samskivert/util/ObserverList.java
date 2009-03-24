@@ -284,8 +284,8 @@ public class ObserverList<T> extends ArrayList<T>
     {
         // make sure we're not violating the list constraints
         if (!_allowDups && contains(obs)) {
-            log.warning("Observer attempted to observe list it's already observing!", "obs", obs);
-            Thread.dumpStack();
+            log.warning("Observer attempted to observe list it's already observing!", "obs", obs,
+                        new Exception());
             return true;
         }
         return false;

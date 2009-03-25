@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * This class manages arrays of ints. Some of those routines mimic the
@@ -514,6 +515,22 @@ public class IntListUtil
         int[] unboxed = new int[list.length];
         for (int ii = 0; ii < list.length; ii++) {
             unboxed[ii] = list[ii];
+        }
+        return unboxed;
+    }
+
+    /**
+     * Converts an array of Integer objects to an array of primitives.
+     */
+    public static int[] unbox (Collection<Integer> list)
+    {
+        if (list == null) {
+            return null;
+        }
+        int[] unboxed = new int[list.size()];
+        int ii = 0;
+        for (Integer value : list) {
+            unboxed[ii++] = value;
         }
         return unboxed;
     }

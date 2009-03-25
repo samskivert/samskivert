@@ -20,8 +20,10 @@
 
 package com.samskivert.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This class manages arrays of ints. Some of those routines mimic the
@@ -502,6 +504,21 @@ public class IntListUtil
             boxed[ii] = list[ii];
         }
         return boxed;
+    }
+
+    /**
+     * Converts an array of primitives to a list of Integers.
+     */
+    public static List<Integer> asList (int[] list)
+    {
+        if (list == null) {
+            return null;
+        }
+        List<Integer> ilist = new ArrayList<Integer>(list.length);
+        for (int ii = 0; ii < list.length; ii++) {
+            ilist.add(list[ii]);
+        }
+        return ilist;
     }
 
     /**

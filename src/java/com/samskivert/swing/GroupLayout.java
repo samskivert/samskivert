@@ -22,7 +22,6 @@ package com.samskivert.swing;
 
 import java.awt.*;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import java.util.HashMap;
@@ -350,7 +349,7 @@ public abstract class GroupLayout
      * with a configuration conducive to containing a row of buttons. Any supplied buttons are
      * added to the box.
      */
-    public static JPanel makeButtonBox (JComponent... buttons)
+    public static JPanel makeButtonBox (Component... buttons)
     {
         return makeButtonBox(GroupLayout.CENTER, buttons);
     }
@@ -360,10 +359,10 @@ public abstract class GroupLayout
      * configuration conducive to containing a row of buttons. Any supplied buttons are added to
      * the box.
      */
-    public static JPanel makeButtonBox (Justification justification, JComponent... buttons)
+    public static JPanel makeButtonBox (Justification justification, Component... buttons)
     {
         JPanel box = new JPanel(new HGroupLayout(NONE, justification));
-        for (JComponent button : buttons) {
+        for (Component button : buttons) {
             box.add(button);
             box.setOpaque(false);
         }

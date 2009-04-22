@@ -379,11 +379,10 @@ public class RandomUtil
                 "Must have at least one element [count=" + count + "]");
         }
 
-        T value = iter.next();
         for (int ii = 0, ll = getInt(count, r); ii < ll; ii++) {
-            value = iter.next();
+            iter.next();
         }
-        return value;
+        return iter.next();
     }
 
     /**

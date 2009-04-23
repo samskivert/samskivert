@@ -62,7 +62,6 @@ public class UserRepository extends JORARepository
      * @param provider the database connection provider.
      */
     public UserRepository (ConnectionProvider provider)
-        throws PersistenceException
     {
         super(provider, USER_REPOSITORY_IDENT);
     }

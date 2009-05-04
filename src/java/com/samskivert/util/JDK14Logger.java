@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 
 /**
@@ -35,6 +37,20 @@ public class JDK14Logger implements Logger.Factory
         try {
             if (!Boolean.getBoolean("com.samskivert.util.JDK14Logger.noFormatter")) {
                 OneLineLogFormatter.configureDefaultHandler();
+            }
+            boolean reportedUTF8Missing = false;
+            for (Handler handler : java.util.logging.Logger.getLogger("").getHandlers()) {
+                try {
+                    handler.setEncoding("UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    // JVMs are required to support UTF-8 so this shouldn't happen, but if it does,
+                    // tell somebody that things are really fucked
+                    if (!reportedUTF8Missing) {
+                        reportedUTF8Missing = true;
+                        System.err.println("Unable to find UTF-8 encoding. " +
+                                           "This JVM ain't right: " + e.getMessage());
+                    }
+                }
             }
         } catch (SecurityException se) {
             // running in sandbox; no custom logging; no problem!

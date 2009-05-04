@@ -184,9 +184,6 @@ public class Invoker extends LoopingThread
         if (PERF_TRACK) {
             // record the time spent on the queue as a special unit
             start = System.currentTimeMillis();
-            synchronized (this) {
-                _unitsRun++;
-            }
             // record the time spent on the queue as a special unit
             recordMetrics("queue_wait_time", start - unit.queueStamp);
         }
@@ -325,9 +322,6 @@ public class Invoker extends LoopingThread
 
     /** Tracks the counts of invocations by unit's class. */
     protected HashMap<Object,UnitProfile> _tracker = new HashMap<Object,UnitProfile>();
-
-    /** The total number of invoker units run since the last report. */
-    protected int _unitsRun;
 
     /** Default size of buckets to use when profiling unit times. */
     protected int _profileBucketWidth = 50;

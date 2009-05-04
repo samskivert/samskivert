@@ -40,8 +40,7 @@ import java.util.logging.SimpleFormatter;
 public class OneLineLogFormatter extends Formatter
 {
     /**
-     * Creates a log formatter that will include the function from which a log
-     * entry was generated.
+     * Creates a log formatter that will include the function from which a log entry was generated.
      */
     public OneLineLogFormatter ()
     {
@@ -49,8 +48,8 @@ public class OneLineLogFormatter extends Formatter
     }
 
     /**
-     * Creates a log formatter that will optionally include or not include the
-     * function from which a log entry was generated.
+     * Creates a log formatter that will optionally include or not include the function from which
+     * a log entry was generated.
      */
     public OneLineLogFormatter (boolean showWhere)
     {
@@ -111,17 +110,17 @@ public class OneLineLogFormatter extends Formatter
     }
 
     /**
-     * Configures the default logging handler to use an instance of this
-     * formatter when formatting messages.
+     * Configures the default logging handler to use an instance of this formatter when formatting
+     * messages.
      */
     public static void configureDefaultHandler ()
     {
-        configureDefaultHandler(new OneLineLogFormatter(true));
+        configureDefaultHandler(true);
     }
 
     /**
-     * Configures the default logging handler to use an instance of this
-     * formatter when formatting messages.
+     * Configures the default logging handler to use an instance of this formatter when formatting
+     * messages.
      */
     public static void configureDefaultHandler (boolean showWhere)
     {
@@ -129,15 +128,14 @@ public class OneLineLogFormatter extends Formatter
     }
 
     /**
-     * Configures the default logging handler to use an instance of the
-     * specified formatter when formatting messages.
+     * Configures the default logging handler to use an instance of the specified formatter when
+     * formatting messages.
      */
     public static void configureDefaultHandler (Formatter formatter)
     {
         Logger logger = LogManager.getLogManager().getLogger("");
-        Handler[] handlers = logger.getHandlers();
-        for (int ii = 0; ii < handlers.length; ii++) {
-            handlers[ii].setFormatter(formatter);
+        for (Handler handler : logger.getHandlers()) {
+            handler.setFormatter(formatter);
         }
     }
 
@@ -146,9 +144,9 @@ public class OneLineLogFormatter extends Formatter
     protected SimpleDateFormat _format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
     protected FieldPosition _fpos = new FieldPosition(SimpleDateFormat.DATE_FIELD);
 
-    protected static String LINE_SEPARATOR = "\n";
     protected static final String DATE_FORMAT = "{0,date} {0,time}";
 
+    protected static String LINE_SEPARATOR = "\n";
     static {
         try {
             LINE_SEPARATOR = System.getProperty("line.separator");

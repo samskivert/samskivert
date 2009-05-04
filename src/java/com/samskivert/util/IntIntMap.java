@@ -26,23 +26,22 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import java.util.AbstractSet;
-import java.util.Iterator;
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An int int map is like an int map, but with integers as values as well
- * as keys. Note that in situations where null would normally be returned
- * to indicate no value, -1 is returned instead. This means that you must
- * be careful if you intend to store -1 as a valid value in the table.
+ * An int int map is like an int map, but with integers as values as well as keys. Be careful:
+ * {@link #get} and {@link #remove} return -1 to indicate that no previous mapping existed. Use
+ * {@link #getOrElse} and {@link #removeOrElse} to use a different "default" value.
  */
-//
-// TODO: make this a proper map, perhaps even an extension of HashIntMap
-// or at least share a common abstract ancestor.
 public class IntIntMap
     implements Serializable
 {
+    // TODO: make this a proper map, perhaps even an extension of HashIntMap or at least share a
+    // common abstract ancestor.
+
     public interface IntIntEntry extends IntMap.IntEntry<Integer>
     {
         public int getIntValue ();
@@ -78,11 +77,17 @@ public class IntIntMap
         return _size == 0;
     }
 
+    /**
+     * Returns the number of mappings.
+     */
     public int size ()
     {
 	return _size;
     }
 
+    /**
+     * Adds the supplied key/value mapping. Any previous mapping for that key will be overwritten.
+     */
     public void put (int key, int value)
     {
         _modCount++;
@@ -115,10 +120,22 @@ public class IntIntMap
 	_size++; // we're bigger
     }
 
+    /**
+     * Returns the value mapped to the specified key or -1 if there is no mapping.
+     */
     public int get (int key)
     {
+        return getOrElse(key, -1);
+    }
+
+    /**
+     * Returns the value mapped to the specified key or the supplied default value if there is no
+     * mapping.
+     */
+    public int getOrElse (int key, int defval)
+    {
         Record rec = locateRecord(key);
-        return (rec == null) ? -1 : rec.value;
+        return (rec == null) ? defval : rec.value;
     }
 
     /**
@@ -139,9 +156,76 @@ public class IntIntMap
         }
     }
 
+    /**
+     * Returns true if this map contains a mapping for the specified key.
+     *
+     * @Deprecated use {@link #containsKey}.
+     */
     public boolean contains (int key)
     {
         return (null != locateRecord(key));
+    }
+
+    /**
+     * Returns true if this map contains a mapping for the specified key.
+     */
+    public boolean containsKey (int key)
+    {
+        return (null != locateRecord(key));
+    }
+
+    /**
+     * Removes the value mapped for the specified key.
+     *
+     * @return the value to which the key was mapped or -1 if there was no mapping for that key.
+     */
+    public int remove (int key)
+    {
+        return removeOrElse(key, -1);
+    }
+
+    /**
+     * Removes the value mapped for the specified key.
+     *
+     * @return the value to which the key was mapped or the supplied default value if there was no
+     * mapping for that key.
+     */
+    public int removeOrElse (int key, int defval)
+    {
+        _modCount++;
+        int removed = removeImpl(key, defval);
+        checkShrink();
+        return removed;
+    }
+
+    /**
+     * Clears all mappings.
+     */
+    public void clear ()
+    {
+        _modCount++;
+
+	// abandon all of our hash chains (the joy of garbage collection)
+	for (int i = 0; i < _buckets.length; i++) {
+	    _buckets[i] = null;
+	}
+	// zero out our size
+	_size = 0;
+    }
+
+    /**
+     * Ensure that the hash can comfortably hold the specified number of elements. Calling this
+     * method is not necessary, but can improve performance if done prior to adding many elements.
+     */
+    public void ensureCapacity (int minCapacity)
+    {
+        int size = _buckets.length;
+        while (minCapacity > (int) (size * _loadFactor)) {
+            size *= 2;
+        }
+        if (size != _buckets.length) {
+            resizeBuckets(size);
+        }
     }
 
     /**
@@ -158,15 +242,10 @@ public class IntIntMap
         return null;
     }
 
-    public int remove (int key)
-    {
-        _modCount++;
-        int removed = removeImpl(key);
-        checkShrink();
-        return removed;
-    }
-
-    protected int removeImpl (int key)
+    /**
+     * Internal method for removing a mapping.
+     */
+    protected int removeImpl (int key, int defval)
     {
 	int index = Math.abs(key)%_buckets.length;
         Record prev = null;
@@ -185,35 +264,7 @@ public class IntIntMap
             prev = rec;
         }
 
-        return -1; // not found
-    }
-
-    public void clear ()
-    {
-        _modCount++;
-
-	// abandon all of our hash chains (the joy of garbage collection)
-	for (int i = 0; i < _buckets.length; i++) {
-	    _buckets[i] = null;
-	}
-	// zero out our size
-	_size = 0;
-    }
-
-    /**
-     * Ensure that the hash can comfortably hold the specified number
-     * of elements. Calling this method is not necessary, but can improve
-     * performance if done prior to adding many elements.
-     */
-    public void ensureCapacity (int minCapacity)
-    {
-        int size = _buckets.length;
-        while (minCapacity > (int) (size * _loadFactor)) {
-            size *= 2;
-        }
-        if (size != _buckets.length) {
-            resizeBuckets(size);
-        }
+        return defval; // not found
     }
 
     /**
@@ -419,68 +470,52 @@ public class IntIntMap
 
     class IntEntryIterator implements Iterator<IntIntEntry>
     {
-	public IntEntryIterator ()
-	{
+	public IntEntryIterator () {
             this._modCount = IntIntMap.this._modCount;
 	    _index = _buckets.length;
 	}
 
-        /**
-         * Check for concurrent modifications.
-         */
-        protected void checkMods ()
-        {
-            if (this._modCount != IntIntMap.this._modCount) {
-                throw new ConcurrentModificationException("IntIntMapIterator");
-            }
-        }
-
-	public boolean hasNext ()
-	{
+	public boolean hasNext () {
             checkMods();
-
 	    // if we're pointing to an entry, we've got more entries
 	    if (_next != null) {
 		return true;
 	    }
-
-	    // search backward through the buckets looking for the next
-	    // non-empty hash chain
+	    // search backward through the buckets looking for the next non-empty hash chain
 	    while (_index-- > 0) {
 		if ((_next = _buckets[_index]) != null) {
 		    return true;
 		}
 	    }
-
 	    // found no non-empty hash chains, we're done
 	    return false;
 	}
 
-	public IntIntEntry next ()
-	{
-	    // if we're not pointing to an entry, search for the next
-	    // non-empty hash chain
+	public IntIntEntry next () {
+	    // if we're not pointing to an entry, search for the next non-empty hash chain
             if (hasNext()) {
                 _prev = _next;
                 _next = _next.next;
                 return _prev;
-
             } else {
                 throw new NoSuchElementException("IntIntMapIterator");
             }
         }
 
-        public void remove ()
-        {
+        public void remove () {
             checkMods();
-
             if (_prev == null) {
                 throw new IllegalStateException("IntIntMapIterator");
             }
-
             // otherwise remove the hard way
-            removeImpl(_prev.key);
+            removeImpl(_prev.key, -1);
             _prev = null;
+        }
+
+        protected void checkMods () {
+            if (this._modCount != IntIntMap.this._modCount) {
+                throw new ConcurrentModificationException("IntIntMapIterator");
+            }
         }
 
 	private int _index;
@@ -488,33 +523,27 @@ public class IntIntMap
         private int _modCount;
     }
 
-    protected class KeyValueInterator
-        implements Interator
+    protected class KeyValueInterator implements Interator
     {
-        public KeyValueInterator (boolean keys,  IntEntryIterator eiter)
-        {
+        public KeyValueInterator (boolean keys,  IntEntryIterator eiter) {
             _keys = keys;
             _eiter = eiter;
         }
 
-        public int nextInt ()
-        {
+        public int nextInt () {
             IntIntEntry entry = _eiter.next();
             return _keys ? entry.getIntKey() : entry.getIntValue();
         }
 
-        public boolean hasNext ()
-        {
+        public boolean hasNext () {
             return _eiter.hasNext();
         }
 
-        public Integer next ()
-        {
+        public Integer next () {
             return Integer.valueOf(nextInt());
         }
 
-        public void remove ()
-        {
+        public void remove () {
             _eiter.remove();
         }
 
@@ -548,9 +577,7 @@ public class IntIntMap
 
     private Record[] _buckets;
     private int _size;
-
     protected float _loadFactor;
-
     protected int _modCount = 0;
 
     /** Change this if the fields or inheritance hierarchy ever changes. */

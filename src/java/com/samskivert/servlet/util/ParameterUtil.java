@@ -22,8 +22,11 @@ package com.samskivert.servlet.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,6 +49,19 @@ public class ParameterUtil
     {
         public void validateParameter (String name, String value)
             throws DataValidationException;
+    }
+
+    /**
+     * Returns the names of the parameters of the supplied request in a civilized format.
+     */
+    public static Iterable<String> getParameterNames (HttpServletRequest req)
+    {
+        List<String> params = new ArrayList<String>();
+        Enumeration<?> iter = req.getParameterNames();
+        while (iter.hasMoreElements()) {
+            params.add((String)iter.nextElement());
+        }
+        return params;
     }
 
     /**

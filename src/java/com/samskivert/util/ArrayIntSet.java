@@ -122,8 +122,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
                 }
                 // does not correctly return IllegalStateException if
                 // remove() is called twice in a row...
-                System.arraycopy(_values, _pos, _values, _pos - 1,
-                    _size - _pos);
+                System.arraycopy(_values, _pos, _values, _pos - 1, _size - _pos);
                 _pos--;
                 _values[--_size] = 0;
             }
@@ -211,7 +210,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         int valen = _values.length;
         int[] source = _values;
         if (valen == _size) {
-            _values = new int[valen*2];
+            _values = new int[Math.max(DEFAULT_CAPACITY, valen*2)];
             System.arraycopy(source, 0, _values, 0, index);
         }
 

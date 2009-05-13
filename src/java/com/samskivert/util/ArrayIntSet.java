@@ -41,8 +41,24 @@ public class ArrayIntSet extends AbstractSet<Integer>
     public ArrayIntSet (int[] values)
     {
         this(values.length);
-        System.arraycopy(values, 0, _values, 0, values.length);
+        _size = values.length;
+        System.arraycopy(values, 0, _values, 0, _size);
         Arrays.sort(_values);
+
+        // remove duplicates
+        if (_size > 1) {
+            int last = _values[0];
+            for (int ii = 1; ii < _size; ) {
+                if (values[ii] == last) {
+                    // shift everything down 1
+                    _size--;
+                    System.arraycopy(_values, ii + 1, _values, ii, _size - ii);
+
+                } else {
+                    last = values[ii++];
+                }
+            }
+        }
     }
 
     /**

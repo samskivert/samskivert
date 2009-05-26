@@ -122,6 +122,14 @@ public class StringUtil
     }
 
     /**
+     * Returns the string if it is non-blank (see {@link #isBlank}), the default value otherwise.
+     */
+    public static String getOr (String value, String defval)
+    {
+        return isBlank(value) ? defval : value;
+    }
+
+    /**
      * Truncate the specified String if it is longer than maxLength.  The string will be truncated
      * at a position such that it is maxLength chars long after the addition of the 'append'
      * String.

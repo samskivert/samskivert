@@ -101,14 +101,18 @@ public class DependencyGraph<T>
     {
         _orphans.remove(dependant);
         DependencyNode<T> dependantNode = _nodes.get(dependant);
+        if (dependantNode == null) {
+            throw new IllegalArgumentException("Unknown dependant? " + dependant);
+        }
         DependencyNode<T> dependeeNode = _nodes.get(dependee);
-
+        if (dependeeNode == null) {
+            throw new IllegalArgumentException("Unknown dependee? " + dependee);
+        }
         if (dependsOn(dependee, dependant)) {
             throw new IllegalArgumentException("Refusing to create circular dependency.");
         }
         dependantNode.parents.add(dependeeNode);
         dependeeNode.children.add(dependantNode);
-
     }
 
     /**

@@ -60,13 +60,16 @@ public class Lifecycle
      */
     public void addComponent (BaseComponent comp)
     {
-        if (_initers == null || _downers == null) {
-            throw new IllegalStateException("Too late to register component.");
-        }
         if (comp instanceof InitComponent) {
+            if (_initers == null) {
+                throw new IllegalStateException("Too late to register InitComponent.");
+            }
             _initers.add((InitComponent)comp);
         }
         if (comp instanceof ShutdownComponent) {
+            if (_downers == null) {
+                throw new IllegalStateException("Too late to register ShutdownComponent.");
+            }
             _downers.add((ShutdownComponent)comp);
         }
     }

@@ -21,6 +21,7 @@
 package com.samskivert.swing;
 
 import java.awt.EventQueue;
+import java.awt.LayoutManager;
 import java.awt.Rectangle;
 
 import java.awt.event.ActionEvent;
@@ -65,6 +66,15 @@ public class CollapsiblePanel extends JPanel
      * Create a collapsible panel to which the trigger button will be
      * added later.
      */
+    public CollapsiblePanel (LayoutManager layout)
+    {
+        setLayout(layout);
+    }
+
+    /**
+     * Create a collapsible panel to which the trigger button will be
+     * added later.
+     */
     public CollapsiblePanel ()
     {
         VGroupLayout gl = new VGroupLayout(VGroupLayout.NONE);
@@ -89,6 +99,14 @@ public class CollapsiblePanel extends JPanel
      */
     public void setTriggerContainer (JComponent comp, JPanel content)
     {
+        setTriggerContainer(comp, content, true);
+    }
+
+    /**
+     * Set a component which contains the trigger button.
+     */
+    public void setTriggerContainer (JComponent comp, JPanel content, boolean collapsed)
+    {
         // these are our only two components.
         add(comp);
         add(_content = content);
@@ -112,7 +130,7 @@ public class CollapsiblePanel extends JPanel
         });
 
         // and start us out not showing
-        setCollapsed(true);
+        setCollapsed(collapsed);
     }
 
     /**

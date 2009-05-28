@@ -142,18 +142,18 @@ public class MySQLLiaison extends BaseLiaison
     // from DatabaseLiaison
     public String columnSQL (String column)
     {
-        return column;
+        return "`" + column + "`";
     }
 
     // from DatabaseLiaison
     public String tableSQL (String table)
     {
-        return table;
+        return "`" + table + "`";
     }
 
     // from DatabaseLiaison
     public String indexSQL (String index)
     {
-        return index;
+        return "`" + index + "`";
     }
 }

@@ -51,7 +51,7 @@ public class Lifecycle
     {
     }
 
-    /** Constraints for use with {@link #addConstraint}. */
+    /** Constraints for use with {@link #addInitConstraint} and {@link #addShutdownConstraint}. */
     public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };
 
     /**

@@ -102,18 +102,38 @@
         <exclude name="com/samskivert/xml/**" unless="build.xml"/>
         <exclude name="com/samskivert/**/tests/**" unless="build.tests"/>
       </packageset>
-      <bottom>Copyright &#169; 2000-${year} ${copyright.holder}.
-              All Rights Reserved.</bottom>
+      <bottom>Copyright &#169; 2000-${year} ${copyright.holder}. All Rights Reserved.</bottom>
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
     </javadoc>
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,prepare,compile,javadoc,dist"/>
+  <target name="all" depends="clean,compile,javadoc,dist"/>
+
+  <!-- runs a subset of unit tests defined by -Dtest=pattern -->
+  <target name="test" depends="compile" description="Runs a single unit test.">
+    <taskdef name="unit" classpathref="classpath"
+      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
+      <classpath>
+        <pathelement location="${classes.dir}"/>
+        <pathelement location="${basedir}"/> <!-- for rsrc/ -->
+        <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
+        <fileset dir="lib/test" includes="*.jar"/>
+      </classpath>
+      <sysproperty key="test_dir" value="${basedir}"/>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.dir}">
+          <include name="**/tests/**/*${test}*.java"/>
+        </fileset>
+      </batchtest>
+    </unit>
+  </target>
 
   <!-- runs our unit tests -->
-  <target name="tests" depends="prepare,compile" description="Runs unit tests.">
+  <target name="tests" depends="compile" description="Runs unit tests.">
     <taskdef name="unit" classpathref="classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
     <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
@@ -143,7 +163,7 @@
   </target>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile">
+  <target name="dist" depends="compile">
     <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}">
       <exclude name="**/tests/**"/>
     </jar>
@@ -173,7 +193,7 @@
   </target>
 
   <!-- generate a class hierarchy diagram -->
-  <target name="hiergen" depends="prepare,compile">
+  <target name="hiergen" depends="compile">
     <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
     <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
       pkgroot="com.samskivert"

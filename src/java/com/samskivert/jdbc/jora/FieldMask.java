@@ -90,8 +90,7 @@ public class FieldMask
     {
         Integer index = _descripMap.get(fieldName);
         if (index == null) {
-            String errmsg = "Passed in field not in mask.";
-            throw new IllegalArgumentException(errmsg);
+            throw new IllegalArgumentException("Field not in mask: " + fieldName);
         }
         return _modified[index.intValue()];
     }
@@ -117,8 +116,7 @@ public class FieldMask
     {
         Integer index = _descripMap.get(fieldName);
         if (index == null) {
-            String errmsg = "";
-            throw new IllegalArgumentException(errmsg);
+            throw new IllegalArgumentException("Field not in mask: " + fieldName);
         }
         _modified[index.intValue()] = true;
     }

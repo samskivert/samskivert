@@ -73,6 +73,32 @@ public class CollectionUtil
     }
 
     /**
+     * Modify the specified Collection so that only the first <code>limit</code> elements
+     * remain, as determined by iteration order. If the Collection is smaller than limit,
+     * it is unmodified.
+     */
+    public static <T> void limit (Collection<T> col, int limit)
+    {
+        int size = col.size();
+        if (size > limit) {
+            if (col instanceof List) {
+                ((List) col).subList(limit, size).clear();
+
+            } else {
+                Iterator<T> itr = col.iterator();
+                int ii = 0;
+                for (; ii < limit; ii++) {
+                    itr.next();
+                }
+                for (; ii < size; ii++) {
+                    itr.next();
+                    itr.remove();
+                }
+            }
+        }
+    }
+
+    /**
      * Returns a list containing a random selection of elements from the
      * specified collection. The total number of elements selected will be
      * equal to <code>count</code>, each element in the source collection will

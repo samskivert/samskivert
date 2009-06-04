@@ -64,7 +64,7 @@ public class User
     public void setRealName (String realname)
     {
         this.realname = realname;
-        _dirty.setModified("realname");
+        setModified("realname");
     }
 
     /**
@@ -85,7 +85,7 @@ public class User
     public void setPassword (Password password)
     {
         this.password = password.getEncrypted();
-        _dirty.setModified("password");
+        setModified("password");
     }
 
     /**
@@ -94,7 +94,7 @@ public class User
     public void setEmail (String email)
     {
         this.email = email;
-        _dirty.setModified("email");
+        setModified("email");
     }
 
     /**
@@ -103,7 +103,7 @@ public class User
     public void setSiteId (int siteId)
     {
         this.siteId = siteId;
-        _dirty.setModified("siteId");
+        setModified("siteId");
     }
 
     /**
@@ -154,19 +154,19 @@ public class User
         return false;
     }
 
-    /**
-     * Called by the repository to find out which fields have been modified since the object was
-     * loaded.
-     */
-    public FieldMask getDirtyMask ()
-    {
-        return _dirty;
-    }
-
     @Override // from Object
     public String toString ()
     {
         return StringUtil.fieldsToString(this);
+    }
+
+    /**
+     * Called by the repository to find out which fields have been modified since the object was
+     * loaded.
+     */
+    protected FieldMask getDirtyMask ()
+    {
+        return _dirty;
     }
 
     /**
@@ -176,6 +176,14 @@ public class User
     protected void setDirtyMask (FieldMask dirty)
     {
         _dirty = dirty;
+    }
+
+    /**
+     * Marks the supplied field as dirty.
+     */
+    protected void setModified (String field)
+    {
+        _dirty.setModified(field);
     }
 
     /** Our dirty field mask. */

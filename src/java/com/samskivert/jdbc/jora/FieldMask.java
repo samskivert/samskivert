@@ -46,19 +46,22 @@ public class FieldMask
     implements Cloneable
 {
     /**
-     * Creates a field mask for a {@link Table} that uses the supplied
-     * field descriptors.
+     * Creates a field mask for a {@link Table} that uses the supplied field descriptors.
      */
     public FieldMask (FieldDescriptor[] descrips)
     {
-        // create a mapping from field name to descriptor index
-        _descripMap = new HashMap<String,Integer>();
-        int dcount = (descrips == null ? 0 : descrips.length);
-        for (int i = 0; i < dcount; i++) {
-            _descripMap.put(descrips[i].field.getName(), Integer.valueOf(i));
+        this(toNames(descrips));
+    }
+
+    /**
+     * Creates a field mask using the supplied field names.
+     */
+    public FieldMask (String[] names)
+    {
+        for (int ii = 0; ii < names.length; ii++) {
+            _descripMap.put(names[ii], ii);
         }
-        // create our modified flags
-        _modified = new boolean[dcount];
+        _modified = new boolean[names.length];
     }
 
     /**
@@ -166,9 +169,20 @@ public class FieldMask
         return buf.toString();
     }
 
+    protected static String[] toNames (FieldDescriptor[] descrips)
+    {
+        // create a mapping from field name to descriptor index
+        int dcount = (descrips == null ? 0 : descrips.length);
+        String[] names = new String[dcount];
+        for (int ii = 0; ii < dcount; ii++) {
+            names[ii] = descrips[ii].field.getName();
+        }
+        return names;
+    }
+
     /** Modified flags for each field of an object in this table. */
     protected boolean[] _modified;
 
     /** A mapping from field names to field descriptor index. */
-    protected HashMap<String,Integer> _descripMap;
+    protected Map<String, Integer> _descripMap = new HashMap<String, Integer>();
 }

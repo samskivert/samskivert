@@ -95,7 +95,7 @@ public class CollectionUtil
             throw new IllegalArgumentException(errmsg);
         }
 
-        ArrayList<T> subset = new ArrayList<T>();
+        ArrayList<T> subset = new ArrayList<T>(count);
         Iterator<T> iter = col.iterator();
         int s = 0;
 

@@ -26,14 +26,13 @@ import com.samskivert.jdbc.jora.FieldMask;
 import com.samskivert.util.StringUtil;
 
 /**
- * A user object contains information about a registered user in our web
- * application environment. Users are stored in the user repository (a
- * database table) and loaded during a request based on authentication
- * information provided with the request headers.
+ * A user object contains information about a registered user in our web application environment.
+ * Users are stored in the user repository (a database table) and loaded during a request based on
+ * authentication information provided with the request headers.
  *
- * <p><b>Note:</b> Do not modify any of the fields of this object
- * directly. Use the <code>set</code> methods to make updates. If no set
- * methods exist, you shouldn't be modifying that field.
+ * <p><b>Note:</b> Do not modify any of the fields of this object directly. Use the
+ * <code>set</code> methods to make updates. If no set methods exist, you shouldn't be modifying
+ * that field.
  */
 public class User
 {
@@ -46,8 +45,7 @@ public class User
     /** The date this record was created. */
     public Date created;
 
-    /** The user's real name (first, last and whatever else they opt to
-     * provide). */
+    /** The user's real name (first, last and whatever else they opt to provide). */
     public String realname;
 
     /** The user's chosen password (encrypted). */
@@ -56,8 +54,8 @@ public class User
     /** The user's email address. */
     public String email;
 
-    /** The site identifier of the site through which the user created
-     * their account. (Their affiliation, if you will.) */
+    /** The site identifier of the site through which the user created their account. (Their
+     * affiliation, if you will.) */
     public int siteId;
 
     /**
@@ -117,24 +115,19 @@ public class User
     {
         // we may have an old crypt() encrypted password
         if (this.password.length() == 13) {
-            // check both the case sensitive and insensitive versions for
-            // further legacy reasons
-            if (this.password.equals(
-                    UserUtil.legacyEncrypt(username, password, false)) ||
-                this.password.equals(
-                    UserUtil.legacyEncrypt(username, password, true))) {
+            // check both the case sensitive and insensitive versions for further legacy reasons
+            if (this.password.equals(UserUtil.legacyEncrypt(username, password, false)) ||
+                this.password.equals(UserUtil.legacyEncrypt(username, password, true))) {
                 // update our password with the new encryption method
                 setPassword(password);
                 return true;
             }
         }
-
         return false;
     }
 
     /**
-     * Compares the supplied password with the password associated with
-     * this user record.
+     * Compares the supplied password with the password associated with this user record.
      *
      * @return true if the passwords match, false if they do not.
      */
@@ -153,8 +146,8 @@ public class User
     }
 
     /**
-     * Returns true if this user is an admin, false otherwise. The default
-     * implementation does not track admin status and always returns false.
+     * Returns true if this user is an admin, false otherwise. The default implementation does not
+     * track admin status and always returns false.
      */
     public boolean isAdmin ()
     {
@@ -162,27 +155,27 @@ public class User
     }
 
     /**
-     * Called by the repository to find out which fields have been
-     * modified since the object was loaded.
+     * Called by the repository to find out which fields have been modified since the object was
+     * loaded.
      */
-    protected FieldMask getDirtyMask ()
+    public FieldMask getDirtyMask ()
     {
         return _dirty;
     }
 
+    @Override // from Object
+    public String toString ()
+    {
+        return StringUtil.fieldsToString(this);
+    }
+
     /**
-     * Called by the repository to configure this user record with a field
-     * mask that it can use to track modified fields.
+     * Called by the repository to configure this user record with a field mask that it can use to
+     * track modified fields.
      */
     protected void setDirtyMask (FieldMask dirty)
     {
         _dirty = dirty;
-    }
-
-    @Override
-    public String toString ()
-    {
-        return StringUtil.fieldsToString(this);
     }
 
     /** Our dirty field mask. */

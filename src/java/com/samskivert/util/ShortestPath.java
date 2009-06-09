@@ -131,7 +131,7 @@ public class ShortestPath
 
         /** We order ourselves by the cumulative weight to this node. */
         public int compareTo (NodeInfo<T, V> o) {
-            return o.weightTo - weightTo;
+            return Comparators.compare(o.weightTo, weightTo);
         }
     }
 }

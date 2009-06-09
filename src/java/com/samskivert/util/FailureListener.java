@@ -27,9 +27,19 @@ package com.samskivert.util;
 public abstract class FailureListener<T>
     implements ResultListener<T>
 {
-    // documentation inherited from interface ResultListener
-    public void requestCompleted (T result)
+    // from interface ResultListener
+    public final void requestCompleted (T result)
     {
         // Yeah, yeah, yeah. You did something. Good for you.
+    }
+
+    /**
+     * Recasts us to look like we're of a different type. We can safely do this because we know
+     * that requestCompleted never actually looks at the value passed in.
+     */
+    public <V> FailureListener<V> retype (Class<V> klass)
+    {
+        @SuppressWarnings("unchecked") FailureListener<V> casted = (FailureListener<V>)this;
+        return casted;
     }
 }

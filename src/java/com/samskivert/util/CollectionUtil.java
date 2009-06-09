@@ -65,8 +65,8 @@ public class CollectionUtil
     public static <E, T extends Collection<E>> T addAll (T col, E[] values)
     {
         if (values != null) {
-            for (int ii = 0; ii < values.length; ii++) {
-                col.add(values[ii]);
+            for (E value : values) {
+                col.add(value);
             }
         }
         return col;
@@ -82,7 +82,7 @@ public class CollectionUtil
         int size = col.size();
         if (size > limit) {
             if (col instanceof List) {
-                ((List) col).subList(limit, size).clear();
+                ((List<?>) col).subList(limit, size).clear();
 
             } else {
                 Iterator<T> itr = col.iterator();

@@ -85,24 +85,7 @@ public abstract class Logger
      */
     public static String format (Object message, Object... args)
     {
-        StringBuilder buf = new StringBuilder();
-        buf.append(message);
-        if (args != null && args.length > 1) {
-            buf.append(" [");
-            for (int ii = 0, nn = args.length/2; ii < nn; ii++) {
-                if (ii > 0) {
-                    buf.append(", ");
-                }
-                buf.append(args[2*ii]).append("=");
-                try {
-                    StringUtil.toString(buf, args[2*ii+1]);
-                } catch (Throwable t) {
-                    buf.append("<toString() failure: " + t + ">");
-                }
-            }
-            buf.append("]");
-        }
-        return buf.toString();
+        return new LogBuilder(message, args).toString();
     }
 
     /**

@@ -267,17 +267,16 @@ public class UserRepository extends JORARepository
         throws PersistenceException
     {
         // look for an existing session for this user
-        final String query = "select sessionId, authcode from sessions " +
-            "where userId = " + user.userId;
-        Tuple<Integer,String> session = execute(new Operation<Tuple<Integer,String>>() {
-            public Tuple<Integer,String> invoke (Connection conn, DatabaseLiaison liaison)
+        final String query = "select authcode from sessions where userId = " + user.userId;
+        String authcode = execute(new Operation<String>() {
+            public String invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
                 Statement stmt = conn.createStatement();
                 try {
                     ResultSet rs = stmt.executeQuery(query);
                     while (rs.next()) {
-                        return new Tuple<Integer,String>(rs.getInt(1), rs.getString(2));
+                        return rs.getString(1);
                     }
                     return null;
                 } finally {
@@ -292,16 +291,15 @@ public class UserRepository extends JORARepository
         Date expires = new Date(cal.getTime().getTime());
 
         // if we found one, update its expires time and reuse it
-        if (session != null) {
-            update("update sessions set expires = '" + expires + "' " +
-                   "where sessionId = " + session.left);
-            return session.right;
+        if (authcode != null) {
+            update("update sessions set expires = '" + expires + "' where authcode = " + authcode);
+        } else {
+            // otherwise create a new one and insert it into the table
+            authcode = UserUtil.genAuthCode(user);
+            update("insert into sessions (authcode, userId, expires) values('" + authcode + "', " +
+                   user.userId + ", '" + expires + "')");
         }
 
-        // otherwise create a new one and insert it into the table
-        String authcode = UserUtil.genAuthCode(user);
-        update("insert into sessions (authcode, userId, expires) values('" + authcode + "', " +
-               user.userId + ", '" + expires + "')");
         return authcode;
     }
 

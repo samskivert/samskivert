@@ -38,7 +38,6 @@ import com.samskivert.jdbc.jora.FieldMask;
 import com.samskivert.jdbc.jora.Table;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
-import com.samskivert.util.Tuple;
 
 import com.samskivert.servlet.SiteIdentifier;
 

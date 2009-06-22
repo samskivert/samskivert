@@ -292,7 +292,8 @@ public class UserRepository extends JORARepository
 
         // if we found one, update its expires time and reuse it
         if (authcode != null) {
-            update("update sessions set expires = '" + expires + "' where authcode = " + authcode);
+            update("update sessions set expires = '" + expires + "' where " +
+                   "authcode = '" + authcode + "'");
         } else {
             // otherwise create a new one and insert it into the table
             authcode = UserUtil.genAuthCode(user);

@@ -89,22 +89,18 @@ public class Config
      */
     public Config (String path)
     {
-        // first load up our default prefs
-        _props = new Properties();
+        _props = loadProperties(path, getClass().getClassLoader(), new Properties());
+    }
 
-        try {
-            // append the file suffix onto the path
-            String ppath = path + PROPS_SUFFIX;
-
-            // load the properties file
-            ConfigUtil.loadProperties(ppath, getClass().getClassLoader(), _props);
-
-        } catch (FileNotFoundException fnfe) {
-            log.debug("No properties file found to back config", "path", path);
-
-        } catch (IOException ioe) {
-            log.warning("Unable to load configuration", "path", path, "ioe", ioe);
-        }
+    /**
+     * Constructs a new config object which will obtain configuration information from the
+     * specified properties bundle.
+     *
+     * @param loader the classloader to use to locate the properties file.
+     */
+    public Config (String path, ClassLoader loader)
+    {
+        _props = loadProperties(path, loader, new Properties());
     }
 
     /**
@@ -405,6 +401,18 @@ public class Config
         HashSet<String> matches = new HashSet<String>();
         enumerateKeys(matches);
         return matches.iterator();
+    }
+
+    protected static Properties loadProperties (String path, ClassLoader loader, Properties props)
+    {
+        try {
+            ConfigUtil.loadProperties(path + PROPS_SUFFIX, loader, props);
+        } catch (FileNotFoundException fnfe) {
+            log.debug("No properties file found to back config", "path", path);
+        } catch (IOException ioe) {
+            log.warning("Unable to load configuration", "path", path, "ioe", ioe);
+        }
+        return props;
     }
 
     protected void enumerateKeys (HashSet<String> keys)

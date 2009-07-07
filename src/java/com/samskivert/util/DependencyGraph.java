@@ -108,7 +108,7 @@ public class DependencyGraph<T>
         if (dependeeNode == null) {
             throw new IllegalArgumentException("Unknown dependee? " + dependee);
         }
-        if (dependsOn(dependee, dependant)) {
+        if (dependee == dependant || dependsOn(dependee, dependant)) {
             throw new IllegalArgumentException("Refusing to create circular dependency.");
         }
         dependantNode.parents.add(dependeeNode);

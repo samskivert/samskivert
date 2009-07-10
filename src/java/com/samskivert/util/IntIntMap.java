@@ -332,7 +332,7 @@ public class IntIntMap
                 if (!(o instanceof Integer)) {
                     return false;
                 }
-                return remove((Integer)o);
+                return remove(((Integer)o).intValue());
             }
 
             public boolean remove (int value) {
@@ -388,8 +388,7 @@ public class IntIntMap
         int[] ret = new int[_size];
 
         int dex = 0;
-        for (int ii=0, nn=_buckets.length; ii < nn; ii++) {
-            Record r = _buckets[ii];
+        for (Record r : _buckets) {
             while (r != null) {
                 ret[dex++] = keys ? r.key : r.value;
                 r = r.next;

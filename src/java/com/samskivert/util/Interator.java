@@ -23,8 +23,8 @@ package com.samskivert.util;
 import java.util.Iterator;
 
 /**
- * Can be used as an Iterator, and all Objects returned should be Integer
- * objects, but can also can avoid object creation by calling nextInt().
+ * Can be used as an Iterator, and all Objects returned should be Integer objects, but can also can
+ * avoid boxing by calling {@link #nextInt}.
  */
 public interface Interator extends Iterator<Integer>
 {

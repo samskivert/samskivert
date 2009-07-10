@@ -391,72 +391,50 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         }
     }
 
-    protected class IntKeySet extends AbstractSet<Integer>
-        implements IntSet
-    {
-        @Override public Iterator<Integer> iterator () {
-            return interator();
-        }
-
-        public Interator interator () {
-            return new Interator () {
-                public boolean hasNext () {
-                    return i.hasNext();
-                }
-                public Integer next () {
-                    return i.next().getKey();
-                }
-                public int nextInt () {
-                    return i.next().getIntKey();
-                }
-                public void remove () {
-                    i.remove();
-                }
-                private Iterator<IntEntry<V>> i = intEntrySet().iterator();
-            };
-        }
-
-        @Override public int size () {
-            return HashIntMap.this.size();
-        }
-
-        @Override public boolean contains (Object t) {
-            return HashIntMap.this.containsKey(t);
-        }
-
-        public boolean contains (int t) {
-            return HashIntMap.this.containsKey(t);
-        }
-
-        public boolean add (int t) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override public boolean remove (Object o) {
-            return (null != HashIntMap.this.remove(o));
-        }
-
-        public boolean remove (int value) {
-            return (null != HashIntMap.this.remove(value));
-        }
-
-        public int[] toIntArray () {
-            int[] vals = new int[size()];
-            int ii=0;
-            for (Interator intr = interator(); intr.hasNext(); ) {
-                vals[ii++] = intr.nextInt();
-            }
-            return vals;
-        }
-    }
-
     // documentation inherited from interface IntMap
     public IntSet intKeySet ()
     {
-        // damn Sun bastards made the 'keySet' variable with default access,
-        // so we can't share it
+        // damn Sun bastards made the 'keySet' variable with default access, so we can't share it
         if (_keySet == null) {
-            _keySet = new IntKeySet();
+            _keySet = new AbstractIntSet() {
+                public Interator interator () {
+                    return new Interator () {
+                        public boolean hasNext () {
+                            return i.hasNext();
+                        }
+                        public Integer next () {
+                            return i.next().getKey();
+                        }
+                        public int nextInt () {
+                            return i.next().getIntKey();
+                        }
+                        public void remove () {
+                            i.remove();
+                        }
+                        private Iterator<IntEntry<V>> i = intEntrySet().iterator();
+                    };
+                }
+
+                @Override public int size () {
+                    return HashIntMap.this.size();
+                }
+
+                @Override public boolean contains (Object t) {
+                    return HashIntMap.this.containsKey(t);
+                }
+
+                public boolean contains (int t) {
+                    return HashIntMap.this.containsKey(t);
+                }
+
+                @Override public boolean remove (Object o) {
+                    return (null != HashIntMap.this.remove(o));
+                }
+
+                public boolean remove (int value) {
+                    return (null != HashIntMap.this.remove(value));
+                }
+            };
         }
         return _keySet;
     }

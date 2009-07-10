@@ -309,6 +309,44 @@ public class IntIntMap
         return new KeyValueInterator(true, new IntEntryIterator());
     }
 
+    public IntSet keySet ()
+    {
+        return new AbstractIntSet() {
+            public Interator interator () {
+                return IntIntMap.this.keys();
+            }
+
+            @Override public int size () {
+                return IntIntMap.this.size();
+            }
+
+            @Override public boolean contains (Object t) {
+                return (t instanceof Integer) ? IntIntMap.this.containsKey((Integer)t) : false;
+            }
+
+            public boolean contains (int t) {
+                return IntIntMap.this.containsKey(t);
+            }
+
+            @Override public boolean remove (Object o) {
+                if (!(o instanceof Integer)) {
+                    return false;
+                }
+                return remove((Integer)o);
+            }
+
+            public boolean remove (int value) {
+                // we have to check for presence in the map separately because we have no "not in
+                // the set" return value
+                if (!IntIntMap.this.containsKey(value)) {
+                    return false;
+                }
+                IntIntMap.this.remove(value);
+                return true;
+            }
+        };
+    }
+
     public Interator values ()
     {
         return new KeyValueInterator(false, new IntEntryIterator());

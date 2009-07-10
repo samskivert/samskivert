@@ -35,7 +35,7 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
         return interator();
     }
 
-    @Override // from AbstractSet
+    // from IntSet
     public boolean add (int t)
     {
         throw new UnsupportedOperationException();

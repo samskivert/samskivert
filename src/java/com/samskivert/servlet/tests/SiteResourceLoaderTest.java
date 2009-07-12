@@ -31,8 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
-
+import com.samskivert.io.StreamUtil;
 import com.samskivert.servlet.Site;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
@@ -67,8 +66,7 @@ public class SiteResourceLoaderTest extends TestCase
         }
     }
 
-    protected void testResourceLoader (
-        int siteId, SiteResourceLoader loader, String compareFile)
+    protected void testResourceLoader (int siteId, SiteResourceLoader loader, String compareFile)
         throws IOException
     {
         StringBuffer gen = new StringBuffer();
@@ -82,17 +80,16 @@ public class SiteResourceLoaderTest extends TestCase
         if (cin == null) {
             throw new IOException("Unable to load " + compareFile);
         }
-        cmp.append(IOUtils.toString(cin));
+        cmp.append(StreamUtil.toString(cin, "UTF-8"));
 
         // Log.info("Loaded resources [cmp=" + compareFile + "]: " + gen);
 
         // now make sure the strings match
-        assertEquals("Testing " + compareFile,
-                     cmp.toString(), gen.toString());
+        assertEquals("Testing " + compareFile, cmp.toString(), gen.toString());
     }
 
-    protected void appendResource (int siteId, StringBuffer buffer,
-                                   SiteResourceLoader loader, String path)
+    protected void appendResource (
+        int siteId, StringBuffer buffer, SiteResourceLoader loader, String path)
         throws IOException
     {
         InputStream rin = null;
@@ -111,7 +108,7 @@ public class SiteResourceLoaderTest extends TestCase
             rpath = TestUtil.getResourcePath(rpath);
             rin = new FileInputStream(rpath);
         }
-        buffer.append(IOUtils.toString(rin));
+        buffer.append(StreamUtil.toString(rin, "UTF-8"));
     }
 
     public static Test suite ()

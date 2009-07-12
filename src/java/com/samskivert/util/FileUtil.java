@@ -29,8 +29,6 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.commons.io.IOUtils;
-
 import com.samskivert.io.StreamUtil;
 
 import static com.samskivert.Log.log;
@@ -108,7 +106,7 @@ public class FileUtil
             try {
                 fout = new BufferedOutputStream(new FileOutputStream(efile));
                 jin = jar.getInputStream(entry);
-                IOUtils.copy(jin, fout);
+                StreamUtil.copy(jin, fout);
             } catch (Exception e) {
                 log.warning("Failure unpacking", "jar", jar, "entry", efile, "error", e);
                 failure = true;

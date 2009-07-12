@@ -22,9 +22,11 @@ package com.samskivert.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 import static com.samskivert.Log.log;
 
@@ -86,6 +88,33 @@ public class StreamUtil
             } catch (IOException ioe) {
                 log.warning("Error closing writer", "writer", out, "cause", ioe);
             }
+        }
+    }
+
+    /**
+     * Reads the contents of the supplied stream into a string using the supplied {@link Charset}.
+     */
+    public static String toString (InputStream stream, String charset)
+        throws IOException
+    {
+        InputStreamReader reader = new InputStreamReader(stream, charset);
+        char[] inbuf = new char[4096];
+        StringBuffer outbuf = new StringBuffer();
+        for (int read = 0; (read = reader.read(inbuf)) > 0; ) {
+            outbuf.append(inbuf, 0, read);
+        }
+        return outbuf.toString();
+    }
+
+    /**
+     * Copies the contents of the supplied input stream to the supplied output stream.
+     */
+    public static void copy (InputStream in, OutputStream out)
+        throws IOException
+    {
+        byte[] buffer = new byte[4096];
+        for (int read = 0; (read = in.read(buffer)) > 0; ) {
+            out.write(buffer, 0, read);
         }
     }
 }

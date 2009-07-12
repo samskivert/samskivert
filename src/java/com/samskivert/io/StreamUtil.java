@@ -20,12 +20,13 @@
 
 package com.samskivert.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 import static com.samskivert.Log.log;
@@ -94,13 +95,14 @@ public class StreamUtil
     /**
      * Copies the contents of the supplied input stream to the supplied output stream.
      */
-    public static void copy (InputStream in, OutputStream out)
+    public static <T extends OutputStream> T copy (InputStream in, T out)
         throws IOException
     {
         byte[] buffer = new byte[4096];
         for (int read = 0; (read = in.read(buffer)) > 0; ) {
             out.write(buffer, 0, read);
         }
+        return out;
     }
 
     /**
@@ -109,7 +111,7 @@ public class StreamUtil
     public static String toString (InputStream stream, String charset)
         throws IOException
     {
-        return toString(new InputStreamReader(stream, charset));
+        return copy(stream, new ByteArrayOutputStream()).toString(charset);
     }
 
     /**

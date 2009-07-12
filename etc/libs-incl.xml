@@ -3,7 +3,9 @@
 <project name="library-dependencies">
   <fileset dir="${libs.dir}" id="samskivert.libs">
     <include name="ant.jar"/>
+    <include name="commons-collections.jar"/>
     <include name="commons-digester.jar"/>
+    <include name="commons-logging.jar"/>
     <include name="ehcache.jar"/>
     <include name="junit-3.7.jar"/>
     <include name="junit4.jar"/>

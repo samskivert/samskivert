@@ -47,10 +47,6 @@
      classname="org.apache.commons.digester.Digester"/>
     <echo level="info">Commons Digester: ${jakarta.commons-digester.present}</echo>
 
-    <available property="jakarta.commons-io.present" classpathref="classpath"
-     classname="org.apache.commons.io.IOUtils"/>
-    <echo level="info">Commons Io: ${jakarta.commons-io.present}</echo>
-
     <available property="jakarta.velocity.present" classpathref="classpath"
      classname="org.apache.velocity.Template"/>
     <echo level="info">Velocity: ${jakarta.velocity.present}</echo>
@@ -87,7 +83,6 @@
       <and>
         <isset property="build.io"/>
         <isset property="build.util"/>
-        <isset property="jakarta.commons-io.present"/>
       </and>
     </condition>
     <echo level="info">com.samskivert.jdbc: ${build.jdbc}</echo>
@@ -139,13 +134,6 @@
       </and>
     </condition>
     <echo level="info">com.samskivert.*.tests: ${build.tests}</echo>
-
-    <condition property="build.fileutil">
-      <and>
-        <isset property="jakarta.commons-io.present"/>
-      </and>
-    </condition>
-    <echo level="info">com.samskivert.util.FileUtil: ${build.fileutil}</echo>
 
     <condition property="build.mail">
       <and>

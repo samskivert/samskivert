@@ -106,6 +106,15 @@ public class StreamUtil
     }
 
     /**
+     * Reads the contents of the supplied stream into a byte array.
+     */
+    public static byte[] toByteArray (InputStream stream)
+        throws IOException
+    {
+        return copy(stream, new ByteArrayOutputStream()).toByteArray();
+    }
+
+    /**
      * Reads the contents of the supplied stream into a string using the supplied {@link Charset}.
      */
     public static String toString (InputStream stream, String charset)

@@ -92,21 +92,6 @@ public class StreamUtil
     }
 
     /**
-     * Reads the contents of the supplied stream into a string using the supplied {@link Charset}.
-     */
-    public static String toString (InputStream stream, String charset)
-        throws IOException
-    {
-        InputStreamReader reader = new InputStreamReader(stream, charset);
-        char[] inbuf = new char[4096];
-        StringBuffer outbuf = new StringBuffer();
-        for (int read = 0; (read = reader.read(inbuf)) > 0; ) {
-            outbuf.append(inbuf, 0, read);
-        }
-        return outbuf.toString();
-    }
-
-    /**
      * Copies the contents of the supplied input stream to the supplied output stream.
      */
     public static void copy (InputStream in, OutputStream out)
@@ -116,5 +101,28 @@ public class StreamUtil
         for (int read = 0; (read = in.read(buffer)) > 0; ) {
             out.write(buffer, 0, read);
         }
+    }
+
+    /**
+     * Reads the contents of the supplied stream into a string using the supplied {@link Charset}.
+     */
+    public static String toString (InputStream stream, String charset)
+        throws IOException
+    {
+        return toString(new InputStreamReader(stream, charset));
+    }
+
+    /**
+     * Reads the contents of the supplied reader into a string.
+     */
+    public static String toString (Reader reader)
+        throws IOException
+    {
+        char[] inbuf = new char[4096];
+        StringBuffer outbuf = new StringBuffer();
+        for (int read = 0; (read = reader.read(inbuf)) > 0; ) {
+            outbuf.append(inbuf, 0, read);
+        }
+        return outbuf.toString();
     }
 }

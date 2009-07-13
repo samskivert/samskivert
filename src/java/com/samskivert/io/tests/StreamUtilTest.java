@@ -22,7 +22,6 @@ package com.samskivert.io.tests;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -64,8 +63,7 @@ public class StreamUtilTest
     protected String copyString (String text)
         throws Exception
     {
-        Charset charset = Charset.forName("UTF-8");
-        ByteArrayInputStream bin = new ByteArrayInputStream(text.getBytes(charset));
+        ByteArrayInputStream bin = new ByteArrayInputStream(text.getBytes("UTF-8"));
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         StreamUtil.copy(bin, bout);
         return bout.toString("UTF-8");

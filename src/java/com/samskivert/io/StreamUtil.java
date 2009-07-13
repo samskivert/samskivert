@@ -115,6 +115,15 @@ public class StreamUtil
     }
 
     /**
+     * Reads the contents of the supplied stream into a string using the platform default charset.
+     */
+    public static String toString (InputStream stream)
+        throws IOException
+    {
+        return copy(stream, new ByteArrayOutputStream()).toString();
+    }
+
+    /**
      * Reads the contents of the supplied stream into a string using the supplied {@link Charset}.
      */
     public static String toString (InputStream stream, String charset)

@@ -21,31 +21,49 @@
 package com.samskivert.util.tests;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import com.samskivert.util.ArrayIntSet;
 
-public class ArrayIntSetTest extends TestCase
+public class ArrayIntSetTest
 {
-    public ArrayIntSetTest ()
-    {
-        super(ArrayIntSetTest.class.getName());
-    }
-
-    @Override
-    public void runTest ()
+    @Test
+    public void testAdd ()
     {
         ArrayIntSet set = new ArrayIntSet();
         set.add(new int[] { 3, 5, 5, 9, 5, 7, 1 });
-
         int[] values = { 1, 3, 5, 7, 9 };
-        int[] setvals = set.toIntArray();
+        assertTrue("values equal", Arrays.equals(values, set.toIntArray()));
+    }
 
-        assertTrue("values equal", Arrays.equals(values, setvals));
+    @Test
+    public void testConstruct ()
+    {
+        int[] values = { 11, 3, 20, 6, 16, 15, 24, 23, 21, 10, 4, 19, 13, 25, 22, 18 };
+        ArrayIntSet set1 = new ArrayIntSet(values);
+        ArrayIntSet set2 = new ArrayIntSet();
+        set2.add(values);
+        assertTrue(set1.equals(set2));
+    }
 
+    @Test
+    public void testIterate ()
+    {
+        ArrayIntSet set = new ArrayIntSet(new int[] { 3, 5, 5, 9, 5, 7, 1 });
+        Set<Integer> jset = new TreeSet<Integer>();
+        jset.addAll(set);
+        assertTrue(jset.equals(set));
+    }
+
+    @Test
+    public void testOps ()
+    {
         ArrayIntSet set1 = new ArrayIntSet();
         set1.add(new int[] { 1, 2, 3, 5, 7, 12, 19, 35 });
         ArrayIntSet set2 = new ArrayIntSet();
@@ -90,16 +108,5 @@ public class ArrayIntSetTest extends TestCase
             s1.retainAll(s2);
             assertTrue("random intersection", s1.equals(s3));
         }
-    }
-
-    public static Test suite ()
-    {
-        return new ArrayIntSetTest();
-    }
-
-    public static void main (String[] args)
-    {
-        ArrayIntSetTest test = new ArrayIntSetTest();
-        test.runTest();
     }
 }

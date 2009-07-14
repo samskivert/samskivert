@@ -49,13 +49,11 @@ public class ArrayIntSet extends AbstractSet<Integer>
         if (_size > 1) {
             int last = _values[0];
             for (int ii = 1; ii < _size; ) {
-                if (values[ii] == last) {
-                    // shift everything down 1
+                if (_values[ii] == last) { // shift everything down 1
                     _size--;
                     System.arraycopy(_values, ii + 1, _values, ii, _size - ii);
-
                 } else {
-                    last = values[ii++];
+                    last = _values[ii++];
                 }
             }
         }
@@ -383,21 +381,21 @@ public class ArrayIntSet extends AbstractSet<Integer>
     @Override
     public boolean equals (Object o)
     {
+        // use an optimized equality test for another ArrayIntSet
         if (o instanceof ArrayIntSet) {
             ArrayIntSet other = (ArrayIntSet)o;
-            if (other._size == _size) {
-                for (int ii = 0; ii < _size; ii++) {
-                    // we can't use Arrays.equals() because we only want to
-                    // compare the first _size values
-                    if (_values[ii] != other._values[ii]) {
-                        return false;
-                    }
-                }
-                return true;
+            if (other._size != _size) {
+                return false;
             }
+            // we can't use Arrays.equals() because we only want to compare the first _size values
+            for (int ii = 0; ii < _size; ii++) {
+                if (_values[ii] != other._values[ii]) {
+                    return false;
+                }
+            }
+            return true;
         }
-
-        return false;
+        return super.equals(o);
     }
 
     @Override

@@ -141,6 +141,10 @@ public abstract class Interval
     /**
      * Schedule the interval to execute repeatedly with fixed-rate scheduling between repeats,
      * with the same delay. Supersedes any previous schedule that this Interval may have had.
+     *
+     * <p> Note: if a repeating interval is scheduled to post itself to a RunQueue and the target
+     * RunQueue is shutdown when the interval expires, the interval will cancel itself and log a
+     * warning message. </p>
      */
     public final void schedule (long delay, boolean repeat)
     {
@@ -149,8 +153,12 @@ public abstract class Interval
 
     /**
      * Schedule the interval to execute repeatedly with the specified initial delay and repeat
-     * delay with fixed-rate scheduling between repeats. Supersedes any previous schedule that
-     * this Interval may have had.
+     * delay with fixed-rate scheduling between repeats. Supersedes any previous schedule that this
+     * Interval may have had.
+     *
+     * <p> Note: if a repeating interval is scheduled to post itself to a RunQueue and the target
+     * RunQueue is shutdown when the interval expires, the interval will cancel itself and log a
+     * warning message. </p>
      */
     public final void schedule (long initialDelay, long repeatDelay)
     {
@@ -160,6 +168,10 @@ public abstract class Interval
     /**
      * Schedule the interval to execute repeatedly with the specified initial delay and repeat
      * delay. Supersedes any previous schedule that this Interval may have had.
+     *
+     * <p> Note: if a repeating interval is scheduled to post itself to a RunQueue and the target
+     * RunQueue is shutdown when the interval expires, the interval will cancel itself and log a
+     * warning message. </p>
      *
      * @param fixedRate - if true, this interval schedules repeated expirations using
      * {@link Timer#scheduleAtFixedRate(TimerTask, long, long)} ensuring that the number of
@@ -276,36 +288,42 @@ public abstract class Interval
             Interval ival = _interval;
             if (ival == null) {
                 return;
-
-            } else if (ival._runQueue == null) {
+            }
+            if (ival._runQueue == null) {
                 ival.safelyExpire(this);
+                return;
+            }
 
-            } else {
-                if (_runner == null) { // lazy initialize _runner
-                    _runner = new RunBuddy() {
-                        public void run () {
-                            Interval ival = _interval;
-                            if (ival != null) {
-                                ival.safelyExpire(IntervalTask.this);
-                            }
+            if (_runner == null) { // lazy initialize _runner
+                _runner = new RunBuddy() {
+                    public void run () {
+                        Interval ival = _interval;
+                        if (ival != null) {
+                            ival.safelyExpire(IntervalTask.this);
                         }
+                    }
+                    public Interval getInterval () {
+                        return _interval;
+                    }
+                    @Override public String toString () {
+                        Interval ival = _interval;
+                        return (ival != null) ? ival.toString() : "(Interval was cancelled)";
+                    }
+                };
+            }
 
-                        public Interval getInterval () {
-                            return _interval;
-                        }
-
-                        @Override public String toString () {
-                            Interval ival = _interval;
-                            return (ival != null) ? ival.toString() : "(Interval was cancelled)";
-                        }
-                    };
-                }
+            if (ival._runQueue.isRunning()) {
                 try {
                     ival._runQueue.postRunnable(_runner);
                 } catch (Exception e) {
                     log.warning("Failed to execute interval on run-queue", "queue", ival._runQueue,
                                 "interval", ival, e);
                 }
+
+            } else {
+                log.warning("Interval posted to shutdown RunQueue. Cancelling.",
+                            "queue", ival._runQueue, "interval", ival);
+                ival.cancel();
             }
         }
 

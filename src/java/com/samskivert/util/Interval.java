@@ -123,19 +123,23 @@ public abstract class Interval
     /**
      * Schedules this interval to execute once at <code>when</code>. Supersedes any previous
      * schedule that this Interval may have had.
+     *
+     * @return this for convenient method chaining.
      */
-    public final void schedule (Date when)
+    public final Interval schedule (Date when)
     {
-        schedule(when.getTime() - System.currentTimeMillis());
+        return schedule(when.getTime() - System.currentTimeMillis());
     }
 
     /**
      * Schedule the interval to execute once, after the specified delay.  Supersedes any previous
      * schedule that this Interval may have had.
+     *
+     * @return this for convenient method chaining.
      */
-    public final void schedule (long delay)
+    public final Interval schedule (long delay)
     {
-        schedule(delay, 0L);
+        return schedule(delay, 0L);
     }
 
     /**
@@ -145,10 +149,12 @@ public abstract class Interval
      * <p> Note: if a repeating interval is scheduled to post itself to a RunQueue and the target
      * RunQueue is shutdown when the interval expires, the interval will cancel itself and log a
      * warning message. </p>
+     *
+     * @return this for convenient method chaining.
      */
-    public final void schedule (long delay, boolean repeat)
+    public final Interval schedule (long delay, boolean repeat)
     {
-        schedule(delay, repeat ? delay : 0L);
+        return schedule(delay, repeat ? delay : 0L);
     }
 
     /**
@@ -159,10 +165,12 @@ public abstract class Interval
      * <p> Note: if a repeating interval is scheduled to post itself to a RunQueue and the target
      * RunQueue is shutdown when the interval expires, the interval will cancel itself and log a
      * warning message. </p>
+     *
+     * @return this for convenient method chaining.
      */
-    public final void schedule (long initialDelay, long repeatDelay)
+    public final Interval schedule (long initialDelay, long repeatDelay)
     {
-        schedule(initialDelay, repeatDelay, true);
+        return schedule(initialDelay, repeatDelay, true);
     }
 
     /**
@@ -179,46 +187,33 @@ public abstract class Interval
      * {@link Timer#schedule(TimerTask, long, long)} which ensures that there will be close to
      * <code>repeateDelay</code> milliseconds between expirations.
      *
+     * @return this for convenient method chaining.
+     *
      * @exception IllegalArgumentException if fixedRate is false and a RunQueue has been specified.
      * That doesn't make sense because the fixed delay cannot account for the time that the
      * RunBuddy sits on the RunQueue waiting to call expire().
      */
-    public final void schedule (long initialDelay, long repeatDelay, boolean fixedRate)
+    public final Interval schedule (long initialDelay, long repeatDelay, boolean fixedRate)
     {
         cancel();
         IntervalTask task = new IntervalTask(this);
         _task = task;
 
         // try twice to schedule the task- see comment inside the catch
-        for (int tryCount = 0; tryCount < 2; tryCount++) {
-            try {
-                if (repeatDelay == 0L) {
-                    _timer.schedule(task, initialDelay);
-                } else if (fixedRate) {
-                    _timer.scheduleAtFixedRate(task, initialDelay, repeatDelay);
-                } else if (_runQueue != null) {
-                    throw new IllegalArgumentException(
-                        "Cannot schedule at a fixed delay when using a RunQueue.");
-                } else {
-                    _timer.schedule(task, initialDelay, repeatDelay);
-                }
-                return;
+        try {
+            scheduleTask(initialDelay, repeatDelay, fixedRate);
 
-            } catch (IllegalStateException ise) {
-                // Timer.schedule will only throw this if the TimerThead was shut down.
-                // This may happen automatically in Applets, so we need to create a new
-                // Timer now. Note that in a multithreaded environment it may be possible
-                // to have more than one Timer after this happens. That would be slightly
-                // undesirable but should not break anything.
-                if (tryCount == 0) {
-                    _timer = createTimer();
-
-                } else {
-                    // the second time through? Throw it!
-                    throw ise;
-                }
-            }
+        } catch (IllegalStateException ise) {
+            // Timer.schedule will only throw this if the TimerThead was shut down.
+            // This may happen automatically in Applets, so we need to create a new
+            // Timer now. Note that in a multithreaded environment it may be possible
+            // to have more than one Timer after this happens. That would be slightly
+            // undesirable but should not break anything.
+            _timer = createTimer();
+            scheduleTask(initialDelay, repeatDelay, fixedRate);
         }
+
+        return this;
     }
 
     /**
@@ -234,9 +229,20 @@ public abstract class Interval
         }
     }
 
-    /**
-     * Safely expire the interval.
-     */
+    protected void scheduleTask (long initialDelay, long repeatDelay, boolean fixedRate)
+    {
+        if (repeatDelay == 0L) {
+            _timer.schedule(_task, initialDelay);
+        } else if (fixedRate) {
+            _timer.scheduleAtFixedRate(_task, initialDelay, repeatDelay);
+        } else if (_runQueue != null) {
+            throw new IllegalArgumentException(
+                "Cannot schedule at a fixed delay when using a RunQueue.");
+        } else {
+            _timer.schedule(_task, initialDelay, repeatDelay);
+        }
+    }
+
     protected final void safelyExpire (IntervalTask task)
     {
         // only expire the interval if the task is still valid

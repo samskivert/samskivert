@@ -229,7 +229,7 @@ public abstract class Interval
         }
     }
 
-    protected void scheduleTask (long initialDelay, long repeatDelay, boolean fixedRate)
+    protected final void scheduleTask (long initialDelay, long repeatDelay, boolean fixedRate)
     {
         if (repeatDelay == 0L) {
             _timer.schedule(_task, initialDelay);

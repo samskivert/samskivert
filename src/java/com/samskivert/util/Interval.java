@@ -47,6 +47,34 @@ public abstract class Interval
     }
 
     /**
+     * Creates an interval that executes the supplied runnable when it expires.
+     */
+    public static Interval create (final Runnable onExpired)
+    {
+        return new Interval() {
+            public void expired () {
+                onExpired.run();
+            }
+        };
+    }
+
+    /**
+     * Creates an interval that executes the supplied runnable on the specified RunQueue when it
+     * expires.
+     */
+    public static Interval create (RunQueue runQueue, final Runnable onExpired)
+    {
+        // we could probably avoid all the wacky machinations internal to Interval that do the
+        // runbuddy reposting and whatever and just create a non-runqueue interval that posts the
+        // supplied runnable to the runqueue when it expires, but we'll just punt on that for now
+        return new Interval(runQueue) {
+            public void expired () {
+                onExpired.run();
+            }
+        };
+    }
+
+    /**
      * This may be removed.
      *
      * @deprecated

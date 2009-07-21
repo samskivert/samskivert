@@ -95,9 +95,9 @@ public class Throttle
     }
 
     /**
-     * Registers an attempt at an operation and returns true if the operation should be performed
-     * or false if it should be throttled (meaning N operations have already been performed in the
-     * last M seconds).
+     * Registers an attempt at an operation and returns true if the operation should be throttled
+     * (meaning N operations have already been performed in the last M seconds), or false if the
+     * operation is allowed to be performed.
      *
      * @return true if the throttle is activated, false if the operation can proceed.
      */

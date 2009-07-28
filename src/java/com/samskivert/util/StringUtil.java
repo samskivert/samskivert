@@ -85,7 +85,7 @@ public class StringUtil
     }
 
     /**
-     * @return true if the string is null or empty, false otherwise.
+     * @return true if the string is null or consists only of whitespace, false otherwise.
      */
     public static boolean isBlank (String value)
     {

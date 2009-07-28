@@ -27,10 +27,12 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.util.ArrayIntSet;
+import com.samskivert.util.IntSet;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -135,11 +137,11 @@ public class ParameterUtil
      * IntSet.  If the parameter does not exist or is not a well-formed integer, a data validation
      * exception is thrown with the supplied message.
      */
-    public static ArrayIntSet getIntParameters (
+    public static IntSet getIntParameters (
         HttpServletRequest req, String name, String invalidDataMessage)
         throws DataValidationException
     {
-        ArrayIntSet ints = new ArrayIntSet();
+        IntSet ints = new ArrayIntSet();
         String[] values = req.getParameterValues(name);
         if (values != null) {
             for (int ii = 0; ii < values.length; ii++) {
@@ -152,13 +154,11 @@ public class ParameterUtil
     }
 
     /**
-     * Fetches all the values from the request with the specified name and converts them to a
-     * HashSet.
+     * Fetches all the values from the request with the specified name and converts them to a Set.
      */
-    public static HashSet<String> getParameters (HttpServletRequest req, String name)
-        throws DataValidationException
+    public static Set<String> getParameters (HttpServletRequest req, String name)
     {
-        HashSet<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<String>();
         String[] values = req.getParameterValues(name);
         if (values != null) {
             for (int ii = 0; ii < values.length; ii++) {

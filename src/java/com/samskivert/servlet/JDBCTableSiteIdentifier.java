@@ -95,12 +95,6 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     // documentation inherited
     public int identifySite (HttpServletRequest req)
     {
-        // check whether our site id was overridden
-        Integer override = (Integer)req.getAttribute(SITE_ID_OVERRIDE_KEY);
-        if (override != null) {
-            return override;
-        }
-
         checkReloadSites();
         String serverName = req.getServerName();
 
@@ -307,7 +301,8 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
             return other._rdomain.compareTo(_rdomain);
         }
 
-        @Override public String toString ()
+        @Override // from Object
+        public String toString ()
         {
             return "[" + domain + " => " + siteId + "]";
         }

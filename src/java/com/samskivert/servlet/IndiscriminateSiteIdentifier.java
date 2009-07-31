@@ -36,13 +36,7 @@ public class IndiscriminateSiteIdentifier implements SiteIdentifier
      */
     public int identifySite (HttpServletRequest req)
     {
-        // check whether our site id was overridden
-        Integer override = (Integer)req.getAttribute(SITE_ID_OVERRIDE_KEY);
-        if (override != null) {
-            return override;
-        } else {
-            return DEFAULT_SITE_ID;
-        }
+        return DEFAULT_SITE_ID;
     }
 
     /**

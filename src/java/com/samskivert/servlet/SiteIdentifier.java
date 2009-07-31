@@ -38,12 +38,6 @@ public interface SiteIdentifier
     /** The string identifier for the default site. */
     public static final String DEFAULT_SITE_STRING = "default";
 
-    /** Use this to override the site identification process by calling {@link
-     * HttpServletRequest#setAttribute} with this key and an Integer value indicating the site id
-     * to be used, and any call to {@link #identifySite} on that request will return the overridden
-     * site. */
-    public static final String SITE_ID_OVERRIDE_KEY = "SiteIdentifierOverride";
-
     /**
      * Returns the unique identifier for the site on which this request originated. That may be
      * divined by looking at the server name, or perhaps a request parameter, or part of the path

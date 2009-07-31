@@ -30,8 +30,8 @@ import com.samskivert.util.CurrencyUtil;
 public class CurrencyTool
 {
     /**
-     * Creates a new CurrencyTool which will used the supplied request to
-     * look up the locale with which to do currency formatting in.
+     * Creates a new CurrencyTool which will used the supplied request to look up the locale with
+     * which to do currency formatting in.
      */
     public CurrencyTool (Locale locale)
     {
@@ -55,9 +55,8 @@ public class CurrencyTool
     }
 
     /**
-     * Converts a number representing currency in the requester's locale to a
-     * display string. <em>Note:</em> you probably want to be using {@link
-     * #dollars}.
+     * Converts a number representing currency in the requester's locale to a display
+     * string. <em>Note:</em> you probably want to be using {@link #dollars}.
      */
     public String currency (double value)
     {
@@ -65,8 +64,8 @@ public class CurrencyTool
     }
 
     /**
-     * Converts a number representing pennies to a currency display string.
-     * <em>Note:</em> you probably want to be using {@link #dollarsPennies}.
+     * Converts a number representing pennies to a currency display string. <em>Note:</em> you
+     * probably want to be using {@link #dollarsPennies}.
      */
     public String currencyPennies (double value)
     {
@@ -74,12 +73,18 @@ public class CurrencyTool
     }
 
     /**
-     * Velocity currently doesn't support floats, so we have to provide our own
-     * support to convert pennies to a dollar amount.
+     * Velocity currently doesn't support floats, so we have to provide our own support to convert
+     * pennies to a dollar amount.
      */
     public String penniesToDollars (int pennies)
     {
-        return "" + (pennies / 100.0);
+        float decimal = (float)(pennies / 100.0);
+        // if the pennies is a whole number of dollars, then we return just the string number
+        if (pennies % 100 == 0) {
+            return String.format("%.0f", decimal);
+        }
+        // otherwise we always return two decimal places
+        return String.format("%#.2f", decimal);
     }
 
     /** The locale in which we are providing currency functionality. */

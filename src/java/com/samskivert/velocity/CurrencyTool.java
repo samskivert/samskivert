@@ -78,7 +78,7 @@ public class CurrencyTool
      */
     public String penniesToDollars (int pennies)
     {
-        float decimal = (float)(pennies / 100.0);
+        float decimal = pennies / 100f;
         // if the pennies is a whole number of dollars, then we return just the string number
         if (pennies % 100 == 0) {
             return String.format("%.0f", decimal);

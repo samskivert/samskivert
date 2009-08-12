@@ -33,7 +33,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 import com.samskivert.servlet.MessageManager;
 

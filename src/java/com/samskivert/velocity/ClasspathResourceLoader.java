@@ -20,6 +20,7 @@
 
 package com.samskivert.velocity;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -82,6 +83,9 @@ public class ClasspathResourceLoader extends ResourceLoader
         throws IOException
     {
         URL rsrc = loader.getResource(name);
+        if (rsrc == null) {
+            throw new FileNotFoundException(name);
+        }
         URLConnection uconn = rsrc.openConnection();
         // we have to disable caching otherwise once a resource is loaded from a jar file we will
         // never get a new version of that resource even if the jar file is replaced on disk and a

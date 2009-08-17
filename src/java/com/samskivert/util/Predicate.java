@@ -276,6 +276,7 @@ public abstract class Predicate<T>
                 // oh god, oh god: we iterate and count
                 int size = 0;
                 for (Iterator<E> iter = iterator(); iter.hasNext(); ) {
+                    iter.next();
                     size++;
                 }
                 return size;
@@ -313,14 +314,14 @@ public abstract class Predicate<T>
 
     /** A shared predicate instance that always matches its input. */
     protected static final Predicate<Object> TRUE_INSTANCE = new Predicate<Object>() {
-        public boolean isMatch (Object object) {
+        @Override public boolean isMatch (Object object) {
             return true;
         }
     };
 
     /** A shared predicate instance that never matches its input. */
     protected static final Predicate<Object> FALSE_INSTANCE = new Predicate<Object>() {
-        public boolean isMatch (Object object) {
+        @Override public boolean isMatch (Object object) {
             return false;
         }
     };

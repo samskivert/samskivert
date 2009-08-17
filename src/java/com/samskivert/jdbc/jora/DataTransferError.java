@@ -29,6 +29,6 @@ public class DataTransferError extends java.lang.Error {
         super("Database data transfer error");
     }
     DataTransferError(Exception ex) {
-        super(ex.getMessage());
+        super(ex);
     }
 }

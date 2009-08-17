@@ -107,26 +107,6 @@ public class User
     }
 
     /**
-     * Converts a legacy password.
-     *
-     * @return true if a conversion took place, false if not.
-     */
-    public boolean updateLegacyPassword (String password)
-    {
-        // we may have an old crypt() encrypted password
-        if (this.password.length() == 13) {
-            // check both the case sensitive and insensitive versions for further legacy reasons
-            if (this.password.equals(UserUtil.legacyEncrypt(username, password, false)) ||
-                this.password.equals(UserUtil.legacyEncrypt(username, password, true))) {
-                // update our password with the new encryption method
-                setPassword(password);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Compares the supplied password with the password associated with this user record.
      *
      * @return true if the passwords match, false if they do not.

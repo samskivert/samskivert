@@ -251,13 +251,6 @@ public class UserManager
             throw new NoSuchUserException("error.no_such_user");
         }
 
-        // potentially convert the user's legacy password
-        if (password != null && password.getCleartext() != null &&
-            user.updateLegacyPassword(password.getCleartext())) {
-            log.info("Updated legacy password " + user.username + ".");
-            _repository.updateUser(user);
-        }
-
         // run the user through the authentication gamut
         auth.authenticateUser(user, username, password);
 
@@ -288,13 +281,6 @@ public class UserManager
         User user = _repository.loadUser(username);
         if (user == null) {
             throw new NoSuchUserException("error.no_such_user");
-        }
-
-        // potentially convert the user's legacy password
-        if (password != null && password.getCleartext() != null &&
-            user.updateLegacyPassword(password.getCleartext())) {
-            log.info("Updated legacy password " + user.username + ".");
-            _repository.updateUser(user);
         }
 
         // run the user through the authentication gamut

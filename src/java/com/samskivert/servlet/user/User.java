@@ -59,6 +59,15 @@ public class User
     public int siteId;
 
     /**
+     * Updates the user's username.
+     */
+    public void setUsername (Username username)
+    {
+        this.username = username.getUsername();
+        setModified("username");
+    }
+
+    /**
      * Updates the user's real name.
      */
     public void setRealName (String realname)

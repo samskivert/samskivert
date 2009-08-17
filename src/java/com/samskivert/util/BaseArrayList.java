@@ -24,7 +24,6 @@ import java.io.Serializable;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.RandomAccess;
 
 import java.lang.reflect.Array;
@@ -37,7 +36,7 @@ import static com.samskivert.Log.log;
  * made the instance variables private).
  */
 public abstract class BaseArrayList<E> extends AbstractList<E>
-    implements List<E>, RandomAccess, Cloneable, Serializable
+    implements RandomAccess, Cloneable, Serializable
 {
     @Override
     public int size ()

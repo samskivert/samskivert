@@ -84,7 +84,7 @@ public class WeakObserverList<T> extends AbstractList<T>
     {
         // dereference the elements when searching for a value
         _wrappedList = new ObserverList<WeakReference<T>>(notifyPolicy, allowDups) {
-            public int indexOf (Object element) {
+            @Override public int indexOf (Object element) {
                 @SuppressWarnings("unchecked") WeakReference<T> ref =
                     (WeakReference<T>)element;
                 T value = ref.get();
@@ -95,7 +95,7 @@ public class WeakObserverList<T> extends AbstractList<T>
                 }
                 return -1;
             }
-            public int lastIndexOf (Object element) {
+            @Override public int lastIndexOf (Object element) {
                 @SuppressWarnings("unchecked") WeakReference<T> ref =
                     (WeakReference<T>)element;
                 T value = ref.get();

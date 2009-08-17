@@ -312,7 +312,7 @@ public class IntIntMap
     public IntSet keySet ()
     {
         return new AbstractIntSet() {
-            public Interator interator () {
+            @Override public Interator interator () {
                 return IntIntMap.this.keys();
             }
 

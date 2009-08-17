@@ -52,7 +52,7 @@ public abstract class Interval
     public static Interval create (final Runnable onExpired)
     {
         return new Interval() {
-            public void expired () {
+            @Override public void expired () {
                 onExpired.run();
             }
         };
@@ -68,7 +68,7 @@ public abstract class Interval
         // runbuddy reposting and whatever and just create a non-runqueue interval that posts the
         // supplied runnable to the runqueue when it expires, but we'll just punt on that for now
         return new Interval(runQueue) {
-            public void expired () {
+            @Override public void expired () {
                 onExpired.run();
             }
         };

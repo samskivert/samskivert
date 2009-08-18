@@ -154,14 +154,14 @@ public class Invoker extends LoopingThread
     }
 
     /**
-     * Returns true if this invoker has no pending units, false if it has pending units.
-     * <em>Note:</em> this does not account for whether a unit is <em>currently</em> being
-     * processed, so if you want to guarantee that an invoker is empty, it's best to call this
-     * method in a unit being processed by that invoker.
+     * Returns the number of units waiting on the queue to be processed. <em>Note:</em> this does
+     * not account for whether a unit is <em>currently</em> being processed, so if you want to know
+     * definitively, for example that an invoker is empty, it's best to call this method in a unit
+     * being processed by that invoker.
      */
-    public boolean isEmpty ()
+    public int getPendingUnits ()
     {
-        return _queue.size() == 0;
+        return _queue.size();
     }
 
     // from RunQueue

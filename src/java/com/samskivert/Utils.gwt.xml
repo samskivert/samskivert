@@ -2,4 +2,5 @@
 <!-- Exports various samskivert utilities to GWT.  -->
 <module>
   <source path="text"/>
+  <source path="util"/>
 </module>

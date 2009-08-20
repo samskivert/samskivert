@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Provides an {@link IntSet} implementation using a sorted array of
- * integers to maintain the contents of the set.
+ * Provides an {@link IntSet} implementation using a sorted array of integers to maintain the
+ * contents of the set.
  */
 public class ArrayIntSet extends AbstractSet<Integer>
     implements IntSet, Cloneable, Serializable
@@ -41,22 +41,27 @@ public class ArrayIntSet extends AbstractSet<Integer>
     public ArrayIntSet (int[] values)
     {
         this(values.length);
-        _size = values.length;
+        _size = _values.length;
         System.arraycopy(values, 0, _values, 0, _size);
         Arrays.sort(_values);
+        removeDuplicates();
+    }
 
-        // remove duplicates
-        if (_size > 1) {
-            int last = _values[0];
-            for (int ii = 1; ii < _size; ) {
-                if (_values[ii] == last) { // shift everything down 1
-                    _size--;
-                    System.arraycopy(_values, ii + 1, _values, ii, _size - ii);
-                } else {
-                    last = _values[ii++];
-                }
-            }
+    /**
+     * Construct an ArrayIntSet with the specified starting values.
+     *
+     * @throws NullPointerException if the collection contains any null values.
+     */
+    public ArrayIntSet (Collection<Integer> values)
+    {
+        this(values.size());
+        _size = values.size();
+        Iterator<Integer> iter = values.iterator();
+        for (int ii = 0; iter.hasNext(); ii++) {
+            _values[ii] = iter.next().intValue();
         }
+        Arrays.sort(_values);
+        removeDuplicates();
     }
 
     /**
@@ -75,43 +80,140 @@ public class ArrayIntSet extends AbstractSet<Integer>
         this(DEFAULT_CAPACITY);
     }
 
-    @Override
-    public int size ()
+    /**
+     * Add all of the values in the supplied array to the set.
+     *
+     * @param values elements to be added to this set.
+     *
+     * @return <tt>true</tt> if this set did not already contain all of the specified elements.
+     */
+    public boolean add (int[] values)
     {
-        return _size;
+        boolean modified = false;
+        int vlength = values.length;
+        for (int i = 0; i < vlength; i++) {
+            modified = (add(values[i]) || modified);
+        }
+        return modified;
     }
 
     /**
-     * Returns the element at the specified index. Note that the elements
-     * in the set are unordered and could change order after insertion or
-     * removal. This method is useful only for accessing elements of a
-     * static set (and has the desirable property of allowing access to
-     * the values in this set without having to create integer objects).
+     * Removes all values in the supplied array from the set. Any values that are in the array but
+     * not in the set are simply ignored.
+     *
+     * @param values elements to be removed from the set.
+     *
+     * @return <tt>true</tt> if this set contained any of the specified elements (which will have
+     * been removed).
+     */
+    public boolean remove (int[] values)
+    {
+        boolean modified = false;
+        int vcount = values.length;
+        for (int i = 0; i < vcount; i++) {
+            modified = (remove(values[i]) || modified);
+        }
+        return modified;
+    }
+
+    /**
+     * Returns the element at the specified index. Note that the elements in the set are unordered
+     * and could change order after insertion or removal. This method is useful only for accessing
+     * elements of a static set (and has the desirable property of allowing access to the values in
+     * this set without having to create integer objects).
      */
     public int get (int index)
     {
         return _values[index];
     }
 
-    @Override
-    public boolean isEmpty ()
+    /**
+     * Serializes this int set into an array at the specified offset. The array must be large
+     * enough to hold all the integers in our set at the offset specified.
+     *
+     * @return the array passed in.
+     */
+    public int[] toIntArray (int[] target, int offset)
     {
-        return _size == 0;
+        System.arraycopy(_values, 0, target, offset, _size);
+        return target;
     }
 
-    @Override
-    public boolean contains (Object o)
+    /**
+     * Creates an array of shorts from the contents of this set. Any values outside the range of a
+     * short will be truncated by way of a cast.
+     */
+    public short[] toShortArray ()
     {
-        return contains(((Integer)o).intValue());
+        short[] values = new short[_size];
+        for (int ii = 0; ii < _size; ii++) {
+            values[ii] = (short)_values[ii];
+        }
+        return values;
     }
 
-    // documentation inherited from interface
+    // from interface IntSet
     public boolean contains (int value)
     {
         return (binarySearch(value) >= 0);
     }
 
-    // documentation inherited from interface IntSet
+    // from interface IntSet
+    public boolean add (int value)
+    {
+        int index = binarySearch(value);
+        if (index >= 0) {
+            return false;
+        }
+
+        // convert the return value into the insertion point
+        index += 1;
+        index *= -1;
+
+        // expand the values array if necessary, leaving room for the newly added element
+        int valen = _values.length;
+        int[] source = _values;
+        if (valen == _size) {
+            _values = new int[Math.max(DEFAULT_CAPACITY, valen*2)];
+            System.arraycopy(source, 0, _values, 0, index);
+        }
+
+        // shift and insert
+        if (_size > index) {
+            System.arraycopy(source, index, _values, index+1, _size-index);
+        }
+        _values[index] = value;
+
+        // increment our size
+        _size += 1;
+
+        return true;
+    }
+
+    // from interface IntSet
+    public boolean remove (int value)
+    {
+        int index = binarySearch(value);
+        if (index >= 0) {
+            _size--;
+            if ((_values.length > DEFAULT_CAPACITY) && (_size < _values.length/8)) {
+                // if we're using less than 1/8 of our capacity, shrink by half
+                int[] newVals = new int[_values.length/2];
+                System.arraycopy(_values, 0, newVals, 0, index);
+                System.arraycopy(_values, index+1, newVals, index, _size-index);
+                _values = newVals;
+
+            } else {
+                // shift entries past the removed one downwards
+                System.arraycopy(_values, index+1, _values, index, _size-index);
+                _values[_size] = 0;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // from interface IntSet
     public Interator interator ()
     {
         return new Interator() {
@@ -146,19 +248,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         };
     }
 
-    @Override
-    public Iterator<Integer> iterator ()
-    {
-        return interator();
-    }
-
-    @Override
-    public Object[] toArray ()
-    {
-        return toArray(new Integer[_size]);
-    }
-
-    // documentation inherited from interface
+    // from interface IntSet
     public Integer[] toArray (Integer[] a)
     {
         for (int i = 0; i < _size; i++) {
@@ -167,7 +257,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return a;
     }
 
-    // documentation inherited from interface
+    // from interface IntSet
     public int[] toIntArray ()
     {
         int[] values = new int[_size];
@@ -175,140 +265,37 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return values;
     }
 
-    /**
-     * Serializes this int set into an array at the specified offset. The
-     * array must be large enough to hold all the integers in our set at
-     * the offset specified.
-     *
-     * @return the array passed in.
-     */
-    public int[] toIntArray (int[] target, int offset)
+    @Override // from AbstractSet<Integer>
+    public int size ()
     {
-        System.arraycopy(_values, 0, target, offset, _size);
-        return target;
+        return _size;
     }
 
-    /**
-     * Creates an array of shorts from the contents of this set. Any
-     * values outside the range of a short will be truncated by way of a
-     * cast.
-     */
-    public short[] toShortArray ()
+    @Override // from AbstractSet<Integer>
+    public boolean isEmpty ()
     {
-        short[] values = new short[_size];
-        for (int ii = 0; ii < _size; ii++) {
-            values[ii] = (short)_values[ii];
-        }
-        return values;
+        return _size == 0;
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
+    public boolean contains (Object o)
+    {
+        return contains(((Integer)o).intValue());
+    }
+
+    @Override // from AbstractSet<Integer>
     public boolean add (Integer o)
     {
         return add(o.intValue());
     }
 
-    // documentation inherited from interface
-    public boolean add (int value)
-    {
-        int index = binarySearch(value);
-        if (index >= 0) {
-            return false;
-        }
-
-        // convert the return value into the insertion point
-        index += 1;
-        index *= -1;
-
-        // expand the values array if necessary, leaving room for the
-        // newly added element
-        int valen = _values.length;
-        int[] source = _values;
-        if (valen == _size) {
-            _values = new int[Math.max(DEFAULT_CAPACITY, valen*2)];
-            System.arraycopy(source, 0, _values, 0, index);
-        }
-
-        // shift and insert
-        if (_size > index) {
-            System.arraycopy(source, index, _values, index+1, _size-index);
-        }
-        _values[index] = value;
-
-        // increment our size
-        _size += 1;
-
-        return true;
-    }
-
-    /**
-     * Add all of the values in the supplied array to the set.
-     *
-     * @param values elements to be added to this set.
-     *
-     * @return <tt>true</tt> if this set did not already contain all of
-     * the specified elements.
-     */
-    public boolean add (int[] values)
-    {
-        boolean modified = false;
-        int vlength = values.length;
-        for (int i = 0; i < vlength; i++) {
-            modified = (add(values[i]) || modified);
-        }
-        return modified;
-    }
-
-    @Override
+    @Override // from AbstractSet<Integer>
     public boolean remove (Object o)
     {
         return remove(((Integer)o).intValue());
     }
 
-    // documentation inherited from interface
-    public boolean remove (int value)
-    {
-        int index = binarySearch(value);
-        if (index >= 0) {
-            _size--;
-            if ((_values.length > DEFAULT_CAPACITY) &&
-                    (_size < _values.length/8)) {
-                // if we're using less than 1/8 of our capacity, shrink by half
-                int[] newVals = new int[_values.length/2];
-                System.arraycopy(_values, 0, newVals, 0, index);
-                System.arraycopy(_values, index+1, newVals, index, _size-index);
-                _values = newVals;
-
-            } else {
-                // shift entries past the removed one downwards
-                System.arraycopy(_values, index+1, _values, index, _size-index);
-                _values[_size] = 0;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Removes all values in the supplied array from the set. Any values
-     * that are in the array but not in the set are simply ignored.
-     *
-     * @param values elements to be removed from the set.
-     *
-     * @return <tt>true</tt> if this set contained any of the specified
-     * elements (which will have been removed).
-     */
-    public boolean remove (int[] values)
-    {
-        boolean modified = false;
-        int vcount = values.length;
-        for (int i = 0; i < vcount; i++) {
-            modified = (remove(values[i]) || modified);
-        }
-        return modified;
-    }
-
-    @Override
+    @Override // from AbstractSet<Integer>
     public boolean containsAll (Collection<?> c)
     {
         if (c instanceof Interable) {
@@ -325,7 +312,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
     public boolean addAll (Collection<? extends Integer> c)
     {
         if (c instanceof Interable) {
@@ -343,7 +330,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
     public boolean retainAll (Collection<?> c)
     {
         if (c instanceof IntSet) {
@@ -371,14 +358,26 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
+    public Iterator<Integer> iterator ()
+    {
+        return interator();
+    }
+
+    @Override // from AbstractSet<Integer>
+    public Object[] toArray ()
+    {
+        return toArray(new Integer[_size]);
+    }
+
+    @Override // from AbstractSet<Integer>
     public void clear ()
     {
         Arrays.fill(_values, 0);
         _size = 0;
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
     public boolean equals (Object o)
     {
         // use an optimized equality test for another ArrayIntSet
@@ -398,7 +397,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return super.equals(o);
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
     public int hashCode ()
     {
         int hashCode = 0;
@@ -408,7 +407,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return hashCode;
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
     public Object clone ()
     {
         try {
@@ -421,17 +420,16 @@ public class ArrayIntSet extends AbstractSet<Integer>
         }
     }
 
-    @Override
+    @Override // from AbstractSet<Integer>
     public String toString ()
     {
         return StringUtil.toString(iterator());
     }
 
     /**
-     * Performs a binary search on our values array, looking for the
-     * specified value. Swiped from <code>java.util.Arrays</code> because
-     * those wankers didn't provide a means by which to perform a binary
-     * search on a subset of an array.
+     * Performs a binary search on our values array, looking for the specified value. Swiped from
+     * <code>java.util.Arrays</code> because those wankers didn't provide a means by which to
+     * perform a binary search on a subset of an array.
      */
     protected int binarySearch (int key)
     {
@@ -454,6 +452,25 @@ public class ArrayIntSet extends AbstractSet<Integer>
 	return -(low + 1);  // key not found.
     }
 
+    /**
+     * Removes duplicates from our internal array. Only used by our constructors when initializing
+     * from a potentially duplicate-containing source array or collection.
+     */
+    protected void removeDuplicates ()
+    {
+        if (_size > 1) {
+            int last = _values[0];
+            for (int ii = 1; ii < _size; ) {
+                if (_values[ii] == last) { // shift everything down 1
+                    _size--;
+                    System.arraycopy(_values, ii + 1, _values, ii, _size - ii);
+                } else {
+                    last = _values[ii++];
+                }
+            }
+        }
+    }
+
     /** An array containing the values in this set. */
     protected int[] _values;
 
@@ -463,9 +480,6 @@ public class ArrayIntSet extends AbstractSet<Integer>
     /** The default initial capacity of this set. */
     protected static final int DEFAULT_CAPACITY = 16;
 
-    /** Change this if the fields or inheritance hierarchy ever changes
-     * (which is extremely unlikely). We override this because I'm tired
-     * of serialized crap not working depending on whether I compiled with
-     * jikes or javac. */
+    /** Change this if the fields or inheritance hierarchy ever changes (extremely unlikely). */
     private static final long serialVersionUID = 1;
 }

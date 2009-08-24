@@ -28,15 +28,17 @@ import java.util.Calendar;
 public class CalendarUtil
 {
     /**
-     * Set all the time components of the passed in calendar to zero.
+     * Set all the time components of the passed in calendar to zero. Returns the calendar for
+     * handy chaining.
      */
-    public static void zeroTime (Calendar cal)
+    public static Calendar zeroTime (Calendar cal)
     {
         cal.set(Calendar.HOUR, 0);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
+        return cal;
     }
 
     /**

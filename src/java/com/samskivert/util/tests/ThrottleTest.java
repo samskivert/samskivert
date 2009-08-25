@@ -30,6 +30,24 @@ import com.samskivert.util.Throttle;
  */
 public class ThrottleTest extends TestCase
 {
+    public static class TestThrottle extends Throttle
+    {
+        public TestThrottle (int maxOps, long period)
+        {
+            super(maxOps, period);
+        }
+
+        public String opsToString ()
+        {
+            String hist = String.valueOf(_ops[_lastOp]);
+            for (int ii = 1; ii < _ops.length; ++ii) {
+                long tn = _ops[(_lastOp + ii) % _ops.length];
+                hist += ", " + String.valueOf(tn);
+            }
+            return hist;
+        }
+    }
+
     public static Test suite ()
     {
         return new ThrottleTest();
@@ -56,10 +74,6 @@ public class ThrottleTest extends TestCase
         testUpdate(8);
     }
 
-    /**
-     * Calls the {@link VariableThrottle#updateOpLimit} function a few times, interspersed with
-     * calls to add operations. Prints the operations contained in the throttle after each change.
-     */
     protected void testUpdate (int opCount)
     {
         // set up a throttle for 5 ops per millisecond
@@ -83,26 +97,5 @@ public class ThrottleTest extends TestCase
         System.out.println("    " + throttle.opsToString());
         throttle.reinit(10, 1);
         System.out.println("    " + throttle.opsToString());
-    }
-
-    /**
-     * Constructs a string representation of all operation time stamps, starting from the oldest.
-     */
-    public static class TestThrottle extends Throttle
-    {
-        public TestThrottle (int maxOps, long period)
-        {
-            super(maxOps, period);
-        }
-
-        public String opsToString ()
-        {
-            String hist = String.valueOf(_ops[_lastOp]);
-            for (int ii = 1; ii < _ops.length; ++ii) {
-                long tn = _ops[(_lastOp + ii) % _ops.length];
-                hist += ", " + String.valueOf(tn);
-            }
-            return hist;
-        }
     }
 }

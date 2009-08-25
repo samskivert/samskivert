@@ -41,8 +41,7 @@ public interface SiteIdentifier
     /**
      * Returns the unique identifier for the site on which this request originated. That may be
      * divined by looking at the server name, or perhaps a request parameter, or part of the path
-     * info. The mechanism (or mechanisms) are up to the implementation. Note: the implementation
-     * must honor the {@link #SITE_ID_OVERRIDE_KEY} request attribute.
+     * info. The mechanism (or mechanisms) are up to the implementation.
      *
      * @param req the http servlet request the site for which we are trying to identify.
      *

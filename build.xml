@@ -98,7 +98,7 @@
         <exclude name="com/samskivert/util/**" unless="build.util"/>
         <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
         <exclude name="com/samskivert/xml/**" unless="build.xml"/>
-        <exclude name="com/samskivert/**/tests/**" unless="build.tests"/>
+        <exclude name="com/samskivert/**/tests/**"/>
       </packageset>
       <bottom>Copyright &#169; 2000-${year} ${copyright.holder}. All Rights Reserved.</bottom>
       <classpath refid="classpath"/>

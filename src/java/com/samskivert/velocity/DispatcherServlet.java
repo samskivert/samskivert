@@ -464,7 +464,7 @@ public class DispatcherServlet extends HttpServlet
     }
 
     /**
-     * Sets the content type of the response, defaulting to {@link #defaultContentType} if not
+     * Sets the content type of the response, defaulting to {@link #_defaultContentType} if not
      * overriden. Delegates to {@link #chooseCharacterEncoding(HttpServletRequest)} to select the
      * appropriate character encoding.
      */
@@ -522,7 +522,7 @@ public class DispatcherServlet extends HttpServlet
      * Merges the template with the context.
      *
      * @param template template object returned by the {@link #handleRequest} method.
-     * @param context context created by the {@link #createContext} method.
+     * @param context the context for this request.
      */
     protected void mergeTemplate (Template template, InvocationContext context)
         throws ResourceNotFoundException, ParseErrorException, MethodInvocationException,

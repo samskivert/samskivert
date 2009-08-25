@@ -159,7 +159,7 @@ public class IntIntMap
     /**
      * Returns true if this map contains a mapping for the specified key.
      *
-     * @Deprecated use {@link #containsKey}.
+     * @deprecated use {@link #containsKey}.
      */
     public boolean contains (int key)
     {

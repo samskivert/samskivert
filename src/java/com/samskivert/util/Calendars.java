@@ -178,7 +178,7 @@ public class Calendars
     }
 
     /**
-     * Returns a fluent wrapper around a calendar configured to Midnight on
+     * Returns a fluent wrapper around a calendar configured to zero milliseconds after midnight on
      * the specified day in the specified month and year.
      *
      * @param year a regular year value, like 1900

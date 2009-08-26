@@ -96,9 +96,9 @@ public class Calendars
             return this;
         }
 
-        /** Sets the year, month and day to the specified values and the time to zero millseconds
-         * after midnight on that date. This mirrors {@link Calendars#at} for when you need e.g. a
-         * custom timezone: <pre>Calendars.in(zone).at(2009, Calendar.JANUARY, 1)</pre> */
+        /** Sets the time to zero milliseconds after midnight on the specified year, month and
+         * day. This mirrors {@link Calendars#at} for when you need e.g. a custom timezone:
+         * <pre>Calendars.in(zone).at(2009, Calendar.JANUARY, 1)</pre> */
         public Builder at (int year, int month, int day) {
             _calendar.set(year, month, day);
             return zeroTime();

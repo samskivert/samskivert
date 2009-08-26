@@ -198,6 +198,17 @@ public class Calendars
     }
 
     /**
+     * Returns a fluent wrapper around a calendar configured to Midnight on specified day in the
+     * specified month and year.
+     */
+    public static Builder at (int year, int month, int day)
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+        return with(calendar).zeroTime();
+    }
+
+    /**
      * Returns a fluent wrapper around a calendar configured with the specified time.
      */
     public static Builder at (Date when)

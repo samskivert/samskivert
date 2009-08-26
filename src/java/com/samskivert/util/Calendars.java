@@ -181,9 +181,12 @@ public class Calendars
     }
 
     /**
-     * Returns a fluent wrapper around a calendar configured to Midnight on specified day in the
-     * specified month and year. Note: be sure to use {@link Calendar#JANUARY}, etc. for the month
-     * argument or be prepared rue your folly.
+     * Returns a fluent wrapper around a calendar configured to Midnight on
+     * the specified day in the specified month and year.
+     *
+     * @param year a regular year value, like 1900
+     * @param month a 0-based month value, like {@link Calendar#JANUARY}
+     * @param day a regular day of the month value, like 31
      */
     public static Builder at (int year, int month, int day)
     {

@@ -66,21 +66,10 @@ public class Calendars
             return add(Calendar.DATE, days);
         }
 
-        /** Sets the {@link Calendar#HOUR_OF_DAY} field to the specified value. This uses a 24-hour
-         * clock. Midnight is 0. */
-        public Builder setHour (int hour) {
-            return set(Calendar.HOUR_OF_DAY, hour);
-        }
-
         /** Adds the specified value to the {@link Calendar#HOUR_OF_DAY} field. Use negative values
          * to subtract. */
         public Builder addHours (int hours) {
             return add(Calendar.HOUR_OF_DAY, hours);
-        }
-
-        /** Sets the {@link Calendar#MINUTE} field to the specified value. */
-        public Builder setMinute (int minute) {
-            return set(Calendar.MINUTE, minute);
         }
 
         /** Adds the specified value to the {@link Calendar#MINUTE} field. Use negative values to
@@ -105,6 +94,14 @@ public class Calendars
         public Builder set (int field, int value) {
             _calendar.set(field, value);
             return this;
+        }
+
+        /** Sets the year, month and day to the specified values and the time to zero millseconds
+         * after midnight on that date. This mirrors {@link Calendars#at} for when you need e.g. a
+         * custom timezone: <pre>Calendars.in(zone).at(2009, Calendar.JANUARY, 1)</pre> */
+        public Builder at (int year, int month, int day) {
+            _calendar.set(year, month, day);
+            return zeroTime();
         }
 
         /** Zeros out the time fields of this calendar, preserving only the date. */

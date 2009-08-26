@@ -48,33 +48,16 @@ public class Calendars
     /** Provides fluent methods for operating on a {@link Calendar}. */
     public static class Builder
     {
-        /** Sets the {@link Calendar#YEAR} field to the specified value. */
-        public Builder setYear (int year) {
-            return set(Calendar.YEAR, year);
-        }
-
         /** Adds the specified value to the {@link Calendar#YEAR} field. Use negative values to
          * subtract. */
         public Builder addYears (int years) {
             return add(Calendar.YEAR, years);
         }
 
-        /** Sets the {@link Calendar#MONTH} field to the specified value. Use {@link
-         * Calendar#JANUARY} and friends or rue your foolishness. */
-        public Builder setMonth (int month) {
-            return set(Calendar.MONTH, month);
-        }
-
         /** Adds the specified value to the {@link Calendar#MONTH} field. Use negative values to
          * subtract. */
         public Builder addMonths (int months) {
             return add(Calendar.MONTH, months);
-        }
-
-        /** Sets the {@link Calendar#DATE} field to the specified value. The first day of the month
-         * has value 1. */
-        public Builder setDay (int day) {
-            return set(Calendar.DATE, day);
         }
 
         /** Adds the specified value to the {@link Calendar#DATE} field. Use negative values to
@@ -199,7 +182,8 @@ public class Calendars
 
     /**
      * Returns a fluent wrapper around a calendar configured to Midnight on specified day in the
-     * specified month and year.
+     * specified month and year. Note: be sure to use {@link Calendar#JANUARY}, etc. for the month
+     * argument or be prepared rue your folly.
      */
     public static Builder at (int year, int month, int day)
     {

@@ -20,10 +20,6 @@
 
 package com.samskivert.jdbc;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -52,24 +48,13 @@ public abstract class AutoCloseOperation<V>
     /**
      * Invokes {@link #cleanInvoke} and then closes any statements opened by that call.
      */
-    public final V invoke (final Connection conn, DatabaseLiaison liaison)
+    public final V invoke (Connection conn, DatabaseLiaison liaison)
         throws SQLException, PersistenceException
     {
-        // create a proxy to conn that collects any returned instances of Statement in stmts
-        final List<Statement> stmts = new ArrayList<Statement>(1);
-        Connection proxy = (Connection)Proxy.newProxyInstance(
-            Connection.class.getClassLoader(), PROXY_IFACES, new InvocationHandler() {
-            public Object invoke (Object proxy, Method method, Object[] args) throws Throwable {
-                Object result = method.invoke(conn, args);
-                if (result instanceof Statement) {
-                    stmts.add((Statement)result);
-                }
-                return result;
-            }
-        });
-
+        List<Statement> stmts = new ArrayList<Statement>(1);
+        conn = JDBCUtil.makeCollector(conn, stmts);
         try {
-            return cleanInvoke(proxy, liaison);
+            return cleanInvoke(conn, liaison);
         } finally {
             // if closing a statement throws an SQLException, we don't attempt to close the rest of
             // the statements -- an SQLException thrown on close is a problem with the underlying
@@ -80,6 +65,4 @@ public abstract class AutoCloseOperation<V>
             }
         }
     }
-
-    protected static Class<?>[] PROXY_IFACES = { Connection.class };
 }

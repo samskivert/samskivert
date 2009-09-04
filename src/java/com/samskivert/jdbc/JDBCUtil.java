@@ -21,8 +21,15 @@
 package com.samskivert.jdbc;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,6 +38,7 @@ import java.sql.Statement;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 
 import static com.samskivert.Log.log;
 
@@ -72,6 +80,27 @@ public class JDBCUtil
 	if (conn != null) {
 	    conn.close();
 	}
+    }
+
+    /**
+     * Wraps the given connection in a proxied instance that will add all statements returned by
+     * methods called on the proxy (such as {@link Collection#createStatement}) to the supplied
+     * list. Thus you can create the proxy, pass the proxy to code that creates and uses statements
+     * and then close any statements created by the code that operated on that Connection before
+     * returning it to a pool, for example.
+     */
+    public static Connection makeCollector (final Connection conn, final List<Statement> stmts)
+    {
+        return (Connection)Proxy.newProxyInstance(
+            Connection.class.getClassLoader(), PROXY_IFACES, new InvocationHandler() {
+            public Object invoke (Object proxy, Method method, Object[] args) throws Throwable {
+                Object result = method.invoke(conn, args);
+                if (result instanceof Statement) {
+                    stmts.add((Statement)result);
+                }
+                return result;
+            }
+        });
     }
 
     /**
@@ -621,4 +650,7 @@ public class JDBCUtil
         throw new SQLException("Table or Column not defined. [table=" + table +
                                ", col=" + column + "].");
     }
+
+    /** Used by {@link #makeCollectingConnection}. */
+    protected static Class<?>[] PROXY_IFACES = { Connection.class };
 }

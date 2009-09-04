@@ -25,11 +25,13 @@ import java.util.Calendar;
 /**
  * @deprecated Use {@link Calendars}.
  */
+@Deprecated
 public class CalendarUtil
 {
     /**
      * @deprecated Use {@link Calendars}.
      */
+    @Deprecated
     public static Calendar zeroTime (Calendar cal)
     {
         cal.set(Calendar.HOUR, 0);
@@ -43,6 +45,7 @@ public class CalendarUtil
     /**
      * @deprecated Just use {@link Math#abs}. Duh.
      */
+    @Deprecated
     public static long getTimeBetween (long start, long end)
     {
         return Math.abs(start - end);
@@ -51,6 +54,7 @@ public class CalendarUtil
     /**
      * @deprecated Use {@link Calendars#getDaysBetween}.
      */
+    @Deprecated
     public static int getDaysBetween (Calendar d1, Calendar d2)
     {
         return Calendars.getDaysBetween(d1, d2);
@@ -59,6 +63,7 @@ public class CalendarUtil
     /**
      * @deprecated Use {@link Calendars#getMonthsBetween}.
      */
+    @Deprecated
     public static int getMonthsBetween (Calendar start, Calendar end)
     {
         return Calendars.getMonthsBetween(start, end);

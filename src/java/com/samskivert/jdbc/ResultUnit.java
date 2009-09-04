@@ -18,8 +18,8 @@ public abstract class ResultUnit<T> extends RepositoryUnit
         throws Exception;
 
     /**
-     * Operates on the result from <code>getResult</code> back on the main thread, if
-     * <code>getResult</code> succeeded.
+     * Operates on the result from <code>computeResult</code> back on the main thread, if
+     * <code>computeResult</code> succeeded.
      */
     public abstract void handleResult (T result);
 
@@ -33,7 +33,7 @@ public abstract class ResultUnit<T> extends RepositoryUnit
     public void invokePersist ()
         throws Exception
     {
-        _result = getResult();
+        _result = computeResult();
     }
 
     protected T _result;

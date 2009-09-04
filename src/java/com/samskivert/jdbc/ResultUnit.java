@@ -14,7 +14,7 @@ public abstract class ResultUnit<T> extends RepositoryUnit
     /**
      * Performs actions on the database and returns exciting data.
      */
-    public abstract T getResult ()
+    public abstract T computeResult ()
         throws Exception;
 
     /**

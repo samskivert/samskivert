@@ -160,6 +160,14 @@ public class Calendars
     }
 
     /**
+     * Returns a fluent wrapper around a clone of the supplied calendar.
+     */
+    public static Builder withCopy (Calendar calendar)
+    {
+        return new Builder((Calendar)calendar.clone());
+    }
+
+    /**
      * Returns a fluent wrapper around a calendar obtained with {@link Calendar#getInstance}.
      */
     public static Builder now ()

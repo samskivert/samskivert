@@ -161,6 +161,7 @@ public class IntIntMap
      *
      * @deprecated use {@link #containsKey}.
      */
+    @Deprecated
     public boolean contains (int key)
     {
         return (null != locateRecord(key));

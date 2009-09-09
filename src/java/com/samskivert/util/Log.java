@@ -80,7 +80,7 @@ public final class Log
      */
     public void debug (String message)
     {
-	_provider.log(DEBUG, _moduleName, message);
+        _provider.log(DEBUG, _moduleName, message);
     }
 
     /**
@@ -89,7 +89,7 @@ public final class Log
      */
     public void info (String message)
     {
-	_provider.log(INFO, _moduleName, message);
+        _provider.log(INFO, _moduleName, message);
     }
 
     /**
@@ -98,7 +98,7 @@ public final class Log
      */
     public void warning (String message)
     {
-	_provider.log(WARNING, _moduleName, message);
+        _provider.log(WARNING, _moduleName, message);
     }
 
     /**
@@ -108,7 +108,7 @@ public final class Log
      */
     public void logStackTrace (int level, Throwable t)
     {
-	_provider.logStackTrace(level, _moduleName, t);
+        _provider.logStackTrace(level, _moduleName, t);
     }
 
     /**
@@ -126,7 +126,7 @@ public final class Log
      */
     public static void setLevel (String moduleName, int level)
     {
-	_provider.setLevel(moduleName, level);
+        _provider.setLevel(moduleName, level);
     }
 
     /**
@@ -134,7 +134,7 @@ public final class Log
      */
     public static void setLevel (int level)
     {
-	_provider.setLevel(level);
+        _provider.setLevel(level);
     }
 
     /**
@@ -142,7 +142,7 @@ public final class Log
      */
     public static int getLevel (String moduleName)
     {
-	return _provider.getLevel(moduleName);
+        return _provider.getLevel(moduleName);
     }
 
     /**
@@ -150,7 +150,7 @@ public final class Log
      */
     public static int getLevel ()
     {
-	return _provider.getLevel();
+        return _provider.getLevel();
     }
 
     /**
@@ -167,7 +167,7 @@ public final class Log
      */
     public static void setLogProvider (LogProvider provider)
     {
-	_provider = provider;
+        _provider = provider;
     }
 
     /**

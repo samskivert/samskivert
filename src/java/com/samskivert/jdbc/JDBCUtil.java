@@ -21,7 +21,6 @@
 package com.samskivert.jdbc;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +37,6 @@ import java.sql.Statement;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
-import com.samskivert.util.Tuple;
-
 import static com.samskivert.Log.log;
 
 /**

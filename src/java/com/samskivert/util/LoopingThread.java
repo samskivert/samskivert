@@ -67,6 +67,7 @@ public class LoopingThread extends Thread
     public void run ()
     {
         try {
+            _running = true;
             willStart();
 
             while (isRunning()) {
@@ -148,5 +149,5 @@ public class LoopingThread extends Thread
     {
     }
 
-    protected volatile boolean _running = true;
+    protected volatile boolean _running;
 }

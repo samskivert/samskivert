@@ -67,7 +67,7 @@ public class Triple<A,B,C> implements Serializable
     @Override // from Object
     public boolean equals (Object other)
     {
-        if (!(other instanceof Triple)) {
+        if (!(other instanceof Triple<?, ?, ?>)) {
             return false;
         }
         Triple<?, ?, ?> to = (Triple<?, ?, ?>)other;

@@ -66,7 +66,7 @@ public class MapEntry<K,V> implements Map.Entry<K,V>
     @Override // from Object
     public boolean equals (Object o)
     {
-        if (!(o instanceof Map.Entry)) {
+        if (!(o instanceof Map.Entry<?, ?>)) {
             return false;
         }
         Map.Entry<?, ?> e = (Map.Entry<?, ?>)o;

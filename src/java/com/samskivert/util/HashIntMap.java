@@ -556,7 +556,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
 
         @Override public boolean equals (Object o)
         {
-            if (!(o instanceof IntEntry)) {
+            if (!(o instanceof IntEntry<?>)) {
                 return false;
             }
             IntEntry<?> that = (IntEntry<?>)o;

@@ -176,7 +176,7 @@ public class CountHashMap<K> extends HashMap<K, int[]>
         }
 
         @Override public boolean equals (Object o) {
-            if (!(o instanceof CountEntryImpl)) {
+            if (!(o instanceof CountEntryImpl<?>)) {
                 return false;
             }
             @SuppressWarnings("unchecked") CountEntryImpl<K> other = (CountEntryImpl<K>)o;

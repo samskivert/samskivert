@@ -64,7 +64,7 @@ public class Tuple<L,R> implements Serializable
     @Override // from Object
     public boolean equals (Object other)
     {
-        if (!(other instanceof Tuple)) {
+        if (!(other instanceof Tuple<?, ?>)) {
             return false;
         }
         Tuple<?, ?> to = (Tuple<?, ?>)other;

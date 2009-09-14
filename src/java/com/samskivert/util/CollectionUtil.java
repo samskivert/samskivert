@@ -81,7 +81,7 @@ public class CollectionUtil
     {
         int size = col.size();
         if (size > limit) {
-            if (col instanceof List) {
+            if (col instanceof List<?>) {
                 ((List<?>) col).subList(limit, size).clear();
 
             } else {

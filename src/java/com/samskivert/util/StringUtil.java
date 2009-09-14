@@ -501,10 +501,10 @@ public class StringUtil
             }
             buf.append(closeBox);
 
-        } else if (val instanceof Iterable) {
+        } else if (val instanceof Iterable<?>) {
             toString(buf, ((Iterable<?>)val).iterator(), openBox, closeBox);
 
-        } else if (val instanceof Iterator) {
+        } else if (val instanceof Iterator<?>) {
             buf.append(openBox);
             Iterator<?> iter = (Iterator<?>)val;
             for (int i = 0; iter.hasNext(); i++) {
@@ -515,7 +515,7 @@ public class StringUtil
             }
             buf.append(closeBox);
 
-        } else if (val instanceof Enumeration) {
+        } else if (val instanceof Enumeration<?>) {
             buf.append(openBox);
             Enumeration<?> enm = (Enumeration<?>)val;
             for (int i = 0; enm.hasMoreElements(); i++) {
@@ -571,7 +571,7 @@ public class StringUtil
     public static void listToString (StringBuilder buf, Object val, Formatter formatter)
     {
         // get an iterator if this is a collection
-        if (val instanceof Iterable) {
+        if (val instanceof Iterable<?>) {
             val = ((Iterable<?>)val).iterator();
         }
 
@@ -589,7 +589,7 @@ public class StringUtil
             }
             buf.append(closeBox);
 
-        } else if (val instanceof Iterator) {
+        } else if (val instanceof Iterator<?>) {
             buf.append(openBox);
             Iterator<?> iter = (Iterator<?>)val;
             for (int i = 0; iter.hasNext(); i++) {
@@ -600,7 +600,7 @@ public class StringUtil
             }
             buf.append(closeBox);
 
-        } else if (val instanceof Enumeration) {
+        } else if (val instanceof Enumeration<?>) {
             buf.append(openBox);
             Enumeration<?> enm = (Enumeration<?>)val;
             for (int i = 0; enm.hasMoreElements(); i++) {

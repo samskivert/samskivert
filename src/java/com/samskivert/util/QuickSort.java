@@ -97,11 +97,11 @@ public class QuickSort
         for (;;) {
             // find the first element that is greater than or equal to the partition element
             // starting from the left index
-            while (comp.compare(a[++lo], mid) < 0);
+            while (comp.compare(a[++lo], mid) < 0) { /* loop! */ }
 
             // find an element that is smaller than or equal to the partition element starting from
             // the right index
-            while (comp.compare(mid, a[--hi]) < 0);
+            while (comp.compare(mid, a[--hi]) < 0) { /* loop! */ }
 
             // swap the two elements or bail out of the loop
             if (hi > lo) {
@@ -161,11 +161,11 @@ public class QuickSort
         for (;;) {
             // find the first element that is greater than or equal to the partition element
             // starting from the left index
-            while (comp.compare(mid, a[++lo]) < 0);
+            while (comp.compare(mid, a[++lo]) < 0) { /* loop! */ }
 
             // find an element that is smaller than or equal to the partition element starting from
             // the right index
-            while (comp.compare(a[--hi], mid) < 0);
+            while (comp.compare(a[--hi], mid) < 0) { /* loop! */ }
 
             // swap the two elements or bail out of the loop
             if (hi > lo) {
@@ -224,11 +224,11 @@ public class QuickSort
         for (;;) {
             // find the first element that is greater than or equal to the partition element
             // starting from the left Index.
-            while (mid.compareTo(a[++lo]) > 0);
+            while (mid.compareTo(a[++lo]) > 0) { /* loop! */ }
 
             // find an element that is smaller than or equal to the partition element starting from
             // the right Index.
-            while (mid.compareTo(a[--hi]) < 0);
+            while (mid.compareTo(a[--hi]) < 0) { /* loop! */ }
 
             // swap the two elements or bail out of the loop
             if (hi > lo) {
@@ -287,11 +287,11 @@ public class QuickSort
         for (;;) {
             // find the first element that is greater than or equal to the partition element
             // starting from the left index
-            while (mid.compareTo(a[++lo]) < 0);
+            while (mid.compareTo(a[++lo]) < 0) { /* loop! */ }
 
             // find an element that is smaller than or equal to the partition element starting from
             // the right index
-            while (mid.compareTo(a[--hi]) > 0);
+            while (mid.compareTo(a[--hi]) > 0) { /* loop! */ }
 
             // swap the two elements or bail out of the loop
             if (hi > lo) {

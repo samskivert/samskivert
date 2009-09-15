@@ -343,8 +343,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             // if we're not pointing to an entry, search for the next
             // non-empty hash chain
             if (_record == null) {
-                while ((_index-- > 0) &&
-                       ((_record = _buckets[_index]) == null));
+                while ((_index-- > 0) && ((_record = _buckets[_index]) == null)) { /* loop! */ }
             }
 
             // keep track of the last thing we returned

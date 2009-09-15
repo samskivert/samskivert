@@ -53,7 +53,7 @@ public class JDBCUtil
          */
         public void process (ResultSet row)
             throws SQLException;
-    };
+    }
 
     /**
      * Closes the supplied JDBC statement and gracefully handles being passed null (by doing

@@ -34,20 +34,18 @@ public class RadialMenuItem extends RadialLabelSausage
     /** The command to issue if this item is selected. */
     public String command;
 
-    /** A special argument to be used when this menu item is selected,
-     * rather than the argument provided to the radial menu when it was
-     * activated. */
+    /** A special argument to be used when this menu item is selected, rather than the argument
+     * provided to the radial menu when it was activated. */
     public Object argument;
 
-    /** Used to determine whether or not this menu item should be included
-     * in a menu and whether or not it should be enabled. If no predicate
-     * is available, a menu item is assumed always to be included and
-     * enabled. */
+    /** Used to determine whether or not this menu item should be included in a menu and whether or
+     * not it should be enabled. If no predicate is available, a menu item is assumed always to be
+     * included and enabled. */
     public RadialMenu.Predicate predicate;
 
     /**
-     * Constructs a radial menu item with the specified command and label.
-     * No icon or menu predicate will be used.
+     * Constructs a radial menu item with the specified command and label.  No icon or menu
+     * predicate will be used.
      */
     public RadialMenuItem (String command, String label)
     {
@@ -55,8 +53,8 @@ public class RadialMenuItem extends RadialLabelSausage
     }
 
     /**
-     * Constructs a radial menu item with the specified command, label and
-     * icon. No menu predicate will be used.
+     * Constructs a radial menu item with the specified command, label and icon. No menu predicate
+     * will be used.
      */
     public RadialMenuItem (String command, String label, Icon icon)
     {
@@ -64,8 +62,7 @@ public class RadialMenuItem extends RadialLabelSausage
     }
 
     /**
-     * Constructs a radial menu item with the specified command, label and
-     * icon.
+     * Constructs a radial menu item with the specified command, label and icon.
      */
     public RadialMenuItem (String command, String label, Icon icon,
                            RadialMenu.Predicate predicate)
@@ -79,9 +76,8 @@ public class RadialMenuItem extends RadialLabelSausage
     }
 
     /**
-     * Returns true if this menu item should be included in a menu when it
-     * is displayed. Calls through to the {@link RadialMenu.Predicate} if
-     * we have one.
+     * Returns true if this menu item should be included in a menu when it is displayed. Calls
+     * through to the {@link RadialMenu.Predicate} if we have one.
      */
     public boolean isIncluded (RadialMenu menu)
     {
@@ -89,9 +85,16 @@ public class RadialMenuItem extends RadialLabelSausage
     }
 
     /**
-     * Returns true if this menu item should be enabled when it is
-     * displayed. Calls through to the {@link RadialMenu.Predicate} if we
-     * have one.
+     * Renders this menu item at the specified location.
+     */
+    public void render (Component host, RadialMenu menu, Graphics2D gfx, int x, int y)
+    {
+        paint(gfx, x, y, menu);
+    }
+
+    /**
+     * Returns true if this menu item should be enabled when it is displayed. Calls through to the
+     * {@link RadialMenu.Predicate} if we have one.
      */
     @Override
     public boolean isEnabled (RadialMenu menu)
@@ -100,9 +103,8 @@ public class RadialMenuItem extends RadialLabelSausage
     }
 
     /**
-     * Menu items are equal if their commands are equal. We also
-     * declare ourselves to be equal to a string with the same value
-     * as our command.
+     * Menu items are equal if their commands are equal. We also declare ourselves to be equal to a
+     * string with the same value as our command.
      */
     @Override
     public boolean equals (Object other)
@@ -116,12 +118,10 @@ public class RadialMenuItem extends RadialLabelSausage
         }
     }
 
-    /**
-     * Renders this menu item at the specified location.
-     */
-    public void render (Component host, RadialMenu menu, Graphics2D gfx, int x, int y)
+    @Override
+    public int hashCode ()
     {
-        paint(gfx, x, y, menu);
+        return command.hashCode();
     }
 
     @Override

@@ -60,7 +60,7 @@ public interface ResultListener<T>
         }
         public void requestFailed (Exception cause) {
         }
-    };
+    }
 
     /**
      * Called to communicate that the request succeeded and that the

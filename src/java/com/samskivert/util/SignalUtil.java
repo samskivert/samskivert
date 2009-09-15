@@ -75,7 +75,7 @@ public class SignalUtil
         }
 
         protected int _signo;
-    };
+    }
 
     public static interface Handler {
         public void signalReceived (Number number);

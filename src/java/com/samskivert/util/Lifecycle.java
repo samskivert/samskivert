@@ -52,7 +52,7 @@ public class Lifecycle
     }
 
     /** Constraints for use with {@link #addInitConstraint} and {@link #addShutdownConstraint}. */
-    public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };
+    public static enum Constraint { RUNS_BEFORE, RUNS_AFTER }
 
     /**
      * Registers a component with the lifecycle. This should be done during dependency resolution

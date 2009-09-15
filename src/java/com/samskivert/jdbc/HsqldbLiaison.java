@@ -155,7 +155,7 @@ public class HsqldbLiaison extends BaseLiaison
             } else {
                 newDefinitions[ii] = def;
             }
-        };
+        }
 
         // now call the real implementation with our modified data
         return super.createTableIfMissing(

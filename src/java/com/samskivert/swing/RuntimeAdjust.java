@@ -506,6 +506,12 @@ public class RuntimeAdjust
             return _name.equals(((Adjust)other)._name);
         }
 
+        @Override public int hashCode ()
+        {
+            return _name.hashCode();
+        }
+
+        // from Comparable<Adjust>
         public int compareTo (Adjust other)
         {
             return _name.compareTo(other._name);

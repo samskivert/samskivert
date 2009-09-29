@@ -39,6 +39,20 @@ import static com.samskivert.Log.log;
 public class FileUtil
 {
     /**
+     * Creates a file from the supplied root using the specified child components. For example:
+     * <code>fromPath(new File("dir"), "subdir", "anotherdir", "file.txt")</code> creates a file
+     * with the Unix path <code>dir/subdir/anotherdir/file.txt</code>.
+     */
+    public static File newFile (File root, String... parts)
+    {
+        File path = root;
+        for (String part : parts) {
+            path = new File(path, part);
+        }
+        return path;
+    }
+
+    /**
      * Recursively delete the specified directory and all files and
      * directories underneath it.
      */

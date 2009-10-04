@@ -123,23 +123,19 @@ public abstract class Interval
     /**
      * Schedules this interval to execute once at <code>when</code>. Supersedes any previous
      * schedule that this Interval may have had.
-     *
-     * @return this for convenient method chaining.
      */
-    public final Interval schedule (Date when)
+    public final void schedule (Date when)
     {
-        return schedule(when.getTime() - System.currentTimeMillis());
+        schedule(when.getTime() - System.currentTimeMillis());
     }
 
     /**
      * Schedule the interval to execute once, after the specified delay.  Supersedes any previous
      * schedule that this Interval may have had.
-     *
-     * @return this for convenient method chaining.
      */
-    public final Interval schedule (long delay)
+    public final void schedule (long delay)
     {
-        return schedule(delay, 0L);
+        schedule(delay, 0L);
     }
 
     /**
@@ -149,12 +145,10 @@ public abstract class Interval
      * <p> Note: if a repeating interval is scheduled to post itself to a RunQueue and the target
      * RunQueue is shutdown when the interval expires, the interval will cancel itself and log a
      * warning message. </p>
-     *
-     * @return this for convenient method chaining.
      */
-    public final Interval schedule (long delay, boolean repeat)
+    public final void schedule (long delay, boolean repeat)
     {
-        return schedule(delay, repeat ? delay : 0L);
+        schedule(delay, repeat ? delay : 0L);
     }
 
     /**
@@ -165,12 +159,10 @@ public abstract class Interval
      * <p> Note: if a repeating interval is scheduled to post itself to a RunQueue and the target
      * RunQueue is shutdown when the interval expires, the interval will cancel itself and log a
      * warning message. </p>
-     *
-     * @return this for convenient method chaining.
      */
-    public final Interval schedule (long initialDelay, long repeatDelay)
+    public final void schedule (long initialDelay, long repeatDelay)
     {
-        return schedule(initialDelay, repeatDelay, true);
+        schedule(initialDelay, repeatDelay, true);
     }
 
     /**
@@ -187,13 +179,11 @@ public abstract class Interval
      * {@link Timer#schedule(TimerTask, long, long)} which ensures that there will be close to
      * <code>repeateDelay</code> milliseconds between expirations.
      *
-     * @return this for convenient method chaining.
-     *
      * @exception IllegalArgumentException if fixedRate is false and a RunQueue has been specified.
      * That doesn't make sense because the fixed delay cannot account for the time that the
      * RunBuddy sits on the RunQueue waiting to call expire().
      */
-    public final Interval schedule (long initialDelay, long repeatDelay, boolean fixedRate)
+    public final void schedule (long initialDelay, long repeatDelay, boolean fixedRate)
     {
         cancel();
         IntervalTask task = new IntervalTask(this);
@@ -212,8 +202,6 @@ public abstract class Interval
             _timer = createTimer();
             scheduleTask(initialDelay, repeatDelay, fixedRate);
         }
-
-        return this;
     }
 
     /**

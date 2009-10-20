@@ -81,7 +81,7 @@ public class JDBCUtil
 
     /**
      * Wraps the given connection in a proxied instance that will add all statements returned by
-     * methods called on the proxy (such as {@link Collection#createStatement}) to the supplied
+     * methods called on the proxy (such as {@link Connection#createStatement}) to the supplied
      * list. Thus you can create the proxy, pass the proxy to code that creates and uses statements
      * and then close any statements created by the code that operated on that Connection before
      * returning it to a pool, for example.

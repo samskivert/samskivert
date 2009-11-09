@@ -255,31 +255,49 @@ public class StringUtil
      */
     public static String pad (String value, int width)
     {
-        // sanity check
-        if (width <= 0) {
-            throw new IllegalArgumentException("Pad width must be greater than zero.");
-        } else if (value.length() >= width) {
-            return value;
-        } else {
-            return value + spaces(width-value.length());
-        }
+        return pad(value, width, ' ');
     }
 
     /**
-     * Pads the supplied string to the requested string width by prepending spaces to the end of
-     * the returned string. If the original string is wider than the requested width, it is
-     * returned unmodified.
+     * Pads the supplied string to the requested string width by appending the specified character
+     * to the end of the returned string.
+     * If the original string is wider than the requested width, it is returned unmodified.
      */
-    public static String prepad (String value, int width)
+    public static String pad (String value, int width, char c)
     {
         // sanity check
         if (width <= 0) {
             throw new IllegalArgumentException("Pad width must be greater than zero.");
-        } else if (value.length() >= width) {
-            return value;
-        } else {
-            return spaces(width-value.length()) + value;
         }
+        int l = value.length();
+        return (l >= width) ? value
+                            : value + fill(c, width - l);
+    }
+
+    /**
+     * Pads the supplied string to the requested string width by prepending spaces to the beginning
+     * of the string. If the original string is wider than the requested width, it is
+     * returned unmodified.
+     */
+    public static String prepad (String value, int width)
+    {
+        return prepad(value, width, ' ');
+    }
+
+    /**
+     * Pads the supplied string to the requested string width by prepending the specified character
+     * to the beginning of the string.
+     * If the original string is wider than the requested width, it is returned unmodified.
+     */
+    public static String prepad (String value, int width, char c)
+    {
+        // sanity check
+        if (width <= 0) {
+            throw new IllegalArgumentException("Pad width must be greater than zero.");
+        }
+        int l = value.length();
+        return (l >= width) ? value
+                            : fill(c, width - l) + value;
     }
 
     /**
@@ -313,6 +331,25 @@ public class StringUtil
             // fall through
         }
         return false;
+    }
+
+    /**
+     * Format the specified int as a String color value, like "0x000000".
+     */
+    public static String toColorString (int c)
+    {
+        return toColorString(c, "0x");
+    }
+
+    /**
+     * Format the specified int as a String color value.
+     *
+     * @param c the int value to format.
+     * @param prefix something like "0x" or "#", or just "".
+     */
+    public static String toColorString (int c, String prefix)
+    {
+        return prefix + prepad(Integer.toHexString(c), 6, '0');
     }
 
     /**

@@ -334,22 +334,12 @@ public class StringUtil
     }
 
     /**
-     * Format the specified int as a String color value, like "0x000000".
+     * Format the specified int as a String color value, like "000000". You might want
+     * to add a prefix like "#" or "0x", depending on your usage.
      */
     public static String toColorString (int c)
     {
-        return toColorString(c, "0x");
-    }
-
-    /**
-     * Format the specified int as a String color value.
-     *
-     * @param c the int value to format.
-     * @param prefix something like "0x" or "#", or just "".
-     */
-    public static String toColorString (int c, String prefix)
-    {
-        return prefix + prepad(Integer.toHexString(c), 6, '0');
+        return prepad(Integer.toHexString(c), 6, '0');
     }
 
     /**

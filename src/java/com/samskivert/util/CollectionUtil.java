@@ -37,7 +37,7 @@ public class CollectionUtil
      * Adds all items returned by the enumeration to the supplied collection
      * and returns the supplied collection.
      */
-    public static <T> Collection<T> addAll (Collection<T> col, Enumeration<? extends T> enm)
+    public static <T, C extends Collection<T>> C addAll (C col, Enumeration<? extends T> enm)
     {
         while (enm.hasMoreElements()) {
             col.add(enm.nextElement());
@@ -49,7 +49,7 @@ public class CollectionUtil
      * Adds all items returned by the iterator to the supplied collection and
      * returns the supplied collection.
      */
-    public static <T> Collection<T> addAll (Collection<T> col, Iterator<? extends T> iter)
+    public static <T, C extends Collection<T>> C addAll (C col, Iterator<? extends T> iter)
     {
         while (iter.hasNext()) {
             col.add(iter.next());
@@ -62,7 +62,7 @@ public class CollectionUtil
      * returns the supplied collection. If the supplied array is null, nothing
      * is added to the collection.
      */
-    public static <T, E extends T> Collection<T> addAll (Collection<T> col, E[] values)
+    public static <T, E extends T, C extends Collection<T>> C addAll (C col, E[] values)
     {
         if (values != null) {
             for (E value : values) {

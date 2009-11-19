@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.lang.reflect.Array;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -146,6 +148,17 @@ public class CollectionUtil
         }
 
         return subset;
+    }
+
+    /**
+     * Returns an Array, of the type specified by the runtime-type token <code>type</code>,
+     * containing the elements of the collection.
+     */
+    public static <T> T[] toArray (Collection<? extends T> col, Class<T> type)
+    {
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) Array.newInstance(type, col.size());
+        return col.toArray(array);
     }
 
     /**

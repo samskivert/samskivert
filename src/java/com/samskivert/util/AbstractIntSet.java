@@ -99,10 +99,7 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     @Override // from AbstractSet<Integer>
     public boolean add (Integer i)
     {
-        if (i == null) {
-            throw new NullPointerException();
-        }
-        return add(i.intValue());
+        return add(i.intValue()); // will NPE
     }
 
     @Override // from AbstractSet<Integer>

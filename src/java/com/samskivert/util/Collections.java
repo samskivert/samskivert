@@ -378,11 +378,11 @@ public class Collections
         }
 
 	@Override
-    public boolean equals(Object o) {
+        public boolean equals(Object o) {
 	    synchronized(mutex) {return c.equals(o);}
         }
 	@Override
-    public int hashCode() {
+        public int hashCode() {
 	    synchronized(mutex) {return c.hashCode();}
         }
     }

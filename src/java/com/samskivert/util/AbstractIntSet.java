@@ -21,34 +21,59 @@
 package com.samskivert.util;
 
 import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * A base class for {@link IntSet} implementations.
+ * A base class for {@link IntSet} implementations.<p>
+ *
+ * All you really need to do is implement <tt>interable</tt> and <tt>size</tt>,
+ * although for performance reasons you'll probably want to override <tt>contains</tt>.<p>
+ *
+ * To implement a modifiable IntSet, the programmer must additionally override this class's
+ * <tt>add</tt> and <tt>remove</tt> methods, which will otherwise throw an
+ * <tt>UnsupportedOperationException</tt>.<p>
  */
 public abstract class AbstractIntSet extends AbstractSet<Integer>
     implements IntSet
 {
-    @Override // from AbstractSet
-    public Iterator<Integer> iterator ()
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation iterates over the ints in the collection, checking each one in turn
+     * to see if it's the specified value.
+     */
+    // from IntSet
+    public boolean contains (int value)
     {
-        return interator();
+        // abstract implementation. You should override.
+        for (Interator it = interator(); it.hasNext(); ) {
+            if (it.nextInt() == value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // from IntSet
-    public boolean add (int t)
+    public boolean add (int value)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    // from IntSet
+    public boolean remove (int value)
     {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Creates an iterator that provides access to our int values without unboxing.
+     * {@inheritDoc}
+     *
+     * <p>This implementation returns an array containing all the elements returned by the
+     * interator.
      */
-    public abstract Interator interator ();
-
-    /**
-     * Converts the contents of this set to an int array.
-     */
+    // from IntSet
     public int[] toIntArray ()
     {
         int[] vals = new int[size()];
@@ -57,5 +82,131 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
             vals[ii++] = intr.nextInt();
         }
         return vals;
+    }
+
+    @Override // from AbstractSet<Integer>
+    public Iterator<Integer> iterator ()
+    {
+        return interator();
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean contains (Object o)
+    {
+        return (o instanceof Integer) && contains(((Integer)o).intValue());
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean add (Integer i)
+    {
+        if (i == null) {
+            throw new NullPointerException();
+        }
+        return add(i.intValue());
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean remove (Object o)
+    {
+        return (o instanceof Integer) && remove(((Integer)o).intValue());
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean equals (Object o)
+    {
+        if (o == this) {
+            return true;
+        }
+
+        if (o instanceof IntSet) {
+            IntSet that = (IntSet)o;
+            return (this.size() == that.size()) && this.containsAll(that);
+        }
+        return super.equals(o);
+    }
+
+    @Override // from AbstractSet<Integer>
+    public int hashCode ()
+    {
+        int h = 0;
+        for (Interator it = interator(); it.hasNext(); ) {
+            h += it.nextInt();
+        }
+        return h;
+    }
+
+    @Override // from AbstractSet<Integer>
+    public String toString ()
+    {
+        StringBuilder sb = new StringBuilder("[");
+        Interator it = interator();
+        if (it.hasNext()) {
+            sb.append(it.nextInt());
+            while (it.hasNext()) {
+                sb.append(", ").append(it.nextInt());
+            }
+        }
+        return sb.append(']').toString();
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean containsAll (Collection<?> c)
+    {
+        if (c instanceof Interable) {
+            for (Interator it = ((Interable) c).interator(); it.hasNext(); ) {
+                if (!contains(it.nextInt())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return super.containsAll(c);
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean addAll (Collection<? extends Integer> c)
+    {
+        if (c instanceof Interable) {
+            boolean modified = false;
+            for (Interator it = ((Interable) c).interator(); it.hasNext(); ) {
+                if (add(it.nextInt())) {
+                    modified = true;
+                }
+            }
+            return modified;
+        }
+        return super.addAll(c);
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean removeAll (Collection<?> c)
+    {
+        if (c instanceof Interable) {
+            boolean modified = false;
+            for (Interator it = ((Interable)c).interator(); it.hasNext(); ) {
+                if (remove(it.nextInt())) {
+                    modified = true;
+                }
+            }
+            return modified;
+        }
+        return super.removeAll(c);
+    }
+
+    @Override // from AbstractSet<Integer>
+    public boolean retainAll (Collection<?> c)
+    {
+        if (c instanceof IntSet) {
+            IntSet that = (IntSet)c;
+            boolean modified = false;
+            for (Interator it = interator(); it.hasNext(); ) {
+                if (!that.contains(it.nextInt())) {
+                    it.remove();
+                    modified = true;
+                }
+            }
+            return modified;
+        }
+        return super.retainAll(c);
     }
 }

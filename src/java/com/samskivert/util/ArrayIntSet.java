@@ -32,8 +32,8 @@ import java.util.NoSuchElementException;
  * Provides an {@link IntSet} implementation using a sorted array of integers to maintain the
  * contents of the set.
  */
-public class ArrayIntSet extends AbstractSet<Integer>
-    implements IntSet, Cloneable, Serializable
+public class ArrayIntSet extends AbstractIntSet
+    implements Cloneable, Serializable
 {
     /**
      * Construct an ArrayIntSet with the specified starting values.
@@ -124,6 +124,9 @@ public class ArrayIntSet extends AbstractSet<Integer>
      */
     public int get (int index)
     {
+        if (index >= _size) {
+            throw new IndexOutOfBoundsException("" + index + " >= " + _size);
+        }
         return _values[index];
     }
 
@@ -152,13 +155,13 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return values;
     }
 
-    // from interface IntSet
+    @Override // from interface IntSet
     public boolean contains (int value)
     {
         return (binarySearch(value) >= 0);
     }
 
-    // from interface IntSet
+    @Override // from interface IntSet
     public boolean add (int value)
     {
         int index = binarySearch(value);
@@ -190,7 +193,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         return true;
     }
 
-    // from interface IntSet
+    @Override // from interface IntSet
     public boolean remove (int value)
     {
         int index = binarySearch(value);
@@ -216,21 +219,17 @@ public class ArrayIntSet extends AbstractSet<Integer>
     // from interface IntSet
     public Interator interator ()
     {
-        return new Interator() {
+        return new AbstractInterator() {
             public boolean hasNext () {
                 return (_pos < _size);
             }
 
             public int nextInt () {
-                if (_pos == _size) {
+                if (_pos >= _size) {
                     throw new NoSuchElementException();
                 } else {
                     return _values[_pos++];
                 }
-            }
-
-            public Integer next () {
-                return Integer.valueOf(nextInt());
             }
 
             public void remove () {
@@ -248,16 +247,7 @@ public class ArrayIntSet extends AbstractSet<Integer>
         };
     }
 
-    // from interface IntSet
-    public Integer[] toArray (Integer[] a)
-    {
-        for (int i = 0; i < _size; i++) {
-            a[i] = Integer.valueOf(_values[i]);
-        }
-        return a;
-    }
-
-    // from interface IntSet
+    @Override // from interface IntSet
     public int[] toIntArray ()
     {
         int[] values = new int[_size];
@@ -266,71 +256,30 @@ public class ArrayIntSet extends AbstractSet<Integer>
     }
 
     @Override // from AbstractSet<Integer>
+    public Object[] toArray ()
+    {
+        // TODO: this is wrong. We should be creating an Object[]
+        return toArray(new Integer[_size]);
+    }
+
+    // from AbstractSet<Integer>
+    public Integer[] toArray (Integer[] a)
+    {
+        // TODO: this is wrong. We need to be able to grow the array if necessary
+        // and null-terminate the values if the array is too large
+        for (int i = 0; i < _size; i++) {
+            a[i] = Integer.valueOf(_values[i]);
+        }
+        return a;
+    }
+
+    @Override // from AbstractSet<Integer>
     public int size ()
     {
         return _size;
     }
 
-    @Override // from AbstractSet<Integer>
-    public boolean isEmpty ()
-    {
-        return _size == 0;
-    }
-
-    @Override // from AbstractSet<Integer>
-    public boolean contains (Object o)
-    {
-        return contains(((Integer)o).intValue());
-    }
-
-    @Override // from AbstractSet<Integer>
-    public boolean add (Integer o)
-    {
-        return add(o.intValue());
-    }
-
-    @Override // from AbstractSet<Integer>
-    public boolean remove (Object o)
-    {
-        return remove(((Integer)o).intValue());
-    }
-
-    @Override // from AbstractSet<Integer>
-    public boolean containsAll (Collection<?> c)
-    {
-        if (c instanceof Interable) {
-            Interator inter = ((Interable) c).interator();
-            while (inter.hasNext()) {
-                if (!contains(inter.nextInt())) {
-                    return false;
-                }
-            }
-            return true;
-
-        } else {
-            return super.containsAll(c);
-        }
-    }
-
-    @Override // from AbstractSet<Integer>
-    public boolean addAll (Collection<? extends Integer> c)
-    {
-        if (c instanceof Interable) {
-            Interator inter = ((Interable) c).interator();
-            boolean modified = false;
-            while (inter.hasNext()) {
-                if (add(inter.nextInt())) {
-                    modified = true;
-                }
-            }
-            return modified;
-
-        } else {
-            return super.addAll(c);
-        }
-    }
-
-    @Override // from AbstractSet<Integer>
+    @Override // from AbstractIntSet
     public boolean retainAll (Collection<?> c)
     {
         if (c instanceof IntSet) {
@@ -350,31 +299,17 @@ public class ArrayIntSet extends AbstractSet<Integer>
                 }
             }
 
-            _size = _size - removals;
+            _size -= removals;
             return (removals > 0);
-
-        } else {
-            return super.retainAll(c);
         }
-    }
-
-    @Override // from AbstractSet<Integer>
-    public Iterator<Integer> iterator ()
-    {
-        return interator();
-    }
-
-    @Override // from AbstractSet<Integer>
-    public Object[] toArray ()
-    {
-        return toArray(new Integer[_size]);
+        return super.retainAll(c);
     }
 
     @Override // from AbstractSet<Integer>
     public void clear ()
     {
-        Arrays.fill(_values, 0);
         _size = 0;
+        //Arrays.fill(_values, 0); // not necessary
     }
 
     @Override // from AbstractSet<Integer>
@@ -400,11 +335,11 @@ public class ArrayIntSet extends AbstractSet<Integer>
     @Override // from AbstractSet<Integer>
     public int hashCode ()
     {
-        int hashCode = 0;
-        for (int i = 0; i < _size; i++) {
-            hashCode ^= _values[i];
+        int h = 0;
+        for (int ii = 0; ii < _size; ii++) {
+            h += _values[ii];
         }
-        return hashCode;
+        return h;
     }
 
     @Override // from AbstractSet<Integer>
@@ -418,12 +353,6 @@ public class ArrayIntSet extends AbstractSet<Integer>
         } catch (CloneNotSupportedException cnse) {
             throw new RuntimeException("Internal clone error.");
         }
-    }
-
-    @Override // from AbstractSet<Integer>
-    public String toString ()
-    {
-        return StringUtil.toString(iterator());
     }
 
     /**

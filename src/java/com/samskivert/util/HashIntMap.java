@@ -397,12 +397,9 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         if (_keySet == null) {
             _keySet = new AbstractIntSet() {
                 @Override public Interator interator () {
-                    return new Interator () {
+                    return new AbstractInterator () {
                         public boolean hasNext () {
                             return i.hasNext();
-                        }
-                        public Integer next () {
-                            return i.next().getKey();
                         }
                         public int nextInt () {
                             return i.next().getIntKey();
@@ -418,20 +415,17 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                     return HashIntMap.this.size();
                 }
 
-                @Override public boolean contains (Object t) {
+                @Override public boolean contains (int t) {
                     return HashIntMap.this.containsKey(t);
                 }
 
-                public boolean contains (int t) {
-                    return HashIntMap.this.containsKey(t);
-                }
-
-                @Override public boolean remove (Object o) {
-                    return (null != HashIntMap.this.remove(o));
-                }
-
-                public boolean remove (int value) {
-                    return (null != HashIntMap.this.remove(value));
+                @Override public boolean remove (int value) {
+                    // we need to be careful of null values
+                    if (contains(value)) {
+                        HashIntMap.this.remove(value);
+                        return true;
+                    }
+                    return false;
                 }
             };
         }

@@ -321,19 +321,8 @@ public class IntIntMap
                 return IntIntMap.this.size();
             }
 
-            @Override public boolean contains (Object t) {
-                return (t instanceof Integer) ? IntIntMap.this.containsKey((Integer)t) : false;
-            }
-
             public boolean contains (int t) {
                 return IntIntMap.this.containsKey(t);
-            }
-
-            @Override public boolean remove (Object o) {
-                if (!(o instanceof Integer)) {
-                    return false;
-                }
-                return remove(((Integer)o).intValue());
             }
 
             public boolean remove (int value) {
@@ -561,9 +550,9 @@ public class IntIntMap
         private int _modCount;
     }
 
-    protected class KeyValueInterator implements Interator
+    protected class KeyValueInterator extends AbstractInterator
     {
-        public KeyValueInterator (boolean keys,  IntEntryIterator eiter) {
+        public KeyValueInterator (boolean keys, IntEntryIterator eiter) {
             _keys = keys;
             _eiter = eiter;
         }
@@ -575,10 +564,6 @@ public class IntIntMap
 
         public boolean hasNext () {
             return _eiter.hasNext();
-        }
-
-        public Integer next () {
-            return Integer.valueOf(nextInt());
         }
 
         public void remove () {

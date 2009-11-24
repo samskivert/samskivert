@@ -93,7 +93,8 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     @Override // from AbstractSet<Integer>
     public boolean contains (Object o)
     {
-        return (o instanceof Integer) && contains(((Integer)o).intValue());
+        // let's go ahead and NPE or CCE if an Integer is not specified
+        return /* (o instanceof Integer) && */ contains(((Integer)o).intValue());
     }
 
     @Override // from AbstractSet<Integer>
@@ -105,7 +106,8 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     @Override // from AbstractSet<Integer>
     public boolean remove (Object o)
     {
-        return (o instanceof Integer) && remove(((Integer)o).intValue());
+        // let's go ahead and NPE or CCE if an Integer is not specified
+        return /* (o instanceof Integer) && */ remove(((Integer)o).intValue());
     }
 
     @Override // from AbstractSet<Integer>

@@ -256,24 +256,6 @@ public class ArrayIntSet extends AbstractIntSet
     }
 
     @Override // from AbstractSet<Integer>
-    public Object[] toArray ()
-    {
-        // TODO: this is wrong. We should be creating an Object[]
-        return toArray(new Integer[_size]);
-    }
-
-    // from AbstractSet<Integer>
-    public Integer[] toArray (Integer[] a)
-    {
-        // TODO: this is wrong. We need to be able to grow the array if necessary
-        // and null-terminate the values if the array is too large
-        for (int i = 0; i < _size; i++) {
-            a[i] = Integer.valueOf(_values[i]);
-        }
-        return a;
-    }
-
-    @Override // from AbstractSet<Integer>
     public int size ()
     {
         return _size;

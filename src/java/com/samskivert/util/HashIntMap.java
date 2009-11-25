@@ -396,7 +396,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         // damn Sun bastards made the 'keySet' variable with default access, so we can't share it
         if (_keySet == null) {
             _keySet = new AbstractIntSet() {
-                @Override public Interator interator () {
+                public Interator interator () {
                     return new AbstractInterator () {
                         public boolean hasNext () {
                             return i.hasNext();
@@ -404,7 +404,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                         public int nextInt () {
                             return i.next().getIntKey();
                         }
-                        public void remove () {
+                        @Override public void remove () {
                             i.remove();
                         }
                         private Iterator<IntEntry<V>> i = intEntrySet().iterator();

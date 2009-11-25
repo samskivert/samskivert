@@ -22,7 +22,6 @@ package com.samskivert.util;
 
 import java.io.Serializable;
 
-import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -232,7 +231,7 @@ public class ArrayIntSet extends AbstractIntSet
                 }
             }
 
-            public void remove () {
+            @Override public void remove () {
                 if (_pos == 0) {
                     throw new IllegalStateException();
                 }

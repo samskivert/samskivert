@@ -313,7 +313,7 @@ public class IntIntMap
     public IntSet keySet ()
     {
         return new AbstractIntSet() {
-            @Override public Interator interator () {
+            public Interator interator () {
                 return IntIntMap.this.keys();
             }
 
@@ -321,11 +321,11 @@ public class IntIntMap
                 return IntIntMap.this.size();
             }
 
-            public boolean contains (int t) {
+            @Override public boolean contains (int t) {
                 return IntIntMap.this.containsKey(t);
             }
 
-            public boolean remove (int value) {
+            @Override public boolean remove (int value) {
                 // we have to check for presence in the map separately because we have no "not in
                 // the set" return value
                 if (!IntIntMap.this.containsKey(value)) {
@@ -566,7 +566,7 @@ public class IntIntMap
             return _eiter.hasNext();
         }
 
-        public void remove () {
+        @Override public void remove () {
             _eiter.remove();
         }
 

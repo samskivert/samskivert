@@ -458,11 +458,23 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     @Override
     public Object clone ()
     {
-        HashIntMap<V> copy = new HashIntMap<V>(_buckets.length, _loadFactor);
-        for (IntEntry<V> entry : intEntrySet()) {
-            copy.put(entry.getIntKey(), entry.getValue());
+        try {
+            @SuppressWarnings("unchecked")
+            HashIntMap<V> result = (HashIntMap<V>) super.clone();
+            result._keySet = null;
+            Record<V>[] buckets = result._buckets = result._buckets.clone();
+            for (int ii = buckets.length - 1; ii >= 0; ii--) {
+                if (buckets[ii] != null) {
+                    @SuppressWarnings("unchecked")
+                    Record<V> entry = (Record<V>) buckets[ii].clone();
+                    buckets[ii] = entry;
+                }
+            }
+            return result;
+
+        } catch (CloneNotSupportedException cnse) {
+            throw new RuntimeException(cnse); // won't happen
         }
-        return copy;
     }
 
     /**
@@ -513,7 +525,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         return recs;
     }
 
-    protected static class Record<V> implements Entry<Integer,V>, IntEntry<V>
+    protected static class Record<V>
+        implements Cloneable, Entry<Integer,V>, IntEntry<V>
     {
         public Record<V> next;
         public int key;
@@ -565,6 +578,24 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         @Override public String toString ()
         {
             return key + "=" + StringUtil.toString(value);
+        }
+
+        @Override public Object clone ()
+        {
+            try {
+                @SuppressWarnings("unchecked")
+                Record<V> result = (Record<V>) super.clone();
+                // value is not cloned
+                if (result.next != null) {
+                    @SuppressWarnings("unchecked")
+                    Record<V> next = (Record<V>) result.next.clone();
+                    result.next = next;
+                }
+                return result;
+
+            } catch (CloneNotSupportedException cnse) {
+                throw new RuntimeException(cnse); // won't happen
+            }
         }
     }
 

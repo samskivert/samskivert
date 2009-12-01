@@ -560,12 +560,19 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
 
         @Override public boolean equals (Object o)
         {
-            if (!(o instanceof IntEntry<?>)) {
+            if (o instanceof IntEntry<?>) {
+                IntEntry<?> that = (IntEntry<?>)o;
+                return (this.key == that.getIntKey()) &&
+                    ObjectUtil.equals(this.value, that.getValue());
+
+            } else if (o instanceof Entry<?,?>) {
+                Entry<?,?> that = (Entry<?,?>)o;
+                return (this.getKey().equals(that.getKey())) &&
+                    ObjectUtil.equals(this.value, that.getValue());
+
+            } else {
                 return false;
             }
-            IntEntry<?> that = (IntEntry<?>)o;
-            return (this.key == that.getIntKey()) &&
-                ObjectUtil.equals(this.value, that.getValue());
         }
 
         @Override public int hashCode ()

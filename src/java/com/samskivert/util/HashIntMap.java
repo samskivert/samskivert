@@ -90,7 +90,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     // documentation inherited
     public boolean containsKey (int key)
     {
-        return get(key) != null;
+        return (null != getImpl(key));
     }
 
     @Override
@@ -115,13 +115,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     // documentation inherited
     public V get (int key)
     {
-        int index = keyToIndex(key);
-        for (Record<V> rec = _buckets[index]; rec != null; rec = rec.next) {
-            if (rec.key == key) {
-                return rec.value;
-            }
-        }
-        return null;
+        Record<V> rec = getImpl(key);
+        return (rec == null) ? null : rec.value;
     }
 
     @Override
@@ -172,23 +167,33 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     // documentation inherited
     public V remove (int key)
     {
-        V removed = removeImpl(key);
-        if (removed != null) {
-            checkShrink();
-        }
-        return removed;
+        Record<V> removed = removeImpl(key, true);
+        return (removed == null) ? null : removed.value;
     }
 
     /**
-     * Remove an element with no checking to see if we should shrink.
+     * Locate the record with the specified key.
      */
-    protected V removeImpl (int key)
+    protected Record<V> getImpl (int key)
+    {
+        for (Record<V> rec = _buckets[keyToIndex(key)]; rec != null; rec = rec.next) {
+            if (rec.key == key) {
+                return rec;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Remove an element with optional checking to see if we should shrink.
+     * When this is called from our iterator, checkShrink==false to avoid booching the buckets.
+     */
+    protected Record<V> removeImpl (int key, boolean checkShrink)
     {
         int index = keyToIndex(key);
-        Record<V> prev = null;
 
         // go through the chain looking for a match
-        for (Record<V> rec = _buckets[index]; rec != null; rec = rec.next) {
+        for (Record<V> prev = null, rec = _buckets[index]; rec != null; rec = rec.next) {
             if (rec.key == key) {
                 if (prev == null) {
                     _buckets[index] = rec.next;
@@ -196,7 +201,10 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                     prev.next = rec.next;
                 }
                 _size--;
-                return rec.value;
+                if (checkShrink) {
+                    checkShrink();
+                }
+                return rec;
             }
             prev = rec;
         }
@@ -321,13 +329,12 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     {
         public boolean hasNext ()
         {
-            // if we're pointing to an entry, we've got more entries
+            // if we're pointing to an entry, we're good
             if (_record != null) {
                 return true;
             }
 
-            // search backward through the buckets looking for the next
-            // non-empty hash chain
+            // search backward through the buckets looking for the next non-empty hash chain
             while (_index-- > 0) {
                 if ((_record = _buckets[_index]) != null) {
                     return true;
@@ -343,20 +350,15 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             // if we're not pointing to an entry, search for the next
             // non-empty hash chain
             if (_record == null) {
-                while ((_index-- > 0) && ((_record = _buckets[_index]) == null)) { /* loop! */ }
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
             }
 
-            // keep track of the last thing we returned
+            // keep track of the last thing we returned, our next record, and return
             _last = _record;
-
-            // if we found a record, return it's value and move our record
-            // reference to it's successor
-            if (_record != null) {
-                _record = _last.next;
-                return _last;
-            }
-
-            throw new NoSuchElementException();
+            _record = _record.next;
+            return _last;
         }
 
         public void remove ()
@@ -365,8 +367,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                 throw new IllegalStateException();
             }
 
-            // remove the record the hard way
-            HashIntMap.this.removeImpl(_last.key);
+            // remove the record the hard way, avoiding any major changes to the buckets
+            HashIntMap.this.removeImpl(_last.key, false);
             _last = null;
         }
 
@@ -420,12 +422,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                 }
 
                 @Override public boolean remove (int value) {
-                    // we need to be careful of null values
-                    if (contains(value)) {
-                        HashIntMap.this.remove(value);
-                        return true;
-                    }
-                    return false;
+                    Record<V> removed = removeImpl(value, true);
+                    return (removed != null);
                 }
             };
         }

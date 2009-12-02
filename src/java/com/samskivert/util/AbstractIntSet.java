@@ -27,8 +27,8 @@ import java.util.Iterator;
 /**
  * A base class for {@link IntSet} implementations.<p>
  *
- * All you really need to do is implement <tt>interable</tt> and <tt>size</tt>,
- * although for performance reasons you'll probably want to override <tt>contains</tt>.<p>
+ * All you really need to do is implement <tt>interable</tt>, but you'll almost certainly want
+ * to implement <tt>size</tt> and <tt>contains</tt> for enhanced performance.<p>
  *
  * To implement a modifiable IntSet, the programmer must additionally override this class's
  * <tt>add</tt> and <tt>remove</tt> methods, which will otherwise throw an
@@ -46,13 +46,28 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     // from IntSet
     public boolean contains (int value)
     {
-        // abstract implementation. You should override.
+        // dumb implementation. You should override.
         for (Interator it = interator(); it.hasNext(); ) {
             if (it.nextInt() == value) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation simply counts the elements in the interator.
+     */
+    public int size ()
+    {
+        // dumb implementation. You should override.
+        int size = 0;
+        for (Interator it = interator(); (size < Integer.MAX_VALUE) && it.hasNext(); it.nextInt()) {
+            size++;
+        }
+        return size;
     }
 
     // from IntSet
@@ -77,9 +92,9 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     public int[] toIntArray ()
     {
         int[] vals = new int[size()];
-        int ii=0;
-        for (Interator intr = interator(); intr.hasNext(); ) {
-            vals[ii++] = intr.nextInt();
+        int ii = 0;
+        for (Interator it = interator(); (ii < Integer.MAX_VALUE) && it.hasNext(); ) {
+            vals[ii++] = it.nextInt();
         }
         return vals;
     }
@@ -93,8 +108,8 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     @Override // from AbstractSet<Integer>
     public boolean contains (Object o)
     {
-        // let's go ahead and NPE or CCE if an Integer is not specified
-        return /* (o instanceof Integer) && */ contains(((Integer)o).intValue());
+        // cope with null or non-Integer
+        return (o instanceof Integer) && contains(((Integer)o).intValue());
     }
 
     @Override // from AbstractSet<Integer>
@@ -106,8 +121,8 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     @Override // from AbstractSet<Integer>
     public boolean remove (Object o)
     {
-        // let's go ahead and NPE or CCE if an Integer is not specified
-        return /* (o instanceof Integer) && */ remove(((Integer)o).intValue());
+        // cope with null or non-Integer
+        return (o instanceof Integer) && remove(((Integer)o).intValue());
     }
 
     @Override // from AbstractSet<Integer>

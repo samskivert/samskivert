@@ -144,7 +144,7 @@ public class FieldMask
             mask._modified = new boolean[_modified.length];
             return mask;
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException("Oh god, the clones!");
+            throw new AssertionError(cnse); // won't happen; we're Cloneable
         }
     }
 

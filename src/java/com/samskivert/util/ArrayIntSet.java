@@ -332,7 +332,7 @@ public class ArrayIntSet extends AbstractIntSet
             return nset;
 
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException("Internal clone error.");
+            throw new AssertionError(cnse); // won't happen; we're Cloneable
         }
     }
 

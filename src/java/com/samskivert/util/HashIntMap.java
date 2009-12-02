@@ -471,7 +471,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             return result;
 
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException(cnse); // won't happen
+            throw new AssertionError(cnse); // won't happen; we're Cloneable
         }
     }
 
@@ -599,7 +599,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                 return result;
 
             } catch (CloneNotSupportedException cnse) {
-                throw new RuntimeException(cnse); // won't happen
+                throw new AssertionError(cnse); // won't happen; we are Cloneable.
             }
         }
     }

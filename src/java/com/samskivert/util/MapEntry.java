@@ -23,12 +23,9 @@ package com.samskivert.util;
 import java.util.Map;
 
 /**
- * A useful building block for implementing one's own {@link Map} classes. Sun
- * has this same damned code in AbstractMap and have idiotically declared it
- * package protected, with a genius comment saying "This should be made public
- * as soon as possible. It greatly simplifies the task of implementing Map." No
- * doubt that comment was added half a decade ago. Thanks guys!
+ * @deprecated As of JDK version 1.6 a replacement is available: java.util.AbstractMap.SimpleEntry.
  */
+@Deprecated
 public class MapEntry<K,V> implements Map.Entry<K,V>
 {
     public MapEntry (K key, V value)

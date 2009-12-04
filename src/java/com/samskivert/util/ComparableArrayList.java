@@ -74,21 +74,6 @@ public class ComparableArrayList<T extends Comparable<? super T>>
         return insertSorted(value, _comp);
     }
 
-    /**
-     * Performs a binary search, attempting to locate the specified
-     * object. The array must be sorted for this to operate correctly and
-     * the contents of the array must all implement {@link Comparable}
-     * (and actually be comparable to one another).
-     *
-     * @return the index of the object in question or
-     * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
-     * value) if the object was not found in the list.
-     */
-    public int binarySearch (T key)
-    {
-        return binarySearch(key, _comp);
-    }
-
     protected transient Comparator<T> _comp = new Comparator<T>() {
         public int compare (T o1, T o2) {
             if (o1 == o2) { // catches null == null

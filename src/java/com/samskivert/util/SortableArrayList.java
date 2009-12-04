@@ -81,6 +81,16 @@ public class SortableArrayList<T> extends BaseArrayList<T>
         return ArrayUtil.binarySearch(_elements, 0, _size, key, comp);
     }
 
+    /**
+     * Search for an element in the List, using the specified key. Note that the key
+     * does not need to be of the same type as the element type, it just needs to be able
+     * to compare itself to them.
+     */
+    public int binarySearch (Comparable<? super T> key)
+    {
+        return ArrayUtil.binarySearch(_elements, 0, _size, key);
+    }
+
     /** Change this if the fields or inheritance hierarchy ever changes
      * (which is extremely unlikely). We override this because I'm tired
      * of serialized crap not working depending on whether I compiled with

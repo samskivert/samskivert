@@ -49,7 +49,7 @@ public class Comparators
     /**
      * A comparator that compares {@link Comparable} instances.
      */
-    public static final Comparator<Object> COMPARABLE = new Comparator<Object>() {
+    public static final Comparator COMPARABLE = new Comparator() {
         @SuppressWarnings("unchecked")
         public int compare (Object o1, Object o2)
         {
@@ -60,9 +60,23 @@ public class Comparators
             } else if (o2 == null) {
                 return -1;
             }
-            return ((Comparable<Object>)o1).compareTo(o2); // null-free
+            return ((Comparable)o1).compareTo(o2); // null-free
         }
     };
+
+    /**
+     * Returns the Comparator for Comparables, properly cast.
+     *
+     * <p>This example illustates the type-safe way to obtain a natural-ordering Comparator:
+     * <pre>
+     *    Comparator&lt;Integer&gt; = Comparators.comparable();
+     * </pre>
+     */
+    @SuppressWarnings("unchecked")
+    public static final <T extends Comparable> Comparator<T> comparable ()
+    {
+        return (Comparator<T>) COMPARABLE;
+    }
 
     /**
      * Compares two bytes, returning 1, 0, or -1.

@@ -350,32 +350,32 @@ public class ArrayUtil
     }
 
     /**
-     * Performs a binary search, attempting to locate the specified
-     * object. The array must be sorted for this to operate correctly and
-     * the contents of the array must all implement {@link Comparable}
-     * (and actually be comparable to one another).
+     * Performs a binary search, attempting to locate the element that compares as equal
+     * to the specified Comparable key. Note that the array elements can implement
+     * {@link Comparable} and the key can be of the same type, or the key can be a completely
+     * different class that can compare the element type.
+     * <b>All comparisons will be called as <tt>key.compareTo(element)</tt></b>.
      *
-     * @param array the array of {@link Comparable}s to be searched.
+     * @param array the array to be searched.
      * @param offset the index of the first element in the array to be considered.
      * @param length the number of elements including and following the
      * element at <code>offset</code> to consider when searching.
-     * @param key the object to be located.
+     * @param key the Comparable that will be used to search the elements of the array.
      *
      * @return the index of the object in question or
      * <code>(-(<i>insertion point</i>) - 1)</code> (always a negative
      * value) if the object was not found in the list.
      */
-    public static <T extends Comparable<? super T>> int binarySearch (
-        T[] array, int offset, int length, T key)
+    public static <T> int binarySearch (
+        T[] array, int offset, int length, Comparable<? super T> key)
     {
         int low = offset, high = offset+length-1;
         while (low <= high) {
             int mid = (low + high) >>> 1;
-            T midVal = array[mid];
-            int cmp = midVal.compareTo(key);
-            if (cmp < 0) {
+            int cmp = key.compareTo(array[mid]);
+            if (cmp > 0) {
                 low = mid + 1;
-            } else if (cmp > 0) {
+            } else if (cmp < 0) {
                 high = mid - 1;
             } else {
                 return mid; // key found

@@ -74,18 +74,7 @@ public class ComparableArrayList<T extends Comparable<? super T>>
         return insertSorted(value, _comp);
     }
 
-    protected transient Comparator<T> _comp = new Comparator<T>() {
-        public int compare (T o1, T o2) {
-            if (o1 == o2) { // catches null == null
-                return 0;
-            } else if (o1 == null) {
-                return 1;
-            } else if (o2 == null) {
-                return -1;
-            }
-            return o1.compareTo(o2); // null-free
-        }
-    };
+    protected transient Comparator<T> _comp = Comparators.comparable();
 
     /** Change this if the fields or inheritance hierarchy ever changes
      * (which is extremely unlikely). We override this because I'm tired

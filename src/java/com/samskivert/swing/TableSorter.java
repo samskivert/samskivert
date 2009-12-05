@@ -236,7 +236,9 @@ public class TableSorter extends AbstractTableModel {
             return comparator;
         }
         if (Comparable.class.isAssignableFrom(columnType)) {
-            return Comparators.COMPARABLE;
+            @SuppressWarnings("unchecked")
+            Comparator<Object> c = (Comparator<Object>)Comparators.COMPARABLE;
+            return c;
         }
         return Comparators.LEXICAL_CASE_INSENSITIVE;
     }

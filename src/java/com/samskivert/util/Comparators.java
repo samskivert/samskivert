@@ -49,8 +49,8 @@ public class Comparators
     /**
      * A comparator that compares {@link Comparable} instances.
      */
+    @SuppressWarnings("unchecked")
     public static final Comparator COMPARABLE = new Comparator() {
-        @SuppressWarnings("unchecked")
         public int compare (Object o1, Object o2)
         {
             if (o1 == o2) { // catches null == null
@@ -75,7 +75,7 @@ public class Comparators
     @SuppressWarnings("unchecked")
     public static final <T extends Comparable> Comparator<T> comparable ()
     {
-        return (Comparator<T>) COMPARABLE;
+        return COMPARABLE;
     }
 
     /**

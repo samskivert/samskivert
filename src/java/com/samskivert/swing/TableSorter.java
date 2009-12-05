@@ -237,7 +237,7 @@ public class TableSorter extends AbstractTableModel {
         }
         if (Comparable.class.isAssignableFrom(columnType)) {
             @SuppressWarnings("unchecked")
-            Comparator<Object> c = (Comparator<Object>)Comparators.COMPARABLE;
+            Comparator<Object> c = Comparators.COMPARABLE;
             return c;
         }
         return Comparators.LEXICAL_CASE_INSENSITIVE;
@@ -320,8 +320,7 @@ public class TableSorter extends AbstractTableModel {
             int row1 = modelIndex;
             int row2 = orow.modelIndex;
 
-            for (Iterator<Directive> it = sortingColumns.iterator(); it.hasNext();) {
-                Directive directive = it.next();
+            for (Directive directive : sortingColumns) {
                 int column = directive.column;
                 Object o1 = tableModel.getValueAt(row1, column);
                 Object o2 = tableModel.getValueAt(row2, column);

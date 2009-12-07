@@ -22,6 +22,8 @@ package com.samskivert.util;
 
 import java.util.HashMap;
 
+import java.util.concurrent.Executor;
+
 import static com.samskivert.Log.log;
 
 /**
@@ -40,7 +42,7 @@ import static com.samskivert.Log.log;
  * is desirable.
  */
 public class Invoker extends LoopingThread
-    implements RunQueue
+    implements Executor, RunQueue
 {
     /**
      * The unit encapsulates a unit of executable code that will be run on the invoker thread. It
@@ -162,6 +164,12 @@ public class Invoker extends LoopingThread
     public int getPendingUnits ()
     {
         return _queue.size();
+    }
+
+    // from Executor
+    public void execute (Runnable command)
+    {
+        postRunnable(command);
     }
 
     // from RunQueue

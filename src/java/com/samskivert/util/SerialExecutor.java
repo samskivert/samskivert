@@ -22,6 +22,8 @@ package com.samskivert.util;
 
 import java.util.ArrayList;
 
+import java.util.concurrent.Executor;
+
 import static com.samskivert.Log.log;
 
 /**
@@ -32,6 +34,7 @@ import static com.samskivert.Log.log;
  * that they will not block the eventual termination of the virtual machine.
  */
 public class SerialExecutor
+    implements Executor
 {
     /**
      * A task to run in serial on the executor.
@@ -76,11 +79,46 @@ public class SerialExecutor
     }
 
     /**
-     * Construct the SerialExecutor.
+     * Construct the SerialExecutor, using a 30-second default timeout for posted Runnables.
      */
-    public SerialExecutor (RunQueue receiver)
+    public SerialExecutor (Executor receiver)
+    {
+        this(receiver, 30L * 1000L);
+    }
+
+    /**
+     * Construct the SerialExecutor, using a the specified timeout for posted Runnables.
+     */
+    public SerialExecutor (Executor receiver, long runnableTimeout)
     {
         _receiver = receiver;
+        _runnableTimeout = runnableTimeout;
+    }
+
+    /**
+     * Construct the SerialExecutor.
+     * @deprecated
+     */
+    @Deprecated
+    public SerialExecutor (final RunQueue receiver)
+    {
+        this(new Executor() {
+            public void execute (Runnable r) {
+                receiver.postRunnable(r);
+            }
+        });
+    }
+
+    // from Executor
+    public void execute (final Runnable command)
+    {
+        addTask(new ExecutorTask() {
+            public boolean merge (ExecutorTask other) { return false; }
+            public long getTimeout () { return _runnableTimeout; }
+            public void executeTask () { command.run(); }
+            public void resultReceived () { /* nada */ }
+            public void timedOut () { /* nada */ }
+        });
     }
 
     /**
@@ -157,7 +195,7 @@ public class SerialExecutor
                 _task = null;
 
                 // let the task know that it timed out
-                _receiver.postRunnable(new Runnable() {
+                _receiver.execute(new Runnable() {
                     public void run () {
                         try {
                             task.timedOut();
@@ -191,7 +229,7 @@ public class SerialExecutor
                 log.warning("Unit failed", t);
             }
 
-            _receiver.postRunnable(new Runnable() {
+            _receiver.execute(new Runnable() {
                 public void run () {
                     try {
                         task.resultReceived();
@@ -207,10 +245,13 @@ public class SerialExecutor
     }
 
     /** The receiver to which we post a unit to process results. */
-    protected RunQueue _receiver;
+    protected Executor _receiver;
 
     /** True if there is a thread currently executing a task. */
     protected boolean _executingNow = false;
+
+    /** A default timeout to use when executing simple Runnables. */
+    protected long _runnableTimeout;
 
     /** The queue of tasks to execute. */
     protected ArrayList<ExecutorTask> _queue = new ArrayList<ExecutorTask>();

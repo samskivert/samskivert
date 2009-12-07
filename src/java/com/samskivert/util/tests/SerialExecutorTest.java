@@ -20,6 +20,8 @@
 
 package com.samskivert.util.tests;
 
+import java.util.concurrent.Executor;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 
@@ -31,7 +33,7 @@ import com.samskivert.util.SerialExecutor;
  * Tests the {@link SerialExecutor} class.
  */
 public class SerialExecutorTest extends TestCase
-    implements RunQueue
+    implements Executor, RunQueue
 {
     public SerialExecutorTest ()
     {
@@ -42,7 +44,7 @@ public class SerialExecutorTest extends TestCase
     @Override
     public void runTest ()
     {
-        SerialExecutor executor = new SerialExecutor(this);
+        SerialExecutor executor = new SerialExecutor((Executor)this);
         int added = 0;
 
         // _sleeps++, _exits++, _results++
@@ -88,16 +90,25 @@ public class SerialExecutorTest extends TestCase
                    value == expected);
     }
 
+    // from Executor
+    public void execute (Runnable command)
+    {
+        _queue.append(command);
+    }
+
+    // from RunQueue
     public void postRunnable (Runnable r)
     {
         _queue.append(r);
     }
 
+    // from RunQueue
     public boolean isDispatchThread ()
     {
         return Thread.currentThread() == _main;
     }
 
+    // from RunQueue
     public boolean isRunning ()
     {
         return true;

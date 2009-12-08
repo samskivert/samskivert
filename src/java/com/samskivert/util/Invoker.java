@@ -137,6 +137,14 @@ public class Invoker extends LoopingThread
      */
     public Invoker (String name, RunQueue resultReceiver)
     {
+        this(name, new RunQueue.AsExecutor(resultReceiver));
+    }
+
+    /**
+     * Creates an invoker that will post results to the supplied result receiver.
+     */
+    public Invoker (String name, Executor resultReceiver)
+    {
         super(name);
         _receiver = resultReceiver;
     }
@@ -211,7 +219,7 @@ public class Invoker extends LoopingThread
             willInvokeUnit(unit, start);
             if (unit.invoke()) {
                 // if it returned true, post it to the receiver thread for result processing
-                _receiver.postRunnable(unit);
+                _receiver.execute(unit);
             }
             didInvokeUnit(unit, start);
 
@@ -337,7 +345,7 @@ public class Invoker extends LoopingThread
     protected Queue<Unit> _queue = new Queue<Unit>();
 
     /** The result receiver with which we're working. */
-    protected RunQueue _receiver;
+    protected Executor _receiver;
 
     /** Tracks the counts of invocations by unit's class. */
     protected HashMap<Object,UnitProfile> _tracker = new HashMap<Object,UnitProfile>();

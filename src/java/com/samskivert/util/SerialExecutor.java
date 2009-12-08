@@ -100,13 +100,9 @@ public class SerialExecutor
      * @deprecated
      */
     @Deprecated
-    public SerialExecutor (final RunQueue receiver)
+    public SerialExecutor (RunQueue receiver)
     {
-        this(new Executor() {
-            public void execute (Runnable r) {
-                receiver.postRunnable(r);
-            }
-        });
+        this(new RunQueue.AsExecutor(receiver));
     }
 
     // from Executor

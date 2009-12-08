@@ -20,6 +20,8 @@
 
 package com.samskivert.util.tests;
 
+import java.util.concurrent.Executor;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 

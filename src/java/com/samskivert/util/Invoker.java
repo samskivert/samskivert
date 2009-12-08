@@ -135,14 +135,6 @@ public class Invoker extends LoopingThread
     /**
      * Creates an invoker that will post results to the supplied result receiver.
      */
-    public Invoker (String name, RunQueue resultReceiver)
-    {
-        this(name, new RunQueue.AsExecutor(resultReceiver));
-    }
-
-    /**
-     * Creates an invoker that will post results to the supplied result receiver.
-     */
     public Invoker (String name, Executor resultReceiver)
     {
         super(name);

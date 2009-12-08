@@ -20,8 +20,6 @@
 
 package com.samskivert.util.tests;
 
-import java.util.concurrent.Executor;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 
@@ -44,7 +42,7 @@ public class SerialExecutorTest extends TestCase
     @Override
     public void runTest ()
     {
-        SerialExecutor executor = new SerialExecutor((Executor)this);
+        SerialExecutor executor = new SerialExecutor(this);
         int added = 0;
 
         // _sleeps++, _exits++, _results++

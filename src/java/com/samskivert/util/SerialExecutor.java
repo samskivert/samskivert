@@ -87,22 +87,12 @@ public class SerialExecutor
     }
 
     /**
-     * Construct the SerialExecutor, using a the specified timeout for posted Runnables.
+     * Construct the SerialExecutor, using the specified timeout for posted Runnables.
      */
     public SerialExecutor (Executor receiver, long runnableTimeout)
     {
         _receiver = receiver;
         _runnableTimeout = runnableTimeout;
-    }
-
-    /**
-     * Construct the SerialExecutor.
-     * @deprecated
-     */
-    @Deprecated
-    public SerialExecutor (RunQueue receiver)
-    {
-        this(new RunQueue.AsExecutor(receiver));
     }
 
     // from Executor

@@ -55,6 +55,10 @@ public abstract class Interval
             @Override public void expired () {
                 onExpired.run();
             }
+
+            @Override public void toString () {
+                return onExpired.toString();
+            }
         };
     }
 
@@ -70,6 +74,10 @@ public abstract class Interval
         return new Interval(runQueue) {
             @Override public void expired () {
                 onExpired.run();
+            }
+
+            @Override public void toString () {
+                return onExpired.toString();
             }
         };
     }

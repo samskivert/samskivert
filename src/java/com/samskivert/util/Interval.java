@@ -56,7 +56,7 @@ public abstract class Interval
                 onExpired.run();
             }
 
-            @Override public void toString () {
+            @Override public String toString () {
                 return onExpired.toString();
             }
         };
@@ -76,7 +76,7 @@ public abstract class Interval
                 onExpired.run();
             }
 
-            @Override public void toString () {
+            @Override public String toString () {
                 return onExpired.toString();
             }
         };

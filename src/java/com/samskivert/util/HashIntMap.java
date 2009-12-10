@@ -84,7 +84,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     @Override
     public boolean containsKey (Object key)
     {
-        return containsKey(((Integer)key).intValue());
+        return (key instanceof Integer) && containsKey(((Integer)key).intValue());
     }
 
     // documentation inherited
@@ -109,7 +109,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     @Override
     public V get (Object key)
     {
-        return get(((Integer)key).intValue());
+        return (key instanceof Integer) ? get(((Integer)key).intValue()) : null;
     }
 
     // documentation inherited
@@ -161,7 +161,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     @Override
     public V remove (Object key)
     {
-        return remove(((Integer)key).intValue());
+        return (key instanceof Integer) ? remove(((Integer)key).intValue()) : null;
     }
 
     // documentation inherited

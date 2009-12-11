@@ -167,6 +167,9 @@ public class ArrayIntSet extends AbstractIntSet
         if (index >= 0) {
             return false;
         }
+        if (_size == Integer.MAX_VALUE) {
+            throw new IllegalStateException("Cannot grow ArrayIntSet at maximum size.");
+        }
 
         // convert the return value into the insertion point
         index += 1;
@@ -176,7 +179,10 @@ public class ArrayIntSet extends AbstractIntSet
         int valen = _values.length;
         int[] source = _values;
         if (valen == _size) {
-            _values = new int[Math.max(DEFAULT_CAPACITY, valen*2)];
+            int newLen = (valen >= Integer.MAX_VALUE/2)
+                ? Integer.MAX_VALUE
+                : Math.max(DEFAULT_CAPACITY, valen*2);
+            _values = new int[newLen];
             System.arraycopy(source, 0, _values, 0, index);
         }
 
@@ -226,23 +232,23 @@ public class ArrayIntSet extends AbstractIntSet
             public int nextInt () {
                 if (_pos >= _size) {
                     throw new NoSuchElementException();
-                } else {
-                    return _values[_pos++];
                 }
+                _canRemove = true;
+                return _values[_pos++];
             }
 
             @Override public void remove () {
-                if (_pos == 0) {
+                if (!_canRemove) {
                     throw new IllegalStateException();
                 }
-                // does not correctly return IllegalStateException if
-                // remove() is called twice in a row...
                 System.arraycopy(_values, _pos, _values, _pos - 1, _size - _pos);
                 _pos--;
                 _size--; //_values[--_size] = 0;
+                _canRemove = false;
             }
 
             protected int _pos;
+            protected boolean _canRemove;
         };
     }
 

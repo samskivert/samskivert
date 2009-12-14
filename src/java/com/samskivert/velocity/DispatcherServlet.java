@@ -418,7 +418,6 @@ public class DispatcherServlet extends HttpServlet
     /**
      * Called when a method throws an exception during template evaluation.
      */
-    @SuppressWarnings("unchecked") // we have to MethodExceptionEventHandler's signature
     public Object methodException (Class clazz, String method, Exception e)
         throws Exception
     {

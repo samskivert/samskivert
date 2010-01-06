@@ -2,7 +2,7 @@
 // $Id$
 //
 // samskivert library - useful routines for java programs
-// Copyright (C) 2006-2010 Michael Bayne, et al., Pär Winzell
+// Copyright (C) 2006-2010 Michael Bayne, et al.
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published

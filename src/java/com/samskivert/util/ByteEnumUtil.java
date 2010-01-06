@@ -35,7 +35,7 @@ public class ByteEnumUtil
      */
     public static <E extends Enum<E> & ByteEnum> E fromByte (Class<E> eclass, byte code)
     {
-        for (E value : EnumSet.allOf(eclass)) {
+        for (E value : eclass.getEnumConstants()) {
             if (value.toByte() == code) {
                 return value;
             }

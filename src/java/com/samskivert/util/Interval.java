@@ -265,7 +265,7 @@ public abstract class Interval
 
     protected static Timer createTimer ()
     {
-        return new Timer(/*JDK1.5 "samskivert Interval Timer",*/ true);
+        return new Timer("samskivert Interval Timer", true);
     }
 
     /**

@@ -20,8 +20,6 @@
 
 package com.samskivert.util;
 
-import java.util.EnumSet;
-
 /**
  * {@link ByteEnum} utility methods.
  */

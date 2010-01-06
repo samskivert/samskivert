@@ -4,7 +4,7 @@
   <property name="app.name"         value="samskivert"/>
   <property name="doc.packages"     value="com.samskivert.*"/>
   <property name="doc.overview"     value="com/samskivert/overview.html"/>
-  <property name="copyright.holder" value="Michael Bayne"/>
+  <property name="copyright.holder" value="Michael Bayne, et al."/>
 
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/java"/>

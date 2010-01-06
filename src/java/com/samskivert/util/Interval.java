@@ -263,6 +263,15 @@ public abstract class Interval
         }
     }
 
+    /**
+     * Note (log) that we were unable to be posted to our RunQueue because it is no longer running.
+     */
+    protected void noteRejected ()
+    {
+        log.warning("Interval posted to shutdown RunQueue. Cancelling.",
+            "queue", _runQueue, "interval", this);
+    }
+
     protected static Timer createTimer ()
     {
         return new Timer("samskivert Interval Timer", true);
@@ -318,13 +327,12 @@ public abstract class Interval
                 try {
                     ival._runQueue.postRunnable(_runner);
                 } catch (Exception e) {
-                    log.warning("Failed to execute interval on run-queue", "queue", ival._runQueue,
-                                "interval", ival, e);
+                    log.warning("Failed to execute interval on run-queue",
+                        "queue", ival._runQueue, "interval", ival, e);
                 }
 
             } else {
-                log.warning("Interval posted to shutdown RunQueue. Cancelling.",
-                            "queue", ival._runQueue, "interval", ival);
+                ival.noteRejected();
                 ival.cancel();
             }
         }

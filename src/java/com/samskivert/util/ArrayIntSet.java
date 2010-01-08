@@ -55,9 +55,17 @@ public class ArrayIntSet extends AbstractIntSet
     {
         this(values.size());
         _size = values.size();
-        Iterator<Integer> iter = values.iterator();
-        for (int ii = 0; iter.hasNext(); ii++) {
-            _values[ii] = iter.next().intValue();
+        if (values instanceof Interable) {
+            Interator iter = ((Interable) values).interator();
+            for (int ii = 0; iter.hasNext(); ii++) {
+                _values[ii] = iter.nextInt();
+            }
+
+        } else {
+            Iterator<Integer> iter = values.iterator();
+            for (int ii = 0; iter.hasNext(); ii++) {
+                _values[ii] = iter.next().intValue();
+            }
         }
         Arrays.sort(_values);
         removeDuplicates();

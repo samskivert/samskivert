@@ -3,7 +3,6 @@
 
 package com.samskivert.util;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 

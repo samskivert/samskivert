@@ -212,7 +212,6 @@ public class IntSets
         @Override public boolean contains (int value) { return false; }
         @Override public int size () { return 0; }
 
-        @Override
         public Interator interator ()
         {
             return EMPTY_INTERATOR;
@@ -257,12 +256,12 @@ public class IntSets
      */
     protected static abstract class FindingInterator extends AbstractInterator
     {
-        @Override public boolean hasNext ()
+        public boolean hasNext ()
         {
             return _hasNext || (_hasNext = findNext());
         }
 
-        @Override public int nextInt ()
+        public int nextInt ()
         {
             if (_hasNext) {
                 _hasNext = false;
@@ -481,7 +480,15 @@ public class IntSets
                 array[index++] = it.nextInt();
             } while ((index < Integer.MAX_VALUE) && it.hasNext());
             // we may need to trim the array down to size
-            return (index == Integer.MAX_VALUE) ? array : Arrays.copyOf(array, index);
+            // 1.6ism: return (index == Integer.MAX_VALUE) ? array : Arrays.copyOf(array, index);
+            if (index == Integer.MAX_VALUE) {
+                return array;
+
+            } else {
+                int[] trimmed = new int[index];
+                System.arraycopy(array, 0, trimmed, 0, index);
+                return trimmed;
+            }
         }
 
         /** The ints we <b>don't</b> contain. */

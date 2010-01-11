@@ -513,7 +513,7 @@ public class StringUtil
                 if (i > 0) {
                     buf.append(sep);
                 }
-                buf.append(toString(v[i]));
+                toString(buf, v[i], openBox, closeBox);
             }
             buf.append(closeBox);
 
@@ -538,7 +538,7 @@ public class StringUtil
                 if (i > 0) {
                     buf.append(sep);
                 }
-                buf.append(toString(iter.next()));
+                toString(buf, iter.next(), openBox, closeBox);
             }
             buf.append(closeBox);
 
@@ -549,7 +549,7 @@ public class StringUtil
                 if (i > 0) {
                     buf.append(sep);
                 }
-                buf.append(toString(enm.nextElement()));
+                toString(buf, enm.nextElement(), openBox, closeBox);
             }
             buf.append(closeBox);
 

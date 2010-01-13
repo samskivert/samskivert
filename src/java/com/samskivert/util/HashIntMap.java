@@ -463,8 +463,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             Record<V>[] buckets = result._buckets = result._buckets.clone();
             for (int ii = buckets.length - 1; ii >= 0; ii--) {
                 if (buckets[ii] != null) {
-                    Record<V> entry = buckets[ii].clone();
-                    buckets[ii] = entry;
+                    buckets[ii] = buckets[ii].clone();
                 }
             }
             return result;
@@ -591,8 +590,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
                 Record<V> result = (Record<V>) super.clone();
                 // value is not cloned
                 if (result.next != null) {
-                    Record<V> next = result.next.clone();
-                    result.next = next;
+                    result.next = result.next.clone();
                 }
                 return result;
 

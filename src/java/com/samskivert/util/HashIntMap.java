@@ -454,7 +454,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     }
 
     @Override
-    public Object clone ()
+    public HashIntMap<V> clone ()
     {
         try {
             @SuppressWarnings("unchecked")

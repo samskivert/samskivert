@@ -337,8 +337,8 @@ public class ArrayIntSet extends AbstractIntSet
         return h;
     }
 
-    @Override // from AbstractSet<Integer>
-    public Object clone ()
+    @Override
+    public ArrayIntSet clone ()
     {
         try {
             ArrayIntSet nset = (ArrayIntSet)super.clone();

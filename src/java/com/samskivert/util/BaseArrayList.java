@@ -164,10 +164,10 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Object clone ()
+    public BaseArrayList<E> clone ()
     {
         try {
+            @SuppressWarnings("unchecked")
             BaseArrayList<E> dup = (BaseArrayList<E>)super.clone();
             if (_elements != null) {
                 dup._elements = _elements.clone();

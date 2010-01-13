@@ -137,7 +137,7 @@ public class FieldMask
      * not-modified.
      */
     @Override
-    public Object clone ()
+    public FieldMask clone ()
     {
         try {
             FieldMask mask = (FieldMask)super.clone();

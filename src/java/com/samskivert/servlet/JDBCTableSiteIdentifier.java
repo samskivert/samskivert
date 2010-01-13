@@ -155,8 +155,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
         // add it to our two mapping tables, taking care to avoid causing enumerateSites() to choke
         @SuppressWarnings("unchecked") HashMap<String,Site> newStrings =
             (HashMap<String,Site>)_sitesByString.clone();
-        @SuppressWarnings("unchecked") HashIntMap<Site> newIds =
-            (HashIntMap<Site>)_sitesById.clone();
+        HashIntMap<Site> newIds = _sitesById.clone();
         newIds.put(site.siteId, site);
         newStrings.put(site.siteString, site);
         _sitesByString = newStrings;

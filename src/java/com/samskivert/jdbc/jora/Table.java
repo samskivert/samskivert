@@ -264,7 +264,7 @@ public class Table<T>
      */
     public FieldMask getFieldMask ()
     {
-        return (FieldMask)fMask.clone();
+        return fMask.clone();
     }
 
     /**

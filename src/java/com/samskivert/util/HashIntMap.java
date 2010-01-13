@@ -463,8 +463,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             Record<V>[] buckets = result._buckets = result._buckets.clone();
             for (int ii = buckets.length - 1; ii >= 0; ii--) {
                 if (buckets[ii] != null) {
-                    @SuppressWarnings("unchecked")
-                    Record<V> entry = (Record<V>) buckets[ii].clone();
+                    Record<V> entry = buckets[ii].clone();
                     buckets[ii] = entry;
                 }
             }
@@ -585,15 +584,14 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
             return key + "=" + StringUtil.toString(value);
         }
 
-        @Override public Object clone ()
+        @Override public Record<V> clone ()
         {
             try {
                 @SuppressWarnings("unchecked")
                 Record<V> result = (Record<V>) super.clone();
                 // value is not cloned
                 if (result.next != null) {
-                    @SuppressWarnings("unchecked")
-                    Record<V> next = (Record<V>) result.next.clone();
+                    Record<V> next = result.next.clone();
                     result.next = next;
                 }
                 return result;

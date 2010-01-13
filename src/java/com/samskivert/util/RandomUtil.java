@@ -114,6 +114,24 @@ public class RandomUtil
         return getInt(n, r) == 0;
     }
 
+     /**
+     * Has a probability p of returning true.
+     */
+    public static boolean getProbability (float p)
+    {
+        return getProbability(p, rand);
+    }
+
+    /**
+     * Has a probability p of returning true.
+     *
+     * @param r the random number generator to use
+     */
+    public static boolean getProbability (float p, Random r)
+    {
+        return r.nextFloat() < p;
+    }
+
     /**
      * Returns a pseudorandom, uniformly distributed boolean.
      */

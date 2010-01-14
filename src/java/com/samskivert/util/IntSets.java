@@ -210,6 +210,7 @@ public class IntSets
     {
         @Override public boolean contains (int value) { return false; }
         @Override public int size () { return 0; }
+        @Override public boolean isEmpty () { return true; }
 
         public Interator interator ()
         {
@@ -233,8 +234,9 @@ public class IntSets
             _s = s;
         }
 
-        @Override public int size () { return _s.size(); }
         @Override public boolean contains (int value) { return _s.contains(value); }
+        @Override public int size () { return _s.size(); }
+        @Override public boolean isEmpty () { return _s.isEmpty(); }
 
         public Interator interator ()
         {

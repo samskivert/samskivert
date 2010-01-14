@@ -71,6 +71,18 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
         return size;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation simply checks to see if the interator has a first element.
+     */
+    @Override
+    public boolean isEmpty ()
+    {
+        // possibly dumb implementation. Override if you can do better.
+        return !interator().hasNext();
+    }
+
     // from IntSet
     public boolean add (int value)
     {

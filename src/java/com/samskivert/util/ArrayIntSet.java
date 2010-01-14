@@ -268,10 +268,16 @@ public class ArrayIntSet extends AbstractIntSet
         return values;
     }
 
-    @Override // from AbstractSet<Integer>
+    @Override // from AbstractCollection<Integer>
     public int size ()
     {
         return _size;
+    }
+
+    @Override // from AbstractCollection<Integer>
+    public boolean isEmpty ()
+    {
+        return (_size == 0);
     }
 
     @Override // from AbstractIntSet

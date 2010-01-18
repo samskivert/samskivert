@@ -52,14 +52,14 @@ public class CountMap<K> extends AbstractMap<K, Integer>
     }
 
     /**
-     * Add the specified amount to the count for the specified key.
+     * Add the specified amount to the count for the specified key, return the new count.
      */
     public int add (K key, int amount)
     {
         CountEntry<K> entry = _backing.get(key);
         if (entry == null) {
             _backing.put(key, entry = new CountEntry<K>(key, amount));
-            return 0;
+            return amount;
         }
         return (entry.count += amount);
     }

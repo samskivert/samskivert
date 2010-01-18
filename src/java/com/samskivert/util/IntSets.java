@@ -185,20 +185,16 @@ public class IntSets
         // the following are overridden so that they don't appear to work if given empty collections
         // or an improper Object key
         @Override public boolean remove (Object o) { throw new UnsupportedOperationException(); }
-        @Override public boolean addAll (Collection<? extends Integer> c)
-        {
+        @Override public boolean addAll (Collection<? extends Integer> c) {
             throw new UnsupportedOperationException();
         }
-        @Override public boolean removeAll (Collection<?> c)
-        {
+        @Override public boolean removeAll (Collection<?> c) {
             throw new UnsupportedOperationException();
         }
-        @Override public boolean retainAll (Collection<?> c)
-        {
+        @Override public boolean retainAll (Collection<?> c) {
             throw new UnsupportedOperationException();
         }
-        @Override public void clear ()
-        {
+        @Override public void clear () {
             throw new UnsupportedOperationException();
         }
     } // end: class AbstractImmutableIntSet
@@ -212,16 +208,14 @@ public class IntSets
         @Override public int size () { return 0; }
         @Override public boolean isEmpty () { return true; }
 
-        public Interator interator ()
-        {
+        public Interator interator () {
             return EMPTY_INTERATOR;
         }
 
-        protected static Interator EMPTY_INTERATOR =
-            new AbstractInterator() {
-                public boolean hasNext () { return false; }
-                public int nextInt () { throw new NoSuchElementException(); }
-            };
+        protected static Interator EMPTY_INTERATOR = new AbstractInterator() {
+            public boolean hasNext () { return false; }
+            public int nextInt () { throw new NoSuchElementException(); }
+        };
     } // end: class EmptyIntSet
 
     /**
@@ -229,8 +223,7 @@ public class IntSets
      */
     protected static class UnmodifiableIntSetView extends AbstractImmutableIntSet
     {
-        public UnmodifiableIntSetView (IntSet s)
-        {
+        public UnmodifiableIntSetView (IntSet s) {
             _s = s;
         }
 
@@ -238,8 +231,7 @@ public class IntSets
         @Override public int size () { return _s.size(); }
         @Override public boolean isEmpty () { return _s.isEmpty(); }
 
-        public Interator interator ()
-        {
+        public Interator interator () {
             return new AbstractInterator() {
                 public boolean hasNext () { return _i.hasNext(); }
                 public int nextInt () { return _i.nextInt(); }
@@ -257,13 +249,11 @@ public class IntSets
      */
     protected static abstract class FindingInterator extends AbstractInterator
     {
-        public boolean hasNext ()
-        {
+        public boolean hasNext () {
             return _hasNext || (_hasNext = findNext());
         }
 
-        public int nextInt ()
-        {
+        public int nextInt () {
             if (_hasNext) {
                 _hasNext = false;
             } else if (!findNext()) { // support calling nextInt() without using hasNext() (tsk tsk)
@@ -290,8 +280,7 @@ public class IntSets
      */
     protected static class AndIntSetView extends AbstractImmutableIntSet
     {
-        public AndIntSetView (IntSet... sources)
-        {
+        public AndIntSetView (IntSet... sources) {
             if (sources.length == 0) {
                 _sources = new IntSet[] { IntSets.emptyIntSet() };
 
@@ -303,8 +292,7 @@ public class IntSets
         }
 
         @Override
-        public boolean contains (int value)
-        {
+        public boolean contains (int value) {
             for (IntSet src : _sources) {
                 if (!src.contains(value)) {
                     return false;
@@ -315,11 +303,9 @@ public class IntSets
 
         // TODO: smarter size() (Right now we're using inherited, which counts interated)
 
-        public Interator interator ()
-        {
+        public Interator interator () {
             return new FindingInterator() {
-                @Override protected boolean findNext ()
-                {
+                @Override protected boolean findNext () {
                     OUTER:
                     while (_i.hasNext()) {
                         _next = _i.nextInt();
@@ -344,18 +330,15 @@ public class IntSets
     /**
      * An "or" view of the specified sources.
      */
-    protected static class OrIntSetView extends AbstractImmutableIntSet
-    {
-        public OrIntSetView (IntSet... sources)
-        {
+    protected static class OrIntSetView extends AbstractImmutableIntSet {
+        public OrIntSetView (IntSet... sources) {
             _sources = sources;
             // TODO: sort sources by size (largest first), to optimize general checks?
             // TODO: copy array to prevent befuckery?
         }
 
         @Override
-        public boolean contains (int value)
-        {
+        public boolean contains (int value) {
             for (IntSet src : _sources) {
                 if (src.contains(value)) {
                     return true;
@@ -364,13 +347,12 @@ public class IntSets
             return false;
         }
 
-        // TODO: smarter size() (right now we're using inherited, which 
+        // TODO: smarter size() (right now we're using inherited, which
 
-        public Interator interator ()
-        {
+        public Interator interator () {
             return new FindingInterator() {
-                protected boolean findNext ()
-                {
+                @Override
+                protected boolean findNext () {
                     while (true) {
                         if (_i == null) {
                             if (_srcIdx >= _sources.length - 1) {
@@ -408,14 +390,12 @@ public class IntSets
         /**
          * Construct a ComplementIntSet with the specified view source.
          */
-        public NotIntSetView (IntSet source)
-        {
+        public NotIntSetView (IntSet source) {
             _source = source;
         }
 
-        @Override 
-        public int size ()
-        {
+        @Override
+        public int size () {
             // Even if our source was an ArrayIntSet with exactly MAX_VALUE elements,
             // there are still over MAX_VALUE ints in the complement!
             if (_source.size() < Integer.MAX_VALUE) {
@@ -426,8 +406,7 @@ public class IntSets
         }
 
         @Override // from IntSet
-        public boolean contains (int value)
-        {
+        public boolean contains (int value) {
             return !_source.contains(value);
         }
 
@@ -435,42 +414,40 @@ public class IntSets
          * Returns the positive integers first, starting with 0.
          */
         // from IntSet
-        public Interator interator ()
-        {
+        public Interator interator () {
             return new FindingInterator() {
-               protected boolean findNext ()
-               {
-                   if (_positive) {
-                       // first go from 0 to MAX_VALUE
-                       while (_next != Integer.MAX_VALUE) {
-                           if (contains(++_next)) {
-                               return true;
-                           }
-                       }
-                       // prepare to go negative.. (preparing to go negative, sir!)
-                       _positive = false;
-                       _next = 0;
-                   }
-                   // now go down from -1 to MIN_VALUE
-                   while (_next != Integer.MIN_VALUE) {
-                       if (contains(--_next)) {
-                           return true;
-                       }
-                   }
-                   return false;
-               }
+                @Override
+                protected boolean findNext () {
+                    if (_positive) {
+                        // first go from 0 to MAX_VALUE
+                        while (_next != Integer.MAX_VALUE) {
+                            if (contains(++_next)) {
+                                return true;
+                            }
+                        }
+                        // prepare to go negative.. (preparing to go negative, sir!)
+                        _positive = false;
+                        _next = 0;
+                    }
+                    // now go down from -1 to MIN_VALUE
+                    while (_next != Integer.MIN_VALUE) {
+                        if (contains(--_next)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
 
-               { // initializer
-                   _next = -1;
-               }
+                { // initializer
+                    _next = -1;
+                }
 
-               protected boolean _positive = true;
+                protected boolean _positive = true;
             };
         }
 
         @Override // from IntSet
-        public int[] toIntArray ()
-        {
+        public int[] toIntArray () {
             Interator it = interator();
             if (!it.hasNext()) {
                 return new int[0];

@@ -140,6 +140,7 @@ public class CountMap<K> extends AbstractMap<K, Integer>
     protected class EntrySet extends AbstractSet<Map.Entry<K, Integer>>
     {
         @SuppressWarnings("unchecked")
+        @Override
         public Iterator<Map.Entry<K, Integer>> iterator ()
         {
             // fuck if I know why I gotta jump through this hoop
@@ -149,7 +150,7 @@ public class CountMap<K> extends AbstractMap<K, Integer>
 
         @Override
         public boolean contains (Object o) {
-            if (!(o instanceof Map.Entry)) {
+            if (!(o instanceof Map.Entry<?, ?>)) {
                 return false;
             }
             Map.Entry<?, ?> oentry = (Map.Entry<?, ?>) o;
@@ -157,6 +158,7 @@ public class CountMap<K> extends AbstractMap<K, Integer>
             return (entry != null) && entry.getValue().equals(oentry.getValue());
         }
 
+        @Override
         public boolean remove (Object o) {
             if (contains(o)) {
                 CountMap.this.remove(((Map.Entry<?, ?>) o).getKey());
@@ -165,10 +167,12 @@ public class CountMap<K> extends AbstractMap<K, Integer>
             return false;
         }
 
+        @Override
         public int size () {
             return CountMap.this.size();
         }
 
+        @Override
         public void clear () {
             CountMap.this.clear();
         }
@@ -208,17 +212,19 @@ public class CountMap<K> extends AbstractMap<K, Integer>
             return oldVal;
         }
 
+        @Override
         public int hashCode ()
         {
             return ((key == null) ? 0 : key.hashCode()) ^ count;
         }
 
+        @Override
         public boolean equals (Object o)
         {
             if (o == this) {
                 return true;
             }
-            if (!(o instanceof Map.Entry)) {
+            if (!(o instanceof Map.Entry<?, ?>)) {
                 return false;
             }
             Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
@@ -227,6 +233,7 @@ public class CountMap<K> extends AbstractMap<K, Integer>
                 getValue().equals(e.getValue());
         }
 
+        @Override
         public String toString ()
         {
             return key + "=" + count;

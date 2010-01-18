@@ -1,6 +1,8 @@
 //
 // $Id$
 
+package com.samskivert.util;
+
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -19,13 +21,13 @@ public class CountMap<K> extends AbstractMap<K, Integer>
      */
     public CountMap ()
     {
-        this(new HashMap<K, int[]>());
+        this(new HashMap<K, CountEntry<K>>());
     }
 
     /**
      * For subclassing, etc. Not yet public.
      */
-    protected CountMap (Map<K, int[]> backing)
+    protected CountMap (Map<K, CountEntry<K>> backing)
     {
         if (!backing.isEmpty()) {
             throw new IllegalArgumentException("Map is non-empty");
@@ -54,12 +56,12 @@ public class CountMap<K> extends AbstractMap<K, Integer>
      */
     public int add (K key, int amount)
     {
-        int[] val = _backing.get(key);
-        if (val == null) {
-            _backing.put(key, val = new int[1]);
+        CountEntry<K> entry = _backing.get(key);
+        if (entry == null) {
+            _backing.put(key, entry = new CountEntry<K>(key, amount));
+            return 0;
         }
-        val[0] += amount;
-        return val[0];
+        return (entry.count += amount);
     }
 
     /**
@@ -67,8 +69,8 @@ public class CountMap<K> extends AbstractMap<K, Integer>
      */
     public int getCount (K key)
     {
-        int[] val = _backing.get(key);
-        return (val == null) ? 0 : val[0];
+        CountEntry<K> entry = _backing.get(key);
+        return (entry == null) ? 0 : entry.count;
     }
 
     /**
@@ -76,8 +78,8 @@ public class CountMap<K> extends AbstractMap<K, Integer>
      */
     public void compress ()
     {
-        for (Iterator<int[]> it = _backing.values().iterator(); it.hasNext(); ) {
-            if (it.next()[0] == 0) {
+        for (Iterator<CountEntry<K>> it = _backing.values().iterator(); it.hasNext(); ) {
+            if (it.next().count == 0) {
                 it.remove();
             }
         }
@@ -86,16 +88,14 @@ public class CountMap<K> extends AbstractMap<K, Integer>
     @Override
     public Set<Map.Entry<K, Integer>> entrySet ()
     {
-        if (_entrySet == null) {
-            _entrySet = new EntrySet();
-        }
-        return _entrySet;
+        Set<Map.Entry<K, Integer>> es = _entrySet;
+        return (es != null) ? es : (_entrySet = new EntrySet());
     }
 
     @Override
     public Integer put (K key, Integer value)
     {
-        return integer(_backing.put(key, new int[] { value.intValue() }));
+        return integer(_backing.put(key, new CountEntry<K>(key, value.intValue())));
     }
 
     @Override
@@ -139,33 +139,22 @@ public class CountMap<K> extends AbstractMap<K, Integer>
      */
     protected class EntrySet extends AbstractSet<Map.Entry<K, Integer>>
     {
-        public Iterator<Map.Entry<K, Integer>> iterator () {
-            return new Iterator<Map.Entry<K, Integer>>() {
-                public boolean hasNext () {
-                    return _it.hasNext();
-                }
-
-                public Map.Entry<K, Integer> next () {
-                    // I don't see any way around creating a new Entry here
-                    return adaptEntry(_it.next());
-                }
-
-                public void remove () {
-                    _it.remove();
-                }
-                protected Iterator<Map.Entry<K, int[]>> _it = _backing.entrySet().iterator();
-            };
+        @SuppressWarnings("unchecked")
+        public Iterator<Map.Entry<K, Integer>> iterator ()
+        {
+            // fuck if I know why I gotta jump through this hoop
+            Iterator<?> it = _backing.values().iterator();
+            return (Iterator<Map.Entry<K, Integer>>) it;
         }
 
+        @Override
         public boolean contains (Object o) {
             if (!(o instanceof Map.Entry)) {
                 return false;
             }
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
-            Integer value = CountMap.this.get(entry.getKey());
-            // we don't allow storing null, so getting a null means there's no mapping,
-            // and we don't have to check containsKey
-            return (value != null) && value.equals(entry.getValue());
+            Map.Entry<?, ?> oentry = (Map.Entry<?, ?>) o;
+            CountEntry<K> entry = _backing.get(oentry.getKey());
+            return (entry != null) && entry.getValue().equals(oentry.getValue());
         }
 
         public boolean remove (Object o) {
@@ -188,53 +177,71 @@ public class CountMap<K> extends AbstractMap<K, Integer>
     /**
      * Return null or the boxed value contained in the count.
      */
-    protected static final Integer integer (int[] val)
+    protected static final Integer integer (CountEntry<?> val)
     {
-        return (val == null) ? null : val[0];
+        return (val == null) ? null : val.count;
     }
 
-    /**
-     * Adapt an entry from our internal backing map to one visible to users of this class.
-     * Grumble.
-     */
-    protected static <K> Map.Entry<K, Integer> adaptEntry (final Map.Entry<K, int[]> entry)
+    protected static class CountEntry<K>
+        implements Map.Entry<K, Integer>
     {
-        return new Map.Entry<K, Integer>() {
-            public K getKey () {
-                return entry.getKey();
+        public CountEntry (K key, int initialCount)
+        {
+            this.key = key;
+            this.count = initialCount;
+        }
+
+        public final K getKey ()
+        {
+            return key;
+        }
+
+        public Integer getValue ()
+        {
+            return count;
+        }
+
+        public Integer setValue (Integer newValue)
+        {
+            int oldVal = count;
+            count = newValue;
+            return oldVal;
+        }
+
+        public int hashCode ()
+        {
+            return ((key == null) ? 0 : key.hashCode()) ^ count;
+        }
+
+        public boolean equals (Object o)
+        {
+            if (o == this) {
+                return true;
             }
-            public Integer getValue () {
-                return integer(entry.getValue());
+            if (!(o instanceof Map.Entry)) {
+                return false;
             }
-            public Integer setValue (Integer newVal) {
-                int[] val = entry.getValue();
-                Integer ret = integer(val);
-                val[0] = newVal.intValue();
-                return ret;
-            }
-            public int hashCode () {
-                K key = getKey();
-                return ((key == null) ? 0 : key.hashCode()) ^ getValue().hashCode();
-            }
-            public boolean equals (Object o) {
-                if (!(o instanceof Map.Entry)) {
-                    return false;
-                }
-                Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-                K key = getKey();
-                Object key2 = e.getKey();
-                return ((key == null) ? (key2 == null) : key.equals(key2)) &&
-                    getValue().equals(e.getValue());
-            }
-            public String toString () {
-                return getKey() + "=" + entry.getValue()[0];
-            }
-        };
+            Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+            Object okey = e.getKey();
+            return ((key == null) ? (okey == null) : key.equals(okey)) &&
+                getValue().equals(e.getValue());
+        }
+
+        public String toString ()
+        {
+            return key + "=" + count;
+        }
+
+        /** The key. */
+        protected final K key;
+
+        /** The current count. */
+        protected int count;
     }
 
     /** Our backing map */
-    protected Map<K, int[]> _backing;
+    protected Map<K, CountEntry<K>> _backing;
 
     /** The entrySet, if created. */
-    protected transient volatile Set<Map.Entry<K, Integer>> _entrySet = null;
+    protected transient Set<Map.Entry<K, Integer>> _entrySet = null;
 }

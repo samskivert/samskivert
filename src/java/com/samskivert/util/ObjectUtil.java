@@ -25,6 +25,8 @@ import java.io.PrintStream;
 
 import java.util.Arrays;
 
+import com.samskivert.annotation.*;
+
 /**
  * Utility methods that don't fit anywhere else.
  */
@@ -33,6 +35,7 @@ public class ObjectUtil
     /**
      * Test two objects for equality safely.
      */
+    @ReplacedBy("com.google.common.base.Objects#equal(Object,Object)")
     public static boolean equals (Object o1, Object o2)
     {
         return (o1 == o2) || ((o1 != null) && o1.equals(o2));

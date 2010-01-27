@@ -82,22 +82,22 @@ public class JDK14Logger implements Logger.Factory
         String self = getClass().getName();
 
         // locate ourselves in the call stack
-	StackTraceElement[] stack = (new Throwable()).getStackTrace();
+        StackTraceElement[] stack = (new Throwable()).getStackTrace();
         int ii = 0;
         for (; ii < stack.length; ii++) {
-	    if (self.equals(stack[ii].getClassName())) {
-		break;
-	    }
-	}
+            if (self.equals(stack[ii].getClassName())) {
+                break;
+            }
+        }
         System.err.println("Found self at " + ii);
         // now locate the first thing that's not us, that's the caller
-	for (; ii < stack.length; ii++) {
-	    String cname = stack[ii].getClassName();
-	    if (!cname.equals(self)) {
+        for (; ii < stack.length; ii++) {
+            String cname = stack[ii].getClassName();
+            if (!cname.equals(self)) {
                 System.err.println("Found non-self at " + ii + " " + cname);
                 return new String[] { cname, stack[ii].getMethodName() };
-	    }
-	}
+            }
+        }
         System.err.println("Failed to find non-self.");
         return new String[] { null, null };
     }

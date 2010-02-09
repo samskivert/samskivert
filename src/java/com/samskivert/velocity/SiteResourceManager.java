@@ -46,16 +46,16 @@ public class SiteResourceManager extends ResourceManagerImpl
         throws Exception
     {
         super.initialize(rsvc);
-        Log.log.info("SiteResourceManager initializing.");
 
         // the web framework was kind enough to slip this into the runtime when it started up
-        Application app = (Application)rsvc.getApplicationAttribute(
-            Application.VELOCITY_ATTR_KEY);
+        Application app = (Application)rsvc.getApplicationAttribute(Application.VELOCITY_ATTR_KEY);
         if (app == null) {
             Log.log.warning("SiteResourceManager: No application was initialized. " +
                             "A user of the site resource manager must ensure that " +
                             "an application is instantiated and initialized.");
+            return;
         }
+        Log.log.info("SiteResourceManager initializing.");
 
         // get handles on the good stuff
         _sctx = app.getServletContext();

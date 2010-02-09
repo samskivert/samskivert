@@ -37,7 +37,6 @@ public class ServletContextResourceManager extends ResourceManagerImpl
         throws Exception
     {
         super.initialize(rsvc);
-        rsvc.getLog().info("SCRM initializing.");
 
         // the web framework was kind enough to slip this into the runtime when it started up
         Application app = (Application)rsvc.getApplicationAttribute(Application.VELOCITY_ATTR_KEY);
@@ -45,7 +44,9 @@ public class ServletContextResourceManager extends ResourceManagerImpl
             rsvc.getLog().warn("SCRM: No application was initialized. A user of the " +
                                "servlet context resource manager must ensure that " +
                                "an application is instantiated and initialized.");
+            return;
         }
+        rsvc.getLog().info("SCRM initializing.");
 
         // create our resource loader
         _contextLoader = new ServletContextResourceLoader(app.getServletContext());

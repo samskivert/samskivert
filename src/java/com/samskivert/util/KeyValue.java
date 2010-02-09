@@ -63,10 +63,10 @@ public class KeyValue<K extends Comparable<? super K>,V>
     }
 
     @Override
-    @SuppressWarnings("unchecked") // documentation inherited
+    @SuppressWarnings("unchecked")
     public boolean equals (Object other)
     {
-        return key.equals(((KeyValue<K,V>)other).key);
+        return (other instanceof KeyValue<?,?>) && key.equals(((KeyValue<K,V>)other).key);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class KeyValue<K extends Comparable<? super K>,V>
         return key.hashCode();
     }
 
-    // documentation inherited
+    // from interface Comparable<KeyValue<K,V>>
     public int compareTo (KeyValue<K,V> other)
     {
         return key.compareTo(other.key);

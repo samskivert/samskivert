@@ -585,7 +585,7 @@ public class ConfigUtil
         }
 
         @Override public boolean equals (Object other) {
-            return _package.equals(((PropRecord)other)._package);
+            return (other instanceof PropRecord) && _package.equals(((PropRecord)other)._package);
         }
 
         @Override public String toString () {

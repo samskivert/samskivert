@@ -503,7 +503,7 @@ public class RuntimeAdjust
 
         @Override public boolean equals (Object other)
         {
-            return _name.equals(((Adjust)other)._name);
+            return (other instanceof Adjust) && _name.equals(((Adjust)other)._name);
         }
 
         @Override public int hashCode ()

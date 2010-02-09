@@ -161,11 +161,11 @@ public class MACUtil
 
     /** Look for 2 hex values in a row followed by a ':' or '-' repeated 5 times, followed by 2 hex
      * values. */
-    protected static Pattern MACRegex =
+    protected static final Pattern MACRegex =
         Pattern.compile("((?:\\p{XDigit}{2}+[:\\-]){5}+\\p{XDigit}{2}+)", Pattern.CASE_INSENSITIVE);
 
     // TODO maybe we should obfuscate these with rot13 or something so
     // that people can't run 'strings' on us and instantly see what we try
-    protected static String[] WINDOWS_CMDS = {"ipconfig /all"};
-    protected static String[] UNIX_CMDS = {"/sbin/ifconfig", "/etc/ifconfig"};
+    protected static final String[] WINDOWS_CMDS = {"ipconfig /all"};
+    protected static final String[] UNIX_CMDS = {"/sbin/ifconfig", "/etc/ifconfig"};
 }

@@ -429,7 +429,7 @@ public class Table<T>
      * components "x" and "y", then database table should have columns
      * "location_x" and "location_y" (if '_' is used as separator).
      */
-    public static String fieldSeparator = "_";
+    public static final String fieldSeparator = "_";
 
     protected final void init (Class<T> clazz, String tableName, String[] keys,
                                boolean mixedCaseConvert)
@@ -877,6 +877,17 @@ public class Table<T>
 	return column;
     }
 
+    protected static Method getSetBypass ()
+    {
+        try {
+            Class<?> c = Class.forName("java.lang.reflect.AccessibleObject");
+            return c.getMethod("setAccessible", new Class<?>[] { Boolean.TYPE });
+        } catch (Exception ex) {
+            System.err.println("Unable to reflect AccessibleObject.setAccessible: " + ex);
+            return null;
+        }
+    }
+
     protected String name;
     protected String listOfFields;
     protected String qualifiedListOfFields;
@@ -895,22 +906,12 @@ public class Table<T>
     protected int primaryKeyIndices[];
 
     protected Constructor<T> constructor;
-    protected static Method setBypass;
 
-    protected static Class<Serializable> serializableClass;
+    protected static final Method setBypass = getSetBypass();
+    protected static final Class<Serializable> serializableClass = Serializable.class;
     protected static final Object[] bypassFlag = { Boolean.TRUE };
     protected static final Object[] constructorArgs = {};
 
     // used to identify byte[] fields
     protected static final byte[] BYTE_PROTO = new byte[0];
-
-    static {
-        try {
-            serializableClass = Serializable.class;
-            Class<?> c = Class.forName("java.lang.reflect.AccessibleObject");
-            setBypass = c.getMethod("setAccessible", new Class<?>[] { Boolean.TYPE });
-        } catch (Exception ex) {
-            System.err.println("Unable to reflect AccessibleObject.setAccessible: " + ex);
-        }
-    }
 }

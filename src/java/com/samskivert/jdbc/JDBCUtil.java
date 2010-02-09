@@ -649,5 +649,5 @@ public class JDBCUtil
     }
 
     /** Used by {@link #makeCollectingConnection}. */
-    protected static Class<?>[] PROXY_IFACES = { Connection.class };
+    protected static final Class<?>[] PROXY_IFACES = { Connection.class };
 }

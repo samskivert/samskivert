@@ -45,23 +45,23 @@ public class LRUHashMapTest extends TestCase
             }
         });
 
-        map.put("one.1", new Integer(1));
+        map.put("one.1", 1);
         assertTrue("size == 1", map.size() == 1);
-        map.put("one.2", new Integer(1));
+        map.put("one.2", 1);
         assertTrue("size == 2", map.size() == 2);
-        map.put("one.3", new Integer(1));
+        map.put("one.3", 1);
         assertTrue("size == 3", map.size() == 3);
-        map.put("one.4", new Integer(1));
+        map.put("one.4", 1);
         assertTrue("size == 4", map.size() == 4);
-        map.put("one.5", new Integer(1));
+        map.put("one.5", 1);
         assertTrue("size == 5", map.size() == 5);
-        map.put("three.1", new Integer(3));
+        map.put("three.1", 3);
         assertTrue("size == 6", map.size() == 6);
-        map.put("five.1", new Integer(5));
+        map.put("five.1", 5);
         assertTrue("size == 4", map.size() == 4);
-        map.put("three.2", new Integer(3));
+        map.put("three.2", 3);
         assertTrue("size == 2", map.size() == 2);
-        map.put("three.3", new Integer(3));
+        map.put("three.3", 3);
         assertTrue("size == 2", map.size() == 2);
     }
 

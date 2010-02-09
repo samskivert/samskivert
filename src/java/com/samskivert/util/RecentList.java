@@ -94,10 +94,10 @@ public class RecentList
     {
         RecentList list = new RecentList(5);
         for (int ii = 0; ii < 10; ii++) {
-            list.add(new Integer(ii));
+            list.add(ii);
         }
-        System.out.println("Contains 3 " + list.contains(new Integer(3)));
-        System.out.println("Contains 7 " + list.contains(new Integer(7)));
+        System.out.println("Contains 3 " + list.contains(3));
+        System.out.println("Contains 7 " + list.contains(7));
         for (int ii = 0; ii < list.size(); ii++) {
             System.out.println(ii + " => " + list.get(ii));
         }

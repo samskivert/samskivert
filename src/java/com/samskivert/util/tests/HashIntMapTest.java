@@ -91,7 +91,7 @@ public class HashIntMapTest extends TestCase
         // now try putting lots and lots of values in the table
         // so that it grows a bunch
         for (int ii=1; ii < 12345; ii += 3) {
-            table.put(ii, new Integer(ii));
+            table.put(ii, Integer.valueOf(ii));
         }
 
         // now check by removing most and seeing if everything's equal
@@ -117,9 +117,8 @@ public class HashIntMapTest extends TestCase
 
     protected void populateTable (HashIntMap<Integer> table)
     {
-        for (int i = 10; i < 20; i++) {
-            Integer value = new Integer(i);
-            table.put(i, value);
+        for (int ii = 10; ii < 20; ii++) {
+            table.put(ii, Integer.valueOf(ii));
         }
     }
 

@@ -46,7 +46,7 @@ public class CollectionUtilTest extends TestCase
     {
         ArrayList<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < 100; i++) {
-            list.add(new Integer(i));
+            list.add(i);
         }
 
         for (int i = 0; i < 10; i++) {
@@ -59,8 +59,7 @@ public class CollectionUtilTest extends TestCase
         Random rand = new Random();
         ComparableArrayList<Integer> slist = new ComparableArrayList<Integer>();
         for (int ii = 0; ii < 25; ii++) {
-            Integer value = new Integer(rand.nextInt(100));
-            slist.insertSorted(value);
+            slist.insertSorted(rand.nextInt(100));
         }
         System.out.println(StringUtil.toString(slist));
     }

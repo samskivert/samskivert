@@ -41,11 +41,11 @@ public class CheapIntMapTest extends TestCase
         CheapIntMap map = new CheapIntMap(10);
 
         for (int ii = 0; ii < 100; ii += 20) {
-            map.put(ii, new Integer(ii));
+            map.put(ii, ii);
         }
 
         for (int ii = 0; ii < 5; ii++) {
-            map.put(ii, new Integer(ii));
+            map.put(ii, ii);
         }
 
         for (int ii = 0; ii < 100; ii++) {
@@ -60,7 +60,7 @@ public class CheapIntMapTest extends TestCase
         }
 
         for (int ii = 10; ii > 0; ii--) {
-            map.put(ii, new Integer(ii));
+            map.put(ii, ii);
         }
 
         for (int ii = 0; ii < 100; ii++) {

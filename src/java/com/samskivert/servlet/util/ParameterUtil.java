@@ -378,7 +378,9 @@ public class ParameterUtil
 	throws DataValidationException
     {
 	try {
-            return _dparser.parse(value);
+            synchronized (_dparser) {
+                return _dparser.parse(value);
+            }
 	} catch (ParseException pe) {
 	    throw new DataValidationException(invalidDataMessage);
 	}

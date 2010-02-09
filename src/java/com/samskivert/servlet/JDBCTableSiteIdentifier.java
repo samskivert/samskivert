@@ -28,6 +28,7 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -231,7 +232,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                 }
 
                 // sort the mappings in order of specificity
-                Collections.sort(mappings);
+                Collections.sort(mappings, SiteMapping.BY_SPECIFICITY);
                 _mappings = mappings;
 //                 Log.info("Loaded site mappings " + StringUtil.toString(_mappings) + ".");
 
@@ -275,16 +276,24 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
     /**
      * Used to track domain to site identifier mappings.
      */
-    protected static class SiteMapping implements Comparable<SiteMapping>
+    protected static class SiteMapping
     {
+        /**
+         * Sorts site mappings from most specific (www.yahoo.com) to least specific (yahoo.com).
+         */
+        public static final Comparator<SiteMapping> BY_SPECIFICITY = new Comparator<SiteMapping>() {
+            public int compare (SiteMapping one, SiteMapping two) {
+                return one._rdomain.compareTo(two._rdomain);
+            }
+        };
+
         /** The domain to match. */
         public String domain;
 
         /** The site identifier for the associated domain. */
         public int siteId;
 
-        public SiteMapping (int siteId, String domain)
-        {
+        public SiteMapping (int siteId, String domain) {
             this.siteId = siteId;
             this.domain = domain;
             byte[] bytes = domain.getBytes();
@@ -292,17 +301,8 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
             _rdomain = new String(bytes);
         }
 
-        /**
-         * Site mappings sort from most specific (www.yahoo.com) to least specific (yahoo.com).
-         */
-        public int compareTo (SiteMapping other)
-        {
-            return other._rdomain.compareTo(_rdomain);
-        }
-
         @Override // from Object
-        public String toString ()
-        {
+        public String toString () {
             return "[" + domain + " => " + siteId + "]";
         }
 

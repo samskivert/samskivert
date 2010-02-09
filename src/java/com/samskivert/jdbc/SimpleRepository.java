@@ -218,7 +218,7 @@ public class SimpleRepository extends Repository
             } catch (PersistenceException pe) {
                 // back out our changes if something got hosed
                 try {
-                    if (supportsTransactions && conn != null && !conn.isClosed()) {
+                    if (supportsTransactions && !conn.isClosed()) {
                         conn.rollback();
                     }
                 } catch (SQLException rbe) {

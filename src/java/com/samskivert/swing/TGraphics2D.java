@@ -622,13 +622,6 @@ public class TGraphics2D extends Graphics2D
     }
 
     @Override
-    public void finalize ()
-    {
-        _copy.finalize();
-        _primary.finalize();
-    }
-
-    @Override
     public String toString ()
     {
         return _primary.toString();

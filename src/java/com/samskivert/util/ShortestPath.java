@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -66,19 +67,18 @@ public class ShortestPath
     {
         HashMap<T, NodeInfo<T, V>> nodes = new HashMap<T, NodeInfo<T, V>>();
         HashSet<T> relaxed = new HashSet<T>();
-        ComparableArrayList<NodeInfo<T, V>> uptight = new ComparableArrayList<NodeInfo<T, V>>();
+        SortableArrayList<NodeInfo<T, V>> uptight = new SortableArrayList<NodeInfo<T, V>>();
 
         // initialize our searching info
         for (Iterator<T> iter = graph.enumerateNodes(); iter.hasNext(); ) {
-            NodeInfo<T, V> info = new NodeInfo<T, V>();
-            info.node = iter.next();
+            NodeInfo<T, V> info = new NodeInfo<T, V>(iter.next());
             if (info.node == start) {
                 info.weightTo = 0;
             }
             uptight.add(info);
             nodes.put(info.node, info);
         }
-        uptight.sort();
+        uptight.sort(WEIGHT_ORDER);
 
         // now execute the main part of the search
         while (uptight.size() > 0) {
@@ -104,7 +104,7 @@ public class ShortestPath
                 }
             }
             // now resort the uptight list
-            uptight.sort();
+            uptight.sort(WEIGHT_ORDER);
         }
 
         // now trace the path from the final node back to the start
@@ -118,10 +118,10 @@ public class ShortestPath
     }
 
     /** Used to maintain information during the shortest path search. */
-    protected static final class NodeInfo<T, V> implements Comparable<NodeInfo<T, V>>
+    protected static final class NodeInfo<T, V>
     {
         /** The node for which we're representing information. */
-        public T node;
+        public final T node;
 
         /** The cumulative weight to this node from the source. */
         public int weightTo = Integer.MAX_VALUE / 4;
@@ -129,9 +129,15 @@ public class ShortestPath
         /** The edge followed to reach this node along the shortest path. */
         public V edgeTo;
 
-        /** We order ourselves by the cumulative weight to this node. */
-        public int compareTo (NodeInfo<T, V> o) {
-            return Comparators.compare(o.weightTo, weightTo);
+        public NodeInfo (T node) {
+            this.node = node;
         }
     }
+
+    protected static final Comparator<NodeInfo<?,?>> WEIGHT_ORDER =
+        new Comparator<NodeInfo<?,?>>() {
+        public int compare (NodeInfo<?,?> one, NodeInfo<?,?> two) {
+            return Comparators.compare(two.weightTo, one.weightTo);
+        }
+    };
 }

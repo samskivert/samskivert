@@ -20,12 +20,15 @@
 
 package com.samskivert.util;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.util.Enumeration;
 import java.util.Properties;
+
+import com.samskivert.io.StreamUtil;
 
 /**
  * Utility functions related to properties objects.
@@ -175,33 +178,45 @@ public class PropertiesUtil
     }
 
     /**
-     * Loads up the supplied properties file and returns the specified
-     * key. Clearly this is an expensive operation and you should load a
-     * properties file separately if you plan to retrieve multiple keys
-     * from it. This method, however, is convenient for, say, extracting a
-     * value from a properties file that contains only one key, like a
-     * build timestamp properties file, for example.
+     * Reads and parses the supplied file into a {@link Properties} instance.
+     */
+    public static Properties load (File from)
+        throws IOException
+    {
+        Properties props = new Properties();
+        BufferedInputStream bin = new BufferedInputStream(new FileInputStream(from));
+        try {
+            props.load(bin);
+            return props;
+        } finally {
+            StreamUtil.close(bin);
+        }
+    }
+
+    /**
+     * Loads up the supplied properties file and returns the specified key. Clearly this is an
+     * expensive operation and you should load a properties file separately if you plan to retrieve
+     * multiple keys from it. This method, however, is convenient for, say, extracting a value from
+     * a properties file that contains only one key, like a build timestamp properties file, for
+     * example.
      *
-     * @return the value of the key in question or null if no such key
-     * exists or an error occurred loading the properties file.
+     * @return the value of the key in question or null if no such key exists or an error occurred
+     * loading the properties file.
      */
     public static String loadAndGet (File propFile, String key)
     {
         try {
-            Properties props = new Properties();
-            props.load(new FileInputStream(propFile));
-            return props.getProperty(key);
+            return load(propFile).getProperty(key);
         } catch (IOException ioe) {
             return null;
         }
     }
 
     /**
-     * Like {@link #loadAndGet(File,String)} but obtains the properties
-     * data via the classloader.
+     * Like {@link #loadAndGet(File,String)} but obtains the properties data via the classloader.
      *
-     * @return the value of the key in question or null if no such key
-     * exists or an error occurred loading the properties file.
+     * @return the value of the key in question or null if no such key exists or an error occurred
+     * loading the properties file.
      */
     public static String loadAndGet (String loaderPath, String key)
     {

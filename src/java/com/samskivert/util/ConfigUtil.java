@@ -427,8 +427,8 @@ public class ConfigUtil
         throws IOException
     {
         InputStream input = sourceURL.openStream();
+        BufferedReader bin = new BufferedReader(new InputStreamReader(input));
         try {
-            BufferedReader bin = new BufferedReader(new InputStreamReader(input));
             PropRecord record = new PropRecord(path, sourceURL);
             boolean started = false;
             String line;
@@ -448,7 +448,7 @@ public class ConfigUtil
             }
             return record;
         } finally {
-            StreamUtil.close(input);
+            StreamUtil.close(bin);
         }
     }
 

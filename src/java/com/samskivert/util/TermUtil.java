@@ -31,6 +31,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.samskivert.io.StreamUtil;
+
 /**
  * Provides access to the very platform specific concept of the terminal
  * (ie. vt100, xterm, etc.) in which our code is running. Bear in mind
@@ -100,10 +102,11 @@ public class TermUtil
      */
     protected static Dimension getSizeViaResize ()
     {
+        BufferedReader bin = null;
         try {
             Process proc = Runtime.getRuntime().exec("resize");
             InputStream in = proc.getInputStream();
-            BufferedReader bin = new BufferedReader(new InputStreamReader(in));
+            bin = new BufferedReader(new InputStreamReader(in));
             Pattern regex = Pattern.compile("([0-9]+)");
             String line;
             int columns = -1, lines = -1;
@@ -124,12 +127,17 @@ public class TermUtil
             if (columns != -1 && lines != -1) {
                 return new Dimension(columns, lines);
             }
+            return null;
 
         } catch (PatternSyntaxException pse) {
+            return null; // logging a warning here may be annoying
         } catch (SecurityException se) {
+            return null; // logging a warning here may be annoying
         } catch (IOException ioe) {
+            return null; // logging a warning here may be annoying
+        } finally {
+            StreamUtil.close(bin);
         }
-        return null;
     }
 
     /** Converts the string to an integer, returning -1 on any error. */

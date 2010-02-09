@@ -883,5 +883,5 @@ public class ArrayUtil
     }
 
     /** The default random object used when shuffling an array. */
-    protected static Random _rnd = new Random();
+    protected static final Random _rnd = new Random();
 }

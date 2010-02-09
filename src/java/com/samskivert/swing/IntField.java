@@ -342,6 +342,5 @@ public class IntField extends JTextField
     protected int _minValue, _maxValue;
 
     /** Formats and parses numbers with commas in them. */
-    protected static NumberFormat _formatter =
-        NumberFormat.getIntegerInstance();
+    protected static final NumberFormat _formatter = NumberFormat.getIntegerInstance();
 }

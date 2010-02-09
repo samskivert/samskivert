@@ -410,5 +410,5 @@ public class ParameterUtil
     }
 
     /** We use this to parse dates in requireDateParameter(). */
-    protected static SimpleDateFormat _dparser = new SimpleDateFormat("yyyy-MM-dd");
+    protected static final SimpleDateFormat _dparser = new SimpleDateFormat("yyyy-MM-dd");
 }

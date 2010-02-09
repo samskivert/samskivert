@@ -22,6 +22,7 @@ package com.samskivert.util;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Provides a mechanism for converting a string representation of a value
@@ -56,11 +57,8 @@ public class ValueMarshaller
         public Object parse (String source) throws Exception;
     }
 
-    protected static HashMap<Class<?>,Parser> _parsers;
-
+    protected static Map<Class<?>,Parser> _parsers = new HashMap<Class<?>,Parser>();
     static {
-        _parsers = new HashMap<Class<?>,Parser>();
-
         // we can parse strings
         _parsers.put(String.class, new Parser() {
             public Object parse (String source) throws Exception {

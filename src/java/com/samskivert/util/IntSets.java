@@ -212,7 +212,7 @@ public class IntSets
             return EMPTY_INTERATOR;
         }
 
-        protected static Interator EMPTY_INTERATOR = new AbstractInterator() {
+        protected static final Interator EMPTY_INTERATOR = new AbstractInterator() {
             public boolean hasNext () { return false; }
             public int nextInt () { throw new NoSuchElementException(); }
         };

@@ -92,7 +92,7 @@ public class HTMLUtil
     public static String simpleFormat (String text)
     {
         // first replace the image and other URLs
-        Matcher m = _url.matcher(text);
+        Matcher m = URL_PAT.matcher(text);
         StringBuffer tbuf = new StringBuffer();
         while (m.find()) {
             String match = m.group();
@@ -239,6 +239,5 @@ public class HTMLUtil
         return buf.toString();
     }
 
-    protected static Pattern _url =
-        Pattern.compile("^http://\\S+", Pattern.MULTILINE);
+    protected static final Pattern URL_PAT = Pattern.compile("^http://\\S+", Pattern.MULTILINE);
 }

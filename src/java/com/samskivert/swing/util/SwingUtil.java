@@ -642,7 +642,7 @@ public class SwingUtil
     }
 
     /** Used by {@link #addDebugBorders}. */
-    protected static Random _rando = new Random();
+    protected static final Random _rando = new Random();
 
     /** Used by {@link #getDefaultTextAntialiasing}. */
     protected static boolean _defaultTextAntialiasing;

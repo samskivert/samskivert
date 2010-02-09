@@ -112,5 +112,5 @@ public class KeyUtil
     }
 
     /** Characters used in creating key strings. */
-    protected static String KEY_CHARS = "0123456789";
+    protected static final String KEY_CHARS = "0123456789";
 }

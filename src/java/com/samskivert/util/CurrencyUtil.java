@@ -74,6 +74,6 @@ public class CurrencyUtil
     }
 
     /** A number format for formatting dollars. */
-    protected static NumberFormat _dollarFormatter =
+    protected static final NumberFormat _dollarFormatter =
         NumberFormat.getCurrencyInstance(Locale.US);
 }

@@ -175,12 +175,5 @@ public class MailUtil
         "[-a-zA-Z0-9]+(\\.[-a-zA-Z0-9]+)*\\.[-a-zA-Z0-9]+)$";
 
     /** A compiled version of our email regular expression. */
-    protected static Pattern _emailre;
-    static {
-        try {
-            _emailre = Pattern.compile(EMAIL_REGEX);
-        } catch (PatternSyntaxException pse) {
-            log.warning("Unable to initialize email regexp?!", pse);
-        }
-    }
+    protected static final Pattern _emailre = Pattern.compile(EMAIL_REGEX);
 }

@@ -564,9 +564,7 @@ public class SwingUtil
      */
     public static void addDebugBorders (JPanel panel)
     {
-        Color bcolor = new Color(Math.abs(_rando.nextInt()) % 256,
-                                 Math.abs(_rando.nextInt()) % 256,
-                                 Math.abs(_rando.nextInt()) % 256);
+        Color bcolor = new Color(_rando.nextInt(256), _rando.nextInt(256), _rando.nextInt(256));
         panel.setBorder(BorderFactory.createLineBorder(bcolor));
 
         for (int ii = 0; ii < panel.getComponentCount(); ii++) {

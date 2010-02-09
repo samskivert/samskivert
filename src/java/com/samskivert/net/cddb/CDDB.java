@@ -460,7 +460,7 @@ public class CDDB
     /**
      * A simple class to encapsulate the response from the CDDB server.
      */
-    protected class Response
+    protected static class Response
     {
         public int code;
         public String message;

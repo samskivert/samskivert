@@ -336,7 +336,7 @@ public class TableSorter extends AbstractTableModel {
 
     // Helper classes
 
-    protected class Row {
+    protected static class Row {
         public final int modelIndex;
         public Row (int index) {
             this.modelIndex = index;

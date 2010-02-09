@@ -443,7 +443,7 @@ public class IntIntMap
         }
     }
 
-    class Record implements IntIntEntry
+    protected static class Record implements IntIntEntry
     {
 	public Record next;
 	public int key;
@@ -550,7 +550,7 @@ public class IntIntMap
         private int _modCount;
     }
 
-    protected class KeyValueInterator extends AbstractInterator
+    protected static class KeyValueInterator extends AbstractInterator
     {
         public KeyValueInterator (boolean keys, IntEntryIterator eiter) {
             _keys = keys;

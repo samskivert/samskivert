@@ -24,6 +24,7 @@ import java.sql.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.samskivert.Log.log;
 
@@ -83,8 +84,7 @@ public class LiaisonRegistry
     }
 
     protected static ArrayList<DatabaseLiaison> _liaisons = new ArrayList<DatabaseLiaison>();
-    protected static HashMap<String,DatabaseLiaison> _mappings =
-        new HashMap<String,DatabaseLiaison>();
+    protected static Map<String,DatabaseLiaison> _mappings = new HashMap<String,DatabaseLiaison>();
 
     // register our liaison classes
     static {

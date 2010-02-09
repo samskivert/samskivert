@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -160,13 +162,17 @@ public class SiteResourceLoader
 
             // create one if we've not
             if (loader == null) {
-                SiteResourceBundle bundle = getBundle(siteId);
+                final SiteResourceBundle bundle = getBundle(siteId);
                 if (bundle == null) {
                     // no bundle... no classloader.
                     return null;
                 }
 
-                loader = new SiteClassLoader(bundle);
+                loader = AccessController.doPrivileged(new PrivilegedAction<SiteClassLoader>() {
+                    public SiteClassLoader run () {
+                        return new SiteClassLoader(bundle);
+                    }
+                });
                 _loaders.put(siteId, loader);
             }
 

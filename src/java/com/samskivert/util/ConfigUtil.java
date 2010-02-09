@@ -26,6 +26,8 @@ import java.security.AccessControlException;
 import java.util.*;
 import java.util.Map;
 
+import com.samskivert.io.StreamUtil;
+
 import static com.samskivert.Log.log;
 
 /**
@@ -425,28 +427,29 @@ public class ConfigUtil
         throws IOException
     {
         InputStream input = sourceURL.openStream();
-        BufferedReader bin = new BufferedReader(new InputStreamReader(input));
-        PropRecord record = new PropRecord(path, sourceURL);
-        boolean started = false;
-        String line;
-
-        while ((line = bin.readLine()) != null) {
-            if (line.startsWith(PACKAGE_KEY)) {
-                record._package = parseValue(line);
-                started = true;
-            } else if (line.startsWith(EXTENDS_KEY)) {
-                record._extends = parseValue(line);
-                started = true;
-            } else if (line.startsWith(OVERRIDES_KEY)) {
-                record._overrides = parseValues(line);
-                started = true;
-            } else if (started) {
-                break;
+        try {
+            BufferedReader bin = new BufferedReader(new InputStreamReader(input));
+            PropRecord record = new PropRecord(path, sourceURL);
+            boolean started = false;
+            String line;
+            while ((line = bin.readLine()) != null) {
+                if (line.startsWith(PACKAGE_KEY)) {
+                    record._package = parseValue(line);
+                    started = true;
+                } else if (line.startsWith(EXTENDS_KEY)) {
+                    record._extends = parseValue(line);
+                    started = true;
+                } else if (line.startsWith(OVERRIDES_KEY)) {
+                    record._overrides = parseValues(line);
+                    started = true;
+                } else if (started) {
+                    break;
+                }
             }
+            return record;
+        } finally {
+            StreamUtil.close(input);
         }
-        input.close();
-
-        return record;
     }
 
     /** {@link #parseMetaData} helper function. */

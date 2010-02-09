@@ -37,6 +37,7 @@ import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.util.ClassUtil;
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ListUtil;
+import com.samskivert.util.ObjectUtil;
 
 import static com.samskivert.Log.log;
 
@@ -353,8 +354,7 @@ public class ObjectEditorTable extends JTable
             Object o = getObjectAt(row);
             Object oldValue = _interp.getValue(o, _fields[col]);
             // we only set the value if it has changed
-            if ((oldValue == null && value != null) ||
-                !oldValue.equals(value)) {
+            if (!ObjectUtil.equals(oldValue, value)) {
                 _interp.setValue(o, value, _fields[col]);
 
                 // fire the event

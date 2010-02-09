@@ -105,6 +105,7 @@ public class OneLineLogFormatter extends Formatter
 	        pw.close();
 		buf.append(sw.toString());
 	    } catch (Exception ex) {
+                buf.append("Format failure:").append(ex);
 	    }
 	}
 

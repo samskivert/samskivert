@@ -909,8 +909,8 @@ public class Table<T>
             serializableClass = Serializable.class;
             Class<?> c = Class.forName("java.lang.reflect.AccessibleObject");
             setBypass = c.getMethod("setAccessible", new Class<?>[] { Boolean.TYPE });
-        } catch(Exception ex) {
-            // nothing to do
+        } catch (Exception ex) {
+            System.err.println("Unable to reflect AccessibleObject.setAccessible: " + ex);
         }
     }
 }

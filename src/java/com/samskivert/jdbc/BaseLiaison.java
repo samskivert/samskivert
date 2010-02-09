@@ -127,7 +127,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         fields.append(")");
         String update = "ALTER TABLE " + tableSQL(table) + " ADD PRIMARY KEY " + fields.toString();
 
-        executeQuery(conn, update.toString());
+        executeQuery(conn, update);
         log.info("Primary key " + fields + " added to table '" + table + "'");
     }
 

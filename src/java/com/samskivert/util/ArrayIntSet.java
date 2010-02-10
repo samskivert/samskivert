@@ -367,7 +367,7 @@ public class ArrayIntSet extends AbstractIntSet
         int high = _size-1;
 
         while (low <= high) {
-            int mid = (low + high) >> 1;
+            int mid = (low + high) >>> 1;
             int midVal = _values[mid];
 
             if (midVal < key) {

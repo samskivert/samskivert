@@ -244,13 +244,12 @@ public class CDDB
             // read the matches from the server
             ArrayList<Entry> list = new ArrayList<Entry>();
             String input = _in.readLine();
-            System.out.println("...: " + input);
-            while (!input.equals(CDDBProtocol.TERMINATOR)) {
+            while (input != null && !input.equals(CDDBProtocol.TERMINATOR)) {
+                System.out.println("...: " + input);
                 Entry e = new Entry();
                 e.parse(input);
                 list.add(e);
                 input = _in.readLine();
-                System.out.println("...: " + input);
             }
             entries = new Entry[list.size()];
             list.toArray(entries);

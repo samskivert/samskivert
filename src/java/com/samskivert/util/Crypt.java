@@ -578,14 +578,9 @@ public class Crypt
      */
     public static final String crypt (String salt, String original)
     {
-        while (salt.length() < 2) {
-            salt += "A";
-        }
-
         StringBuilder buffer = new StringBuilder("             ");
-
-        char charZero = salt.charAt(0);
-        char charOne  = salt.charAt(1);
+        char charZero = (salt.length() > 0) ? salt.charAt(0) : 'A';
+        char charOne  = (salt.length() > 1) ? salt.charAt(1) : 'A';
 
         buffer.setCharAt(0, charZero);
         buffer.setCharAt(1, charOne);

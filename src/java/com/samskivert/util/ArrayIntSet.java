@@ -363,23 +363,23 @@ public class ArrayIntSet extends AbstractIntSet
      */
     protected int binarySearch (int key)
     {
-	int low = 0;
-	int high = _size-1;
+        int low = 0;
+        int high = _size-1;
 
-	while (low <= high) {
-	    int mid = (low + high) >> 1;
-	    int midVal = _values[mid];
+        while (low <= high) {
+            int mid = (low + high) >> 1;
+            int midVal = _values[mid];
 
-	    if (midVal < key) {
-		low = mid + 1;
-	    } else if (midVal > key) {
-		high = mid - 1;
-	    } else {
-		return mid; // key found
+            if (midVal < key) {
+                low = mid + 1;
+            } else if (midVal > key) {
+                high = mid - 1;
+            } else {
+                return mid; // key found
             }
-	}
+        }
 
-	return -(low + 1);  // key not found.
+        return -(low + 1);  // key not found.
     }
 
     /**

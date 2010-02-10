@@ -79,23 +79,11 @@ public abstract class GroupLayout
     /** A class used to make our policy constants type-safe. */
     public static class Policy
     {
-        int code;
-
-        public Policy (int code)
-        {
-            this.code = code;
-        }
     }
 
     /** A class used to make our policy constants type-safe. */
     public static class Justification
     {
-        int code;
-
-        public Justification (int code)
-        {
-            this.code = code;
-        }
     }
 
     /**
@@ -105,44 +93,34 @@ public abstract class GroupLayout
      */
     public final static Constraints FIXED = new Constraints(Integer.MIN_VALUE);
 
-    /**
-     * Do not adjust the widgets on this axis.
-     */
-    public final static Policy NONE = new Policy(0);
+    /** Do not adjust the widgets on this axis. */
+    public final static Policy NONE = new Policy();
 
-    /**
-     * Stretch all the widgets to their maximum possible size on this
-     * axis.
-     */
-    public final static Policy STRETCH = new Policy(1);
+    /** Stretch all the widgets to their maximum possible size on this axis. */
+    public final static Policy STRETCH = new Policy();
 
-    /**
-     * Stretch all the widgets to be equal to the size of the largest
-     * widget on this axis.
-     */
-    public final static Policy EQUALIZE = new Policy(2);
+    /** Stretch all the widgets to be equal to the size of the largest widget on this axis. */
+    public final static Policy EQUALIZE = new Policy();
 
-    /**
-     * Only valid for off-axis policy, this leaves widgets alone unless
-     * they are larger in the off-axis direction than their container, in
-     * which case it constrains them to fit on the off-axis.
-     */
-    public final static Policy CONSTRAIN = new Policy(3);
+    /** Only valid for off-axis policy, this leaves widgets alone unless they are larger in the
+     * off-axis direction than their container, in which case it constrains them to fit on the
+     * off-axis. */
+    public final static Policy CONSTRAIN = new Policy();
 
     /** A justification constant. */
-    public final static Justification CENTER = new Justification(0);
+    public final static Justification CENTER = new Justification();
 
     /** A justification constant. */
-    public final static Justification LEFT = new Justification(1);
+    public final static Justification LEFT = new Justification();
 
     /** A justification constant. */
-    public final static Justification RIGHT = new Justification(2);
+    public final static Justification RIGHT = new Justification();
 
     /** A justification constant. */
-    public final static Justification TOP = new Justification(3);
+    public final static Justification TOP = new Justification();
 
     /** A justification constant. */
-    public final static Justification BOTTOM = new Justification(4);
+    public final static Justification BOTTOM = new Justification();
 
     /** The default gap between components, in pixels. */
     public static final int DEFAULT_GAP = 5;

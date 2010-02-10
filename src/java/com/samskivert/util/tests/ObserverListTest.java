@@ -43,7 +43,7 @@ public class ObserverListTest extends TestCase
         testList(list);
 
 //         Log.info("Testing unsafe list.");
-        testList(list = ObserverList.newFastUnsafe());
+        testList(ObserverList.<TestObserver>newFastUnsafe());
     }
 
     public void testList (final ObserverList<TestObserver> list)

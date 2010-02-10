@@ -58,7 +58,7 @@ public class CountMap<K> extends AbstractMap<K, Integer>
     {
         CountEntry<K> entry = _backing.get(key);
         if (entry == null) {
-            _backing.put(key, entry = new CountEntry<K>(key, amount));
+            _backing.put(key, new CountEntry<K>(key, amount));
             return amount;
         }
         return (entry.count += amount);

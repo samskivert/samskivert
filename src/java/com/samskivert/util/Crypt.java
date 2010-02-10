@@ -654,7 +654,7 @@ public class Crypt
             System.out.println("Did " + ccount + " crypt()s in " +
                                duration + "ms.");
             System.out.println("crypt()s per second: " +
-                               (ccount*1000)/duration);
+                               (ccount*1000L)/duration);
         }
     }
 }

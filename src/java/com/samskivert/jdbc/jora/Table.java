@@ -502,8 +502,10 @@ public class Table<T>
             for (int i = f.length; --i>= 0;) {
                 setBypass.invoke(f[i], bypassFlag);
             }
-        } catch(Exception ex) {
-            System.err.println("Failed to set bypass attribute");
+        } catch (IllegalAccessException iae) {
+            System.err.println("Failed to set bypass attribute: " + iae);
+        } catch (InvocationTargetException ite) {
+            System.err.println("Failed to set bypass attribute: " + ite);
         }
 
         int n = 0;

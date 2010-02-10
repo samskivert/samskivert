@@ -78,8 +78,8 @@ public class OneLineLogFormatter extends Formatter
                 // strip the package name from the logging class
                 where = where.substring(where.lastIndexOf(".")+1);
                 // handle legacy log usage patterns
-                useLoggerName = !(where.equals("Log") || where.equals("LoggingLogProvider") ||
-                                  where.startsWith("JDK14Logger$Impl"));
+                useLoggerName = (where.equals("Log") || where.equals("LoggingLogProvider") ||
+                                 where.startsWith("JDK14Logger$Impl"));
             }
             if (useLoggerName) {
                 where = record.getLoggerName();

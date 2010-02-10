@@ -82,31 +82,7 @@ public class WeakObserverList<T> extends AbstractList<T>
      */
     public WeakObserverList (int notifyPolicy, boolean allowDups)
     {
-        // dereference the elements when searching for a value
-        _wrappedList = new ObserverList<WeakReference<T>>(notifyPolicy, allowDups) {
-            @Override public int indexOf (Object element) {
-                @SuppressWarnings("unchecked") WeakReference<T> ref =
-                    (WeakReference<T>)element;
-                T value = ref.get();
-                for (int ii = 0, nn = size(); ii < nn; ii++) {
-                    if (value == get(ii).get()) {
-                        return ii;
-                    }
-                }
-                return -1;
-            }
-            @Override public int lastIndexOf (Object element) {
-                @SuppressWarnings("unchecked") WeakReference<T> ref =
-                    (WeakReference<T>)element;
-                T value = ref.get();
-                for (int ii = size() - 1; ii >= 0; ii--) {
-                    if (value == get(ii).get()) {
-                        return ii;
-                    }
-                }
-                return -1;
-            }
-        };
+        _wrappedList = new WrappedList<T>(notifyPolicy, allowDups);
     }
 
     @Override // documentation inherited
@@ -215,8 +191,40 @@ public class WeakObserverList<T> extends AbstractList<T>
         protected ObserverOp<T> _op;
     }
 
+    /**
+     * ObserverList extension that dereferences elements when searching for a value.
+     */
+    protected static class WrappedList<T> extends ObserverList<WeakReference<T>>
+    {
+        public WrappedList (int notifyPolicy, boolean allowDups) {
+            super(notifyPolicy, allowDups);
+        }
+
+        @Override public int indexOf (Object element) {
+            @SuppressWarnings("unchecked") WeakReference<T> ref = (WeakReference<T>)element;
+            T value = ref.get();
+            for (int ii = 0, nn = size(); ii < nn; ii++) {
+                if (value == get(ii).get()) {
+                    return ii;
+                }
+            }
+            return -1;
+        }
+
+        @Override public int lastIndexOf (Object element) {
+            @SuppressWarnings("unchecked") WeakReference<T> ref = (WeakReference<T>)element;
+            T value = ref.get();
+            for (int ii = size() - 1; ii >= 0; ii--) {
+                if (value == get(ii).get()) {
+                    return ii;
+                }
+            }
+            return -1;
+        }
+    }
+
     /** The wrapped list. */
-    protected ObserverList<WeakReference<T>> _wrappedList;
+    protected WrappedList<T> _wrappedList;
 
     /** The wrapper op. */
     protected DerefOp<T> _derefOp = new DerefOp<T>();

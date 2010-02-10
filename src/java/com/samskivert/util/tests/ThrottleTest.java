@@ -39,12 +39,12 @@ public class ThrottleTest extends TestCase
 
         public String opsToString ()
         {
-            String hist = String.valueOf(_ops[_lastOp]);
+            StringBuilder hist = new StringBuilder().append(_ops[_lastOp]);
             for (int ii = 1; ii < _ops.length; ++ii) {
                 long tn = _ops[(_lastOp + ii) % _ops.length];
-                hist += ", " + String.valueOf(tn);
+                hist.append(tn);
             }
-            return hist;
+            return hist.toString();
         }
     }
 

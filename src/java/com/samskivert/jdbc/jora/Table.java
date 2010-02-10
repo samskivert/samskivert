@@ -48,8 +48,8 @@ public class Table<T>
     public Table (Class<T> clazz, String tableName, String key,
                   boolean mixedCaseConvert)
     {
-	String[] keys = {key};
-	init(clazz, tableName, keys, mixedCaseConvert);
+        String[] keys = {key};
+        init(clazz, tableName, keys, mixedCaseConvert);
     }
 
     /**
@@ -62,8 +62,8 @@ public class Table<T>
      * operations to locate record in the table.
      */
     public Table (Class<T> clazz, String tableName, String key) {
-	String[] keys = {key};
-	init(clazz, tableName, keys, false);
+        String[] keys = {key};
+        init(clazz, tableName, keys, false);
     }
 
     /**
@@ -77,7 +77,7 @@ public class Table<T>
      */
     public Table (Class<T> clazz, String tableName, String[] keys)
     {
-	init(clazz, tableName, keys, false);
+        init(clazz, tableName, keys, false);
     }
 
     /**
@@ -94,7 +94,7 @@ public class Table<T>
     public Table (Class<T> clazz, String tableName, String[] keys,
                   boolean mixedCaseConvert)
     {
-	init(clazz, tableName, keys, mixedCaseConvert);
+        init(clazz, tableName, keys, mixedCaseConvert);
     }
 
     /**
@@ -113,8 +113,8 @@ public class Table<T>
      */
     public final Cursor<T> select (Connection conn, String condition)
     {
-	String query = "select " + listOfFields + " from " + name +
-	    " " + condition;
+        String query = "select " + listOfFields + " from " + name +
+            " " + condition;
         return new Cursor<T>(this, conn, query);
     }
 
@@ -130,8 +130,8 @@ public class Table<T>
     public final Cursor<T> select (Connection conn, String tables,
                                    String condition)
     {
-	String query = "select " + qualifiedListOfFields +
-	    " from " + name + "," + tables + " " + condition;
+        String query = "select " + qualifiedListOfFields +
+            " from " + name + "," + tables + " " + condition;
         return new Cursor<T>(this, conn, query);
     }
 
@@ -161,8 +161,8 @@ public class Table<T>
     public final Cursor<T> straightJoin (Connection conn, String table,
                                          String condition)
     {
-	String query = "select " + listOfFields +
-	    " from " + name + " straight_join " + table + " " + condition;
+        String query = "select " + listOfFields +
+            " from " + name + " straight_join " + table + " " + condition;
         return new Cursor<T>(this, conn, query);
     }
 
@@ -219,15 +219,15 @@ public class Table<T>
      * @param obj object specifing values of inserted record fields
      */
     public synchronized void insert (Connection conn, T obj)
-	throws SQLException
+        throws SQLException
     {
-        String sql = "insert into " + name +
-            " (" + listOfFields + ") values (?";
+        StringBuilder sql = new StringBuilder(
+            "insert into " + name + " (" + listOfFields + ") values (?");
         for (int i = 1; i < nColumns; i++) {
-            sql += ",?";
+            sql.append(",?");
         }
-        sql += ")";
-        PreparedStatement insertStmt = conn.prepareStatement(sql);
+        sql.append(")");
+        PreparedStatement insertStmt = conn.prepareStatement(sql.toString());
         bindUpdateVariables(insertStmt, obj, null);
         insertStmt.executeUpdate();
         insertStmt.close();
@@ -241,15 +241,15 @@ public class Table<T>
      * fields
      */
     public synchronized void insert (Connection conn, T[] objects)
-	throws SQLException
+        throws SQLException
     {
-        String sql = "insert into " + name +
-            " (" + listOfFields + ") values (?";
+        StringBuilder sql = new StringBuilder(
+            "insert into " + name + " (" + listOfFields + ") values (?");
         for (int i = 1; i < nColumns; i++) {
-            sql += ",?";
+            sql.append(",?");
         }
-        sql += ")";
-        PreparedStatement insertStmt = conn.prepareStatement(sql);
+        sql.append(")");
+        PreparedStatement insertStmt = conn.prepareStatement(sql.toString());
         for (int i = 0; i < objects.length; i++) {
             bindUpdateVariables(insertStmt, objects[i], null);
             insertStmt.addBatch();
@@ -278,7 +278,7 @@ public class Table<T>
      * @return number of objects actually updated
      */
     public int update (Connection conn, T obj)
-	throws SQLException
+        throws SQLException
     {
         return update(conn, obj, null);
     }
@@ -297,9 +297,9 @@ public class Table<T>
      * @return number of objects actually updated
      */
     public synchronized int update (Connection conn, T obj, FieldMask mask)
-	throws SQLException
+        throws SQLException
     {
-	int nUpdated = 0;
+        int nUpdated = 0;
         String sql = "update " + name + " set " +
             (mask != null ? buildListOfAssignments(mask) : listOfAssignments) +
             buildUpdateWhere();
@@ -311,7 +311,7 @@ public class Table<T>
         }
         nUpdated = ustmt.executeUpdate();
         ustmt.close();
-	return nUpdated;
+        return nUpdated;
     }
 
     /**
@@ -325,14 +325,14 @@ public class Table<T>
      * @return number of objects actually updated
      */
     public synchronized int update (Connection conn, T[] objects)
-	throws SQLException
+        throws SQLException
     {
         if (primaryKeys == null) {
-	    throw new IllegalStateException(
+            throw new IllegalStateException(
                 "No primary key for table " + name + ".");
-	}
+        }
 
-	int nUpdated = 0;
+        int nUpdated = 0;
         String sql = "update " + name + " set " + listOfAssignments +
             buildUpdateWhere();
         PreparedStatement updateStmt = conn.prepareStatement(sql);
@@ -350,7 +350,7 @@ public class Table<T>
             nUpdated += rc[k];
         }
         updateStmt.close();
-	return nUpdated;
+        return nUpdated;
     }
 
     /**
@@ -359,25 +359,25 @@ public class Table<T>
      * @param obj object containing value of primary key.
      */
     public synchronized int delete (Connection conn, T obj)
-	throws SQLException
+        throws SQLException
     {
         if (primaryKeys == null) {
-	    throw new IllegalStateException(
+            throw new IllegalStateException(
                 "No primary key for table " + name + ".");
-	}
-	int nDeleted = 0;
-        String sql = "delete from " + name +
-            " where " + primaryKeys[0] + " = ?";
-        for (int i = 1; i < primaryKeys.length; i++) {
-            sql += " and " + primaryKeys[i] + " = ?";
         }
-        PreparedStatement deleteStmt = conn.prepareStatement(sql);
+        int nDeleted = 0;
+        StringBuilder sql = new StringBuilder(
+            "delete from " + name + " where " + primaryKeys[0] + " = ?");
+        for (int i = 1; i < primaryKeys.length; i++) {
+            sql.append(" and ").append(primaryKeys[i]).append(" = ?");
+        }
+        PreparedStatement deleteStmt = conn.prepareStatement(sql.toString());
         for (int i = 0; i < primaryKeys.length; i++) {
             fields[primaryKeyIndices[i]].bindVariable(deleteStmt, obj,i+1);
         }
         nDeleted = deleteStmt.executeUpdate();
         deleteStmt.close();
-	return nDeleted;
+        return nDeleted;
     }
 
     /**
@@ -388,19 +388,19 @@ public class Table<T>
      * @return number of objects actually deleted
      */
     public synchronized int delete (Connection conn, T[] objects)
-	throws SQLException
+        throws SQLException
     {
         if (primaryKeys == null) {
-	    throw new IllegalStateException(
+            throw new IllegalStateException(
                 "No primary key for table " + name + ".");
-	}
-	int nDeleted = 0;
-        String sql = "delete from " + name +
-            " where " + primaryKeys[0] + " = ?";
-        for (int i = 1; i < primaryKeys.length; i++) {
-            sql += " and " + primaryKeys[i] + " = ?";
         }
-        PreparedStatement deleteStmt = conn.prepareStatement(sql);
+        int nDeleted = 0;
+        StringBuilder sql = new StringBuilder(
+            "delete from " + name + " where " + primaryKeys[0] + " = ?");
+        for (int i = 1; i < primaryKeys.length; i++) {
+            sql.append(" and ").append(primaryKeys[i]).append(" = ?");
+        }
+        PreparedStatement deleteStmt = conn.prepareStatement(sql.toString());
         for (int i = 0; i < objects.length; i++) {
             for (int j = 0; j < primaryKeys.length; j++) {
                 fields[primaryKeyIndices[j]].bindVariable(
@@ -413,7 +413,7 @@ public class Table<T>
             nDeleted += rc[k];
         }
         deleteStmt.close();
-	return nDeleted;
+        return nDeleted;
     }
 
     @Override
@@ -437,41 +437,41 @@ public class Table<T>
         name = tableName;
         this.mixedCaseConvert = mixedCaseConvert;
         _rowClass = clazz;
-	primaryKeys = keys;
-	listOfFields = "";
-	qualifiedListOfFields = "";
-	listOfAssignments = "";
-	ArrayList<FieldDescriptor> fieldsVector =
+        primaryKeys = keys;
+        listOfFields = "";
+        qualifiedListOfFields = "";
+        listOfAssignments = "";
+        ArrayList<FieldDescriptor> fieldsVector =
             new ArrayList<FieldDescriptor>();
-	nFields = buildFieldsList(fieldsVector, _rowClass, "");
-	fields = fieldsVector.toArray(new FieldDescriptor[nFields]);
+        nFields = buildFieldsList(fieldsVector, _rowClass, "");
+        fields = fieldsVector.toArray(new FieldDescriptor[nFields]);
         fMask = new FieldMask(fields);
 
-	try {
-	    constructor = _rowClass.getDeclaredConstructor(new Class[0]);
-	    setBypass.invoke(constructor, bypassFlag);
-	} catch(Exception ex) {}
+        try {
+            constructor = _rowClass.getDeclaredConstructor(new Class[0]);
+            setBypass.invoke(constructor, bypassFlag);
+        } catch(Exception ex) {}
 
-	if (keys != null && keys.length > 0) {
-	    primaryKeyIndices = new int[keys.length];
-	    for (int j = keys.length; --j >= 0;) {
-		int i = nFields;
-		while (--i >= 0) {
-		    if (fields[i].name.equals(keys[j])) {
-			if (!fields[i].isAtomic()) {
-			    throw new IllegalArgumentException(
+        if (keys != null && keys.length > 0) {
+            primaryKeyIndices = new int[keys.length];
+            for (int j = keys.length; --j >= 0;) {
+                int i = nFields;
+                while (--i >= 0) {
+                    if (fields[i].name.equals(keys[j])) {
+                        if (!fields[i].isAtomic()) {
+                            throw new IllegalArgumentException(
                                 "Non-atomic primary key provided");
-			}
-			primaryKeyIndices[j] = i;
-			break;
-		    }
-	        }
-		if (i < 0) {
-		    throw new NoSuchFieldError("No such field '" + keys[j]
-					       + "' in table " + name);
-		}
-	    }
-	}
+                        }
+                        primaryKeyIndices[j] = i;
+                        break;
+                    }
+                }
+                if (i < 0) {
+                    throw new NoSuchFieldError("No such field '" + keys[j]
+                                               + "' in table " + name);
+                }
+            }
+        }
     }
 
     protected final String convertName (String name)
@@ -486,117 +486,117 @@ public class Table<T>
     protected final int buildFieldsList (ArrayList<FieldDescriptor> buf,
                                          Class<?> _rowClass, String prefix)
     {
-	Field[] f = _rowClass.getDeclaredFields();
+        Field[] f = _rowClass.getDeclaredFields();
 
-	Class<?> superclass = _rowClass;
-	while ((superclass = superclass.getSuperclass()) != null) {
-	    Field[] inheritedFields = superclass.getDeclaredFields();
-	    Field[] allFields = new Field[inheritedFields.length + f.length];
-	    System.arraycopy(inheritedFields, 0, allFields, 0,
-			     inheritedFields.length);
-	    System.arraycopy(f,0, allFields, inheritedFields.length, f.length);
-	    f = allFields;
-	}
+        Class<?> superclass = _rowClass;
+        while ((superclass = superclass.getSuperclass()) != null) {
+            Field[] inheritedFields = superclass.getDeclaredFields();
+            Field[] allFields = new Field[inheritedFields.length + f.length];
+            System.arraycopy(inheritedFields, 0, allFields, 0,
+                             inheritedFields.length);
+            System.arraycopy(f,0, allFields, inheritedFields.length, f.length);
+            f = allFields;
+        }
 
-	try {
-	    for (int i = f.length; --i>= 0;) {
-	        setBypass.invoke(f[i], bypassFlag);
-	    }
-	} catch(Exception ex) {
-	    System.err.println("Failed to set bypass attribute");
-	}
+        try {
+            for (int i = f.length; --i>= 0;) {
+                setBypass.invoke(f[i], bypassFlag);
+            }
+        } catch(Exception ex) {
+            System.err.println("Failed to set bypass attribute");
+        }
 
-	int n = 0;
-	for (int i = 0; i < f.length; i++) {
-	    if ((f[i].getModifiers()&(Modifier.TRANSIENT|Modifier.STATIC))==0)
-	    {
-		String name = f[i].getName();
-		Class<?> fieldClass = f[i].getType();
-		String fullName = prefix + convertName(name);
-		FieldDescriptor fd = new FieldDescriptor(f[i], fullName);
-		int type;
+        int n = 0;
+        for (int i = 0; i < f.length; i++) {
+            if ((f[i].getModifiers()&(Modifier.TRANSIENT|Modifier.STATIC))==0)
+            {
+                String name = f[i].getName();
+                Class<?> fieldClass = f[i].getType();
+                String fullName = prefix + convertName(name);
+                FieldDescriptor fd = new FieldDescriptor(f[i], fullName);
+                int type;
 
-		buf.add(fd);
-		n += 1;
+                buf.add(fd);
+                n += 1;
 
-		String c = fieldClass.getName();
-		if (c.equals("byte")) type = FieldDescriptor.t_byte;
-		else if (c.equals("short")) type = FieldDescriptor.t_short;
-		else if (c.equals("int")) type = FieldDescriptor.t_int;
-		else if (c.equals("long")) type = FieldDescriptor.t_long;
-		else if (c.equals("float")) type = FieldDescriptor.t_float;
-		else if (c.equals("double")) type = FieldDescriptor.t_double;
-		else if (c.equals("boolean")) type = FieldDescriptor.t_boolean;
-		else if (c.equals("java.lang.Byte"))
-		    type = FieldDescriptor.tByte;
-		else if (c.equals("java.lang.Short"))
-		    type = FieldDescriptor.tShort;
-		else if (c.equals("java.lang.Integer"))
-		    type = FieldDescriptor.tInteger;
-		else if (c.equals("java.lang.Long"))
-		    type = FieldDescriptor.tLong;
-		else if (c.equals("java.lang.Float"))
-		    type = FieldDescriptor.tFloat;
-		else if (c.equals("java.lang.Double"))
-		    type = FieldDescriptor.tDouble;
-		else if (c.equals("java.lang.Boolean"))
-		    type = FieldDescriptor.tBoolean;
-		else if (c.equals("java.math.BigDecimal"))
-		    type = FieldDescriptor.tDecimal;
-		else if (c.equals("java.lang.String"))
-		    type = FieldDescriptor.tString;
-		else if (fieldClass.equals(BYTE_PROTO.getClass()))
-  		    type = FieldDescriptor.tBytes;
-		else if (c.equals("java.sql.Date"))
-		    type = FieldDescriptor.tDate;
-		else if (c.equals("java.sql.Time"))
-		    type = FieldDescriptor.tTime;
-		else if (c.equals("java.sql.Timestamp"))
-		    type = FieldDescriptor.tTimestamp;
-		else if (c.equals("java.lang.InputStream"))
-		    type = FieldDescriptor.tStream;
-		else if (c.equals("java.sql.BlobLocator"))
-		    type = FieldDescriptor.tBlob;
-		else if (c.equals("java.sql.ClobLocator"))
-		    type = FieldDescriptor.tClob;
-		else if (serializableClass.isAssignableFrom(fieldClass))
- 		    type = FieldDescriptor.tClosure;
+                String c = fieldClass.getName();
+                if (c.equals("byte")) type = FieldDescriptor.t_byte;
+                else if (c.equals("short")) type = FieldDescriptor.t_short;
+                else if (c.equals("int")) type = FieldDescriptor.t_int;
+                else if (c.equals("long")) type = FieldDescriptor.t_long;
+                else if (c.equals("float")) type = FieldDescriptor.t_float;
+                else if (c.equals("double")) type = FieldDescriptor.t_double;
+                else if (c.equals("boolean")) type = FieldDescriptor.t_boolean;
+                else if (c.equals("java.lang.Byte"))
+                    type = FieldDescriptor.tByte;
+                else if (c.equals("java.lang.Short"))
+                    type = FieldDescriptor.tShort;
+                else if (c.equals("java.lang.Integer"))
+                    type = FieldDescriptor.tInteger;
+                else if (c.equals("java.lang.Long"))
+                    type = FieldDescriptor.tLong;
+                else if (c.equals("java.lang.Float"))
+                    type = FieldDescriptor.tFloat;
+                else if (c.equals("java.lang.Double"))
+                    type = FieldDescriptor.tDouble;
+                else if (c.equals("java.lang.Boolean"))
+                    type = FieldDescriptor.tBoolean;
+                else if (c.equals("java.math.BigDecimal"))
+                    type = FieldDescriptor.tDecimal;
+                else if (c.equals("java.lang.String"))
+                    type = FieldDescriptor.tString;
+                else if (fieldClass.equals(BYTE_PROTO.getClass()))
+                    type = FieldDescriptor.tBytes;
+                else if (c.equals("java.sql.Date"))
+                    type = FieldDescriptor.tDate;
+                else if (c.equals("java.sql.Time"))
+                    type = FieldDescriptor.tTime;
+                else if (c.equals("java.sql.Timestamp"))
+                    type = FieldDescriptor.tTimestamp;
+                else if (c.equals("java.lang.InputStream"))
+                    type = FieldDescriptor.tStream;
+                else if (c.equals("java.sql.BlobLocator"))
+                    type = FieldDescriptor.tBlob;
+                else if (c.equals("java.sql.ClobLocator"))
+                    type = FieldDescriptor.tClob;
+                else if (serializableClass.isAssignableFrom(fieldClass))
+                    type = FieldDescriptor.tClosure;
                 else {
-		    int nComponents = buildFieldsList(buf, fieldClass,
-						      fd.name+fieldSeparator);
-		    fd.inType = fd.outType =
-		        FieldDescriptor.tCompound + nComponents;
+                    int nComponents = buildFieldsList(buf, fieldClass,
+                                                      fd.name+fieldSeparator);
+                    fd.inType = fd.outType =
+                        FieldDescriptor.tCompound + nComponents;
 
-		    try {
-		        fd.constructor =
-			  fieldClass.getDeclaredConstructor(new Class[0]);
-			setBypass.invoke(fd.constructor, bypassFlag);
-		    } catch(Exception ex) {}
+                    try {
+                        fd.constructor =
+                            fieldClass.getDeclaredConstructor(new Class[0]);
+                        setBypass.invoke(fd.constructor, bypassFlag);
+                    } catch(Exception ex) {}
 
-		    n += nComponents;
-		    continue;
-		}
-		if (listOfFields.length() != 0) {
-		    listOfFields += ",";
-		    qualifiedListOfFields += ",";
-		    listOfAssignments += ",";
-		}
-		listOfFields += fullName;
-		qualifiedListOfFields += this.name + "." + fullName;
-		listOfAssignments += fullName + "=?";
+                    n += nComponents;
+                    continue;
+                }
+                if (listOfFields.length() != 0) {
+                    listOfFields += ",";
+                    qualifiedListOfFields += ",";
+                    listOfAssignments += ",";
+                }
+                listOfFields += fullName;
+                qualifiedListOfFields += this.name + "." + fullName;
+                listOfAssignments += fullName + "=?";
 
-		fd.inType = fd.outType = type;
-		nColumns += 1;
-	    }
-	}
-	return n;
+                fd.inType = fd.outType = type;
+                nColumns += 1;
+            }
+        }
+        return n;
     }
 
     protected final String buildListOfAssignments (FieldMask mask)
     {
         StringBuilder sql = new StringBuilder();
         int fcount = fields.length;
-	for (int i = 0; i < fcount; i++) {
+        for (int i = 0; i < fcount; i++) {
             // skip non-modified fields
             if (!mask.isModified(i)) {
                 continue;
@@ -613,66 +613,66 @@ public class Table<T>
 
     protected final T load (ResultSet result) throws SQLException
     {
-	T obj;
+        T obj;
         try {
-	    obj = constructor.newInstance(constructorArgs);
-	}
-	catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
-	catch(InstantiationException ex) { throw new InstantiationError(); }
-	catch(Exception ex) {
-	   throw new InstantiationError("Exception was thrown by constructor");
-	}
-	load(obj, 0, nFields, 0, result);
-	return obj;
+            obj = constructor.newInstance(constructorArgs);
+        }
+        catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
+        catch(InstantiationException ex) { throw new InstantiationError(); }
+        catch(Exception ex) {
+            throw new InstantiationError("Exception was thrown by constructor");
+        }
+        load(obj, 0, nFields, 0, result);
+        return obj;
     }
 
     protected final int load (
         Object obj, int i, int end, int column, ResultSet result)
-	throws SQLException
+        throws SQLException
     {
-	try {
-	    while (i < end) {
-	        FieldDescriptor fd = fields[i++];
-		if (!fd.loadVariable(result, obj, ++column)) {
-		    Object component =
-		        fd.constructor.newInstance(constructorArgs);
-		    fd.field.set(obj, component);
-		    int nComponents = fd.inType - FieldDescriptor.tCompound;
-		    column = load(component, i, i + nComponents,
-				  column-1, result);
-		    i += nComponents;
-		}
-	    }
-	}
-	catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
-	catch(InstantiationException ex) { throw new InstantiationError(); }
-	catch(InvocationTargetException ex) {
-	   throw new InstantiationError("Exception was thrown by constructor");
-	}
-	return column;
+        try {
+            while (i < end) {
+                FieldDescriptor fd = fields[i++];
+                if (!fd.loadVariable(result, obj, ++column)) {
+                    Object component =
+                        fd.constructor.newInstance(constructorArgs);
+                    fd.field.set(obj, component);
+                    int nComponents = fd.inType - FieldDescriptor.tCompound;
+                    column = load(component, i, i + nComponents,
+                                  column-1, result);
+                    i += nComponents;
+                }
+            }
+        }
+        catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
+        catch(InstantiationException ex) { throw new InstantiationError(); }
+        catch(InvocationTargetException ex) {
+            throw new InstantiationError("Exception was thrown by constructor");
+        }
+        return column;
     }
 
     protected final int bindUpdateVariables(PreparedStatement pstmt,
                                             T            obj,
                                             FieldMask         mask)
-      throws SQLException
+        throws SQLException
     {
         return bindUpdateVariables(pstmt, obj, 0, nFields, 0, mask);
     }
 
     protected final void bindQueryVariables(PreparedStatement pstmt,
-					    T            obj,
+                                            T            obj,
                                             FieldMask         mask)
-       throws SQLException
+        throws SQLException
     {
-	bindQueryVariables(pstmt, obj, 0, nFields, 0, mask);
+        bindQueryVariables(pstmt, obj, 0, nFields, 0, mask);
     }
 
     protected final void updateVariables(ResultSet result, T obj)
-       throws SQLException
+        throws SQLException
     {
         updateVariables(result, obj, 0, nFields, 0);
-	result.updateRow();
+        result.updateRow();
     }
 
     protected final String buildUpdateWhere()
@@ -689,10 +689,10 @@ public class Table<T>
     {
         StringBuilder buf = new StringBuilder();
         buildQueryList(buf, qbe, 0, nFields, mask, like);
-	if (buf.length() > 0) {
-	    buf.insert(0, " where ");
-	}
-	return "select " + listOfFields + " from " + name + buf;
+        if (buf.length() > 0) {
+            buf.insert(0, " where ");
+        }
+        return "select " + listOfFields + " from " + name + buf;
     }
 
     protected final int bindUpdateVariables (
@@ -701,39 +701,39 @@ public class Table<T>
         throws SQLException
     {
         try {
-	    while (i < end) {
-		FieldDescriptor fd = fields[i++];
-		Object comp = null;
+            while (i < end) {
+                FieldDescriptor fd = fields[i++];
+                Object comp = null;
                 // skip non-modified fields
                 if (mask != null && !mask.isModified(i-1)) {
                     continue;
                 }
-		if (!fd.isBuiltin() && (comp = fd.field.get(obj)) == null) {
-		    if (fd.isCompound()) {
- 		        int nComponents = fd.outType-FieldDescriptor.tCompound;
-			while (--nComponents >= 0) {
-			    fd = fields[i++];
-			    if (!fd.isCompound()) {
-			        pstmt.setNull(++column,
-				   FieldDescriptor.sqlTypeMapping[fd.outType]);
-			    }
-			}
-		    } else {
-		        pstmt.setNull(
+                if (!fd.isBuiltin() && (comp = fd.field.get(obj)) == null) {
+                    if (fd.isCompound()) {
+                        int nComponents = fd.outType-FieldDescriptor.tCompound;
+                        while (--nComponents >= 0) {
+                            fd = fields[i++];
+                            if (!fd.isCompound()) {
+                                pstmt.setNull(++column,
+                                              FieldDescriptor.sqlTypeMapping[fd.outType]);
+                            }
+                        }
+                    } else {
+                        pstmt.setNull(
                             ++column,
                             FieldDescriptor.sqlTypeMapping[fd.outType]);
-		    }
-		} else {
-		    if (!fd.bindVariable(pstmt, obj, ++column)) {
-			int nComponents = fd.outType-FieldDescriptor.tCompound;
-			column = bindUpdateVariables(
+                    }
+                } else {
+                    if (!fd.bindVariable(pstmt, obj, ++column)) {
+                        int nComponents = fd.outType-FieldDescriptor.tCompound;
+                        column = bindUpdateVariables(
                             pstmt, comp, i, i+nComponents,column-1, mask);
-			i += nComponents;
-		    }
-		}
-	    }
-	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
-	return column;
+                        i += nComponents;
+                    }
+                }
+            }
+        } catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
+        return column;
     }
 
     protected final int bindQueryVariables (
@@ -742,13 +742,13 @@ public class Table<T>
         throws SQLException
     {
         try {
-	    while (i < end) {
-		Object comp;
-		FieldDescriptor fd = fields[i++];
-		if (!fd.field.getDeclaringClass().isInstance(obj)) {
-		    return column;
-		}
-		int nComponents = fd.isCompound() ?
+            while (i < end) {
+                Object comp;
+                FieldDescriptor fd = fields[i++];
+                if (!fd.field.getDeclaringClass().isInstance(obj)) {
+                    return column;
+                }
+                int nComponents = fd.isCompound() ?
                     fd.outType-FieldDescriptor.tCompound : 0;
 
                 try {
@@ -775,29 +775,29 @@ public class Table<T>
                         continue;
                     }
 
-		    if (!fd.bindVariable(pstmt, obj, ++column)) {
-		        column = bindQueryVariables(
+                    if (!fd.bindVariable(pstmt, obj, ++column)) {
+                        column = bindQueryVariables(
                             pstmt, comp, i, i+nComponents, column-1, mask);
-		    }
+                    }
 
-		} finally {
+                } finally {
                     i += nComponents;
                 }
-	    }
-	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
-	return column;
+            }
+        } catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
+        return column;
     }
 
     protected final void buildQueryList (
         StringBuilder buf, Object qbe, int i, int end, FieldMask mask,
         boolean like)
     {
-	try {
-	    while (i < end) {
-		Object comp;
-		FieldDescriptor fd = fields[i++];
-		int nComponents =
-		    fd.isCompound() ? fd.outType-FieldDescriptor.tCompound : 0;
+        try {
+            while (i < end) {
+                Object comp;
+                FieldDescriptor fd = fields[i++];
+                int nComponents =
+                    fd.isCompound() ? fd.outType-FieldDescriptor.tCompound : 0;
 
                 try {
                     // skip closure fields (because querying by them makes
@@ -840,8 +840,8 @@ public class Table<T>
                 } finally {
                     i += nComponents;
                 }
-	    }
-	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
+            }
+        } catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
     }
 
     protected final int updateVariables (
@@ -849,32 +849,32 @@ public class Table<T>
         throws SQLException
     {
         try {
-	    while (i < end) {
-		FieldDescriptor fd = fields[i++];
-		Object comp = null;
-		if (!fd.isBuiltin() && (comp = fd.field.get(obj)) == null) {
-		    if (fd.isCompound()) {
- 		        int nComponents = fd.outType-FieldDescriptor.tCompound;
-			while (--nComponents >= 0) {
-			    fd = fields[i++];
-			    if (!fd.isCompound()) {
-			        result.updateNull(++column);
-			    }
-			}
-		    } else {
-		        result.updateNull(++column);
-		    }
-		} else {
-		    if (!fd.updateVariable(result, obj, ++column)) {
-			int nComponents = fd.outType-FieldDescriptor.tCompound;
-			column = updateVariables(result, comp,
-						 i, i+nComponents, column-1);
-			i += nComponents;
-		    }
-		}
-	    }
-	} catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
-	return column;
+            while (i < end) {
+                FieldDescriptor fd = fields[i++];
+                Object comp = null;
+                if (!fd.isBuiltin() && (comp = fd.field.get(obj)) == null) {
+                    if (fd.isCompound()) {
+                        int nComponents = fd.outType-FieldDescriptor.tCompound;
+                        while (--nComponents >= 0) {
+                            fd = fields[i++];
+                            if (!fd.isCompound()) {
+                                result.updateNull(++column);
+                            }
+                        }
+                    } else {
+                        result.updateNull(++column);
+                    }
+                } else {
+                    if (!fd.updateVariable(result, obj, ++column)) {
+                        int nComponents = fd.outType-FieldDescriptor.tCompound;
+                        column = updateVariables(result, comp,
+                                                 i, i+nComponents, column-1);
+                        i += nComponents;
+                    }
+                }
+            }
+        } catch(IllegalAccessException ex) { throw new IllegalAccessError(); }
+        return column;
     }
 
     protected static Method getSetBypass ()

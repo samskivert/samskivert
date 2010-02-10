@@ -23,32 +23,29 @@ package com.samskivert.util;
 import java.util.*;
 
 /**
- * Provides functionality for the samskivert collections that the
- * <code>java.util</code> class of the same name provides for the standard
- * Java collections. Collections-related functionality that is different
- * from the standard support provided for the Java collections should go
- * into {@link CollectionUtil}.
+ * Provides functionality for the samskivert collections that the <code>java.util</code> class of
+ * the same name provides for the standard Java collections. Collections-related functionality that
+ * is different from the standard support provided for the Java collections should go into {@link
+ * CollectionUtil}.
  */
 public class Collections
 {
     /**
-     * Returns an Iterator that iterates over all the elements contained within
-     * the Iterators within the specified Iterable.
+     * Returns an Iterator that iterates over all the elements contained within the Iterators
+     * within the specified Iterable.
      *
      * @param metaIterable an iterable of Iterators.
      */
-    public static <T> Iterator<T> getMetaIterator (
-        Iterable<Iterator<T>> metaIterable)
+    public static <T> Iterator<T> getMetaIterator (Iterable<Iterator<T>> metaIterable)
     {
         return new MetaIterator<T>(metaIterable);
     }
 
     /**
-     * Get an Iterator over the supplied Collection that returns the
-     * elements in their natural order.
+     * Get an Iterator over the supplied Collection that returns the elements in their natural
+     * order.
      */
-    public static <T extends Comparable<? super T>>
-        Iterator<T> getSortedIterator (Iterable<T> coll)
+    public static <T extends Comparable<? super T>> Iterator<T> getSortedIterator (Iterable<T> coll)
     {
         return getSortedIterator(coll.iterator(), new Comparator<T>() {
             public int compare (T o1, T o2) {
@@ -65,21 +62,19 @@ public class Collections
     }
 
     /**
-     * Get an Iterator over the supplied Collection that returns the
-     * elements in the order dictated by the supplied Comparator.
+     * Get an Iterator over the supplied Collection that returns the elements in the order dictated
+     * by the supplied Comparator.
      */
-    public static <T> Iterator<T> getSortedIterator (
-        Iterable<T> coll, Comparator<T> comparator)
+    public static <T> Iterator<T> getSortedIterator (Iterable<T> coll, Comparator<T> comparator)
     {
         return getSortedIterator(coll.iterator(), comparator);
     }
 
     /**
-     * Get an Iterator that returns the same elements returned by
-     * the supplied Iterator, but in their natural order.
+     * Get an Iterator that returns the same elements returned by the supplied Iterator, but in
+     * their natural order.
      */
-    public static <T extends Comparable<? super T>>
-        Iterator<T> getSortedIterator (Iterator<T> itr)
+    public static <T extends Comparable<? super T>> Iterator<T> getSortedIterator (Iterator<T> itr)
     {
         return getSortedIterator(itr, new Comparator<T>() {
             public int compare (T o1, T o2) {
@@ -96,12 +91,10 @@ public class Collections
     }
 
     /**
-     * Get an Iterator that returns the same elements returned by
-     * the supplied Iterator, but in the order dictated by the supplied
-     * Comparator.
+     * Get an Iterator that returns the same elements returned by the supplied Iterator, but in the
+     * order dictated by the supplied Comparator.
      */
-    public static <T> Iterator<T> getSortedIterator (
-        Iterator<T> itr, Comparator<T> comparator)
+    public static <T> Iterator<T> getSortedIterator (Iterator<T> itr, Comparator<T> comparator)
     {
         SortableArrayList<T> list = new SortableArrayList<T>();
         CollectionUtil.addAll(list, itr);
@@ -110,11 +103,10 @@ public class Collections
     }
 
     /**
-     * Get an Iterator over the supplied Iterable that returns
-     * the elements in a completely random order. Normally Iterators
-     * return elements in an undefined order, but it is usually the same
-     * between different invocations as long as the underlying Iterable
-     * has not changed. This method mixes things up.
+     * Get an Iterator over the supplied Iterable that returns the elements in a completely random
+     * order. Normally Iterators return elements in an undefined order, but it is usually the same
+     * between different invocations as long as the underlying Iterable has not changed. This
+     * method mixes things up.
      */
     public static <T> Iterator<T> getRandomIterator (Iterable<T> c)
     {
@@ -122,8 +114,8 @@ public class Collections
     }
 
     /**
-     * Get an Iterator that returns the same elements returned by
-     * the supplied Iterator, but in a completely random order.
+     * Get an Iterator that returns the same elements returned by the supplied Iterator, but in a
+     * completely random order.
      */
     public static <T> Iterator<T> getRandomIterator (Iterator<T> itr)
     {
@@ -134,8 +126,7 @@ public class Collections
     }
 
     /**
-     * Get an Iterator that returns the elements in the supplied
-     * Iterable but blocks removal.
+     * Get an Iterator that returns the elements in the supplied Iterable but blocks removal.
      */
     public static <T> Iterator<T> getUnmodifiableIterator (Iterable<T> c)
     {
@@ -143,11 +134,9 @@ public class Collections
     }
 
     /**
-     * Get an iterator that returns the same elements as the supplied
-     * iterator but blocks removal.
+     * Get an iterator that returns the same elements as the supplied iterator but blocks removal.
      */
-    public static <T> Iterator<T> getUnmodifiableIterator (
-        final Iterator<T> itr)
+    public static <T> Iterator<T> getUnmodifiableIterator (final Iterator<T> itr)
     {
         return new Iterator<T>() {
             public boolean hasNext () {
@@ -164,13 +153,12 @@ public class Collections
     }
 
     /**
-     * Returns a synchronized (thread-safe) int map backed by the
-     * specified int map.  In order to guarantee serial access, it is
-     * critical that <strong>all</strong> access to the backing int map is
-     * accomplished through the returned int map.
+     * Returns a synchronized (thread-safe) int map backed by the specified int map.  In order to
+     * guarantee serial access, it is critical that <strong>all</strong> access to the backing int
+     * map is accomplished through the returned int map.
      *
-     * <p> It is imperative that the user manually synchronize on the
-     * returned int map when iterating over any of its collection views:
+     * <p> It is imperative that the user manually synchronize on the returned int map when
+     * iterating over any of its collection views:
      *
      * <pre>
      *  IntMap m = Collections.synchronizedIntMap(new HashIntMap());
@@ -184,28 +172,25 @@ public class Collections
      *  }
      * </pre>
      *
-     * Failure to follow this advice may result in non-deterministic
-     * behavior.
+     * Failure to follow this advice may result in non-deterministic behavior.
      *
-     * <p> The returned map will be serializable if the specified map is
-     * serializable.
+     * <p> The returned map will be serializable if the specified map is serializable.
      *
      * @param m the int map to be "wrapped" in a synchronized int map.
      *
      * @return a synchronized view of the specified int map.
      */
     public static <V> IntMap<V> synchronizedIntMap (IntMap<V> m) {
-	return new SynchronizedIntMap<V>(m);
+        return new SynchronizedIntMap<V>(m);
     }
 
     /**
-     * Returns a synchronized (thread-safe) int set backed by the
-     * specified int set.  In order to guarantee serial access, it is
-     * critical that <strong>all</strong> access to the backing int map is
-     * accomplished through the returned int map.
+     * Returns a synchronized (thread-safe) int set backed by the specified int set.  In order to
+     * guarantee serial access, it is critical that <strong>all</strong> access to the backing int
+     * map is accomplished through the returned int map.
      *
-     * <p> It is imperative that the user manually synchronize on the
-     * returned int map when iterating over any of its collection views:
+     * <p> It is imperative that the user manually synchronize on the returned int map when
+     * iterating over any of its collection views:
      *
      * <pre>
      *  IntSet s = Collections.synchronizedIntSet(new ArrayIntSet());
@@ -217,11 +202,9 @@ public class Collections
      *  }
      * </pre>
      *
-     * Failure to follow this advice may result in non-deterministic
-     * behavior.
+     * Failure to follow this advice may result in non-deterministic behavior.
      *
-     * <p> The returned set will be serializable if the specified set is
-     * serializable.
+     * <p> The returned set will be serializable if the specified set is serializable.
      *
      * @param s the int set to be "wrapped" in a synchronized int set.
      *
@@ -236,10 +219,14 @@ public class Collections
      */
     protected static class SynchronizedIntMap<V> implements IntMap<V>
     {
-	private IntMap<V> m; // Backing Map
+        private IntMap<V> m; // Backing Map
         private Object mutex; // Object on which to synchronize
 
-	SynchronizedIntMap(IntMap<V> m) {
+        private transient IntSet keySet = null;
+        private transient Set<Map.Entry<Integer,V>> entrySet = null;
+        private transient Collection<V> values = null;
+
+        SynchronizedIntMap (IntMap<V> m) {
             if (m == null) {
                 throw new NullPointerException();
             }
@@ -247,7 +234,7 @@ public class Collections
             mutex = this;
         }
 
-	SynchronizedIntMap(IntMap<V> m, Object mutex) {
+        SynchronizedIntMap(IntMap<V> m, Object mutex) {
             if (m == null) {
                 throw new NullPointerException();
             }
@@ -255,135 +242,132 @@ public class Collections
             this.mutex = mutex;
         }
 
-	public int size() {
-	    synchronized(mutex) {return m.size();}
+        public int size () {
+            synchronized(mutex) {return m.size();}
         }
 
-        public boolean isEmpty(){
-	    synchronized(mutex) {return m.isEmpty();}
+        public boolean isEmpty (){
+            synchronized(mutex) {return m.isEmpty();}
         }
 
-        public boolean containsKey(int key) {
-	    synchronized(mutex) {return m.containsKey(key);}
+        public boolean containsKey (int key) {
+            synchronized(mutex) {return m.containsKey(key);}
         }
 
-        public boolean containsKey(Object key) {
-	    synchronized(mutex) {return m.containsKey(key);}
+        public boolean containsKey (Object key) {
+            synchronized(mutex) {return m.containsKey(key);}
         }
 
-        public boolean containsValue(Object value){
-	    synchronized(mutex) {return m.containsValue(value);}
+        public boolean containsValue (Object value){
+            synchronized(mutex) {return m.containsValue(value);}
         }
 
-        public V get(int key) {
-	    synchronized(mutex) {return m.get(key);}
+        public V get (int key) {
+            synchronized(mutex) {return m.get(key);}
         }
 
-        public V get(Object key) {
-	    synchronized(mutex) {return m.get(key);}
+        public V get (Object key) {
+            synchronized(mutex) {return m.get(key);}
         }
 
-	public V put(int key, V value) {
-	    synchronized(mutex) {return m.put(key, value);}
+        public V put (int key, V value) {
+            synchronized(mutex) {return m.put(key, value);}
         }
 
-	public V put(Integer key, V value) {
-	    synchronized(mutex) {return m.put(key, value);}
+        public V put (Integer key, V value) {
+            synchronized(mutex) {return m.put(key, value);}
         }
 
-	public V remove(int key) {
-	    synchronized(mutex) {return m.remove(key);}
+        public V remove (int key) {
+            synchronized(mutex) {return m.remove(key);}
         }
 
-	public V remove(Object key) {
-	    synchronized(mutex) {return m.remove(key);}
+        public V remove (Object key) {
+            synchronized(mutex) {return m.remove(key);}
         }
 
-	public void putAll(Map<? extends Integer,? extends V> map) {
-	    synchronized(mutex) {m.putAll(map);}
+        public void putAll (Map<? extends Integer,? extends V> map) {
+            synchronized(mutex) {m.putAll(map);}
         }
 
-	public void clear() {
-	    synchronized(mutex) {m.clear();}
+        public void clear () {
+            synchronized(mutex) {m.clear();}
         }
 
-	private transient IntSet keySet = null;
-	private transient Set<Map.Entry<Integer,V>> entrySet = null;
-	private transient Collection<V> values = null;
-
-	public Set<Integer> keySet() {
+        public Set<Integer> keySet () {
             return intKeySet();
-	}
+        }
 
         public IntSet intKeySet () {
             synchronized(mutex) {
-                if (keySet==null)
+                if (keySet == null) {
                     keySet = new SynchronizedIntSet(m.intKeySet(), mutex);
+                }
                 return keySet;
             }
         }
 
-        public Set<Map.Entry<Integer,V>> entrySet() {
+        public Set<Map.Entry<Integer,V>> entrySet () {
             synchronized(mutex) {
-                if (entrySet==null)
-                    entrySet = new SynchronizedSet<Map.Entry<Integer,V>>(
-                        m.entrySet(), mutex);
+                if (entrySet == null) {
+                    entrySet = new SynchronizedSet<Map.Entry<Integer,V>>(m.entrySet(), mutex);
+                }
                 return entrySet;
             }
-	}
+        }
 
-        public Set<IntEntry<V>> intEntrySet() {
+        public Set<IntEntry<V>> intEntrySet () {
             synchronized(mutex) {
                 return new SynchronizedSet<IntEntry<V>>(m.intEntrySet(), mutex);
             }
-	}
+        }
 
-	public Collection<V> values() {
+        public Collection<V> values () {
             synchronized(mutex) {
-                if (values==null)
+                if (values == null) {
                     values = new SynchronizedCollection<V>(m.values(), mutex);
+                }
                 return values;
             }
         }
 
-	@Override
-    public boolean equals(Object o) {
+        @Override
+        public boolean equals (Object o) {
             synchronized(mutex) {return m.equals(o);}
         }
 
-	@Override
-    public int hashCode() {
+        @Override
+        public int hashCode () {
             synchronized(mutex) {return m.hashCode();}
         }
 
-	@Override
-    public String toString() {
-	    synchronized(mutex) {return m.toString();}
+        @Override
+        public String toString () {
+            synchronized(mutex) {return m.toString();}
         }
     }
 
     /**
-     * I wish I could use this from the <code>java.util.Collections</code>
-     * class, but those crazy kids at Sun are always using private and
-     * default access and pointlessly preventing people from properly
-     * reusing their code. Yay!
+     * I wish I could use this from the <code>java.util.Collections</code> class, but those crazy
+     * kids at Sun are always using private and default access and pointlessly preventing people
+     * from properly reusing their code. Yay!
      */
-    protected static class SynchronizedSet<E>
-        extends SynchronizedCollection<E> implements Set<E> {
-	SynchronizedSet(Set<E> s) {
+    protected static class SynchronizedSet<E> extends SynchronizedCollection<E> implements Set<E>
+    {
+        SynchronizedSet (Set<E> s) {
             super(s);
         }
-	SynchronizedSet(Set<E> s, Object mutex) {
+        SynchronizedSet(Set<E> s, Object mutex) {
             super(s, mutex);
         }
 
-	@Override
-        public boolean equals(Object o) {
-	    synchronized(mutex) {return c.equals(o);}
+        @Override
+        public boolean equals (Object o) {
+            synchronized(mutex) {return c.equals(o);}
         }
-	@Override
-        public int hashCode() {
-	    synchronized(mutex) {return c.hashCode();}
+        @Override
+        public int hashCode () {
+            synchronized(mutex) {return c.hashCode();}
         }
     }
 
@@ -413,12 +397,21 @@ public class Collections
         }
 
         public Interator interator () {
-            // must be manually sync'd by user
-            return _i.interator();
+            return _i.interator(); // must be manually sync'd by user
         }
 
         public int[] toIntArray () {
             synchronized(mutex) {return _i.toIntArray();}
+        }
+
+        @Override
+        public boolean equals (Object o) {
+            synchronized(mutex) {return _i.equals(o);}
+        }
+
+        @Override
+        public int hashCode () {
+            synchronized(mutex) {return _i.hashCode();}
         }
 
         /** Properly casted reference to our backing set. */
@@ -426,84 +419,84 @@ public class Collections
     }
 
     /**
-     * I wish I could use this from the <code>java.util.Collections</code>
-     * class, but those crazy kids at Sun are always using private and
-     * default access and pointlessly preventing people from properly
-     * reusing their code. Yay!
+     * I wish I could use this from the <code>java.util.Collections</code> class, but those crazy
+     * kids at Sun are always using private and default access and pointlessly preventing people
+     * from properly reusing their code. Yay!
      */
-    protected static class SynchronizedCollection<E>
-        implements Collection<E> {
-	Collection<E> c;   // Backing Collection
-	Object	   mutex;  // Object on which to synchronize
+    protected static class SynchronizedCollection<E> implements Collection<E>
+    {
+        protected Collection<E> c;   // Backing Collection
+        protected Object mutex;  // Object on which to synchronize
 
-	SynchronizedCollection(Collection<E> c) {
-            if (c==null)
+        SynchronizedCollection (Collection<E> c) {
+            if (c==null) {
                 throw new NullPointerException();
-	    this.c = c;
+            }
+            this.c = c;
             mutex = this;
         }
-	SynchronizedCollection(Collection<E> c, Object mutex) {
-	    this.c = c;
+        SynchronizedCollection(Collection<E> c, Object mutex) {
+            this.c = c;
             this.mutex = mutex;
         }
 
-	public int size() {
-	    synchronized(mutex) {return c.size();}
+        public int size () {
+            synchronized(mutex) {return c.size();}
         }
-	public boolean isEmpty() {
-	    synchronized(mutex) {return c.isEmpty();}
+        public boolean isEmpty () {
+            synchronized(mutex) {return c.isEmpty();}
         }
-	public boolean contains(Object o) {
-	    synchronized(mutex) {return c.contains(o);}
+        public boolean contains (Object o) {
+            synchronized(mutex) {return c.contains(o);}
         }
-	public Object[] toArray() {
-	    synchronized(mutex) {return c.toArray();}
+        public Object[] toArray () {
+            synchronized(mutex) {return c.toArray();}
         }
-	public <T> T[] toArray(T[] a) {
-	    synchronized(mutex) {return c.toArray(a);}
+        public <T> T[] toArray (T[] a) {
+            synchronized(mutex) {return c.toArray(a);}
         }
 
-	public Iterator<E> iterator() {
+        public Iterator<E> iterator () {
             return c.iterator(); // Must be manually synched by user!
         }
 
-	public boolean add(E o) {
-	    synchronized(mutex) {return c.add(o);}
+        public boolean add (E o) {
+            synchronized(mutex) {return c.add(o);}
         }
-	public boolean remove(Object o) {
-	    synchronized(mutex) {return c.remove(o);}
+        public boolean remove (Object o) {
+            synchronized(mutex) {return c.remove(o);}
         }
 
-	public boolean containsAll(Collection<?> coll) {
-	    synchronized(mutex) {return c.containsAll(coll);}
+        public boolean containsAll (Collection<?> coll) {
+            synchronized(mutex) {return c.containsAll(coll);}
         }
-	public boolean addAll(Collection<? extends E> coll) {
-	    synchronized(mutex) {return c.addAll(coll);}
+        public boolean addAll (Collection<? extends E> coll) {
+            synchronized(mutex) {return c.addAll(coll);}
         }
-	public boolean removeAll(Collection<?> coll) {
-	    synchronized(mutex) {return c.removeAll(coll);}
+        public boolean removeAll (Collection<?> coll) {
+            synchronized(mutex) {return c.removeAll(coll);}
         }
-	public boolean retainAll(Collection<?> coll) {
-	    synchronized(mutex) {return c.retainAll(coll);}
+        public boolean retainAll (Collection<?> coll) {
+            synchronized(mutex) {return c.retainAll(coll);}
         }
-	public void clear() {
-	    synchronized(mutex) {c.clear();}
+        public void clear () {
+            synchronized(mutex) {c.clear();}
         }
-	@Override
-    public String toString() {
-	    synchronized(mutex) {return c.toString();}
+        @Override
+        public String toString () {
+            synchronized(mutex) {return c.toString();}
         }
     }
 
     /**
-     * An iterator that iterates over the union of the iterators provided by a
-     * collection of iterators.
+     * An iterator that iterates over the union of the iterators provided by a collection of
+     * iterators.
      */
     protected static class MetaIterator<T> implements Iterator<T>
     {
         /**
-         * @param iterable a Iterable containing more Iterables
-         * whose elements we are to iterate over.
+         * @param iterable a Iterable containing more Iterables whose elements we are to iterate
+         * over.
          */
         public MetaIterator (Iterable<Iterator<T>> iterable)
         {

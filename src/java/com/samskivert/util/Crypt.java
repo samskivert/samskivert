@@ -484,11 +484,11 @@ public class Crypt
                 skb[6][ (d >>>15) & 0x3f                       ]|
                 skb[7][((d >>>21) & 0x0f) | ((d >>> 22) & 0x30)];
 
-            schedule[j++] = ((t <<  16) | (s & 0x0000ffff)) & 0xffffffff;
+            schedule[j++] = ((t <<  16) | (s & 0x0000ffff));
             s             = ((s >>> 16) | (t & 0xffff0000));
 
             s             = (s << 4) | (s >>> 28);
-            schedule[j++] = s & 0xffffffff;
+            schedule[j++] = s;
         }
         return(schedule);
     }
@@ -539,9 +539,6 @@ public class Crypt
 
         right = (left >>> 1) | (left << 31);
         left  = (t    >>> 1) | (t    << 31);
-
-        left  &= 0xffffffff;
-        right &= 0xffffffff;
 
         int[] results = new int[2];
 

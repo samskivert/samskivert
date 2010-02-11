@@ -3,7 +3,7 @@
 //
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2010 Michael Bayne, et al.
-// 
+//
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation; either version 2.1 of the License, or
@@ -102,6 +102,12 @@ public class Calendars
         public Builder at (int year, int month, int day) {
             _calendar.set(year, month, day);
             return zeroTime();
+        }
+
+        /** See {@link Calendar#setTimeZone(TimeZone)}. */
+        public Builder in (TimeZone zone) {
+            _calendar.setTimeZone(zone);
+            return this;
         }
 
         /** Zeros out the time fields of this calendar, preserving only the date. */

@@ -96,6 +96,12 @@ public class Calendars
             return this;
         }
 
+        /** See {@link Calendar#setTime(Date)}. */
+        public Builder setTime (Date date) {
+            _calendar.setTime(date);
+            return this;
+        }
+
         /** Sets the time to zero milliseconds after midnight on the specified year, month and
          * day. This mirrors {@link Calendars#at} for when you need e.g. a custom timezone:
          * <pre>Calendars.in(zone).at(2009, Calendar.JANUARY, 1)</pre> */

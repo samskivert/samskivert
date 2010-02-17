@@ -622,6 +622,13 @@ public class TGraphics2D extends Graphics2D
     }
 
     @Override
+    public void finalize ()
+    {
+        // We don't want to have our super's finalize called because that will end up calling
+        // dispose() which we don't want.
+    }
+
+    @Override
     public String toString ()
     {
         return _primary.toString();

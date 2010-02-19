@@ -28,10 +28,7 @@ import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 
 import java.util.logging.Formatter;
-import java.util.logging.Handler;
-import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /**
@@ -94,7 +91,7 @@ public class OneLineLogFormatter extends Formatter
 
         // append the message itself
 	buf.append(formatMessage(record));
-        buf.append(LINE_SEPARATOR);
+        buf.append(FormatterUtil.LINE_SEPARATOR);
 
         // if an exception was also provided, append that
 	if (record.getThrown() != null) {
@@ -127,19 +124,7 @@ public class OneLineLogFormatter extends Formatter
      */
     public static void configureDefaultHandler (boolean showWhere)
     {
-        configureDefaultHandler(new OneLineLogFormatter(showWhere));
-    }
-
-    /**
-     * Configures the default logging handler to use an instance of the specified formatter when
-     * formatting messages.
-     */
-    public static void configureDefaultHandler (Formatter formatter)
-    {
-        Logger logger = LogManager.getLogManager().getLogger("");
-        for (Handler handler : logger.getHandlers()) {
-            handler.setFormatter(formatter);
-        }
+        FormatterUtil.configureDefaultHandler(new OneLineLogFormatter(showWhere));
     }
 
     protected boolean _showWhere;
@@ -148,12 +133,4 @@ public class OneLineLogFormatter extends Formatter
     protected FieldPosition _fpos = new FieldPosition(SimpleDateFormat.DATE_FIELD);
 
     protected static final String DATE_FORMAT = "{0,date} {0,time}";
-
-    protected static String LINE_SEPARATOR = "\n";
-    static {
-        try {
-            LINE_SEPARATOR = System.getProperty("line.separator");
-        } catch (Exception e) {
-        }
-    }
 }

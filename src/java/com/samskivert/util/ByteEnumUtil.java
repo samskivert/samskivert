@@ -20,6 +20,9 @@
 
 package com.samskivert.util;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * {@link ByteEnum} utility methods.
  */
@@ -40,4 +43,48 @@ public class ByteEnumUtil
         }
         throw new IllegalArgumentException(eclass + " has no value with code " + code);
     }
+
+    /**
+     * Convert a Set of ByteEnums into an integer compactly representing the elements that are
+     * included.
+     */
+    public static <E extends Enum<E> & ByteEnum> int setToInt (Set<E> set)
+    {
+        int flags = 0;
+        for (E value : set) {
+            flags |= (1 << toIntFlag(value));
+        }
+        return flags;
+    }
+
+    /**
+     * Convert an int representation of ByteEnum flags into an EnumSet.
+     */
+    public static <E extends Enum<E> & ByteEnum> EnumSet<E> intToSet (Class<E> eclass, int flags)
+    {
+        EnumSet<E> set = EnumSet.noneOf(eclass);
+        for (E value : eclass.getEnumConstants()) {
+            if ((flags & (1 << toIntFlag(value))) != 0) {
+                set.add(value);
+            }
+        }
+        return set;
+    }
+
+    /**
+     * A helper function for setToInt() and intToSet() that validates that the specified
+     * ByteEnum value is not null and has a code between 0 and 31, inclusive.
+     */
+    protected static <E extends Enum<E> & ByteEnum> byte toIntFlag (E value)
+    {
+        byte code = value.toByte(); // allow this to throw NPE
+        if (code < 0 || code > 31) {
+            throw new IllegalArgumentException(
+                "ByteEnum code is outside the range that can be turned into an int " +
+                "[value=" + value + ", code=" + code + "]");
+        }
+        return code;
+    }
+
+    // TODO: setToByteArray() and byteArrayToSet(), for larger ByteEnums?
 }

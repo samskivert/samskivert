@@ -52,7 +52,7 @@ public class ByteEnumUtil
     {
         int flags = 0;
         for (E value : set) {
-            flags |= (1 << toIntFlag(value));
+            flags |= toIntFlag(value);
         }
         return flags;
     }
@@ -64,7 +64,7 @@ public class ByteEnumUtil
     {
         EnumSet<E> set = EnumSet.noneOf(eclass);
         for (E value : eclass.getEnumConstants()) {
-            if ((flags & (1 << toIntFlag(value))) != 0) {
+            if ((flags & toIntFlag(value)) != 0) {
                 set.add(value);
             }
         }
@@ -75,7 +75,7 @@ public class ByteEnumUtil
      * A helper function for setToInt() and intToSet() that validates that the specified
      * ByteEnum value is not null and has a code between 0 and 31, inclusive.
      */
-    protected static <E extends Enum<E> & ByteEnum> byte toIntFlag (E value)
+    protected static <E extends Enum<E> & ByteEnum> int toIntFlag (E value)
     {
         byte code = value.toByte(); // allow this to throw NPE
         if (code < 0 || code > 31) {
@@ -83,7 +83,7 @@ public class ByteEnumUtil
                 "ByteEnum code is outside the range that can be turned into an int " +
                 "[value=" + value + ", code=" + code + "]");
         }
-        return code;
+        return (1 << code);
     }
 
     // TODO: setToByteArray() and byteArrayToSet(), for larger ByteEnums?

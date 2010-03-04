@@ -26,9 +26,9 @@ import java.util.HashMap;
  */
 public class Mapping
 {
-    public static <K, V> HashMap<K, V> of (K k1, V val1)
+    public static <K, V> HashMap<K, V> of (K k1, V v1)
     {
-        return of(new Object[] { k1, val1 });
+        return of(new Object[] { k1, v1 });
     }
 
     public static <K, V> HashMap<K, V> of (K k1, V v1, K k2, V v2)

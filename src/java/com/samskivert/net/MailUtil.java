@@ -29,12 +29,9 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import java.util.regex.PatternSyntaxException;
 import java.util.regex.Pattern;
 
 import com.samskivert.util.StringUtil;
-
-import static com.samskivert.Log.log;
 
 /**
  * The mail util class encapsulates some utility functions related to
@@ -139,9 +136,8 @@ public class MailUtil
     {
         try {
             message.setFrom(new InternetAddress(sender));
-            for (int ii = 0; ii < recipients.length; ii++) {
-                message.addRecipient(Message.RecipientType.TO,
-                                     new InternetAddress(recipients[ii]));
+            for (String recipient : recipients) {
+                message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
             }
             if (subject != null) {
                 message.setSubject(subject);

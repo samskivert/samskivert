@@ -25,7 +25,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 /**
  * The CDDB class provides access to the information provided by servers compliant with the
@@ -225,8 +224,8 @@ public class CDDB
         StringBuilder req = new StringBuilder("cddb query ");
         req.append(discid).append(" ");
         req.append(frameOffsets.length).append(" ");
-        for (int i = 0; i < frameOffsets.length; i++) {
-            req.append(frameOffsets[i]).append(" ");
+        for (int frameOffset : frameOffsets) {
+            req.append(frameOffsets).append(" ");
         }
         req.append(length);
 

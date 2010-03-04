@@ -138,7 +138,7 @@ public class StreamUtil
         throws IOException
     {
         char[] inbuf = new char[4096];
-        StringBuffer outbuf = new StringBuffer();
+        StringBuilder outbuf = new StringBuilder();
         for (int read = 0; (read = reader.read(inbuf)) > 0; ) {
             outbuf.append(inbuf, 0, read);
         }

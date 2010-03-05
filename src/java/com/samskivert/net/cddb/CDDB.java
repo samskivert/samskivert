@@ -225,7 +225,7 @@ public class CDDB
         req.append(discid).append(" ");
         req.append(frameOffsets.length).append(" ");
         for (int frameOffset : frameOffsets) {
-            req.append(frameOffsets).append(" ");
+            req.append(frameOffset).append(" ");
         }
         req.append(length);
 

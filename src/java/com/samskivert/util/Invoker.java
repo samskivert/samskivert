@@ -205,6 +205,8 @@ public class Invoker extends LoopingThread
             start = System.currentTimeMillis();
             // record the time spent on the queue as a special unit
             recordMetrics("queue_wait_time", start - unit.queueStamp);
+        } else {
+            start = 0L;
         }
 
         try {

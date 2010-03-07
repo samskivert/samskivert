@@ -448,7 +448,7 @@ public class Table<T>
         fMask = new FieldMask(fields);
 
         try {
-            constructor = _rowClass.getDeclaredConstructor(new Class[0]);
+            constructor = _rowClass.getDeclaredConstructor(new Class<?>[0]);
             setBypass.invoke(constructor, bypassFlag);
         } catch(Exception ex) {}
 
@@ -571,7 +571,7 @@ public class Table<T>
 
                     try {
                         fd.constructor =
-                            fieldClass.getDeclaredConstructor(new Class[0]);
+                            fieldClass.getDeclaredConstructor(new Class<?>[0]);
                         setBypass.invoke(fd.constructor, bypassFlag);
                     } catch(Exception ex) {}
 

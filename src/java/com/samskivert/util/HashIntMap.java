@@ -517,7 +517,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
 
     protected Record<V>[] createBuckets (int size)
     {
-        @SuppressWarnings("unchecked") Record<V>[] recs = new Record[size];
+        @SuppressWarnings("unchecked") Record<V>[] recs = (Record<V>[])new Record<?>[size];
         return recs;
     }
 

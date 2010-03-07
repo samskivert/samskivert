@@ -104,7 +104,7 @@ public class ClassUtil
     {
         Class<?>[] argTypes = null;
         if (args != null) {
-            argTypes = new Class[args.length];
+            argTypes = new Class<?>[args.length];
             for (int i = 0; i < args.length; ++i) {
                 argTypes[i] = (args[i] == null) ? Void.TYPE : args[i].getClass();
             }

@@ -47,11 +47,11 @@ public class Comparators
     };
 
     /**
-     * A comparator that compares {@link Comparable} instances.
+     * A comparator that compares {@link Comparable<Object>} instances.
      */
-    @SuppressWarnings("unchecked")
-    public static final Comparator COMPARABLE = new Comparator() {
-        public int compare (Object o1, Object o2)
+    public static final Comparator<Comparable<Object>> COMPARABLE =
+        new Comparator<Comparable<Object>>() {
+        public int compare (Comparable<Object> o1, Comparable<Object> o2)
         {
             if (o1 == o2) { // catches null == null
                 return 0;
@@ -60,7 +60,7 @@ public class Comparators
             } else if (o2 == null) {
                 return -1;
             }
-            return ((Comparable)o1).compareTo(o2); // null-free
+            return o1.compareTo(o2); // null-free
         }
     };
 
@@ -72,10 +72,12 @@ public class Comparators
      *    Comparator&lt;Integer&gt; = Comparators.comparable();
      * </pre>
      */
-    @SuppressWarnings("unchecked")
-    public static final <T extends Comparable> Comparator<T> comparable ()
+    // we can't do the "more correct" <T extends Comparable<? super T>> here as that causes other
+    // code to freak out; I don't entirely understand why
+    public static final <T extends Comparable<?>> Comparator<T> comparable ()
     {
-        return COMPARABLE;
+        @SuppressWarnings("unchecked") Comparator<T> comp = (Comparator<T>)COMPARABLE;
+        return comp;
     }
 
     /**

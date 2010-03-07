@@ -125,12 +125,13 @@ public class CountHashMap<K> extends HashMap<K, int[]>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Set<Map.Entry<K, int[]>> entrySet ()
     {
         // a giant mess of hoop-jumpery so that we can convert each Map.Entry returned by the
         // iterator to be a CountEntryImpl
-        return new CountEntrySet(super.entrySet());
+        Set<?> eset = new CountEntrySet<K>(super.entrySet());
+        @SuppressWarnings("unchecked") Set<Map.Entry<K, int[]>> r = (Set<Map.Entry<K, int[]>>)eset;
+        return r;
     }
 
     /**

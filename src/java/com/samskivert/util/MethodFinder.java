@@ -99,7 +99,7 @@ public class MethodFinder
         maybeLoadConstructors();
 
         if (parameterTypes == null) {
-            parameterTypes = new Class[0];
+            parameterTypes = new Class<?>[0];
         }
 
         return (Constructor<?>)findMemberIn(_ctorList, parameterTypes);
@@ -135,7 +135,7 @@ public class MethodFinder
         }
 
         if (parameterTypes == null) {
-            parameterTypes = new Class[0];
+            parameterTypes = new Class<?>[0];
         }
 
         return (Method)findMemberIn(methodList, parameterTypes);

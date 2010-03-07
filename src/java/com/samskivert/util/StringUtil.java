@@ -707,7 +707,7 @@ public class StringUtil
             buf.append(fields[i].getName()).append("=");
             try {
                 try {
-                    Method meth = clazz.getMethod(fields[i].getName() + "ToString", new Class[0]);
+                    Method meth = clazz.getMethod(fields[i].getName() + "ToString", new Class<?>[0]);
                     buf.append(meth.invoke(object, (Object[]) null));
                 } catch (NoSuchMethodException nsme) {
                     toString(buf, fields[i].get(object));

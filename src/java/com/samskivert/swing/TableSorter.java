@@ -236,9 +236,10 @@ public class TableSorter extends AbstractTableModel {
             return comparator;
         }
         if (Comparable.class.isAssignableFrom(columnType)) {
-            @SuppressWarnings("unchecked")
-            Comparator<Object> c = Comparators.COMPARABLE;
-            return c;
+            // this is messy, but reflection and generics don't play nice
+            Comparator<?> c = Comparators.COMPARABLE;
+            @SuppressWarnings("unchecked") Comparator<Object> co = (Comparator<Object>)c;
+            return co;
         }
         return Comparators.LEXICAL_CASE_INSENSITIVE;
     }

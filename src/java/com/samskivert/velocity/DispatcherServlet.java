@@ -418,7 +418,7 @@ public class DispatcherServlet extends HttpServlet
     /**
      * Called when a method throws an exception during template evaluation.
      */
-    @Override @SuppressWarnings("rawtypes") // our super class declares a bare Class
+    @SuppressWarnings("rawtypes") // our super class declares a bare Class
     public Object methodException (Class clazz, String method, Exception e)
         throws Exception
     {

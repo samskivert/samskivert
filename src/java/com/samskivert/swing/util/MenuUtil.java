@@ -62,7 +62,7 @@ public class MenuUtil
         KeyStroke accel)
     {
         JMenuItem item = createItem(name, mnem, accel);
-	item.addActionListener(l);
+        item.addActionListener(l);
         menu.add(item);
         return item;
     }
@@ -127,19 +127,16 @@ public class MenuUtil
      * @param name the item name.
      * @param mnem the mnemonic key for the item.
      * @param accel the keystroke for the item or null if none.
-     * @param target the object on which to invoke a method when the menu
-     * is selected.
-     * @param callbackName the name of the method to invoke when the menu
-     * is selected.
+     * @param target the object on which to invoke a method when the menu is selected.
+     * @param callbackName the name of the method to invoke when the menu is selected.
      *
      * @return the new menu item.
      */
     public static JMenuItem addMenuItem (
-        JMenu menu, String name, int mnem, KeyStroke accel,
-        Object target, String callbackName)
+        JMenu menu, String name, int mnem, KeyStroke accel, Object target, String callbackName)
     {
-	JMenuItem item = createItem(name, Integer.valueOf(mnem), accel);
-	item.addActionListener(new ReflectedAction(target, callbackName));
+        JMenuItem item = createItem(name, Integer.valueOf(mnem), accel);
+        item.addActionListener(new ReflectedAction(target, callbackName));
         menu.add(item);
         return item;
     }
@@ -152,18 +149,16 @@ public class MenuUtil
      *
      * @param menu the menu to add the item to.
      * @param name the item name.
-     * @param target the object on which to invoke a method when the menu
-     * is selected.
-     * @param callbackName the name of the method to invoke when the menu
-     * is selected.
+     * @param target the object on which to invoke a method when the menu is selected.
+     * @param callbackName the name of the method to invoke when the menu is selected.
      *
      * @return the new menu item.
      */
     public static JMenuItem addMenuItem (
         JMenu menu, String name, Object target, String callbackName)
     {
-	JMenuItem item = createItem(name, null, null);
-	item.addActionListener(new ReflectedAction(target, callbackName));
+        JMenuItem item = createItem(name, null, null);
+        item.addActionListener(new ReflectedAction(target, callbackName));
         menu.add(item);
         return item;
     }
@@ -181,17 +176,15 @@ public class MenuUtil
      *
      * @param menu the menu to add the item to.
      * @param name the item name.
-     * @param target the object on which to invoke a method when the menu
-     * is selected.
-     * @param callbackName the name of the method to invoke when the menu
-     * is selected.
+     * @param target the object on which to invoke a method when the menu is selected.
+     * @param callbackName the name of the method to invoke when the menu is selected.
      *
      * @return the new menu item.
      */
     public static JMenuItem addMenuItem (
         JPopupMenu menu, String name, Object target, String callbackName)
     {
-	JMenuItem item = createItem(name, null, null);
+        JMenuItem item = createItem(name, null, null);
         item.addActionListener(new ReflectedAction(target, callbackName));
         menu.add(item);
         return item;
@@ -200,10 +193,9 @@ public class MenuUtil
     /**
      * Creates and configures a menu item.
      */
-    protected static JMenuItem createItem (
-        String name, Integer mnem, KeyStroke accel)
+    protected static JMenuItem createItem (String name, Integer mnem, KeyStroke accel)
     {
-	JMenuItem item = new JMenuItem(name);
+        JMenuItem item = new JMenuItem(name);
         if (mnem != null) {
             item.setMnemonic(mnem.intValue());
         }
@@ -218,8 +210,7 @@ public class MenuUtil
      */
     protected static class ReflectedAction implements ActionListener
     {
-        public ReflectedAction (Object target, String methodName)
-        {
+        public ReflectedAction (Object target, String methodName) {
             try {
                 // look up the method we'll be calling
                 _method = target.getClass().getMethod(methodName, METHOD_ARGS);
@@ -231,8 +222,7 @@ public class MenuUtil
             }
         }
 
-        public void actionPerformed (ActionEvent event)
-        {
+        public void actionPerformed (ActionEvent event) {
             if (_method != null) {
                 try {
                     _method.invoke(_target, new Object[] { event });

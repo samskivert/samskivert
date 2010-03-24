@@ -143,9 +143,9 @@ public class SwingUtil
         Graphics g, String str, int x, int y, int width, int height)
     {
         FontMetrics fm = g.getFontMetrics(g.getFont());
-	int xpos = x + ((width - fm.stringWidth(str)) / 2);
-	int ypos = y + ((height + fm.getAscent()) / 2);
-	g.drawString(str, xpos, ypos);
+        int xpos = x + ((width - fm.stringWidth(str)) / 2);
+        int ypos = y + ((height + fm.getAscent()) / 2);
+        g.drawString(str, xpos, ypos);
     }
 
     /**

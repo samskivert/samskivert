@@ -101,10 +101,10 @@ public class AbsoluteLayout
 
         Dimension dims = new Dimension(rect.width, rect.height);
 
-	// account for the insets
-	Insets insets = parent.getInsets();
-	dims.width += insets.left + insets.right;
-	dims.height += insets.top + insets.bottom;
+        // account for the insets
+        Insets insets = parent.getInsets();
+        dims.width += insets.left + insets.right;
+        dims.height += insets.top + insets.bottom;
 
         return dims;
     }
@@ -126,7 +126,7 @@ public class AbsoluteLayout
     // documentation inherited from interface
     public void layoutContainer (Container parent)
     {
-	Insets insets = parent.getInsets();
+        Insets insets = parent.getInsets();
         int pcount = parent.getComponentCount();
         for (int ii = 0; ii < pcount; ii++) {
             Component comp = parent.getComponent(ii);

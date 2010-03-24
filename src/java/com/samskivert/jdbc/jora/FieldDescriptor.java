@@ -30,7 +30,7 @@ class FieldDescriptor
     {
         this.name = name;
         this.field = field;
-	this.scale = -1;
+        this.scale = -1;
     }
 
     protected final boolean isAtomic ()
@@ -53,336 +53,320 @@ class FieldDescriptor
         throws SQLException
     {
         try {
-	    switch (outType) {
+            switch (outType) {
             case t_byte:
-		pstmt.setByte(column, field.getByte(obj));
-		break;
+                pstmt.setByte(column, field.getByte(obj));
+                break;
             case t_short:
-		pstmt.setShort(column, field.getShort(obj));
-		break;
+                pstmt.setShort(column, field.getShort(obj));
+                break;
             case t_int:
-		pstmt.setInt(column, field.getInt(obj));
-		break;
+                pstmt.setInt(column, field.getInt(obj));
+                break;
             case t_long:
-		pstmt.setLong(column, field.getLong(obj));
-		break;
+                pstmt.setLong(column, field.getLong(obj));
+                break;
             case t_float:
-		pstmt.setFloat(column, field.getFloat(obj));
-		break;
+                pstmt.setFloat(column, field.getFloat(obj));
+                break;
             case t_double:
-		pstmt.setDouble(column, field.getDouble(obj));
-		break;
+                pstmt.setDouble(column, field.getDouble(obj));
+                break;
             case t_boolean:
-		pstmt.setBoolean(column, field.getBoolean(obj));
-		break;
+                pstmt.setBoolean(column, field.getBoolean(obj));
+                break;
             case tByte:
-		pstmt.setByte(column, ((Byte)field.get(obj)).byteValue());
-		break;
+                pstmt.setByte(column, ((Byte)field.get(obj)).byteValue());
+                break;
 
             case tShort:
-		pstmt.setShort(column, ((Short)field.get(obj)).shortValue());
-		break;
+                pstmt.setShort(column, ((Short)field.get(obj)).shortValue());
+                break;
             case tInteger:
-		pstmt.setInt(column, ((Integer)field.get(obj)).intValue());
-		break;
+                pstmt.setInt(column, ((Integer)field.get(obj)).intValue());
+                break;
             case tLong:
-		pstmt.setLong(column, ((Long)field.get(obj)).longValue());
-		break;
+                pstmt.setLong(column, ((Long)field.get(obj)).longValue());
+                break;
             case tFloat:
-		pstmt.setFloat(column, ((Float)field.get(obj)).floatValue());
-		break;
+                pstmt.setFloat(column, ((Float)field.get(obj)).floatValue());
+                break;
             case tDouble:
-		pstmt.setDouble(column,((Double)field.get(obj)).doubleValue());
-		break;
+                pstmt.setDouble(column,((Double)field.get(obj)).doubleValue());
+                break;
             case tBoolean:
-		pstmt.setBoolean(column,
-				 ((Boolean)field.get(obj)).booleanValue());
-		break;
+                pstmt.setBoolean(column, ((Boolean)field.get(obj)).booleanValue());
+                break;
 
             case tDecimal:
-		pstmt.setBigDecimal(column, (BigDecimal)field.get(obj));
-		break;
+                pstmt.setBigDecimal(column, (BigDecimal)field.get(obj));
+                break;
             case tString:
-		pstmt.setString(column, (String)field.get(obj));
-		break;
+                pstmt.setString(column, (String)field.get(obj));
+                break;
             case tBytes:
-		pstmt.setBytes(column, (byte[])field.get(obj));
-		break;
+                pstmt.setBytes(column, (byte[])field.get(obj));
+                break;
             case tDate:
-		pstmt.setDate(column, (java.sql.Date)field.get(obj));
-		break;
+                pstmt.setDate(column, (java.sql.Date)field.get(obj));
+                break;
             case tTime:
-		pstmt.setTime(column, (java.sql.Time)field.get(obj));
-		break;
+                pstmt.setTime(column, (java.sql.Time)field.get(obj));
+                break;
             case tTimestamp:
-		pstmt.setTimestamp(column, (java.sql.Timestamp)field.get(obj));
-		break;
+                pstmt.setTimestamp(column, (java.sql.Timestamp)field.get(obj));
+                break;
             case tStream:
-		java.io.InputStream in = (java.io.InputStream)field.get(obj);
-		pstmt.setBinaryStream(column, in, in.available());
-		break;
+                java.io.InputStream in = (java.io.InputStream)field.get(obj);
+                pstmt.setBinaryStream(column, in, in.available());
+                break;
             case tBlob:
-		pstmt.setBlob(column, (Blob)field.get(obj));
-		break;
+                pstmt.setBlob(column, (Blob)field.get(obj));
+                break;
             case tClob:
-		pstmt.setClob(column, (Clob)field.get(obj));
-		break;
+                pstmt.setClob(column, (Clob)field.get(obj));
+                break;
             case tAsString:
-		pstmt.setString(column, field.get(obj).toString());
-		break;
+                pstmt.setString(column, field.get(obj).toString());
+                break;
             case tClosure:
-		// There is no reason to use piped streams because
-		// we need to pass total number of bytes to JDBC driver
-		java.io.ByteArrayOutputStream out =
-		    new java.io.ByteArrayOutputStream();
-		java.io.ObjectOutputStream clu =
-		    new java.io.ObjectOutputStream(out);
-		clu.writeObject(field.get(obj));
-		clu.close();
-		pstmt.setBytes(column, out.toByteArray());
-		break;
+                // There is no reason to use piped streams because
+                // we need to pass total number of bytes to JDBC driver
+                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+                java.io.ObjectOutputStream clu = new java.io.ObjectOutputStream(out);
+                clu.writeObject(field.get(obj));
+                clu.close();
+                pstmt.setBytes(column, out.toByteArray());
+                break;
             default:
-		return false;
-	    }
-	} catch(SQLException ex) {
-  	    if (outType != tClosure && outType != tAsString) {
-	        outType = tAsString;
-		return bindVariable(pstmt, obj, column);
-	    } else {
-	        throw ex;
-	    }
-	} catch(IllegalAccessException ex) {
-	    ex.printStackTrace();
-	    throw new IllegalAccessError();
-	} catch(java.io.IOException ex) {
-	    throw new DataTransferError(ex);
-	}
-	return true;
+                return false;
+            }
+        } catch(SQLException ex) {
+            if (outType != tClosure && outType != tAsString) {
+                outType = tAsString;
+                return bindVariable(pstmt, obj, column);
+            } else {
+                throw ex;
+            }
+        } catch(IllegalAccessException ex) {
+            ex.printStackTrace();
+            throw new IllegalAccessError();
+        } catch(java.io.IOException ex) {
+            throw new DataTransferError(ex);
+        }
+        return true;
     }
 
-    protected final boolean updateVariable (
-        ResultSet result, Object obj, int column)
+    protected final boolean updateVariable (ResultSet result, Object obj, int column)
         throws SQLException
     {
         try {
-	    switch (outType) {
+            switch (outType) {
             case t_byte:
-		result.updateByte(column, field.getByte(obj));
-		break;
+                result.updateByte(column, field.getByte(obj));
+                break;
             case t_short:
-		result.updateShort(column, field.getShort(obj));
-		break;
+                result.updateShort(column, field.getShort(obj));
+                break;
             case t_int:
-		result.updateInt(column, field.getInt(obj));
-		break;
+                result.updateInt(column, field.getInt(obj));
+                break;
             case t_long:
-		result.updateLong(column, field.getLong(obj));
-		break;
+                result.updateLong(column, field.getLong(obj));
+                break;
             case t_float:
-		result.updateFloat(column, field.getFloat(obj));
-		break;
+                result.updateFloat(column, field.getFloat(obj));
+                break;
             case t_double:
-		result.updateDouble(column, field.getDouble(obj));
-		break;
+                result.updateDouble(column, field.getDouble(obj));
+                break;
             case t_boolean:
-		result.updateBoolean(column, field.getBoolean(obj));
-		break;
+                result.updateBoolean(column, field.getBoolean(obj));
+                break;
 
             case tByte:
-		result.updateByte(column, ((Byte)field.get(obj)).byteValue());
-		break;
+                result.updateByte(column, ((Byte)field.get(obj)).byteValue());
+                break;
             case tShort:
-		result.updateShort(column,
-				   ((Short)field.get(obj)).shortValue());
-		break;
+                result.updateShort(column, ((Short)field.get(obj)).shortValue());
+                break;
             case tInteger:
-		result.updateInt(column, ((Integer)field.get(obj)).intValue());
-		break;
+                result.updateInt(column, ((Integer)field.get(obj)).intValue());
+                break;
             case tLong:
-		result.updateLong(column, ((Long)field.get(obj)).longValue());
-		break;
+                result.updateLong(column, ((Long)field.get(obj)).longValue());
+                break;
             case tFloat:
-		result.updateFloat(column,
-				   ((Float)field.get(obj)).floatValue());
-		break;
+                result.updateFloat(column, ((Float)field.get(obj)).floatValue());
+                break;
             case tDouble:
-		result.updateDouble(column,
-				    ((Double)field.get(obj)).doubleValue());
-		break;
+                result.updateDouble(column, ((Double)field.get(obj)).doubleValue());
+                break;
             case tBoolean:
-		result.updateBoolean(column,
-				     ((Boolean)field.get(obj)).booleanValue());
-		break;
+                result.updateBoolean(column, ((Boolean)field.get(obj)).booleanValue());
+                break;
 
             case tDecimal:
-		result.updateBigDecimal(column, (BigDecimal)field.get(obj));
-		break;
+                result.updateBigDecimal(column, (BigDecimal)field.get(obj));
+                break;
             case tString:
-		result.updateString(column, (String)field.get(obj));
-		break;
+                result.updateString(column, (String)field.get(obj));
+                break;
             case tBytes:
-		result.updateBytes(column, (byte[])field.get(obj));
-		break;
+                result.updateBytes(column, (byte[])field.get(obj));
+                break;
             case tDate:
-		result.updateDate(column, (java.sql.Date)field.get(obj));
-		break;
+                result.updateDate(column, (java.sql.Date)field.get(obj));
+                break;
             case tTime:
-		result.updateTime(column, (java.sql.Time)field.get(obj));
-		break;
+                result.updateTime(column, (java.sql.Time)field.get(obj));
+                break;
             case tTimestamp:
-		result.updateTimestamp(column,
-				       (java.sql.Timestamp)field.get(obj));
-		break;
+                result.updateTimestamp(column, (java.sql.Timestamp)field.get(obj));
+                break;
             case tStream:
-		java.io.InputStream in = (java.io.InputStream)field.get(obj);
-		result.updateBinaryStream(column, in, in.available());
-		break;
+                java.io.InputStream in = (java.io.InputStream)field.get(obj);
+                result.updateBinaryStream(column, in, in.available());
+                break;
             case tBlob:
-	        Blob blob = (Blob)field.get(obj);
-		result.updateBinaryStream(column,
-					  blob.getBinaryStream(),
-					  (int)blob.length());
-		break;
+                Blob blob = (Blob)field.get(obj);
+                result.updateBinaryStream(column, blob.getBinaryStream(), (int)blob.length());
+                break;
             case tClob:
-	        Clob clob = (Clob)field.get(obj);
-		result.updateCharacterStream(column,
-					     clob.getCharacterStream(),
-					     (int)clob.length());
-		break;
+                Clob clob = (Clob)field.get(obj);
+                result.updateCharacterStream(column, clob.getCharacterStream(), (int)clob.length());
+                break;
             case tAsString:
-		result.updateString(column, field.get(obj).toString());
-		break;
+                result.updateString(column, field.get(obj).toString());
+                break;
             case tClosure:
-		// There is no reason to use piped streams because
-		// we need to pass total number of bytes to JDBC driver
-		java.io.ByteArrayOutputStream out =
-		    new java.io.ByteArrayOutputStream();
-		java.io.ObjectOutputStream clu =
-		    new java.io.ObjectOutputStream(out);
-		clu.writeObject(field.get(obj));
-		clu.close();
-		result.updateBytes(column, out.toByteArray());
-		break;
+                // There is no reason to use piped streams because
+                // we need to pass total number of bytes to JDBC driver
+                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+                java.io.ObjectOutputStream clu = new java.io.ObjectOutputStream(out);
+                clu.writeObject(field.get(obj));
+                clu.close();
+                result.updateBytes(column, out.toByteArray());
+                break;
             default:
-		return false;
-	    }
-	} catch(SQLException ex) {
-  	    if (outType != tClosure && outType != tAsString) {
-	        outType = tAsString;
-		return updateVariable(result, obj, column);
-	    } else {
-	        throw ex;
-	    }
-	} catch(IllegalAccessException ex) {
-	    ex.printStackTrace();
-	    throw new IllegalAccessError();
-	} catch(java.io.IOException ex) {
-	    throw new DataTransferError(ex);
-	}
-	return true;
+                return false;
+            }
+        } catch(SQLException ex) {
+            if (outType != tClosure && outType != tAsString) {
+                outType = tAsString;
+                return updateVariable(result, obj, column);
+            } else {
+                throw ex;
+            }
+        } catch(IllegalAccessException ex) {
+            ex.printStackTrace();
+            throw new IllegalAccessError();
+        } catch(java.io.IOException ex) {
+            throw new DataTransferError(ex);
+        }
+        return true;
     }
 
     protected final boolean loadVariable (
         ResultSet result, Object obj, int column)
         throws SQLException, IllegalAccessException
     {
-	switch (inType) {
+        switch (inType) {
         case t_byte:
-	    field.setByte(obj, result.getByte(column));
-	    break;
+            field.setByte(obj, result.getByte(column));
+            break;
         case t_short:
-	    field.setShort(obj, result.getShort(column));
-	    break;
+            field.setShort(obj, result.getShort(column));
+            break;
         case t_int:
-	    field.setInt(obj, result.getInt(column));
-	    break;
+            field.setInt(obj, result.getInt(column));
+            break;
         case t_long:
-	    field.setLong(obj, result.getLong(column));
-	    break;
+            field.setLong(obj, result.getLong(column));
+            break;
         case t_float:
-	    field.setFloat(obj, result.getFloat(column));
-	    break;
+            field.setFloat(obj, result.getFloat(column));
+            break;
         case t_double:
-	    field.setDouble(obj, result.getDouble(column));
-	    break;
+            field.setDouble(obj, result.getDouble(column));
+            break;
         case t_boolean:
-	    field.setBoolean(obj, result.getBoolean(column));
-	    break;
+            field.setBoolean(obj, result.getBoolean(column));
+            break;
 
         case tByte:
-	    byte b = result.getByte(column);
-	    field.set(obj, result.wasNull() ? null : Byte.valueOf(b));
-	    break;
+            byte b = result.getByte(column);
+            field.set(obj, result.wasNull() ? null : Byte.valueOf(b));
+            break;
         case tShort:
-	    short s = result.getShort(column);
-	    field.set(obj, result.wasNull() ? null : Short.valueOf(s));
-	    break;
+            short s = result.getShort(column);
+            field.set(obj, result.wasNull() ? null : Short.valueOf(s));
+            break;
         case tInteger:
-	    int i = result.getInt(column);
-	    field.set(obj, result.wasNull() ? null : Integer.valueOf(i));
-	    break;
+            int i = result.getInt(column);
+            field.set(obj, result.wasNull() ? null : Integer.valueOf(i));
+            break;
         case tLong:
-	    long l = result.getLong(column);
-	    field.set(obj, result.wasNull() ? null : Long.valueOf(l));
-	    break;
+            long l = result.getLong(column);
+            field.set(obj, result.wasNull() ? null : Long.valueOf(l));
+            break;
         case tFloat:
-	    float f = result.getFloat(column);
-	    field.set(obj, result.wasNull() ? null : Float.valueOf(f));
-	    field.setFloat(obj, result.getFloat(column));
-	    break;
+            float f = result.getFloat(column);
+            field.set(obj, result.wasNull() ? null : Float.valueOf(f));
+            field.setFloat(obj, result.getFloat(column));
+            break;
         case tDouble:
-	    double d = result.getDouble(column);
-	    field.set(obj, result.wasNull() ? null : Double.valueOf(d));
-	    break;
+            double d = result.getDouble(column);
+            field.set(obj, result.wasNull() ? null : Double.valueOf(d));
+            break;
         case tBoolean:
-	    boolean bl = result.getBoolean(column);
-	    field.set(obj, result.wasNull() ? null : Boolean.valueOf(bl));
-	    break;
+            boolean bl = result.getBoolean(column);
+            field.set(obj, result.wasNull() ? null : Boolean.valueOf(bl));
+            break;
 
         case tDecimal:
             field.set(obj, result.getBigDecimal(column));
-	    break;
+            break;
         case tString:
-	    field.set(obj, result.getString(column));
-	    break;
+            field.set(obj, result.getString(column));
+            break;
         case tBytes:
-	    field.set(obj, result.getBytes(column));
-	    break;
+            field.set(obj, result.getBytes(column));
+            break;
         case tDate:
-	    field.set(obj, result.getDate(column));
-	    break;
+            field.set(obj, result.getDate(column));
+            break;
         case tTime:
-	    field.set(obj, result.getTime(column));
-	    break;
+            field.set(obj, result.getTime(column));
+            break;
         case tTimestamp:
-	    field.set(obj, result.getTimestamp(column));
-	    break;
+            field.set(obj, result.getTimestamp(column));
+            break;
         case tStream:
-	    field.set(obj, result.getBinaryStream(column));
-	    break;
+            field.set(obj, result.getBinaryStream(column));
+            break;
         case tBlob:
-	    field.set(obj, result.getBlob(column));
-	    break;
+            field.set(obj, result.getBlob(column));
+            break;
         case tClob:
-	    field.set(obj, result.getClob(column));
-	    break;
+            field.set(obj, result.getClob(column));
+            break;
         case tClosure:
-	    try {
+            try {
                 java.io.InputStream input = result.getBinaryStream(column);
-	        java.io.ObjectInputStream in =
-  		    new java.io.ObjectInputStream(input);
-	        field.set(obj, in.readObject());
-	        in.close();
-	    } catch(ClassNotFoundException ex) {
-	        throw new DataTransferError(ex);
-	    } catch(java.io.IOException ex) {
-	        throw new DataTransferError(ex);
-	    }
-	    break;
+                java.io.ObjectInputStream in = new java.io.ObjectInputStream(input);
+                field.set(obj, in.readObject());
+                in.close();
+            } catch(ClassNotFoundException ex) {
+                throw new DataTransferError(ex);
+            } catch(java.io.IOException ex) {
+                throw new DataTransferError(ex);
+            }
+            break;
         default:
-	    return false;
-	}
-	return true;
+            return false;
+        }
+        return true;
     }
 
     protected int    inType;  // type tag for field input (see constants below)

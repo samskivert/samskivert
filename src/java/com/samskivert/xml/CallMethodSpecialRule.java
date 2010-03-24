@@ -41,12 +41,12 @@ public abstract class CallMethodSpecialRule extends Rule
     public void end (String namespace, String name)
         throws Exception
     {
-	Object top = digester.peek();
+        Object top = digester.peek();
 
-	if (digester.getLogger().isDebugEnabled()) {
-	    digester.getLogger().debug(
-            "CallSpecial " + StringUtil.shortClassName(this) +
-            ".parseAndSet(" + StringUtil.shortClassName(top) + ")");
+        if (digester.getLogger().isDebugEnabled()) {
+            digester.getLogger().debug(
+                "CallSpecial " + StringUtil.shortClassName(this) +
+                ".parseAndSet(" + StringUtil.shortClassName(top) + ")");
         }
 
         parseAndSet(_bodyText, top);

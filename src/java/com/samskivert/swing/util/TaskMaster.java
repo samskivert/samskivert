@@ -47,14 +47,13 @@ public class TaskMaster
      * subsequent dealings with the task master. The supplied observer (if
      * non-null) will be notified when the task has completed.
      */
-    public static void invokeTask (String name, Task task,
-				   TaskObserver observer)
+    public static void invokeTask (String name, Task task, TaskObserver observer)
     {
-	// create a task runner and stick it in our task table
-	TaskRunner runner = new TaskRunner(name, task, observer);
-	_tasks.put(name, runner);
-	// then start the runner up
-	runner.start();
+        // create a task runner and stick it in our task table
+        TaskRunner runner = new TaskRunner(name, task, observer);
+        _tasks.put(name, runner);
+        // then start the runner up
+        runner.start();
     }
 
     /**
@@ -65,8 +64,7 @@ public class TaskMaster
      * <code>invoke</code> method of the <code>Task</code> interface.
      * Aborting tasks run in this way is not supported.
      */
-    public static void invokeMethodTask (String name, Object source,
-                                         TaskObserver observer)
+    public static void invokeMethodTask (String name, Object source, TaskObserver observer)
     {
         // create a method task instance to invoke the named method and
         // then run that through the normal task invocation mechanism
@@ -79,29 +77,25 @@ public class TaskMaster
      */
     protected static void removeTask (String name)
     {
-	_tasks.remove(name);
+        _tasks.remove(name);
     }
 
     protected static class TaskRunner extends Thread
     {
-	public TaskRunner (String name, Task task, TaskObserver observer)
-	{
-	    _name = name;
-	    _task = task;
-	    _observer = observer;
+        public TaskRunner (String name, Task task, TaskObserver observer) {
+            _name = name;
+            _task = task;
+            _observer = observer;
             _mode = INVOKE;
-	}
+        }
 
         /**
-         * Invokes the task and then reports completion or failure later
-         * on the swing event dispatcher thread. We need to ensure that
-         * _mode and _result are visible to the various threads that
-         * invoke this runnable so run() is synchronized. Oh how I love
-         * Chapter 17.
+         * Invokes the task and then reports completion or failure later on the swing event 
+         * dispatcher thread. We need to ensure that _mode and _result are visible to the various 
+         * threads that invoke this runnable so run() is synchronized. Oh how I love Chapter 17.
          */
-	@Override
-    public synchronized void run ()
-	{
+        @Override
+        public synchronized void run () {
             switch (_mode) {
             default:
             case INVOKE:
@@ -139,19 +133,18 @@ public class TaskMaster
                 }
                 break;
             }
-	}
+        }
 
-	public void abort ()
-	{
-	    log.warning("abort() not currently supported.");
-	}
+        public void abort () {
+            log.warning("abort() not currently supported.");
+        }
 
-	protected String _name;
-	protected Task _task;
-	protected TaskObserver _observer;
+        protected String _name;
+        protected Task _task;
+        protected TaskObserver _observer;
 
         protected int _mode;
-	protected Object _result;
+        protected Object _result;
 
         protected static final int INVOKE = 0;
         protected static final int COMPLETED = 1;
@@ -160,22 +153,19 @@ public class TaskMaster
 
     protected static class MethodTask implements Task
     {
-        public MethodTask (String name, Object source)
-        {
+        public MethodTask (String name, Object source) {
             _name = name;
             _source = source;
         }
 
-        public Object invoke () throws Exception
-        {
+        public Object invoke () throws Exception {
             // look up the named method on the source object and invoke it
             Method meth = _source.getClass().getMethod(_name, (Class<?>[]) null);
             meth.setAccessible(true);
             return meth.invoke(_source, (Object[]) null);
         }
 
-        public boolean abort ()
-        {
+        public boolean abort () {
             // aborting not supported
             return false;
         }
@@ -184,6 +174,5 @@ public class TaskMaster
         protected Object _source;
     }
 
-    protected static Hashtable<String,TaskRunner> _tasks =
-        new Hashtable<String,TaskRunner>();
+    protected static Hashtable<String, TaskRunner> _tasks = new Hashtable<String, TaskRunner>();
 }

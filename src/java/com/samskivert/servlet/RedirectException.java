@@ -32,11 +32,11 @@ public class RedirectException extends Exception
 {
     public RedirectException (String url)
     {
-	super(url);
+        super(url);
     }
 
     public String getRedirectURL ()
     {
-	return getMessage();
+        return getMessage();
     }
 }

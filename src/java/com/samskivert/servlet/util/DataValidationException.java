@@ -30,6 +30,6 @@ public class DataValidationException extends FriendlyException
 {
     public DataValidationException (String message)
     {
-	super(message);
+        super(message);
     }
 }

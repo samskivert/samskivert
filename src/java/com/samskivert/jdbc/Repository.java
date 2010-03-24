@@ -110,7 +110,7 @@ public class Repository
          * indicative of a basic JDBC failure. The transaction
          * <em>will</em> be rolled back in such cases, however.
          */
-	public V invoke (Connection conn, DatabaseLiaison liaison)
+        public V invoke (Connection conn, DatabaseLiaison liaison)
             throws SQLException, PersistenceException;
     }
 

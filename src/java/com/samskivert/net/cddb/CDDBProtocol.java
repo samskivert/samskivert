@@ -45,7 +45,7 @@ public class CDDBProtocol
      */
     public static int codeFamily (int code)
     {
-	return (code / 100) * 100;
+        return (code / 100) * 100;
     }
 
     /**
@@ -54,7 +54,7 @@ public class CDDBProtocol
      */
     public static int codeGenus (int code)
     {
-	return ((code % 100) / 10) * 10;
+        return ((code % 100) / 10) * 10;
     }
 
     /**
@@ -63,6 +63,6 @@ public class CDDBProtocol
      */
     public static int codeSpecies (int code)
     {
-	return code % 10;
+        return code % 10;
     }
 }

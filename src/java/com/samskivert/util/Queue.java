@@ -173,17 +173,16 @@ public class Queue<T>
      */
     public synchronized T get (long maxwait)
     {
-	if (_count == 0) {
-	    try { wait(maxwait); } catch (InterruptedException e) {}
+        if (_count == 0) {
+            try { wait(maxwait); } catch (InterruptedException e) {}
 
-	    // if count's still null when we pull out, we waited
-	    // ourmaxwait time.
-	    if (_count == 0) {
-		return null;
-	    }
-	}
+            // if count's still null when we pull out, we waited ourmaxwait time.
+            if (_count == 0) {
+                return null;
+            }
+        }
 
-	return get();
+        return get();
     }
 
     /**

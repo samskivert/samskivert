@@ -33,7 +33,7 @@ public class QuickSort
      */
     public static <T> void sort (T[] a, Comparator<? super T> comp)
     {
-	sort(a, 0, a.length - 1, comp);
+        sort(a, 0, a.length - 1, comp);
     }
 
     /**
@@ -41,7 +41,7 @@ public class QuickSort
      */
     public static <T extends Comparable<? super T>> void sort (T[] a)
     {
-	sort(a, 0, a.length - 1);
+        sort(a, 0, a.length - 1);
     }
 
     /**
@@ -49,7 +49,7 @@ public class QuickSort
      */
     public static <T> void rsort (T[] a, Comparator<? super T> comp)
     {
-	rsort(a, 0, a.length - 1, comp);
+        rsort(a, 0, a.length - 1, comp);
     }
 
     /**
@@ -72,7 +72,7 @@ public class QuickSort
     public static <T> void sort (T[] a, int lo0, int hi0, Comparator<? super T> comp)
     {
         // bail out if we're already done
-	if (hi0 <= lo0) {
+        if (hi0 <= lo0) {
             return;
         }
 
@@ -136,7 +136,7 @@ public class QuickSort
     public static <T> void rsort (T[] a, int lo0, int hi0, Comparator<? super T> comp)
     {
         // bail out if we're already done
-	if (hi0 <= lo0) {
+        if (hi0 <= lo0) {
             return;
         }
 
@@ -199,7 +199,7 @@ public class QuickSort
     public static <T extends Comparable<? super T>> void sort (T[] a, int lo0, int hi0)
     {
         // bail out if we're already done
-	if (hi0 <= lo0) {
+        if (hi0 <= lo0) {
             return;
         }
 
@@ -262,7 +262,7 @@ public class QuickSort
     public static <T extends Comparable<? super T>> void rsort (T[] a, int lo0, int hi0)
     {
         // bail out if we're already done
-	if (hi0 <= lo0) {
+        if (hi0 <= lo0) {
             return;
         }
 
@@ -381,7 +381,7 @@ public class QuickSort
     public static <T> void sort (List<T> a, int lo0, int hi0, Comparator<T> comp)
     {
         // bail out if we're already done
-	if (hi0 <= lo0) {
+        if (hi0 <= lo0) {
             return;
         }
 

@@ -81,56 +81,56 @@ public abstract class ExtensiblePrintStream extends PrintStream
     public void print (char c)
     {
         super.print(c);
-	handlePrinted(String.valueOf(c));
+        handlePrinted(String.valueOf(c));
     }
 
     @Override
     public void print (int i)
     {
         super.print(i);
-	handlePrinted(String.valueOf(i));
+        handlePrinted(String.valueOf(i));
     }
 
     @Override
     public void print (long l)
     {
         super.print(l);
-	handlePrinted(String.valueOf(l));
+        handlePrinted(String.valueOf(l));
     }
 
     @Override
     public void print (float f)
     {
         super.print(f);
-	handlePrinted(String.valueOf(f));
+        handlePrinted(String.valueOf(f));
     }
 
     @Override
     public void print (double d)
     {
         super.print(d);
-	handlePrinted(String.valueOf(d));
+        handlePrinted(String.valueOf(d));
     }
 
     @Override
     public void print (char[] s)
     {
         super.print(s);
-	handlePrinted(String.valueOf(s));
+        handlePrinted(String.valueOf(s));
     }
 
     @Override
     public void print (String s)
     {
         super.print(s);
-	handlePrinted((s == null) ? "null" : s);
+        handlePrinted((s == null) ? "null" : s);
     }
 
     @Override
     public void print (Object obj)
     {
         super.print(obj);
-	handlePrinted(String.valueOf(obj));
+        handlePrinted(String.valueOf(obj));
     }
 
     @Override

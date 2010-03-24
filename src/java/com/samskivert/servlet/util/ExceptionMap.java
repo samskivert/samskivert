@@ -77,57 +77,57 @@ public class ExceptionMap
      */
     public static synchronized void init ()
     {
-	// only initialize ourselves once
-	if (_keys != null) {
-	    return;
-	} else {
-	    _keys = new ArrayList<Class<?>>();
-	    _values = new ArrayList<String>();
-	}
+        // only initialize ourselves once
+        if (_keys != null) {
+            return;
+        } else {
+            _keys = new ArrayList<Class<?>>();
+            _values = new ArrayList<String>();
+        }
 
-	// first try loading the properties file without a leading slash
-	ClassLoader cld = ExceptionMap.class.getClassLoader();
-	InputStream config = ConfigUtil.getStream(PROPS_NAME, cld);
-	if (config == null) {
-	    log.warning("Unable to load " + PROPS_NAME + " from CLASSPATH.");
+        // first try loading the properties file without a leading slash
+        ClassLoader cld = ExceptionMap.class.getClassLoader();
+        InputStream config = ConfigUtil.getStream(PROPS_NAME, cld);
+        if (config == null) {
+            log.warning("Unable to load " + PROPS_NAME + " from CLASSPATH.");
 
-	} else {
-	    // otherwise process ye old config file.
-	    try {
-		// we'll do some serious jiggery pokery to leverage the parsing
-		// implementation provided by java.util.Properties. god bless
-		// method overloading
+        } else {
+            // otherwise process ye old config file.
+            try {
+                // we'll do some serious jiggery pokery to leverage the parsing
+                // implementation provided by java.util.Properties. god bless
+                // method overloading
                 final ArrayList<String> classes = new ArrayList<String>();
                 Properties loader = new Properties() {
-		    @Override public Object put (Object key, Object value) {
-			classes.add((String)key);
-			_values.add((String)value);
-			return key;
-		    }
-		};
-		loader.load(config);
+                    @Override public Object put (Object key, Object value) {
+                        classes.add((String)key);
+                        _values.add((String)value);
+                        return key;
+                    }
+                };
+                loader.load(config);
 
-		// now cruise through and resolve the exceptions named as
-		// keys and throw out any that don't appear to exist
-		for (int i = 0; i < classes.size(); i++) {
-		    String exclass = classes.get(i);
-		    try {
-			Class<?> cl = Class.forName(exclass);
-			// replace the string with the class object
-			_keys.add(cl);
+                // now cruise through and resolve the exceptions named as
+                // keys and throw out any that don't appear to exist
+                for (int i = 0; i < classes.size(); i++) {
+                    String exclass = classes.get(i);
+                    try {
+                        Class<?> cl = Class.forName(exclass);
+                        // replace the string with the class object
+                        _keys.add(cl);
 
-		    } catch (Throwable t) {
-			log.warning("Unable to resolve exception class.", "class", exclass,
+                    } catch (Throwable t) {
+                        log.warning("Unable to resolve exception class.", "class", exclass,
                                     "error", t);
-			_values.remove(i);
-			i--; // back on up a notch
-		    }
-		}
+                        _values.remove(i);
+                        i--; // back on up a notch
+                    }
+                }
 
-	    } catch (IOException ioe) {
-		log.warning("Error reading exception mapping file: " + ioe);
-	    }
-	}
+            } catch (IOException ioe) {
+                log.warning("Error reading exception mapping file: " + ioe);
+            }
+        }
     }
 
     /**
@@ -142,15 +142,15 @@ public class ExceptionMap
      */
     public static String getMessage (Throwable ex)
     {
-	String msg = DEFAULT_ERROR_MSG;
-	for (int i = 0; i < _keys.size(); i++) {
-	    Class<?> cl = _keys.get(i);
-	    if (cl.isInstance(ex)) {
-		msg = _values.get(i);
-		break;
-	    }
-	}
-	return StringUtil.replace(msg, MESSAGE_MARKER, ex.getMessage());
+        String msg = DEFAULT_ERROR_MSG;
+        for (int i = 0; i < _keys.size(); i++) {
+            Class<?> cl = _keys.get(i);
+            if (cl.isInstance(ex)) {
+                msg = _values.get(i);
+                break;
+            }
+        }
+        return StringUtil.replace(msg, MESSAGE_MARKER, ex.getMessage());
     }
 
     protected static List<Class<?>> _keys;

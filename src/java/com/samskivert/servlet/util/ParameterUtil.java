@@ -73,7 +73,7 @@ public class ParameterUtil
      */
     public static String getParameter (HttpServletRequest req, String name, boolean returnNull)
     {
-	String value = req.getParameter(name);
+        String value = req.getParameter(name);
         if (value == null) {
             return returnNull ? null : "";
         } else {
@@ -88,9 +88,9 @@ public class ParameterUtil
      */
     public static float requireFloatParameter (
         HttpServletRequest req, String name, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
-	return parseFloatParameter(getParameter(req, name, false), invalidDataMessage);
+        return parseFloatParameter(getParameter(req, name, false), invalidDataMessage);
     }
 
     /**
@@ -100,9 +100,9 @@ public class ParameterUtil
      */
     public static int requireIntParameter (
         HttpServletRequest req, String name, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
-	return parseIntParameter(getParameter(req, name, false), invalidDataMessage);
+        return parseIntParameter(getParameter(req, name, false), invalidDataMessage);
     }
 
     /**
@@ -112,11 +112,11 @@ public class ParameterUtil
      */
     public static int requireIntParameter (HttpServletRequest req, String name,
                                            String invalidDataMessage, ParameterValidator validator)
-	throws DataValidationException
+        throws DataValidationException
     {
         String value = getParameter(req, name, false);
         validator.validateParameter(name, value);
-	return parseIntParameter(value, invalidDataMessage);
+        return parseIntParameter(value, invalidDataMessage);
     }
 
     /**
@@ -126,7 +126,7 @@ public class ParameterUtil
      */
     public static int requireIntParameter (HttpServletRequest req, String name, int low, int high,
                                            String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
         return requireIntParameter(
             req, name, invalidDataMessage, new IntRangeValidator(low, high, invalidDataMessage));
@@ -176,7 +176,7 @@ public class ParameterUtil
      */
     public static String getParameter (HttpServletRequest req, String name, String defval)
     {
-	String value = req.getParameter(name);
+        String value = req.getParameter(name);
         return StringUtil.isBlank(value) ? defval : value.trim();
     }
 
@@ -187,9 +187,9 @@ public class ParameterUtil
      */
     public static int getIntParameter (
         HttpServletRequest req, String name, int defval, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
-	String value = getParameter(req, name, false);
+        String value = getParameter(req, name, false);
         if (StringUtil.isBlank(value)) {
             return defval;
         }
@@ -203,9 +203,9 @@ public class ParameterUtil
      */
     public static long getLongParameter (
         HttpServletRequest req, String name, long defval, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
-	String value = getParameter(req, name, false);
+        String value = getParameter(req, name, false);
         if (StringUtil.isBlank(value)) {
             return defval;
         }
@@ -218,13 +218,13 @@ public class ParameterUtil
      */
     public static String requireParameter (
         HttpServletRequest req, String name, String missingDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
-	String value = getParameter(req, name, true);
-	if (StringUtil.isBlank(value)) {
-	    throw new DataValidationException(missingDataMessage);
-	}
-	return value;
+        String value = getParameter(req, name, true);
+        if (StringUtil.isBlank(value)) {
+            throw new DataValidationException(missingDataMessage);
+        }
+        return value;
     }
 
     /**
@@ -238,7 +238,7 @@ public class ParameterUtil
      */
     public static String requireParameter (
         HttpServletRequest req, String name, String missingDataMessage, int maxLength)
-	throws DataValidationException
+        throws DataValidationException
     {
         return StringUtil.truncate(
             requireParameter(req, name, missingDataMessage), maxLength);
@@ -251,7 +251,7 @@ public class ParameterUtil
      */
     public static Date requireDateParameter (
         HttpServletRequest req, String name, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
         return parseDateParameter(getParameter(req, name, false), invalidDataMessage);
     }
@@ -261,7 +261,7 @@ public class ParameterUtil
      */
     public static java.sql.Date requireSQLDateParameter (
         HttpServletRequest req, String name, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
         return new java.sql.Date(requireDateParameter(req, name, invalidDataMessage).getTime());
     }
@@ -274,9 +274,9 @@ public class ParameterUtil
      */
     public static Date getDateParameter (
         HttpServletRequest req, String name, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
-	String value = getParameter(req, name, false);
+        String value = getParameter(req, name, false);
         if (StringUtil.isBlank(value) ||
             DATE_TEMPLATE.equalsIgnoreCase(value)) {
             return null;
@@ -289,7 +289,7 @@ public class ParameterUtil
      */
     public static java.sql.Date getSQLDateParameter (
         HttpServletRequest req, String name, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
         Date when = getDateParameter(req, name, invalidDataMessage);
         return (when == null) ? null : new java.sql.Date(when.getTime());
@@ -329,7 +329,7 @@ public class ParameterUtil
      */
     public static boolean parameterEquals (HttpServletRequest req, String name, String value)
     {
-	return value.equals(getParameter(req, name, false));
+        return value.equals(getParameter(req, name, false));
     }
 
     /**
@@ -339,10 +339,10 @@ public class ParameterUtil
         throws DataValidationException
     {
         try {
-	    return Integer.parseInt(value);
-	} catch (NumberFormatException nfe) {
-	    throw new DataValidationException(invalidDataMessage);
-	}
+            return Integer.parseInt(value);
+        } catch (NumberFormatException nfe) {
+            throw new DataValidationException(invalidDataMessage);
+        }
     }
 
     /**
@@ -352,10 +352,10 @@ public class ParameterUtil
         throws DataValidationException
     {
         try {
-	    return Long.parseLong(value);
-	} catch (NumberFormatException nfe) {
-	    throw new DataValidationException(invalidDataMessage);
-	}
+            return Long.parseLong(value);
+        } catch (NumberFormatException nfe) {
+            throw new DataValidationException(invalidDataMessage);
+        }
     }
 
     /**
@@ -365,25 +365,25 @@ public class ParameterUtil
         throws DataValidationException
     {
         try {
-	    return Float.parseFloat(value);
-	} catch (NumberFormatException nfe) {
-	    throw new DataValidationException(invalidDataMessage);
-	}
+            return Float.parseFloat(value);
+        } catch (NumberFormatException nfe) {
+            throw new DataValidationException(invalidDataMessage);
+        }
     }
 
     /**
      * Internal method to parse a date.
      */
     protected static Date parseDateParameter (String value, String invalidDataMessage)
-	throws DataValidationException
+        throws DataValidationException
     {
-	try {
+        try {
             synchronized (_dparser) {
                 return _dparser.parse(value);
             }
-	} catch (ParseException pe) {
-	    throw new DataValidationException(invalidDataMessage);
-	}
+        } catch (ParseException pe) {
+            throw new DataValidationException(invalidDataMessage);
+        }
     }
 
     /** Makes sure integers are within a range. */

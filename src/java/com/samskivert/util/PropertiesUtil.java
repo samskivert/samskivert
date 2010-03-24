@@ -70,9 +70,9 @@ public class PropertiesUtil
     public static Properties getSubProperties (
         Properties source, String prefix)
     {
-	Properties dest = new Properties();
+        Properties dest = new Properties();
         extractSubProperties(source, dest, prefix);
-	return dest;
+        return dest;
     }
 
     /**
@@ -89,7 +89,7 @@ public class PropertiesUtil
         extractSubProperties(source, defs, defaultsPrefix);
 
         // now load up the desired properties
-	Properties dest = new Properties(defs);
+        Properties dest = new Properties(defs);
         extractSubProperties(source, dest, prefix);
 
         return dest;
@@ -160,21 +160,21 @@ public class PropertiesUtil
     protected static void extractSubProperties (
         Properties source, Properties dest, String prefix)
     {
-	// extend the prefix to contain a dot
-	prefix = prefix + ".";
-	int preflen = prefix.length();
+        // extend the prefix to contain a dot
+        prefix = prefix + ".";
+        int preflen = prefix.length();
 
-	// scan the source properties
-	Enumeration<?> names = source.propertyNames();
-	while (names.hasMoreElements()) {
-	    String name = (String)names.nextElement();
-	    // skip unrelated properties
-	    if (!name.startsWith(prefix)) {
-		continue;
-	    }
-	    // insert the value into the new properties minus the prefix
-	    dest.put(name.substring(preflen), source.getProperty(name));
-	}
+        // scan the source properties
+        Enumeration<?> names = source.propertyNames();
+        while (names.hasMoreElements()) {
+            String name = (String)names.nextElement();
+            // skip unrelated properties
+            if (!name.startsWith(prefix)) {
+                continue;
+            }
+            // insert the value into the new properties minus the prefix
+            dest.put(name.substring(preflen), source.getProperty(name));
+        }
     }
 
     /**

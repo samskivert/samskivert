@@ -90,7 +90,7 @@ public class SetPropertyFieldsRule extends Rule
 
         // iterate over the attributes, setting public fields where applicable
         for (int i = 0; i < attrs.getLength(); i++) {
-	    String lname = attrs.getLocalName(i);
+            String lname = attrs.getLocalName(i);
             if (StringUtil.isBlank(lname)) {
                 lname = attrs.getQName(i);
             }
@@ -108,7 +108,7 @@ public class SetPropertyFieldsRule extends Rule
             }
 
             // convert the value into the appropriate object type
-	    String valstr = attrs.getValue(i);
+            String valstr = attrs.getValue(i);
             FieldParser parser = null;
             Object value;
 

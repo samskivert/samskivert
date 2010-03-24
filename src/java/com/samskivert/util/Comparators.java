@@ -86,7 +86,7 @@ public class Comparators
      */
     public static int compare (byte value1, byte value2)
     {
-	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+        return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
     }
 
     /**
@@ -95,7 +95,7 @@ public class Comparators
      */
     public static int compare (char value1, char value2)
     {
-	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+        return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
     }
 
     /**
@@ -104,7 +104,7 @@ public class Comparators
      */
     public static int compare (short value1, short value2)
     {
-	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+        return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
     }
 
     /**
@@ -113,7 +113,7 @@ public class Comparators
      */
     public static int compare (int value1, int value2)
     {
-	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+        return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
     }
 
     /**
@@ -122,7 +122,7 @@ public class Comparators
      */
     public static int compare (long value1, long value2)
     {
-	return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
+        return (value1 < value2 ? -1 : (value1 == value2 ? 0 : 1));
     }
 
     /**

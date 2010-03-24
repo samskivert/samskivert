@@ -29,6 +29,6 @@ public class FriendlyException extends Exception
 {
     public FriendlyException (String message)
     {
-	super(message);
+        super(message);
     }
 }

@@ -32,13 +32,13 @@ public class CDDBException extends Exception
 {
     public CDDBException (int code, String message)
     {
-	super(message);
-	_code = code;
+        super(message);
+        _code = code;
     }
 
     public int getCode ()
     {
-	return _code;
+        return _code;
     }
 
     protected int _code;

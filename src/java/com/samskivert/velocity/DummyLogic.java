@@ -30,6 +30,6 @@ public class DummyLogic implements Logic
     public void invoke (Application app, InvocationContext context)
         throws Exception
     {
-	// we're such a dummy that we do absolutely nothing.
+        // we're such a dummy that we do absolutely nothing.
     }
 }

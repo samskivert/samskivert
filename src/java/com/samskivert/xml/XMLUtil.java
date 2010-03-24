@@ -44,21 +44,21 @@ public class XMLUtil
      * @param in the input stream containing the XML to be parsed
      */
     public static void parse (DefaultHandler handler, InputStream in)
-	throws IOException, ParserConfigurationException, SAXException
+        throws IOException, ParserConfigurationException, SAXException
     {
-	XMLReader xr = _pfactory.newSAXParser().getXMLReader();
+        XMLReader xr = _pfactory.newSAXParser().getXMLReader();
 
-	xr.setContentHandler(handler);
-	xr.setErrorHandler(handler);
+        xr.setContentHandler(handler);
+        xr.setErrorHandler(handler);
 
-	xr.parse(new InputSource(in));
+        xr.parse(new InputSource(in));
     }
 
     /** The factory from whence we obtain XMLReader objects */
     protected static SAXParserFactory _pfactory;
 
     static {
-	_pfactory = SAXParserFactory.newInstance();
-	_pfactory.setValidating(false);
+        _pfactory = SAXParserFactory.newInstance();
+        _pfactory.setValidating(false);
     }
 }

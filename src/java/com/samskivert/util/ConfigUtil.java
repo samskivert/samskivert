@@ -69,9 +69,9 @@ public class ConfigUtil
      * be found, null otherwise.
      */
     public static Properties loadProperties (String path)
-	throws IOException
+        throws IOException
     {
-	return loadProperties(path, ConfigUtil.class.getClassLoader());
+        return loadProperties(path, ConfigUtil.class.getClassLoader());
     }
 
     /**
@@ -79,22 +79,21 @@ public class ConfigUtil
      * than the class loader used to load the <code>ConfigUtil</code> class.
      */
     public static Properties loadProperties (String path, ClassLoader loader)
-	throws IOException
+        throws IOException
     {
-	Properties props = new Properties();
+        Properties props = new Properties();
         loadProperties(path, loader, props);
-	return props;
+        return props;
     }
 
     /**
      * Like {@link #loadProperties(String,ClassLoader)} but the properties are loaded into the
      * supplied {@link Properties} object.
      */
-    public static void loadProperties (
-        String path, ClassLoader loader, Properties target)
-	throws IOException
+    public static void loadProperties (String path, ClassLoader loader, Properties target)
+        throws IOException
     {
-	InputStream in = getStream(path, loader);
+        InputStream in = getStream(path, loader);
         if (in == null) {
             throw new FileNotFoundException(path);
         }
@@ -218,9 +217,9 @@ public class ConfigUtil
      * be found, null otherwise.
      */
     public static Properties loadInheritedProperties (String path)
-	throws IOException
+        throws IOException
     {
-	return loadInheritedProperties(path, ConfigUtil.class.getClassLoader());
+        return loadInheritedProperties(path, ConfigUtil.class.getClassLoader());
     }
 
     /**
@@ -228,7 +227,7 @@ public class ConfigUtil
      * target object.
      */
     public static void loadInheritedProperties (String path, Properties target)
-	throws IOException
+        throws IOException
     {
         loadInheritedProperties(path, ConfigUtil.class.getClassLoader(), target);
     }
@@ -238,7 +237,7 @@ public class ConfigUtil
      * rather than the class loader used to load the <code>ConfigUtil</code> class.
      */
     public static Properties loadInheritedProperties (String path, ClassLoader loader)
-	throws IOException
+        throws IOException
     {
         Properties props = new Properties();
         loadInheritedProperties(path, loader, props);
@@ -254,7 +253,7 @@ public class ConfigUtil
      * path.
      */
     public static void loadInheritedProperties (String path, ClassLoader loader, Properties target)
-	throws IOException
+        throws IOException
     {
         // first look for the files in the supplied class loader
         Enumeration<URL> enm = getResources(path, loader);
@@ -486,7 +485,7 @@ public class ConfigUtil
      */
     public static InputStream getStream (String path)
     {
-	return getStream(path, ConfigUtil.class.getClassLoader());
+        return getStream(path, ConfigUtil.class.getClassLoader());
     }
 
     /**
@@ -499,14 +498,14 @@ public class ConfigUtil
      */
     public static InputStream getStream (String path, ClassLoader loader)
     {
-	// first try the supplied class loader
-	InputStream in = getResourceAsStream(path, loader);
-	if (in != null) {
-	    return in;
-	}
+        // first try the supplied class loader
+        InputStream in = getResourceAsStream(path, loader);
+        if (in != null) {
+            return in;
+        }
 
-	// if that didn't work, try the system class loader (but only if it's different from the
-	// class loader we just tried)
+        // if that didn't work, try the system class loader (but only if it's different from the
+        // class loader we just tried)
         try {
             ClassLoader sysloader = ClassLoader.getSystemClassLoader();
             if (sysloader != loader) {
@@ -526,12 +525,12 @@ public class ConfigUtil
             return null;
         }
         // try the path as is
-	InputStream in = loader.getResourceAsStream(path);
-	if (in != null) {
-	    return in;
-	}
-	// try toggling the leading slash
-	return loader.getResourceAsStream(togglePath(path));
+        InputStream in = loader.getResourceAsStream(path);
+        if (in != null) {
+            return in;
+        }
+        // try toggling the leading slash
+        return loader.getResourceAsStream(togglePath(path));
     }
 
     protected static Enumeration<URL> getResources (String path, ClassLoader loader)
@@ -543,21 +542,21 @@ public class ConfigUtil
             return null;
         }
         // try the path as is
-	Enumeration<URL> enm = loader.getResources(path);
-	if (enm.hasMoreElements()) {
-	    return enm;
-	}
-	// try toggling the leading slash
-	return loader.getResources(togglePath(path));
+        Enumeration<URL> enm = loader.getResources(path);
+        if (enm.hasMoreElements()) {
+            return enm;
+        }
+        // try toggling the leading slash
+        return loader.getResources(togglePath(path));
     }
 
     protected static String togglePath (String path)
     {
-	if (path.startsWith("/")) {
-	    return path.substring(1);
-	} else {
-	    return "/" + path;
-	}
+        if (path.startsWith("/")) {
+            return path.substring(1);
+        } else {
+            return "/" + path;
+        }
     }
 
     /** Used when parsing inherited properties. */

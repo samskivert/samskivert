@@ -256,14 +256,14 @@ public class StaticConnectionProvider implements ConnectionProvider
     }
 
     protected static String requireProp (Properties props, String name, String errmsg)
-	throws PersistenceException
+        throws PersistenceException
     {
-	String value = props.getProperty(name);
-	if (StringUtil.isBlank(value)) {
+        String value = props.getProperty(name);
+        if (StringUtil.isBlank(value)) {
             errmsg = "Unable to get connection. " + errmsg; // augment the error message
-	    throw new PersistenceException(errmsg);
-	}
-	return value;
+            throw new PersistenceException(errmsg);
+        }
+        return value;
     }
 
     /** Contains information on a particular connection to which any number of database identifiers

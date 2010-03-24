@@ -60,11 +60,11 @@ public class JDBCUtil
      * nothing).
      */
     public static void close (Statement stmt)
-	throws SQLException
+        throws SQLException
     {
-	if (stmt != null) {
-	    stmt.close();
-	}
+        if (stmt != null) {
+            stmt.close();
+        }
     }
 
     /**
@@ -72,11 +72,11 @@ public class JDBCUtil
      * nothing).
      */
     public static void close (Connection conn)
-	throws SQLException
+        throws SQLException
     {
-	if (conn != null) {
-	    conn.close();
-	}
+        if (conn != null) {
+            conn.close();
+        }
     }
 
     /**

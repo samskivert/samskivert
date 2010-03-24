@@ -350,9 +350,9 @@ public class Config
      * @exception Exception thrown if any error occurs while loading or instantiating the class.
      */
     public Object instantiateValue (String name, String defcname)
-	throws Exception
+        throws Exception
     {
-	return Class.forName(getValue(name, defcname)).newInstance();
+        return Class.forName(getValue(name, defcname)).newInstance();
     }
 
     /**

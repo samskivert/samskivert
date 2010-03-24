@@ -56,15 +56,15 @@ public class OneLineLogFormatter extends Formatter
     @Override
     public String format (LogRecord record)
     {
-	StringBuffer buf = new StringBuffer();
+        StringBuffer buf = new StringBuffer();
 
         // append the timestamp
         _date.setTime(record.getMillis());
-	_format.format(_date, buf, _fpos);
+        _format.format(_date, buf, _fpos);
 
         // append the log level
-	buf.append(" ");
-	buf.append(record.getLevel().getLocalizedName());
+        buf.append(" ");
+        buf.append(record.getLevel().getLocalizedName());
         buf.append(" ");
 
         if (_showWhere) {
@@ -90,23 +90,23 @@ public class OneLineLogFormatter extends Formatter
         }
 
         // append the message itself
-	buf.append(formatMessage(record));
+        buf.append(formatMessage(record));
         buf.append(FormatterUtil.LINE_SEPARATOR);
 
         // if an exception was also provided, append that
-	if (record.getThrown() != null) {
-	    try {
-	        StringWriter sw = new StringWriter();
-	        PrintWriter pw = new PrintWriter(sw);
-	        record.getThrown().printStackTrace(pw);
-	        pw.close();
-		buf.append(sw.toString());
-	    } catch (Exception ex) {
+        if (record.getThrown() != null) {
+            try {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                record.getThrown().printStackTrace(pw);
+                pw.close();
+                buf.append(sw.toString());
+            } catch (Exception ex) {
                 buf.append("Format failure:").append(ex);
-	    }
-	}
+            }
+        }
 
-	return buf.toString();
+        return buf.toString();
     }
 
     /**

@@ -38,13 +38,13 @@ public class SimpleParser extends DefaultHandler
     @Override
     public void characters (char ch[], int start, int length)
     {
-  	_chars.append(ch, start, length);
+          _chars.append(ch, start, length);
     }
 
     @Override
     public void endElement (String uri, String localName, String qName)
     {
-	finishElement(uri, localName, qName, _chars.toString().trim());
+        finishElement(uri, localName, qName, _chars.toString().trim());
         _chars = new StringBuilder();
     }
 
@@ -74,17 +74,17 @@ public class SimpleParser extends DefaultHandler
     public void parseStream (InputStream stream)
         throws IOException
     {
-	try {
+        try {
             // read the XML input stream and construct the scene object
             _chars = new StringBuilder();
-	    XMLUtil.parse(this, stream);
+            XMLUtil.parse(this, stream);
 
         } catch (ParserConfigurationException pce) {
-  	    throw (IOException) new IOException().initCause(pce);
+            throw (IOException) new IOException().initCause(pce);
 
-	} catch (SAXException saxe) {
-	    throw (IOException) new IOException().initCause(saxe);
-	}
+        } catch (SAXException saxe) {
+            throw (IOException) new IOException().initCause(saxe);
+        }
     }
 
     /**

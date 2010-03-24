@@ -58,7 +58,7 @@ public class IntIntMap
 
     public IntIntMap (int buckets, float loadFactor)
     {
-	_buckets = new Record[buckets];
+        _buckets = new Record[buckets];
         _loadFactor = loadFactor;
     }
 
@@ -69,7 +69,7 @@ public class IntIntMap
 
     public IntIntMap ()
     {
-	this(DEFAULT_BUCKETS, DEFAULT_LOAD_FACTOR);
+        this(DEFAULT_BUCKETS, DEFAULT_LOAD_FACTOR);
     }
 
     public boolean isEmpty ()
@@ -82,7 +82,7 @@ public class IntIntMap
      */
     public int size ()
     {
-	return _size;
+        return _size;
     }
 
     /**
@@ -96,28 +96,28 @@ public class IntIntMap
         ensureCapacity(_size + 1);
 
         int index = Math.abs(key)%_buckets.length;
-	Record rec = _buckets[index];
+        Record rec = _buckets[index];
 
-	// either we start a new chain
-	if (rec == null) {
-	    _buckets[index] = new Record(key, value);
-	    _size++; // we're bigger
-	    return;
-	}
+        // either we start a new chain
+        if (rec == null) {
+            _buckets[index] = new Record(key, value);
+            _size++; // we're bigger
+            return;
+        }
 
-	// or we replace an element in an existing chain
-	Record prev = rec;
-	for (; rec != null; rec = rec.next) {
-	    if (rec.key == key) {
-		rec.value = value; // we're not bigger
-		return;
-	    }
-	    prev = rec;
-	}
+        // or we replace an element in an existing chain
+        Record prev = rec;
+        for (; rec != null; rec = rec.next) {
+            if (rec.key == key) {
+                rec.value = value; // we're not bigger
+                return;
+            }
+            prev = rec;
+        }
 
-	// or we append it to this chain
-	prev.next = new Record(key, value);
-	_size++; // we're bigger
+        // or we append it to this chain
+        prev.next = new Record(key, value);
+        _size++; // we're bigger
     }
 
     /**
@@ -206,12 +206,12 @@ public class IntIntMap
     {
         _modCount++;
 
-	// abandon all of our hash chains (the joy of garbage collection)
-	for (int i = 0; i < _buckets.length; i++) {
-	    _buckets[i] = null;
-	}
-	// zero out our size
-	_size = 0;
+        // abandon all of our hash chains (the joy of garbage collection)
+        for (int i = 0; i < _buckets.length; i++) {
+            _buckets[i] = null;
+        }
+        // zero out our size
+        _size = 0;
     }
 
     /**
@@ -234,12 +234,12 @@ public class IntIntMap
      */
     protected Record locateRecord (int key)
     {
-	int index = Math.abs(key)%_buckets.length;
-	for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
-	    if (rec.key == key) {
+        int index = Math.abs(key)%_buckets.length;
+        for (Record rec = _buckets[index]; rec != null; rec = rec.next) {
+            if (rec.key == key) {
                 return rec;
-	    }
-	}
+            }
+        }
         return null;
     }
 
@@ -248,7 +248,7 @@ public class IntIntMap
      */
     protected int removeImpl (int key, int defval)
     {
-	int index = Math.abs(key)%_buckets.length;
+        int index = Math.abs(key)%_buckets.length;
         Record prev = null;
 
         // go through the chain looking for a match
@@ -445,15 +445,14 @@ public class IntIntMap
 
     protected static class Record implements IntIntEntry
     {
-	public Record next;
-	public int key;
-	public int value;
+        public Record next;
+        public int key;
+        public int value;
 
-	public Record (int key, int value)
-	{
-	    this.key = key;
-	    this.value = value;
-	}
+        public Record (int key, int value) {
+            this.key = key;
+            this.value = value;
+        }
 
         public Integer getKey () {
             return Integer.valueOf(key);
@@ -497,29 +496,29 @@ public class IntIntMap
 
     class IntEntryIterator implements Iterator<IntIntEntry>
     {
-	public IntEntryIterator () {
+        public IntEntryIterator () {
             this._modCount = IntIntMap.this._modCount;
-	    _index = _buckets.length;
-	}
+            _index = _buckets.length;
+        }
 
-	public boolean hasNext () {
+        public boolean hasNext () {
             checkMods();
-	    // if we're pointing to an entry, we've got more entries
-	    if (_next != null) {
-		return true;
-	    }
-	    // search backward through the buckets looking for the next non-empty hash chain
-	    while (_index-- > 0) {
-		if ((_next = _buckets[_index]) != null) {
-		    return true;
-		}
-	    }
-	    // found no non-empty hash chains, we're done
-	    return false;
-	}
+            // if we're pointing to an entry, we've got more entries
+            if (_next != null) {
+                return true;
+            }
+            // search backward through the buckets looking for the next non-empty hash chain
+            while (_index-- > 0) {
+                if ((_next = _buckets[_index]) != null) {
+                    return true;
+                }
+            }
+            // found no non-empty hash chains, we're done
+            return false;
+        }
 
-	public IntIntEntry next () {
-	    // if we're not pointing to an entry, search for the next non-empty hash chain
+        public IntIntEntry next () {
+            // if we're not pointing to an entry, search for the next non-empty hash chain
             if (hasNext()) {
                 _prev = _next;
                 _next = _next.next;
@@ -545,8 +544,8 @@ public class IntIntMap
             }
         }
 
-	private int _index;
-	private Record _next, _prev;
+        private int _index;
+        private Record _next, _prev;
         private int _modCount;
     }
 

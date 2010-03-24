@@ -38,7 +38,7 @@ public class ByteArrayOutInputStream extends ByteArrayOutputStream
      */
     public ByteArrayOutInputStream ()
     {
-	this(32);
+        this(32);
     }
 
     /**

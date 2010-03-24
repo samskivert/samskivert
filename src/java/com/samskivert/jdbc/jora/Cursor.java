@@ -45,7 +45,7 @@ public class Cursor<V>
      * more rows
      */
     public V next ()
-	throws SQLException
+        throws SQLException
     {
         // if we closed everything up after the last call to next(),
         // table will be null here and we should bail immediately
@@ -78,7 +78,7 @@ public class Cursor<V>
         if (_stmt != null) {
             _stmt.close();
         }
-	return null;
+        return null;
     }
 
     /**
@@ -119,11 +119,11 @@ public class Cursor<V>
      * drivers.
      */
     public void update ()
-	throws SQLException
+        throws SQLException
     {
         if (_currObject == null) {
-	    throw new IllegalStateException("No current object");
-	}
+            throw new IllegalStateException("No current object");
+        }
         _table.updateVariables(_result, _currObject);
     }
 
@@ -142,11 +142,11 @@ public class Cursor<V>
      * drivers.
      */
     public void delete ()
-	throws SQLException
+        throws SQLException
     {
         if (_currObject == null) {
-	    throw new IllegalStateException("No current object");
-	}
+            throw new IllegalStateException("No current object");
+        }
         _result.deleteRow();
     }
 
@@ -178,7 +178,7 @@ public class Cursor<V>
      * @return List with objects constructed from fetched records.
      */
     public ArrayList<V> toArrayList (int maxElements)
-	throws SQLException
+        throws SQLException
     {
         ArrayList<V> al = new ArrayList<V>(Math.min(maxElements, 100));
         V o;
@@ -197,7 +197,7 @@ public class Cursor<V>
      * @return Array with objects constructed from fetched records.
      */
     public ArrayList<V> toArrayList ()
-	throws SQLException
+        throws SQLException
     {
         return toArrayList(Integer.MAX_VALUE);
     }
@@ -213,12 +213,12 @@ public class Cursor<V>
                       FieldMask mask, boolean like)
     {
         _table = table;
-	_conn = conn;
+        _conn = conn;
         _like = like;
-	_qbeObject = obj;
+        _qbeObject = obj;
         _qbeMask = mask;
-	_query = table.buildQueryList(obj, mask, like);
-	_stmt = null;
+        _query = table.buildQueryList(obj, mask, like);
+        _stmt = null;
     }
 
     protected Table<V> _table;

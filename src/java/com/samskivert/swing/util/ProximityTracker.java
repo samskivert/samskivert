@@ -231,26 +231,25 @@ public class ProximityTracker
      */
     protected int binarySearch (int x)
     {
-        // copied from java.util.Arrays which I wouldn't have to have done
-        // had the provided a means by which to binarySearch in a subset
-        // of an array. alas.
-	int low = 0;
-	int high = _size-1;
+        // copied from java.util.Arrays which I wouldn't have to have done had the provided a 
+        // means by which to binarySearch in a subset of an array. alas.
+        int low = 0;
+        int high = _size-1;
 
-	while (low <= high) {
-	    int mid = (low + high) >>> 1;
-	    int cmp = (_records[mid].x - x);
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            int cmp = (_records[mid].x - x);
 
-	    if (cmp < 0) {
-		low = mid + 1;
-	    } else if (cmp > 0) {
-		high = mid - 1;
-	    } else {
-		return mid; // key found
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return mid; // key found
             }
-	}
+        }
 
-	return low;  // key not found
+        return low;  // key not found
     }
 
     /**

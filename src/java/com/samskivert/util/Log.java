@@ -52,7 +52,7 @@ public final class Log
      */
     public Log (String moduleName)
     {
-	_moduleName = moduleName;
+        _moduleName = moduleName;
 
         // try setting our default log level for this package
         try {

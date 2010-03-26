@@ -10,10 +10,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * A CountMap maps keys to non-null Integers and provides methods for efficiently adding
  * to the count.
  */
+@ReplacedBy("com.google.common.collect.Multiset")
 public class CountMap<K> extends AbstractMap<K, Integer>
 {
     /**
@@ -53,6 +56,7 @@ public class CountMap<K> extends AbstractMap<K, Integer>
 
     /**
      * Add the specified amount to the count for the specified key, return the new count.
+     * Adding 0 will ensure that a Map.Entry is created for the specified key.
      */
     public int add (K key, int amount)
     {

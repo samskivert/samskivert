@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * Arbitrates membership.
  *
@@ -42,6 +44,7 @@ import java.util.NoSuchElementException;
  *
  * An interface like this may someday be in the Java library, but until then...
  */
+@ReplacedBy("com.google.common.base.Predicate")
 public abstract class Predicate<T>
 {
     //--------------------------------------------------------------------

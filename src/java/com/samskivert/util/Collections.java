@@ -22,6 +22,8 @@ package com.samskivert.util;
 
 import java.util.*;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * Provides functionality for the samskivert collections that the <code>java.util</code> class of
  * the same name provides for the standard Java collections. Collections-related functionality that
@@ -36,6 +38,7 @@ public class Collections
      *
      * @param metaIterable an iterable of Iterators.
      */
+    @ReplacedBy("com.google.common.collect.Iterators.concat() or com.google.common.collect.Iterables.concat()")
     public static <T> Iterator<T> getMetaIterator (Iterable<Iterator<T>> metaIterable)
     {
         return new MetaIterator<T>(metaIterable);
@@ -136,6 +139,7 @@ public class Collections
     /**
      * Get an iterator that returns the same elements as the supplied iterator but blocks removal.
      */
+    @ReplacedBy("com.google.common.collect.Iterators.unmodifiableIterator")
     public static <T> Iterator<T> getUnmodifiableIterator (final Iterator<T> itr)
     {
         return new Iterator<T>() {

@@ -28,6 +28,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * A collection of collection-related utility functions.
  */
@@ -49,6 +51,7 @@ public class CollectionUtil
      * Adds all items returned by the iterator to the supplied collection and
      * returns the supplied collection.
      */
+    @ReplacedBy("com.google.common.collect.Iterators.addAll()")
     public static <T, C extends Collection<T>> C addAll (C col, Iterator<? extends T> iter)
     {
         while (iter.hasNext()) {
@@ -62,6 +65,7 @@ public class CollectionUtil
      * returns the supplied collection. If the supplied array is null, nothing
      * is added to the collection.
      */
+    @ReplacedBy("java.util.Collections.addAll()")
     public static <T, E extends T, C extends Collection<T>> C addAll (C col, E[] values)
     {
         if (values != null) {
@@ -152,6 +156,7 @@ public class CollectionUtil
      * Returns an Array, of the type specified by the runtime-type token <code>type</code>,
      * containing the elements of the collection.
      */
+    @ReplacedBy("com.google.common.collect.Iterables.toArray()")
     public static <T> T[] toArray (Collection<? extends T> col, Class<T> type)
     {
         @SuppressWarnings("unchecked")
@@ -169,6 +174,7 @@ public class CollectionUtil
      * order returned by the collection's iterator). The size of the array will
      * be equal to the size of the collection.
      */
+    @ReplacedBy("com.google.common.primitives.Ints.toArray()")
     public static int[] toIntArray (Collection<Integer> col)
     {
         Iterator<Integer> iter = col.iterator();

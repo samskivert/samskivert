@@ -78,8 +78,7 @@ public class CommandButton extends JButton
         }
 
         Object arg = (proto instanceof CommandEvent)
-            ? arg = ((CommandEvent) proto).getArgument()
-            : null;
+            ? ((CommandEvent) proto).getArgument() : null;
 
         // if we were passed an action event, or if it was a command event
         // with a null arg...

@@ -69,7 +69,7 @@ public class RandomUtil
     @Deprecated
     public static int getInt (int high, int low)
     {
-        return getRange(low + 1, high);
+        return getInRange(low + 1, high);
     }
 
     /**

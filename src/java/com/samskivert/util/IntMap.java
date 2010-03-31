@@ -23,6 +23,8 @@ package com.samskivert.util;
 import java.util.Map;
 import java.util.Set;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * An int map is a map that uses integers as keys and provides accessors
  * that eliminate the need to create and manipulate superfluous
@@ -30,6 +32,8 @@ import java.util.Set;
  * and therefore provides all of the standard accessors (for which
  * <code>Integer</code> objects should be supplied as keys).
  */
+@ReplacedBy(value="java.util.Map", reason="Boxing shouldn't be a major concern. " +
+    "The performance gain from using an IntMap probably isn't worth trouble.")
 public interface IntMap<V> extends Map<Integer,V>
 {
     /**

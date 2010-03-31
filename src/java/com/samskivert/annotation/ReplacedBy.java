@@ -39,7 +39,12 @@ public @interface ReplacedBy
 {
     /**
      * A human-readable String containing a reference to the replacement Class, method, or field.
-     * It is suggested that you follow the "&at;see" javadoc semantics for specifying a reference.
+     * It is suggested that you follow the "@see" javadoc semantics for specifying a reference.
      */
     String value ();
+
+    /**
+     * The reason the replacement is suggested, in case it's not obvious.
+     */
+    String reason() default "";
 }

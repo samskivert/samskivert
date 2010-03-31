@@ -64,7 +64,7 @@ public class RandomUtil
      * Returns a pseudorandom, uniformly distributed <code>int</code> value between
      * <code>high</code> and <code>low</code>, exclusive of each.
      *
-     * @deprecated use getRange(int, int).
+     * @deprecated use getInRange(int, int).
      */
     @Deprecated
     public static int getInt (int high, int low)
@@ -76,7 +76,7 @@ public class RandomUtil
      * Returns a pseudorandom, uniformly distributed <code>int</code> value between
      * <code>low</code> (inclusive) and <code>high</code> (exclusive).
      */
-    public static int getRange (int low, int high)
+    public static int getInRange (int low, int high)
     {
         return low + rand.nextInt(high - low);
     }
@@ -85,7 +85,7 @@ public class RandomUtil
      * Returns a pseudorandom, uniformly distributed <code>float</code> value between
      * <code>low</code> (inclusive) and <code>high</code> (exclusive).
      */
-    public static float getRange (float low, float high)
+    public static float getInRange (float low, float high)
     {
         return low + (rand.nextFloat() * (high - low));
     }

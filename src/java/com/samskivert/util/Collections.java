@@ -38,7 +38,7 @@ public class Collections
      *
      * @param metaIterable an iterable of Iterators.
      */
-    @ReplacedBy("com.google.common.collect.Iterators.concat() or com.google.common.collect.Iterables.concat()")
+    @ReplacedBy("com.google.common.collect.Iterators#concat() or com.google.common.collect.Iterables#concat()")
     public static <T> Iterator<T> getMetaIterator (Iterable<Iterator<T>> metaIterable)
     {
         return new MetaIterator<T>(metaIterable);
@@ -139,7 +139,7 @@ public class Collections
     /**
      * Get an iterator that returns the same elements as the supplied iterator but blocks removal.
      */
-    @ReplacedBy("com.google.common.collect.Iterators.unmodifiableIterator")
+    @ReplacedBy("com.google.common.collect.Iterators#unmodifiableIterator()")
     public static <T> Iterator<T> getUnmodifiableIterator (final Iterator<T> itr)
     {
         return new Iterator<T>() {

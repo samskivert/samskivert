@@ -39,6 +39,7 @@ public class CollectionUtil
      * Adds all items returned by the enumeration to the supplied collection
      * and returns the supplied collection.
      */
+    @ReplacedBy("com.google.common.collect.Iterators#addAll(Collection, com.google.common.collect.Iterators#forEnumeration(Enumeration))")
     public static <T, C extends Collection<T>> C addAll (C col, Enumeration<? extends T> enm)
     {
         while (enm.hasMoreElements()) {
@@ -51,7 +52,7 @@ public class CollectionUtil
      * Adds all items returned by the iterator to the supplied collection and
      * returns the supplied collection.
      */
-    @ReplacedBy("com.google.common.collect.Iterators.addAll()")
+    @ReplacedBy("com.google.common.collect.Iterators#addAll()")
     public static <T, C extends Collection<T>> C addAll (C col, Iterator<? extends T> iter)
     {
         while (iter.hasNext()) {
@@ -65,7 +66,7 @@ public class CollectionUtil
      * returns the supplied collection. If the supplied array is null, nothing
      * is added to the collection.
      */
-    @ReplacedBy("java.util.Collections.addAll()")
+    @ReplacedBy("java.util.Collections#addAll()")
     public static <T, E extends T, C extends Collection<T>> C addAll (C col, E[] values)
     {
         if (values != null) {
@@ -81,7 +82,7 @@ public class CollectionUtil
      * remain, as determined by iteration order. If the Collection is smaller than limit,
      * it is unmodified.
      */
-    public static <T> void limit (Collection<T> col, int limit)
+    public static void limit (Collection<?> col, int limit)
     {
         int size = col.size();
         if (size > limit) {
@@ -89,12 +90,11 @@ public class CollectionUtil
                 ((List<?>) col).subList(limit, size).clear();
 
             } else {
-                Iterator<T> itr = col.iterator();
-                int ii = 0;
-                for (; ii < limit; ii++) {
+                Iterator<?> itr = col.iterator();
+                for (int ii = 0; ii < limit; ii++) {
                     itr.next();
                 }
-                for (; ii < size; ii++) {
+                while (itr.hasNext()) {
                     itr.next();
                     itr.remove();
                 }
@@ -156,7 +156,7 @@ public class CollectionUtil
      * Returns an Array, of the type specified by the runtime-type token <code>type</code>,
      * containing the elements of the collection.
      */
-    @ReplacedBy("com.google.common.collect.Iterables.toArray()")
+    @ReplacedBy("com.google.common.collect.Iterables#toArray()")
     public static <T> T[] toArray (Collection<? extends T> col, Class<T> type)
     {
         @SuppressWarnings("unchecked")
@@ -174,7 +174,7 @@ public class CollectionUtil
      * order returned by the collection's iterator). The size of the array will
      * be equal to the size of the collection.
      */
-    @ReplacedBy("com.google.common.primitives.Ints.toArray()")
+    @ReplacedBy("com.google.common.primitives.Ints#toArray()")
     public static int[] toIntArray (Collection<Integer> col)
     {
         Iterator<Integer> iter = col.iterator();

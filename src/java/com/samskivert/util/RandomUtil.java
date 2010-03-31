@@ -63,14 +63,31 @@ public class RandomUtil
     /**
      * Returns a pseudorandom, uniformly distributed <code>int</code> value between
      * <code>high</code> and <code>low</code>, exclusive of each.
+     *
+     * @deprecated use getRange(int, int).
      */
+    @Deprecated
     public static int getInt (int high, int low)
     {
-        if (high - low - 1 <= 0) {
-            throw new IllegalArgumentException(
-                "Invalid range [high=" + high + ", low=" + low + "]");
-        }
-        return low + 1 + rand.nextInt(high - low - 1);
+        return getRange(low + 1, high);
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed <code>int</code> value between
+     * <code>low</code> (inclusive) and <code>high</code> (exclusive).
+     */
+    public static int getRange (int low, int high)
+    {
+        return low + rand.nextInt(high - low);
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed <code>float</code> value between
+     * <code>low</code> (inclusive) and <code>high</code> (exclusive).
+     */
+    public static float getRange (float low, float high)
+    {
+        return low + (rand.nextFloat() * (high - low));
     }
 
     /**

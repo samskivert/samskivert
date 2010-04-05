@@ -31,12 +31,17 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * An int map is like a regular map, but with integers as keys. We avoid
  * the annoyance of having to create integer objects every time we want to
  * lookup or insert values. The hash int map is an int map that uses a
  * hashtable mechanism to store its key/value mappings.
  */
+@ReplacedBy(value="java.util.Map",
+            reason="Boxing shouldn't be a major concern. It's probably better to stick to " +
+            "standard classes rather than worry about a tiny memory or performance gain.")
 public class HashIntMap<V> extends AbstractMap<Integer,V>
     implements IntMap<V>, Cloneable, Serializable
 {

@@ -32,8 +32,9 @@ import com.samskivert.annotation.ReplacedBy;
  * and therefore provides all of the standard accessors (for which
  * <code>Integer</code> objects should be supplied as keys).
  */
-@ReplacedBy(value="java.util.Map", reason="Boxing shouldn't be a major concern. " +
-    "The performance gain from using an IntMap probably isn't worth trouble.")
+@ReplacedBy(value="java.util.Map",
+            reason="Boxing shouldn't be a major concern. It's probably better to stick to " +
+            "standard classes rather than worry about a tiny memory or performance gain.")
 public interface IntMap<V> extends Map<Integer,V>
 {
     /**

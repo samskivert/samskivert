@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * Provides static methods for creating mutable {@code IntMap} instances easily.
  * You can replace code like:
@@ -30,6 +32,10 @@ package com.samskivert.util;
  *
  * <p>{@code IntMap<String> map = IntMaps.newHashIntMap();}
  */
+@ReplacedBy(value="com.google.common.collect.Maps",
+            reason="Boxing shouldn't be a major concern. It's probably better to stick to " +
+            "standard classes rather than worry about a tiny memory or performance gain.")
+
 public class IntMaps
 {
     /**
@@ -37,6 +43,7 @@ public class IntMaps
      *
      * @return a newly-created, initially-empty {@code HashIntMap}
      */
+    @ReplacedBy(value="com.google.common.collect.Maps#newHashMap()")
     public static <V> HashIntMap<V> newHashIntMap()
     {
         return new HashIntMap<V>();

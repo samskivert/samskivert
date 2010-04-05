@@ -26,12 +26,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * A hashmap that maintains a count for each key.
  *
  * This implementation should change so that we extend AbstractMap, do our own hashing, and can use
  * our own Entry class.
  */
+@ReplacedBy("com.google.common.collect.HashMultiset")
 public class CountHashMap<K> extends HashMap<K, int[]>
 {
     public interface Entry<K> extends Map.Entry<K, int[]>

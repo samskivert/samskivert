@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -100,6 +101,65 @@ public class CollectionUtil
                 }
             }
         }
+    }
+
+    /**
+     * Return a List containing all the elements of the specified Iterable that compare as being
+     * equal to the maximum element.
+     *
+     * @throws NoSuchElementException if the Iterable is empty.
+     */
+    public static <T extends Comparable<? super T>> List<T> maxList (Iterable<? extends T> iterable)
+    {
+        return maxList(iterable, Comparators.comparable());
+    }
+
+    /**
+     * Return a List containing all the elements of the specified Iterable that compare as being
+     * equal to the maximum element.
+     *
+     * @throws NoSuchElementException if the Iterable is empty.
+     */
+    public static <T> List<T> maxList (Iterable<? extends T> iterable, Comparator<? super T> comp)
+    {
+        Iterator<? extends T> itr = iterable.iterator();
+        T max = itr.next();
+        List<T> maxes = new ArrayList<T>();
+        maxes.add(max);
+        while (itr.hasNext()) {
+            T elem = itr.next();
+            int cmp = comp.compare(max, elem);
+            if (cmp <= 0) {
+                if (cmp < 0) {
+                    max = elem;
+                    maxes.clear();
+                }
+                maxes.add(elem);
+            }
+        }
+        return maxes;
+    }
+
+    /**
+     * Return a List containing all the elements of the specified Iterable that compare as being
+     * equal to the minimum element.
+     *
+     * @throws NoSuchElementException if the Iterable is empty.
+     */
+    public static <T extends Comparable<? super T>> List<T> minList (Iterable<? extends T> iterable)
+    {
+        return maxList(iterable, java.util.Collections.reverseOrder());
+    }
+
+    /**
+     * Return a List containing all the elements of the specified Iterable that compare as being
+     * equal to the minimum element.
+     *
+     * @throws NoSuchElementException if the Iterable is empty.
+     */
+    public static <T> List<T> minList (Iterable<? extends T> iterable, Comparator<? super T> comp)
+    {
+        return maxList(iterable, java.util.Collections.reverseOrder(comp));
     }
 
     /**

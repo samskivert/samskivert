@@ -23,9 +23,10 @@ package com.samskivert.util.tests;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Collections;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ComparableArrayList;
@@ -34,15 +35,9 @@ import com.samskivert.util.StringUtil;
 /**
  * Tests the {@link CollectionUtil} class.
  */
-public class CollectionUtilTest extends TestCase
+public class CollectionUtilTest
 {
-    public CollectionUtilTest ()
-    {
-        super(CollectionUtil.class.getName());
-    }
-
-    @Override
-    public void runTest ()
+    @Test public void testSelectRandomSubset ()
     {
         ArrayList<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < 100; i++) {
@@ -54,24 +49,18 @@ public class CollectionUtilTest extends TestCase
             // System.out.println(StringUtil.toString(subset));
             assertTrue("length == 10", subset.size() == 10);
         }
+    }
 
+    @Test public void testInsertSorted ()
+    {
         // test comparable array list insertion
         Random rand = new Random();
         ComparableArrayList<Integer> slist = new ComparableArrayList<Integer>();
         for (int ii = 0; ii < 25; ii++) {
             slist.insertSorted(rand.nextInt(100));
         }
-        System.out.println(StringUtil.toString(slist));
-    }
-
-    public static Test suite ()
-    {
-        return new CollectionUtilTest();
-    }
-
-    public static void main (String[] args)
-    {
-        CollectionUtilTest test = new CollectionUtilTest();
-        test.runTest();
+        for (int ii = 0; ii < slist.size()-1; ii++) {
+            assertTrue(slist.get(ii) <= slist.get(ii+1));
+        }
     }
 }

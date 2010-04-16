@@ -37,7 +37,7 @@ public class ArrayUtil
      *
      * @return the index of the first matching value if one was found, -1 otherwise.
      */
-    public static <T extends Object> int indexOf (T[] values, T value)
+    public static <T> int indexOf (T[] values, T value)
     {
         int count = (values == null) ? 0 : values.length;
         for (int ii = 0; ii < count; ii++) {

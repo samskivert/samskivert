@@ -111,7 +111,11 @@ public class CollectionUtil
      */
     public static <T extends Comparable<? super T>> List<T> maxList (Iterable<? extends T> iterable)
     {
-        return maxList(iterable, Comparators.comparable());
+        return maxList(iterable, new Comparator<T>() {
+            public int compare (T o1, T o2) {
+                return o1.compareTo(o2);
+            }
+        });
     }
 
     /**
@@ -126,16 +130,26 @@ public class CollectionUtil
         T max = itr.next();
         List<T> maxes = new ArrayList<T>();
         maxes.add(max);
-        while (itr.hasNext()) {
-            T elem = itr.next();
-            int cmp = comp.compare(max, elem);
-            if (cmp <= 0) {
-                if (cmp < 0) {
-                    max = elem;
-                    maxes.clear();
+        if (itr.hasNext()) {
+            do {
+                T elem = itr.next();
+                int cmp = comp.compare(max, elem);
+                if (cmp <= 0) {
+                    if (cmp < 0) {
+                        max = elem;
+                        maxes.clear();
+                    }
+                    maxes.add(elem);
                 }
-                maxes.add(elem);
-            }
+            } while (itr.hasNext());
+
+        } else if (0 != comp.compare(max, max)) {
+            // The main point of this test is to compare the sole element to something,
+            // in case it turns out to be incompatible with the Comparator for some reason.
+            // In that case, we don't even get to this IAE, we've probably already bombed out
+            // with an NPE or CCE. For example, the Comparable version could be called with
+            // a sole element of null. (Collections.max() gets this wrong.)
+            throw new IllegalArgumentException();
         }
         return maxes;
     }

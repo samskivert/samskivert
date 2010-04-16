@@ -72,8 +72,8 @@ public class RecentList
      */
     public boolean contains (Object value)
     {
-        for (int ii = 0, ll = _list.length; ii < ll; ii++) {
-            if (_list[ii] != null && _list[ii].equals(value)) {
+        for (int ii = 0, nn = size(); ii < nn; ii++) {
+            if (ObjectUtil.equals(value, _list[ii])) {
                 return true;
             }
         }

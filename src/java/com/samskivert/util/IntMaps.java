@@ -35,7 +35,6 @@ import com.samskivert.annotation.ReplacedBy;
 @ReplacedBy(value="com.google.common.collect.Maps",
             reason="Boxing shouldn't be a major concern. It's probably better to stick to " +
             "standard classes rather than worry about a tiny memory or performance gain.")
-
 public class IntMaps
 {
     /**

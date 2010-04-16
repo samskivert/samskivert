@@ -57,6 +57,7 @@ public class ObjectUtil
      * Compares two objects, returning -1 if left is null and right is not and 1 if left is
      * non-null and right is null.
      */
+    @ReplacedBy("com.google.common.collect.Ordering.natural().nullsFirst().compare()")
     public static <T extends Comparable<? super T>> int compareTo (T left, T right)
     {
         if (left == right) { // instances are both null or both the same instance

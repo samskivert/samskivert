@@ -72,6 +72,7 @@ public class ValueMarshaller
                 return Byte.valueOf(source);
             }
         });
+        _parsers.put(Byte.class, _parsers.get(Byte.TYPE));
 
         // and shorts
         _parsers.put(Short.TYPE, new Parser() {
@@ -79,6 +80,7 @@ public class ValueMarshaller
                 return Short.valueOf(source);
             }
         });
+        _parsers.put(Short.class, _parsers.get(Short.TYPE));
 
         // and ints
         _parsers.put(Integer.TYPE, new Parser() {
@@ -86,6 +88,7 @@ public class ValueMarshaller
                 return Integer.valueOf(source);
             }
         });
+        _parsers.put(Integer.class, _parsers.get(Integer.TYPE));
 
         // and longs
         _parsers.put(Long.TYPE, new Parser() {
@@ -93,6 +96,7 @@ public class ValueMarshaller
                 return Long.valueOf(source);
             }
         });
+        _parsers.put(Long.class, _parsers.get(Long.TYPE));
 
         // and floats
         _parsers.put(Float.TYPE, new Parser() {
@@ -100,6 +104,7 @@ public class ValueMarshaller
                 return Float.valueOf(source);
             }
         });
+        _parsers.put(Float.class, _parsers.get(Float.TYPE));
 
         // and booleans
         _parsers.put(Boolean.TYPE, new Parser() {
@@ -107,13 +112,7 @@ public class ValueMarshaller
                 return Boolean.valueOf(source);
             }
         });
-
-        // and integers
-        _parsers.put(Integer.class, new Parser() {
-            public Object parse (String source) throws Exception {
-                return Integer.valueOf(source);
-            }
-        });
+        _parsers.put(Boolean.class, _parsers.get(Boolean.TYPE));
 
         // and byte arrays
         _parsers.put(byte[].class, new Parser() {

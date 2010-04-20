@@ -47,6 +47,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * String related utility functions.
  */
@@ -124,6 +126,7 @@ public class StringUtil
     /**
      * Returns the string if it is non-blank (see {@link #isBlank}), the default value otherwise.
      */
+    @ReplacedBy("com.google.common.base.Object.firstNonNull()")
     public static String getOr (String value, String defval)
     {
         return isBlank(value) ? defval : value;
@@ -226,6 +229,7 @@ public class StringUtil
      * Returns a new string based on <code>source</code> with all instances of <code>before</code>
      * replaced with <code>after</code>.
      */
+    @ReplacedBy(value="java.lang.String.replace()", reason="since 1.5")
     public static String replace (String source, String before, String after)
     {
         int pos = source.indexOf(before);

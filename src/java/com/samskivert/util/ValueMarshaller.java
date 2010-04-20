@@ -59,6 +59,7 @@ public class ValueMarshaller
 
     protected static Map<Class<?>,Parser> _parsers = new HashMap<Class<?>,Parser>();
     static {
+        Parser p;
         // we can parse strings
         _parsers.put(String.class, new Parser() {
             public Object parse (String source) throws Exception {
@@ -67,61 +68,67 @@ public class ValueMarshaller
         });
 
         // and bytes
-        _parsers.put(Byte.TYPE, new Parser() {
+        p = new Parser() {
             public Object parse (String source) throws Exception {
                 return Byte.valueOf(source);
             }
-        });
-        _parsers.put(Byte.class, _parsers.get(Byte.TYPE));
+        };
+        _parsers.put(Byte.class, p);
+        _parsers.put(Byte.TYPE, p);
 
         // and shorts
-        _parsers.put(Short.TYPE, new Parser() {
+        p = new Parser() {
             public Object parse (String source) throws Exception {
                 return Short.valueOf(source);
             }
-        });
-        _parsers.put(Short.class, _parsers.get(Short.TYPE));
+        };
+        _parsers.put(Short.class, p);
+        _parsers.put(Short.TYPE, p);
 
         // and ints
-        _parsers.put(Integer.TYPE, new Parser() {
+        p = new Parser() {
             public Object parse (String source) throws Exception {
                 return Integer.valueOf(source);
             }
-        });
-        _parsers.put(Integer.class, _parsers.get(Integer.TYPE));
+        };
+        _parsers.put(Integer.class, p);
+        _parsers.put(Integer.TYPE, p);
 
         // and longs
-        _parsers.put(Long.TYPE, new Parser() {
+        p = new Parser() {
             public Object parse (String source) throws Exception {
                 return Long.valueOf(source);
             }
-        });
-        _parsers.put(Long.class, _parsers.get(Long.TYPE));
+        };
+        _parsers.put(Long.class, p);
+        _parsers.put(Long.TYPE, p);
 
         // and floats
-        _parsers.put(Float.TYPE, new Parser() {
+        p = new Parser() {
             public Object parse (String source) throws Exception {
                 return Float.valueOf(source);
             }
-        });
-        _parsers.put(Float.class, _parsers.get(Float.TYPE));
+        };
+        _parsers.put(Float.class, p);
+        _parsers.put(Float.TYPE, p);
 
         // and booleans
-        _parsers.put(Boolean.TYPE, new Parser() {
+        p = new Parser() {
             public Object parse (String source) throws Exception {
                 return Boolean.valueOf(source);
             }
-        });
-        _parsers.put(Boolean.class, _parsers.get(Boolean.TYPE));
+        };
+        _parsers.put(Boolean.class, p);
+        _parsers.put(Boolean.TYPE, p);
 
         // and byte arrays
         _parsers.put(byte[].class, new Parser() {
             public Object parse (String source) throws Exception {
-                int[] values = StringUtil.parseIntArray(source);
-                int vcount = values.length;
-                byte[] bytes = new byte[vcount];
-                for (int ii = 0; ii < vcount; ii++) {
-                    bytes[ii] = (byte)values[ii];
+                String[] strs = StringUtil.parseStringArray(source);
+                int count = strs.length;
+                byte[] bytes = new byte[count];
+                for (int ii = 0; ii < count; ii++) {
+                    bytes[ii] = Byte.valueOf(strs[ii]);
                 }
                 return bytes;
             }

@@ -126,7 +126,6 @@ public class StringUtil
     /**
      * Returns the string if it is non-blank (see {@link #isBlank}), the default value otherwise.
      */
-    @ReplacedBy("com.google.common.base.Object.firstNonNull()")
     public static String getOr (String value, String defval)
     {
         return isBlank(value) ? defval : value;

@@ -448,7 +448,7 @@ public class RuntimeAdjust
 
         @Override protected void populateEditor (JPanel editor)
         {
-            editor.add(_valbox = new JTextField(), GroupLayout.FIXED);
+            editor.add(_valbox = new JTextField(6), GroupLayout.FIXED);
             _valbox.addFocusListener(this);
             _valbox.addActionListener(this);
         }

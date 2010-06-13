@@ -330,7 +330,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         };
     }
 
-    protected abstract class RecordIterator
+    protected abstract class RecordIterator<E>
+        implements Iterator<E>
     {
         public boolean hasNext ()
         {
@@ -381,16 +382,14 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
         protected Record<V> _record, _last;
     }
 
-    protected class IntEntryIterator extends RecordIterator
-        implements Iterator<IntEntry<V>>
+    protected class IntEntryIterator extends RecordIterator<IntEntry<V>>
     {
         public IntEntry<V> next () {
             return nextRecord();
         }
     }
 
-    protected class MapEntryIterator extends RecordIterator
-        implements Iterator<Entry<Integer,V>>
+    protected class MapEntryIterator extends RecordIterator<Entry<Integer,V>>
     {
         public Entry<Integer,V> next () {
             return nextRecord();

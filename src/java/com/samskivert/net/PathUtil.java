@@ -20,6 +20,9 @@
 
 package com.samskivert.net;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Path related utility functions.
  */
@@ -67,5 +70,56 @@ public class PathUtil
         } else {
             return source + "/" + affix;
         }
+    }
+
+    /**
+     * Gets the individual path elements building up the canonical path to the given file.
+     */
+    public static String[] getCanonicalPathElements (File file)
+        throws IOException
+    {
+        file = file.getCanonicalFile();
+
+        // If we were a file, get its parent
+        if (!file.isDirectory()) {
+            file = file.getParentFile();
+        }
+
+        return file.getPath().split(File.separator);
+    }
+
+    /**
+     * Computes a relative path between to Files
+     *
+     * @param file the file we're referencing
+     * @param relativeTo the path from which we want to refer to the file
+     */
+    public static String computeRelativePath (File file, File relativeTo)
+        throws IOException
+    {
+        String[] realDirs = getCanonicalPathElements(file);
+        String[] relativeToDirs = getCanonicalPathElements(relativeTo);
+
+        // Eliminate the common root
+        int common = 0;
+        for (; common < realDirs.length && common < relativeToDirs.length; common++) {
+            if (!realDirs[common].equals(relativeToDirs[common])) {
+                break;
+            }
+        }
+
+        String relativePath = "";
+
+        // For each remaining level in the file path, add a ..
+        for (int ii = 0; ii < (realDirs.length - common); ii++) {
+            relativePath += ".." + File.separator;
+        }
+
+        // For each level in the resource path, add the path
+        for (; common < relativeToDirs.length; common++) {
+            relativePath += relativeToDirs[common] + File.separator;
+        }
+
+        return relativePath;
     }
 }

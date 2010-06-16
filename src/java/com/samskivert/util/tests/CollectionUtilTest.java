@@ -23,14 +23,12 @@ package com.samskivert.util.tests;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Collections;
 
 import org.junit.*;
 import static org.junit.Assert.*;
 
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ComparableArrayList;
-import com.samskivert.util.StringUtil;
 
 /**
  * Tests the {@link CollectionUtil} class.

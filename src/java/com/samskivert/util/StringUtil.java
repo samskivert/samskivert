@@ -39,7 +39,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Locale;
@@ -394,8 +393,7 @@ public class StringUtil
      * specifying the characters that are used to box in list and array types. For example, if "["
      * and "]" were supplied, an int array might be formatted like so: <code>[1, 3, 5]</code>.
      */
-    public static String toString (
-        Object val, String openBox, String closeBox)
+    public static String toString (Object val, String openBox, String closeBox)
     {
         StringBuilder buf = new StringBuilder();
         toString(buf, val, openBox, closeBox);
@@ -582,7 +580,7 @@ public class StringUtil
 
     /**
      * Formats a collection of elements (either an array of objects, an {@link Iterator}, an {@link
-     * Enumeration} or a {@link Collection}) using the supplied formatter on each element. Note
+     * Iterable} or an {@link Enumeration}) using the supplied formatter on each element. Note
      * that if you simply wish to format a collection of elements by calling {@link
      * Object#toString} on each element, you can just pass the list to the {@link
      * #toString(Object)} method which will do just that.

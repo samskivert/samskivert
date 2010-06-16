@@ -694,8 +694,8 @@ public class StringUtil
         int written = 0;
 
         // we only want non-static fields
-        for (int i = 0; i < fields.length; i++) {
-            int mods = fields[i].getModifiers();
+        for (Field field : fields) {
+            int mods = field.getModifiers();
             if ((mods & Modifier.PUBLIC) == 0 || (mods & Modifier.STATIC) != 0) {
                 continue;
             }
@@ -705,13 +705,13 @@ public class StringUtil
             }
 
             // look for a toString() method for this field
-            buf.append(fields[i].getName()).append("=");
+            buf.append(field.getName()).append("=");
             try {
                 try {
-                    Method meth = clazz.getMethod(fields[i].getName() + "ToString", new Class<?>[0]);
+                    Method meth = clazz.getMethod(field.getName() + "ToString", new Class<?>[0]);
                     buf.append(meth.invoke(object, (Object[]) null));
                 } catch (NoSuchMethodException nsme) {
-                    toString(buf, fields[i].get(object));
+                    toString(buf, field.get(object));
                 }
             } catch (Exception e) {
                 buf.append("<error: " + e + ">");

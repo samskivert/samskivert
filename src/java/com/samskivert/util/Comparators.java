@@ -44,8 +44,7 @@ public class Comparators
                 return -1;
             }
             // now that we've filtered all nulls, compare the toString()s
-            return String.CASE_INSENSITIVE_ORDER.compare(
-                o1.toString(), o2.toString());
+            return String.CASE_INSENSITIVE_ORDER.compare(o1.toString(), o2.toString());
         }
     };
 
@@ -71,7 +70,7 @@ public class Comparators
     /**
      * Returns the Comparator for Comparables, properly cast.
      *
-     * <p>This example illustates the type-safe way to obtain a natural-ordering Comparator:
+     * <p>This example illustrates the type-safe way to obtain a natural-ordering Comparator:
      * <pre>
      *    Comparator&lt;Integer&gt; = Comparators.comparable();
      * </pre>

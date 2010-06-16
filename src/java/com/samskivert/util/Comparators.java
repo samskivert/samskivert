@@ -49,7 +49,7 @@ public class Comparators
     };
 
     /**
-     * A comparator that compares {@link Comparable<Object>} instances.
+     * A comparator that compares {@link Comparable} instances.
      */
     @ReplacedBy("com.google.common.collect.Ordering.natural().nullsLast()")
     public static final Comparator<Comparable<Object>> COMPARABLE =

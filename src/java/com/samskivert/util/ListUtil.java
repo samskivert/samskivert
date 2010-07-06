@@ -439,9 +439,10 @@ public class ListUtil
     }
 
     /**
-     * Returns the number of elements in the supplied list.
+     * Returns the number of elements prior to the first null in the supplied list.
+     * @deprecated This is incompatible with things like clearRef(), which leave a null space.
      */
-    public static int size (Object[] list)
+    @Deprecated public static int size (Object[] list)
     {
         if (list == null) {
             return 0;
@@ -453,6 +454,20 @@ public class ListUtil
             }
         }
         return llength;
+    }
+
+    /**
+     * Returns the number of non-null elements in the supplied list.
+     */
+    public static int getSize (Object[] list)
+    {
+        int size = 0;
+        for (int ii = 0, nn = (list == null) ? 0 : list.length; ii < nn; ii++) {
+            if (list[ii] != null) {
+                size++;
+            }
+        }
+        return size;
     }
 
     /**

@@ -226,8 +226,10 @@ public class StringUtil
     /**
      * Returns a new string based on <code>source</code> with all instances of <code>before</code>
      * replaced with <code>after</code>.
+     *
+     * @deprecated java.lang.String.replace() was added in 1.5
      */
-    @ReplacedBy(value="java.lang.String.replace()", reason="since 1.5")
+    @Deprecated @ReplacedBy(value="java.lang.String.replace()", reason="since 1.5")
     public static String replace (String source, String before, String after)
     {
         int pos = source.indexOf(before);

@@ -214,7 +214,7 @@ public class UserManager
         if (user == null) {
             // first construct the redirect URL
             String eurl = RequestUtils.getLocationEncoded(req);
-            String target = StringUtil.replace(_loginURL, "%R", eurl);
+            String target = _loginURL.replace("%R", eurl);
             if (USERMGR_DEBUG) {
                 log.info("No user found in require, redirecting", "to", target);
             }

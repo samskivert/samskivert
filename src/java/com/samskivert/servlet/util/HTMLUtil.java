@@ -46,14 +46,14 @@ public class HTMLUtil
         // (first we turn the entified versions normal so that if text is
         // repeatedly run through this it doesn't keep changing successive
         // &'s into "&amp;".
-        text = StringUtil.replace(text, "&quot;", "\"");
-        text = StringUtil.replace(text, "&gt;", ">");
-        text = StringUtil.replace(text, "&lt;", "<");
-        text = StringUtil.replace(text, "&amp;", "&");
-        text = StringUtil.replace(text, "&", "&amp;");
-        text = StringUtil.replace(text, "<", "&lt;");
-        text = StringUtil.replace(text, ">", "&gt;");
-        text = StringUtil.replace(text, "\"", "&quot;");
+        text = text.replace("&quot;", "\"");
+        text = text.replace("&gt;", ">");
+        text = text.replace("&lt;", "<");
+        text = text.replace("&amp;", "&");
+        text = text.replace("&", "&amp;");
+        text = text.replace("<", "&lt;");
+        text = text.replace(">", "&gt;");
+        text = text.replace("\"", "&quot;");
         return text;
     }
 
@@ -66,8 +66,8 @@ public class HTMLUtil
             return text;
         }
         // handle both line ending formats
-        text = StringUtil.replace(text, "\n\n", "\n<p>\n");
-        text = StringUtil.replace(text, "\r\n\r\n", "\r\n<p>\r\n");
+        text = text.replace("\n\n", "\n<p>\n");
+        text = text.replace("\r\n\r\n", "\r\n<p>\r\n");
         return text;
     }
 
@@ -80,7 +80,7 @@ public class HTMLUtil
             return text;
         }
         // handle both line ending formats
-        text = StringUtil.replace(text, "\n", "<br>\n");
+        text = text.replace("\n", "<br>\n");
         return text;
     }
 
@@ -113,9 +113,9 @@ public class HTMLUtil
         StringBuilder lbuf = new StringBuilder();
 
         boolean inpara = false, inlist = false;
-        for (int ii = 0; ii < lines.length; ii++) {
-            String line = lines[ii];
-            if (StringUtil.isBlank(lines[ii])) {
+        for (String line2 : lines) {
+            String line = line2;
+            if (StringUtil.isBlank(line2)) {
                 if (inlist) {
                     lbuf.append("</ul>");
                     inlist = false;
@@ -212,8 +212,8 @@ public class HTMLUtil
 
         ArrayList<String> list = new ArrayList<String>();
         list.add(src);
-        for (int ii=0, nn = regexes.length; ii < nn; ii++) {
-            Pattern p = Pattern.compile(regexes[ii], Pattern.CASE_INSENSITIVE);
+        for (String regexe : regexes) {
+            Pattern p = Pattern.compile(regexe, Pattern.CASE_INSENSITIVE);
             for (int jj=0; jj < list.size(); jj += 2) {
                 String piece = list.get(jj);
                 Matcher m = p.matcher(piece);
@@ -231,8 +231,8 @@ public class HTMLUtil
         for (int jj=0, nn = list.size(); jj < nn; jj++) {
             String s = list.get(jj);
             if (jj % 2 == 0) {
-                s = StringUtil.replace(s, "<", "&lt;");
-                s = StringUtil.replace(s, ">", "&gt;");
+                s = s.replace("<", "&lt;");
+                s = s.replace(">", "&gt;");
             }
             buf.append(s);
         }

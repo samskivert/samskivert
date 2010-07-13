@@ -221,8 +221,8 @@ public class JDBCUtil
      */
     public static String escape (String text)
     {
-        text = StringUtil.replace(text, "\\", "\\\\");
-        return "'" + StringUtil.replace(text, "'", "\\'") + "'";
+        text = text.replace("\\", "\\\\");
+        return "'" + text.replace("'", "\\'") + "'";
     }
 
     /**
@@ -284,7 +284,7 @@ public class JDBCUtil
      */
     public static String safeJigger (String text)
     {
-        return StringUtil.replace(jigger(text), "'", "\\'");
+        return jigger(text).replace("'", "\\'");
     }
 
     /**

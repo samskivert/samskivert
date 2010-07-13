@@ -24,8 +24,6 @@ import java.io.*;
 import java.util.*;
 
 import com.samskivert.util.ConfigUtil;
-import com.samskivert.util.StringUtil;
-
 import static com.samskivert.Log.log;
 
 /**
@@ -150,7 +148,7 @@ public class ExceptionMap
                 break;
             }
         }
-        return StringUtil.replace(msg, MESSAGE_MARKER, ex.getMessage());
+        return msg.replace(MESSAGE_MARKER, ex.getMessage());
     }
 
     protected static List<Class<?>> _keys;

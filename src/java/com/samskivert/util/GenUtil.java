@@ -55,7 +55,7 @@ public class GenUtil
             } else {
                 Package pkg = clazz.getPackage();
                 int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
-                return StringUtil.replace(clazz.getName().substring(offset), "$", ".");
+                return clazz.getName().substring(offset).replace("$", ".");
             }
 
         } else if (type instanceof ParameterizedType) {

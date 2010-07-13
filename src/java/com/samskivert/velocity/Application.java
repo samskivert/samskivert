@@ -301,7 +301,7 @@ public class Application
             path = path.substring(0, ldidx);
         }
         // convert slashes to dots
-        path.replace("/", ".");
+        path = path.replace("/", ".");
         // prepend the base logic package and we're all set
         return _logicPkg + path;
     }

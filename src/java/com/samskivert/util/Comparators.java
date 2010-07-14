@@ -32,7 +32,7 @@ public class Comparators
     /**
      * A comparator that compares the toString() value of all objects case insensitively.
      */
-    @ReplacedBy("com.google.common.collect.Ordering.from(String.CASE_INSENSITIVE_ORDER).onResultOf(Functions.toStringFunction()")
+    @ReplacedBy("com.google.common.collect.Ordering.from(String.CASE_INSENSITIVE_ORDER).onResultOf(Functions.toStringFunction()).nullsLast()")
     public static final Comparator<Object> LEXICAL_CASE_INSENSITIVE = new Comparator<Object>() {
         public int compare (Object o1, Object o2)
         {

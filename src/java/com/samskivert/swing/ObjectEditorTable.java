@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -35,7 +36,6 @@ import javax.swing.table.AbstractTableModel;
 import com.samskivert.swing.event.CommandEvent;
 
 import com.samskivert.util.ClassUtil;
-import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.ObjectUtil;
 
@@ -194,7 +194,7 @@ public class ObjectEditorTable extends JTable
     public void setData (Object[] data)
     {
         _data.clear();
-        CollectionUtil.addAll(_data, data);
+        Collections.addAll(_data, data);
         _model.fireTableDataChanged();
     }
 

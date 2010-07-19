@@ -23,6 +23,8 @@ package com.samskivert.util;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import com.samskivert.annotation.ReplacedBy;
+
 /**
  * Provides a mechanism ({@link #sort}) for sorting the contents of the list
  * that doesn't involve creating two object arrays. Two copies of the elements
@@ -31,6 +33,9 @@ import java.util.Comparator;
  * when {@link Arrays#sort} clones the supplied array so that it can do a merge
  * sort).
  */
+@ReplacedBy(
+    value="java.util.ArrayList, java.util.TreeSet, or com.google.common.collect.TreeMultiset",
+    reason="It depends on whether you want to add elements then sort them, or ensure things are always sorted; and whether duplicates are OK. See the documentation for each to understand the differences.")
 public class ComparableArrayList<T extends Comparable<? super T>>
     extends SortableArrayList<T>
 {

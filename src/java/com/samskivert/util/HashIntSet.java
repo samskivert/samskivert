@@ -131,7 +131,9 @@ public class HashIntSet extends AbstractIntSet
                     throw new NoSuchElementException();
                 }
                 if (_idx == 0) {
-                    // start after a sentinel
+                    // start after a sentinel.  if we don't and instead start in the middle of a
+                    // run of filled buckets, we risk returning values that will reappear at the
+                    // end of the list after being shifted over to due to a removal
                     while (_buckets[_idx++] != _sentinel);
                 }
                 int mask = _buckets.length - 1;
@@ -221,6 +223,8 @@ public class HashIntSet extends AbstractIntSet
                 _buckets[idx] = value;
                 _size++;
                 _modcount++;
+
+                // if necessary to preserve our maximum load factor, increase the bucket count
                 int ncount = getBucketCount(_size, MAX_LOAD_FACTOR);
                 if (ncount > _buckets.length) {
                     rehash(ncount);
@@ -247,6 +251,9 @@ public class HashIntSet extends AbstractIntSet
                 _buckets[idx] = _sentinel;
                 _size--;
                 _modcount++;
+
+                // if necessary to preserve our minimum load factor, decrease the bucket count;
+                // otherwise, we must shift elements over to fill the newly emptied bucket
                 int ncount = getBucketCount(_size, MIN_LOAD_FACTOR);
                 if (ncount < _buckets.length) {
                     rehash(ncount);
@@ -329,7 +336,10 @@ public class HashIntSet extends AbstractIntSet
     }
 
     /**
-     * Shifts elements over to fill a newly empty slot.
+     * Shifts elements over to fill a newly empty slot.  Anything between the previous sentinel and
+     * the empty slot (which moves as we shift elements), taking wrapping into account, needs to
+     * be checked and moved if necessary to ensure that it will be found by a search beginning at
+     * its hash-derived bucket index.  We stop when we encounter another sentinel.
      */
     protected void shift (int start)
     {

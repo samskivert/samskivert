@@ -38,6 +38,42 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
     implements IntSet
 {
     /**
+     * Add all of the values in the supplied array to the set.
+     *
+     * @param values elements to be added to this set.
+     *
+     * @return <tt>true</tt> if this set did not already contain all of the specified elements.
+     */
+    public boolean add (int[] values)
+    {
+        boolean modified = false;
+        int vlength = values.length;
+        for (int i = 0; i < vlength; i++) {
+            modified = (add(values[i]) || modified);
+        }
+        return modified;
+    }
+
+    /**
+     * Removes all values in the supplied array from the set. Any values that are in the array but
+     * not in the set are simply ignored.
+     *
+     * @param values elements to be removed from the set.
+     *
+     * @return <tt>true</tt> if this set contained any of the specified elements (which will have
+     * been removed).
+     */
+    public boolean remove (int[] values)
+    {
+        boolean modified = false;
+        int vcount = values.length;
+        for (int i = 0; i < vcount; i++) {
+            modified = (remove(values[i]) || modified);
+        }
+        return modified;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * <p>This implementation iterates over the ints in the collection, checking each one in turn

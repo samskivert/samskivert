@@ -21,17 +21,17 @@
 package com.samskivert.util.tests;
 
 import com.samskivert.util.AbstractIntSet;
-import com.samskivert.util.ArrayIntSet;
+import com.samskivert.util.HashIntSet;
 
-public class ArrayIntSetTest extends IntSetTestBase
+public class HashIntSetTest extends IntSetTestBase
 {
     protected AbstractIntSet createSet ()
     {
-        return new ArrayIntSet();
+        return new HashIntSet();
     }
 
     protected AbstractIntSet createSet (int[] values)
     {
-        return new ArrayIntSet(values);
+        return new HashIntSet(values);
     }
 }

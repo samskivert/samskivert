@@ -88,42 +88,6 @@ public class ArrayIntSet extends AbstractIntSet
     }
 
     /**
-     * Add all of the values in the supplied array to the set.
-     *
-     * @param values elements to be added to this set.
-     *
-     * @return <tt>true</tt> if this set did not already contain all of the specified elements.
-     */
-    public boolean add (int[] values)
-    {
-        boolean modified = false;
-        int vlength = values.length;
-        for (int i = 0; i < vlength; i++) {
-            modified = (add(values[i]) || modified);
-        }
-        return modified;
-    }
-
-    /**
-     * Removes all values in the supplied array from the set. Any values that are in the array but
-     * not in the set are simply ignored.
-     *
-     * @param values elements to be removed from the set.
-     *
-     * @return <tt>true</tt> if this set contained any of the specified elements (which will have
-     * been removed).
-     */
-    public boolean remove (int[] values)
-    {
-        boolean modified = false;
-        int vcount = values.length;
-        for (int i = 0; i < vcount; i++) {
-            modified = (remove(values[i]) || modified);
-        }
-        return modified;
-    }
-
-    /**
      * Returns the element at the specified index. Note that the elements in the set are unordered
      * and could change order after insertion or removal. This method is useful only for accessing
      * elements of a static set (and has the desirable property of allowing access to the values in

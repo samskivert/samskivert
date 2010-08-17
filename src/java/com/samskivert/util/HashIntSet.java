@@ -274,9 +274,11 @@ public class HashIntSet extends AbstractIntSet
     @Override // documentation inherited
     public void clear ()
     {
-        createBuckets(MIN_BUCKET_COUNT);
-        _size = 0;
-        _modcount++;
+        if (_size > 0) {
+            createBuckets(MIN_BUCKET_COUNT);
+            _size = 0;
+            _modcount++;
+        }
     }
 
     @Override // documentation inherited

@@ -25,11 +25,13 @@ import com.samskivert.util.HashIntSet;
 
 public class HashIntSetTest extends IntSetTestBase
 {
+    @Override
     protected AbstractIntSet createSet ()
     {
         return new HashIntSet();
     }
 
+    @Override
     protected AbstractIntSet createSet (int[] values)
     {
         return new HashIntSet(values);

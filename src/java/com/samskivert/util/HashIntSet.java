@@ -148,7 +148,7 @@ public class HashIntSet extends AbstractIntSet
                 // we shouldn't get here
                 throw new RuntimeException("Ran out of elements getting next");
             }
-            public void remove () {
+            @Override public void remove () {
                 checkConcurrentModification();
                 if (_idx == 0) {
                     throw new IllegalStateException("Next method not yet called");

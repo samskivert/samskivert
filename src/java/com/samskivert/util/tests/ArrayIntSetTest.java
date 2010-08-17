@@ -25,11 +25,13 @@ import com.samskivert.util.ArrayIntSet;
 
 public class ArrayIntSetTest extends IntSetTestBase
 {
+    @Override
     protected AbstractIntSet createSet ()
     {
         return new ArrayIntSet();
     }
 
+    @Override
     protected AbstractIntSet createSet (int[] values)
     {
         return new ArrayIntSet(values);

@@ -31,7 +31,9 @@ import java.lang.reflect.Array;
 /**
  * Provides a base for extending the standard Java {@link ArrayList}
  * functionality (which we'd just extend directly if those pig fuckers hadn't
- * made the instance variables private).
+ * made the instance variables private).<p/>
+ *
+ * <em>Note:</em> Does not support null elements.
  */
 public abstract class BaseArrayList<E> extends AbstractList<E>
     implements RandomAccess, Cloneable, Serializable
@@ -74,7 +76,10 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         if (_elements != null) {
             System.arraycopy(_elements, 0, target, 0, _size);
         }
-
+        // terminate with null if there is room to spare, per the spec
+        if (target.length > _size) {
+            target[_size] = null;
+        }
         return target;
     }
 
@@ -83,6 +88,7 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
     {
         _elements = null;
         _size = 0;
+        modCount++;
     }
 
     @Override
@@ -91,6 +97,7 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
     {
         _elements = (E[])ListUtil.add(_elements, _size, o);
         _size++;
+        modCount++;
         return true;
     }
 
@@ -99,6 +106,7 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
     {
         if (ListUtil.remove(_elements, o) != null) {
             _size--;
+            modCount++;
             return true;
         }
         return false;
@@ -117,6 +125,7 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         rangeCheck(index, false);
         E old = _elements[index];
         _elements[index] = element;
+        // do not increment modCount: this is not a structural modification
         return old;
     }
 
@@ -127,6 +136,7 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         rangeCheck(index, true);
         _elements = (E[])ListUtil.insert(_elements, index, element);
         _size++;
+        modCount++;
     }
 
     @Override
@@ -136,13 +146,14 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         rangeCheck(index, false);
         E oval = (E)ListUtil.remove(_elements, index);
         _size--;
+        modCount++;
         return oval;
     }
 
     @Override
     public int indexOf (Object o)
     {
-        return ListUtil.indexOf(_elements, o);
+        return ListUtil.indexOf(_elements, o); // non-optimal: will check indexes >= _size
     }
 
 //     // documentation inherited from interface

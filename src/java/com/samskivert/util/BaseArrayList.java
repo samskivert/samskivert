@@ -70,15 +70,14 @@ public abstract class BaseArrayList<E> extends AbstractList<E>
         if (target.length < _size) {
             target = (T[])Array.newInstance(
                 target.getClass().getComponentType(), _size);
-        }
 
+        } else if (target.length > _size) {
+            // terminate with null if there is room to spare, per the spec
+            target[_size] = null;
+        }
         // copy the elements
         if (_elements != null) {
             System.arraycopy(_elements, 0, target, 0, _size);
-        }
-        // terminate with null if there is room to spare, per the spec
-        if (target.length > _size) {
-            target[_size] = null;
         }
         return target;
     }

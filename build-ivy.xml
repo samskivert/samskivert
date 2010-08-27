@@ -6,6 +6,9 @@
   <property name="doc.overview"     value="com/samskivert/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne, et al."/>
 
+  <!-- the next release version -->
+  <property name="release" value="1.0"/>
+
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/main/java"/>
   <property name="test.dir"    value="src/test/java"/>
@@ -160,8 +163,33 @@
   </target>
 
   <target name="publish" depends="dist" description="Publishes jar to local repository.">
-    <ivy:publish resolver="local" pubrevision="1.0">
+    <ivy:publish resolver="local" pubrevision="${release}">
       <artifacts pattern="${deploy.dir}/[artifact].[ext]" />
     </ivy:publish>
+  </target>
+
+  <target name="publish-remote" depends="publish" description="Publishes a public release.">
+    <exec executable="svn">
+      <arg value="checkout"/>
+      <arg value="-N"/>
+      <arg value="https://samskivert.googlecode.com/svn/releases"/>
+    </exec>
+    <copy todir="releases">
+      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${release}/ivys"
+               includes="ivy.xml"/>
+      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${release}/jars"
+               includes="samskivert.jar"/>
+    </copy>
+    <exec executable="svn">
+      <arg value="add"/>
+      <arg value="releases/ivy.xml"/>
+      <arg value="releases/samskivert.jar"/>
+    </exec>
+    <exec executable="svn">
+      <arg value="commit"/>
+      <arg value="-m"/>
+      <arg value="Published release ${release}."/>
+    </exec>
+    <delete dir="releases"/>
   </target>
 </project>

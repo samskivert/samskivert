@@ -37,14 +37,8 @@ following principles:
 Building
 --------
 
-Building the library is very simple. First ensure that the necessary third
-party jar files are available either in the lib/ directory or in the
-system wide jar file location specified in build.xml. See lib/README for a
-list of the necessary third party jar files and how to get them.
-
-The library is built using ant, a modern build tool available from The
-Jakarta Project. If you aren't already using ant for other projects, it
-can be found here:
+Building the library is very simple. The library is built using ant. If you
+aren't already using ant for other projects, it can be found here:
 
   http://jakarta.apache.org/ant/
 
@@ -55,7 +49,11 @@ Invoke ant with any of the following targets:
   javadoc: builds only the javadoc documentation (dist/docs)
   dist: builds the distribution jar file (dist/samskivert.jar)
 
-Look at the build.xml file for configurable build parameters.
+It is highly recommended to use the Ivy-based build file, which will
+automatically download any dependencies. The build file will also download Ivy
+if needed. Simply invoke:
+
+ % ant -f build-ivy.xml all
 
 Distribution
 ------------

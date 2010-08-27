@@ -648,6 +648,6 @@ public class JDBCUtil
                                ", col=" + column + "].");
     }
 
-    /** Used by {@link #makeCollectingConnection}. */
+    /** Used by {@link #makeCollector}. */
     protected static final Class<?>[] PROXY_IFACES = { Connection.class };
 }

@@ -71,17 +71,11 @@
     <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
       <classpath refid="classpath"/>
-      <exclude name="com/samskivert/io/**" unless="build.io"/>
-      <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
       <exclude name="com/samskivert/net/MailUtil*" unless="build.mail"/>
       <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
-      <exclude name="com/samskivert/swing/**" unless="build.swing"/>
-      <exclude name="com/samskivert/test/**" unless="build.test"/>
-      <exclude name="com/samskivert/util/**" unless="build.util"/>
       <exclude name="com/samskivert/util/Log4JLogger*" unless="log4j.present"/>
       <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
       <exclude name="com/samskivert/xml/**" unless="build.xml"/>
-      <exclude name="com/samskivert/**/tests/**" unless="build.tests"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
@@ -91,17 +85,11 @@
         <path refid="classpath"/>
        <pathelement location="${classes.dir}"/>
       </classpath>
-      <exclude name="com/samskivert/io/**" unless="build.io"/>
-      <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
       <exclude name="com/samskivert/net/MailUtil*" unless="build.mail"/>
       <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
-      <exclude name="com/samskivert/swing/**" unless="build.swing"/>
-      <exclude name="com/samskivert/test/**" unless="build.test"/>
-      <exclude name="com/samskivert/util/**" unless="build.util"/>
       <exclude name="com/samskivert/util/Log4JLogger*" unless="log4j.present"/>
       <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
       <exclude name="com/samskivert/xml/**" unless="build.xml"/>
-      <exclude name="com/samskivert/**/tests/**" unless="build.tests"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
@@ -116,13 +104,7 @@
              additionalparam="-breakiterator"
              link="http://samskivert.com/code/samskivert/samskivert/docs/api/">
       <packageset dir="${src.dir}">
-        <exclude name="com/samskivert/io/**" unless="build.io"/>
-        <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
-        <exclude name="com/samskivert/net/**" unless="build.net"/>
         <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
-        <exclude name="com/samskivert/swing/**" unless="build.swing"/>
-        <exclude name="com/samskivert/test/**" unless="build.test"/>
-        <exclude name="com/samskivert/util/**" unless="build.util"/>
         <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
         <exclude name="com/samskivert/xml/**" unless="build.xml"/>
       </packageset>
@@ -153,13 +135,7 @@
       <batchtest>
         <fileset dir="${test.dir}">
           <include name="**/*${test}*Test.java"/>
-          <exclude name="com/samskivert/io/**" unless="build.io"/>
-          <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
-          <exclude name="com/samskivert/net/**" unless="build.net"/>
           <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
-          <exclude name="com/samskivert/swing/**" unless="build.swing"/>
-          <exclude name="com/samskivert/test/**" unless="build.test"/>
-          <exclude name="com/samskivert/util/**" unless="build.util"/>
           <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
           <exclude name="com/samskivert/xml/**" unless="build.xml"/>
         </fileset>

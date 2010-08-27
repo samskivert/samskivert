@@ -22,20 +22,15 @@ package com.samskivert.util;
 
 import java.util.Comparator;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link QuickSort} class.
  */
-public class QuickSortTest extends TestCase
+public class QuickSortTest
 {
-    public QuickSortTest ()
-    {
-        super(QuickSortTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         Integer[] a = new Integer[100];
@@ -100,17 +95,6 @@ public class QuickSortTest extends TestCase
         }
         // System.out.println("successfully sorted " + tests +
         // " random arrays");
-    }
-
-    public static Test suite ()
-    {
-        return new QuickSortTest();
-    }
-
-    public static void main (String[] args)
-    {
-        QuickSortTest test = new QuickSortTest();
-        test.runTest();
     }
 
     private static int rand (int n)

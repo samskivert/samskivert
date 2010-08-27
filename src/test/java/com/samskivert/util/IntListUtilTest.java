@@ -22,17 +22,12 @@ package com.samskivert.util;
 
 import java.util.Arrays;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
-public class IntListUtilTest extends TestCase
+public class IntListUtilTest
 {
-    public IntListUtilTest ()
-    {
-        super(IntListUtilTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         int[] list = null;
@@ -109,10 +104,5 @@ public class IntListUtilTest extends TestCase
 //          System.out.println("removeAt(0): " + StringUtil.toString(list));
         assertTrue("removeAt(0)",
                    Arrays.equals(list, new int[] { 5, 6, 7, 0 }));
-    }
-
-    public static Test suite ()
-    {
-        return new IntListUtilTest();
     }
 }

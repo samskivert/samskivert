@@ -20,20 +20,15 @@
 
 package com.samskivert.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link ObserverList} class.
  */
-public class ObserverListTest extends TestCase
+public class ObserverListTest
 {
-    public ObserverListTest ()
-    {
-        super(ObserverListTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
 //         Log.info("Testing safe list.");
@@ -84,17 +79,6 @@ public class ObserverListTest extends TestCase
                        ocount == notifies[0]);
             list.clear();
         }
-    }
-
-    public static Test suite ()
-    {
-        return new ObserverListTest();
-    }
-
-    public static void main (String[] args)
-    {
-        ObserverListTest test = new ObserverListTest();
-        test.runTest();
     }
 
     protected static class TestObserver

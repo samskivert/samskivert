@@ -24,19 +24,14 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Random;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import com.samskivert.swing.util.ProximityTracker;
 
-public class ProximityTrackerTest extends TestCase
+public class ProximityTrackerTest
 {
-    public ProximityTrackerTest ()
-    {
-        super(ProximityTrackerTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         Random rand = new Random();
@@ -87,17 +82,6 @@ public class ProximityTrackerTest extends TestCase
                        tps + " (" + tdist + ")",
                        tp.equals(cp) || (tdist == cdist));
         }
-    }
-
-    public static Test suite ()
-    {
-        return new ProximityTrackerTest();
-    }
-
-    public static void main (String[] args)
-    {
-        ProximityTrackerTest test = new ProximityTrackerTest();
-        test.runTest();
     }
 
     protected static final int MAX_X = 1000;

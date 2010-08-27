@@ -20,20 +20,15 @@
 
 package com.samskivert.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link CheapIntMap} class.
  */
-public class CheapIntMapTest extends TestCase
+public class CheapIntMapTest
 {
-    public CheapIntMapTest ()
-    {
-        super(CheapIntMapTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         CheapIntMap map = new CheapIntMap(10);
@@ -67,16 +62,5 @@ public class CheapIntMapTest extends TestCase
                 System.out.println(ii + " => " + val);
             }
         }
-    }
-
-    public static Test suite ()
-    {
-        return new CheapIntMapTest();
-    }
-
-    public static void main (String[] args)
-    {
-        CheapIntMapTest test = new CheapIntMapTest();
-        test.runTest();
     }
 }

@@ -22,22 +22,21 @@ package com.samskivert.util;
 
 import java.util.concurrent.Executor;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link SerialExecutor} class.
  */
-public class SerialExecutorTest extends TestCase
+public class SerialExecutorTest
     implements Executor, RunQueue
 {
     public SerialExecutorTest ()
     {
-        super(SerialExecutorTest.class.getName());
         _main = Thread.currentThread();
     }
 
-    @Override
+    @Test
     public void runTest ()
     {
         SerialExecutor executor = new SerialExecutor(this);
@@ -108,17 +107,6 @@ public class SerialExecutorTest extends TestCase
     public boolean isRunning ()
     {
         return true;
-    }
-
-    public static Test suite ()
-    {
-        return new SerialExecutorTest();
-    }
-
-    public static void main (String[] args)
-    {
-        SerialExecutorTest test = new SerialExecutorTest();
-        test.runTest();
     }
 
     protected class Sleeper implements SerialExecutor.ExecutorTask

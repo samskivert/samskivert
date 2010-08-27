@@ -22,8 +22,8 @@ package com.samskivert.util;
 
 import java.util.Properties;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Our test properties files:
@@ -64,14 +64,9 @@ import junit.framework.TestCase;
  * three = test - three
  * </pre>
  */
-public class ConfigUtilTest extends TestCase
+public class ConfigUtilTest
 {
-    public ConfigUtilTest ()
-    {
-        super(ConfigUtilTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         try {
@@ -86,17 +81,6 @@ public class ConfigUtilTest extends TestCase
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
-    }
-
-    public static Test suite ()
-    {
-        return new ConfigUtilTest();
-    }
-
-    public static void main (String[] args)
-    {
-        ConfigUtilTest test = new ConfigUtilTest();
-        test.runTest();
     }
 
     protected static final String DUMP =

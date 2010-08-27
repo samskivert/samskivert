@@ -24,17 +24,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
-public class HashIntMapTest extends TestCase
+public class HashIntMapTest
 {
-    public HashIntMapTest ()
-    {
-        super(HashIntMapTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         HashIntMap<Integer> table = new HashIntMap<Integer>();
@@ -132,11 +127,6 @@ public class HashIntMapTest extends TestCase
         Collections.sort(values);
         String valuestr = StringUtil.toString(values);
         assertTrue(valuestr + ".equals(" + exvals + ")", valuestr.equals(exvals));
-    }
-
-    public static Test suite ()
-    {
-        return new HashIntMapTest();
     }
 
     protected static final String TEST1 = "(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)";

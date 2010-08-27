@@ -20,13 +20,13 @@
 
 package com.samskivert.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * A test case for {@link Throttle}.
  */
-public class ThrottleTest extends TestCase
+public class ThrottleTest
 {
     public static class TestThrottle extends Throttle
     {
@@ -46,23 +46,7 @@ public class ThrottleTest extends TestCase
         }
     }
 
-    public static Test suite ()
-    {
-        return new ThrottleTest();
-    }
-
-    public static void main (String[] args)
-    {
-        ThrottleTest test = new ThrottleTest();
-        test.runTest();
-    }
-
-    public ThrottleTest ()
-    {
-        super(ThrottleTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         testUpdate(4);

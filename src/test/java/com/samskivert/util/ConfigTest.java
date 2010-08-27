@@ -23,20 +23,15 @@ package com.samskivert.util;
 import java.util.Iterator;
 import java.util.Properties;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link Config} class.
  */
-public class ConfigTest extends TestCase
+public class ConfigTest
 {
-    public ConfigTest ()
-    {
-        super(ConfigTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         PrefsConfig config = new PrefsConfig("rsrc/util/test");
@@ -67,16 +62,5 @@ public class ConfigTest extends TestCase
 
         Properties subprops = config.getSubProperties("sub");
         System.out.println("Sub: " + StringUtil.toString(subprops.propertyNames()));
-    }
-
-    public static Test suite ()
-    {
-        return new ConfigTest();
-    }
-
-    public static void main (String[] args)
-    {
-        ConfigTest test = new ConfigTest();
-        test.runTest();
     }
 }

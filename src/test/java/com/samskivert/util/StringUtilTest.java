@@ -20,17 +20,12 @@
 
 package com.samskivert.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
-public class StringUtilTest extends TestCase
+public class StringUtilTest
 {
-    public StringUtilTest ()
-    {
-        super(StringUtilTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         String source = "mary, had, a,, little, lamb, and, a, comma,,";
@@ -47,10 +42,5 @@ public class StringUtilTest extends TestCase
         tokens = new String[] { "this", null, "is", null, "a", null, "test" };
         joined = StringUtil.joinEscaped(tokens);
         assertTrue("null elements work", joined.equals("this, , is, , a, , test"));
-    }
-
-    public static Test suite ()
-    {
-        return new StringUtilTest();
     }
 }

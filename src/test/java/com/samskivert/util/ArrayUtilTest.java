@@ -20,22 +20,17 @@
 
 package com.samskivert.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import static com.samskivert.Log.log;
 
 /**
  * Tests the {@link ArrayUtil} class.
  */
-public class ArrayUtilTest extends TestCase
+public class ArrayUtilTest
 {
-    public ArrayUtilTest ()
-    {
-        super(ArrayUtilTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         // test reversing an array
@@ -156,16 +151,5 @@ public class ArrayUtilTest extends TestCase
         work = values.clone();
         work = ArrayUtil.splice(work, 2, 2);
         log.info("splice concat 2, 2: " + StringUtil.toString(work));
-    }
-
-    public static Test suite ()
-    {
-        return new ArrayUtilTest();
-    }
-
-    public static void main (String[] args)
-    {
-        ArrayUtilTest test = new ArrayUtilTest();
-        test.runTest();
     }
 }

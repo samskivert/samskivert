@@ -20,20 +20,15 @@
 
 package com.samskivert.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link LRUHashMap} class.
  */
-public class LRUHashMapTest extends TestCase
+public class LRUHashMapTest
 {
-    public LRUHashMapTest ()
-    {
-        super(LRUHashMapTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         LRUHashMap<String,Integer> map =
@@ -61,16 +56,5 @@ public class LRUHashMapTest extends TestCase
         assertTrue("size == 2", map.size() == 2);
         map.put("three.3", 3);
         assertTrue("size == 2", map.size() == 2);
-    }
-
-    public static Test suite ()
-    {
-        return new LRUHashMapTest();
-    }
-
-    public static void main (String[] args)
-    {
-        LRUHashMapTest test = new LRUHashMapTest();
-        test.runTest();
     }
 }

@@ -23,21 +23,16 @@ package com.samskivert.xml;
 import java.io.InputStream;
 import java.io.FileInputStream;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import org.apache.commons.digester.Digester;
 
 import com.samskivert.test.TestUtil;
 import com.samskivert.util.StringUtil;
 
-public class SetFieldRuleTest extends TestCase
+public class SetFieldRuleTest
 {
-    public SetFieldRuleTest ()
-    {
-        super(SetFieldRuleTest.class.getName());
-    }
-
     public static class TestObject
     {
         public int intField;
@@ -56,8 +51,7 @@ public class SetFieldRuleTest extends TestCase
         }
     }
 
-    @Override
-    public void runTest ()
+    @Test public void runTest ()
     {
         Digester digester = new Digester();
 
@@ -83,17 +77,6 @@ public class SetFieldRuleTest extends TestCase
         }
 
         assertTrue(EXPECTED.equals(object.toString()));
-    }
-
-    public static Test suite ()
-    {
-        return new SetFieldRuleTest();
-    }
-
-    public static void main (String[] args)
-    {
-        SetFieldRuleTest test = new SetFieldRuleTest();
-        test.runTest();
     }
 
     protected static final String EXPECTED =

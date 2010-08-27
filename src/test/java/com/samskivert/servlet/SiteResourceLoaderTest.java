@@ -28,20 +28,15 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 import com.samskivert.io.StreamUtil;
 import com.samskivert.test.TestUtil;
 
-public class SiteResourceLoaderTest extends TestCase
+public class SiteResourceLoaderTest
 {
-    public SiteResourceLoaderTest ()
-    {
-        super(SiteResourceLoaderTest.class.getName());
-    }
-
-    @Override
+    @Test
     public void runTest ()
     {
         // we need to fake a couple of things to get the test to work
@@ -106,11 +101,6 @@ public class SiteResourceLoaderTest extends TestCase
             rin = new FileInputStream(rpath);
         }
         buffer.append(StreamUtil.toString(rin, "UTF-8"));
-    }
-
-    public static Test suite ()
-    {
-        return new SiteResourceLoaderTest();
     }
 
     public static class TestSiteIdentifier implements SiteIdentifier

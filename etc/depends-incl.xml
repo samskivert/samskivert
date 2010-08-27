@@ -6,59 +6,27 @@
   <!-- checks to see which packages are available -->
   <target name="check-available">
     <echo level="info">The packages required for building are listed below. A package</echo>
-    <echo level="info">followed by 'true' indicates that the package ispresent. One</echo>
-    <echo level="info">followed by '${package.present}' indicates that it was not</echo>
-    <echo level="info">found. Jar files can be placed into the lib/ directory or</echo>
-    <echo level="info">copied into dist/lib if samskivert is being built as a part of a</echo>
-    <echo level="info">larger project.</echo>
-
+    <echo level="info">followed by 'true' indicates that the package is present.</echo>
     <echo level="info"></echo>
-    <echo level="info">------------------------------------------</echo>
-    <echo level="info">Standard extensions - http://java.sun.com/</echo>
-    <echo level="info">------------------------------------------</echo>
+
     <available property="servlet2.3.present" classpathref="classpath"
      classname="javax.servlet.Servlet"/>
     <echo level="info">Servlet 2.3: ${servlet2.3.present}</echo>
     <available property="mail.present" classpathref="classpath"
      classname="javax.mail.Transport"/>
     <echo level="info">Java Mail: ${mail.present}</echo>
-
-    <available property="sax.present" classpathref="classpath"
-     classname="org.xml.sax.SAXException"/>
-    <echo level="info">SAX: ${sax.present}</echo>
-
-    <available property="jaxp.present" classpathref="classpath"
-     classname="javax.xml.parsers.SAXParser"/>
-    <echo level="info">JAXP: ${jaxp.present}</echo>
-
-    <echo level="info"></echo>
-    <echo level="info">----------------------------------------------</echo>
-    <echo level="info">Jakarta libraries - http://jakarta.apache.org/</echo>
-    <echo level="info">----------------------------------------------</echo>
     <available property="jakarta.commons-colls.present" classpathref="classpath"
      classname="org.apache.commons.collections.CollectionUtils"/>
     <echo level="info">Commons Collections: ${jakarta.commons-colls.present}</echo>
-
     <available property="jakarta.commons-logging.present" classpathref="classpath"
      classname="org.apache.commons.logging.Log"/>
     <echo level="info">Commons Logging: ${jakarta.commons-logging.present}</echo>
-
     <available property="jakarta.commons-digester.present" classpathref="classpath"
      classname="org.apache.commons.digester.Digester"/>
     <echo level="info">Commons Digester: ${jakarta.commons-digester.present}</echo>
-
     <available property="jakarta.velocity.present" classpathref="classpath"
      classname="org.apache.velocity.Template"/>
     <echo level="info">Velocity: ${jakarta.velocity.present}</echo>
-
-    <echo level="info"></echo>
-    <echo level="info">---------------</echo>
-    <echo level="info">Other libraries</echo>
-    <echo level="info">---------------</echo>
-    <available property="junit.present" classpathref="classpath"
-     classname="junit.framework.Test"/>
-    <echo level="info">JUnit: ${junit.present}</echo>
-
     <available property="log4j.present" classpathref="classpath"
      classname="org.apache.log4j.Logger"/>
     <echo level="info">log4j: ${log4j.present}</echo>
@@ -67,48 +35,19 @@
   <!-- combines package availability into build controls -->
   <target name="compute-builds" depends="check-available">
     <echo level="info">The packages that will be built are listed below. One followed</echo>
-    <echo level="info">by 'true' indicates that it will be built. One followed by</echo>
-    <echo level="info">'${build.package}' indicates that it will not be built. If a </echo>
-    <echo level="info">package is not being built, one or more of its dependencies</echo>
-    <echo level="info">could not be located.</echo>
-
+    <echo level="info">by 'true' indicates that it will be built.</echo>
     <echo level="info"></echo>
-    <property name="build.util" value="true"/>
-    <!--<echo level="info">com.samskivert.util: ${build.util}</echo>-->
-
-    <property name="build.io" value="true"/>
-    <!--<echo level="info">com.samskivert.io: ${build.io}</echo>-->
-
-    <condition property="build.jdbc">
-      <and>
-        <isset property="build.io"/>
-        <isset property="build.util"/>
-      </and>
-    </condition>
-    <echo level="info">com.samskivert.jdbc: ${build.jdbc}</echo>
 
     <condition property="build.servlet">
       <and>
-        <isset property="build.io"/>
-        <isset property="build.jdbc"/>
-        <isset property="build.util"/>
         <isset property="servlet2.3.present"/>
       </and>
     </condition>
     <echo level="info">com.samskivert.servlet: ${build.servlet}</echo>
 
-    <condition property="build.swing">
-      <isset property="build.util"/>
-    </condition>
-    <echo level="info">com.samskivert.swing: ${build.swing}</echo>
-
-    <property name="build.test" value="true"/>
-    <echo level="info">com.samskivert.test: ${build.test}</echo>
-
     <condition property="build.velocity">
       <and>
         <isset property="build.servlet"/>
-        <isset property="build.util"/>
         <isset property="jakarta.commons-colls.present"/>
         <isset property="jakarta.velocity.present"/>
         <isset property="servlet2.3.present"/>
@@ -118,26 +57,14 @@
 
     <condition property="build.xml">
       <and>
-        <isset property="build.io"/>
-        <isset property="build.util"/>
         <isset property="jakarta.commons-logging.present"/>
         <isset property="jakarta.commons-digester.present"/>
-        <isset property="jaxp.present"/>
-        <isset property="sax.present"/>
       </and>
     </condition>
     <echo level="info">com.samskivert.xml: ${build.xml}</echo>
 
-    <condition property="build.tests">
-      <and>
-        <isset property="junit.present"/>
-      </and>
-    </condition>
-    <echo level="info">com.samskivert.*.tests: ${build.tests}</echo>
-
     <condition property="build.mail">
       <and>
-        <isset property="build.io"/>
         <isset property="mail.present"/>
       </and>
     </condition>

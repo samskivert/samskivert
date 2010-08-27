@@ -172,10 +172,11 @@
     <exec executable="svn">
       <arg value="checkout"/>
       <arg value="-N"/>
-      <arg value="https://samskivert.googlecode.com/svn/releases"/>
+      <arg value="https://samskivert.googlecode.com/svn/releases/com.samskivert/samskivert"/>
+      <arg value="temp"/>
     </exec>
-    <mkdir dir="releases/${release}"/>
-    <copy todir="releases/${release}">
+    <mkdir dir="temp/${release}"/>
+    <copy todir="temp/${release}">
       <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${release}/ivys"
                includes="ivy.xml"/>
       <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${release}/jars"
@@ -183,14 +184,14 @@
     </copy>
     <exec executable="svn">
       <arg value="add"/>
-      <arg value="releases/${release}"/>
+      <arg value="temp/${release}"/>
     </exec>
     <exec executable="svn">
       <arg value="commit"/>
       <arg value="-m"/>
       <arg value="Published release ${release}."/>
-      <arg value="releases"/>
+      <arg value="temp"/>
     </exec>
-    <delete dir="releases"/>
+    <delete dir="temp"/>
   </target>
 </project>

@@ -22,21 +22,20 @@
   <property name="ivy.jar.dir" value="${ivy.home}/lib" />
   <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
   <condition property="ivy.exists"><available file="${ivy.jar.file}"/></condition>
-  <target name="download-ivy" unless="ivy.exists">
+  <target name="-download-ivy" unless="ivy.exists">
     <mkdir dir="${ivy.jar.dir}"/>
     <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.vers}/ivy-${ivy.vers}.jar" 
          dest="${ivy.jar.file}" usetimestamp="true"/>
   </target>
-  <target name="init-ivy" depends="download-ivy">
+  <target name="-init-ivy" depends="-download-ivy">
     <path id="ivy.lib.path"><fileset dir="${ivy.jar.dir}" includes="*.jar"/></path>
     <taskdef resource="org/apache/ivy/ant/antlib.xml"
              uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
-    <ivy:cachepath pathid="compile.classpath" conf="compile" log="download-only"/>
+    <ivy:cachepath pathid="compile.classpath" conf="runtime" log="download-only"/>
     <ivy:cachepath pathid="test.classpath" conf="test" log="download-only"/>
   </target>
 
-  <!-- prepares the application directories -->
-  <target name="prepare" depends="init-ivy">
+  <target name="-prepare" depends="-init-ivy">
     <tstamp><format property="year" pattern="yyyy" /></tstamp>
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${classes.dir}"/>
@@ -51,8 +50,14 @@
     </copy>
   </target>
 
-  <!-- cleans out the intermediate build files -->
-  <target name="clean">
+  <target name="check-ivy" depends="-init-ivy" description="Computes and prints Ivy classpath.">
+    <property refid="compile.classpath" name="compile.str"/>
+    <echo>Compile: ${compile.str}</echo>
+    <property refid="test.classpath" name="test.str"/>
+    <echo>Test: ${test.str}</echo>
+  </target>
+
+  <target name="clean" description="Cleans out most build results.">
     <delete dir="${classes.dir}"/>
     <delete dir="${tclasses.dir}"/>
     <delete dir="${deploy.dir}/docs"/>
@@ -60,13 +65,11 @@
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
   </target>
 
-  <!-- wipes the entire build directory clean -->
-  <target name="distclean">
+  <target name="distclean" description="Completely cleans out build results.">
     <delete dir="${deploy.dir}"/>
   </target>
 
-  <!-- build the java class files -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="-prepare" description="Compiles main classes.">
     <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
       <classpath refid="compile.classpath"/>
@@ -77,7 +80,7 @@
     </javac>
   </target>
 
-  <target name="test-compile" depends="compile">
+  <target name="test-compile" depends="compile" description="Compiles test classes.">
     <javac srcdir="${test.dir}" destdir="${tclasses.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
       <classpath>
@@ -91,8 +94,7 @@
     </javac>
   </target>
 
-  <!-- build the javadoc documentation -->
-  <target name="javadoc" depends="prepare">
+  <target name="javadoc" depends="-prepare" description="Builds javadocs.">
     <javadoc windowtitle="${app.name} API"
              doctitle="${app.name} API"
              overview="${src.dir}/${doc.overview}"
@@ -109,10 +111,8 @@
     </javadoc>
   </target>
 
-  <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,compile,javadoc,dist"/>
+  <target name="all" depends="clean,compile,javadoc,dist" description="Rebuilds everything."/>
 
-  <!-- runs our unit tests -->
   <property name="test" value=""/>
   <target name="tests" depends="test-compile" 
           description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
@@ -137,8 +137,7 @@
     </unit>
   </target>
 
-  <!-- builds our jar file -->
-  <target name="dist" depends="compile">
+  <target name="dist" depends="compile" description="Builds jar files.">
     <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}"/>
     <!-- we export a small selection of classes for use by GWT -->
     <mkdir dir="${gwtjar.dir}"/>
@@ -150,5 +149,15 @@
     </copy>
     <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
+  </target>
+
+  <target name="gen-pom" depends="-prepare" description="Generates a POM file.">
+    <ivy:makepom ivyfile="ivy.xml" pomfile="${deploy.dir}/${app.name}.pom">
+      <!-- this is kind of a hack, but we use 'compile' to indicate dependencies that -->
+      <!-- will be "provided" and "runtime" to indicate our transitive dependencies -->
+      <mapping conf="compile" scope="provided"/>
+      <mapping conf="runtime" scope="compile"/>
+      <mapping conf="test" scope="test"/>
+    </ivy:makepom>
   </target>
 </project>

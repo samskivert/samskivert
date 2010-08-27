@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.util.Arrays;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -37,119 +39,121 @@ public class ArrayUtilTest
         int[] values = new int[] { 0 };
         int[] work = values.clone();
         ArrayUtil.reverse(work);
-        log.info("reverse: " + StringUtil.toString(work));
+        assertEquals("(0)", StringUtil.toString(work));
 
         values = new int[] { 0, 1, 2 };
         work = values.clone();
         ArrayUtil.reverse(work);
-        log.info("reverse: " + StringUtil.toString(work));
+        assertEquals("(2, 1, 0)", StringUtil.toString(work));
 
         work = values.clone();
         ArrayUtil.reverse(work, 0, 2);
-        log.info("reverse first-half: " + StringUtil.toString(work));
+        assertEquals("(1, 0, 2)", StringUtil.toString(work));
 
         work = values.clone();
         ArrayUtil.reverse(work, 1, 2);
-        log.info("reverse second-half: " + StringUtil.toString(work));
+        assertEquals("(0, 2, 1)", StringUtil.toString(work));
 
         values = new int[] { 0, 1, 2, 3, 4 };
         work = values.clone();
         ArrayUtil.reverse(work, 1, 3);
-        log.info("reverse middle: " + StringUtil.toString(work));
+        assertEquals("(0, 3, 2, 1, 4)", StringUtil.toString(work));
 
         values = new int[] { 0, 1, 2, 3 };
         work = values.clone();
         ArrayUtil.reverse(work);
-        log.info("reverse even: " + StringUtil.toString(work));
+        assertEquals("(3, 2, 1, 0)", StringUtil.toString(work));
 
         // test shuffling two elements
         values = new int[] { 0, 1 };
         work = values.clone();
         ArrayUtil.shuffle(work, 0, 1);
-        log.info("first-half shuffle: " + StringUtil.toString(work));
+        assertEquals("(0, 1)", StringUtil.toString(work));
 
         work = values.clone();
         ArrayUtil.shuffle(work, 1, 1);
-        log.info("second-half shuffle: " + StringUtil.toString(work));
+        assertEquals("(0, 1)", StringUtil.toString(work));
 
         work = values.clone();
         ArrayUtil.shuffle(work);
-        log.info("full shuffle: " + StringUtil.toString(work));
+        Arrays.sort(work); // return them to canonical order
+        assertEquals("(0, 1)", StringUtil.toString(work));
 
         // test shuffling three elements
         values = new int[] { 0, 1, 2 };
         work = values.clone();
         ArrayUtil.shuffle(work, 0, 2);
-        log.info("first-half shuffle: " + StringUtil.toString(work));
+        assertTrue(StringUtil.toString(work).endsWith(", 2)"));
 
         work = values.clone();
         ArrayUtil.shuffle(work, 1, 2);
-        log.info("second-half shuffle: " + StringUtil.toString(work));
+        assertTrue(StringUtil.toString(work).startsWith("(0, "));
 
         work = values.clone();
         ArrayUtil.shuffle(work);
-        log.info("full shuffle: " + StringUtil.toString(work));
+        Arrays.sort(work); // return them to canonical order
+        assertEquals("(0, 1, 2)", StringUtil.toString(work));
 
         // test shuffling ten elements
         values = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         work = values.clone();
         ArrayUtil.shuffle(work, 0, 5);
-        log.info("first-half shuffle: " + StringUtil.toString(work));
+        assertTrue(StringUtil.toString(work).endsWith(", 5, 6, 7, 8, 9)"));
 
         work = values.clone();
         ArrayUtil.shuffle(work, 5, 5);
-        log.info("second-half shuffle: " + StringUtil.toString(work));
+        assertTrue(StringUtil.toString(work).startsWith("(0, 1, 2, 3, 4, "));
 
         work = values.clone();
         ArrayUtil.shuffle(work);
-        log.info("full shuffle: " + StringUtil.toString(work));
+        Arrays.sort(work); // return them to canonical order
+        assertEquals("(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)", StringUtil.toString(work));
 
         // test splicing with simple truncate beyond offset
         values = new int[] { 0, 1, 2 };
         work = values.clone();
         work = ArrayUtil.splice(work, 0);
-        log.info("splice truncate 0: " + StringUtil.toString(work));
+        assertEquals("()", StringUtil.toString(work));
 
         work = values.clone();
         work = ArrayUtil.splice(work, 1);
-        log.info("splice truncate 1: " + StringUtil.toString(work));
+        assertEquals("(0)", StringUtil.toString(work));
 
         work = values.clone();
         work = ArrayUtil.splice(work, 2);
-        log.info("splice truncate 2: " + StringUtil.toString(work));
+        assertEquals("(0, 1)", StringUtil.toString(work));
 
         values = new int[] { 0 };
         work = values.clone();
         work = ArrayUtil.splice(work, 0);
-        log.info("single element splice truncate 0: " +
-                 StringUtil.toString(work));
+        assertEquals("()", StringUtil.toString(work));
 
         // test splicing out a single element
         values = new int[] { 0, 1, 2 };
         work = values.clone();
         work = ArrayUtil.splice(work, 0, 1);
-        log.info("splice concat 0, 1: " + StringUtil.toString(work));
+        assertEquals("(1, 2)", StringUtil.toString(work));
 
         work = values.clone();
         work = ArrayUtil.splice(work, 1, 1);
-        log.info("splice concat 1, 1: " + StringUtil.toString(work));
+        assertEquals("(0, 2)", StringUtil.toString(work));
 
         work = values.clone();
         work = ArrayUtil.splice(work, 2, 1);
-        log.info("splice concat 2, 1: " + StringUtil.toString(work));
+        assertEquals("(0, 1)", StringUtil.toString(work));
 
         // test splicing out two elements
         values = new int[] { 0, 1, 2, 3 };
         work = values.clone();
         work = ArrayUtil.splice(work, 0, 2);
-        log.info("splice concat 0, 2: " + StringUtil.toString(work));
+        assertEquals("(2, 3)", StringUtil.toString(work));
 
         work = values.clone();
         work = ArrayUtil.splice(work, 1, 2);
-        log.info("splice concat 1, 2: " + StringUtil.toString(work));
+        assertEquals("(0, 3)", StringUtil.toString(work));
 
         work = values.clone();
         work = ArrayUtil.splice(work, 2, 2);
-        log.info("splice concat 2, 2: " + StringUtil.toString(work));
+        assertEquals("(0, 1)", StringUtil.toString(work));
     }
 }

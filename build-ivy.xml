@@ -158,4 +158,10 @@
       <mapping conf="test" scope="test"/>
     </ivy:makepom>
   </target>
+
+  <target name="publish" depends="dist" description="Publishes jar to local repository.">
+    <ivy:publish resolver="local" pubrevision="1.0">
+      <artifacts pattern="${deploy.dir}/[artifact].[ext]" />
+    </ivy:publish>
+  </target>
 </project>

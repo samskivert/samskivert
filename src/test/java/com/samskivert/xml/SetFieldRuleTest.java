@@ -67,8 +67,7 @@ public class SetFieldRuleTest
         digester.addRule("object/stringArrayField", new SetFieldRule("stringArrayField"));
 
         try {
-            String xmlpath =
-                TestUtil.getResourcePath("rsrc/xml/setfieldtest.xml");
+            String xmlpath = TestUtil.getResourcePath("xml/setfieldtest.xml");
             InputStream input = new FileInputStream(xmlpath);
             digester.parse(input);
             input.close();

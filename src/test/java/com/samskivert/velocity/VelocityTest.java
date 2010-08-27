@@ -42,7 +42,7 @@ public class VelocityTest
 
         StringWriter writer = new StringWriter();
         VelocityEngine engine = VelocityUtil.createEngine();
-        engine.mergeTemplate("com/samskivert/velocity/tests/test.tmpl", "UTF-8", ctx, writer);
+        engine.mergeTemplate("velocity/test.tmpl", "UTF-8", ctx, writer);
 
         assertTrue(writer.toString().trim().equals("Hello bar."));
     }

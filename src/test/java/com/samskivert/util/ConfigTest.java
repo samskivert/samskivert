@@ -34,7 +34,7 @@ public class ConfigTest
     @Test
     public void runTest ()
     {
-        PrefsConfig config = new PrefsConfig("rsrc/util/test");
+        PrefsConfig config = new PrefsConfig("util/test");
 
         System.out.println("prop1: " + config.getValue("prop1", 1));
         System.out.println("prop2: " + config.getValue("prop2", "two"));

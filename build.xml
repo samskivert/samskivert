@@ -40,6 +40,9 @@
       <fileset dir="${src.dir}" includes="**/*.properties"/>
       <fileset dir="${src.dir}" includes="**/*.tmpl"/>
     </copy>
+    <copy todir="${tclasses.dir}">
+      <fileset dir="src/test/resources" includes="**"/>
+    </copy>
     <copy todir="${deploy.dir}/lib" flatten="true">
       <fileset refid="${app.name}.libs"/>
     </copy>
@@ -142,11 +145,10 @@
       <classpath>
         <pathelement location="${classes.dir}"/>
         <pathelement location="${tclasses.dir}"/>
-        <pathelement location="${basedir}"/> <!-- for rsrc/ -->
         <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
         <fileset dir="lib/test" includes="*.jar"/>
       </classpath>
-      <sysproperty key="test_dir" value="${basedir}"/>
+      <sysproperty key="test_dir" value="${tclasses.dir}"/>
       <formatter type="brief" usefile="false"/>
       <batchtest>
         <fileset dir="${test.dir}">

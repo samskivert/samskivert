@@ -1,38 +1,37 @@
 The samskivert library
 ----------------------
 
-The samskivert library (SL) aims to provide useful reusable Java routines
-that do things for which I've been unable to find useful reusable
-implementations on the net.
+The samskivert library (SL) aims to provide useful reusable Java routines that
+do things for which I've been unable to find useful reusable implementations on
+the net.
 
 Given the emphasis on reusability, SL attempts to closely adhere to the
 following principles:
 
 * Each individual module should depend as little as possible on other SL
-  modules. Obvious exceptions include modules that are a logical extension
-  of other modules and modules that clearly require a service that is
-  implemented by another SL module and would have to implement that
-  service themselves in the absence of dependence on the other module.
+  modules. Obvious exceptions include modules that are a logical extension of
+  other modules and modules that clearly require a service that is implemented
+  by another SL module and would have to implement that service themselves in
+  the absence of dependence on the other module.
 
-* Modules should be both simple to use and as general purpose as possible.
-  To meet these two competing requirements, a balance must be struck at
-  that sweet spot where reusability is maximized.
+* Modules should be both simple to use and as general purpose as possible. To
+  meet these two competing requirements, a balance must be struck at that sweet
+  spot where reusability is maximized.
 
-* Code included in SL will freely depend on JDK packages available in the
-  Java 2 platform and beyond. SL is initially a repository of software
-  useful for server-side or stand alone applications and therefore need
-  not make compromises to function in the jungle of JVMs in commonly
-  available web browsers.
+* Code included in SL will freely depend on JDK packages available in the Java
+  2 platform and beyond. SL is initially a repository of software useful for
+  server-side or stand alone applications and therefore need not make
+  compromises to function in the jungle of JVMs in commonly available web
+  browsers.
 
-* We are not here to reinvent the wheel, nor to provide a uniform
-  interface to every software service under the sun. If something is
-  available in a freely redistributable and reusable form from someone
-  else, it won't be found in SL. If SL depends on such software from
-  another source, it will provide clear documentation on how to get that
-  software and make use of it within the scope of SL's particular needs.
-  Again a balance of reusability will be struck here and software that is
-  sufficiently difficult to make usable in an arbitrary environment will
-  not be used by SL and may be "reinvented".
+* We are not here to reinvent the wheel, nor to provide a uniform interface to
+  every software service under the sun. If something is available in a freely
+  redistributable and reusable form from someone else, it won't be found in SL.
+  If SL depends on such software from another source, it will provide clear
+  documentation on how to get that software and make use of it within the scope
+  of SL's particular needs. Again a balance of reusability will be struck here
+  and software that is sufficiently difficult to make usable in an arbitrary
+  environment will not be used by SL and may be "reinvented".
 
 Building
 --------
@@ -47,6 +46,7 @@ Invoke ant with any of the following targets:
   all: builds the class files and javadoc documentation
   compile: builds only the class files (dist/classes)
   javadoc: builds only the javadoc documentation (dist/docs)
+  tests: builds and runs the unit tests
   dist: builds the distribution jar file (dist/samskivert.jar)
 
 It is highly recommended to use the Ivy-based build file, which will
@@ -61,21 +61,12 @@ Distribution
 The samskivert library is released under the LGPL. The most recent version
 of the library is available here:
 
-  http://samskivert.com/code/samskivert/
+  http://code.google.com/p/samskivert/
 
 Contribution
 ------------
 
-Contributions to SL are welcome. Control of the CVS repository is
-presently in the hands of mdb@samskivert.com, who should be emailed about
-submissions. Facilities for management of major contributions by external
-parties (ie. publicly accessible CVS server) will be provided if
-circumstances dictate.
+Contributions to SL are welcome. Email mdb@samskivert.com with patches or
+suggestions.
 
-Contact Information
--------------------
-
-The person primarily responsible for SL is Michael Bayne and can be
-contacted at <mdb@samskivert.com>.
-
-$Id: README,v 1.7 2001/08/12 00:00:42 mdb Exp $
+$Id$

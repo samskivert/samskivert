@@ -37,10 +37,10 @@ following principles:
 Building
 --------
 
-Building the library is very simple. The library is built using ant. If you
-aren't already using ant for other projects, it can be found here:
+The library is built using ant. If you aren't already using ant for other
+projects, it can be found here:
 
-  http://jakarta.apache.org/ant/
+  http://ant.apache.org/
 
 Invoke ant with any of the following targets:
 
@@ -51,7 +51,7 @@ Invoke ant with any of the following targets:
 
 It is highly recommended to use the Ivy-based build file, which will
 automatically download any dependencies. The build file will also download Ivy
-if needed. Simply invoke:
+if needed. For example, to build everything invoke:
 
  % ant -f build-ivy.xml all
 

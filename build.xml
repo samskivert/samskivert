@@ -7,9 +7,11 @@
   <property name="copyright.holder" value="Michael Bayne, et al."/>
 
   <!-- things you probably don't want to change -->
-  <property name="src.dir"     value="src/java"/>
+  <property name="src.dir"     value="src/main/java"/>
+  <property name="test.dir"    value="src/test/java"/>
   <property name="deploy.dir"  value="dist"/>
   <property name="classes.dir" value="${deploy.dir}/classes"/>
+  <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
   <property name="libs.dir"    value="lib"/>
   <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
@@ -32,6 +34,7 @@
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${tclasses.dir}"/>
     <mkdir dir="${javadoc.dir}"/>
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}" includes="**/*.properties"/>
@@ -49,6 +52,7 @@
   <!-- cleans out the intermediate build files -->
   <target name="clean">
     <delete dir="${classes.dir}"/>
+    <delete dir="${tclasses.dir}"/>
     <delete dir="${deploy.dir}/docs"/>
     <delete dir="${gwtjar.dir}"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
@@ -64,6 +68,26 @@
     <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
       <classpath refid="classpath"/>
+      <exclude name="com/samskivert/io/**" unless="build.io"/>
+      <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
+      <exclude name="com/samskivert/net/MailUtil*" unless="build.mail"/>
+      <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
+      <exclude name="com/samskivert/swing/**" unless="build.swing"/>
+      <exclude name="com/samskivert/test/**" unless="build.test"/>
+      <exclude name="com/samskivert/util/**" unless="build.util"/>
+      <exclude name="com/samskivert/util/Log4JLogger*" unless="log4j.present"/>
+      <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
+      <exclude name="com/samskivert/xml/**" unless="build.xml"/>
+      <exclude name="com/samskivert/**/tests/**" unless="build.tests"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+    </javac>
+    <javac srcdir="${test.dir}" destdir="${tclasses.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
+      <classpath>
+        <path refid="classpath"/>
+       <pathelement location="${classes.dir}"/>
+      </classpath>
       <exclude name="com/samskivert/io/**" unless="build.io"/>
       <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
       <exclude name="com/samskivert/net/MailUtil*" unless="build.mail"/>
@@ -98,7 +122,6 @@
         <exclude name="com/samskivert/util/**" unless="build.util"/>
         <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
         <exclude name="com/samskivert/xml/**" unless="build.xml"/>
-        <exclude name="com/samskivert/**/tests/**"/>
       </packageset>
       <bottom>Copyright &#169; 2000-${year} ${copyright.holder}. All Rights Reserved.</bottom>
       <classpath refid="classpath"/>
@@ -109,34 +132,16 @@
   <!-- a target for rebuilding everything -->
   <target name="all" depends="clean,compile,javadoc,dist"/>
 
-  <!-- runs a subset of unit tests defined by -Dtest=pattern -->
-  <target name="test" depends="compile" description="Runs a single unit test.">
-    <taskdef name="unit" classpathref="classpath"
-      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
-    <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
-      <classpath>
-        <pathelement location="${classes.dir}"/>
-        <pathelement location="${basedir}"/> <!-- for rsrc/ -->
-        <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
-        <fileset dir="lib/test" includes="*.jar"/>
-      </classpath>
-      <sysproperty key="test_dir" value="${basedir}"/>
-      <formatter type="brief" usefile="false"/>
-      <batchtest>
-        <fileset dir="${src.dir}">
-          <include name="**/tests/**/*${test}*.java"/>
-        </fileset>
-      </batchtest>
-    </unit>
-  </target>
-
   <!-- runs our unit tests -->
-  <target name="tests" depends="compile" description="Runs unit tests.">
+  <property name="test" value=""/>
+  <target name="tests" depends="compile" 
+          description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
     <taskdef name="unit" classpathref="classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
     <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
       <classpath>
         <pathelement location="${classes.dir}"/>
+        <pathelement location="${tclasses.dir}"/>
         <pathelement location="${basedir}"/> <!-- for rsrc/ -->
         <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
         <fileset dir="lib/test" includes="*.jar"/>
@@ -144,8 +149,8 @@
       <sysproperty key="test_dir" value="${basedir}"/>
       <formatter type="brief" usefile="false"/>
       <batchtest>
-        <fileset dir="${src.dir}">
-          <include name="**/tests/**/*Test.java"/>
+        <fileset dir="${test.dir}">
+          <include name="**/*${test}*Test.java"/>
           <exclude name="com/samskivert/io/**" unless="build.io"/>
           <exclude name="com/samskivert/jdbc/**" unless="build.jdbc"/>
           <exclude name="com/samskivert/net/**" unless="build.net"/>
@@ -160,12 +165,11 @@
     </unit>
   </target>
 
-  <!-- builds our distribution files (war and jar) -->
+  <!-- builds our jar file -->
   <target name="dist" depends="compile">
-    <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}">
-      <exclude name="**/tests/**"/>
-    </jar>
+    <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}"/>
     <!-- we export a small selection of classes for use by GWT -->
+    <mkdir dir="${gwtjar.dir}"/>
     <copy todir="${gwtjar.dir}">
       <fileset dir="src/java" includes="com/samskivert/Utils.gwt.xml"/>
       <fileset dir="src/java" includes="com/samskivert/text/MessageUtil.java"/>
@@ -174,32 +178,5 @@
     </copy>
     <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
-  </target>
-
-  <!-- converts our 1.5 code to a 1.4 compatible format -->
-  <target name="retro" depends="dist">
-    <taskdef name="weave" classpathref="classpath"
-             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
-    <mkdir dir="${deploy.dir}/retro"/>
-    <weave inputjar="${deploy.dir}/${app.name}.jar"
-           outputjar="${deploy.dir}/retro/${app.name}.jar" failonerror="true">
-      <classpath>
-        <pathelement location="/usr/local/jdk1.4/jre/lib/rt.jar"/>
-        <pathelement location="lib/retroweaver-rt-1.2.2.jar"/>
-        <pathelement location="dist/retro/samskivert.jar"/>
-        <fileset dir="lib" includes="**/*.jar"/>
-      </classpath>
-    </weave>
-  </target>
-
-  <!-- generate a class hierarchy diagram -->
-  <target name="hiergen" depends="compile">
-    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
-    <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
-      pkgroot="com.samskivert"
-      classes="com.samskivert.*"
-      output="hierarchy.ps">
-      <classpath refid="classpath"/>
-    </viztool>
   </target>
 </project>

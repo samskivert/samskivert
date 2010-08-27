@@ -2,17 +2,21 @@
   <info organisation="com.samskivert" module="samskivert" revision="1.0">
     <description homepage="http://code.google.com/p/samskivert"/>
   </info>
-  <configurations defaultconfmapping="test->master(*);compile->master(*);runtime->master(*)">
-    <conf name="master" visibility="public"/>
-    <conf name="compile" visibility="public"/>
-    <conf name="runtime" visibility="public" extends="compile"/>
-    <conf name="test" visibility="private" extends="runtime"/>
+  <configurations>
     <conf name="default" visibility="public" extends="runtime,master"/>
+    <conf name="master" visibility="public"/>
+    <conf name="provided" visibility="public"/>
+    <conf name="runtime" visibility="public"/>
+    <conf name="sources" visibility="public"/>
+    <conf name="javadoc" visibility="public"/>
+    <conf name="optional" visibility="public"/>
+    <conf name="compile" visibility="private" extends="runtime,provided,optional"/>
+    <conf name="test" visibility="private" extends="compile"/>
   </configurations>
   <dependencies>
-    <dependency org="javax.servlet" name="servlet-api" rev="2.5" conf="compile"/>
-    <dependency org="log4j" name="log4j" rev="1.2.15" conf="runtime"/>
-    <dependency org="javax.mail" name="mail" rev="1.4.1" transitive="false" conf="runtime"/>
-    <dependency org="junit" name="junit" rev="4.8.1" conf="test"/>
+    <dependency org="javax.servlet" name="servlet-api" rev="2.5" conf="provided->master(*)"/>
+    <dependency org="log4j" name="log4j" rev="1.2.15" conf="optional->master(*)"/>
+    <dependency org="javax.mail" name="mail" rev="1.4.1" conf="optional->master(*)"/>
+    <dependency org="junit" name="junit" rev="4.8.1" conf="test->master(*)"/>
   </dependencies>
 </ivy-module>

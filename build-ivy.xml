@@ -32,7 +32,7 @@
     <path id="ivy.lib.path"><fileset dir="${ivy.jar.dir}" includes="*.jar"/></path>
     <taskdef resource="org/apache/ivy/ant/antlib.xml"
              uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
-    <ivy:cachepath pathid="compile.classpath" conf="runtime" log="download-only"/>
+    <ivy:cachepath pathid="compile.classpath" conf="compile" log="download-only"/>
     <ivy:cachepath pathid="test.classpath" conf="test" log="download-only"/>
   </target>
 
@@ -52,10 +52,12 @@
   </target>
 
   <target name="check-ivy" depends="-init-ivy" description="Computes and prints Ivy classpath.">
-    <property refid="compile.classpath" name="compile.str"/>
-    <echo>Compile: ${compile.str}</echo>
-    <property refid="test.classpath" name="test.str"/>
-    <echo>Test: ${test.str}</echo>
+    <pathconvert pathsep="${line.separator}  " property="compile.str" refid="compile.classpath"/>
+    <echo>Compile classpath:</echo>
+    <echo>  ${compile.str}</echo>
+    <echo>Test classpath:</echo>
+    <pathconvert pathsep="${line.separator}  " property="test.str" refid="test.classpath"/>
+    <echo>  ${test.str}</echo>
   </target>
 
   <target name="clean" description="Cleans out most build results.">

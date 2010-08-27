@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="samskivert" default="compile" basedir=".">
+  <!-- things you may want to change -->
+  <property name="app.name"         value="samskivert"/>
+  <property name="doc.packages"     value="com.samskivert.*"/>
+  <property name="doc.overview"     value="com/samskivert/overview.html"/>
+  <property name="copyright.holder" value="Michael Bayne, et al."/>
+
+  <!-- things you probably don't want to change -->
+  <property name="src.dir"     value="src/main/java"/>
+  <property name="test.dir"    value="src/test/java"/>
+  <property name="deploy.dir"  value="dist"/>
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
+  <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
+  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+  <property name="libs.dir"    value="lib"/>
+  <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
+
+  <!-- downloads ivy if necessary and sets everything up -->
+  <property name="ivy.vers" value="2.1.0-rc2" />
+  <property name="ivy.home" value="${user.home}/.ant" />
+  <property name="ivy.jar.dir" value="${ivy.home}/lib" />
+  <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+  <condition property="ivy.exists"><available file="${ivy.jar.file}"/></condition>
+  <target name="download-ivy" unless="ivy.exists">
+    <mkdir dir="${ivy.jar.dir}"/>
+    <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.vers}/ivy-${ivy.vers}.jar" 
+         dest="${ivy.jar.file}" usetimestamp="true"/>
+  </target>
+  <target name="init-ivy" depends="download-ivy">
+    <path id="ivy.lib.path"><fileset dir="${ivy.jar.dir}" includes="*.jar"/></path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml"
+             uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    <ivy:cachepath pathid="compile.classpath" conf="compile" log="download-only"/>
+    <ivy:cachepath pathid="test.classpath" conf="test" log="download-only"/>
+  </target>
+
+  <!-- prepares the application directories -->
+  <target name="prepare" depends="init-ivy">
+    <tstamp><format property="year" pattern="yyyy" /></tstamp>
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${tclasses.dir}"/>
+    <mkdir dir="${javadoc.dir}"/>
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}" includes="**/*.properties"/>
+      <fileset dir="${src.dir}" includes="**/*.tmpl"/>
+    </copy>
+    <copy todir="${tclasses.dir}">
+      <fileset dir="src/test/resources" includes="**"/>
+    </copy>
+  </target>
+
+  <!-- cleans out the intermediate build files -->
+  <target name="clean">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${tclasses.dir}"/>
+    <delete dir="${deploy.dir}/docs"/>
+    <delete dir="${gwtjar.dir}"/>
+    <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
+  </target>
+
+  <!-- wipes the entire build directory clean -->
+  <target name="distclean">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- build the java class files -->
+  <target name="compile" depends="prepare">
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
+      <classpath refid="compile.classpath"/>
+      <exclude name="com/samskivert/velocity/**"/>
+      <exclude name="com/samskivert/xml/**"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+    </javac>
+  </target>
+
+  <target name="test-compile" depends="compile">
+    <javac srcdir="${test.dir}" destdir="${tclasses.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
+      <classpath>
+        <pathelement location="${classes.dir}"/>
+        <path refid="test.classpath"/>
+      </classpath>
+      <exclude name="com/samskivert/velocity/**"/>
+      <exclude name="com/samskivert/xml/**"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+    </javac>
+  </target>
+
+  <!-- build the javadoc documentation -->
+  <target name="javadoc" depends="prepare">
+    <javadoc windowtitle="${app.name} API"
+             doctitle="${app.name} API"
+             overview="${src.dir}/${doc.overview}"
+             destdir="${javadoc.dir}"
+             additionalparam="-breakiterator"
+             link="http://samskivert.com/code/samskivert/samskivert/docs/api/">
+      <classpath refid="compile.classpath"/>
+      <packageset dir="${src.dir}">
+        <exclude name="com/samskivert/velocity/**"/>
+        <exclude name="com/samskivert/xml/**"/>
+      </packageset>
+      <bottom>Copyright &#169; 2000-${year} ${copyright.holder}. All Rights Reserved.</bottom>
+      <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+    </javadoc>
+  </target>
+
+  <!-- a target for rebuilding everything -->
+  <target name="all" depends="clean,compile,javadoc,dist"/>
+
+  <!-- runs our unit tests -->
+  <property name="test" value=""/>
+  <target name="tests" depends="test-compile" 
+          description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
+    <taskdef name="unit" classpathref="test.classpath"
+      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
+      <classpath>
+        <pathelement location="${classes.dir}"/>
+        <pathelement location="${tclasses.dir}"/>
+        <path refid="test.classpath"/>
+        <fileset dir="lib/test" includes="*.jar"/>
+      </classpath>
+      <sysproperty key="test_dir" value="${tclasses.dir}"/>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${test.dir}">
+          <include name="**/*${test}*Test.java"/>
+          <exclude name="com/samskivert/velocity/**"/>
+          <exclude name="com/samskivert/xml/**"/>
+        </fileset>
+      </batchtest>
+    </unit>
+  </target>
+
+  <!-- builds our jar file -->
+  <target name="dist" depends="compile">
+    <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}"/>
+    <!-- we export a small selection of classes for use by GWT -->
+    <mkdir dir="${gwtjar.dir}"/>
+    <copy todir="${gwtjar.dir}">
+      <fileset dir="${src.dir}" includes="com/samskivert/Utils.gwt.xml"/>
+      <fileset dir="${src.dir}" includes="com/samskivert/text/MessageUtil.java"/>
+      <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnum.java"/>
+      <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnumUtil.java"/>
+    </copy>
+    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
+    <delete dir="${gwtjar.dir}"/>
+  </target>
+</project>

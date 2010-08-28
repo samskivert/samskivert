@@ -1,5 +1,6 @@
-<ivy-module version="1.0">
-  <info organisation="com.samskivert" module="samskivert" revision="1.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:mvn="http://ant.apache.org/ivy/maven">
+  <info organisation="com.samskivert" module="samskivert" revision="${revision}">
     <description homepage="http://code.google.com/p/samskivert"/>
   </info>
   <configurations>
@@ -13,6 +14,11 @@
     <conf name="compile" visibility="private" extends="runtime,provided,optional"/>
     <conf name="test" visibility="private" extends="compile"/>
   </configurations>
+  <publications>
+    <artifact type="jar"/>
+    <artifact type="source" ext="jar" mvn:classifier="sources"/>
+    <artifact type="javadoc" ext="jar" mvn:classifier="javadoc"/>
+  </publications>
   <dependencies>
     <dependency org="javax.servlet" name="servlet-api" rev="2.5" conf="provided->master(*)"/>
     <dependency org="log4j" name="log4j" rev="1.2.15" conf="optional->master(*)"/>

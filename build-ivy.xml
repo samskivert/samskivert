@@ -7,7 +7,7 @@
   <property name="copyright.holder" value="Michael Bayne, et al."/>
 
   <!-- the next release version -->
-  <property name="release" value="1.0"/>
+  <property name="revision" value="1.0"/>
 
   <!-- things you probably don't want to change -->
   <property name="src.dir"     value="src/main/java"/>
@@ -39,6 +39,9 @@
   <target name="-prepare" depends="-init-ivy">
     <tstamp><format property="year" pattern="yyyy" /></tstamp>
     <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/jar"/>
+    <mkdir dir="${deploy.dir}/source"/>
+    <mkdir dir="${deploy.dir}/javadoc"/>
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${tclasses.dir}"/>
     <mkdir dir="${javadoc.dir}"/>
@@ -112,6 +115,7 @@
       <bottom>Copyright &#169; 2000-${year} ${copyright.holder}. All Rights Reserved.</bottom>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
     </javadoc>
+    <jar destfile="${deploy.dir}/javadoc/${app.name}.jar" basedir="${javadoc.dir}"/>
   </target>
 
   <target name="all" depends="clean,compile,javadoc,dist" description="Rebuilds everything."/>
@@ -141,8 +145,11 @@
   </target>
 
   <target name="dist" depends="compile" description="Builds jar files.">
-    <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}"/>
+    <jar destfile="${deploy.dir}/jar/${app.name}.jar" basedir="${classes.dir}"/>
+    <jar destfile="${deploy.dir}/source/${app.name}.jar" basedir="${src.dir}"/>
     <!-- we export a small selection of classes for use by GWT -->
+<!-- TODO: what to do about this -gwt jar? Is there a way to publish it via Ivy
+     that won't take six hours of my life to determine?
     <mkdir dir="${gwtjar.dir}"/>
     <copy todir="${gwtjar.dir}">
       <fileset dir="${src.dir}" includes="com/samskivert/Utils.gwt.xml"/>
@@ -152,6 +159,7 @@
     </copy>
     <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
+-->
   </target>
 
   <target name="gen-pom" depends="-prepare" description="Generates a POM file.">
@@ -164,9 +172,9 @@
     </ivy:makepom>
   </target>
 
-  <target name="publish" depends="dist" description="Publishes jar to local repository.">
-    <ivy:publish resolver="local" pubrevision="${release}">
-      <artifacts pattern="${deploy.dir}/[artifact].[ext]" />
+  <target name="publish" depends="dist,javadoc" description="Publishes jar to local repository.">
+    <ivy:publish resolver="local" pubrevision="${revision}" forcedeliver="true">
+      <artifacts pattern="${deploy.dir}/[type]/[artifact].[ext]"/>
     </ivy:publish>
   </target>
 
@@ -177,21 +185,24 @@
       <arg value="https://samskivert.googlecode.com/svn/releases/com.samskivert/samskivert"/>
       <arg value="temp"/>
     </exec>
-    <mkdir dir="temp/${release}"/>
-    <copy todir="temp/${release}">
-      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${release}/ivys"
+    <mkdir dir="temp/${revision}"/>
+    <copy todir="temp/${revision}">
+      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${revision}/ivys"
                includes="ivy.xml"/>
-      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${release}/jars"
-               includes="samskivert.jar"/>
+      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${revision}">
+        <include name="jars/samskivert.jar"/>
+        <include name="sources/samskivert.jar"/>
+        <include name="javadocs/samskivert.jar"/>
+      </fileset>
     </copy>
     <exec executable="svn">
       <arg value="add"/>
-      <arg value="temp/${release}"/>
+      <arg value="temp/${revision}"/>
     </exec>
     <exec executable="svn">
       <arg value="commit"/>
       <arg value="-m"/>
-      <arg value="Published release ${release}."/>
+      <arg value="Published release ${revision}."/>
       <arg value="temp"/>
     </exec>
     <delete dir="temp"/>

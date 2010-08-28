@@ -187,9 +187,8 @@
     </exec>
     <mkdir dir="temp/${revision}"/>
     <copy todir="temp/${revision}">
-      <fileset dir="${user.home}/.ivy2/local/com.samskivert/${lib.name}/${revision}/ivys"
-               includes="ivy.xml"/>
       <fileset dir="${user.home}/.ivy2/local/com.samskivert/${lib.name}/${revision}">
+        <include name="ivys/ivy.jar"/>
         <include name="jars/${lib.name}.jar"/>
         <include name="sources/${lib.name}.jar"/>
         <include name="javadocs/${lib.name}.jar"/>

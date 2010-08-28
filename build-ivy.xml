@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="samskivert" default="compile" basedir=".">
   <!-- things you may want to change -->
-  <property name="app.name"         value="samskivert"/>
+  <property name="lib.name"         value="samskivert"/>
   <property name="doc.packages"     value="com.samskivert.*"/>
   <property name="doc.overview"     value="com/samskivert/overview.html"/>
   <property name="copyright.holder" value="Michael Bayne, et al."/>
@@ -101,8 +101,8 @@
   </target>
 
   <target name="javadoc" depends="-prepare" description="Builds javadocs.">
-    <javadoc windowtitle="${app.name} API"
-             doctitle="${app.name} API"
+    <javadoc windowtitle="${lib.name} API"
+             doctitle="${lib.name} API"
              overview="${src.dir}/${doc.overview}"
              destdir="${javadoc.dir}"
              additionalparam="-breakiterator"
@@ -115,7 +115,7 @@
       <bottom>Copyright &#169; 2000-${year} ${copyright.holder}. All Rights Reserved.</bottom>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
     </javadoc>
-    <jar destfile="${deploy.dir}/javadoc/${app.name}.jar" basedir="${javadoc.dir}"/>
+    <jar destfile="${deploy.dir}/javadoc/${lib.name}.jar" basedir="${javadoc.dir}"/>
   </target>
 
   <target name="all" depends="clean,compile,javadoc,dist" description="Rebuilds everything."/>
@@ -145,8 +145,8 @@
   </target>
 
   <target name="dist" depends="compile" description="Builds jar files.">
-    <jar destfile="${deploy.dir}/jar/${app.name}.jar" basedir="${classes.dir}"/>
-    <jar destfile="${deploy.dir}/source/${app.name}.jar" basedir="${src.dir}"/>
+    <jar destfile="${deploy.dir}/jar/${lib.name}.jar" basedir="${classes.dir}"/>
+    <jar destfile="${deploy.dir}/source/${lib.name}.jar" basedir="${src.dir}"/>
     <!-- we export a small selection of classes for use by GWT -->
 <!-- TODO: what to do about this -gwt jar? Is there a way to publish it via Ivy
      that won't take six hours of my life to determine?
@@ -157,13 +157,13 @@
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnum.java"/>
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnumUtil.java"/>
     </copy>
-    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
+    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
 -->
   </target>
 
   <target name="gen-pom" depends="-prepare" description="Generates a POM file.">
-    <ivy:makepom ivyfile="ivy.xml" pomfile="${deploy.dir}/${app.name}.pom">
+    <ivy:makepom ivyfile="ivy.xml" pomfile="${deploy.dir}/${lib.name}.pom">
       <!-- this is kind of a hack, but we use 'compile' to indicate dependencies that -->
       <!-- will be "provided" and "runtime" to indicate our transitive dependencies -->
       <mapping conf="compile" scope="provided"/>
@@ -182,17 +182,17 @@
     <exec executable="svn">
       <arg value="checkout"/>
       <arg value="-N"/>
-      <arg value="https://samskivert.googlecode.com/svn/releases/com.samskivert/samskivert"/>
+      <arg value="https://${lib.name}.googlecode.com/svn/releases/com.samskivert/${lib.name}"/>
       <arg value="temp"/>
     </exec>
     <mkdir dir="temp/${revision}"/>
     <copy todir="temp/${revision}">
-      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${revision}/ivys"
+      <fileset dir="${user.home}/.ivy2/local/com.samskivert/${lib.name}/${revision}/ivys"
                includes="ivy.xml"/>
-      <fileset dir="${user.home}/.ivy2/local/com.samskivert/samskivert/${revision}">
-        <include name="jars/samskivert.jar"/>
-        <include name="sources/samskivert.jar"/>
-        <include name="javadocs/samskivert.jar"/>
+      <fileset dir="${user.home}/.ivy2/local/com.samskivert/${lib.name}/${revision}">
+        <include name="jars/${lib.name}.jar"/>
+        <include name="sources/${lib.name}.jar"/>
+        <include name="javadocs/${lib.name}.jar"/>
       </fileset>
     </copy>
     <exec executable="svn">

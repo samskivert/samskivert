@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link CheapIntMap} class.
@@ -31,34 +32,34 @@ public class CheapIntMapTest
     public void runTest ()
     {
         CheapIntMap map = new CheapIntMap(10);
-
         for (int ii = 0; ii < 100; ii += 20) {
             map.put(ii, ii);
         }
-
         for (int ii = 0; ii < 5; ii++) {
             map.put(ii, ii);
         }
 
         for (int ii = 0; ii < 100; ii++) {
             Object val = map.get(ii);
+            assertTrue(val == null || (ii < 5) || (ii%20 == 0));
             if (val != null) {
-                System.out.println(ii + " => " + val);
+                assertEquals(ii, val);
             }
         }
 
         for (int ii = 0; ii < 100; ii += 20) {
-            System.out.println("Removing " + map.remove(ii));
+            map.remove(ii);
         }
-
         for (int ii = 10; ii > 0; ii--) {
             map.put(ii, ii);
         }
 
         for (int ii = 0; ii < 100; ii++) {
             Object val = map.get(ii);
+            assertTrue(((ii == 0 || ii > 10) && val == null) ||
+                       ((ii <= 10) && val != null));
             if (val != null) {
-                System.out.println(ii + " => " + val);
+                assertEquals(ii, val);
             }
         }
     }

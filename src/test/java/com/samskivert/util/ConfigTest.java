@@ -20,10 +20,15 @@
 
 package com.samskivert.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.*;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link Config} class.
@@ -33,33 +38,45 @@ public class ConfigTest
     @Test
     public void runTest ()
     {
-        PrefsConfig config = new PrefsConfig("util/test");
+        // util/test.properties contains:
+        // prop1 = 25
+        // prop2 = twenty five
+        // prop3 = 9, 8, 7, 6
+        // prop4 = one, two, three,, and a half, four
+        // sub.sub1 = 5
+        // sub.sub2 = whee!
 
-        System.out.println("prop1: " + config.getValue("prop1", 1));
-        System.out.println("prop2: " + config.getValue("prop2", "two"));
+        Config config = new Config("util/test");
 
-        int[] ival = new int[] { 1, 2, 3 };
-        ival = config.getValue("prop3", ival);
-        System.out.println("prop3: " + StringUtil.toString(ival));
-
-        String[] sval = new String[] { "one", "two", "three" };
-        sval = config.getValue("prop4", sval);
-        System.out.println("prop4: " + StringUtil.toString(sval));
-
-        System.out.println("prop5: " + config.getValue("prop5", "undefined"));
+        assertEquals(25, config.getValue("prop1", 1));
+        assertEquals("twenty five", config.getValue("prop2", "two"));
+        assertArrayEquals(new int[] { 9, 8, 7, 6 }, config.getValue("prop3", (int[])null));
+        assertArrayEquals(new String[] { "one", "two", "three, and a half", "four" },
+                          config.getValue("prop4", (String[])null));
+        assertEquals("undefined", config.getValue("prop5", "undefined"));
 
         // now set some properties
-        config.setValue("prop1", 15);
-        System.out.println("prop1: " + config.getValue("prop1", 1));
-        config.setValue("prop2", "three");
-        System.out.println("prop2: " + config.getValue("prop2", "two"));
+        PrefsConfig pconfig = new PrefsConfig("util/test");
+        pconfig.setValue("prop1", 15);
+        assertEquals(15, pconfig.getValue("prop1", 1));
+        pconfig.setValue("prop2", "three");
+        assertEquals("three", pconfig.getValue("prop2", "two"));
 
-        Iterator<String> iter = config.keys();
-        System.out.println("Keys: " + StringUtil.toString(iter));
+        List<String> list = CollectionUtil.addAll(new ArrayList<String>(), pconfig.keys());
+        Collections.sort(list);
+        assertEquals("(prop1, prop2, prop3, prop4, sub.sub1, sub.sub2, sub.sub3)",
+                     StringUtil.toString(list));
 
-        config.setValue("sub.sub3", "three");
-
-        Properties subprops = config.getSubProperties("sub");
-        System.out.println("Sub: " + StringUtil.toString(subprops.propertyNames()));
+        // fiddly with sub-properties
+        pconfig.setValue("sub.sub3", "three");
+        Properties subprops = pconfig.getSubProperties("sub");
+        assertEquals("three", subprops.getProperty("sub3"));
+        // oh Java, you're so awesome
+        List<String> slist = new ArrayList<String>();
+        for (Enumeration<?> iter = subprops.propertyNames(); iter.hasMoreElements(); ) {
+            slist.add(iter.nextElement().toString());
+        }
+        Collections.sort(slist);
+        assertEquals("(sub1, sub2, sub3)", StringUtil.toString(slist));
     }
 }

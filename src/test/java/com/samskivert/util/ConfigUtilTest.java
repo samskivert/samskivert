@@ -70,7 +70,7 @@ public class ConfigUtilTest
     public void runTest ()
     {
         try {
-            String path = "util/test.properties";
+            String path = "util/child.properties";
             Properties props = ConfigUtil.loadInheritedProperties(path);
             assertTrue("props valid", props.toString().equals(DUMP));
 

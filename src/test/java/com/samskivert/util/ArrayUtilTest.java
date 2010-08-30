@@ -25,8 +25,6 @@ import java.util.Arrays;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import static com.samskivert.Log.log;
-
 /**
  * Tests the {@link ArrayUtil} class.
  */

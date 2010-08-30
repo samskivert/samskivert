@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import org.junit.*;
-import static org.junit.Assert.*;
 
 /**
  * Tests the {@link Config} class.

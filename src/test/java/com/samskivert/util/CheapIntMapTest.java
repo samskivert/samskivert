@@ -21,7 +21,6 @@
 package com.samskivert.util;
 
 import org.junit.*;
-import static org.junit.Assert.*;
 
 /**
  * Tests the {@link CheapIntMap} class.

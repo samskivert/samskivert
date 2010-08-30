@@ -28,9 +28,9 @@ import java.lang.reflect.*;
 import com.samskivert.util.StringUtil;
 
 /**
- * Used to establish mapping between corteges of database tables and Java
- * classes. This class is responsible for constructing SQL statements for
- * extracting, updating and deleting records of the database table.
+ * Used to establish mapping between corteges of database tables and java classes. this class is
+ * responsible for constructing SQL statements for extracting, updating and deleting records of
+ * the database table.
  */
 public class Table<T>
 {
@@ -214,9 +214,9 @@ public class Table<T>
 
     /**
      * Insert new record in the table.  Values of inserted record fields are
-     * taken from specifed object.
+     * taken from specified object.
      *
-     * @param obj object specifing values of inserted record fields
+     * @param obj object specifying values of inserted record fields
      */
     public synchronized void insert (Connection conn, T obj)
         throws SQLException
@@ -237,7 +237,7 @@ public class Table<T>
      * Insert several new records in the table. Values of inserted records
      * fields are taken from objects of specified array.
      *
-     * @param objects array with objects specifing values of inserted record
+     * @param objects array with objects specifying values of inserted record
      * fields
      */
     public synchronized void insert (Connection conn, T[] objects)
@@ -272,7 +272,7 @@ public class Table<T>
      * the table and values of fields of specified object <I>obj</I> to alter
      * record fields.
      *
-     * @param obj object specifing value of primary key and new values of
+     * @param obj object specifying value of primary key and new values of
      * updated record fields
      *
      * @return number of objects actually updated
@@ -289,7 +289,7 @@ public class Table<T>
      * record fields. Only the fields marked as modified in the supplied field
      * mask will be updated in the database.
      *
-     * @param obj object specifing value of primary key and new values of
+     * @param obj object specifying value of primary key and new values of
      * updated record fields
      * @param mask a {@link FieldMask} instance configured to indicate which of
      * the object's fields are modified and should be written to the database.
@@ -316,10 +316,10 @@ public class Table<T>
 
     /**
      * Update set of records in the table using table's primary key to locate
-     * record in the table and values of fields of objects from sepecifed array
+     * record in the table and values of fields of objects from specified array
      * <I>objects</I> to alter record fields.
      *
-     * @param objects array of objects specifing primiray keys and and new
+     * @param objects array of objects specifying primary keys and and new
      * values of updated record fields
      *
      * @return number of objects actually updated
@@ -424,8 +424,8 @@ public class Table<T>
     }
 
     /**
-     * Spearator of name components of compound field. For example, if Java
-     * class constains component "location" of Point class, which has two
+     * Separator of name components of compound field. For example, if Java
+     * class contains component "location" of Point class, which has two
      * components "x" and "y", then database table should have columns
      * "location_x" and "location_y" (if '_' is used as separator).
      */

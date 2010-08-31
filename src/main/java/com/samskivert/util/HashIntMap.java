@@ -101,9 +101,9 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     @Override
     public boolean containsValue (Object o)
     {
-        for (int ii = 0, ll = _buckets.length; ii < ll; ii++) {
-            for (Record<V> r = _buckets[ii]; r != null; r = r.next) {
-                if (ObjectUtil.equals(r.value, o)) {
+        for (Record<V> bucket : _buckets) {
+            for (Record<V> r = bucket; r != null; r = r.next) {
+                if (ObjectUtil.equals(bucket.value, o)) {
                     return true;
                 }
             }
@@ -526,7 +526,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     }
 
     protected static class Record<V>
-        implements Cloneable, Entry<Integer,V>, IntEntry<V>
+        implements Cloneable, IntEntry<V>
     {
         public Record<V> next;
         public int key;

@@ -103,7 +103,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     {
         for (Record<V> bucket : _buckets) {
             for (Record<V> r = bucket; r != null; r = r.next) {
-                if (ObjectUtil.equals(bucket.value, o)) {
+                if (ObjectUtil.equals(r.value, o)) {
                     return true;
                 }
             }

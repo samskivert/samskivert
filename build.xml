@@ -1,22 +1,14 @@
 <?xml version="1.0"?>
 <project name="samskivert" default="compile" basedir=".">
-  <!-- things you may want to change -->
-  <property name="app.name"         value="samskivert"/>
-  <property name="doc.packages"     value="com.samskivert.*"/>
-  <property name="doc.overview"     value="com/samskivert/overview.html"/>
-  <property name="copyright.holder" value="Michael Bayne, et al."/>
-
-  <!-- things you probably don't want to change -->
+  <!-- various configurations -->
+  <property name="lib.name"    value="samskivert"/>
   <property name="src.dir"     value="src/main/java"/>
   <property name="test.dir"    value="src/test/java"/>
   <property name="deploy.dir"  value="dist"/>
   <property name="classes.dir" value="${deploy.dir}/classes"/>
   <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
-  <property name="libs.dir"    value="lib"/>
   <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
-  <property name="deps.root"   value="http://samskivert.googlecode.com/files"/>
-  <property name="deps.url"    value="${deps.root}/samskivert-depends-1.0.zip"/>
 
   <!-- declare our classpath business -->
   <path id="classpath">
@@ -39,9 +31,11 @@
     <copy todir="${classes.dir}"><fileset dir="src/main/resources" includes="**"/></copy>
     <copy todir="${tclasses.dir}"><fileset dir="src/test/resources" includes="**"/></copy>
     <copy todir="${deploy.dir}/lib" flatten="true">
-      <fileset refid="${app.name}.libs"/>
+      <fileset refid="${lib.name}.libs"/>
     </copy>
     <!-- make sure we have our minimum required dependencies -->
+    <property name="deps.root" value="http://samskivert.googlecode.com/files"/>
+    <property name="deps.url" value="${deps.root}/samskivert-depends-1.0.zip"/>
     <fail message="Missing jar dependencies. Download ${deps.url} and unzip it here.">
       <condition><not><available file="${deploy.dir}/lib/junit4.jar"/></not></condition>
     </fail>
@@ -110,9 +104,9 @@
 
   <!-- build the javadoc documentation -->
   <target name="javadoc" depends="prepare,compute-builds">
-    <javadoc windowtitle="${app.name} API"
-             doctitle="${app.name} API"
-             overview="${src.dir}/${doc.overview}"
+    <javadoc windowtitle="${lib.name} API"
+             doctitle="${lib.name} API"
+             overview="src/main/javadoc/overview.html"
              destdir="${javadoc.dir}"
              additionalparam="-breakiterator"
              link="http://samskivert.com/code/samskivert/samskivert/docs/api/">
@@ -121,7 +115,7 @@
         <exclude name="com/samskivert/velocity/**" unless="build.velocity"/>
         <exclude name="com/samskivert/xml/**" unless="build.xml"/>
       </packageset>
-      <bottom>Copyright &#169; 2000-${year} ${copyright.holder}. All Rights Reserved.</bottom>
+      <bottom>Copyright &#169; 2000-${year} Michael Bayne, et al. All Rights Reserved.</bottom>
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
     </javadoc>
@@ -158,7 +152,7 @@
 
   <!-- builds our jar file -->
   <target name="dist" depends="compile">
-    <jar destfile="${deploy.dir}/${app.name}.jar" basedir="${classes.dir}"/>
+    <jar destfile="${deploy.dir}/${lib.name}.jar" basedir="${classes.dir}"/>
     <!-- we export a small selection of classes for use by GWT -->
     <mkdir dir="${gwtjar.dir}"/>
     <copy todir="${gwtjar.dir}">
@@ -167,7 +161,7 @@
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnum.java"/>
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnumUtil.java"/>
     </copy>
-    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${app.name}-gwt.jar"/>
+    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
   </target>
 </project>

@@ -4,7 +4,7 @@
   <property name="lib.name"    value="samskivert"/>
   <property name="src.dir"     value="src/main/java"/>
   <property name="test.dir"    value="src/test/java"/>
-  <property name="libs.dir"    value="lib"/> <!-- used in deps-incl.xml -->
+  <property name="libs.dir"    value="lib"/> <!-- used in libs-incl.xml -->
   <property name="deploy.dir"  value="dist"/>
   <property name="classes.dir" value="${deploy.dir}/classes"/>
   <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>

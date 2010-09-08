@@ -61,11 +61,6 @@ public class ConfigTest
         pconfig.setValue("prop2", "three");
         assertEquals("three", pconfig.getValue("prop2", "two"));
 
-        List<String> list = CollectionUtil.addAll(new ArrayList<String>(), pconfig.keys());
-        Collections.sort(list);
-        assertEquals("(prop1, prop2, prop3, prop4, sub.sub1, sub.sub2, sub.sub3)",
-                     StringUtil.toString(list));
-
         // fiddly with sub-properties
         pconfig.setValue("sub.sub3", "three");
         Properties subprops = pconfig.getSubProperties("sub");
@@ -77,5 +72,11 @@ public class ConfigTest
         }
         Collections.sort(slist);
         assertEquals("(sub1, sub2, sub3)", StringUtil.toString(slist));
+
+        // check the whole shebang
+        List<String> list = CollectionUtil.addAll(new ArrayList<String>(), pconfig.keys());
+        Collections.sort(list);
+        assertEquals("(prop1, prop2, prop3, prop4, sub.sub1, sub.sub2, sub.sub3)",
+                     StringUtil.toString(list));
     }
 }

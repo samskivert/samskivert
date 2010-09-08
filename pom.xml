@@ -85,6 +85,9 @@
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+          <compilerArguments><Xlint/><Xlint:-serial/></compilerArguments>
           <excludes>
             <exclude>com/samskivert/velocity/**</exclude>
             <exclude>com/samskivert/xml/**</exclude>

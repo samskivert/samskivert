@@ -45,13 +45,8 @@
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${tclasses.dir}"/>
     <mkdir dir="${javadoc.dir}"/>
-    <copy todir="${classes.dir}">
-      <fileset dir="${src.dir}" includes="**/*.properties"/>
-      <fileset dir="${src.dir}" includes="**/*.tmpl"/>
-    </copy>
-    <copy todir="${tclasses.dir}">
-      <fileset dir="src/test/resources" includes="**"/>
-    </copy>
+    <copy todir="${classes.dir}"><fileset dir="src/main/resources" includes="**"/></copy>
+    <copy todir="${tclasses.dir}"><fileset dir="src/test/resources" includes="**"/></copy>
   </target>
 
   <target name="check-ivy" depends="-init-ivy" description="Computes and prints Ivy classpath.">

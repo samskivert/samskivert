@@ -36,13 +36,8 @@
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${tclasses.dir}"/>
     <mkdir dir="${javadoc.dir}"/>
-    <copy todir="${classes.dir}">
-      <fileset dir="${src.dir}" includes="**/*.properties"/>
-      <fileset dir="${src.dir}" includes="**/*.tmpl"/>
-    </copy>
-    <copy todir="${tclasses.dir}">
-      <fileset dir="src/test/resources" includes="**"/>
-    </copy>
+    <copy todir="${classes.dir}"><fileset dir="src/main/resources" includes="**"/></copy>
+    <copy todir="${tclasses.dir}"><fileset dir="src/test/resources" includes="**"/></copy>
     <copy todir="${deploy.dir}/lib" flatten="true">
       <fileset refid="${app.name}.libs"/>
     </copy>
@@ -67,10 +62,28 @@
   </target>
 
   <!-- build the java class files -->
+  <target name="imfer" depends="prepare">
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
+      <classpath>
+        <path refid="classpath"/>
+        <fileset dir="lib" includes="imferrer.jar"/>
+      </classpath>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <!--<compilerarg value="-implicit:class"/>-->
+      <compilerarg value="-proc:only"/>
+    </javac>
+  </target>
+
+  <!-- build the java class files -->
   <target name="compile" depends="prepare,compute-builds">
     <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
-      <classpath refid="classpath"/>
+      <classpath>
+        <path refid="classpath"/>
+        <!--<fileset dir="lib" includes="immuter.jar"/>-->
+      </classpath>
       <exclude name="com/samskivert/net/MailUtil*" unless="build.mail"/>
       <exclude name="com/samskivert/servlet/**" unless="build.servlet"/>
       <exclude name="com/samskivert/util/Log4JLogger*" unless="log4j.present"/>

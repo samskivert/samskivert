@@ -49,7 +49,7 @@ Invoke Ant with any of the following targets:
   tests: builds and runs the unit tests
   dist: builds the distribution jar file (dist/samskivert.jar)
 
-Invoke Maven with the following targets:
+Invoke Maven with any of the following targets:
 
   mvn test: builds the code and runs the tests
   mvn package: builds the code and creates target/samskivert-X.X.jar

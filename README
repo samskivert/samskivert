@@ -36,12 +36,12 @@ following principles:
 Building
 --------
 
-The library is built using ant. If you aren't already using ant for other
-projects, it can be found here:
+The library is built using Ant or Maven, pick your poison. If you use ant, you
+will need to obtain the jar files enumerated in etc/libs-incl.xml and place
+them in the lib/ directory. If you use Maven, the dependencies will be
+automatically fetched.
 
-  http://ant.apache.org/
-
-Invoke ant with any of the following targets:
+Invoke Ant with any of the following targets:
 
   all: builds the class files and javadoc documentation
   compile: builds only the class files (dist/classes)
@@ -49,11 +49,11 @@ Invoke ant with any of the following targets:
   tests: builds and runs the unit tests
   dist: builds the distribution jar file (dist/samskivert.jar)
 
-It is highly recommended to use the Ivy-based build file, which will
-automatically download any dependencies. The build file will also download Ivy
-if needed. For example, to build everything invoke:
+Invoke Maven with the following targets:
 
- % ant -f build-ivy.xml all
+  mvn test: builds the code and runs the tests
+  mvn package: builds the code and creates target/samskivert-X.X.jar
+  mvn install: builds and installs samskivert into your local Maven repository
 
 Distribution
 ------------

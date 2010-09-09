@@ -78,6 +78,20 @@
     </dependency>
   </dependencies>
   <build>
+    <!-- we include a few source files in our main jar for use by GWT -->
+    <resources>
+      <resource>
+        <directory>${project.build.sourceDirectory}</directory>
+        <includes>
+          <include>com/samskivert/text/MessageUtil.java</include>
+          <include>com/samskivert/util/ByteEnum.java</include>
+          <include>com/samskivert/util/ByteEnumUtil.java</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

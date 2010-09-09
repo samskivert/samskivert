@@ -158,6 +158,7 @@
         <version>RELEASE</version>
         <configuration>
           <quiet>true</quiet>
+          <show>public</show>
           <excludePackageNames>com.samskivert.velocity:com.samskivert.xml</excludePackageNames>
           <links>
             <link>http://java.sun.com/products/javamail/javadocs/</link>

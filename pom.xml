@@ -102,7 +102,8 @@
           <target>1.5</target>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
-          <compilerArguments><Xlint/><Xlint:-serial/><Xlint:-path/></compilerArguments>
+          <!-- yes, those quoted spaces are a workaround sanctioned by the Maven idiocracy -->
+          <compilerArgument>-Xlint" "-Xlint:-serial" "Xlint:-path</compilerArgument>
           <excludes>
             <exclude>com/samskivert/velocity/**</exclude>
             <exclude>com/samskivert/xml/**</exclude>

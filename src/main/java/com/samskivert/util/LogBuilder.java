@@ -78,11 +78,14 @@ public class LogBuilder
      */
     @Override public String toString ()
     {
-        String log = _log.toString();
         if (_hasArgs) {
-            log += "]";
+            try {
+                return _log.append(']').toString();
+            } finally {
+                _log.setLength(_log.length() - 1);
+            }
         }
-        return log;
+        return _log.toString();
     }
 
     protected boolean _hasArgs;

@@ -31,6 +31,30 @@ import java.util.Random;
  */
 public class ArrayUtil
 {
+    /** An empty (and thus immutable) int[] that can be shared by anyone. */
+    public static final int[] EMPTY_INT = new int[0];
+
+    /** An empty (and thus immutable) byte[] that can be shared by anyone. */
+    public static final byte[] EMPTY_BYTE = new byte[0];
+
+    /** An empty (and thus immutable) short[] that can be shared by anyone. */
+    public static final short[] EMPTY_SHORT = new short[0];
+
+    /** An empty (and thus immutable) float[] that can be shared by anyone. */
+    public static final float[] EMPTY_FLOAT = new float[0];
+
+    /** An empty (and thus immutable) double[] that can be shared by anyone. */
+    public static final double[] EMPTY_DOUBLE = new double[0];
+
+    /** An empty (and thus immutable) long[] that can be shared by anyone. */
+    public static final long[] EMPTY_LONG = new long[0];
+
+    /** An empty (and thus immutable) Object[] that can be shared by anyone. */
+    public static final Object[] EMPTY_OBJECT = new Object[0];
+
+    /** An empty (and thus immutable) String[] that can be shared by anyone. */
+    public static final String[] EMPTY_STRING = new String[0];
+
     /**
      * Looks for an element that tests true for Object equality with the supplied value and
      * returns its index in the array.

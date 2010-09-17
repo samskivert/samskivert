@@ -531,6 +531,9 @@ public class StringUtil
             }
             buf.append(closeBox);
 
+        } else if (val instanceof Collection<?>) {
+            buf.append(val); // Collections should have reasonable toStrings
+
         } else if (val instanceof Iterable<?>) {
             toString(buf, ((Iterable<?>)val).iterator(), openBox, closeBox);
 

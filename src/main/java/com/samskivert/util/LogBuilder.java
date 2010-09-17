@@ -50,7 +50,7 @@ public class LogBuilder
     public LogBuilder append (Object... args)
     {
         if (args != null && args.length > 1) {
-            for (int ii = 0, nn = args.length / 2; ii < nn; ii++) {
+            for (int ii = 0, nn = args.length - (args.length % 2); ii < nn; ii += 2) {
                 if (_hasArgs) {
                     _log.append(", ");
                 } else {
@@ -61,9 +61,10 @@ public class LogBuilder
                     _log.append('[');
                     _hasArgs = true;
                 }
-                _log.append(args[2 * ii]).append("=");
+                _log.append(args[ii]).append("=");
                 try {
-                    StringUtil.toString(_log, args[2 * ii + 1]);
+                    Object arg = args[ii + 1];
+                    _log.append(((arg == null) || !arg.getClass().isArray()) ? arg : arrayStr(arg));
                 } catch (Throwable t) {
                     _log.append("<toString() failure: " + t + ">");
                 }
@@ -86,6 +87,41 @@ public class LogBuilder
             }
         }
         return _log.toString();
+    }
+
+    /**
+     * Return the String representation of the specified Object, which must be an array.
+     */
+    protected String arrayStr (Object arg)
+    {
+        if (arg instanceof Object[]) {
+            return Arrays.deepToString((Object[])arg); // go deep, baby
+
+        } else if (arg instanceof int[]) {
+            return Arrays.toString((int[])arg);
+
+        } else if (arg instanceof byte[]) {
+            return Arrays.toString((byte[])arg);
+
+        } else if (arg instanceof char[]) {
+            return Arrays.toString((char[])arg);
+
+        } else if (arg instanceof short[]) {
+            return Arrays.toString((short[])arg);
+
+        } else if (arg instanceof long[]) {
+            return Arrays.toString((long[])arg);
+
+        } else if (arg instanceof float[]) {
+            return Arrays.toString((float[])arg);
+
+        } else if (arg instanceof double[]) {
+            return Arrays.toString((double[])arg);
+
+        } else if (arg instanceof boolean[]) {
+            return Arrays.toString((boolean[])arg);
+        }
+        throw new AssertionError("Not an array: " + arg);
     }
 
     protected boolean _hasArgs;

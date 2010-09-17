@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.util.Arrays;
+
 /**
  * Formats a message and an array of alternating key value pairs like so:
  *

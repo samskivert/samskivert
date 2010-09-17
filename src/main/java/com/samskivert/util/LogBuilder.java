@@ -51,8 +51,8 @@ public class LogBuilder
      */
     public LogBuilder append (Object... args)
     {
-        if (args != null && args.length > 1) {
-            for (int ii = 0, nn = args.length - (args.length % 2); ii < nn; ii += 2) {
+        if (args != null) {
+            for (int ii = 0, nn = args.length; ii < nn; ii += 2) {
                 if (_hasArgs) {
                     _log.append(", ");
                 } else {
@@ -65,7 +65,7 @@ public class LogBuilder
                 }
                 _log.append(args[ii]).append("=");
                 try {
-                    Object arg = args[ii + 1];
+                    Object arg = args[ii + 1]; // this may cause ArrayIndexOutOfBoundsException
                     _log.append(((arg == null) || !arg.getClass().isArray()) ? arg : arrayStr(arg));
                 } catch (Throwable t) {
                     _log.append("<toString() failure: " + t + ">");

@@ -63,12 +63,12 @@ public class LogBuilder
                     _log.append('[');
                     _hasArgs = true;
                 }
-                _log.append(args[ii]).append("=");
+                _log.append(args[ii]).append('=');
                 try {
                     Object arg = args[ii + 1];
                     _log.append(((arg == null) || !arg.getClass().isArray()) ? arg : arrayStr(arg));
                 } catch (Throwable t) {
-                    _log.append("<toString() failure: " + t + ">");
+                    _log.append("<toString() failure: ").append(t).append('>');
                 }
             }
         }
@@ -94,7 +94,7 @@ public class LogBuilder
     /**
      * Return the String representation of the specified Object, which must be an array.
      */
-    protected String arrayStr (Object arg)
+    protected static String arrayStr (Object arg)
     {
         if (arg instanceof Object[]) {
             return Arrays.deepToString((Object[])arg); // go deep, baby
@@ -123,7 +123,7 @@ public class LogBuilder
         } else if (arg instanceof boolean[]) {
             return Arrays.toString((boolean[])arg);
         }
-        throw new AssertionError("Not an array: " + arg);
+        throw new IllegalArgumentException("Not an array: " + arg);
     }
 
     protected boolean _hasArgs;

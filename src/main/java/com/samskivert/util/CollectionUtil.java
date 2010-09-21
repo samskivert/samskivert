@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import com.samskivert.annotation.ReplacedBy;
@@ -77,6 +78,30 @@ public class CollectionUtil
             }
         }
         return col;
+    }
+
+    /**
+     * Folds all the specified values into the supplied collection and returns it.
+     */
+    public static <T, C extends Collection<T>> C addAll (
+        C col, Iterable<? extends Collection<? extends T>> values)
+    {
+        for (Collection<? extends T> val : values) {
+            col.addAll(val);
+        }
+        return col;
+    }
+
+    /**
+     * Folds all the specified values into the supplied map and returns it.
+     */
+    public static <K, V, M extends Map<K, V>> M putAll (
+        M map, Iterable<? extends Map<? extends K, ? extends V>> values)
+    {
+        for (Map<? extends K, ? extends V> val : values) {
+            map.putAll(val);
+        }
+        return map;
     }
 
     /**

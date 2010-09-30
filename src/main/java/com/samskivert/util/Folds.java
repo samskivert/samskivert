@@ -120,30 +120,4 @@ public class Folds
         }
         return zero;
     }
-
-    /**
-     * Merges the supplied collections into <code>zero</code> using a left to right fold of
-     * {@link Collection#addAll}.
-     */
-    public static <T, C extends Collection<T>> C addAll (
-        C zero, Iterable<Collection<? extends T>> values)
-    {
-        for (Collection<? extends T> value : values) {
-            zero.addAll(value);
-        }
-        return zero;
-    }
-
-    /**
-     * Merges the supplied maps into <code>zero</code> using a left to right fold of
-     * {@link Map#putAll}.
-     */
-    public static <K, V, M extends Map<K, V>> M putAll (
-        M zero, Iterable<Map<? extends K, ? extends V>> values)
-    {
-        for (Map<? extends K, ? extends V> value : values) {
-            zero.putAll(value);
-        }
-        return zero;
-    }
 }

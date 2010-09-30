@@ -21,9 +21,7 @@
 package com.samskivert.util;
 
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Various useful folds over iterables.

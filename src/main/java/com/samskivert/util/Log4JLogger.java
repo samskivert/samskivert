@@ -20,6 +20,10 @@
 
 package com.samskivert.util;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.log4j.Level;
 
 /**
@@ -44,7 +48,7 @@ public class Log4JLogger implements Logger.Factory
         return getLogger(clazz.getName());
     }
 
-    protected static class Impl extends Logger
+    protected static class Impl extends Logger<Level>
     {
         public Impl (org.apache.log4j.Logger impl)
         {
@@ -52,38 +56,26 @@ public class Log4JLogger implements Logger.Factory
         }
 
         @Override // from Logger
-        public void debug (Object message, Object... args)
+        protected List<Level> getLevels ()
         {
-            if (_impl.isEnabledFor(Level.DEBUG)) {
-                _impl.log(_self, Level.DEBUG, format(message, args), getException(message, args));
-            }
+            return LEVELS;
         }
 
         @Override // from Logger
-        public void info (Object message, Object... args)
+        protected boolean shouldLog (Level level)
         {
-            if (_impl.isEnabledFor(Level.INFO)) {
-                _impl.log(_self, Level.INFO, format(message, args), getException(message, args));
-            }
+            return _impl.isEnabledFor(level);
         }
 
         @Override // from Logger
-        public void warning (Object message, Object... args)
+        protected void doLog (Level level, String formatted, Throwable throwable)
         {
-            if (_impl.isEnabledFor(Level.WARN)) {
-                _impl.log(_self, Level.WARN, format(message, args), getException(message, args));
-            }
-        }
-
-        @Override // from Logger
-        public void error (Object message, Object... args)
-        {
-            if (_impl.isEnabledFor(Level.ERROR)) {
-                _impl.log(_self, Level.ERROR, format(message, args), getException(message, args));
-            }
+            _impl.log(_self, level, formatted, throwable);
         }
 
         protected final org.apache.log4j.Logger _impl;
         protected final String _self = getClass().getName();
+        protected static final List<Level> LEVELS = Collections.unmodifiableList(Arrays.asList(
+            Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR));
     }
 }

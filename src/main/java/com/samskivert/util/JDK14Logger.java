@@ -21,6 +21,9 @@
 package com.samskivert.util;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
@@ -102,7 +105,7 @@ public class JDK14Logger implements Logger.Factory
         return new String[] { null, null };
     }
 
-    protected static class Impl extends Logger
+    protected static class Impl extends Logger<Level>
     {
         public Impl (java.util.logging.Logger impl)
         {
@@ -110,37 +113,25 @@ public class JDK14Logger implements Logger.Factory
         }
 
         @Override // from Logger
-        public void debug (Object message, Object... args)
+        protected List<Level> getLevels ()
         {
-            if (_impl.isLoggable(Level.FINE)) {
-                _impl.log(Level.FINE, format(message, args), getException(message, args));
-            }
+            return LEVELS;
         }
 
         @Override // from Logger
-        public void info (Object message, Object... args)
+        protected boolean shouldLog (Level level)
         {
-            if (_impl.isLoggable(Level.INFO)) {
-                _impl.log(Level.INFO, format(message, args), getException(message, args));
-            }
+            return _impl.isLoggable(level);
         }
 
         @Override // from Logger
-        public void warning (Object message, Object... args)
+        protected void doLog (Level level, String formatted, Throwable throwable)
         {
-            if (_impl.isLoggable(Level.WARNING)) {
-                _impl.log(Level.WARNING, format(message, args), getException(message, args));
-            }
-        }
-
-        @Override // from Logger
-        public void error (Object message, Object... args)
-        {
-            if (_impl.isLoggable(Level.SEVERE)) {
-                _impl.log(Level.SEVERE, format(message, args), getException(message, args));
-            }
+            _impl.log(level, formatted, throwable);
         }
 
         protected java.util.logging.Logger _impl;
+        protected static final List<Level> LEVELS = Collections.unmodifiableList(Arrays.asList(
+            Level.FINE, Level.INFO, Level.WARNING, Level.SEVERE));
     }
 }

@@ -20,6 +20,8 @@
 
 package com.samskivert.util;
 
+import java.util.List;
+
 /**
  * Provides logging services to this library and others which depend on this library in such a way
  * that they can be used in a larger project and easily be made to log to the logging framework in
@@ -37,7 +39,7 @@ package com.samskivert.util;
  * <p> The final parameter can optionally be a Throwable, which will be supplied to the underlying
  * log system as an exception to accompany the log message.
  */
-public abstract class Logger
+public abstract class Logger<L>
 {
     /**
      * Used to create logger instances. This is only public so that the log factory can be
@@ -94,7 +96,10 @@ public abstract class Logger
      * @param message the message to be logged.
      * @param args a list of key/value pairs and an optional final Throwable.
      */
-    public abstract void debug (Object message, Object... args);
+    public void debug (Object message, Object... args)
+    {
+        doLog(0, message, args);
+    }
 
     /**
      * Logs an info message.
@@ -102,7 +107,10 @@ public abstract class Logger
      * @param message the message to be logged.
      * @param args a list of key/value pairs and an optional final Throwable.
      */
-    public abstract void info (Object message, Object... args);
+    public void info (Object message, Object... args)
+    {
+        doLog(1, message, args);
+    }
 
     /**
      * Logs a warning message.
@@ -110,7 +118,10 @@ public abstract class Logger
      * @param message the message to be logged.
      * @param args a list of key/value pairs and an optional final Throwable.
      */
-    public abstract void warning (Object message, Object... args);
+    public void warning (Object message, Object... args)
+    {
+        doLog(2, message, args);
+    }
 
     /**
      * Logs an error message.
@@ -118,22 +129,60 @@ public abstract class Logger
      * @param message the message to be logged.
      * @param args a list of key/value pairs and an optional final Throwable.
      */
-    public abstract void error (Object message, Object... args);
-
-    /**
-     * Extracts the exception from the message and arguments (if there is one). For use by logger
-     * implementations.
-     */
-    protected Throwable getException (Object message, Object[] args)
+    public void error (Object message, Object... args)
     {
-        if (message instanceof Throwable) {
-            return (Throwable)message;
-        } else if (args.length % 2 == 1 && args[args.length-1] instanceof Throwable) {
-            return (Throwable)args[args.length-1];
-        } else {
-            return null;
-        }
+        doLog(3, message, args);
     }
+
+    protected void doLog (int levIdx, Object message, Object[] args)
+    {
+        L level = getLevels().get(levIdx);
+        if (!shouldLog(level)) {
+            return;
+        }
+        Throwable err = null;
+        int nn = args.length;
+        if (message instanceof Throwable) {
+            err = (Throwable)message;
+        } else if (nn % 2 == 1 && (args[nn - 1] instanceof Throwable)) {
+            err = (Throwable)args[--nn];
+        }
+        String msg = String.valueOf(message);
+        if (nn > 0) {
+            StringBuilder buf = new StringBuilder(msg);
+            if (msg.length() > 0) {
+                buf.append(' ');
+            }
+            buf.append('[');
+            for (int ii = 0; ii < nn; ii += 2) {
+                if (ii > 0) {
+                    buf.append(',').append(' ');
+                }
+                buf.append(args[ii]).append('=');
+                try {
+                    Object arg = args[ii + 1];
+                    buf.append(((arg == null) || !arg.getClass().isArray())
+                        ? arg
+                        : LogBuilder.arrayStr(arg));
+                } catch (Throwable t) {
+                    buf.append("<toString() failure: ").append(t).append(">");
+                }
+            }
+            msg = buf.append(']').toString();
+        }
+        doLog(level, msg, err);
+    }
+
+    /** Returns the logger implementation specific level constants in a specific order: debug,
+     * info, warn, error. */
+    protected abstract List<L> getLevels ();
+
+    /** Returns true if a log message at the specified level should be logged. */
+    protected abstract boolean shouldLog (L level);
+
+    /** Performs the actual logging of a message at the specified level.
+     * @param throwable an exception that accompanies this message or null. */
+    protected abstract void doLog (L level, String formatted, Throwable throwable);
 
     /**
      * Called at static initialization time. Selects and initializes our logging backend.

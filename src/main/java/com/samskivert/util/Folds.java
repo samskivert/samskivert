@@ -58,7 +58,7 @@ public class Folds
      */
     public static <A> A reduceLeft (F<A,A> func, Iterable<? extends A> values)
     {
-        Iterator<A> iter = values.iterator();
+        Iterator<? extends A> iter = values.iterator();
         A zero = iter.next();
         while (iter.hasNext()) {
             zero = func.apply(zero, iter.next());

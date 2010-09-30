@@ -22,6 +22,7 @@ package com.samskivert.util;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -29,6 +30,42 @@ import java.util.Map;
  */
 public class Folds
 {
+    /** Used with {@link #foldLeft}. */
+    public interface F<B,A>
+    {
+        /** Folds the supplied element into the result. */
+        B apply (B zero, A elem);
+    }
+
+    /** For reductions and same-typed folds. */
+    public interface R<A> extends F<A,A> {}
+
+    /**
+     * Left folds the supplied function over the supplied values using the supplied starting value.
+     */
+    public static <A, B> B foldLeft (F<B,A> func, B zero, Iterable<? extends A> values)
+    {
+        for (A value : values) {
+            zero = func.apply(zero, value);
+        }
+        return zero;
+    }
+
+    /**
+     * Reduces the supplied values using the supplied function with a left fold.
+     *
+     * @exception NoSuchElementException thrown if values does not contain at least one element.
+     */
+    public static <A> A reduceLeft (F<A,A> func, Iterable<? extends A> values)
+    {
+        Iterator<A> iter = values.iterator();
+        A zero = iter.next();
+        while (iter.hasNext()) {
+            zero = func.apply(zero, iter.next());
+        }
+        return zero;
+    }
+
     /**
      * Sums the supplied collection of numbers to an int with a left to right fold.
      */

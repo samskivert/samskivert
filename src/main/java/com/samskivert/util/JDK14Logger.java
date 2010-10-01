@@ -105,7 +105,7 @@ public class JDK14Logger implements Logger.Factory
         return new String[] { null, null };
     }
 
-    protected static class Impl extends Logger<Level>
+    protected static class Impl extends Logger
     {
         public Impl (java.util.logging.Logger impl)
         {
@@ -113,21 +113,21 @@ public class JDK14Logger implements Logger.Factory
         }
 
         @Override // from Logger
-        protected List<Level> getLevels ()
+        protected List<?> getLevels ()
         {
             return LEVELS;
         }
 
         @Override // from Logger
-        protected boolean shouldLog (Level level)
+        protected boolean shouldLog (Object level)
         {
-            return _impl.isLoggable(level);
+            return _impl.isLoggable((Level)level);
         }
 
         @Override // from Logger
-        protected void doLog (Level level, String formatted, Throwable throwable)
+        protected void doLog (Object level, String formatted, Throwable throwable)
         {
-            _impl.log(level, formatted, throwable);
+            _impl.log((Level)level, formatted, throwable);
         }
 
         protected java.util.logging.Logger _impl;

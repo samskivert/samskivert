@@ -39,7 +39,7 @@ import java.util.List;
  * <p> The final parameter can optionally be a Throwable, which will be supplied to the underlying
  * log system as an exception to accompany the log message.
  */
-public abstract class Logger<L>
+public abstract class Logger
 {
     /**
      * Used to create logger instances. This is only public so that the log factory can be
@@ -136,7 +136,7 @@ public abstract class Logger<L>
 
     protected void doLog (int levIdx, Object message, Object[] args)
     {
-        L level = getLevels().get(levIdx);
+        Object level = getLevels().get(levIdx);
         if (!shouldLog(level)) {
             return;
         }
@@ -175,14 +175,14 @@ public abstract class Logger<L>
 
     /** Returns the logger implementation specific level constants in a specific order: debug,
      * info, warn, error. */
-    protected abstract List<L> getLevels ();
+    protected abstract List<?> getLevels ();
 
     /** Returns true if a log message at the specified level should be logged. */
-    protected abstract boolean shouldLog (L level);
+    protected abstract boolean shouldLog (Object level);
 
     /** Performs the actual logging of a message at the specified level.
      * @param throwable an exception that accompanies this message or null. */
-    protected abstract void doLog (L level, String formatted, Throwable throwable);
+    protected abstract void doLog (Object level, String formatted, Throwable throwable);
 
     /**
      * Called at static initialization time. Selects and initializes our logging backend.

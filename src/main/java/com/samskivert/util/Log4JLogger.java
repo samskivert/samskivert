@@ -48,7 +48,7 @@ public class Log4JLogger implements Logger.Factory
         return getLogger(clazz.getName());
     }
 
-    protected static class Impl extends Logger<Level>
+    protected static class Impl extends Logger
     {
         public Impl (org.apache.log4j.Logger impl)
         {
@@ -56,21 +56,21 @@ public class Log4JLogger implements Logger.Factory
         }
 
         @Override // from Logger
-        protected List<Level> getLevels ()
+        protected List<?> getLevels ()
         {
             return LEVELS;
         }
 
         @Override // from Logger
-        protected boolean shouldLog (Level level)
+        protected boolean shouldLog (Object level)
         {
-            return _impl.isEnabledFor(level);
+            return _impl.isEnabledFor((Level)level);
         }
 
         @Override // from Logger
-        protected void doLog (Level level, String formatted, Throwable throwable)
+        protected void doLog (Object level, String formatted, Throwable throwable)
         {
-            _impl.log(_self, level, formatted, throwable);
+            _impl.log(_self, (Level)level, formatted, throwable);
         }
 
         protected final org.apache.log4j.Logger _impl;

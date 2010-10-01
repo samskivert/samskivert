@@ -283,6 +283,7 @@ public class Randoms
 
     /** A ThreadLocal for accessing a thread-local version of Randoms. */
     protected static final ThreadLocal<Randoms> _localRandoms = new ThreadLocal<Randoms>() {
+        @Override
         public Randoms initialValue () {
             return with(new ThreadLocalRandom());
         }
@@ -342,6 +343,7 @@ public class Randoms
         // Padding to help avoid memory contention among seed updates in
         // different TLRs in the common case that they are located near
         // each other.
+        @SuppressWarnings("unused")
         private long pad0, pad1, pad2, pad3, pad4, pad5, pad6, pad7;
 
         /**
@@ -358,12 +360,14 @@ public class Randoms
          *
          * @throws UnsupportedOperationException always
          */
+        @Override
         public void setSeed(long seed) {
             if (initialized)
                 throw new UnsupportedOperationException();
             rnd = (seed ^ multiplier) & mask;
         }
 
+        @Override
         protected int next(int bits) {
             rnd = (rnd * multiplier + addend) & mask;
             return (int) (rnd >>> (48-bits));

@@ -223,6 +223,7 @@ public class Randoms
     /**
      * Shared code for pick and pluck.
      */
+    @SuppressWarnings("unchecked")
     protected <T> T pickPluck (Iterable<? extends T> iterable, T ifEmpty, boolean remove)
     {
         if (iterable instanceof Collection) {
@@ -236,7 +237,7 @@ public class Randoms
                 // extra-special optimized path for Lists
                 List<? extends T> list = (List<? extends T>)coll;
                 int idx = _r.nextInt(size);
-                return remove ? list.remove(idx) : list.get(idx);
+                return (T) (remove ? list.remove(idx) : list.get(idx));
             }
             // for other Collections, we must iterate
             Iterator<? extends T> it = coll.iterator();

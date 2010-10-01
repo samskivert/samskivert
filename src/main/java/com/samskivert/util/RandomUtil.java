@@ -26,12 +26,15 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
+import com.samskivert.annotation.ReplacedBy;
+
 import static com.samskivert.Log.log;
 
 /**
  * Provides miscellaneous utility routines to simplify obtaining useful random number values and to
  * centralize seeding and proper care and feeding of the pseudo-random number generator.
  */
+@ReplacedBy("com.samskivert.util.Randoms")
 public class RandomUtil
 {
     /** The random number generator used by the methods in this class. */

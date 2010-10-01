@@ -308,19 +308,13 @@ public class Randoms
      * tasks (for example, each a {@link ForkJoinTask}) use random numbers
      * in parallel in thread pools.
      *
-     * <p>Usages of this class should typically be of the form:
-     * {@code ThreadLocalRandom.current().nextX(...)} (where
-     * {@code X} is {@code Int}, {@code Long}, etc).
-     * When all usages are of this form, it is never possible to
-     * accidently share a {@code ThreadLocalRandom} across multiple threads.
-     *
      * <p>This class also provides additional commonly used bounded random
      * generation methods.
      *
      * @since 1.7
      * @author Doug Lea
      */
-    static class ThreadLocalRandom extends Random {
+    protected static class ThreadLocalRandom extends Random {
         // same constants as Random, but must be redeclared because private
         private final static long multiplier = 0x5DEECE66DL;
         private final static long addend = 0xBL;

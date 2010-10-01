@@ -20,10 +20,6 @@
 
 package com.samskivert.util;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.log4j.Level;
 
 /**
@@ -56,26 +52,20 @@ public class Log4JLogger implements Logger.Factory
         }
 
         @Override // from Logger
-        protected List<?> getLevels ()
+        protected boolean shouldLog (int levIdx)
         {
-            return LEVELS;
+            return _impl.isEnabledFor(LEVELS[levIdx]);
         }
 
         @Override // from Logger
-        protected boolean shouldLog (Object level)
+        protected void doLog (int levIdx, String formatted, Throwable throwable)
         {
-            return _impl.isEnabledFor((Level)level);
-        }
-
-        @Override // from Logger
-        protected void doLog (Object level, String formatted, Throwable throwable)
-        {
-            _impl.log(_self, (Level)level, formatted, throwable);
+            _impl.log(_self, LEVELS[levIdx], formatted, throwable);
         }
 
         protected final org.apache.log4j.Logger _impl;
         protected final String _self = getClass().getName();
-        protected static final List<Level> LEVELS = Collections.unmodifiableList(Arrays.asList(
-            Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR));
+        protected static final Level[] LEVELS = {
+            Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR };
     }
 }

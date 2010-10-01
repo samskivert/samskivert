@@ -20,8 +20,6 @@
 
 package com.samskivert.util;
 
-import java.util.List;
-
 /**
  * Provides logging services to this library and others which depend on this library in such a way
  * that they can be used in a larger project and easily be made to log to the logging framework in
@@ -136,8 +134,7 @@ public abstract class Logger
 
     protected void doLog (int levIdx, Object message, Object[] args)
     {
-        Object level = getLevels().get(levIdx);
-        if (!shouldLog(level)) {
+        if (!shouldLog(levIdx)) {
             return;
         }
         Throwable err = null;
@@ -170,19 +167,15 @@ public abstract class Logger
             }
             msg = buf.append(']').toString();
         }
-        doLog(level, msg, err);
+        doLog(levIdx, msg, err);
     }
 
-    /** Returns the logger implementation specific level constants in a specific order: debug,
-     * info, warn, error. */
-    protected abstract List<?> getLevels ();
-
     /** Returns true if a log message at the specified level should be logged. */
-    protected abstract boolean shouldLog (Object level);
+    protected abstract boolean shouldLog (int levIdx);
 
     /** Performs the actual logging of a message at the specified level.
      * @param throwable an exception that accompanies this message or null. */
-    protected abstract void doLog (Object level, String formatted, Throwable throwable);
+    protected abstract void doLog (int levIdx, String formatted, Throwable throwable);
 
     /**
      * Called at static initialization time. Selects and initializes our logging backend.

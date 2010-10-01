@@ -21,9 +21,6 @@
 package com.samskivert.util;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
@@ -113,25 +110,19 @@ public class JDK14Logger implements Logger.Factory
         }
 
         @Override // from Logger
-        protected List<?> getLevels ()
+        protected boolean shouldLog (int levIdx)
         {
-            return LEVELS;
+            return _impl.isLoggable(LEVELS[levIdx]);
         }
 
         @Override // from Logger
-        protected boolean shouldLog (Object level)
+        protected void doLog (int levIdx, String formatted, Throwable throwable)
         {
-            return _impl.isLoggable((Level)level);
-        }
-
-        @Override // from Logger
-        protected void doLog (Object level, String formatted, Throwable throwable)
-        {
-            _impl.log((Level)level, formatted, throwable);
+            _impl.log(LEVELS[levIdx], formatted, throwable);
         }
 
         protected java.util.logging.Logger _impl;
-        protected static final List<Level> LEVELS = Collections.unmodifiableList(Arrays.asList(
-            Level.FINE, Level.INFO, Level.WARNING, Level.SEVERE));
+        protected static final Level[] LEVELS = {
+            Level.FINE, Level.INFO, Level.WARNING, Level.SEVERE };
     }
 }

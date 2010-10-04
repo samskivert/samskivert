@@ -223,11 +223,11 @@ public class Randoms
     /**
      * Shared code for pick and pluck.
      */
-    @SuppressWarnings("unchecked")
     protected <T> T pickPluck (Iterable<? extends T> iterable, T ifEmpty, boolean remove)
     {
         if (iterable instanceof Collection) {
             // optimized path for Collection
+            @SuppressWarnings("unchecked")
             Collection<? extends T> coll = (Collection<? extends T>)iterable;
             int size = coll.size();
             if (size == 0) {
@@ -235,9 +235,13 @@ public class Randoms
             }
             if (coll instanceof List) {
                 // extra-special optimized path for Lists
+                @SuppressWarnings("unchecked")
                 List<? extends T> list = (List<? extends T>)coll;
                 int idx = _r.nextInt(size);
-                return (T) (remove ? list.remove(idx) : list.get(idx));
+                if (remove) { // ternary conditional causes warning here with javac 1.6, :(
+                    return list.remove(idx);
+                }
+                return list.get(idx);
             }
             // for other Collections, we must iterate
             Iterator<? extends T> it = coll.iterator();
@@ -269,12 +273,13 @@ public class Randoms
             T next = it.next();
             if (0 == _r.nextInt(count)) {
                 pick = next;
+                // catch up lagIt so that it has just returned 'pick' as well
                 for ( ; lag > 0; lag--) {
                     lagIt.next();
                 }
             }
         }
-        lagIt.remove();
+        lagIt.remove(); // remove 'pick' from the lagging iterator
         return pick;
     }
 

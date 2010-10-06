@@ -29,13 +29,13 @@ import java.util.Random;
 /**
  * Provides utility routines to simplify obtaining randomized values.
  *
- * Each instance of Randoms is completely thread safe, but will share an underlying
- * {@link Random} object. If you wish to have a private stream of pseudorandom numbers,
+ * <p>Each instance of Randoms contains an underlying {@link java.util.Random} instance and is
+ * only as thread-safe as that is. If you wish to have a private stream of pseudorandom numbers,
  * use the {@link #with} factory.
  */
 public class Randoms
 {
-    /** A default Randoms that can be safely shared by any caller. */
+    /** A default Randoms that is thread-safe and can be safely shared by any caller. */
     public static final Randoms RAND = with(new Random());
 
     /**
@@ -50,12 +50,10 @@ public class Randoms
      * Get a thread-local Randoms instance that will not contend with any other thread
      * for random number generation.
      *
-     * <p><b>Note:</b> while all Randoms instances are thread-safe, normally they use a
-     * java.util.Random internally that must protect against multiple threads generating
-     * psuedorandom numbers with it simultaneously. This method will return a Randoms
-     * that uses an internal Random subclass with no such safeguards, resulting in much
-     * less overhead. However, you should probably not store a reference to the result,
-     * but instead always use it immediately as in the following example:
+     * <p><b>Note:</b> This method will return a Randoms instance that is not thread-safe.
+     * It can generate random values with less overhead, however it may be dangerous to share
+     * the reference. Instead you should probably always use it immediately as in the following
+     * example:
      * <pre style="code">
      *     Puppy pick = Randoms.threadLocal().pick(Puppy.LITTER, null);
      * </pre>
@@ -66,8 +64,8 @@ public class Randoms
     }
 
     /**
-     * Returns a pseudorandom, uniformly distributed <code>int</code> value between 0 (inclusive)
-     * and the specified value (exclusive).
+     * Returns a pseudorandom, uniformly distributed <code>int</code> value between <code>0</code>
+     * (inclusive) and <code>high</code> (exclusive).
      *
      * @param high the high value limiting the random number sought.
      *
@@ -90,8 +88,8 @@ public class Randoms
     }
 
     /**
-     * Returns a pseudorandom, uniformly distributed float value between 0.0 (inclusive) and the
-     * specified value (exclusive).
+     * Returns a pseudorandom, uniformly distributed <code>float</code> value between
+     * <code>0.0</code> (inclusive) and the <code>high</code> (exclusive).
      *
      * @param high the high value limiting the random number sought.
      */
@@ -110,7 +108,7 @@ public class Randoms
     }
 
     /**
-     * Returns true approximately one in n times.
+     * Returns true approximately one in <code>n</code> times.
      *
      * @throws IllegalArgumentException if <code>n</code> is not positive.
      */
@@ -120,7 +118,7 @@ public class Randoms
     }
 
     /**
-     * Has a probability p of returning true.
+     * Has a probability <code>p</code> of returning true.
      */
     public boolean getProbability (float p)
     {
@@ -128,7 +126,7 @@ public class Randoms
     }
 
     /**
-     * Returns true or false with approximately even distribution.
+     * Returns <code>true</code> or <code>false</code> with approximately even probability. 
      */
     public boolean getBoolean ()
     {
@@ -185,8 +183,8 @@ public class Randoms
      * if it is empty.
      *
      * <p><b>Implementation note:</b> optimized implementations are used if the Iterable
-     * is a List or Collection. Otherwise, it behaves as if calling {@link #pick(Iterator)} with
-     * the Iterable's Iterator.
+     * is a List or Collection. Otherwise, it behaves as if calling {@link #pick(Iterator, Object)}
+     * with the Iterable's Iterator.
      *
      * @throws NullPointerException if the iterable is null.
      */

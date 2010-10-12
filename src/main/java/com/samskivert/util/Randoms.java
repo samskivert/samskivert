@@ -143,12 +143,40 @@ public class Randoms
     }
 
     /**
+     * Pick a random key from the specified mapping of weight values, or return
+     * <code>ifEmpty</code> if no mapping has a weight greater than 0.
+     *
+     * @throws IllegalArgumentException if any weight is less than 0.
+     */
+    public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)
+    {
+        T pick = ifEmpty;
+        double r = _r.nextDouble();
+        double total = 0.0;
+        for (Map.Entry<? extends T, ? extends Number> entry : weightMap.entrySet()) {
+            double weight = entry.getValue().doubleValue();
+            if (weight > 0.0) {
+                total += weight;
+                if ((r * total) < weight) {
+                    pick = entry.getKey();
+                }
+            } else if (weight < 0.0) {
+                throw new IllegalArgumentException("Weight less than 0: " + entry);
+            } // else: weight == 0.0 is OK
+        }
+        return pick;
+    }
+
+    /**
      * Returns a key from the supplied map according to a probability computed as
      * the key's value divided by the total of all the key's values.
      *
      * @throws NullPointerException if the map is null.
      * @throws IllegalArgumentException if the sum of the weights is not positive.
+     *
+     * @deprecated Use {@link #pick(Map, Object)} instead.
      */
+    @Deprecated
     public <T> T getWeighted (Map<T, ? extends Number> valuesToWeights)
     {
         // TODO: validate each weight to ensure it's not below 0

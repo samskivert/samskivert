@@ -126,11 +126,20 @@ public class Randoms
     }
 
     /**
-     * Returns <code>true</code> or <code>false</code> with approximately even probability. 
+     * Returns <code>true</code> or <code>false</code> with approximately even probability.
      */
     public boolean getBoolean ()
     {
         return _r.nextBoolean();
+    }
+
+    /**
+     * Returns a pseudorandom, normally distributed <code>float</code> value around the
+     * <code>mean</code> with the standard deviation <code>dev</code>.
+     */
+    public float getNormal (float mean, float dev)
+    {
+        return (float)_r.nextGaussian() * dev + mean;
     }
 
     /**

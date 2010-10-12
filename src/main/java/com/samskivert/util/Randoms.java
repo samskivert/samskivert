@@ -149,16 +149,24 @@ public class Randoms
      * @throws NullPointerException if the map is null.
      * @throws IllegalArgumentException if the sum of the weights is not positive.
      */
-    public <T> T getWeighted (Map<T, Integer> valuesToWeights)
+    public <T> T getWeighted (Map<T, ? extends Number> valuesToWeights)
     {
-        // TODO: validation?
-        int idx = _r.nextInt(Folds.sum(0, valuesToWeights.values()));
-        for (Map.Entry<T, Integer> entry : valuesToWeights.entrySet()) {
-            idx -= entry.getValue();
-            if (idx < 0) {
+        // TODO: validate each weight to ensure it's not below 0
+        double sum = Folds.sum(0.0, valuesToWeights.values());
+        if (sum <= 0) {
+            throw new IllegalArgumentException("The sum of the weights is not positive");
+        }
+        // TODO: iterate all entries once, similarly to picking from an Iterable?
+        double d = _r.nextDouble() * sum;
+        for (Map.Entry<T, ? extends Number> entry : valuesToWeights.entrySet()) {
+            d -= entry.getValue().doubleValue();
+            if (d < 0) {
                 return entry.getKey();
             }
         }
+        // TODO: due to rounding error when iteratively subtract doubles, it might
+        // be possible to fall out of the loop here. Remember the highest-weighted entry
+        // and return it? (returning the last entry could be incorrect if it had a weight of 0).
         throw new AssertionError("Not possible");
     }
 

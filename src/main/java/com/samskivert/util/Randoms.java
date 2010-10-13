@@ -146,18 +146,20 @@ public class Randoms
      * Pick a random key from the specified mapping of weight values, or return
      * <code>ifEmpty</code> if no mapping has a weight greater than 0.
      *
+     * <p><b>Implementation note:</b> a random number is generated for every entry with a
+     * non-zero weight.
+     *
      * @throws IllegalArgumentException if any weight is less than 0.
      */
     public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)
     {
         T pick = ifEmpty;
-        double r = _r.nextDouble();
         double total = 0.0;
         for (Map.Entry<? extends T, ? extends Number> entry : weightMap.entrySet()) {
             double weight = entry.getValue().doubleValue();
             if (weight > 0.0) {
                 total += weight;
-                if ((r * total) < weight) {
+                if ((_r.nextDouble() * total) < weight) {
                     pick = entry.getKey();
                 }
             } else if (weight < 0.0) {

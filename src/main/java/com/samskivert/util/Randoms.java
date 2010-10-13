@@ -143,64 +143,6 @@ public class Randoms
     }
 
     /**
-     * Pick a random key from the specified mapping of weight values, or return
-     * <code>ifEmpty</code> if no mapping has a weight greater than <code>0</code>.
-     *
-     * <p><b>Implementation note:</b> a random number is generated for every entry with a
-     * non-zero weight after the first such entry.
-     *
-     * @throws IllegalArgumentException if any weight is less than 0.
-     */
-    public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)
-    {
-        T pick = ifEmpty;
-        double total = 0.0;
-        for (Map.Entry<? extends T, ? extends Number> entry : weightMap.entrySet()) {
-            double weight = entry.getValue().doubleValue();
-            if (weight > 0.0) {
-                total += weight;
-                if ((total == weight) || ((_r.nextDouble() * total) < weight)) {
-                    pick = entry.getKey();
-                }
-            } else if (weight < 0.0) {
-                throw new IllegalArgumentException("Weight less than 0: " + entry);
-            } // else: weight == 0.0 is OK
-        }
-        return pick;
-    }
-
-    /**
-     * Returns a key from the supplied map according to a probability computed as
-     * the key's value divided by the total of all the key's values.
-     *
-     * @throws NullPointerException if the map is null.
-     * @throws IllegalArgumentException if the sum of the weights is not positive.
-     *
-     * @deprecated Use {@link #pick(Map, Object)} instead.
-     */
-    @Deprecated
-    public <T> T getWeighted (Map<T, ? extends Number> valuesToWeights)
-    {
-        // TODO: validate each weight to ensure it's not below 0
-        double sum = Folds.sum(0.0, valuesToWeights.values());
-        if (sum <= 0) {
-            throw new IllegalArgumentException("The sum of the weights is not positive");
-        }
-        // TODO: iterate all entries once, similarly to picking from an Iterable?
-        double d = _r.nextDouble() * sum;
-        for (Map.Entry<T, ? extends Number> entry : valuesToWeights.entrySet()) {
-            d -= entry.getValue().doubleValue();
-            if (d < 0) {
-                return entry.getKey();
-            }
-        }
-        // TODO: due to rounding error when iteratively subtract doubles, it might
-        // be possible to fall out of the loop here. Remember the highest-weighted entry
-        // and return it? (returning the last entry could be incorrect if it had a weight of 0).
-        throw new AssertionError("Not possible");
-    }
-
-    /**
      * Pick a random element from the specified Iterator, or return <code>ifEmpty</code>
      * if it is empty.
      *
@@ -238,6 +180,34 @@ public class Randoms
     public <T> T pick (Iterable<? extends T> iterable, T ifEmpty)
     {
         return pickPluck(iterable, ifEmpty, false);
+    }
+
+    /**
+     * Pick a random <em>key</em> from the specified mapping of weight values, or return
+     * <code>ifEmpty</code> if no mapping has a weight greater than <code>0</code>. Each
+     * weight value is evaluated as a double.
+     *
+     * <p><b>Implementation note:</b> a random number is generated for every entry with a
+     * non-zero weight after the first such entry.
+     *
+     * @throws IllegalArgumentException if any weight is less than 0.
+     */
+    public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)
+    {
+        T pick = ifEmpty;
+        double total = 0.0;
+        for (Map.Entry<? extends T, ? extends Number> entry : weightMap.entrySet()) {
+            double weight = entry.getValue().doubleValue();
+            if (weight > 0.0) {
+                total += weight;
+                if ((total == weight) || ((_r.nextDouble() * total) < weight)) {
+                    pick = entry.getKey();
+                }
+            } else if (weight < 0.0) {
+                throw new IllegalArgumentException("Weight less than 0: " + entry);
+            } // else: weight == 0.0 is OK
+        }
+        return pick;
     }
 
     /**

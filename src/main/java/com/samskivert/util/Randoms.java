@@ -144,10 +144,10 @@ public class Randoms
 
     /**
      * Pick a random key from the specified mapping of weight values, or return
-     * <code>ifEmpty</code> if no mapping has a weight greater than 0.
+     * <code>ifEmpty</code> if no mapping has a weight greater than <code>0</code>.
      *
      * <p><b>Implementation note:</b> a random number is generated for every entry with a
-     * non-zero weight.
+     * non-zero weight after the first such entry.
      *
      * @throws IllegalArgumentException if any weight is less than 0.
      */
@@ -159,7 +159,7 @@ public class Randoms
             double weight = entry.getValue().doubleValue();
             if (weight > 0.0) {
                 total += weight;
-                if ((_r.nextDouble() * total) < weight) {
+                if ((total == weight) || ((_r.nextDouble() * total) < weight)) {
                     pick = entry.getKey();
                 }
             } else if (weight < 0.0) {

@@ -190,6 +190,7 @@ public class Randoms
      * <p><b>Implementation note:</b> a random number is generated for every entry with a
      * non-zero weight after the first such entry.
      *
+     * @throws NullPointerException if the map is null.
      * @throws IllegalArgumentException if any weight is less than 0.
      */
     public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)

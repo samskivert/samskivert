@@ -135,10 +135,6 @@
           <showWarnings>true</showWarnings>
           <!-- yes, those quoted spaces are a workaround sanctioned by the Maven idiocracy -->
           <compilerArgument>-Xlint" "-Xlint:-serial" "-Xlint:-path</compilerArgument>
-          <excludes>
-            <exclude>com/samskivert/velocity/ImportDirective.java</exclude>
-            <exclude>com/samskivert/velocity/DispatcherServlet.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
       <plugin>

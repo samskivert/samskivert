@@ -211,6 +211,30 @@ public class Randoms
         return pick;
     }
 
+//    public <T> T pick (
+//        Iterable<? extends T> iterable, Function<? super T, ? extends Number> weightFunction,
+//        T ifEmpty)
+//    {
+//        T pick = ifEmpty;
+//        double total = 0.0;
+//        for (T element : iterable) {
+//            double weight = weightFunction.apply(element).doubleValue();
+//            // The rest is like the current pick(Map)
+//        }
+//        return pick;
+//    }
+//
+//    public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)
+//    {
+//        Map.Entry<? extends T, ? extends Number> pick = pick(weightMap.entrySet(),
+//            new Function<Map.Entry<?, ? extends Number>, Number>() {
+//                public Number apply (Map.Entry<?, ? extends Number> entry) {
+//                    return entry.getValue();
+//                }
+//            }, null);
+//        return (pick != null) ? pick.getKey() : ifEmpty;
+//    }
+
     /**
      * Pluck (remove) a random element from the specified Iterable, or return <code>ifEmpty</code>
      * if it is empty.

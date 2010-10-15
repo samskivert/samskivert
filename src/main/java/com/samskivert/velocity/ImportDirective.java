@@ -74,13 +74,13 @@ public class ImportDirective extends Directive
                MethodInvocationException
     {
         // make sure an argument was supplied to the directive
-        if (node.getChild(0) == null) {
+        if (node.jjtGetChild(0) == null) {
             rsvc.getLog().error("#import() error :  null argument");
             return false;
         }
 
         // make sure that argument has a value
-        Object value = node.getChild(0).value(context);
+        Object value = node.jjtGetChild(0).value(context);
         if (value == null) {
             rsvc.getLog().error("#import() error :  null argument");
             return false;

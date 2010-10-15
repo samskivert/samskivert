@@ -46,5 +46,5 @@ public @interface ReplacedBy
     /**
      * The reason the replacement is suggested, in case it's not obvious.
      */
-    String reason() default "";
+    String reason () default "";
 }

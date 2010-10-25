@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" output="dist/test-classes" path="src/test/java"/>
+	<classpathentry excluding="**/*.java|**/.svn/**" kind="src" output="dist/test-classes" path="src/test/resources"/>
 	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry excluding="**/*.java|**/.svn/**" kind="src" path="src/main/resources"/>
+	<classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1/activation-1.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/mail/mail/1.4.1/mail-1.4.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-digester/commons-digester/2.0/commons-digester-2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.4/commons-lang-2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.1/junit-4.8.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.15/log4j-1.2.15.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/velocity/velocity/1.6.4/velocity-1.6.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/ant.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-collections.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-digester.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-io.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-logging.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/junit4.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/mail.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/servlet-api.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/velocity-dev.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/log4j.jar"/>
 	<classpathentry kind="output" path="dist/classes"/>
 </classpath>

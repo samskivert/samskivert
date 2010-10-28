@@ -68,6 +68,10 @@ public class MACUtil
      */
     protected static String[] parseMACs (String text)
     {
+        if (text == null) {
+            return new String[0];
+        }
+
         Matcher m = MACRegex.matcher(text);
 
         ArrayList<String> list = new ArrayList<String>();

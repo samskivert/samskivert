@@ -33,6 +33,14 @@ import com.samskivert.annotation.*;
 public class ObjectUtil
 {
     /**
+     * Cast the specified Object, or return null if it is not an instance.
+     */
+    public static <T> T as (Object obj, Class<T> clazz)
+    {
+        return clazz.isInstance(obj) ? clazz.cast(obj) : null;
+    }
+
+    /**
      * Test two objects for equality safely.
      */
     @ReplacedBy("com.google.common.base.Objects#equal(Object,Object)")

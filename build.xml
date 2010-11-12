@@ -67,7 +67,6 @@
   </target>
 
   <target name="coreen" depends="-prepare" description="Generates Coreen metadata.">
-    <echo>${java.home}</echo>
     <java fork="true" classname="coreen.java.Main">
       <classpath>
         <path refid="classpath"/>

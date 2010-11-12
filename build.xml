@@ -130,4 +130,20 @@
     <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
   </target>
+
+  <target name="maven-deploy" depends="dist" 
+          description="Deploys our build artifacts to a Maven repository.">
+    <fail unless="maven.deploy.repo">
+      You must specify the Maven Repository location via -Dmaven.deploy.repo=file:///path.
+    </fail>
+    <artifact:deploy file="${deploy.dir}/${lib.name}.jar">
+      <remoteRepository url="${maven.deploy.repo}"/>
+      <pom refid="pom"/>
+    </artifact:deploy>
+    <artifact:pom id="gwt-pom" file="gwt-pom.xml"/>
+    <artifact:deploy file="${deploy.dir}/${lib.name}-gwt.jar">
+      <remoteRepository url="${maven.deploy.repo}"/>
+      <pom refid="gwt-pom"/>
+    </artifact:deploy>
+  </target>
 </project>

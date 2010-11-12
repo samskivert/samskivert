@@ -59,11 +59,23 @@
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5" encoding="utf-8">
       <classpath>
         <path refid="classpath"/>
-       <pathelement location="${classes.dir}"/>
+        <pathelement location="${classes.dir}"/>
       </classpath>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
+  </target>
+
+  <target name="coreen" depends="-prepare" description="Generates Coreen metadata.">
+    <echo>${java.home}</echo>
+    <java fork="true" classname="coreen.java.Main">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement location="${java.home}/../lib/tools.jar"/>
+        <pathelement location="${coreen.jar}"/>
+      </classpath>
+      <arg line="${src.dir}"/>
+    </java>
   </target>
 
   <target name="javadoc" depends="-prepare" description="Builds javadocs.">

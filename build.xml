@@ -102,6 +102,7 @@
           description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
     <taskdef name="unit" classpathref="classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <mkdir dir="${deploy.dir}/tests"/>
     <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
       <classpath>
         <pathelement location="${classes.dir}"/>
@@ -111,7 +112,8 @@
       </classpath>
       <sysproperty key="test_dir" value="${tclasses.dir}"/>
       <formatter type="brief" usefile="false"/>
-      <batchtest>
+      <formatter type="xml"/>
+      <batchtest todir="${deploy.dir}/tests">
         <fileset dir="${test.dir}" includes="**/*${test}*Test.java"/>
       </batchtest>
     </unit>
@@ -132,7 +134,7 @@
   </target>
 
   <property name="maven.deploy.repo" value="file://${user.home}/.m2/repository"/>
-  <target name="maven-deploy" depends="dist" 
+  <target name="maven-deploy" depends="dist,tests" 
           description="Deploys our build artifacts to a Maven repository.">
     <artifact:deploy file="${deploy.dir}/${lib.name}.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>

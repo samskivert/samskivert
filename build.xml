@@ -113,7 +113,7 @@
       <sysproperty key="test_dir" value="${tclasses.dir}"/>
       <formatter type="brief" usefile="false"/>
       <formatter type="xml"/>
-      <batchtest todir="${deploy.dir}/tests">
+      <batchtest todir="${deploy.dir}/test-output">
         <fileset dir="${test.dir}" includes="**/*${test}*Test.java"/>
       </batchtest>
     </unit>

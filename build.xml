@@ -102,7 +102,7 @@
           description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
     <taskdef name="unit" classpathref="classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
-    <mkdir dir="${deploy.dir}/tests"/>
+    <mkdir dir="${deploy.dir}/test-reports"/>
     <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
       <classpath>
         <pathelement location="${classes.dir}"/>

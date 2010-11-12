@@ -134,12 +134,12 @@
   <property name="maven.deploy.repo" value="file://${user.home}/.m2/repository"/>
   <target name="maven-deploy" depends="dist" 
           description="Deploys our build artifacts to a Maven repository.">
-    <artifact:deploy file="${deploy.dir}/${lib.name}.jar">
+    <artifact:deploy file="${deploy.dir}/${lib.name}.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="pom"/>
     </artifact:deploy>
     <artifact:pom id="gwt-pom" file="gwt-pom.xml"/>
-    <artifact:deploy file="${deploy.dir}/${lib.name}-gwt.jar">
+    <artifact:deploy file="${deploy.dir}/${lib.name}-gwt.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="gwt-pom"/>
     </artifact:deploy>

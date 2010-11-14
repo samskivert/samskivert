@@ -21,6 +21,7 @@
 package com.samskivert.util;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -140,6 +141,14 @@ public class Randoms
     public float getNormal (float mean, float dev)
     {
         return (float)_r.nextGaussian() * dev + mean;
+    }
+
+    /**
+     * Shuffle the specified list using our Random.
+     */
+    public void shuffle (List<?> list)
+    {
+        Collections.shuffle(list, _r);
     }
 
     /**

@@ -80,12 +80,9 @@
   <target name="javadoc" depends="-prepare" description="Builds javadocs.">
     <tstamp><format property="year" pattern="yyyy"/></tstamp>
     <mkdir dir="${javadoc.dir}"/>
-    <javadoc windowtitle="${lib.name} API"
-             doctitle="${lib.name} API"
-             overview="src/main/javadoc/overview.html"
-             destdir="${javadoc.dir}"
-             additionalparam="-breakiterator"
-             link="http://samskivert.com/code/samskivert/samskivert/docs/api/">
+    <javadoc windowtitle="${lib.name} API" doctitle="${lib.name} API"
+             overview="src/main/javadoc/overview.html" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator">
       <packageset dir="${src.dir}"/>
       <bottom>Copyright &#169; 2000-${year} Michael Bayne, et al. All Rights Reserved.</bottom>
       <classpath refid="classpath"/>

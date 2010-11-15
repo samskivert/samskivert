@@ -89,7 +89,7 @@
       <packageset dir="${src.dir}"/>
       <bottom>Copyright &#169; 2000-${year} Michael Bayne, et al. All Rights Reserved.</bottom>
       <classpath refid="classpath"/>
-      <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+      <link href="http://download.oracle.com/javase/1.5.0/docs/api/"/>
     </javadoc>
   </target>
 

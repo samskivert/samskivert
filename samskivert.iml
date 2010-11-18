@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <varelement var="jar://$M2_REPO$/javax/activation/activation/1.1/activation-1.1.jar!/" value="M2_REPO/javax/activation/activation/1.1/activation-1.1.jar" />
+    <varelement var="jar://$M2_REPO$/javax/mail/mail/1.4.1/mail-1.4.1.jar!/" value="M2_REPO/javax/mail/mail/1.4.1/mail-1.4.1.jar" />
+    <varelement var="jar://$M2_REPO$/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar!/" value="M2_REPO/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar" />
+    <varelement var="jar://$M2_REPO$/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar!/" value="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" />
+    <varelement var="jar://$M2_REPO$/commons-digester/commons-digester/2.0/commons-digester-2.0.jar!/" value="M2_REPO/commons-digester/commons-digester/2.0/commons-digester-2.0.jar" />
+    <varelement var="jar://$M2_REPO$/commons-lang/commons-lang/2.4/commons-lang-2.4.jar!/" value="M2_REPO/commons-lang/commons-lang/2.4/commons-lang-2.4.jar" />
+    <varelement var="jar://$M2_REPO$/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar!/" value="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar" />
+    <varelement var="jar://$M2_REPO$/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar!/" value="M2_REPO/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar" />
+    <varelement var="jar://$M2_REPO$/junit/junit/4.8.1/junit-4.8.1.jar!/" value="M2_REPO/junit/junit/4.8.1/junit-4.8.1.jar" />
+    <varelement var="jar://$M2_REPO$/log4j/log4j/1.2.15/log4j-1.2.15.jar!/" value="M2_REPO/log4j/log4j/1.2.15/log4j-1.2.15.jar" />
+    <varelement var="jar://$M2_REPO$/org/apache/velocity/velocity/1.6.4/velocity-1.6.4.jar!/" value="M2_REPO/org/apache/velocity/velocity/1.6.4/velocity-1.6.4.jar" />
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/dist/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library" exported="">
+      <library name="activation-1.1.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/javax/activation/activation/1.1/activation-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="mail-1.4.1.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/javax/mail/mail/1.4.1/mail-1.4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="servlet-api-2.5.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="commons-collections-3.2.1.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="commons-digester-2.0.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/commons-digester/commons-digester/2.0/commons-digester-2.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="commons-lang-2.4.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/commons-lang/commons-lang/2.4/commons-lang-2.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="commons-logging-1.1.1.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="hsqldb-2.0.0.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="junit-4.8.1.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/junit/junit/4.8.1/junit-4.8.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="log4j-1.2.15.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/log4j/log4j/1.2.15/log4j-1.2.15.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="velocity-1.6.4.jar">
+        <CLASSES>
+          <root url="jar://$M2_REPO$/org/apache/velocity/velocity/1.6.4/velocity-1.6.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="inheritedJdk" />
+  </component>
+</module>
+

@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <project name="samskivert" default="compile" basedir="." xmlns:artifact="urn:maven-artifact-ant">
-  <!-- various configurations -->
-  <property name="lib.name"    value="samskivert"/>
   <property name="src.dir"     value="src/main/java"/>
   <property name="test.dir"    value="src/test/java"/>
   <property name="deploy.dir"  value="dist"/>
@@ -13,7 +11,8 @@
   <property name="maven-ant.vers" value="2.1.1"/>
   <property name="maven-ant.dir" value="${user.home}/.m2/ant-support"/>
   <property name="maven-ant.jar" value="${maven-ant.dir}/maven-ant-tasks-${maven-ant.vers}.jar"/>
-  <property name="maven-ant.url" value="http://mirrors.ibiblio.org/pub/mirrors/apache/maven/binaries"/>
+  <property name="maven-ant.url"
+            value="http://mirrors.ibiblio.org/pub/mirrors/apache/maven/binaries"/>
   <condition property="maven-ant.exists"><available file="${maven-ant.jar}"/></condition>
   <target name="-download-maven-ant" unless="maven-ant.exists">
     <mkdir dir="${maven-ant.dir}"/>
@@ -80,7 +79,7 @@
   <target name="javadoc" depends="-prepare" description="Builds javadocs.">
     <tstamp><format property="year" pattern="yyyy"/></tstamp>
     <mkdir dir="${javadoc.dir}"/>
-    <javadoc windowtitle="${lib.name} API" doctitle="${lib.name} API"
+    <javadoc windowtitle="${ant.project.name} API" doctitle="${ant.project.name} API"
              overview="src/main/javadoc/overview.html" destdir="${javadoc.dir}"
              additionalparam="-breakiterator">
       <packageset dir="${src.dir}"/>
@@ -117,7 +116,7 @@
   </target>
 
   <target name="dist" depends="compile" description="Builds jar files.">
-    <jar destfile="${deploy.dir}/${lib.name}.jar" basedir="${classes.dir}"/>
+    <jar destfile="${deploy.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
     <!-- we export a small selection of classes for use by GWT -->
     <mkdir dir="${gwtjar.dir}"/>
     <copy todir="${gwtjar.dir}">
@@ -126,7 +125,7 @@
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnum.java"/>
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnumUtil.java"/>
     </copy>
-    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
+    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${ant.project.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
   </target>
 
@@ -135,12 +134,12 @@
     <fail unless="maven.deploy.repo">
       Must specify Maven repository with -Dmaven.deploy.repo=file://somepath
     </fail>
-    <artifact:deploy file="${deploy.dir}/${lib.name}.jar" uniqueVersion="false">
+    <artifact:deploy file="${deploy.dir}/${ant.project.name}.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="pom"/>
     </artifact:deploy>
     <artifact:pom id="gwt-pom" file="gwt-pom.xml"/>
-    <artifact:deploy file="${deploy.dir}/${lib.name}-gwt.jar" uniqueVersion="false">
+    <artifact:deploy file="${deploy.dir}/${ant.project.name}-gwt.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="gwt-pom"/>
     </artifact:deploy>

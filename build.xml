@@ -130,7 +130,7 @@
     <delete dir="${gwtjar.dir}"/>
   </target>
 
-  <target name="maven-deploy" depends="dist,tests" 
+  <target name="maven-deploy" depends="dist" 
           description="Deploys our build artifacts to a Maven repository.">
     <fail unless="maven.deploy.repo">
       Must specify Maven repository with -Dmaven.deploy.repo=file://somepath

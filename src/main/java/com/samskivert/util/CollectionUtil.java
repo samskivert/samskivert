@@ -135,7 +135,7 @@ public class CollectionUtil
      *
      * @throws NoSuchElementException if the Iterable is empty.
      */
-    public static <T extends Comparable<? super T>> List<T> maxList (Iterable<? extends T> iterable)
+    public static <T extends Comparable<? super T>> List<T> maxList (Iterable<T> iterable)
     {
         return maxList(iterable, new Comparator<T>() {
             public int compare (T o1, T o2) {
@@ -150,9 +150,9 @@ public class CollectionUtil
      *
      * @throws NoSuchElementException if the Iterable is empty.
      */
-    public static <T> List<T> maxList (Iterable<? extends T> iterable, Comparator<? super T> comp)
+    public static <T> List<T> maxList (Iterable<T> iterable, Comparator<? super T> comp)
     {
-        Iterator<? extends T> itr = iterable.iterator();
+        Iterator<T> itr = iterable.iterator();
         T max = itr.next();
         List<T> maxes = new ArrayList<T>();
         maxes.add(max);
@@ -186,7 +186,7 @@ public class CollectionUtil
      *
      * @throws NoSuchElementException if the Iterable is empty.
      */
-    public static <T extends Comparable<? super T>> List<T> minList (Iterable<? extends T> iterable)
+    public static <T extends Comparable<? super T>> List<T> minList (Iterable<T> iterable)
     {
         return maxList(iterable, java.util.Collections.reverseOrder());
     }
@@ -197,7 +197,7 @@ public class CollectionUtil
      *
      * @throws NoSuchElementException if the Iterable is empty.
      */
-    public static <T> List<T> minList (Iterable<? extends T> iterable, Comparator<? super T> comp)
+    public static <T> List<T> minList (Iterable<T> iterable, Comparator<? super T> comp)
     {
         return maxList(iterable, java.util.Collections.reverseOrder(comp));
     }

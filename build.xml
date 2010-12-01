@@ -16,7 +16,7 @@
   <condition property="maven-ant.exists"><available file="${maven-ant.jar}"/></condition>
   <target name="-download-maven-ant" unless="maven-ant.exists">
     <mkdir dir="${maven-ant.dir}"/>
-    <get src="${maven-ant.url}/maven-ant-tasks-${maven-ant.vers}.jar" 
+    <get src="${maven-ant.url}/maven-ant-tasks-${maven-ant.vers}.jar"
          dest="${maven-ant.jar}" usetimestamp="true"/>
   </target>
 
@@ -50,6 +50,7 @@
       <classpath refid="classpath"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
+      <compilerarg value="-Xlint:-path"/>
     </javac>
 
     <mkdir dir="${tclasses.dir}"/>
@@ -62,6 +63,7 @@
       </classpath>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
+      <compilerarg value="-Xlint:-path"/>
     </javac>
   </target>
 
@@ -94,7 +96,7 @@
           description="Cleans and rebuilds everything."/>
 
   <property name="test" value=""/>
-  <target name="tests" depends="compile" 
+  <target name="tests" depends="compile"
           description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
     <taskdef name="unit" classpathref="classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
@@ -130,7 +132,7 @@
   </target>
 
   <property name="maven.deploy.repo" value="file://${user.home}/.m2/repository"/>
-  <target name="maven-deploy" depends="dist" 
+  <target name="maven-deploy" depends="dist"
           description="Deploys our build artifacts to a Maven repository.">
     <artifact:deploy file="${deploy.dir}/${ant.project.name}.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>

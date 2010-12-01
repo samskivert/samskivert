@@ -213,7 +213,7 @@ public class ListUtil
     protected static Object[] testAndAdd (
         EqualityComparator eqc, Object[] list, Object element)
     {
-        requireNotNull(element == null);
+        requireNotNull(element);
 
         // make sure we've got a list to work with
         if (list == null) {
@@ -324,7 +324,7 @@ public class ListUtil
     protected static int indexOf (
         EqualityComparator eqc, Object[] list, Object element)
     {
-        requireNotNull(element == null);
+        requireNotNull(element);
         if (list != null) {
             for (int ii = 0, nn = list.length; ii < nn; ii++) {
                 if (eqc.equals(list[ii], element)) {

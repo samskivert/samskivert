@@ -41,9 +41,11 @@ import java.awt.Window;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -573,6 +575,30 @@ public class SwingUtil
                 addDebugBorders((JPanel)child);
             }
         }
+    }
+
+    /**
+     * Sets the window's icons. Unfortunately, the ability to pass multiple icons so the OS can
+     * choose the most size-appropriate one was added in 1.6; before that, you can only set one
+     * icon.
+     *
+     * This method attempts to find and use setIconImages, but if it can't, sets the window's icon
+     * to the first icon in the list passed in.
+     */
+    public static void setWindowIcons (Window window, List<? extends Image> icons)
+    {
+        try {
+            Method m = window.getClass().getMethod("setIconImages", List.class);
+            if (m != null) {
+                m.invoke(window, icons);
+                return;
+            }
+        } catch (Exception e) {
+            // It's okay; it's probably just that we're running with an old jvm
+        }
+
+        // Use whichever's at the top of the list
+        window.setIconImage(icons.get(0));
     }
 
     /**

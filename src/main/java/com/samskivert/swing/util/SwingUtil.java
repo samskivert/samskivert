@@ -578,27 +578,26 @@ public class SwingUtil
     }
 
     /**
-     * Sets the window's icons. Unfortunately, the ability to pass multiple icons so the OS can
-     * choose the most size-appropriate one was added in 1.6; before that, you can only set one
-     * icon.
+     * Sets the window's icons.<p>
      *
-     * This method attempts to find and use setIconImages, but if it can't, sets the window's icon
-     * to the first icon in the list passed in.
+     * Unfortunately, the ability to set the window icon was added in 1.6; if the ability isn't
+     * present, this method does nothing.
      */
     public static void setWindowIcons (Window window, List<? extends Image> icons)
     {
+        Method m;
         try {
-            Method m = window.getClass().getMethod("setIconImages", List.class);
-            if (m != null) {
-                m.invoke(window, icons);
-                return;
-            }
-        } catch (Exception e) {
-            // It's okay; it's probably just that we're running with an old jvm
+            m = window.getClass().getMethod("setIconImages", List.class);
+        } catch (SecurityException e) {
+            return; // Fine, fine, no reflection for us
+        } catch (NoSuchMethodException e) {
+            return;// This is fine, we must be on a pre-1.6 JVM
         }
-
-        // Use whichever's at the top of the list
-        window.setIconImage(icons.get(0));
+        try {
+            m.invoke(window, icons);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

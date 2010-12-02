@@ -26,6 +26,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
@@ -66,6 +67,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import com.samskivert.util.SortableArrayList;
+
+import static com.samskivert.Log.log;
 
 /**
  * Miscellaneous useful Swing-related utility functions.
@@ -578,26 +581,31 @@ public class SwingUtil
     }
 
     /**
-     * Sets the window's icons.<p>
+     * Sets the frame's icons. Unfortunately, the ability to pass multiple icons so the OS can
+     * choose the most size-appropriate one was added in 1.6; before that, you can only set one
+     * icon.
      *
-     * Unfortunately, the ability to set the window icon was added in 1.6; if the ability isn't
-     * present, this method does nothing.
+     * This method attempts to find and use setIconImages, but if it can't, sets the frame's icon
+     * to the first image in the list passed in.
      */
-    public static void setWindowIcons (Window window, List<? extends Image> icons)
+    public static void setFrameIcons (Frame frame, List<? extends Image> icons)
     {
-        Method m;
         try {
-            m = window.getClass().getMethod("setIconImages", List.class);
+            Method m = frame.getClass().getMethod("setIconImages", List.class);
+            m.invoke(frame, icons);
+            return;
         } catch (SecurityException e) {
-            return; // Fine, fine, no reflection for us
+            // Fine, fine, no reflection for us
         } catch (NoSuchMethodException e) {
-            return;// This is fine, we must be on a pre-1.6 JVM
-        }
-        try {
-            m.invoke(window, icons);
+            // This is fine, we must be on a pre-1.6 JVM
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // Something else went awry? Log it
+            log.warning("Error setting frame icons", "frame", frame, "icons", icons, "e", e);
         }
+
+        // We couldn't find it, couldn't reflect, or something.
+        // Just use whichever's at the top of the list
+        frame.setIconImage(icons.get(0));
     }
 
     /**

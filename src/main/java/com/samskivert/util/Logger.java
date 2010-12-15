@@ -157,10 +157,7 @@ public abstract class Logger
                 }
                 buf.append(args[ii]).append('=');
                 try {
-                    Object arg = args[ii + 1];
-                    buf.append(((arg == null) || !arg.getClass().isArray())
-                        ? arg
-                        : ArrayUtil.toString(arg));
+                    buf.append(ArrayUtil.safeToString(args[ii + 1]));
                 } catch (Throwable t) {
                     buf.append("<toString() failure: ").append(t).append(">");
                 }

@@ -908,7 +908,15 @@ public class ArrayUtil
     }
 
     /**
-     * Return the String representation of the specified Object, which must be an array.
+     * Return the String representation of the specified Object, which may or may not be an array.
+     */
+    public static String safeToString (Object o)
+    {
+        return ((o == null) || !o.getClass().isArray()) ? String.valueOf(o) : toString(o);
+    }
+
+    /**
+     * Return the String representation of the specified Object, which <em>must</em> be an array.
      *
      * @throws IllegalArgumentException if array is not actually an array.
      */

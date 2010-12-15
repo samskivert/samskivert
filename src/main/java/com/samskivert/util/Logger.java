@@ -160,7 +160,7 @@ public abstract class Logger
                     Object arg = args[ii + 1];
                     buf.append(((arg == null) || !arg.getClass().isArray())
                         ? arg
-                        : LogBuilder.arrayStr(arg));
+                        : ArrayUtil.toString(arg));
                 } catch (Throwable t) {
                     buf.append("<toString() failure: ").append(t).append(">");
                 }

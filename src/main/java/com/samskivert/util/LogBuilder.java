@@ -20,8 +20,6 @@
 
 package com.samskivert.util;
 
-import java.util.Arrays;
-
 /**
  * Formats a message and an array of alternating key value pairs like so:
  *
@@ -66,7 +64,8 @@ public class LogBuilder
                 _log.append(args[ii]).append('=');
                 try {
                     Object arg = args[ii + 1];
-                    _log.append(((arg == null) || !arg.getClass().isArray()) ? arg : arrayStr(arg));
+                    _log.append(((arg == null) || !arg.getClass().isArray())
+                        ? arg : ArrayUtil.toString(arg));
                 } catch (Throwable t) {
                     _log.append("<toString() failure: ").append(t).append('>');
                 }
@@ -89,41 +88,6 @@ public class LogBuilder
             }
         }
         return _log.toString();
-    }
-
-    /**
-     * Return the String representation of the specified Object, which must be an array.
-     */
-    protected static String arrayStr (Object arg)
-    {
-        if (arg instanceof Object[]) {
-            return Arrays.deepToString((Object[])arg); // go deep, baby
-
-        } else if (arg instanceof int[]) {
-            return Arrays.toString((int[])arg);
-
-        } else if (arg instanceof byte[]) {
-            return Arrays.toString((byte[])arg);
-
-        } else if (arg instanceof char[]) {
-            return Arrays.toString((char[])arg);
-
-        } else if (arg instanceof short[]) {
-            return Arrays.toString((short[])arg);
-
-        } else if (arg instanceof long[]) {
-            return Arrays.toString((long[])arg);
-
-        } else if (arg instanceof float[]) {
-            return Arrays.toString((float[])arg);
-
-        } else if (arg instanceof double[]) {
-            return Arrays.toString((double[])arg);
-
-        } else if (arg instanceof boolean[]) {
-            return Arrays.toString((boolean[])arg);
-        }
-        throw new IllegalArgumentException("Not an array: " + arg);
     }
 
     protected boolean _hasArgs;

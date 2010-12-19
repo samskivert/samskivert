@@ -27,8 +27,16 @@ package com.samskivert.util;
  */
 public class MissingPropertyException extends RuntimeException
 {
-    public MissingPropertyException (String message)
+    public MissingPropertyException (String key, String message)
     {
         super(message);
+        _key = key;
     }
+
+    public String getKey ()
+    {
+        return _key;
+    }
+
+    protected String _key;
 }

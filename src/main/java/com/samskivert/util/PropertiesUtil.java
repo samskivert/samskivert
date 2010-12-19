@@ -238,7 +238,7 @@ public class PropertiesUtil
     {
         String value = props.getProperty(key);
         if (StringUtil.isBlank(value)) {
-            throw new MissingPropertyException(missingMessage);
+            throw new MissingPropertyException(key, missingMessage);
         }
         return value;
     }

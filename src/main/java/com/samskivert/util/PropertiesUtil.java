@@ -36,12 +36,11 @@ import com.samskivert.io.StreamUtil;
 public class PropertiesUtil
 {
     /**
-     * Extracts all properties from the supplied properties object with
-     * the specified prefix, removes the prefix from the key for those
-     * properties and inserts them into a new properties object which is
-     * then returned. This is useful for extracting properties from a
-     * global configuration object that must be passed to a service that
-     * expects it's own private properties (JDBC for example).
+     * Extracts all properties from the supplied properties object with the specified prefix,
+     * removes the prefix from the key for those properties and inserts them into a new properties
+     * object which is then returned. This is useful for extracting properties from a global
+     * configuration object that must be passed to a service that expects it's own private
+     * properties (JDBC for example).
      *
      * The property file might look like so:
      *
@@ -56,9 +55,8 @@ public class PropertiesUtil
      * my_happy_other_param=my_happy_other_value
      * </pre>
      *
-     * This can be supplied to <code>getSubProperties()</code> with a
-     * prefix of <code>"jdbc"</code> and the following properties would be
-     * returned:
+     * This can be supplied to <code>getSubProperties()</code> with a prefix of <code>"jdbc"</code>
+     * and the following properties would be returned:
      *
      * <pre>
      * driver=foo.bar.Driver
@@ -67,8 +65,7 @@ public class PropertiesUtil
      * password=is your uncle
      * </pre>
      */
-    public static Properties getSubProperties (
-        Properties source, String prefix)
+    public static Properties getSubProperties (Properties source, String prefix)
     {
         Properties dest = new Properties();
         extractSubProperties(source, dest, prefix);
@@ -76,9 +73,8 @@ public class PropertiesUtil
     }
 
     /**
-     * Like {@link #getSubProperties(Properties,String)} with the
-     * additional functionality of loading up defaults for the
-     * sub-properties which are identified by the
+     * Like {@link #getSubProperties(Properties,String)} with the additional functionality of
+     * loading up defaults for the sub-properties which are identified by the
      * <code>defaultsPrefix</code> string.
      */
     public static Properties getSubProperties (
@@ -96,24 +92,21 @@ public class PropertiesUtil
     }
 
     /**
-     * Returns a filtered version of the specified properties that first
-     * looks for a property starting with the given prefix, then looks for
-     * a property without the prefix.  For example, passing the prefix "alt"
-     * and using the following properties:
+     * Returns a filtered version of the specified properties that first looks for a property
+     * starting with the given prefix, then looks for a property without the prefix. For example,
+     * passing the prefix "alt" and using the following properties:
      *
      * <pre>
      * alt.texture = sand.png
      * lighting = off
      * </pre>
      *
-     * ...would return "sand.png" for the property "texture" and "off" for
-     * the property "lighting".  Unlike {@link #getSubProperties}, the object
-     * returned by this method references, rather than copies, the underlying
-     * properties.  Only the {@link Properties#getProperty} methods are
+     * ...would return "sand.png" for the property "texture" and "off" for the property "lighting".
+     * Unlike {@link #getSubProperties}, the object returned by this method references, rather than
+     * copies, the underlying properties. Only the {@link Properties#getProperty} methods are
      * guaranteed to work correctly on the returned object.
      */
-    public static Properties getFilteredProperties (
-        final Properties source, String prefix)
+    public static Properties getFilteredProperties (final Properties source, String prefix)
     {
         final String dprefix = prefix + ".";
         return new Properties() {
@@ -121,8 +114,7 @@ public class PropertiesUtil
                 return getProperty(key, null);
             }
             @Override public String getProperty (String key, String defaultValue) {
-                return source.getProperty(dprefix + key,
-                    source.getProperty(key, defaultValue));
+                return source.getProperty(dprefix + key, source.getProperty(key, defaultValue));
             }
             @Override public Enumeration<?> propertyNames () {
                 return new Enumeration<Object>() {
@@ -157,8 +149,7 @@ public class PropertiesUtil
     /**
      * A helper function used by the {@link #getSubProperties} methods.
      */
-    protected static void extractSubProperties (
-        Properties source, Properties dest, String prefix)
+    protected static void extractSubProperties (Properties source, Properties dest, String prefix)
     {
         // extend the prefix to contain a dot
         prefix = prefix + ".";

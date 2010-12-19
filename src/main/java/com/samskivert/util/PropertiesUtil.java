@@ -218,4 +218,28 @@ public class PropertiesUtil
             return null;
         }
     }
+
+    /**
+     * Returns the specified property from the supplied properties object.
+     * @throws MissingPropertyException with the text "Missing required property
+     * '<code>key</code>'." if the property does not exist or is the empty string.
+     */
+    public static String requireProperty (Properties props, String key)
+    {
+        return requireProperty(props, key, "Missing required property '" + key + "'.");
+    }
+
+    /**
+     * Returns the specified property from the supplied properties object.
+     * @throws MissingPropertyException with the supplied message if the property does not exist or
+     * is the empty string.
+     */
+    public static String requireProperty (Properties props, String key, String missingMessage)
+    {
+        String value = props.getProperty(key);
+        if (StringUtil.isBlank(value)) {
+            throw new MissingPropertyException(missingMessage);
+        }
+        return value;
+    }
 }

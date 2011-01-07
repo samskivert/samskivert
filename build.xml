@@ -67,17 +67,6 @@
     </javac>
   </target>
 
-  <target name="coreen" depends="-prepare" description="Generates Coreen metadata.">
-    <java fork="true" classname="coreen.java.Main">
-      <classpath>
-        <path refid="classpath"/>
-        <pathelement location="${java.home}/../lib/tools.jar"/>
-        <pathelement location="${coreen.jar}"/>
-      </classpath>
-      <arg line="${src.dir}"/>
-    </java>
-  </target>
-
   <target name="javadoc" depends="-prepare" description="Builds javadocs.">
     <tstamp><format property="year" pattern="yyyy"/></tstamp>
     <mkdir dir="${javadoc.dir}"/>

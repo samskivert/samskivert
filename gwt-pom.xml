@@ -4,7 +4,7 @@
   <groupId>com.samskivert</groupId>
   <artifactId>samskivert-gwt</artifactId>
   <packaging>jar</packaging>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
   <name>samskivert-gwt</name>
   <description>Source for classes that work with GWT.</description>
 

@@ -107,17 +107,14 @@
   </target>
 
   <target name="dist" depends="compile" description="Builds jar files.">
-    <jar destfile="${deploy.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
     <!-- we export a small selection of classes for use by GWT -->
-    <mkdir dir="${gwtjar.dir}"/>
-    <copy todir="${gwtjar.dir}">
+    <copy todir="${classes.dir}">
       <fileset dir="src/main/resources" includes="com/samskivert/Utils.gwt.xml"/>
       <fileset dir="${src.dir}" includes="com/samskivert/text/MessageUtil.java"/>
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnum.java"/>
       <fileset dir="${src.dir}" includes="com/samskivert/util/ByteEnumUtil.java"/>
     </copy>
-    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${ant.project.name}-gwt.jar"/>
-    <delete dir="${gwtjar.dir}"/>
+    <jar destfile="${deploy.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
   </target>
 
   <property name="maven.deploy.repo" value="file://${user.home}/.m2/repository"/>
@@ -128,11 +125,6 @@
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="pom"/>
       <attach file="${deploy.dir}/${ant.project.name}-sources.jar" classifier="sources"/>
-    </artifact:deploy>
-    <artifact:pom id="gwt-pom" file="gwt-pom.xml"/>
-    <artifact:deploy file="${deploy.dir}/${ant.project.name}-gwt.jar" uniqueVersion="false">
-      <remoteRepository url="${maven.deploy.repo}"/>
-      <pom refid="gwt-pom"/>
     </artifact:deploy>
   </target>
 </project>

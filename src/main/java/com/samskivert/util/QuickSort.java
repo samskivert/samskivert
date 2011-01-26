@@ -20,6 +20,7 @@
 
 package com.samskivert.util;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Comparator;
 
@@ -337,7 +338,7 @@ public class QuickSort
      * Sort the elements in the specified List according to the ordering imposed by the specified
      * Comparator.
      */
-    public static <T> void sort (List<T> a, Comparator<T> comp)
+    public static <T> void sort (List<T> a, Comparator<? super T> comp)
     {
         sort(a, 0, a.size() - 1, comp);
     }
@@ -365,20 +366,16 @@ public class QuickSort
      * Sort the elements in the specified List according to the reverse ordering imposed by the
      * specified Comparator.
      */
-    public static <T> void rsort (List<T> a, final Comparator<T> comp)
+    public static <T> void rsort (List<T> a, Comparator<? super T> comp)
     {
-        sort(a, new Comparator<T>() {
-            public int compare (T o1, T o2) {
-                return comp.compare(o2, o1);
-            }
-        });
+        sort(a, Collections.reverseOrder(comp));
     }
 
     /**
      * Sort a subset of the elements in the specified List according to the ordering imposed by the
      * specified Comparator.
      */
-    public static <T> void sort (List<T> a, int lo0, int hi0, Comparator<T> comp)
+    public static <T> void sort (List<T> a, int lo0, int hi0, Comparator<? super T> comp)
     {
         // bail out if we're already done
         if (hi0 <= lo0) {

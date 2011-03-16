@@ -71,7 +71,7 @@
         <exclusion><groupId>com.sun.jmx</groupId><artifactId>jmxri</artifactId></exclusion>
         <exclusion><groupId>oro</groupId><artifactId>oro</artifactId></exclusion>
         <exclusion><groupId>junit</groupId><artifactId>junit</artifactId></exclusion>
-      </exclusions> 
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-digester</groupId>
@@ -82,7 +82,7 @@
       <exclusions>
         <exclusion><groupId>commons-beanutils</groupId>
                    <artifactId>commons-beanutils</artifactId></exclusion>
-      </exclusions> 
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

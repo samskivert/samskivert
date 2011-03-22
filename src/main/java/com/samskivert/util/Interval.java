@@ -44,6 +44,12 @@ public abstract class Interval
          * likely used to call toString() on the Interval for logging purposes.
          */
         public Interval getInterval ();
+
+        /**
+         * Returns the class name of the interval (valid even if the interval has been cancelled
+         * and its reference cleared).
+         */
+        public String getIntervalClassName ();
     }
 
     /**
@@ -285,6 +291,7 @@ public abstract class Interval
         public IntervalTask (Interval interval)
         {
             _interval = interval;
+            _intervalClassName = interval.getClass().getName();
         }
 
         @Override public boolean cancel ()
@@ -316,6 +323,9 @@ public abstract class Interval
                     public Interval getInterval () {
                         return _interval;
                     }
+                    public String getIntervalClassName () {
+                        return _intervalClassName;
+                    }
                     @Override public String toString () {
                         Interval ival = _interval;
                         return (ival != null) ? ival.toString() : "(Interval was cancelled)";
@@ -346,6 +356,9 @@ public abstract class Interval
          * any references held by the interval to be collectable during this period, so our
          * cancel removes the reference back to the Interval. */
         protected Interval _interval;
+
+        /** The class name of the interval (so that we can identify it after cancellation). */
+        protected String _intervalClassName;
 
     } // end: static class IntervalTask
 

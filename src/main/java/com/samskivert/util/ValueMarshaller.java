@@ -42,6 +42,13 @@ public class ValueMarshaller
     public static Object unmarshal (Class<?> type, String source)
         throws Exception
     {
+        if (type.isEnum()) {
+            @SuppressWarnings("unchecked") // we just asked type if it was an enum...
+            Class<? extends Enum> etype = (Class<? extends Enum>)type;
+            @SuppressWarnings("unchecked") // silly compiler, we're assigning to Object
+            Object o = Enum.valueOf(etype, source); // may throw an exception
+            return o;
+        }
         // look up an argument parser for the field type
         Parser parser = _parsers.get(type);
         if (parser == null) {
@@ -158,11 +165,10 @@ public class ValueMarshaller
         // and Color objects
         _parsers.put(Color.class, new Parser() {
             public Object parse (String source) throws Exception {
-                if (source.length() == 0 || source.charAt(0) != '#') {
-                    return new Color(Integer.parseInt(source, 16));
-                } else {
-                    return new Color(Integer.parseInt(source.substring(1), 16));
+                if (source.startsWith("#")) {
+                    source = source.substring(1);
                 }
+                return new Color(Integer.parseInt(source, 16));
             }
         });
     }

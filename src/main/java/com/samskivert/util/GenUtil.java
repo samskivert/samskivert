@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 
 /**
@@ -88,6 +89,9 @@ public class GenUtil
                 buf.append(" extends ").append(simpleName(wt.getUpperBounds()[0]));
             }
             return buf.toString();
+
+        } else if (type instanceof TypeVariable) {
+            return ((TypeVariable)type).getName();
 
         } else {
             throw new IllegalArgumentException("Can't generate simple name [type=" + type +

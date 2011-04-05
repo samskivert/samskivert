@@ -58,8 +58,8 @@ Invoke Maven with any of the following targets:
 Documentation
 -------------
 
-Javadoc documentation is available
-[here](http://samskivert.github.com/samskivert/apidocs/).
+Javadoc documentation is available at
+[http://samskivert.github.com/samskivert/apidocs/].
 
 Artifacts
 ---------

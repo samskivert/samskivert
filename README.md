@@ -82,14 +82,15 @@ A jar artifact is published to Maven Central, and can be depended upon via:
 If you prefer to download a jar file, that can be done
 [here](http://repo2.maven.org/maven2/com/samskivert/samskivert/).
 
-Distribution
-------------
+Errata
+------
+
+Note that SL has been around since 1999 and as a result some of its
+functionality has been rendered obsolete, but much of it remains in active use
+by various projects at [Three Rings](http://www.threerings.net).
 
 The samskivert library is released under the LGPL. The most recent version of
 the library is available [here](http://github.com/samskivert/samskivert/).
-
-Contribution
-------------
 
 Contributions to SL are welcome. Fork the library and submit pull requests to
 your heart's content. Questions about the library can be directed to the

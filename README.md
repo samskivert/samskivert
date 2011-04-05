@@ -33,6 +33,22 @@ following principles:
   and software that is sufficiently difficult to make usable in an arbitrary
   environment will not be used by SL and may be "reinvented".
 
+Overview
+--------
+
+Theses packages contain utility routines that you may find useful:
+
+* [com.samskivert.io] - various I/O related utilities.
+* [com.samskivert.jdbc] - support services for applications that access
+  relational databases via JDBC.
+* [com.samskivert.swing] - extensions and patterns for building user interfaces
+  with Swing.
+* [com.samskivert.text] - utilities for text processing and i18n.
+* [com.samskivert.util] - a variety of utility services including data
+  structures, synchronization support, text processing and more.
+* [com.samskivert.xml] - extensions to [Commons
+  Digester](http://commons.apache.org/digester/).
+
 Building
 --------
 
@@ -81,3 +97,16 @@ Contribution
 Contributions to SL are welcome. Fork the library and submit pull requests to
 your heart's content. Questions about the library can be directed to the
 [OOO-LIBS Google Group](https://groups.google.com/forum/#!forum/ooo-libs).
+
+[com.samskivert.io]:
+http://samskivert.github.com/samskivert/apidocs/com/samskivert/io/package-summary.html
+[com.samskivert.jdbc]:
+http://samskivert.github.com/samskivert/apidocs/com/samskivert/jdbc/package-summary.html
+[com.samskivert.swing]:
+http://samskivert.github.com/samskivert/apidocs/com/samskivert/swing/package-summary.html
+[com.samskivert.text]:
+http://samskivert.github.com/samskivert/apidocs/com/samskivert/text/package-summary.html
+[com.samskivert.util]:
+http://samskivert.github.com/samskivert/apidocs/com/samskivert/util/package-summary.html
+[com.samskivert.xml]:
+http://samskivert.github.com/samskivert/apidocs/com/samskivert/xml/package-summary.html

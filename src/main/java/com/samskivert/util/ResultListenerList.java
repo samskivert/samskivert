@@ -31,7 +31,7 @@ public class ResultListenerList<T> extends ObserverList.Impl<ResultListener<T>>
      */
     public ResultListenerList ()
     {
-        super(Policy.FAST_UNSAFE, false);
+        super(Policy.FAST_UNSAFE);
     }
 
     /**
@@ -39,7 +39,7 @@ public class ResultListenerList<T> extends ObserverList.Impl<ResultListener<T>>
      */
     public ResultListenerList (Policy notifyPolicy)
     {
-        super(notifyPolicy, false);
+        super(notifyPolicy);
     }
 
     /**

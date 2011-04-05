@@ -33,30 +33,27 @@ import com.samskivert.util.ObserverList.ObserverOp;
 public class WeakObserverList<T> extends ObserverList<T>
 {
     /**
-     * A convenience method for creating an observer list that avoids duplicating the type
-     * parameter on the right hand side.
+     * Creates a weak observer list with {@link Policy.SAFE_IN_ORDER} notification policy.
      */
     public static <T> WeakObserverList<T> newSafeInOrder ()
     {
-        return newList(Policy.SAFE_IN_ORDER, false);
+        return newList(Policy.SAFE_IN_ORDER);
     }
 
     /**
-     * A convenience method for creating an observer list that avoids duplicating the type
-     * parameter on the right hand side.
+     * Creates a weak observer list with {@link Policy.FAST_UNSAFE} notification policy.
      */
     public static <T> WeakObserverList<T> newFastUnsafe ()
     {
-        return newList(Policy.FAST_UNSAFE, false);
+        return newList(Policy.FAST_UNSAFE);
     }
 
     /**
-     * A convenience method for creating an observer list that avoids duplicating the type
-     * parameter on the right hand side.
+     * Creates a weak observer list with the specified notification policy.
      */
-    public static <T> WeakObserverList<T> newList (Policy notifyPolicy, boolean allowDups)
+    public static <T> WeakObserverList<T> newList (Policy notifyPolicy)
     {
-        return new WeakObserverList<T>(notifyPolicy, allowDups);
+        return new WeakObserverList<T>(notifyPolicy);
     }
 
     @Override public boolean add (int index, T element)
@@ -103,9 +100,9 @@ public class WeakObserverList<T> extends ObserverList<T>
         });
     }
 
-    protected WeakObserverList (Policy notifyPolicy, boolean allowDups)
+    protected WeakObserverList (Policy notifyPolicy)
     {
-        _delegate = new WrappedList<T>(notifyPolicy, allowDups);
+        _delegate = new WrappedList<T>(notifyPolicy);
     }
 
     /**
@@ -133,8 +130,8 @@ public class WeakObserverList<T> extends ObserverList<T>
      */
     protected static class WrappedList<T> extends ObserverList.Impl<WeakReference<T>>
     {
-        public WrappedList (Policy notifyPolicy, boolean allowDups) {
-            super(notifyPolicy, allowDups);
+        public WrappedList (Policy notifyPolicy) {
+            super(notifyPolicy);
         }
 
         @Override protected int indexOf (WeakReference<T> ref) {

@@ -127,38 +127,35 @@ public abstract class ObserverList<T>
     @Deprecated public static final int FAST_UNSAFE_NOTIFY = 2;
 
     /**
-     * A convenience method for creating an observer list that avoids duplicating the type
-     * parameter on the right hand side.
+     * Creates an observer list with {@link Policy.SAFE_IN_ORDER} notification policy.
      */
     public static <T> ObserverList<T> newSafeInOrder ()
     {
-        return newList(Policy.SAFE_IN_ORDER, false);
+        return newList(Policy.SAFE_IN_ORDER);
     }
 
     /**
-     * A convenience method for creating an observer list that avoids duplicating the type
-     * parameter on the right hand side.
+     * Creates an observer list with {@link Policy.FAST_UNSAFE} notification policy.
      */
     public static <T> ObserverList<T> newFastUnsafe ()
     {
-        return newList(Policy.FAST_UNSAFE, false);
+        return newList(Policy.FAST_UNSAFE);
     }
 
     /**
-     * A convenience method for creating an observer list that avoids duplicating the type
-     * parameter on the right hand side.
+     * Creates an observer list with the specified notification policy.
      */
-    public static <T> ObserverList<T> newList (Policy notifyPolicy, boolean allowDups)
+    public static <T> ObserverList<T> newList (Policy notifyPolicy)
     {
-        return new Impl<T>(notifyPolicy, allowDups);
+        return new Impl<T>(notifyPolicy);
     }
 
     /** @deprecated Switch to {@link Policy} constants. */
-    @Deprecated public static <T> ObserverList<T> newList (int notifyPolicy, boolean allowDups)
+    @Deprecated public static <T> ObserverList<T> newList (int notifyPolicy)
     {
         switch (notifyPolicy) {
-        case SAFE_IN_ORDER_NOTIFY: return newList(Policy.SAFE_IN_ORDER, allowDups);
-        case FAST_UNSAFE_NOTIFY: return newList(Policy.FAST_UNSAFE, allowDups);
+        case SAFE_IN_ORDER_NOTIFY: return newList(Policy.SAFE_IN_ORDER);
+        case FAST_UNSAFE_NOTIFY: return newList(Policy.FAST_UNSAFE);
         default: throw new IllegalArgumentException("Unknown policy " + notifyPolicy);
         }
     }
@@ -206,9 +203,8 @@ public abstract class ObserverList<T>
     }
 
     protected static class Impl<T> extends ObserverList<T> {
-        protected Impl (Policy notifyPolicy, boolean allowDups) {
+        protected Impl (Policy notifyPolicy) {
             _policy = notifyPolicy;
-            _allowDups = allowDups;
             _list = (_policy == Policy.SAFE_IN_ORDER) ?
                 new CopyOnWriteArrayList<T>() : new ArrayList<T>();
         }
@@ -278,12 +274,11 @@ public abstract class ObserverList<T>
             return -1;
         }
 
-        /** Returns true and issues a warning if this list does not allow duplicates and the
-         * supplied observer is already in the list. Returns false if the supplied observer is not
-         * a duplicate. */
+        /** Returns true and issues a warning if the supplied observer is already in the list.
+         * Returns false if the supplied observer is not a duplicate. */
         protected boolean isDuplicate (T obs) {
             // make sure we're not violating the list constraints
-            if (!_allowDups && (indexOf(obs) >= 0)) {
+            if (indexOf(obs) >= 0) {
                 log.warning("Observer attempted to observe list it's already observing!", "obs", obs,
                             new Exception());
                 return true;
@@ -293,9 +288,6 @@ public abstract class ObserverList<T>
 
         /** The notification policy. */
         protected Policy _policy;
-
-        /** Whether to allow observers to observe more than once simultaneously. */
-        protected boolean _allowDups;
 
         /** Our list of observers. */
         protected List<T> _list;

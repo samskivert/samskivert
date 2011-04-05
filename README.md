@@ -59,7 +59,7 @@ Documentation
 -------------
 
 Javadoc documentation is available at
-[http://samskivert.github.com/samskivert/apidocs/].
+(http://samskivert.github.com/samskivert/apidocs/).
 
 Artifacts
 ---------

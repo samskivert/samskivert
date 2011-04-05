@@ -1,5 +1,5 @@
 The samskivert library
-----------------------
+======================
 
 The samskivert library (SL) aims to provide useful reusable Java routines that
 do things for which I've been unable to find useful reusable implementations on

@@ -43,17 +43,31 @@ automatically fetched.
 
 Invoke Ant with any of the following targets:
 
-  all: builds the class files and javadoc documentation
-  compile: builds only the class files (dist/classes)
-  javadoc: builds only the javadoc documentation (dist/docs)
-  tests: builds and runs the unit tests
-  dist: builds the distribution jar file (dist/samskivert.jar)
+    all: builds the class files and javadoc documentation
+    compile: builds only the class files (dist/classes)
+    javadoc: builds only the javadoc documentation (dist/docs)
+    tests: builds and runs the unit tests
+    dist: builds the distribution jar file (dist/samskivert.jar)
 
 Invoke Maven with any of the following targets:
 
-  mvn test: builds the code and runs the tests
-  mvn package: builds the code and creates target/samskivert-X.X.jar
-  mvn install: builds and installs samskivert into your local Maven repository
+    mvn test: builds the code and runs the tests
+    mvn package: builds the code and creates target/samskivert-X.X.jar
+    mvn install: builds and installs samskivert into your local Maven repository
+
+Documentation
+-------------
+
+Javadoc documentation is available at:
+
+http://samskivert.github.com/samskivert/apidocs/
+
+Artifacts
+---------
+
+A jar artifact is published to Maven Central, and can be depended upon via:
+
+    com.samskivert:samskivert:1.3
 
 Distribution
 ------------
@@ -61,12 +75,13 @@ Distribution
 The samskivert library is released under the LGPL. The most recent version
 of the library is available here:
 
-  http://code.google.com/p/samskivert/
+http://github.com/samskivert/samskivert/
 
 Contribution
 ------------
 
-Contributions to SL are welcome. Email mdb@samskivert.com with patches or
-suggestions.
+Contributions to SL are welcome. Fork the library and submit pull requests to
+your heart's content. Questions about the library can be directed to the
+OOO-LIBS Google Group:
 
-$Id$
+https://groups.google.com/forum/#!forum/ooo-libs

@@ -58,9 +58,8 @@ Invoke Maven with any of the following targets:
 Documentation
 -------------
 
-Javadoc documentation is available at:
-
-http://samskivert.github.com/samskivert/apidocs/
+Javadoc documentation is available
+[here](http://samskivert.github.com/samskivert/apidocs/).
 
 Artifacts
 ---------
@@ -69,23 +68,18 @@ A jar artifact is published to Maven Central, and can be depended upon via:
 
     com.samskivert:samskivert:1.3
 
-If you prefer to download a jar file, that can be done here:
-
-http://repo2.maven.org/maven2/com/samskivert/samskivert/
+If you prefer to download a jar file, that can be done
+[here](http://repo2.maven.org/maven2/com/samskivert/samskivert/).
 
 Distribution
 ------------
 
-The samskivert library is released under the LGPL. The most recent version
-of the library is available here:
-
-http://github.com/samskivert/samskivert/
+The samskivert library is released under the LGPL. The most recent version of
+the library is available [here](http://github.com/samskivert/samskivert/).
 
 Contribution
 ------------
 
 Contributions to SL are welcome. Fork the library and submit pull requests to
 your heart's content. Questions about the library can be directed to the
-OOO-LIBS Google Group:
-
-https://groups.google.com/forum/#!forum/ooo-libs
+[OOO-LIBS Google Group](https://groups.google.com/forum/#!forum/ooo-libs).

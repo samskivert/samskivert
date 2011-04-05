@@ -49,6 +49,9 @@ Theses packages contain utility routines that you may find useful:
 * [com.samskivert.xml] - extensions to [Commons
   Digester](http://commons.apache.org/digester/).
 
+The main Javadoc index can be found
+[here](http://samskivert.github.com/samskivert/apidocs/).
+
 Building
 --------
 
@@ -68,12 +71,6 @@ Invoke Maven with any of the following targets:
     mvn test: builds the code and runs the tests
     mvn package: builds the code and creates target/samskivert-X.X.jar
     mvn install: builds and installs samskivert into your local Maven repository
-
-Documentation
--------------
-
-Javadoc documentation is available
-[here](http://samskivert.github.com/samskivert/apidocs/).
 
 Artifacts
 ---------

@@ -1,6 +1,4 @@
 /**
- * $Id: create_site_tables.mysql,v 1.2 2003/11/13 16:57:47 mdb Exp $
- *
  * Creates the necessary database tables in MySQL for the JDBC table site
  * identifier.
  */

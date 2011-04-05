@@ -1,4 +1,3 @@
-<!-- $Id$                                          -->
 <!-- Exports various samskivert utilities to GWT.  -->
 <module>
   <source path="text"/>

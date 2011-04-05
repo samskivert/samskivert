@@ -1,6 +1,4 @@
 //
-// $Id$
-//
 // samskivert library - useful routines for java programs
 // Copyright (C) 2001-2011 Michael Bayne, et al.
 //

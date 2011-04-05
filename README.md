@@ -98,15 +98,9 @@ Contributions to SL are welcome. Fork the library and submit pull requests to
 your heart's content. Questions about the library can be directed to the
 [OOO-LIBS Google Group](https://groups.google.com/forum/#!forum/ooo-libs).
 
-[com.samskivert.io]:
-http://samskivert.github.com/samskivert/apidocs/com/samskivert/io/package-summary.html
-[com.samskivert.jdbc]:
-http://samskivert.github.com/samskivert/apidocs/com/samskivert/jdbc/package-summary.html
-[com.samskivert.swing]:
-http://samskivert.github.com/samskivert/apidocs/com/samskivert/swing/package-summary.html
-[com.samskivert.text]:
-http://samskivert.github.com/samskivert/apidocs/com/samskivert/text/package-summary.html
-[com.samskivert.util]:
-http://samskivert.github.com/samskivert/apidocs/com/samskivert/util/package-summary.html
-[com.samskivert.xml]:
-http://samskivert.github.com/samskivert/apidocs/com/samskivert/xml/package-summary.html
+[com.samskivert.io]: http://samskivert.github.com/samskivert/apidocs/com/samskivert/io/package-summary.html
+[com.samskivert.jdbc]: http://samskivert.github.com/samskivert/apidocs/com/samskivert/jdbc/package-summary.html
+[com.samskivert.swing]: http://samskivert.github.com/samskivert/apidocs/com/samskivert/swing/package-summary.html
+[com.samskivert.text]: http://samskivert.github.com/samskivert/apidocs/com/samskivert/text/package-summary.html
+[com.samskivert.util]: http://samskivert.github.com/samskivert/apidocs/com/samskivert/util/package-summary.html
+[com.samskivert.xml]: http://samskivert.github.com/samskivert/apidocs/com/samskivert/xml/package-summary.html

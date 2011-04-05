@@ -23,23 +23,23 @@ package com.samskivert.util;
 /**
  * Multiplexes ResultListener responses to multiple ResultListeners.
  */
-public class ResultListenerList<T> extends ObserverList<ResultListener<T>>
+public class ResultListenerList<T> extends ObserverList.Impl<ResultListener<T>>
     implements ResultListener<T>
 {
     /**
-     * Create a ResultListenerList with the FAST_UNSAFE_NOTIFY policy.
+     * Create a ResultListenerList with the FAST_UNSAFE notification policy.
      */
     public ResultListenerList ()
     {
-        super(FAST_UNSAFE_NOTIFY);
+        super(Policy.FAST_UNSAFE, false);
     }
 
     /**
      * Create a ResultListenerList with your own notifyPolicy.
      */
-    public ResultListenerList (int notifyPolicy)
+    public ResultListenerList (Policy notifyPolicy)
     {
-        super(notifyPolicy);
+        super(notifyPolicy, false);
     }
 
     /**

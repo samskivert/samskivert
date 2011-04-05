@@ -23,6 +23,9 @@ package com.samskivert.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.samskivert.Log.log;
 
@@ -86,7 +89,7 @@ import static com.samskivert.Log.log;
  * <p> Other usage patterns are most certainly conceivable, and hopefully these two will give you a
  * useful starting point for determining what is the most appropriate usage for your needs.
  */
-public class ObserverList<T> extends ArrayList<T>
+public abstract class ObserverList<T>
 {
     /**
      * Instances of this interface are used to apply methods to all observers in a list.
@@ -102,17 +105,26 @@ public class ObserverList<T> extends ArrayList<T>
         public boolean apply (T observer);
     }
 
-    /** A notification ordering policy indicating that the observers should be notified in the
-     * order they were added and that the notification should be done on a snapshot of the
-     * array. */
-    public static final int SAFE_IN_ORDER_NOTIFY = 1;
+    /** Notification policies. */
+    public enum Policy {
+        /** A notification ordering policy indicating that the observers should be notified in the
+         * order they were added and that the notification should be done on a snapshot of the
+         * array. */
+        SAFE_IN_ORDER,
 
-    /** A notification ordering policy wherein the observers are notified last to first so that
-     * they can be removed during the notification process and new observers added will not
-     * inadvertently be notified as well, but no copy of the observer list need be made. This will
-     * not work if observers are added or removed from arbitrary positions in the list during a
-     * notification call. */
-    public static final int FAST_UNSAFE_NOTIFY = 2;
+        /** A notification ordering policy wherein the observers are notified last to first so that
+         * they can be removed during the notification process and new observers added will not
+         * inadvertently be notified as well, but no copy of the observer list need be made. This
+         * will not work if observers are added or removed from arbitrary positions in the list
+         * during a notification call. */
+        FAST_UNSAFE;
+    };
+
+    /** @deprecated Use {@link Policy.SAFE_IN_ORDER}. */
+    @Deprecated public static final Policy SAFE_IN_ORDER_NOTIFY = Policy.SAFE_IN_ORDER;
+
+    /** @deprecated Use {@link Policy.FAST_UNSAFE}. */
+    @Deprecated public static final Policy FAST_UNSAFE_NOTIFY = Policy.FAST_UNSAFE;
 
     /**
      * A convenience method for creating an observer list that avoids duplicating the type
@@ -120,7 +132,7 @@ public class ObserverList<T> extends ArrayList<T>
      */
     public static <T> ObserverList<T> newSafeInOrder ()
     {
-        return new ObserverList<T>(SAFE_IN_ORDER_NOTIFY);
+        return newList(Policy.SAFE_IN_ORDER, false);
     }
 
     /**
@@ -129,166 +141,146 @@ public class ObserverList<T> extends ArrayList<T>
      */
     public static <T> ObserverList<T> newFastUnsafe ()
     {
-        return new ObserverList<T>(FAST_UNSAFE_NOTIFY);
+        return newList(Policy.FAST_UNSAFE, false);
     }
 
     /**
      * A convenience method for creating an observer list that avoids duplicating the type
      * parameter on the right hand side.
      */
-    public static <T> ObserverList<T> newList (int notifyPolicy, boolean allowDups)
+    public static <T> ObserverList<T> newList (Policy notifyPolicy, boolean allowDups)
     {
-        return new ObserverList<T>(notifyPolicy, allowDups);
+        return new Impl<T>(notifyPolicy, allowDups);
     }
 
     /**
-     * Creates an empty observer list with the supplied notification policy and that only allows
-     * observers to observe the list once.
-     *
-     * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link #FAST_UNSAFE_NOTIFY}.
+     * Adds an observer at the specified index.
+     * @return true if the observer was added, false if it was already in the list.
      */
-    public ObserverList (int notifyPolicy)
-    {
-        this(notifyPolicy, false);
-    }
+    public abstract boolean add (int index, T element);
 
     /**
-     * Creates an empty observer list with the supplied notification and duplicate observer policy.
-     *
-     * @param notifyPolicy Either {@link #SAFE_IN_ORDER_NOTIFY} or {@link #FAST_UNSAFE_NOTIFY}.
-     * @param allowDups whether to allow observers to be added to the list more than once.
+     * Adds an observer to the end of the list.
+     * @return true if the observer was added, false if it was already in the list.
      */
-    public ObserverList (int notifyPolicy, boolean allowDups)
-    {
-        // make sure the policy is valid
-        if (notifyPolicy != SAFE_IN_ORDER_NOTIFY && notifyPolicy != FAST_UNSAFE_NOTIFY) {
-            throw new RuntimeException("Invalid notification policy [policy=" + notifyPolicy + "]");
-        }
+    public abstract boolean add (T element);
 
-        _policy = notifyPolicy ;
-        _allowDups = allowDups;
-    }
-
-    @Override
-    public void add (int index, T element)
-    {
-        if (element == null) {
-            throw new NullPointerException("Null observers not allowed.");
-        }
-        if (!isDuplicate(element)) {
-            super.add(index, element);
-        }
-    }
-
-    @Override
-    public boolean add (T element)
-    {
-        if (element == null) {
-            throw new NullPointerException("Null observers not allowed.");
-        }
-        return isDuplicate(element) ? false : super.add(element);
-    }
-
-    @Override
-    public boolean addAll (Collection<? extends T> c)
-    {
-        throw new UnsupportedOperationException(
-            "Observers may only be added via ObserverList.add(Object).");
-    }
-
-    @Override
-    public boolean addAll (int index, Collection<? extends T> c)
-    {
-        throw new UnsupportedOperationException(
-            "Observers may only be added via ObserverList.add(Object).");
-    }
-
-    @Override
-    public int indexOf (Object element)
-    {
-        // indexOf and lastIndexOf are implemented using reference equality so that contains() also
-        // uses reference equality
-        for (int ii = 0, nn = size(); ii < nn; ii++) {
-            if (element == get(ii)) {
-                return ii;
-            }
-        }
-        return -1;
-    }
-
-    @Override
-    public int lastIndexOf (Object element)
-    {
-        // indexOf and lastIndexOf are implemented using reference equality so that contains() also
-        // uses reference equality
-        for (int ii = size() - 1; ii >= 0; ii--) {
-            if (element == get(ii)) {
-                return ii;
-            }
-        }
-        return -1;
-    }
-
-    @Override
-    public boolean remove (Object element)
-    {
-        int dex = indexOf(element);
-        if (dex == -1) {
-            return false; // not found
-        }
-        remove(dex);
-        return true;
-    }
+    /**
+     * Removes the specified observer from the list.
+     * @return true if the observer was located and removed, false if it does not exist.
+     */
+    public abstract boolean remove (T element);
 
     /**
      * Applies the supplied observer operation to all observers in the list in a manner conforming
      * to the notification ordering policy specified at construct time.
      */
-    @SuppressWarnings("unchecked")
-    public void apply (ObserverOp<T> obop)
-    {
-        int ocount = size();
-        if (ocount == 0) {
-            return;
-        }
-        if (_policy == SAFE_IN_ORDER_NOTIFY) {
-            // if we have to notify our observers in order, we need to create a snapshot of the
-            // observer array at the time we start the notification to ensure that modifications to
-            // the array during notification don't hose us
-            if (_snap == null || _snap.length < ocount || _snap.length > (ocount << 3)) {
-                _snap = (T[])new Object[ocount];
-            }
-            toArray(_snap);
-            for (int ii = 0; ii < ocount; ii++) {
-                if (!checkedApply(obop, _snap[ii])) {
-                    remove(_snap[ii]);
-                }
-            }
-            // clear out the snapshot so its contents can be gc'd
-            Arrays.fill(_snap, null);
-
-        } else if (_policy == FAST_UNSAFE_NOTIFY) {
-            for (int ii = ocount-1; ii >= 0; ii--) {
-                if (!checkedApply(obop, get(ii))) {
-                    remove(ii);
-                }
-            }
-        }
-    }
+    public abstract void apply (ObserverOp<T> obop);
 
     /**
-     * Returns true and issues a warning if this list does not allow duplicates and the supplied
-     * observer is already in the list. Returns false if the supplied observer is not a duplicate.
+     * Returns the number of observers in this list.
      */
-    protected boolean isDuplicate (T obs)
-    {
-        // make sure we're not violating the list constraints
-        if (!_allowDups && contains(obs)) {
-            log.warning("Observer attempted to observe list it's already observing!", "obs", obs,
-                        new Exception());
+    public abstract int size ();
+
+    /**
+     * Clears all observers from the list.
+     */
+    public abstract void clear ();
+
+    protected static class Impl<T> extends ObserverList<T> {
+        protected Impl (Policy notifyPolicy, boolean allowDups) {
+            _policy = notifyPolicy;
+            _allowDups = allowDups;
+            _list = (_policy == Policy.SAFE_IN_ORDER) ?
+                new CopyOnWriteArrayList<T>() : new ArrayList<T>();
+        }
+
+        @Override public boolean add (int index, T element) {
+            if (element == null) throw new NullPointerException("Null observers not allowed.");
+            if (isDuplicate(element)) return false;
+            _list.add(index, element);
             return true;
         }
-        return false;
+
+        @Override public boolean add (T element) {
+            if (element == null) throw new NullPointerException("Null observers not allowed.");
+            if (isDuplicate(element)) return false;
+            _list.add(element);
+            return true;
+        }
+
+        @Override public boolean remove (T element) {
+            int idx = indexOf(element);
+            if (idx < 0) return false;
+            _list.remove(idx);
+            return true;
+        }
+
+        @Override public void apply (ObserverOp<T> obop) {
+            switch (_policy) {
+            case SAFE_IN_ORDER:
+                // our copy on write array list will prevent us from getting hosed if modifications
+                // take place during iteration
+                Iterator<T> iter = _list.iterator();
+                for (int ii = 0; iter.hasNext(); ii++) {
+                    T elem = iter.next();
+                    if (!checkedApply(obop, elem)) {
+                        // can't remove via COWArrayList iterator, and to be totally safe (because
+                        // we don't know if any additions or removals have taken place while we
+                        // were iterating), we have to scan the whole list to locate this element
+                        // so that we can remove it
+                        remove(elem);
+                    }
+                }
+                break;
+
+            case FAST_UNSAFE:
+                for (int ii = _list.size()-1; ii >= 0; ii--) {
+                    if (!checkedApply(obop, _list.get(ii))) {
+                        _list.remove(ii);
+                    }
+                }
+                break;
+            }
+        }
+
+        @Override public int size () {
+            return _list.size();
+        }
+
+        @Override public void clear () {
+            _list.clear();
+        }
+
+        /** Used to determine whether an element is in the list. */
+        protected int indexOf (T element) {
+            for (int ii = 0, ll = _list.size(); ii < ll; ii++) {
+                if (_list.get(ii) == element) return ii;
+            }
+            return -1;
+        }
+
+        /** Returns true and issues a warning if this list does not allow duplicates and the
+         * supplied observer is already in the list. Returns false if the supplied observer is not
+         * a duplicate. */
+        protected boolean isDuplicate (T obs) {
+            // make sure we're not violating the list constraints
+            if (!_allowDups && (indexOf(obs) >= 0)) {
+                log.warning("Observer attempted to observe list it's already observing!", "obs", obs,
+                            new Exception());
+                return true;
+            }
+            return false;
+        }
+
+        /** The notification policy. */
+        protected Policy _policy;
+
+        /** Whether to allow observers to observe more than once simultaneously. */
+        protected boolean _allowDups;
+
+        /** Our list of observers. */
+        protected List<T> _list;
     }
 
     /**
@@ -305,14 +297,4 @@ public class ObserverList<T> extends ArrayList<T>
             return true;
         }
     }
-
-    /** The notification policy. */
-    protected int _policy;
-
-    /** Whether to allow observers to observe more than once simultaneously. */
-    protected boolean _allowDups;
-
-    /** Used to avoid creating a new snapshot array every time we notify our observers if the size
-     * has not changed. */
-    protected T[] _snap;
 }

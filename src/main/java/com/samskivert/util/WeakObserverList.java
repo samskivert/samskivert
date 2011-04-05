@@ -30,7 +30,7 @@ import com.samskivert.util.ObserverList.ObserverOp;
  * An {@link ObserverList} equivalent that does not prevent added observers from being
  * garbage-collected.
  */
-public class WeakObserverList<T> extends AbstractList<T>
+public class WeakObserverList<T> extends ObserverList<T>
 {
     /**
      * A convenience method for creating an observer list that avoids duplicating the type
@@ -38,7 +38,7 @@ public class WeakObserverList<T> extends AbstractList<T>
      */
     public static <T> WeakObserverList<T> newSafeInOrder ()
     {
-        return new WeakObserverList<T>(ObserverList.SAFE_IN_ORDER_NOTIFY);
+        return newList(Policy.SAFE_IN_ORDER, false);
     }
 
     /**
@@ -47,111 +47,47 @@ public class WeakObserverList<T> extends AbstractList<T>
      */
     public static <T> WeakObserverList<T> newFastUnsafe ()
     {
-        return new WeakObserverList<T>(ObserverList.FAST_UNSAFE_NOTIFY);
+        return newList(Policy.FAST_UNSAFE, false);
     }
 
     /**
      * A convenience method for creating an observer list that avoids duplicating the type
      * parameter on the right hand side.
      */
-    public static <T> WeakObserverList<T> newList (int notifyPolicy, boolean allowDups)
+    public static <T> WeakObserverList<T> newList (Policy notifyPolicy, boolean allowDups)
     {
         return new WeakObserverList<T>(notifyPolicy, allowDups);
     }
 
-    /**
-     * Creates an empty observer list with the supplied notification
-     * policy and that only allows observers to observe the list once.
-     *
-     * @param notifyPolicy Either {@link ObserverList#SAFE_IN_ORDER_NOTIFY} or {@link
-     * ObserverList#FAST_UNSAFE_NOTIFY}.
-     */
-    public WeakObserverList (int notifyPolicy)
+    @Override public boolean add (int index, T element)
     {
-        this(notifyPolicy, false);
+        return _delegate.add(index, new WeakReference<T>(element));
     }
 
-    /**
-     * Creates an empty observer list with the supplied notification and
-     * duplicate observer policy.
-     *
-     * @param notifyPolicy Either {@link ObserverList#SAFE_IN_ORDER_NOTIFY} or {@link
-     * ObserverList#FAST_UNSAFE_NOTIFY}.
-     * @param allowDups whether to allow observers to be added to the list
-     * more than once.
-     */
-    public WeakObserverList (int notifyPolicy, boolean allowDups)
+    @Override public boolean add (T element)
     {
-        _wrappedList = new WrappedList<T>(notifyPolicy, allowDups);
+        return _delegate.add(new WeakReference<T>(element));
     }
 
-    @Override // documentation inherited
-    public int size ()
+    @Override public boolean remove (T element)
     {
-        return _wrappedList.size();
+        return _delegate.remove(new WeakReference<T>(element));
     }
 
-    @Override // documentation inherited
-    public boolean contains (Object element)
-    {
-        @SuppressWarnings("unchecked") T value = (T)element;
-        return _wrappedList.contains(new WeakReference<T>(value));
-    }
-
-    @Override // documentation inherited
-    public boolean remove (Object element)
-    {
-        @SuppressWarnings("unchecked") T value = (T)element;
-        return _wrappedList.remove(new WeakReference<T>(value));
-    }
-
-    @Override // documentation inherited
-    public int indexOf (Object element)
-    {
-        @SuppressWarnings("unchecked") T value = (T)element;
-        return _wrappedList.indexOf(new WeakReference<T>(value));
-    }
-
-    @Override // documentation inherited
-    public int lastIndexOf (Object element)
-    {
-        @SuppressWarnings("unchecked") T value = (T)element;
-        return _wrappedList.lastIndexOf(new WeakReference<T>(value));
-    }
-
-    @Override // documentation inherited
-    public T get (int index)
-    {
-        return _wrappedList.get(index).get();
-    }
-
-    @Override // documentation inherited
-    public T set (int index, T element)
-    {
-        return _wrappedList.set(index, new WeakReference<T>(element)).get();
-    }
-
-    @Override // documentation inherited
-    public void add (int index, T element)
-    {
-        _wrappedList.add(index, new WeakReference<T>(element));
-    }
-
-    @Override // documentation inherited
-    public T remove (int index)
-    {
-        return _wrappedList.remove(index).get();
-    }
-
-    /**
-     * Applies the supplied observer operation to all observers in the
-     * list in a manner conforming to the notification ordering policy
-     * specified at construct time.
-     */
-    public void apply (ObserverOp<T> obop)
+    @Override public void apply (ObserverOp<T> obop)
     {
         _derefOp.init(obop);
-        _wrappedList.apply(_derefOp);
+        _delegate.apply(_derefOp);
+    }
+
+    @Override public int size ()
+    {
+        return _delegate.size();
+    }
+
+    @Override public void clear ()
+    {
+        _delegate.clear();
     }
 
     /**
@@ -159,30 +95,31 @@ public class WeakObserverList<T> extends AbstractList<T>
      */
     public void prune ()
     {
-        for (int ii = _wrappedList.size() - 1; ii >= 0; ii--) {
-            if (_wrappedList.get(ii).get() == null) {
-                _wrappedList.remove(ii);
+        // applying an op prunes collected observers, so just apply a NOOP op
+        apply(new ObserverOp<T>() {
+            public boolean apply (T obs) {
+                return true;
             }
-        }
+        });
+    }
+
+    protected WeakObserverList (Policy notifyPolicy, boolean allowDups)
+    {
+        _delegate = new WrappedList<T>(notifyPolicy, allowDups);
     }
 
     /**
      * An operation that resolves a reference and applies a wrapped op.
      */
-    protected static class DerefOp<T>
-        implements ObserverOp<WeakReference<T>>
+    protected static class DerefOp<T> implements ObserverOp<WeakReference<T>>
     {
-        /**
-         * (Re)initializes this op with a reference to the wrapped op.
-         */
-        public void init (ObserverOp<T> op)
-        {
+        /** (Re)initializes this op with a reference to the wrapped op. */
+        public void init (ObserverOp<T> op) {
             _op = op;
         }
 
         // documentation inherited from interface ObserverOp
-        public boolean apply (WeakReference<T> ref)
-        {
+        public boolean apply (WeakReference<T> ref) {
             T observer = ref.get();
             return observer != null && _op.apply(observer);
         }
@@ -194,37 +131,23 @@ public class WeakObserverList<T> extends AbstractList<T>
     /**
      * ObserverList extension that dereferences elements when searching for a value.
      */
-    protected static class WrappedList<T> extends ObserverList<WeakReference<T>>
+    protected static class WrappedList<T> extends ObserverList.Impl<WeakReference<T>>
     {
-        public WrappedList (int notifyPolicy, boolean allowDups) {
+        public WrappedList (Policy notifyPolicy, boolean allowDups) {
             super(notifyPolicy, allowDups);
         }
 
-        @Override public int indexOf (Object element) {
-            @SuppressWarnings("unchecked") WeakReference<T> ref = (WeakReference<T>)element;
+        @Override protected int indexOf (WeakReference<T> ref) {
             T value = ref.get();
-            for (int ii = 0, nn = size(); ii < nn; ii++) {
-                if (value == get(ii).get()) {
-                    return ii;
-                }
-            }
-            return -1;
-        }
-
-        @Override public int lastIndexOf (Object element) {
-            @SuppressWarnings("unchecked") WeakReference<T> ref = (WeakReference<T>)element;
-            T value = ref.get();
-            for (int ii = size() - 1; ii >= 0; ii--) {
-                if (value == get(ii).get()) {
-                    return ii;
-                }
+            for (int ii = 0, ll = _list.size(); ii < ll; ii++) {
+                if (_list.get(ii).get() == value) return ii;
             }
             return -1;
         }
     }
 
-    /** The wrapped list. */
-    protected WrappedList<T> _wrappedList;
+    /** A delegate list that contains weak reference wrapped elements. */
+    protected WrappedList<T> _delegate;
 
     /** The wrapper op. */
     protected DerefOp<T> _derefOp = new DerefOp<T>();

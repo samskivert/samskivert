@@ -121,10 +121,10 @@ public abstract class ObserverList<T>
     };
 
     /** @deprecated Use {@link Policy.SAFE_IN_ORDER}. */
-    @Deprecated public static final Policy SAFE_IN_ORDER_NOTIFY = Policy.SAFE_IN_ORDER;
+    @Deprecated public static final int SAFE_IN_ORDER_NOTIFY = 1;
 
     /** @deprecated Use {@link Policy.FAST_UNSAFE}. */
-    @Deprecated public static final Policy FAST_UNSAFE_NOTIFY = Policy.FAST_UNSAFE;
+    @Deprecated public static final int FAST_UNSAFE_NOTIFY = 2;
 
     /**
      * A convenience method for creating an observer list that avoids duplicating the type
@@ -151,6 +151,16 @@ public abstract class ObserverList<T>
     public static <T> ObserverList<T> newList (Policy notifyPolicy, boolean allowDups)
     {
         return new Impl<T>(notifyPolicy, allowDups);
+    }
+
+    /** @deprecated Switch to {@link Policy} constants. */
+    @Deprecated public static <T> ObserverList<T> newList (int notifyPolicy, boolean allowDups)
+    {
+        switch (notifyPolicy) {
+        case SAFE_IN_ORDER_NOTIFY: return newList(Policy.SAFE_IN_ORDER, allowDups);
+        case FAST_UNSAFE_NOTIFY: return newList(Policy.FAST_UNSAFE, allowDups);
+        default: throw new IllegalArgumentException("Unknown policy " + notifyPolicy);
+        }
     }
 
     /**
@@ -186,6 +196,14 @@ public abstract class ObserverList<T>
      * Clears all observers from the list.
      */
     public abstract void clear ();
+
+    /**
+     * Returns true if this list has no observers, false otherwise.
+     */
+    public boolean isEmpty ()
+    {
+        return size() == 0;
+    }
 
     protected static class Impl<T> extends ObserverList<T> {
         protected Impl (Policy notifyPolicy, boolean allowDups) {

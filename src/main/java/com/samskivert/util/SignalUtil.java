@@ -26,7 +26,7 @@ import sun.misc.SignalHandler;
 /**
  * A wrapper around Sun's internal signal handling bits that can be used to avoid a) an explicit
  * dependency on Sun's internal stuff (assuming they deprecate that and replace it with something
- * actually supported some day) and b) a slew of unsuprressable warnings every time you compile
+ * actually supported some day) and b) a slew of unsuppressable warnings every time you compile
  * your project.
  */
 public class SignalUtil

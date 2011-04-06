@@ -229,7 +229,7 @@ public class ProximityTracker
      */
     protected int binarySearch (int x)
     {
-        // copied from java.util.Arrays which I wouldn't have to have done had the provided a 
+        // copied from java.util.Arrays which I wouldn't have to have done had the provided a
         // means by which to binarySearch in a subset of an array. alas.
         int low = 0;
         int high = _size-1;

@@ -44,7 +44,7 @@ public class ClasspathResourceLoader extends ResourceLoader
     }
 
     @Override // from ResourceLoader
-    public InputStream getResourceStream (String name) 
+    public InputStream getResourceStream (String name)
         throws ResourceNotFoundException
     {
         if (StringUtil.isBlank(name)) {

@@ -88,8 +88,8 @@ public class TaskMaster
         }
 
         /**
-         * Invokes the task and then reports completion or failure later on the swing event 
-         * dispatcher thread. We need to ensure that _mode and _result are visible to the various 
+         * Invokes the task and then reports completion or failure later on the swing event
+         * dispatcher thread. We need to ensure that _mode and _result are visible to the various
          * threads that invoke this runnable so run() is synchronized. Oh how I love Chapter 17.
          */
         @Override

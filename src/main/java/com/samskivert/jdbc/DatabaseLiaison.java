@@ -193,7 +193,7 @@ public interface DatabaseLiaison
      * <em>Note:</em> the table name is case sensitive.
      */
     public boolean dropTable (Connection conn, String name) throws SQLException;
-    
+
     /**
      * Returns the proper SQL to identify a table. Some databases require table names to be quoted.
      */

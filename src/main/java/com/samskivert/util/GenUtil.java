@@ -89,7 +89,7 @@ public class GenUtil
             return buf.toString();
 
         } else if (type instanceof TypeVariable) {
-            return ((TypeVariable)type).getName();
+            return ((TypeVariable<?>)type).getName();
 
         } else {
             throw new IllegalArgumentException("Can't generate simple name [type=" + type +

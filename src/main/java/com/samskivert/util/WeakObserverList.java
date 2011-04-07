@@ -20,10 +20,6 @@ package com.samskivert.util;
 
 import java.lang.ref.WeakReference;
 
-import java.util.AbstractList;
-
-import com.samskivert.util.ObserverList.ObserverOp;
-
 /**
  * An {@link ObserverList} equivalent that does not prevent added observers from being
  * garbage-collected.
@@ -135,7 +131,7 @@ public class WeakObserverList<T> extends ObserverList<T>
         @Override protected int indexOf (WeakReference<T> ref) {
             T value = ref.get();
             for (int ii = 0, ll = _list.size(); ii < ll; ii++) {
-                if (_list.get(ii).get() == value) return ii;
+                if (_list.get(ii).get() == value) { return ii; }
             }
             return -1;
         }

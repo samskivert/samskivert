@@ -19,8 +19,6 @@
 package com.samskivert.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -208,22 +206,22 @@ public abstract class ObserverList<T>
         }
 
         @Override public boolean add (int index, T element) {
-            if (element == null) throw new NullPointerException("Null observers not allowed.");
-            if (isDuplicate(element)) return false;
+            if (element == null) { throw new NullPointerException("Null observers not allowed."); }
+            if (isDuplicate(element)) { return false; }
             _list.add(index, element);
             return true;
         }
 
         @Override public boolean add (T element) {
-            if (element == null) throw new NullPointerException("Null observers not allowed.");
-            if (isDuplicate(element)) return false;
+            if (element == null) { throw new NullPointerException("Null observers not allowed."); }
+            if (isDuplicate(element)) { return false; }
             _list.add(element);
             return true;
         }
 
         @Override public boolean remove (T element) {
             int idx = indexOf(element);
-            if (idx < 0) return false;
+            if (idx < 0) { return false; }
             _list.remove(idx);
             return true;
         }
@@ -267,7 +265,7 @@ public abstract class ObserverList<T>
         /** Used to determine whether an element is in the list. */
         protected int indexOf (T element) {
             for (int ii = 0, ll = _list.size(); ii < ll; ii++) {
-                if (_list.get(ii) == element) return ii;
+                if (_list.get(ii) == element) { return ii; }
             }
             return -1;
         }

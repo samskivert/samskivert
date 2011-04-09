@@ -68,7 +68,7 @@ public class WeakObserverList<T> extends ObserverList<T>
         _delegate.clear();
     }
 
-    @Override public WeakObserverList setCheckDuplicates (boolean checkDuplicates)
+    @Override public WeakObserverList<T> setCheckDuplicates (boolean checkDuplicates)
     {
         _delegate.setCheckDuplicates(checkDuplicates);
         return this;

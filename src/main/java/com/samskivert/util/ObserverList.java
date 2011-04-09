@@ -181,7 +181,7 @@ public abstract class ObserverList<T>
      * Configures this observer list to check duplicates when adding observers, or not. By default
      * duplicates are checked, but for performance reasons, one may wish to disable this check.
      */
-    public abstract ObserverList setCheckDuplicates (boolean checkDuplicates);
+    public abstract ObserverList<T> setCheckDuplicates (boolean checkDuplicates);
 
     /**
      * Returns true if this list has no observers, false otherwise.
@@ -255,7 +255,7 @@ public abstract class ObserverList<T>
             _list.clear();
         }
 
-        @Override public ObserverList setCheckDuplicates (boolean checkDuplicates) {
+        @Override public ObserverList<T> setCheckDuplicates (boolean checkDuplicates) {
             _checkDups = checkDuplicates;
             return this;
         }

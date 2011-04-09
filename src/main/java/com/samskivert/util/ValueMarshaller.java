@@ -28,11 +28,10 @@ public class ValueMarshaller
         throws Exception
     {
         if (type.isEnum()) {
-            @SuppressWarnings("unchecked") // we just asked type if it was an enum...
-            Class<? extends Enum> etype = (Class<? extends Enum>)type;
-            @SuppressWarnings("unchecked") // silly compiler, we're assigning to Object
-            Object o = Enum.valueOf(etype, source); // may throw an exception
-            return o;
+            // we need to use a dummy enum type here as there's no way to ask Enum.valueOf to
+            // execute on an existentially typed enum; it all works out under the hood
+            @SuppressWarnings("unchecked") Class<Dummy> etype = (Class<Dummy>)type;
+            return Enum.valueOf(etype, source); // may throw an exception
         }
         // look up an argument parser for the field type
         Parser parser = _parsers.get(type);
@@ -157,4 +156,6 @@ public class ValueMarshaller
             }
         });
     }
+
+    protected static enum Dummy {};
 }

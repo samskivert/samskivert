@@ -68,6 +68,12 @@ public class WeakObserverList<T> extends ObserverList<T>
         _delegate.clear();
     }
 
+    @Override public WeakObserverList setCheckDuplicates (boolean checkDuplicates)
+    {
+        _delegate.setCheckDuplicates(checkDuplicates);
+        return this;
+    }
+
     /**
      * Removes all garbage-collected observers from the list.
      */

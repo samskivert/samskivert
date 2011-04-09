@@ -178,6 +178,12 @@ public abstract class ObserverList<T>
     public abstract void clear ();
 
     /**
+     * Configures this observer list to check duplicates when adding observers, or not. By default
+     * duplicates are checked, but for performance reasons, one may wish to disable this check.
+     */
+    public abstract ObserverList setCheckDuplicates (boolean checkDuplicates);
+
+    /**
      * Returns true if this list has no observers, false otherwise.
      */
     public boolean isEmpty ()
@@ -194,14 +200,14 @@ public abstract class ObserverList<T>
 
         @Override public boolean add (int index, T element) {
             if (element == null) { throw new NullPointerException("Null observers not allowed."); }
-            if (isDuplicate(element)) { return false; }
+            if (_checkDups && isDuplicate(element)) { return false; }
             _list.add(index, element);
             return true;
         }
 
         @Override public boolean add (T element) {
             if (element == null) { throw new NullPointerException("Null observers not allowed."); }
-            if (isDuplicate(element)) { return false; }
+            if (_checkDups && isDuplicate(element)) { return false; }
             _list.add(element);
             return true;
         }
@@ -249,6 +255,11 @@ public abstract class ObserverList<T>
             _list.clear();
         }
 
+        @Override public ObserverList setCheckDuplicates (boolean checkDuplicates) {
+            _checkDups = checkDuplicates;
+            return this;
+        }
+
         /** Used to determine whether an element is in the list. */
         protected int indexOf (T element) {
             for (int ii = 0, ll = _list.size(); ii < ll; ii++) {
@@ -269,11 +280,9 @@ public abstract class ObserverList<T>
             return false;
         }
 
-        /** The notification policy. */
         protected Policy _policy;
-
-        /** Our list of observers. */
         protected List<T> _list;
+        protected boolean _checkDups = true;
     }
 
     /**

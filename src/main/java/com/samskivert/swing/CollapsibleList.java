@@ -16,7 +16,9 @@ import javax.swing.ListModel;
  * can be collapsed. Each section of a list uses a {@link JList} instance
  * to render the section elements.
  */
-public class CollapsibleList<E> extends JPanel
+@SuppressWarnings({ "unchecked", // we build with 1.5 which did not have parameterized JList
+                    "rawtypes" })
+public class CollapsibleList extends JPanel
 {
     /**
      * Constructs an empty collapsible list.
@@ -34,7 +36,7 @@ public class CollapsibleList<E> extends JPanel
     /**
      * Constructs a collapsible list with the supplied section labels and models.
      */
-    public CollapsibleList (List<String> sections, List<ListModel<E>> models)
+    public CollapsibleList (List<String> sections, List<ListModel> models)
     {
         this(); // set up our layout manager
 
@@ -59,10 +61,10 @@ public class CollapsibleList<E> extends JPanel
      *
      * @return the index of the newly added section.
      */
-    public int addSection (String label, ListModel<E> model)
+    public int addSection (String label, ListModel model)
     {
         add(new JLabel(label));
-        add(new JList<E>(model));
+        add(new JList(model));
         return getSectionCount()-1;
     }
 
@@ -78,9 +80,9 @@ public class CollapsibleList<E> extends JPanel
     /**
      * Returns the list object associated with the specified section.
      */
-    public JList<E> getSectionList (int index)
+    public JList getSectionList (int index)
     {
-        @SuppressWarnings("unchecked") JList<E> list = (JList<E>)getComponent(index*2+1);
+        @SuppressWarnings("unchecked") JList list = (JList)getComponent(index*2+1);
         return list;
     }
 
@@ -89,7 +91,7 @@ public class CollapsibleList<E> extends JPanel
      */
     public void toggleCollapsed (int index)
     {
-        JList<E> list = getSectionList(index);
+        JList list = getSectionList(index);
         list.setVisible(!list.isVisible());
     }
 }

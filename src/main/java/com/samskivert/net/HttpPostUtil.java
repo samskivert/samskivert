@@ -21,17 +21,14 @@ import com.samskivert.util.ServiceWaiter;
 public class HttpPostUtil
 {
     /**
-     * Return the results of a form post. Note that the http request takes
-     * place on another thread, but this thread blocks until the results
-     * are returned or it times out.
+     * Return the results of a form post. Note that the http request takes place on another
+     * thread, but this thread blocks until the results are returned or it times out.
      *
      * @param url from which to make the request.
      * @param submission the entire submission eg "foo=bar&baz=boo&futz=foo".
-     * @param timeout time to wait for the response, in seconds, or -1
-     * for forever.
+     * @param timeout time to wait for the response, in seconds, or -1 for forever.
      */
-    public static String httpPost (final URL url, final String submission,
-                                   int timeout)
+    public static String httpPost (final URL url, final String submission, int timeout)
         throws IOException, ServiceWaiter.TimeoutException
     {
         final ServiceWaiter<String> waiter = new ServiceWaiter<String>(
@@ -39,16 +36,13 @@ public class HttpPostUtil
         Thread tt = new Thread() {
             @Override public void run () {
                 try {
-                    HttpURLConnection conn =
-                        (HttpURLConnection) url.openConnection();
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setDoInput(true);
                     conn.setDoOutput(true);
                     conn.setUseCaches(false);
-                    conn.setRequestProperty(
-                        "Content-Type", "application/x-www-form-urlencoded");
+                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-                    DataOutputStream out = new DataOutputStream(
-                        conn.getOutputStream());
+                    DataOutputStream out = new DataOutputStream(conn.getOutputStream());
                     out.writeBytes(submission);
                     out.flush();
                     out.close();

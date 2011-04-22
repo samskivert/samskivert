@@ -6,11 +6,10 @@
 package com.samskivert.util;
 
 /**
- * A handy base class for issuing server-side service requests and
- * awaiting their responses from within a servlet.
+ * A handy base class for issuing server-side service requests and awaiting their responses from
+ * within a servlet.
  *
- * <em>Note:</em> You might think that it would be keen to use this
- * anonymously like so:
+ * <em>Note:</em> You might think that it would be keen to use this anonymously like so:
  *
  * <pre>
  * ServiceWaiter waiter = new ServiceWaiter() {
@@ -21,24 +20,21 @@ package com.samskivert.util;
  * };
  * </pre>
  *
- * But that won't work because public methods in anonymous inner classes
- * do not have public visibility and so the invocation manager will not be
- * able to reflect your response methods when the time comes to deliver
- * the response. Unfortunately, there appears to be no manner in which to
- * instruct the Java compiler to give public scope to an anonymous inner
- * class rather than default scope. Sigh.
+ * But that won't work because public methods in anonymous inner classes do not have public
+ * visibility and so the invocation manager will not be able to reflect your response methods
+ * when the time comes to deliver the response. Unfortunately, there appears to be no manner in
+ * which to instruct the Java compiler to give public scope to an anonymous inner class rather
+ * than default scope. Sigh.
  */
 public class ServiceWaiter<T>
     implements ResultListener<T>
 {
-    /** Timeout to specify when you don't want a timeout. Use at your own
-     * risk. */
+    /** Timeout to specify when you don't want a timeout. Use at your own risk. */
     public static final int NO_TIMEOUT = -1;
 
     public static class TimeoutException extends Exception
     {
-        public TimeoutException ()
-        {
+        public TimeoutException () {
             super("Timeout! Pow!");
         }
     }
@@ -62,8 +58,7 @@ public class ServiceWaiter<T>
     }
 
     /**
-     * Change the timeout being used for this ServiceWaiter after it
-     * has been constructed.
+     * Change the timeout being used for this ServiceWaiter after it has been constructed.
      */
     public void setTimeout (int timeout)
     {
@@ -80,8 +75,8 @@ public class ServiceWaiter<T>
     }
 
     /**
-     * Marks the request as successful and posts the supplied response
-     * argument for perusal by the caller.
+     * Marks the request as successful and posts the supplied response argument for perusal by the
+     * caller.
      */
     public synchronized void postSuccess (T arg)
     {
@@ -101,8 +96,7 @@ public class ServiceWaiter<T>
     }
 
     /**
-     * Returns the argument posted by the waiter when the response
-     * arrived.
+     * Returns the argument posted by the waiter when the response arrived.
      */
     public T getArgument ()
     {
@@ -120,8 +114,7 @@ public class ServiceWaiter<T>
     /**
      * Blocks waiting for the response.
      *
-     * @return true if a success response was posted, false if a failure
-     * repsonse was posted.
+     * @return true if a success response was posted, false if a failure repsonse was posted.
      */
     public boolean waitForResponse ()
         throws TimeoutException
@@ -136,8 +129,7 @@ public class ServiceWaiter<T>
                     } else {
                         wait(1000L * _timeout);
                     }
-                    // if we get here without some sort of response, then
-                    // we've timed out
+                    // if we get here without some sort of response, then we've timed out
                     if (_success == 0) {
                         throw new TimeoutException();
                     }
@@ -164,9 +156,8 @@ public class ServiceWaiter<T>
         postFailure(cause);
     }
 
-    /** Whether or not the response succeeded; positive for success,
-     * negative for failure, zero means we haven't received the response
-     * yet. */
+    /** Whether or not the response succeeded; positive for success, negative for failure, zero
+     * means we haven't received the response yet. */
     protected int _success = 0;
 
     /** The argument posted by the waiter upon receipt of the response. */
@@ -178,8 +169,7 @@ public class ServiceWaiter<T>
     /** How many seconds to wait before giving up the ghost. */
     protected int _timeout;
 
-    /** If a response is not received within the specified timeout, an
-     * exception is thrown which redirects the user to an internal error
-     * page. */
+    /** If a response is not received within the specified timeout, an exception is thrown which
+     * redirects the user to an internal error page. */
     protected static final int DEFAULT_WAITER_TIMEOUT = 30;
 }

@@ -114,7 +114,7 @@ public class ServiceWaiter<T>
     /**
      * Blocks waiting for the response.
      *
-     * @return true if a success response was posted, false if a failure repsonse was posted.
+     * @return true if a success response was posted, false if a failure response was posted.
      */
     public boolean waitForResponse ()
         throws TimeoutException

@@ -89,16 +89,6 @@ public abstract class Interval
     }
 
     /**
-     * This may be removed.
-     *
-     * @deprecated
-     */
-    @Deprecated
-    public static void resetTimer ()
-    {
-    }
-
-    /**
      * Create a simple interval that does not use a RunQueue to run the {@link #expired} method.
      */
     public Interval ()

@@ -19,6 +19,23 @@ import static com.samskivert.Log.log;
 public abstract class Interval
 {
     /**
+     * An interface for entities that create, and keep track of, intervals. The intended use case
+     * is for repeating intervals to be created via a factory that tracks all such intervals, and
+     * which automatically cancels still running intervals when the factory is shut down.
+     */
+    public interface Factory
+    {
+        /**
+         * Creates an {@link Interval} that runs the supplied runnable. For example:
+         * <pre>
+         * _factory.newInterval(someRunnable).schedule(500); // one shot
+         * Interval ival = _factory.newInterval(someRunnable).schedule(500, true); // repeater
+         * </pre>
+         */
+        Interval newInterval (Runnable action);
+    }
+
+    /**
      * An interface that will be implemented by the runnable posted to a RunQueue that can be used
      * to retrieve the original Interval.
      */
@@ -46,7 +63,6 @@ public abstract class Interval
             @Override public void expired () {
                 onExpired.run();
             }
-
             @Override public String toString () {
                 return onExpired.toString();
             }
@@ -66,7 +82,6 @@ public abstract class Interval
             @Override public void expired () {
                 onExpired.run();
             }
-
             @Override public String toString () {
                 return onExpired.toString();
             }

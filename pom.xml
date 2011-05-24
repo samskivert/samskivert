@@ -4,7 +4,7 @@
   <groupId>com.samskivert</groupId>
   <artifactId>samskivert</artifactId>
   <packaging>jar</packaging>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4</version>
   <name>samskivert</name>
   <description>A collection of Java utilities.</description>
   <url>http://code.google.com/p/samskivert/</url>
@@ -35,9 +35,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:http://samskivert.googlecode.com/svn/trunk/</connection>
-    <developerConnection>scm:svn:https://samskivert.googlecode.com/svn/trunk/</developerConnection>
-    <url>http://samskivert.googlecode.com/svn/trunk/</url>
+    <connection>scm:svn:http://samskivert.googlecode.com/svn/tags/samskivert-1.4</connection>
+    <developerConnection>scm:svn:https://samskivert.googlecode.com/svn/tags/samskivert-1.4</developerConnection>
+    <url>http://samskivert.googlecode.com/svn/tags/samskivert-1.4</url>
   </scm>
 
   <dependencies>

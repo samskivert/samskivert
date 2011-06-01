@@ -114,6 +114,6 @@ public class HashIntMapTest
         assertTrue(valuestr + ".equals(" + exvals + ")", valuestr.equals(exvals));
     }
 
-    protected static final String TEST1 = "(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)";
-    protected static final String TEST2 = "(10, 11)";
+    protected static final String TEST1 = "[10, 11, 12, 13, 14, 15, 16, 17, 18, 19]";
+    protected static final String TEST2 = "[10, 11]";
 }

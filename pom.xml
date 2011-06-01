@@ -35,9 +35,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:http://samskivert.googlecode.com/svn/trunk</connection>
-    <developerConnection>scm:svn:https://samskivert.googlecode.com/svn/trunk</developerConnection>
-    <url>http://samskivert.googlecode.com/svn/trunk</url>
+    <connection>scm:git:git://github.com/samskivert/samskivert.git</connection>
+    <developerConnection>scm:git:git@github.com:samskivert/samskivert.git</developerConnection>
+    <url>http://github.com/samskivert/samskivert/</url>
   </scm>
 
   <dependencies>

@@ -1273,7 +1273,18 @@ public class StringUtil
         } else if (val instanceof short[]) {
             buf.append(openBox);
             short[] v = (short[])val;
-            for (short i = 0; i < v.length; i++) {
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof char[]) {
+            buf.append(openBox);
+            char[] v = (char[])val;
+            for (int i = 0; i < v.length; i++) {
                 if (i > 0) {
                     buf.append(sep);
                 }
@@ -1332,7 +1343,7 @@ public class StringUtil
                 if (i > 0) {
                     buf.append(sep);
                 }
-                toString(buf, v[i], openBox, closeBox);
+                toString(buf, v[i], openBox, closeBox, sep, traverseCollections);
             }
             buf.append(closeBox);
 
@@ -1377,7 +1388,7 @@ public class StringUtil
                     if (i > 0) {
                         buf.append(sep);
                     }
-                    toString(buf, iter.next(), openBox, closeBox);
+                    toString(buf, iter.next(), openBox, closeBox, sep, true);
                 }
                 buf.append(closeBox);
 
@@ -1388,7 +1399,7 @@ public class StringUtil
                     if (i > 0) {
                         buf.append(sep);
                     }
-                    toString(buf, enm.nextElement(), openBox, closeBox);
+                    toString(buf, enm.nextElement(), openBox, closeBox, sep, true);
                 }
                 buf.append(closeBox);
 

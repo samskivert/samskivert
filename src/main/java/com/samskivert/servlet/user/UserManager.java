@@ -124,25 +124,26 @@ public class UserManager
         }
 
         // register a cron job to prune the session table every hour
-        _pruner = new Interval() {
-            @Override public void expired () {
-                try {
-                    _repository.pruneSessions();
-                } catch (PersistenceException pe) {
-                    log.warning("Error pruning session table.", pe);
-                }
-            }
-        };
         if (pruneQueue != null) {
-            _pruner.setRunQueue(pruneQueue);
+            _pruner = new Interval(pruneQueue) {
+                @Override public void expired () {
+                    try {
+                        _repository.pruneSessions();
+                    } catch (PersistenceException pe) {
+                        log.warning("Error pruning session table.", pe);
+                    }
+                }
+            };
+            _pruner.schedule(SESSION_PRUNE_INTERVAL, true);
         }
-        _pruner.schedule(SESSION_PRUNE_INTERVAL, true);
     }
 
     public void shutdown ()
     {
         // cancel our session table pruning thread
-        _pruner.cancel();
+        if (_pruner != null) {
+            _pruner.cancel();
+        }
     }
 
     /**

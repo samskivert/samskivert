@@ -135,9 +135,8 @@ public class SerialExecutor
             final ExecutorThread thread = new ExecutorThread(task);
             thread.start();
 
-            // start up a timer that will abort this thread after the specified
-            // timeout
-            new Interval() {
+            // start up a timer that will abort this thread after the specified timeout
+            new Interval(Interval.RUN_DIRECT) {
                 @Override public void expired () {
                     // this will NOOP if the task has already completed
                     thread.abort();

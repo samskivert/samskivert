@@ -18,6 +18,25 @@ import static com.samskivert.Log.log;
  */
 public abstract class Interval
 {
+    /** A marker {@link RunQueue} to supply when you intend for your interval to run directly on
+     * the interval timer thread, rather than having the interval processed on a separate thread.
+     * Warning: you must be absolutely sure your interval will complete <em>very quickly</em>,
+     * otherwise you risk delaying the firing of other intervals. */
+    public static RunQueue RUN_DIRECT = new RunQueue() {
+        public void postRunnable (Runnable r) {
+            throw new UnsupportedOperationException("dummy");
+        }
+        public boolean isDispatchThread () {
+            throw new UnsupportedOperationException("dummy");
+        }
+        public boolean isRunning () {
+            throw new UnsupportedOperationException("dummy");
+        }
+        public String toString () {
+            return "<direct>";
+        }
+    };
+
     /**
      * An interface for entities that create, and keep track of, intervals. The intended use case
      * is for repeating intervals to be created via a factory that tracks all such intervals, and
@@ -55,21 +74,6 @@ public abstract class Interval
     }
 
     /**
-     * Creates an interval that executes the supplied runnable when it expires.
-     */
-    public static Interval create (final Runnable onExpired)
-    {
-        return new Interval() {
-            @Override public void expired () {
-                onExpired.run();
-            }
-            @Override public String toString () {
-                return onExpired.toString();
-            }
-        };
-    }
-
-    /**
      * Creates an interval that executes the supplied runnable on the specified RunQueue when it
      * expires.
      */
@@ -88,12 +92,9 @@ public abstract class Interval
         };
     }
 
-    /**
-     * Create a simple interval that does not use a RunQueue to run the {@link #expired} method.
-     */
-    public Interval ()
-    {
-        // _runQueue stays null
+    /** @deprecated If direct-running is desired, pass {@link #RUN_DIRECT} explicitly. */
+    @Deprecated public Interval () {
+        this(RUN_DIRECT);
     }
 
     /**
@@ -102,16 +103,14 @@ public abstract class Interval
      */
     public Interval (RunQueue runQueue)
     {
-        setRunQueue(runQueue);
+        if (runQueue == null) {
+            throw new NullPointerException("RunQueue must be non-null");
+        }
+        _runQueue = runQueue;
     }
 
-    /**
-     * Configures the run queue to be used by this interval. This <em>must</em> be called before
-     * the interval is started and a non-null queue must be provided. This exists for situations
-     * where the caller needs to configure an optional run queue and thus can't easily call the
-     * appropriate constructor.
-     */
-    public void setRunQueue (RunQueue runQueue)
+    /** @deprecated Just pass the desired run-queue to the constructor. */
+    @Deprecated public void setRunQueue (RunQueue runQueue)
     {
         if (runQueue == null) {
             throw new IllegalArgumentException("Supplied RunQueue must be non-null");
@@ -227,7 +226,7 @@ public abstract class Interval
             _timer.schedule(_task, initialDelay);
         } else if (fixedRate) {
             _timer.scheduleAtFixedRate(_task, initialDelay, repeatDelay);
-        } else if (_runQueue != null) {
+        } else if (_runQueue != RUN_DIRECT) {
             throw new IllegalArgumentException(
                 "Cannot schedule at a fixed delay when using a RunQueue.");
         } else {
@@ -265,7 +264,7 @@ public abstract class Interval
     protected void noteRejected ()
     {
         log.warning("Interval posted to shutdown RunQueue. Cancelling.",
-            "queue", _runQueue, "interval", this);
+                    "queue", _runQueue, "interval", this);
     }
 
     protected static Timer createTimer ()
@@ -297,7 +296,7 @@ public abstract class Interval
             if (ival == null) {
                 return;
             }
-            if (ival._runQueue == null) {
+            if (ival._runQueue == RUN_DIRECT) {
                 ival.safelyExpire(this);
                 return;
             }
@@ -328,7 +327,7 @@ public abstract class Interval
                     ival._runQueue.postRunnable(_runner);
                 } catch (Exception e) {
                     log.warning("Failed to execute interval on run-queue",
-                        "queue", ival._runQueue, "interval", ival, e);
+                                "queue", ival._runQueue, "interval", ival, e);
                 }
 
             } else {
@@ -352,7 +351,8 @@ public abstract class Interval
 
     } // end: static class IntervalTask
 
-    /** If non-null, the RunQueue used to run the expired() method for each Interval. */
+    /** The RunQueue used to run the expired() method for this Interval, or {@link #RUN_DIRECT} to
+     * indicate that the interval should be executed directly on the Inteval timer thread. */
     protected RunQueue _runQueue;
 
     /** The task that actually schedules our execution with the static Timer. */

@@ -7,6 +7,7 @@ package com.samskivert.jdbc;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -207,7 +208,7 @@ public class JDBCUtil
     public String quote (Date date)
     {
         if (date == null) {
-            return ;
+            return null;
         }
 
         return escape(String.valueOf(date));

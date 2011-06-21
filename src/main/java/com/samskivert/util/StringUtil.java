@@ -355,16 +355,8 @@ public class StringUtil
      * Converts the supplied object to a string. Normally this is accomplished via the object's
      * built in <code>toString()</code> method, but in the case of arrays, <code>toString()</code>
      * is called on each element and the contents are listed like so:
-     *
-     * <pre>
-     * (value, value, value)
-     * </pre>
-     *
-     * Arrays of ints, longs, floats and doubles are also handled for convenience.
-     *
-     * <p> Additionally, <code>Enumeration</code> or <code>Iterator</code> objects can be passed
-     * and they will be enumerated and output in a similar manner to arrays. Bear in mind that this
-     * uses up the enumeration or iterator in question.
+     * <pre>(value, value, value)</pre>
+     * Arrays of primitive types are also handled for convenience.
      *
      * <p> Also note that passing null will result in the string "null" being returned.
      */
@@ -376,9 +368,28 @@ public class StringUtil
     }
 
     /**
+     * Converts the supplied value to a string and appends it to the supplied string buffer. See
+     * {@link #toString()} for more information.
+     *
+     * @param buf the string buffer to which we will append the string.
+     * @param val the value from which to generate the string.
+     */
+    public static void toString (StringBuilder buf, Object val)
+    {
+        // these boxes+sep will only be used for arrays
+        toString(buf, val, "(", ")", ", ", false);
+    }
+
+    /**
      * Like the single argument {@link #toString(Object)} with the additional function of
-     * specifying the characters that are used to box in list and array types. For example, if "["
-     * and "]" were supplied, an int array might be formatted like so: <code>[1, 3, 5]</code>.
+     * specifying the characters that are used to box in collection and array types. For example,
+     * if "[" and "]" were supplied, an int array might be formatted like so: <code>[1, 3,
+     * 5]</code>.
+     *
+     * <p> Note: in this method (unlike {@link #toString()}), <code>Enumeration</code> or
+     * <code>Iterator</code> objects can be passed and they will be enumerated and output in a
+     * similar manner to arrays. Bear in mind that this uses up the enumeration or iterator in
+     * question.
      */
     public static String toString (Object val, String openBox, String closeBox)
     {
@@ -388,21 +399,14 @@ public class StringUtil
     }
 
     /**
-     * Converts the supplied value to a string and appends it to the supplied string buffer. See
-     * the single argument version for more information.
-     *
-     * @param buf the string buffer to which we will append the string.
-     * @param val the value from which to generate the string.
-     */
-    public static void toString (StringBuilder buf, Object val)
-    {
-        toString(buf, val, "(", ")");
-    }
-
-    /**
      * Converts the supplied value to a string and appends it to the supplied string buffer. The
      * specified boxing characters are used to enclose list and array types. For example, if "["
      * and "]" were supplied, an int array might be formatted like so: <code>[1, 3, 5]</code>.
+     *
+     * <p> Note: in this method (unlike {@link #toString()}), <code>Enumeration</code> or
+     * <code>Iterator</code> objects can be passed and they will be enumerated and output in a
+     * similar manner to arrays. Bear in mind that this uses up the enumeration or iterator in
+     * question.
      *
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.
@@ -419,150 +423,21 @@ public class StringUtil
      * specified boxing characters are used to enclose list and array types. For example, if "["
      * and "]" were supplied, an int array might be formatted like so: <code>[1, 3, 5]</code>.
      *
+     * <p> Note: in this method (unlike {@link #toString()}), <code>Enumeration</code> or
+     * <code>Iterator</code> objects can be passed and they will be enumerated and output in a
+     * similar manner to arrays. Bear in mind that this uses up the enumeration or iterator in
+     * question.
+     *
      * @param buf the string buffer to which we will append the string.
      * @param val the value from which to generate the string.
      * @param openBox the opening box character.
      * @param closeBox the closing box character.
      * @param sep the separator string.
      */
-    public static void toString (
-        StringBuilder buf, Object val, String openBox, String closeBox, String sep)
+    public static void toString (StringBuilder buf, Object val, String openBox, String closeBox,
+                                 String sep)
     {
-        if (val instanceof byte[]) {
-            buf.append(openBox);
-            byte[] v = (byte[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                buf.append(v[i]);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof short[]) {
-            buf.append(openBox);
-            short[] v = (short[])val;
-            for (short i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                buf.append(v[i]);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof int[]) {
-            buf.append(openBox);
-            int[] v = (int[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                buf.append(v[i]);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof long[]) {
-            buf.append(openBox);
-            long[] v = (long[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                buf.append(v[i]);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof float[]) {
-            buf.append(openBox);
-            float[] v = (float[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                buf.append(v[i]);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof double[]) {
-            buf.append(openBox);
-            double[] v = (double[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                buf.append(v[i]);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof Object[]) {
-            buf.append(openBox);
-            Object[] v = (Object[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                toString(buf, v[i], openBox, closeBox);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof boolean[]) {
-            buf.append(openBox);
-            boolean[] v = (boolean[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                buf.append(v[i] ? "t" : "f");
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof Iterable<?>) {
-            toString(buf, ((Iterable<?>)val).iterator(), openBox, closeBox);
-
-        } else if (val instanceof Iterator<?>) {
-            buf.append(openBox);
-            Iterator<?> iter = (Iterator<?>)val;
-            for (int i = 0; iter.hasNext(); i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                toString(buf, iter.next(), openBox, closeBox);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof Enumeration<?>) {
-            buf.append(openBox);
-            Enumeration<?> enm = (Enumeration<?>)val;
-            for (int i = 0; enm.hasMoreElements(); i++) {
-                if (i > 0) {
-                    buf.append(sep);
-                }
-                toString(buf, enm.nextElement(), openBox, closeBox);
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof Point2D) {
-            Point2D p = (Point2D)val;
-            buf.append(openBox);
-            coordsToString(buf, (int)p.getX(), (int)p.getY());
-            buf.append(closeBox);
-
-        } else if (val instanceof Dimension2D) {
-            Dimension2D d = (Dimension2D)val;
-            buf.append(openBox);
-            buf.append(d.getWidth()).append("x").append(d.getHeight());
-            buf.append(closeBox);
-
-        } else if (val instanceof Rectangle2D) {
-            Rectangle2D r = (Rectangle2D)val;
-            buf.append(openBox);
-            buf.append(r.getWidth()).append("x").append(r.getHeight());
-            coordsToString(buf, (int)r.getX(), (int)r.getY());
-            buf.append(closeBox);
-
-        } else {
-            buf.append(val);
-        }
+        toString(buf, val, openBox, closeBox, sep, true);
     }
 
     /**
@@ -1376,6 +1251,165 @@ public class StringUtil
             }
         }
         return buf.toString();
+    }
+
+    /**
+     * Helper function for the various {@link #toString} methods.
+     */
+    protected static void toString (StringBuilder buf, Object val, String openBox, String closeBox,
+                                    String sep, boolean traverseCollections)
+    {
+        if (val instanceof byte[]) {
+            buf.append(openBox);
+            byte[] v = (byte[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof short[]) {
+            buf.append(openBox);
+            short[] v = (short[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof char[]) {
+            buf.append(openBox);
+            char[] v = (char[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof int[]) {
+            buf.append(openBox);
+            int[] v = (int[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof long[]) {
+            buf.append(openBox);
+            long[] v = (long[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof float[]) {
+            buf.append(openBox);
+            float[] v = (float[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof double[]) {
+            buf.append(openBox);
+            double[] v = (double[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i]);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof Object[]) {
+            buf.append(openBox);
+            Object[] v = (Object[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                toString(buf, v[i], openBox, closeBox, sep, traverseCollections);
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof boolean[]) {
+            buf.append(openBox);
+            boolean[] v = (boolean[])val;
+            for (int i = 0; i < v.length; i++) {
+                if (i > 0) {
+                    buf.append(sep);
+                }
+                buf.append(v[i] ? "t" : "f");
+            }
+            buf.append(closeBox);
+
+        } else if (val instanceof Point2D) {
+            Point2D p = (Point2D)val;
+            buf.append(openBox);
+            coordsToString(buf, (int)p.getX(), (int)p.getY());
+            buf.append(closeBox);
+
+        } else if (val instanceof Dimension2D) {
+            Dimension2D d = (Dimension2D)val;
+            buf.append(openBox);
+            buf.append(d.getWidth()).append("x").append(d.getHeight());
+            buf.append(closeBox);
+
+        } else if (val instanceof Rectangle2D) {
+            Rectangle2D r = (Rectangle2D)val;
+            buf.append(openBox);
+            buf.append(r.getWidth()).append("x").append(r.getHeight());
+            coordsToString(buf, (int)r.getX(), (int)r.getY());
+            buf.append(closeBox);
+
+        } else if (traverseCollections) {
+            if (val instanceof Iterable<?>) {
+                toString(buf, ((Iterable<?>)val).iterator(), openBox, closeBox, sep, true);
+
+            } else if (val instanceof Iterator<?>) {
+                buf.append(openBox);
+                Iterator<?> iter = (Iterator<?>)val;
+                for (int i = 0; iter.hasNext(); i++) {
+                    if (i > 0) {
+                        buf.append(sep);
+                    }
+                    toString(buf, iter.next(), openBox, closeBox, sep, true);
+                }
+                buf.append(closeBox);
+
+            } else if (val instanceof Enumeration<?>) {
+                buf.append(openBox);
+                Enumeration<?> enm = (Enumeration<?>)val;
+                for (int i = 0; enm.hasMoreElements(); i++) {
+                    if (i > 0) {
+                        buf.append(sep);
+                    }
+                    toString(buf, enm.nextElement(), openBox, closeBox, sep, true);
+                }
+                buf.append(closeBox);
+
+            } else {
+                buf.append(val);
+            }
+
+        } else {
+            buf.append(val);
+        }
     }
 
     /**

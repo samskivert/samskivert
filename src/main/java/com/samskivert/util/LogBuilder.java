@@ -48,7 +48,7 @@ public class LogBuilder
                 }
                 _log.append(args[ii]).append('=');
                 try {
-                    _log.append(ArrayUtil.safeToString(args[ii + 1]));
+                    _log.append(StringUtil.toString(args[ii + 1]));
                 } catch (Throwable t) {
                     _log.append("<toString() failure: ").append(t).append('>');
                 }

@@ -36,9 +36,8 @@ public class ValueMarshaller
         // look up an argument parser for the field type
         Parser parser = _parsers.get(type);
         if (parser == null) {
-            String errmsg = "Don't know how to convert strings into " +
-                "values of type '" + type + "'.";
-            throw new Exception(errmsg);
+            throw new Exception(
+                "Don't know how to convert strings into values of type '" + type + "'.");
         }
         return parser.parse(source);
     }
@@ -48,7 +47,7 @@ public class ValueMarshaller
         public Object parse (String source) throws Exception;
     }
 
-    protected static Map<Class<?>,Parser> _parsers = new HashMap<Class<?>,Parser>();
+    protected static Map<Class<?>, Parser> _parsers = new HashMap<Class<?>, Parser>();
     static {
         Parser p;
         // we can parse strings

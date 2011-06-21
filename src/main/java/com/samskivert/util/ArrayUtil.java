@@ -7,7 +7,6 @@ package com.samskivert.util;
 
 import java.lang.reflect.Array;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Random;
@@ -890,51 +889,6 @@ public class ArrayUtil
             (T[])Array.newInstance(store.getClass().getComponentType(), values.length);
         System.arraycopy(values, 0, dest, 0, values.length);
         return dest;
-    }
-
-    /**
-     * Return the String representation of the specified Object, which may or may not be an array.
-     */
-    public static String safeToString (Object o)
-    {
-        return ((o == null) || !o.getClass().isArray()) ? String.valueOf(o) : toString(o);
-    }
-
-    /**
-     * Return the String representation of the specified Object, which <em>must</em> be an array.
-     *
-     * @throws IllegalArgumentException if array is not actually an array.
-     */
-    public static String toString (Object array)
-    {
-        if (array instanceof Object[]) {
-            return Arrays.deepToString((Object[])array); // go deep, baby
-
-        } else if (array instanceof int[]) {
-            return Arrays.toString((int[])array);
-
-        } else if (array instanceof byte[]) {
-            return Arrays.toString((byte[])array);
-
-        } else if (array instanceof char[]) {
-            return Arrays.toString((char[])array);
-
-        } else if (array instanceof short[]) {
-            return Arrays.toString((short[])array);
-
-        } else if (array instanceof long[]) {
-            return Arrays.toString((long[])array);
-
-        } else if (array instanceof float[]) {
-            return Arrays.toString((float[])array);
-
-        } else if (array instanceof double[]) {
-            return Arrays.toString((double[])array);
-
-        } else if (array instanceof boolean[]) {
-            return Arrays.toString((boolean[])array);
-        }
-        throw new IllegalArgumentException("Not an array: " + array);
     }
 
     /** The default random object used when shuffling an array. */

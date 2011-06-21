@@ -56,12 +56,12 @@ public class ConfigTest
             slist.add(iter.nextElement().toString());
         }
         Collections.sort(slist);
-        assertEquals("(sub1, sub2, sub3)", StringUtil.toString(slist));
+        assertEquals("[sub1, sub2, sub3]", StringUtil.toString(slist));
 
         // check the whole shebang
         List<String> list = CollectionUtil.addAll(new ArrayList<String>(), pconfig.keys());
         Collections.sort(list);
-        assertEquals("(prop1, prop2, prop3, prop4, sub.sub1, sub.sub2, sub.sub3)",
+        assertEquals("[prop1, prop2, prop3, prop4, sub.sub1, sub.sub2, sub.sub3]",
                      StringUtil.toString(list));
     }
 }

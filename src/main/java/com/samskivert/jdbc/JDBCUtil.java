@@ -201,6 +201,19 @@ public class JDBCUtil
     }
 
     /**
+     * Converts the date to a string and surrounds it in single-quotes via the escape method. If the
+     * date is null, returns null.
+     */
+    public String quote (Date date)
+    {
+        if (date == null) {
+            return ;
+        }
+
+        return escape(String.valueOf(date));
+    } 
+
+    /**
      * Escapes any single quotes in the supplied text and wraps it in single quotes to make it safe
      * for embedding into a database query.
      */

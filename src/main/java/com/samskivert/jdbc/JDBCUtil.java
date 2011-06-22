@@ -208,7 +208,7 @@ public class JDBCUtil
     public String quote (Date date)
     {
         return (date == null) ? null : escape(String.valueOf(date));
-    } 
+    }
 
     /**
      * Escapes any single quotes in the supplied text and wraps it in single quotes to make it safe

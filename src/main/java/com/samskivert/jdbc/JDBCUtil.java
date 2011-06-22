@@ -207,11 +207,7 @@ public class JDBCUtil
      */
     public String quote (Date date)
     {
-        if (date == null) {
-            return null;
-        }
-
-        return escape(String.valueOf(date));
+        return (date == null) ? null : escape(String.valueOf(date));
     } 
 
     /**

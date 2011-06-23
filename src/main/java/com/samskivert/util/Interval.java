@@ -32,7 +32,7 @@ public abstract class Interval
         public boolean isRunning () {
             throw new UnsupportedOperationException("dummy");
         }
-        public String toString () {
+        @Override public String toString () {
             return "<direct>";
         }
     };

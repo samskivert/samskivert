@@ -1,2 +1,5 @@
 target
 dist
+.settings
+.project
+.classpath

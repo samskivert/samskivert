@@ -16,8 +16,9 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
-import com.samskivert.jdbc.ColumnDefinition;
 import com.samskivert.util.ArrayUtil;
+
+import static com.samskivert.Log.log;
 
 /**
  * Handles liaison for HSQLDB.
@@ -53,7 +54,19 @@ public class HsqldbLiaison extends BaseLiaison
                                  String columnName, int initValue)
         throws SQLException
     {
-        // HSQL's IDENTITY() does not create any database entities
+        if (initValue == 1) {
+            return; // that's the default! yay, do nothing
+        }
+
+        Statement stmt = conn.createStatement();
+        try {
+            stmt.execute("alter table " + tableSQL(tableName) +
+                " alter column " + columnSQL(columnName) +
+                " restart with " + initValue);
+        } finally {
+            JDBCUtil.close(stmt);
+        }
+        log.info("Initial value of " + tableName + ":" + columnName + " set to " + initValue + ".");
     }
 
     // from DatabaseLiaison

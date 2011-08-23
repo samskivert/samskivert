@@ -177,6 +177,22 @@ public class Randoms
     }
 
     /**
+     * Pick a random element from the specified array, or return <code>ifEmpty</code>
+     * if it is empty.
+     *
+     * @throws NullPointerException if the array is null.
+     */
+    public <T> T pick (T[] array, T ifEmpty)
+    {
+        int size = array.length;
+        if (size == 0) {
+            return ifEmpty;
+        }
+
+        return array[_r.nextInt(size)];
+    }
+
+    /**
      * Pick a random <em>key</em> from the specified mapping of weight values, or return
      * <code>ifEmpty</code> if no mapping has a weight greater than <code>0</code>. Each
      * weight value is evaluated as a double.

@@ -185,11 +185,7 @@ public class Randoms
     public <T> T pick (T[] array, T ifEmpty)
     {
         int size = array.length;
-        if (size == 0) {
-            return ifEmpty;
-        }
-
-        return array[_r.nextInt(size)];
+        return (size == 0) ? ifEmpty : array[_r.nextInt(size)];
     }
 
     /**

@@ -106,9 +106,9 @@ public class Randoms
     /**
      * Has a probability <code>p</code> of returning true.
      */
-    public boolean getProbability (float p)
+    public boolean getProbability (double p)
     {
-        return _r.nextFloat() < p;
+        return _r.nextDouble() < p;
     }
 
     /**

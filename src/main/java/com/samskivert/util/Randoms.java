@@ -94,6 +94,26 @@ public class Randoms
     }
 
     /**
+     * Returns a pseudorandom, uniformly distributed <code>double</code> value between
+     * <code>0.0</code> (inclusive) and the <code>high</code> (exclusive).
+     *
+     * @param high the high value limiting the random number sought.
+     */
+    public double getDouble (double high)
+    {
+        return _r.nextDouble() * high;
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed <code>double</code> value between
+     * <code>low</code> (inclusive) and <code>high</code> (exclusive).
+     */
+    public double getInRange (double low, double high)
+    {
+        return low + (_r.nextDouble() * (high - low));
+    }
+
+    /**
      * Returns true approximately one in <code>n</code> times.
      *
      * @throws IllegalArgumentException if <code>n</code> is not positive.

@@ -218,7 +218,7 @@ public class ListUtil
                     index = i;
                 }
 
-            } else if (eqc.equals(elem, element)) {
+            } else if (eqc.equals(element, elem)) {
                 // oops, it's already in the list
                 return null;
             }
@@ -248,7 +248,7 @@ public class ListUtil
 
     /**
      * Looks for an element that is functionally equal to the supplied
-     * element (<code>list[idx].equals(element)</code>).
+     * element (<code>element.equals(list[idx])</code>).
      *
      * @return true if a matching element was found, false otherwise.
      */
@@ -295,7 +295,7 @@ public class ListUtil
 
     /**
      * Looks for an element that is functionally equal to the supplied
-     * element (<code>list[idx].equals(element)</code>).
+     * element (<code>element.equals(list[idx])</code>).
      *
      * @return the index of the matching element if one was found, -1
      * otherwise.
@@ -312,7 +312,7 @@ public class ListUtil
         requireNotNull(element);
         if (list != null) {
             for (int ii = 0, nn = list.length; ii < nn; ii++) {
-                if (eqc.equals(list[ii], element)) {
+                if (eqc.equals(element, list[ii])) {
                     return ii;
                 }
             }
@@ -333,7 +333,7 @@ public class ListUtil
 
     /**
      * Clears out the first element that is functionally equal to the
-     * supplied element (<code>list[idx].equals(element)</code>).
+     * supplied element (<code>element.equals(list[idx])</code>).
      *
      * @return the object that was cleared from the array or null if no
      * matching object was found.
@@ -372,7 +372,7 @@ public class ListUtil
 
     /**
      * Removes the first element that is functionally equal to the
-     * supplied element (<code>list[idx].equals(element)</code>). The
+     * supplied element (<code>element.equals(list[idx])</code>). The
      * elements after the removed element will be slid down the array one
      * spot to fill the place of the removed element.
      *
@@ -553,21 +553,17 @@ public class ListUtil
         public boolean equals (Object o1, Object o2);
     }
 
-    protected static final EqualityComparator REFERENCE_COMP =
-        new EqualityComparator() {
-            public boolean equals (Object o1, Object o2)
-            {
-                return o1 == o2;
-            }
-        };
+    protected static final EqualityComparator REFERENCE_COMP = new EqualityComparator() {
+        public boolean equals (Object o1, Object o2) {
+            return o1 == o2;
+        }
+    };
 
-    protected static final EqualityComparator EQUALS_COMP =
-        new EqualityComparator() {
-            public boolean equals (Object o1, Object o2)
-            {
-                return ObjectUtil.equals(o1, o2);
-            }
-        };
+    protected static final EqualityComparator EQUALS_COMP = new EqualityComparator() {
+        public boolean equals (Object o1, Object o2) {
+            return ObjectUtil.equals(o1, o2);
+        }
+    };
 
     /**
      * The size of a list to create if we have to create one entirely

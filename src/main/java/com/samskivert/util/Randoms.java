@@ -94,6 +94,26 @@ public class Randoms
     }
 
     /**
+     * Returns a pseudorandom, uniformly distributed <code>double</code> value between
+     * <code>0.0</code> (inclusive) and the <code>high</code> (exclusive).
+     *
+     * @param high the high value limiting the random number sought.
+     */
+    public double getDouble (double high)
+    {
+        return _r.nextDouble() * high;
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed <code>double</code> value between
+     * <code>low</code> (inclusive) and <code>high</code> (exclusive).
+     */
+    public double getInRange (double low, double high)
+    {
+        return low + (_r.nextDouble() * (high - low));
+    }
+
+    /**
      * Returns true approximately one in <code>n</code> times.
      *
      * @throws IllegalArgumentException if <code>n</code> is not positive.
@@ -106,9 +126,9 @@ public class Randoms
     /**
      * Has a probability <code>p</code> of returning true.
      */
-    public boolean getProbability (float p)
+    public boolean getProbability (double p)
     {
-        return _r.nextFloat() < p;
+        return _r.nextDouble() < p;
     }
 
     /**
@@ -174,18 +194,6 @@ public class Randoms
     public <T> T pick (Iterable<? extends T> iterable, T ifEmpty)
     {
         return pickPluck(iterable, ifEmpty, false);
-    }
-
-    /**
-     * Pick a random element from the specified array, or return <code>ifEmpty</code>
-     * if it is empty.
-     *
-     * @throws NullPointerException if the array is null.
-     */
-    public <T> T pick (T[] array, T ifEmpty)
-    {
-        int size = array.length;
-        return (size == 0) ? ifEmpty : array[_r.nextInt(size)];
     }
 
     /**

@@ -75,6 +75,7 @@ public class MACUtil
             // 02-03-8A-00-00-11 - Westell Dual (USB/Ethernet) modem
             // FF-FF-FF-FF-FF-FF - Tunnel adapter Teredo
             // 02-00-4C-4F-4F-50 - MSFT thinger, loopback of some sort
+            // 00-00-00-00-00-00(-00-E0) - IP6 tunnel
             if (mac.startsWith("44-45-53")) {
                 continue;
             } else if (mac.startsWith("00-53-45-00")) {
@@ -90,6 +91,8 @@ public class MACUtil
             } else if (mac.startsWith("FF-FF-FF-FF-FF-FF")) {
                 continue;
             } else if (mac.startsWith("02-00-4C-4F-4F-50")) {
+                continue;
+            } else if (mac.startsWith("00-00-00-00-00-00")) {
                 continue;
             }
 

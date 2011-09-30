@@ -4,7 +4,7 @@
   <groupId>com.samskivert</groupId>
   <artifactId>samskivert</artifactId>
   <packaging>jar</packaging>
-  <version>1.5</version>
+  <version>1.6-SNAPSHOT</version>
   <name>samskivert</name>
   <description>A collection of Java utilities.</description>
   <url>http://code.google.com/p/samskivert/</url>

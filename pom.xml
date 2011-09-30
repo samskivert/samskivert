@@ -7,9 +7,9 @@
   <version>1.6-SNAPSHOT</version>
   <name>samskivert</name>
   <description>A collection of Java utilities.</description>
-  <url>http://code.google.com/p/samskivert/</url>
+  <url>http://github.com/samskivert/samskivert</url>
   <issueManagement>
-    <url>http://code.google.com/p/samskivert/issues/list</url>
+    <url>http://github.com/samskivert/samskivert/issues</url>
   </issueManagement>
 
   <parent>

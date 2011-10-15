@@ -103,14 +103,14 @@ public abstract class ObserverList<T>
         FAST_UNSAFE;
     };
 
-    /** @deprecated Use {@link Policy.SAFE_IN_ORDER}. */
+    /** @deprecated Use {@link Policy#SAFE_IN_ORDER}. */
     @Deprecated public static final int SAFE_IN_ORDER_NOTIFY = 1;
 
-    /** @deprecated Use {@link Policy.FAST_UNSAFE}. */
+    /** @deprecated Use {@link Policy#FAST_UNSAFE}. */
     @Deprecated public static final int FAST_UNSAFE_NOTIFY = 2;
 
     /**
-     * Creates an observer list with {@link Policy.SAFE_IN_ORDER} notification policy.
+     * Creates an observer list with {@link Policy#SAFE_IN_ORDER} notification policy.
      */
     public static <T> ObserverList<T> newSafeInOrder ()
     {
@@ -118,7 +118,7 @@ public abstract class ObserverList<T>
     }
 
     /**
-     * Creates an observer list with {@link Policy.FAST_UNSAFE} notification policy.
+     * Creates an observer list with {@link Policy#FAST_UNSAFE} notification policy.
      */
     public static <T> ObserverList<T> newFastUnsafe ()
     {

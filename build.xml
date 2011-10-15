@@ -37,7 +37,7 @@
         classpathref="built.classpath"/>
   </target>
 
-  <target name="javadoc" depends="-prepare" description="Builds javadocs.">
+  <target name="javadoc" depends="compile" description="Builds javadocs.">
     <tstamp><format property="year" pattern="yyyy"/></tstamp>
     <mkdir dir="${javadoc.dir}"/>
     <javadoc windowtitle="${ant.project.name} API" doctitle="${ant.project.name} API"
@@ -45,8 +45,10 @@
              additionalparam="-breakiterator">
       <packageset dir="${src.dir}"/>
       <bottom>Copyright &#169; 2000-${year} Michael Bayne, et al. All Rights Reserved.</bottom>
-      <classpath refid="classpath"/>
-      <link href="http://download.oracle.com/javase/1.5.0/docs/api/"/>
+      <classpath refid="built.classpath"/>
+      <link href="http://download.oracle.com/javase/6/docs/api/"/>
+      <link href="http://java.sun.com/products/javamail/javadocs/"/>
+      <link href="http://download.oracle.com/javaee/1.2.1/api/"/>
     </javadoc>
   </target>
 

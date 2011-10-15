@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference;
 public class WeakObserverList<T> extends ObserverList<T>
 {
     /**
-     * Creates a weak observer list with {@link Policy.SAFE_IN_ORDER} notification policy.
+     * Creates a list with {@link ObserverList.Policy#SAFE_IN_ORDER} notification policy.
      */
     public static <T> WeakObserverList<T> newSafeInOrder ()
     {
@@ -22,7 +22,7 @@ public class WeakObserverList<T> extends ObserverList<T>
     }
 
     /**
-     * Creates a weak observer list with {@link Policy.FAST_UNSAFE} notification policy.
+     * Creates a list with {@link ObserverList.Policy#FAST_UNSAFE} notification policy.
      */
     public static <T> WeakObserverList<T> newFastUnsafe ()
     {

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <project name="samskivert" default="compile" basedir="." xmlns:artifact="urn:maven-artifact-ant">
-  <property name="src.dir"     value="src/main/java"/>
-  <property name="test.dir"    value="src/test/java"/>
-  <property name="deploy.dir"  value="dist"/>
-  <property name="classes.dir" value="${deploy.dir}/classes"/>
+  <property name="src.dir"      value="src/main/java"/>
+  <property name="test.dir"     value="src/test/java"/>
+  <property name="deploy.dir"   value="dist"/>
+  <property name="classes.dir"  value="${deploy.dir}/classes"/>
   <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
-  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+  <property name="javadoc.dir"  value="${deploy.dir}/docs"/>
 
-  <property name="ooo-build.vers" value="2.5"/>
+  <property name="ooo-build.vers" value="2.9"/>
   <ant antfile="bootstrap.xml"/>
   <import file="${user.home}/.m2/ooo-build/${ooo-build.vers}/ooo-build.xml"/>
 
@@ -17,13 +17,7 @@
     <mavendep pom="pom.xml" id="test" scope="test"/>
   </target>
 
-  <target name="clean" description="Cleans out compiled classes and docs.">
-    <delete dir="${classes.dir}"/>
-    <delete dir="${tclasses.dir}"/>
-    <delete dir="${deploy.dir}/docs"/>
-  </target>
-
-  <target name="distclean" description="Cleans out all build resultss.">
+  <target name="clean" description="Cleans out all build results.">
     <delete dir="${deploy.dir}"/>
   </target>
 
@@ -56,10 +50,6 @@
     </javadoc>
   </target>
 
-  <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,compile,javadoc,dist"
-          description="Cleans and rebuilds everything."/>
-
   <property name="test" value=""/>
   <target name="tests" depends="compile"
           description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
@@ -82,7 +72,7 @@
     </unit>
   </target>
 
-  <target name="dist" depends="compile" description="Builds jar files.">
+  <target name="package" depends="compile" description="Builds jar files.">
     <!-- we export a small selection of classes for use by GWT -->
     <copy todir="${classes.dir}">
       <fileset dir="src/main/resources" includes="com/samskivert/Utils.gwt.xml"/>
@@ -93,8 +83,12 @@
     <jar destfile="${deploy.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
   </target>
 
-  <target name="maven-deploy" depends="dist"
-          description="Deploys our build artifacts to a Maven repository.">
-    <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml" srcdir="${src.dir}"/>
+  <target name="install" depends="package" description="Installs to local Maven repo.">
+    <maveninstall file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"/>
+  </target>
+
+  <target name="deploy" depends="package,tests,javadoc" description="Deploys to remote Maven repo.">
+    <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"
+                 srcdir="${src.dir}" docdir="${deploy.dir}/docs"/>
   </target>
 </project>

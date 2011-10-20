@@ -102,8 +102,10 @@ public class HsqldbLiaison extends BaseLiaison
     public boolean isDuplicateRowException (SQLException sqe)
     {
         // Violation of unique constraint SYS_PK_51: duplicate value(s) for column(s) FOO
+        // integrity constraint violation: unique constraint or index violation; SYS_CT_10057
         String msg = sqe.getMessage();
-        return (msg != null && msg.indexOf("duplicate value(s)") != -1);
+        return (msg != null && (msg.contains("duplicate value(s)") ||
+                                msg.contains("unique constraint or index violation")));
     }
 
     // BaseLiaison's implementation of table creation accepts unique constraints both as

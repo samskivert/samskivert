@@ -317,7 +317,9 @@ public abstract class Interval
                     }
                     @Override public String toString () {
                         Interval ival = _interval;
-                        return (ival != null) ? ival.toString() : "(Interval was cancelled)";
+                        return (ival != null)
+                            ? ival.toString()
+                            : "(Interval was cancelled: " + _intervalClassName + ")";
                     }
                 };
             }

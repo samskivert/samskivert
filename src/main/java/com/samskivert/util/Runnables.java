@@ -69,9 +69,7 @@ public class Runnables
     {
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.getName().equals(methodName) && method.getParameterTypes().length == 0) {
-                if (!method.isAccessible()) {
-                    method.setAccessible(true);
-                }
+                method.setAccessible(true); // isAccessible() check is too slow
                 return method;
             }
         }

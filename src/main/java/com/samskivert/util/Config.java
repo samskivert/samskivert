@@ -91,9 +91,15 @@ public class Config
     /**
      * Constructs a config object which will obtain information from the supplied properties.
      */
-    public Config (String path, Properties props)
+    public Config (Properties props)
     {
         _props = props;
+    }
+
+    @Deprecated
+    public Config (String path, Properties props)
+    {
+        this(props);
     }
 
     /**

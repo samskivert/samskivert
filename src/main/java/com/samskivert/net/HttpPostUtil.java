@@ -25,7 +25,9 @@ public class HttpPostUtil
 {
     /**
      * Return the results of a form post. Note that the http request takes place on another
-     * thread, but this thread blocks until the results are returned or it times out.
+     * thread, but this thread blocks until the results are returned or it times out. This
+     * overload sets a single request property of
+     * <code>"Content-Type" = "application/x-www-form-urlencoded"</code>.
      *
      * @param url from which to make the request.
      * @param submission the entire submission eg "foo=bar&baz=boo&futz=foo".
@@ -34,7 +36,8 @@ public class HttpPostUtil
     public static String httpPost (URL url, String submission, int timeout)
         throws IOException, ServiceWaiter.TimeoutException
     {
-        return httpPost(url, submission, timeout, Collections.<String, String>emptyMap());
+        return httpPost(url, submission, timeout,
+            Collections.singletonMap("Content-Type", "application/x-www-form-urlencoded"));
     }
 
     /**
@@ -59,7 +62,6 @@ public class HttpPostUtil
                     conn.setDoInput(true);
                     conn.setDoOutput(true);
                     conn.setUseCaches(false);
-                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                     for (Map.Entry<String, String> entry : requestProps.entrySet()) {
                         conn.setRequestProperty(entry.getKey(), entry.getValue());
                     }

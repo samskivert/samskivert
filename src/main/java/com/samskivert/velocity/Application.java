@@ -15,10 +15,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.velocity.app.Velocity;
 
 import com.samskivert.servlet.HttpErrorException;
-import com.samskivert.servlet.IndiscriminateSiteIdentifier;
 import com.samskivert.servlet.MessageManager;
 import com.samskivert.servlet.RedirectException;
 import com.samskivert.servlet.SiteIdentifier;
+import com.samskivert.servlet.SiteIdentifiers;
 import com.samskivert.servlet.SiteResourceLoader;
 import com.samskivert.servlet.util.ExceptionMap;
 import com.samskivert.servlet.util.FriendlyException;
@@ -249,13 +249,13 @@ public class Application
 
     /**
      * Called to instantiate the site identifier that we'd like to use in this application. This
-     * will be an instance of {@link IndiscriminateSiteIdentifier} unless the derived application
-     * class overrides this method and creates something more to its liking.  This will be called
-     * after the application's {@link #init} method has been called.
+     * will be {@link SiteIdentifiers#DEFAULT}} unless the derived application class overrides this
+     * method and creates something more to its liking. This will be called after the application's
+     * {@link #init} method has been called.
      */
     protected SiteIdentifier createSiteIdentifier (ServletContext ctx)
     {
-        return new IndiscriminateSiteIdentifier();
+        return SiteIdentifiers.DEFAULT;
     }
 
     /**

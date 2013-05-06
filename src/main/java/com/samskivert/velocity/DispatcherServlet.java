@@ -126,21 +126,10 @@ public class DispatcherServlet extends HttpServlet
     {
         super.init(config);
 
-        // load up our application configuration
+        // create and initialize our application
         try {
-            String appcl = config.getInitParameter(APP_CLASS_KEY);
-            if (StringUtil.isBlank(appcl)) {
-                _app = new Application();
-            } else {
-                Class<?> appclass = Class.forName(appcl);
-                _app = (Application)appclass.newInstance();
-            }
-
-            // now initialize the applicaiton
-            String logicPkg = config.getInitParameter(LOGIC_PKG_KEY);
-            _app.init(config, getServletContext(),
-                      StringUtil.isBlank(logicPkg) ? "" : logicPkg);
-
+            _app = createApp(config);
+            _app.init(config, getServletContext(), getLogicPackage(config));
         } catch (Throwable t) {
             throw new ServletException("Error instantiating Application: " + t, t);
         }
@@ -189,6 +178,21 @@ public class DispatcherServlet extends HttpServlet
         super.destroy();
         // shutdown our application
         _app.shutdown();
+    }
+
+    protected Application createApp (ServletConfig config) throws Exception {
+        String appcl = config.getInitParameter(APP_CLASS_KEY);
+        if (StringUtil.isBlank(appcl)) {
+            return new Application();
+        } else {
+            Class<?> appclass = Class.forName(appcl);
+            return (Application)appclass.newInstance();
+        }
+    }
+
+    protected String getLogicPackage (ServletConfig config) {
+        String logicPkg = config.getInitParameter(LOGIC_PKG_KEY);
+        return StringUtil.isBlank(logicPkg) ? "" : logicPkg;
     }
 
     /**

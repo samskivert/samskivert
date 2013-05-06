@@ -195,24 +195,28 @@ public class DispatcherServlet extends HttpServlet
         return StringUtil.isBlank(logicPkg) ? "" : logicPkg;
     }
 
-    /**
-     * We load our velocity properties from the classpath rather than from a file.
-     */
-    protected Properties loadConfiguration (ServletConfig config)
-        throws IOException
-    {
+    protected Properties loadVelocityProps (ServletConfig config) throws IOException {
         String propsPath = config.getInitParameter(INIT_PROPS_KEY);
         if (propsPath == null) {
             throw new IOException(INIT_PROPS_KEY + " must point to the velocity properties file " +
                                   "in the servlet configuration.");
         }
-
         // config util loads properties files from the classpath
         Properties props = ConfigUtil.loadProperties(propsPath);
         if (props == null) {
             throw new IOException("Unable to load velocity properties " +
                                   "from file '" + INIT_PROPS_KEY + "'.");
         }
+        return props;
+    }
+
+    /**
+     * We load our velocity properties from the classpath rather than from a file.
+     */
+    protected Properties loadConfiguration (ServletConfig config)
+        throws IOException
+    {
+        Properties props = loadVelocityProps(config);
 
         // if we failed to create our application for whatever reason; bail
         if (_app == null) {
@@ -222,9 +226,22 @@ public class DispatcherServlet extends HttpServlet
         // let the application set up velocity properties
         _app.configureVelocity(config, props);
 
-        // if no file resource loader path has been set and a
-        // site-specific jar file path was provided, wire up our site
-        // resource manager
+        // if no file resource loader path has been set and a site-specific jar file path was
+        // provided, wire up our site resource manager
+        configureResourceManager(config, props);
+
+        // wire up our #import directive
+        props.setProperty("userdirective", ImportDirective.class.getName());
+
+        // configure the servlet context logger
+        props.put(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                  ServletContextLogger.class.getName());
+
+        // now return our augmented properties
+        return props;
+    }
+
+    protected void configureResourceManager (ServletConfig config, Properties props) {
         if (props.getProperty("file.resource.loader.path") == null) {
             SiteResourceLoader siteLoader = _app.getSiteResourceLoader();
             if (siteLoader != null) {
@@ -239,16 +256,6 @@ public class DispatcherServlet extends HttpServlet
                                   ServletContextResourceManager.class.getName());
             }
         }
-
-        // wire up our #import directive
-        props.setProperty("userdirective", ImportDirective.class.getName());
-
-        // configure the servlet context logger
-        props.put(RuntimeSingleton.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                  ServletContextLogger.class.getName());
-
-        // now return our augmented properties
-        return props;
     }
 
     /**

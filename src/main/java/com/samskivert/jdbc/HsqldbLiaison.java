@@ -5,6 +5,7 @@
 
 package com.samskivert.jdbc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -127,11 +128,24 @@ public class HsqldbLiaison extends BaseLiaison
             throw new IllegalArgumentException("Column name and definition number mismatch");
         }
 
-        // make a set of unique constraints already provided
-        Set<List<String>> uColSet = new HashSet<List<String>>();
+        // turn this into something less fiddly to work with
+        List<String[]> uniqueCsts = new ArrayList<String[]>();
         if (uniqueConstraintColumns != null) {
-            for (String[] uCols : uniqueConstraintColumns) {
-                uColSet.add(Arrays.asList(uCols));
+            uniqueCsts.addAll(Arrays.asList(uniqueConstraintColumns));
+        }
+
+        // note the set of single column unique constraints already provided (see method comment)
+        Set<String> seenUniques = new HashSet<String>();
+        for (String[] uCols : uniqueCsts) {
+            if (uCols.length == 1) {
+                seenUniques.add(uCols[0]);
+            }
+        }
+        // primary key columns are also considered implicitly unique as of HSQL 2.2.4, and it will
+        // freak out if we also try to include them in the UNIQUE clause, so add those too
+        if (primaryKeyColumns != null) {
+            for (String pkCol : primaryKeyColumns) {
+                seenUniques.add(pkCol);
             }
         }
 
@@ -144,13 +158,10 @@ public class HsqldbLiaison extends BaseLiaison
                 // let's be nice and not mutate the caller's object
                 newDefinitions[ii] = new ColumnDefinition(
                     def.type, def.nullable, false, def.defaultValue);
-                // if a uniqueness constraint for this column was not in the
-                // uniqueConstraintColumns parameter, add such an entry
-                if (!uColSet.contains(Collections.singletonList(columns[ii]))) {
-                    String[] newConstraint = new String[] { columns[ii] };
-                    uniqueConstraintColumns = (uniqueConstraintColumns == null) ?
-                        new String[][] { newConstraint } :
-                        ArrayUtil.append(uniqueConstraintColumns, newConstraint);
+                // if a uniqueness constraint for this column was not in the primaryKeys or
+                // uniqueConstraintColumns parameters, add the column to uniqueCsts
+                if (!seenUniques.contains(columns[ii])) {
+                    uniqueCsts.add(new String[] { columns[ii] });
                 }
             } else {
                 newDefinitions[ii] = def;
@@ -158,8 +169,9 @@ public class HsqldbLiaison extends BaseLiaison
         }
 
         // now call the real implementation with our modified data
-        return super.createTableIfMissing(
-            conn, table, columns, newDefinitions, uniqueConstraintColumns, primaryKeyColumns);
+        return super.createTableIfMissing(conn, table, columns, newDefinitions,
+                                          uniqueCsts.toArray(new String[uniqueCsts.size()][]),
+                                          primaryKeyColumns);
     }
 
     @Override // from DatabaseLiaison

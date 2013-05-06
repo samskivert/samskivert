@@ -5,6 +5,7 @@
 
 package com.samskivert.jdbc;
 
+import java.util.List;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -14,58 +15,58 @@ import java.sql.SQLException;
  */
 public class DefaultLiaison extends BaseLiaison
 {
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean matchesURL (String url)
     {
         return true;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean isDuplicateRowException (SQLException sqe)
     {
         return false;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
         return false;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public void createGenerator (Connection conn, String tableName, String columnName, int initValue)
         throws SQLException
     {
         // nothing doing
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public void deleteGenerator (Connection conn, String tableName, String columnName)
         throws SQLException
     {
         // nothing doing
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public int lastInsertedId (Connection conn, String table, String column)
         throws SQLException
     {
         return -1;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String columnSQL (String column)
     {
         return column;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String tableSQL (String table)
     {
         return table;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String indexSQL (String index)
     {
         return index;

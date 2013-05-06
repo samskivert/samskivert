@@ -10,6 +10,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import com.samskivert.io.PersistenceException;
 
@@ -185,13 +188,11 @@ public class TransitionRepository extends SimpleRepository
         liaison.createTableIfMissing(
             conn,
             "TRANSITIONS",
-            new String[] { "CLASS", "NAME", "APPLIED" },
-            new ColumnDefinition[] {
-                new ColumnDefinition("VARCHAR(200)", true, false, null),
-                new ColumnDefinition("VARCHAR(50)", true, false, null),
-                new ColumnDefinition("TIMESTAMP")
-            },
-            null,
-            new String[] { "CLASS", "NAME" });
+            Arrays.asList("CLASS", "NAME", "APPLIED"),
+            Arrays.asList(new ColumnDefinition("VARCHAR(200)", true, false, null),
+                          new ColumnDefinition("VARCHAR(50)", true, false, null),
+                          new ColumnDefinition("TIMESTAMP")),
+            Collections.<List<String>>emptyList(),
+            Arrays.asList("CLASS", "NAME"));
     }
 }

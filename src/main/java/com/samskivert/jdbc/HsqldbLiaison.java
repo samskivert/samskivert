@@ -26,31 +26,31 @@ import static com.samskivert.Log.log;
  */
 public class HsqldbLiaison extends BaseLiaison
 {
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean matchesURL (String url)
     {
         return url.startsWith("jdbc:hsqldb");
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String columnSQL (String column)
     {
         return "\"" + column + "\"";
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String tableSQL (String table)
     {
         return "\"" + table + "\"";
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String indexSQL (String index)
     {
         return "\"" + index + "\"";
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public void createGenerator (Connection conn, String tableName,
                                  String columnName, int initValue)
         throws SQLException
@@ -70,14 +70,14 @@ public class HsqldbLiaison extends BaseLiaison
         log.info("Initial value of " + tableName + ":" + columnName + " set to " + initValue + ".");
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public void deleteGenerator (Connection conn, String tableName, String columnName)
         throws SQLException
     {
         // HSQL's IDENTITY() does not create any database entities that we need to delete
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public int lastInsertedId (Connection conn, String table, String column) throws SQLException
     {
         // HSQL does not keep track of per-table-and-column insertion data, so we are pretty much
@@ -93,13 +93,13 @@ public class HsqldbLiaison extends BaseLiaison
          }
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
         return false; // no known transient exceptions for HSQLDB
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean isDuplicateRowException (SQLException sqe)
     {
         // Violation of unique constraint SYS_PK_51: duplicate value(s) for column(s) FOO
@@ -119,64 +119,59 @@ public class HsqldbLiaison extends BaseLiaison
     // TODO: Consider making this the general MO instead of a subclass override. In fact
     // it may be that uniqueness should be removed from ColumnDefinition.
     @Override // from DatabaseLiaison
-    public boolean createTableIfMissing (
-        Connection conn, String table, String[] columns, ColumnDefinition[] definitions,
-        String[][] uniqueConstraintColumns, String[] primaryKeyColumns)
+    public boolean createTableIfMissing (Connection conn, String table,
+                                         List<String> columns, List<ColumnDefinition> defns,
+                                         List<List<String>> uniqueColumns, List<String> pkColumns)
         throws SQLException
     {
-        if (columns.length != definitions.length) {
+        if (columns.size() != defns.size()) {
             throw new IllegalArgumentException("Column name and definition number mismatch");
-        }
-
-        // turn this into something less fiddly to work with
-        List<String[]> uniqueCsts = new ArrayList<String[]>();
-        if (uniqueConstraintColumns != null) {
-            uniqueCsts.addAll(Arrays.asList(uniqueConstraintColumns));
         }
 
         // note the set of single column unique constraints already provided (see method comment)
         Set<String> seenUniques = new HashSet<String>();
-        for (String[] uCols : uniqueCsts) {
-            if (uCols.length == 1) {
-                seenUniques.add(uCols[0]);
+        for (List<String> udef : uniqueColumns) {
+            if (udef.size() == 1) {
+                seenUniques.addAll(udef);
             }
         }
         // primary key columns are also considered implicitly unique as of HSQL 2.2.4, and it will
         // freak out if we also try to include them in the UNIQUE clause, so add those too
-        if (primaryKeyColumns != null) {
-            for (String pkCol : primaryKeyColumns) {
-                seenUniques.add(pkCol);
-            }
-        }
+        seenUniques.addAll(pkColumns);
 
-        // go through the columns and find any that are unique; these we replace with a
-        // non-unique variant, and instead add a new entry to the table unique constraint
-        ColumnDefinition[] newDefinitions = new ColumnDefinition[definitions.length];
-        for (int ii = 0; ii < definitions.length; ii ++) {
-            ColumnDefinition def = definitions[ii];
-            if (def.unique) {
-                // let's be nice and not mutate the caller's object
-                newDefinitions[ii] = new ColumnDefinition(
-                    def.type, def.nullable, false, def.defaultValue);
-                // if a uniqueness constraint for this column was not in the primaryKeys or
-                // uniqueConstraintColumns parameters, add the column to uniqueCsts
-                if (!seenUniques.contains(columns[ii])) {
-                    uniqueCsts.add(new String[] { columns[ii] });
+        // lazily create a copy of uniqueColumns, if needed
+        List<List<String>> newUniques = uniqueColumns;
+
+        // go through the columns and find any that are unique; these we replace with a non-unique
+        // variant, and instead add a new entry to the table unique constraint
+        List<ColumnDefinition> newDefns = new ArrayList<ColumnDefinition>(defns.size());
+        for (int ii = 0; ii < defns.size(); ii ++) {
+            ColumnDefinition def = defns.get(ii);
+            if (!def.unique) {
+                newDefns.add(def);
+                continue;
+            }
+
+            // let's be nice and not mutate the caller's object
+            newDefns.add(
+                new ColumnDefinition(def.type, def.nullable, false, def.defaultValue));
+            // if a uniqueness constraint for this column was not in the primaryKeys or
+            // uniqueColumns parameters, add the column to uniqueCsts
+            if (!seenUniques.contains(columns.get(ii))) {
+                if (newUniques == uniqueColumns) {
+                    newUniques = new ArrayList<List<String>>(uniqueColumns);
                 }
-            } else {
-                newDefinitions[ii] = def;
+                newUniques.add(Collections.singletonList(columns.get(ii)));
             }
         }
 
         // now call the real implementation with our modified data
-        return super.createTableIfMissing(conn, table, columns, newDefinitions,
-                                          uniqueCsts.toArray(new String[uniqueCsts.size()][]),
-                                          primaryKeyColumns);
+        return super.createTableIfMissing(conn, table, columns, newDefns, newUniques, pkColumns);
     }
 
     @Override // from DatabaseLiaison
-    protected String expandDefinition (
-        String type, boolean nullable, boolean unique, String defaultValue)
+    protected String expandDefinition (String type, boolean nullable, boolean unique,
+                                       String defaultValue)
     {
         StringBuilder builder = new StringBuilder(type);
 

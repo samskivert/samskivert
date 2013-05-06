@@ -8,6 +8,9 @@ package com.samskivert.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -32,14 +35,14 @@ public class HsqldbLiaisonTest
     {
         invoke(new WithConnection() {
             public void execute (Connection c, DatabaseLiaison dl) throws Exception {
-                String[] cols = new String[] { "col1", "col2", "col3" };
-                ColumnDefinition[] defs = new ColumnDefinition[] {
-                    new ColumnDefinition("int", false, false, null),
-                    new ColumnDefinition("int", false, false, "0"),
-                    new ColumnDefinition("varchar(255)", false, false, "''")
-                };
                 boolean created = dl.createTableIfMissing(
-                    c, "test_table", cols, defs, null, new String[] { "col1" });
+                    c, "test_table",
+                    Arrays.asList("col1", "col2", "col3"),
+                    Arrays.asList(new ColumnDefinition("int", false, false, null),
+                                  new ColumnDefinition("int", false, false, "0"),
+                                  new ColumnDefinition("varchar(255)", false, false, "''")),
+                    Collections.<List<String>>emptyList(),
+                    Arrays.asList("col1"));
                 assertTrue(created);
 
                 ResultSet rs = c.getMetaData().getColumns(null, null, "test_table", "%");

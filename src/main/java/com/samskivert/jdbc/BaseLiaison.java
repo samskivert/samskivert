@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import com.samskivert.util.StringUtil;
 
@@ -26,7 +27,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         super();
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean tableExists (Connection conn, String name) throws SQLException
     {
         ResultSet rs = conn.getMetaData().getTables(null, null, name, null);
@@ -39,7 +40,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return false;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean tableContainsColumn (Connection conn, String table, String column)
         throws SQLException
     {
@@ -54,7 +55,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return false;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean tableContainsIndex (Connection conn, String table, String index)
         throws SQLException
     {
@@ -69,15 +70,15 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return false;
     }
 
-    // from DatabaseLiaison
-    public boolean addIndexToTable (
-        Connection conn, String table, String[] columns, String ixName, boolean unique)
-        throws SQLException
+    @Override // from DatabaseLiaison
+    public boolean addIndexToTable (Connection conn, String table, List<String> columns,
+                                    String ixName, boolean unique) throws SQLException
     {
         if (tableContainsIndex(conn, table, ixName)) {
             return false;
         }
-        ixName = (ixName != null ? ixName : StringUtil.join(columns, "_"));
+        ixName = (ixName != null ? ixName :
+                  StringUtil.join(columns.toArray(new String[columns.size()]), "_"));
 
         StringBuilder update = new StringBuilder("CREATE ");
         if (unique) {
@@ -85,12 +86,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         }
         update.append("INDEX ").append(indexSQL(ixName)).append(" ON ").
             append(tableSQL(table)).append(" (");
-        for (int ii = 0; ii < columns.length; ii ++) {
-            if (ii > 0) {
-                update.append(", ");
-            }
-            update.append(columnSQL(columns[ii]));
-        }
+        appendColumns(columns, update);
         update.append(")");
 
         executeQuery(conn, update.toString());
@@ -98,17 +94,12 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    // from DatabaseLiaison
-    public void addPrimaryKey (Connection conn, String table, String[] columns)
+    @Override // from DatabaseLiaison
+    public void addPrimaryKey (Connection conn, String table, List<String> columns)
         throws SQLException
     {
         StringBuilder fields = new StringBuilder("(");
-        for (int ii = 0; ii < columns.length; ii ++) {
-            if (ii > 0) {
-                fields.append(", ");
-            }
-            fields.append(columnSQL(columns[ii]));
-        }
+        appendColumns(columns, fields);
         fields.append(")");
         String update = "ALTER TABLE " + tableSQL(table) + " ADD PRIMARY KEY " + fields.toString();
 
@@ -116,24 +107,22 @@ public abstract class BaseLiaison implements DatabaseLiaison
         log.info("Primary key " + fields + " added to table '" + table + "'");
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public void dropIndex (Connection conn, String table, String index) throws SQLException
     {
         executeQuery(conn, "DROP INDEX " + columnSQL(index));
     }
 
-    // from DatabaseLiaison
-    public void dropPrimaryKey (Connection conn, String table, String pkName)
-        throws SQLException
+    @Override // from DatabaseLiaison
+    public void dropPrimaryKey (Connection conn, String table, String pkName) throws SQLException
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) +
-            " DROP CONSTRAINT " + columnSQL(pkName));
+                     " DROP CONSTRAINT " + columnSQL(pkName));
     }
 
-    // from DatabaseLiaison
-    public boolean addColumn (
-        Connection conn, String table, String column, String definition, boolean check)
-        throws SQLException
+    @Override // from DatabaseLiaison
+    public boolean addColumn (Connection conn, String table, String column, String definition,
+                              boolean check) throws SQLException
     {
         if (check && tableContainsColumn(conn, table, column)) {
             return false;
@@ -145,7 +134,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean addColumn (Connection conn, String table, String column,
                               ColumnDefinition newColumnDef, boolean check)
         throws SQLException
@@ -160,14 +149,13 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean changeColumn (Connection conn, String table, String column, String type,
                                  Boolean nullable, Boolean unique, String defaultValue)
         throws SQLException
     {
-        String defStr = expandDefinition(
-            type, nullable != null ? nullable : false, unique != null ? unique : false,
-            defaultValue);
+        String defStr = expandDefinition(type, nullable != null ? nullable : false,
+                                         unique != null ? unique : false, defaultValue);
 
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " CHANGE " +
                      columnSQL(column) + " " + columnSQL(column) + " " + defStr);
@@ -176,10 +164,9 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean renameColumn (Connection conn, String table, String from, String to,
-                                 ColumnDefinition newColumnDef)
-        throws SQLException
+                                 ColumnDefinition newColumnDef) throws SQLException
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " RENAME COLUMN " +
                      columnSQL(from) + " TO " + columnSQL(to));
@@ -187,7 +174,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean dropColumn (Connection conn, String table, String column) throws SQLException
     {
         if (!tableContainsColumn(conn, table, column)) {
@@ -198,50 +185,39 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    // from DatabaseLiaison
-    public boolean createTableIfMissing (
-        Connection conn, String table, String[] columns, ColumnDefinition[] definitions,
-        String[][] uniqueConstraintColumns, String[] primaryKeyColumns)
+    @Override // from DatabaseLiaison
+        public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
+                                         List<ColumnDefinition> definitions,
+                                         List<List<String>> uniqueConstraintColumns,
+                                         List<String> primaryKeyColumns)
         throws SQLException
     {
         if (tableExists(conn, table)) {
             return false;
         }
-        if (columns.length != definitions.length) {
+        if (columns.size() != definitions.size()) {
             throw new IllegalArgumentException("Column name and definition number mismatch");
         }
 
-        StringBuilder builder =
-            new StringBuilder("CREATE TABLE ").append(tableSQL(table)).append(" (");
-        for (int ii = 0; ii < columns.length; ii ++) {
+        StringBuilder builder = new StringBuilder("CREATE TABLE ").
+            append(tableSQL(table)).append(" (");
+        for (int ii = 0; ii < columns.size(); ii ++) {
             if (ii > 0) {
                 builder.append(", ");
             }
-            builder.append(columnSQL(columns[ii])).append(" ");
-            builder.append(expandDefinition(definitions[ii]));
+            builder.append(columnSQL(columns.get(ii))).append(" ");
+            builder.append(expandDefinition(definitions.get(ii)));
         }
 
-        if (uniqueConstraintColumns != null && uniqueConstraintColumns.length > 0) {
-            for (String[] uCols : uniqueConstraintColumns) {
-                builder.append(", UNIQUE (");
-                for (int ii = 0; ii < uCols.length; ii ++) {
-                    if (ii > 0) {
-                        builder.append(", ");
-                    }
-                    builder.append(columnSQL(uCols[ii]));
-                }
-                builder.append(")");
-            }
+        for (List<String> uCols : uniqueConstraintColumns) {
+            builder.append(", UNIQUE (");
+            appendColumns(uCols, builder);
+            builder.append(")");
         }
 
-        if (primaryKeyColumns != null && primaryKeyColumns.length > 0) {
+        if (!primaryKeyColumns.isEmpty()) {
             builder.append(", PRIMARY KEY (");
-            for (int ii = 0; ii < primaryKeyColumns.length; ii ++) {
-                if (ii > 0) {
-                    builder.append(", ");
-                }
-                builder.append(columnSQL(primaryKeyColumns[ii]));
-            }
+            appendColumns(primaryKeyColumns, builder);
             builder.append(")");
         }
 
@@ -252,8 +228,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    public boolean dropTable (Connection conn, String name)
-        throws SQLException
+    public boolean dropTable (Connection conn, String name) throws SQLException
     {
         if (!tableExists(conn, name)) {
             return false;
@@ -264,17 +239,16 @@ public abstract class BaseLiaison implements DatabaseLiaison
     }
 
     /**
-     * Create an SQL string that summarizes a column definition in that format generally
-     * accepted in table creation and column addition statements, e.g.
-     *          INTEGER UNIQUE NOT NULL DEFAULT 100
+     * Create an SQL string that summarizes a column definition in that format generally accepted
+     * in table creation and column addition statements, e.g. {@code INTEGER UNIQUE NOT NULL
+     * DEFAULT 100}.
      */
     public String expandDefinition (ColumnDefinition def)
     {
         return expandDefinition(def.type, def.nullable, def.unique, def.defaultValue);
     }
 
-    protected int executeQuery (Connection conn, String query)
-        throws SQLException
+    protected int executeQuery (Connection conn, String query) throws SQLException
     {
         Statement stmt = conn.createStatement();
         try {
@@ -284,23 +258,31 @@ public abstract class BaseLiaison implements DatabaseLiaison
         }
     }
 
-    protected String expandDefinition (
-        String type, boolean nullable, boolean unique, String defaultValue)
+    protected String expandDefinition (String type, boolean nullable, boolean unique,
+                                       String defaultValue)
     {
         StringBuilder builder = new StringBuilder(type);
-
         if (!nullable) {
             builder.append(" NOT NULL");
         }
         if (unique) {
             builder.append(" UNIQUE");
         }
-
         // append the default value if one was specified
         if (defaultValue != null) {
             builder.append(" DEFAULT ").append(defaultValue);
         }
-
         return builder.toString();
+    }
+
+    /** Escapes {@code columns} with {@link #columnSQL}, appends (comma-sepped) to {@code buf}. */
+    protected void appendColumns (Iterable<String> columns, StringBuilder buf) {
+        int ii = 0;
+        for (String column : columns) {
+            if (ii++ > 0) {
+                buf.append(", ");
+            }
+            buf.append(columnSQL(column));
+        }
     }
 }

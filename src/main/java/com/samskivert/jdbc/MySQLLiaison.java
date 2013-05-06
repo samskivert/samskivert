@@ -6,6 +6,7 @@
 package com.samskivert.jdbc;
 
 import java.sql.*;
+import java.util.List;
 
 import static com.samskivert.Log.log;
 
@@ -14,20 +15,20 @@ import static com.samskivert.Log.log;
  */
 public class MySQLLiaison extends BaseLiaison
 {
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean matchesURL (String url)
     {
         return url.startsWith("jdbc:mysql");
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean isDuplicateRowException (SQLException sqe)
     {
         String msg = sqe.getMessage();
         return (msg != null && msg.indexOf("Duplicate entry") != -1);
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
         String msg = sqe.getMessage();
@@ -36,21 +37,21 @@ public class MySQLLiaison extends BaseLiaison
                                 msg.indexOf("Broken pipe") != -1));
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public void createGenerator (Connection conn, String tableName, String columnName, int initValue)
         throws SQLException
     {
         // TODO: is there any way we can set the initial AUTO_INCREMENT value?
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public void deleteGenerator (Connection conn, String tableName, String columnName)
         throws SQLException
     {
         // AUTO_INCREMENT does not create any database entities that we need to delete
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public int lastInsertedId (Connection conn, String table, String column) throws SQLException
     {
         // MySQL does not keep track of per-table-and-column insertion data, so we are pretty much
@@ -67,9 +68,8 @@ public class MySQLLiaison extends BaseLiaison
     }
 
     @Override // from BaseLiaison
-    public boolean addIndexToTable (
-        Connection conn, String table, String[] columns, String ixName, boolean unique)
-        throws SQLException
+    public boolean addIndexToTable (Connection conn, String table, List<String> columns,
+                                    String ixName, boolean unique) throws SQLException
     {
         if (tableContainsIndex(conn, table, ixName)) {
             return false;
@@ -82,12 +82,7 @@ public class MySQLLiaison extends BaseLiaison
             update.append("UNIQUE ");
         }
         update.append("INDEX ").append(indexSQL(ixName)).append(" (");
-        for (int ii = 0; ii < columns.length; ii ++) {
-            if (ii > 0) {
-                update.append(", ");
-            }
-            update.append(columnSQL(columns[ii]));
-        }
+        appendColumns(columns, update);
         update.append(")");
 
         executeQuery(conn, update.toString());
@@ -96,15 +91,13 @@ public class MySQLLiaison extends BaseLiaison
     }
 
     @Override // from BaseLiaison
-    public void dropIndex (Connection conn, String table, String index)
-        throws SQLException
+    public void dropIndex (Connection conn, String table, String index) throws SQLException
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " DROP INDEX " + columnSQL(index));
     }
 
     @Override // from BaseLiaison
-    public void dropPrimaryKey (Connection conn, String table, String pkName)
-        throws SQLException
+    public void dropPrimaryKey (Connection conn, String table, String pkName) throws SQLException
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " DROP PRIMARY KEY");
     }
@@ -124,19 +117,19 @@ public class MySQLLiaison extends BaseLiaison
         return true;
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String columnSQL (String column)
     {
         return "`" + column + "`";
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String tableSQL (String table)
     {
         return "`" + table + "`";
     }
 
-    // from DatabaseLiaison
+    @Override // from DatabaseLiaison
     public String indexSQL (String index)
     {
         return "`" + index + "`";

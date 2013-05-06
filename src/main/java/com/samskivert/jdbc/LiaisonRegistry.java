@@ -25,6 +25,7 @@ public class LiaisonRegistry
      */
     public static DatabaseLiaison getLiaison (String url)
     {
+        if (url == null) throw new NullPointerException("URL must not be null");
         // see if we already have a liaison mapped for this connection
         DatabaseLiaison liaison = _mappings.get(url);
         if (liaison == null) {

@@ -5,9 +5,8 @@
 
 package com.samskivert.servlet;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,9 +32,7 @@ public class SiteIdentifiers
                 return siteId;
             }
             @Override public Iterator<Site> enumerateSites () {
-                List<Site> sites = new ArrayList<Site>();
-                sites.add(new Site(siteId, siteString));
-                return sites.iterator();
+                return Collections.singletonList(new Site(siteId, siteString)).iterator();
             }
         };
     }

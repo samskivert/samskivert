@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.List;
 
 import com.samskivert.util.StringUtil;
@@ -185,8 +186,20 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
+    /**
+     * Created a new table of the given name with the given column names and column definitions;
+     * the given set of unique constraints (or null) and the given primary key columns (or null).
+     * Returns true if the table was successfully created, false if it already existed.
+     */
+    public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
+                                         List<ColumnDefinition> declarations,
+                                         List<String> primaryKeyColumns) throws SQLException {
+        return createTableIfMissing(conn, table, columns, declarations,
+                                    Collections.<List<String>>emptyList(), primaryKeyColumns);
+    }
+
     @Override // from DatabaseLiaison
-        public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
+    public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
                                          List<ColumnDefinition> definitions,
                                          List<List<String>> uniqueConstraintColumns,
                                          List<String> primaryKeyColumns)

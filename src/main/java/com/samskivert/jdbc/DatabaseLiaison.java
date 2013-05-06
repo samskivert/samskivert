@@ -144,6 +144,16 @@ public interface DatabaseLiaison
      */
     public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
                                          List<ColumnDefinition> declarations,
+                                         List<String> primaryKeyColumns)
+        throws SQLException;
+
+    /**
+     * Created a new table of the given name with the given column names and column definitions;
+     * the given set of unique constraints (or null) and the given primary key columns (or null).
+     * Returns true if the table was successfully created, false if it already existed.
+     */
+    public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
+                                         List<ColumnDefinition> declarations,
                                          List<List<String>> uniqueConstraintColumns,
                                          List<String> primaryKeyColumns)
         throws SQLException;

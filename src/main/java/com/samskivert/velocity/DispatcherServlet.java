@@ -575,17 +575,7 @@ public class DispatcherServlet extends HttpServlet
         Logic logic = _logic.get(lclass);
 
         if (logic == null) {
-            try {
-                Class<?> pcl = Class.forName(lclass);
-                logic = (Logic)pcl.newInstance();
-
-            } catch (ClassNotFoundException cnfe) {
-                // nothing interesting to report
-
-            } catch (Throwable t) {
-                log.warning("Unable to instantiate logic for application", "path", path,
-                            "lclass", lclass, t);
-            }
+            logic = instantiateLogic(path, lclass);
 
             // if something failed, use a dummy in it's place so that we don't sit around all day
             // freaking out about our inability to instantiate the proper logic class
@@ -598,6 +588,23 @@ public class DispatcherServlet extends HttpServlet
         }
 
         return logic;
+    }
+
+    /**
+     * Instantiates a logic instance with the supplied class name. May return null if no such class
+     * exists.
+     */
+    protected Logic instantiateLogic (String path, String lclass) {
+        try {
+            Class<?> pcl = Class.forName(lclass);
+            return (Logic)pcl.newInstance();
+        } catch (ClassNotFoundException cnfe) {
+            // nothing interesting to report
+        } catch (Throwable t) {
+            log.warning("Unable to instantiate logic for application", "path", path,
+                        "lclass", lclass, t);
+        }
+        return null;
     }
 
     /** The application being served by this dispatcher servlet. */

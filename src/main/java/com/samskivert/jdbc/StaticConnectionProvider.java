@@ -56,6 +56,16 @@ import static com.samskivert.Log.log;
  */
 public class StaticConnectionProvider implements ConnectionProvider
 {
+    /** Creates a provider for testing, using HSQLDB. */
+    public static ConnectionProvider forTest (String dbname) {
+        Properties props = new Properties();
+        props.setProperty("default.driver", "org.hsqldb.jdbcDriver");
+        props.setProperty("default.username", "sa");
+        props.setProperty("default.password", "none");
+        props.setProperty("default.url", "jdbc:hsqldb:mem:" + dbname);
+        return new StaticConnectionProvider(props);
+    }
+
     /**
      * Constructs a static connection provider which will load its configuration from a properties
      * file accessible via the classpath of the running application and identified by the specified

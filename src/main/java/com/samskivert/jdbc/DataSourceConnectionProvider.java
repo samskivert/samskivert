@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 
 import com.samskivert.io.PersistenceException;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * Provides connections using a pair of {@link DataSource} instances (one for read-only operations

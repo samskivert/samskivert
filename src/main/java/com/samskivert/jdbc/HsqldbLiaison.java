@@ -16,8 +16,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
-import static com.samskivert.Log.log;
-
 /**
  * Handles liaison for HSQLDB.
  */
@@ -64,7 +62,7 @@ public class HsqldbLiaison extends BaseLiaison
         } finally {
             JDBCUtil.close(stmt);
         }
-        log.info("Initial value of " + tableName + ":" + columnName + " set to " + initValue + ".");
+        log("Initial value of " + tableName + ":" + columnName + " set to " + initValue + ".");
     }
 
     @Override // from DatabaseLiaison
@@ -190,5 +188,12 @@ public class HsqldbLiaison extends BaseLiaison
         }
 
         return builder.toString();
+    }
+
+    @Override
+    protected void log (String message) {
+        // HSQL is generally used as a test database, so we don't generally want to hear a bunch of
+        // spam about table creation, etc. every time we start up/run tests
+        Log.log.debug(message);
     }
 }

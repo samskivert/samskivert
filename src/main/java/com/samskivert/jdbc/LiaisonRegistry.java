@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * The liaison registry provides access to the appropriate database liaison implementation for a

@@ -10,7 +10,7 @@ import java.sql.*;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * The simple repository should be used for a repository that only needs access to a single JDBC

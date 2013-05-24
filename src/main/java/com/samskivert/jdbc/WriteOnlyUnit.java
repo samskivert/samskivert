@@ -7,7 +7,7 @@ package com.samskivert.jdbc;
 
 import com.samskivert.util.Invoker;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * Extends {@link com.samskivert.util.Invoker.Unit} and specializes it for writing to a database

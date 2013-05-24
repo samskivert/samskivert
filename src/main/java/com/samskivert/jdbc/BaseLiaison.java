@@ -14,8 +14,6 @@ import java.util.List;
 
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
-
 /**
  * A superclass to help with the shrinking subset of SQL our supported dialects can agree on,
  * or when there is disagreement, implement the most standard-compliant version and let the
@@ -106,7 +104,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         update.append(")");
 
         executeQuery(conn, update.toString());
-        log.info("Database index '" + ixName + "' added to table '" + table + "'");
+        log("Database index '" + ixName + "' added to table '" + table + "'");
         return true;
     }
 
@@ -120,7 +118,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         String update = "ALTER TABLE " + tableSQL(table) + " ADD PRIMARY KEY " + fields.toString();
 
         executeQuery(conn, update);
-        log.info("Primary key " + fields + " added to table '" + table + "'");
+        log("Primary key " + fields + " added to table '" + table + "'");
     }
 
     // from DatabaseLiaison
@@ -146,7 +144,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ADD COLUMN " +
                      columnSQL(column) + " " + definition);
-        log.info("Database column '" + column + "' added to table '" + table + "'.");
+        log("Database column '" + column + "' added to table '" + table + "'.");
         return true;
     }
 
@@ -161,7 +159,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " ADD COLUMN " +
                      columnSQL(column) + " " + expandDefinition(newColumnDef));
-        log.info("Database column '" + column + "' added to table '" + table + "'.");
+        log("Database column '" + column + "' added to table '" + table + "'.");
         return true;
     }
 
@@ -175,8 +173,8 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " CHANGE " +
                      columnSQL(column) + " " + columnSQL(column) + " " + defStr);
-        log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
-                 "definition '" + defStr + "'.");
+        log("Database column '" + column + "' of table '" + table + "' modified to have " +
+            "definition '" + defStr + "'.");
         return true;
     }
 
@@ -186,7 +184,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " RENAME COLUMN " +
                      columnSQL(from) + " TO " + columnSQL(to));
-        log.info("Renamed column '" + from + "' on table '" + table + "' to '" + to + "'");
+        log("Renamed column '" + from + "' on table '" + table + "' to '" + to + "'");
         return true;
     }
 
@@ -206,7 +204,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
             return false;
         }
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) + " DROP COLUMN " + columnSQL(column));
-        log.info("Database column '" + column + "' removed from table '" + table + "'.");
+        log("Database column '" + column + "' removed from table '" + table + "'.");
         return true;
     }
 
@@ -261,7 +259,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         builder.append(")");
 
         executeQuery(conn, builder.toString());
-        log.info("Database table '" + table + "' created.");
+        log("Database table '" + table + "' created.");
         return true;
     }
 
@@ -272,7 +270,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
             return false;
         }
         executeQuery(conn, "DROP TABLE " + tableSQL(name));
-        log.info("Table '" + name + "' dropped.");
+        log("Table '" + name + "' dropped.");
         return true;
     }
 
@@ -331,5 +329,9 @@ public abstract class BaseLiaison implements DatabaseLiaison
             }
             buf.append(columnSQL(column));
         }
+    }
+
+    protected void log (String message) {
+        Log.log.info(message);
     }
 }

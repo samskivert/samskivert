@@ -14,7 +14,7 @@ import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * The static connection provider generates JDBC connections based on configuration information

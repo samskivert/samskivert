@@ -23,7 +23,7 @@ import java.sql.Statement;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * A repository for JDBC related utility functions.

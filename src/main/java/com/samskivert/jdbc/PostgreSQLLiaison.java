@@ -7,8 +7,6 @@ package com.samskivert.jdbc;
 
 import java.sql.*;
 
-import static com.samskivert.Log.log;
-
 /**
  * A database liaison for the MySQL database.
  */
@@ -68,7 +66,7 @@ public class PostgreSQLLiaison extends BaseLiaison
         } finally {
             JDBCUtil.close(stmt);
         }
-        log.info("Initial value of " + seqname  + " set to " + initValue + ".");
+        log("Initial value of " + seqname  + " set to " + initValue + ".");
     }
 
     // from DatabaseLiaison
@@ -115,8 +113,8 @@ public class PostgreSQLLiaison extends BaseLiaison
             }
             lbuf.append("defaultValue=").append(defaultValue);
         }
-        log.info("Database column '" + column + "' of table '" + table + "' modified to have " +
-                 "definition [" + lbuf + "].");
+        log("Database column '" + column + "' of table '" + table + "' modified to have " +
+            "definition [" + lbuf + "].");
         return true;
     }
 

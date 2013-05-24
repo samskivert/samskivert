@@ -16,7 +16,7 @@ import java.util.List;
 
 import com.samskivert.io.PersistenceException;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * Used to note that transitionary code has been run to migrate persistent data. This is especially

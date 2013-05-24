@@ -8,7 +8,7 @@ package com.samskivert.jdbc.jora;
 import java.util.*;
 import java.sql.*;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.jdbc.Log.log;
 
 /**
  * Cursor is used for successive access to records fetched by SELECT statement.

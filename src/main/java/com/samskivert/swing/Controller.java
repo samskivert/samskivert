@@ -21,7 +21,7 @@ import java.awt.event.HierarchyListener;
 
 import com.samskivert.swing.event.CommandEvent;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * The controller class provides a basis for the separation of user interface

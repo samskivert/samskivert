@@ -11,7 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.xml.Log.log;
 
 /**
  * The simple parser class provides an extensible object that is

@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import java.util.concurrent.Executor;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * The invoker is used to invoke self-contained units of code on an invoking thread. Each invoker

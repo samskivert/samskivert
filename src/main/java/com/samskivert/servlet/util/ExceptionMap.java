@@ -9,7 +9,8 @@ import java.io.*;
 import java.util.*;
 
 import com.samskivert.util.ConfigUtil;
-import static com.samskivert.Log.log;
+
+import static com.samskivert.servlet.Log.log;
 
 /**
  * The exception map is used to map exceptions to error messages based on

@@ -5,7 +5,7 @@
 
 package com.samskivert.util;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * A very basic implementation of RunQueue for general purpose use.

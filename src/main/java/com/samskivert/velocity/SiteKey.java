@@ -5,7 +5,7 @@
 
 package com.samskivert.velocity;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.servlet.Log.log;
 
 /**
  * Decodes a compound Velocity resource name plus site identifier.

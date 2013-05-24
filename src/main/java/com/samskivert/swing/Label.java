@@ -37,7 +37,7 @@ import com.samskivert.util.Tuple;
 
 import com.samskivert.swing.util.SwingUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * The label is a multipurpose text display mechanism that can display small amounts of text

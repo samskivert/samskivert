@@ -8,7 +8,7 @@ package com.samskivert.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * A class used to debug situations where a method that should be called

@@ -24,7 +24,7 @@ import com.samskivert.util.ClassUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.ObjectUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * Allows simple displaying and editing of Objects in a table format.

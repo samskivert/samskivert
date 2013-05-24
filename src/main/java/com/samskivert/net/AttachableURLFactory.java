@@ -11,7 +11,7 @@ import java.net.URLStreamHandlerFactory;
 
 import java.util.HashMap;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.net.Log.log;
 
 /**
  * Allows other entities in an application to register URLStreamHandler

@@ -13,7 +13,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.io.Log.log;
 
 /**
  * Convenience methods for streams.

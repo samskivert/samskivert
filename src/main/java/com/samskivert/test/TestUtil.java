@@ -9,7 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.test.Log.log;
 
 /**
  * Utilities used by unit tests for the samskivert library which are

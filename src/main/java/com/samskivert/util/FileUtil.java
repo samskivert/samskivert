@@ -16,7 +16,7 @@ import java.util.jar.JarFile;
 
 import com.samskivert.io.StreamUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Utility methods for files.

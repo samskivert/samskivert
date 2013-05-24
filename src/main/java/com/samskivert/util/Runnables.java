@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Runnable related utility methods.

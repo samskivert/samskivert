@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Provides a mechanism for causing code to be invoked when a particular

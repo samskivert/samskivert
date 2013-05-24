@@ -15,7 +15,7 @@ import java.awt.Rectangle;
 
 import java.util.HashMap;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * Used to lay out components at absolute coordinates. This layout manager

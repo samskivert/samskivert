@@ -30,7 +30,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import com.samskivert.swing.event.AncestorAdapter;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * A custom Drag and Drop manager for use within a single JVM. Does what we

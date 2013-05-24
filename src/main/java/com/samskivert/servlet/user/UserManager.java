@@ -20,7 +20,7 @@ import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.servlet.Log.log;
 
 /**
  * The user manager provides easy access to user objects for servlets. It takes care of cookie

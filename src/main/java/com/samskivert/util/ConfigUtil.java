@@ -13,7 +13,7 @@ import java.util.Map;
 
 import com.samskivert.io.StreamUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * The config util class provides routines for loading configuration information.

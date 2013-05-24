@@ -53,7 +53,7 @@ import javax.swing.table.TableModel;
 
 import com.samskivert.util.SortableArrayList;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * Miscellaneous useful Swing-related utility functions.

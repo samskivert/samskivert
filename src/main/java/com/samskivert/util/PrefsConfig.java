@@ -16,7 +16,7 @@ import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Extends the {@link Config} mechanism to allow the modification of configuration values, which
@@ -51,7 +51,7 @@ public class PrefsConfig extends Config
      */
     public PrefsConfig (String path, Properties props)
     {
-        super(path, props);
+        super(props);
 
         try {
             _prefs = Preferences.userRoot().node(path);

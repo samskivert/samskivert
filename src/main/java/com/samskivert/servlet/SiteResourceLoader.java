@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.util.HashIntMap;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.servlet.Log.log;
 
 /**
  * Web applications may wish to load resources in such a way that the site

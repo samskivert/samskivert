@@ -5,7 +5,7 @@
 
 package com.samskivert.util;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Manages the lifecycle (initialization and shutdown) of a collection of components.

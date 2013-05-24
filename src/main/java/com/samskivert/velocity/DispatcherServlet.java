@@ -42,7 +42,7 @@ import com.samskivert.servlet.util.FriendlyException;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.servlet.Log.log;
 
 /**
  * The dispatcher servlet builds upon Velocity's architecture. It does so in the following ways:

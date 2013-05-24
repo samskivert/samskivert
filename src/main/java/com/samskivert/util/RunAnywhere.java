@@ -7,7 +7,7 @@ package com.samskivert.util;
 
 import java.awt.event.InputEvent;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * <cite>Write once, run anywhere.</cite> Well, at least that's what it

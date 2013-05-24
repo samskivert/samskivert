@@ -13,7 +13,7 @@ import java.util.Random;
 
 import com.samskivert.annotation.ReplacedBy;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Provides miscellaneous utility routines to simplify obtaining useful random number values and to

@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.servlet.Log.log;
 
 /**
  * The message manager handles the translation messages for a web application. The webapp should

@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import javax.swing.SwingUtilities;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * The task master provides the ability for swing applications to invoke

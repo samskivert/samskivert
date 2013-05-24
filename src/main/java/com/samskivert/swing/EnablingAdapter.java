@@ -10,7 +10,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * Used to enable or disable a source component based on some

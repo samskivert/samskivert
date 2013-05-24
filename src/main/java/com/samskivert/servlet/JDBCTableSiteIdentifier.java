@@ -29,7 +29,7 @@ import com.samskivert.jdbc.SimpleRepository;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.servlet.Log.log;
 
 /**
  * Accomplishes the process of site identification based on a mapping from domains (e.g.

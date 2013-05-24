@@ -25,7 +25,7 @@ import com.samskivert.servlet.util.FriendlyException;
 import com.samskivert.servlet.util.RequestUtils;
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.servlet.Log.log;
 
 /**
  * The servlet API defines the concept of a web application and associates certain attributes with

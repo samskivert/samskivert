@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * An interface for doing operations after some delay. Allows expiration to occur on a specific

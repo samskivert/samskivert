@@ -7,7 +7,7 @@ package com.samskivert.xml;
 
 import org.apache.commons.digester.Rule;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.xml.Log.log;
 
 /**
  * Used to compare a file format version number in an XML file with the

@@ -18,7 +18,7 @@ import java.text.FieldPosition;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Used by various services to generate audit logs which can be useful for auditing, debugging and

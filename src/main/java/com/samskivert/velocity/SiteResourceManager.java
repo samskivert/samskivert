@@ -15,7 +15,8 @@ import org.apache.velocity.runtime.resource.ResourceFactory;
 import org.apache.velocity.runtime.resource.ResourceManagerImpl;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
-import com.samskivert.Log;
+// we can't static import log because ResourceManagerImpl defines a log that shadows it
+import com.samskivert.servlet.Log;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
 

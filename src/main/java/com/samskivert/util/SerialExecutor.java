@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import java.util.concurrent.Executor;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * Executes tasks serially, but each one on a separate thread. If a task times

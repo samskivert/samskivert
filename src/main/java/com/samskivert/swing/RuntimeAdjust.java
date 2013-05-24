@@ -37,7 +37,7 @@ import com.samskivert.util.DebugChords;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.swing.Log.log;
 
 /**
  * Provides a service where named variables can be registered as adjustable by the developer at

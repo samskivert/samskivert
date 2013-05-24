@@ -5,7 +5,7 @@
 
 package com.samskivert.util;
 
-import static com.samskivert.Log.log;
+import static com.samskivert.util.UtilLog.log;
 
 /**
  * The looping thread provides the basic functionality for a thread that does its processing in a

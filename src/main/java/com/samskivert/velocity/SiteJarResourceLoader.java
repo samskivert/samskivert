@@ -13,7 +13,8 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 
-import com.samskivert.Log;
+// we can't static import log because ResourceLoader defines a log that shadows it
+import com.samskivert.servlet.Log;
 import com.samskivert.servlet.SiteIdentifier;
 import com.samskivert.servlet.SiteResourceLoader;
 

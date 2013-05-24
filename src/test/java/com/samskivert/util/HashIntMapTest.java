@@ -50,6 +50,7 @@ public class HashIntMapTest
             ObjectInputStream in = new ObjectInputStream(fin);
             @SuppressWarnings("unchecked") HashIntMap<Integer> map =
                 (HashIntMap<Integer>)in.readObject();
+            in.close();
 
             // check the table contents
             for (int i = 10; i < 20; i++) {

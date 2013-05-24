@@ -23,12 +23,27 @@ import static com.samskivert.Log.log;
  */
 public abstract class BaseLiaison implements DatabaseLiaison
 {
-    public BaseLiaison ()
-    {
+    public BaseLiaison () {
         super();
     }
 
-    @Override // from DatabaseLiaison
+    // we override all the interface methods here so that our subclasses can use @Override without
+    // incurring the wrath of the Eclipse Java 1.5 compiler; Jesus Fuck, why do we support 1.5?
+
+    // from DatabaseLiaison
+    public abstract boolean matchesURL (String url);
+
+    // from DatabaseLiaison
+    public abstract boolean isDuplicateRowException (SQLException sqe);
+
+    // from DatabaseLiaison
+    public abstract boolean isTransientException (SQLException sqe);
+
+    // from DatabaseLiaison
+    public abstract int lastInsertedId (Connection conn, String table, String column)
+        throws SQLException;
+
+    // from DatabaseLiaison
     public boolean tableExists (Connection conn, String name) throws SQLException
     {
         ResultSet rs = conn.getMetaData().getTables(null, null, name, null);
@@ -41,7 +56,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return false;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean tableContainsColumn (Connection conn, String table, String column)
         throws SQLException
     {
@@ -56,7 +71,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return false;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean tableContainsIndex (Connection conn, String table, String index)
         throws SQLException
     {
@@ -71,7 +86,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return false;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean addIndexToTable (Connection conn, String table, List<String> columns,
                                     String ixName, boolean unique) throws SQLException
     {
@@ -95,7 +110,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public void addPrimaryKey (Connection conn, String table, List<String> columns)
         throws SQLException
     {
@@ -108,20 +123,20 @@ public abstract class BaseLiaison implements DatabaseLiaison
         log.info("Primary key " + fields + " added to table '" + table + "'");
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public void dropIndex (Connection conn, String table, String index) throws SQLException
     {
         executeQuery(conn, "DROP INDEX " + columnSQL(index));
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public void dropPrimaryKey (Connection conn, String table, String pkName) throws SQLException
     {
         executeQuery(conn, "ALTER TABLE " + tableSQL(table) +
                      " DROP CONSTRAINT " + columnSQL(pkName));
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean addColumn (Connection conn, String table, String column, String definition,
                               boolean check) throws SQLException
     {
@@ -135,7 +150,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean addColumn (Connection conn, String table, String column,
                               ColumnDefinition newColumnDef, boolean check)
         throws SQLException
@@ -150,7 +165,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean changeColumn (Connection conn, String table, String column, String type,
                                  Boolean nullable, Boolean unique, String defaultValue)
         throws SQLException
@@ -165,7 +180,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean renameColumn (Connection conn, String table, String from, String to,
                                  ColumnDefinition newColumnDef) throws SQLException
     {
@@ -175,7 +190,16 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
+    public abstract void createGenerator (Connection conn, String tableName, String columnName,
+                                          int initialValue)
+        throws SQLException;
+
+    // from DatabaseLiaison
+    public abstract void deleteGenerator (Connection conn, String tableName, String columnName)
+        throws SQLException;
+
+    // from DatabaseLiaison
     public boolean dropColumn (Connection conn, String table, String column) throws SQLException
     {
         if (!tableContainsColumn(conn, table, column)) {
@@ -198,7 +222,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
                                     Collections.<List<String>>emptyList(), primaryKeyColumns);
     }
 
-    @Override // from DatabaseLiaison
+    // from DatabaseLiaison
     public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
                                          List<ColumnDefinition> definitions,
                                          List<List<String>> uniqueConstraintColumns,
@@ -241,6 +265,7 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
+    // from DatabaseLiaison
     public boolean dropTable (Connection conn, String name) throws SQLException
     {
         if (!tableExists(conn, name)) {
@@ -250,6 +275,15 @@ public abstract class BaseLiaison implements DatabaseLiaison
         log.info("Table '" + name + "' dropped.");
         return true;
     }
+
+    // from DatabaseLiaison
+    public abstract String tableSQL (String table);
+
+    // from DatabaseLiaison
+    public abstract String columnSQL (String column);
+
+    // from DatabaseLiaison
+    public abstract String indexSQL (String index);
 
     /**
      * Create an SQL string that summarizes a column definition in that format generally accepted

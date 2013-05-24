@@ -22,16 +22,16 @@ public class SiteIdentifiers
     /** Returns a site identifier that returns the specified site always. */
     public static SiteIdentifier single (final int siteId, final String siteString) {
         return new SiteIdentifier() {
-            @Override public int identifySite (HttpServletRequest req) {
+            public int identifySite (HttpServletRequest req) {
                 return siteId;
             }
-            @Override public String getSiteString (int siteId) {
+            public String getSiteString (int siteId) {
                 return siteString;
             }
-            @Override public int getSiteId (String siteString) {
+            public int getSiteId (String siteString) {
                 return siteId;
             }
-            @Override public Iterator<Site> enumerateSites () {
+            public Iterator<Site> enumerateSites () {
                 return Collections.singletonList(new Site(siteId, siteString)).iterator();
             }
         };

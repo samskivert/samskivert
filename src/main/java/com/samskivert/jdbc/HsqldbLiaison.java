@@ -6,7 +6,6 @@
 package com.samskivert.jdbc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -16,8 +15,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
-
-import com.samskivert.util.ArrayUtil;
 
 import static com.samskivert.Log.log;
 

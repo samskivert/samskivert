@@ -225,7 +225,7 @@ public abstract class ObserverList<T>
                 // our copy on write array list will prevent us from getting hosed if modifications
                 // take place during iteration
                 Iterator<T> iter = _list.iterator();
-                for (int ii = 0; iter.hasNext(); ii++) {
+                while (iter.hasNext()) {
                     T elem = iter.next();
                     if (!checkedApply(obop, elem)) {
                         // can't remove via COWArrayList iterator, and to be totally safe (because

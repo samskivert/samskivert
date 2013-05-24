@@ -5,7 +5,6 @@
 
 package com.samskivert.jdbc;
 
-import java.util.List;
 import java.sql.Connection;
 import java.sql.SQLException;
 

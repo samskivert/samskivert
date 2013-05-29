@@ -71,7 +71,7 @@ public class CDDB
 
     /**
      * Connects this CDDB instance to the CDDB server running on the supplied host using the
-     * standard port.
+     * standard port, name and version.
      *
      * <p> <b>Note well:</b> you must close a CDDB connection once you are done with it, otherwise
      * the socket connection will remain open and pointlessly consume machine resources.
@@ -94,7 +94,7 @@ public class CDDB
 
     /**
      * Connects this CDDB instance to the CDDB server running on the supplied host using the
-     * specified port.
+     * specified port and default client name and version.
      *
      * <p> <b>Note well:</b> you must close a CDDB connection once you are done with it, otherwise
      * the socket connection will remain open and pointlessly consume machine resources.
@@ -112,6 +112,31 @@ public class CDDB
     public String connect (String hostname, int port)
         throws IOException, CDDBException
     {
+        return connect(hostname, port, CLIENT_NAME, CLIENT_VERSION);
+    }
+
+    /**
+     * Connects this CDDB instance to the CDDB server running on the supplied host using the
+     * specified port.
+     *
+     * <p> <b>Note well:</b> you must close a CDDB connection once you are done with it, otherwise
+     * the socket connection will remain open and pointlessly consume machine resources.
+     *
+     * @param hostname The host to which to connect.
+     * @param port The port number on which to connect to the host.
+     * @param clientName The name of the application establishing this connection.
+     * @param clientVersion The version of the application establishing this connection.
+     *
+     * @exception IOException Thrown if a network error occurs attempting to connect to the host.
+     * @exception CDDBException Thrown if an error occurs after identifying ourselves to the host.
+     *
+     * @return The message supplied with the succesful connection response.
+     *
+     * @see #close
+     */
+    public String connect (String hostname, int port, String clientName, String clientVersion)
+        throws IOException, CDDBException
+    {
         // obtain the necessary information we'll need to identify
         // ourselves to the CDDB server
         String localhost = InetAddress.getLocalHost().getHostName();
@@ -123,20 +148,28 @@ public class CDDB
         // establish our socket connection and IO streams
         InetAddress addr = InetAddress.getByName(hostname);
         _sock = new Socket(addr, port);
-        _in = new BufferedReader(new InputStreamReader(_sock.getInputStream()));
-        _out = new PrintStream(new BufferedOutputStream(_sock.getOutputStream()));
+        _in = new BufferedReader(new InputStreamReader(_sock.getInputStream(), "ISO-8859-1"));
+        _out = new PrintStream(new BufferedOutputStream(_sock.getOutputStream()), false, "ISO-8859-1");
 
         // first read (and discard) the banner string
         _in.readLine();
+
+        // try and change to the latest protocol version
+        Response rsp = request("proto 6");
+        if (rsp.code == 201 || rsp.code == 501) {
+            // Protocol 6 uses UTF-8
+            _in = new BufferedReader(new InputStreamReader(_sock.getInputStream(), "UTF-8"));
+            _out = new PrintStream(new BufferedOutputStream(_sock.getOutputStream()), false, "UTF-8");
+        }
 
         // send a hello request
         StringBuilder req = new StringBuilder("cddb hello ");
         req.append(username).append(" ");
         req.append(localhost).append(" ");
-        req.append(CLIENT_NAME).append(" ");
-        req.append(CLIENT_VERSION);
+        req.append(clientName).append(" ");
+        req.append(clientVersion);
 
-        Response rsp = request(req.toString());
+        rsp = request(req.toString());
 
         // confirm that the response was a successful one
         if (CDDBProtocol.codeFamily(rsp.code) != CDDBProtocol.OK &&
@@ -183,6 +216,42 @@ public class CDDB
             _in = null;
             _out = null;
         }
+    }
+
+    /**
+     * Fetches the list of categories supported by the server.
+     * 
+     * @return the categories
+     * @throws IOException
+     *             if a problem occurs chatting to the server
+     * @throws CDDBException
+     *             if the server responds with an error
+     */
+    public String[] lscat()
+        throws IOException, CDDBException
+    {
+        // sanity check
+        if (_sock == null) {
+            throw new CDDBException(500, "Not connected");
+        }
+
+        // make the request
+        Response rsp = request("cddb lscat");
+
+        // anything other than an OK response earns an exception
+        if (rsp.code != 210) {
+            throw new CDDBException(rsp.code, rsp.message);
+        }
+
+        ArrayList<String> list = new ArrayList<String>();
+        String input;
+        while (!(input = _in.readLine()).equals(CDDBProtocol.TERMINATOR)) {
+            list.add(input);
+        }
+
+        String[] categories = new String[list.size()];
+        list.toArray(categories);
+        return categories;
     }
 
     /**
@@ -260,6 +329,12 @@ public class CDDB
         /** The title of this CD. */
         public String title;
 
+        /** The year the CD was published (or -1 if not known). */
+        public int year = -1;
+
+        /** The genre of this CD. */
+        public String genre;
+
         /** The track names. */
         public String[] trackNames;
 
@@ -321,6 +396,21 @@ public class CDDB
                     detail.title = contents(input, lno);
                 } else {
                     detail.title += contents(input, lno);
+                }
+
+            } else if (input.startsWith("DYEAR")) {
+                String yearStr = contents(input, lno);
+                try {
+                    detail.year = Integer.parseInt(yearStr);
+                } catch (NumberFormatException nfEx) {
+                    detail.year = -1;
+                }
+
+            } else if (input.startsWith("DGENRE")) {
+                if (detail.genre == null) {
+                    detail.genre = contents(input, lno);
+                } else {
+                    detail.genre += contents(input, lno);
                 }
 
             } else if (input.startsWith("EXTD")) {

@@ -148,8 +148,8 @@ public class CDDB
         // establish our socket connection and IO streams
         InetAddress addr = InetAddress.getByName(hostname);
         _sock = new Socket(addr, port);
-        _in = new BufferedReader(new InputStreamReader(_sock.getInputStream(), "ISO-8859-1"));
-        _out = new PrintStream(new BufferedOutputStream(_sock.getOutputStream()), false, "ISO-8859-1");
+        _in = new BufferedReader(new InputStreamReader(_sock.getInputStream(), ISO8859));
+        _out = new PrintStream(new BufferedOutputStream(_sock.getOutputStream()), false, ISO8859);
 
         // first read (and discard) the banner string
         _in.readLine();
@@ -158,8 +158,8 @@ public class CDDB
         Response rsp = request("proto 6");
         if (rsp.code == 201 || rsp.code == 501) {
             // Protocol 6 uses UTF-8
-            _in = new BufferedReader(new InputStreamReader(_sock.getInputStream(), "UTF-8"));
-            _out = new PrintStream(new BufferedOutputStream(_sock.getOutputStream()), false, "UTF-8");
+            _in = new BufferedReader(new InputStreamReader(_sock.getInputStream(), UTF8));
+            _out = new PrintStream(new BufferedOutputStream(_sock.getOutputStream()), false, UTF8);
         }
 
         // send a hello request
@@ -219,13 +219,10 @@ public class CDDB
     }
 
     /**
-     * Fetches the list of categories supported by the server.
-     * 
-     * @return the categories
-     * @throws IOException
-     *             if a problem occurs chatting to the server
-     * @throws CDDBException
-     *             if the server responds with an error
+     * Fetches and returns the list of categories supported by the server.
+     *
+     * @throws IOException if a problem occurs chatting to the server.
+     * @throws CDDBException if the server responds with an error.
      */
     public String[] lscat()
         throws IOException, CDDBException
@@ -542,4 +539,6 @@ public class CDDB
     protected Socket _sock;
     protected BufferedReader _in;
     protected PrintStream _out;
+
+    protected static final String ISO8859 = "ISO-8859-1", UTF8 = "UTF-8";
 }

@@ -12,6 +12,7 @@ import java.io.Serializable;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -215,9 +216,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     public void clear ()
     {
         // abandon all of our hash chains (the joy of garbage collection)
-        for (int ii = _buckets.length - 1; ii >= 0; ii--) {
-            _buckets[ii] = null;
-        }
+        Arrays.fill(_buckets, null);
         // zero out our size
         _size = 0;
     }

@@ -208,16 +208,11 @@ public abstract class BaseLiaison implements DatabaseLiaison
         return true;
     }
 
-    /**
-     * Created a new table of the given name with the given column names and column definitions;
-     * the given set of unique constraints (or null) and the given primary key columns (or null).
-     * Returns true if the table was successfully created, false if it already existed.
-     */
+    // from DatabaseLiaison
     public boolean createTableIfMissing (Connection conn, String table, List<String> columns,
                                          List<ColumnDefinition> declarations,
                                          List<String> primaryKeyColumns) throws SQLException {
-        return createTableIfMissing(conn, table, columns, declarations,
-                                    Collections.<List<String>>emptyList(), primaryKeyColumns);
+        return createTableIfMissing(conn, table, columns, declarations, null, primaryKeyColumns);
     }
 
     // from DatabaseLiaison
@@ -244,13 +239,15 @@ public abstract class BaseLiaison implements DatabaseLiaison
             builder.append(expandDefinition(definitions.get(ii)));
         }
 
-        for (List<String> uCols : uniqueConstraintColumns) {
-            builder.append(", UNIQUE (");
-            appendColumns(uCols, builder);
-            builder.append(")");
+        if (uniqueConstraintColumns != null) {
+            for (List<String> uCols : uniqueConstraintColumns) {
+                builder.append(", UNIQUE (");
+                appendColumns(uCols, builder);
+                builder.append(")");
+            }
         }
 
-        if (!primaryKeyColumns.isEmpty()) {
+        if (primaryKeyColumns != null && !primaryKeyColumns.isEmpty()) {
             builder.append(", PRIMARY KEY (");
             appendColumns(primaryKeyColumns, builder);
             builder.append(")");

@@ -79,6 +79,18 @@ public class ParameterUtil
     }
 
     /**
+     * Fetches the supplied parameter from the request and converts it to a long. If the parameter
+     * does not exist or is not a well-formed long, a data validation exception is thrown with the
+     * supplied message.
+     */
+    public static long requireLongParameter (
+        HttpServletRequest req, String name, String invalidDataMessage)
+        throws DataValidationException
+    {
+        return parseLongParameter(getParameter(req, name, false), invalidDataMessage);
+    }
+
+    /**
      * Fetches the supplied parameter from the request and converts it to an integer. If the
      * parameter does not exist or is not a well-formed integer, a data validation exception is
      * thrown with the supplied message.

@@ -173,6 +173,11 @@ public abstract class ObserverList<T>
     public abstract int size ();
 
     /**
+     * Returns true if the size is 0.
+     */
+    public abstract boolean isEmpty ();
+
+    /**
      * Clears all observers from the list.
      */
     public abstract void clear ();
@@ -249,6 +254,10 @@ public abstract class ObserverList<T>
 
         @Override public int size () {
             return _list.size();
+        }
+
+        @Override public boolean isEmpty () {
+            return _list.isEmpty();
         }
 
         @Override public void clear () {

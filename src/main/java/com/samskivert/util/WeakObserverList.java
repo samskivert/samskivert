@@ -63,6 +63,11 @@ public class WeakObserverList<T> extends ObserverList<T>
         return _delegate.size();
     }
 
+    @Override public boolean isEmpty ()
+    {
+        return _delegate.isEmpty();
+    }
+
     @Override public void clear ()
     {
         _delegate.clear();

@@ -8,15 +8,21 @@ package com.samskivert.net;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.mail.Address;
 import javax.mail.Message;
+import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.event.TransportEvent;
+import javax.mail.event.TransportListener;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import java.util.regex.Pattern;
 
 import com.samskivert.util.StringUtil;
+
+import static com.samskivert.net.Log.log;
 
 /**
  * The mail util class encapsulates some utility functions related to
@@ -119,6 +125,7 @@ public class MailUtil
                                     String subject, MimeMessage message)
         throws IOException
     {
+        checkCreateSession();
         try {
             message.setFrom(new InternetAddress(sender));
             for (String recipient : recipients) {
@@ -127,7 +134,15 @@ public class MailUtil
             if (subject != null) {
                 message.setSubject(subject);
             }
-            Transport.send(message);
+            message.saveChanges();
+            Address[] recips = message.getAllRecipients();
+            if (recips.length == 0) {
+                return;
+            }
+            Transport t = _defaultSession.getTransport(recips[0]);
+            t.addTransportListener(_listener);
+            t.connect();
+            t.sendMessage(message, recips);
 
         } catch (Exception e) {
             String errmsg = "Failure sending mail [from=" + sender +
@@ -144,12 +159,35 @@ public class MailUtil
      */
     public static final MimeMessage createEmptyMessage ()
     {
-        Properties props = System.getProperties();
-        if (props.getProperty("mail.smtp.host") == null) {
-            props.put("mail.smtp.host", "localhost");
-        }
-        return new MimeMessage(Session.getDefaultInstance(props, null));
+        checkCreateSession();
+        return new MimeMessage(_defaultSession);
     }
+
+    protected static void checkCreateSession ()
+    {
+        if (_defaultSession == null) {
+            Properties props = System.getProperties();
+            if (props.getProperty("mail.smtp.host") == null) {
+                props.put("mail.smtp.host", "localhost");
+            }
+            _defaultSession = Session.getDefaultInstance(props, null);
+        }
+    }
+
+    protected static Session _defaultSession;
+
+    protected static TransportListener _listener = new TransportListener()
+        {
+            public void messageDelivered (TransportEvent event) {
+                log.info("messageDelivered: " + event);
+            }
+            public void messageNotDelivered (TransportEvent event) {
+                log.info("messageNotDelivered: " + event);
+            }
+            public void messagePartiallyDelivered (TransportEvent event) {
+                log.info("messagePartiallyDelivered: " + event);
+            }
+        };
 
     /** Originally formulated by lambert@nas.nasa.gov. */
     protected static final String EMAIL_REGEX = "^([-A-Za-z0-9_.!%+]+@" +

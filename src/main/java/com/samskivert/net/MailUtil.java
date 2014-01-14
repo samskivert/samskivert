@@ -137,12 +137,19 @@ public class MailUtil
             message.saveChanges();
             Address[] recips = message.getAllRecipients();
             if (recips.length == 0) {
+                log.info("Not sending mail to zero recipients",
+                    "subject", subject, "message", message);
                 return;
             }
             Transport t = _defaultSession.getTransport(recips[0]);
-            t.addTransportListener(_listener);
-            t.connect();
-            t.sendMessage(message, recips);
+            try {
+                t.addTransportListener(_listener);
+                t.connect();
+                t.sendMessage(message, recips);
+
+            } finally {
+                t.close();
+            }
 
         } catch (Exception e) {
             String errmsg = "Failure sending mail [from=" + sender +
@@ -163,9 +170,12 @@ public class MailUtil
         return new MimeMessage(_defaultSession);
     }
 
+    /**
+     * Create our default session if not already created.
+     */
     protected static void checkCreateSession ()
     {
-        if (_defaultSession == null) {
+        if (_defaultSession == null) { // no need to sync
             Properties props = System.getProperties();
             if (props.getProperty("mail.smtp.host") == null) {
                 props.put("mail.smtp.host", "localhost");
@@ -174,18 +184,30 @@ public class MailUtil
         }
     }
 
+    /** The session for sending our messages. */
     protected static Session _defaultSession;
 
+    /** Listens to mail sending transport events. */
     protected static TransportListener _listener = new TransportListener()
         {
-            public void messageDelivered (TransportEvent event) {
-                log.info("messageDelivered: " + event);
+            @Override public void messageDelivered (TransportEvent event) {
+                log.debug("messageDelivered: " + event);
             }
-            public void messageNotDelivered (TransportEvent event) {
-                log.info("messageNotDelivered: " + event);
+            @Override public void messageNotDelivered (TransportEvent event) {
+                logDeliveryError("messageNotDelivered", event);
             }
-            public void messagePartiallyDelivered (TransportEvent event) {
-                log.info("messagePartiallyDelivered: " + event);
+            @Override public void messagePartiallyDelivered (TransportEvent event) {
+                logDeliveryError("messagePartiallyDelivered", event);
+            }
+            /**
+             * Log the details of a delivery error.
+             */
+            protected void logDeliveryError (String what, TransportEvent event)
+            {
+                log.warning(what + ": " + event,
+                    "invalidAddresses", event.getInvalidAddresses(),
+                    "validUnsentAddresses", event.getValidUnsentAddresses(),
+                    "message", event.getMessage());
             }
         };
 

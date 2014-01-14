@@ -136,7 +136,7 @@ public class MailUtil
             }
             message.saveChanges();
             Address[] recips = message.getAllRecipients();
-            if (recips.length == 0) {
+            if (recips == null || recips.length == 0) {
                 log.info("Not sending mail to zero recipients",
                     "subject", subject, "message", message);
                 return;

@@ -188,28 +188,23 @@ public class MailUtil
     protected static Session _defaultSession;
 
     /** Listens to mail sending transport events. */
-    protected static TransportListener _listener = new TransportListener()
-        {
-            @Override public void messageDelivered (TransportEvent event) {
-                log.debug("messageDelivered: " + event);
-            }
-            @Override public void messageNotDelivered (TransportEvent event) {
-                logDeliveryError("messageNotDelivered", event);
-            }
-            @Override public void messagePartiallyDelivered (TransportEvent event) {
-                logDeliveryError("messagePartiallyDelivered", event);
-            }
-            /**
-             * Log the details of a delivery error.
-             */
-            protected void logDeliveryError (String what, TransportEvent event)
-            {
-                log.warning(what + ": " + event,
-                    "invalidAddresses", event.getInvalidAddresses(),
-                    "validUnsentAddresses", event.getValidUnsentAddresses(),
-                    "message", event.getMessage());
-            }
-        };
+    protected static TransportListener _listener = new TransportListener() {
+        public void messageDelivered (TransportEvent event) {
+            log.debug("messageDelivered: " + event);
+        }
+        public void messageNotDelivered (TransportEvent event) {
+            logDeliveryError("messageNotDelivered", event);
+        }
+        public void messagePartiallyDelivered (TransportEvent event) {
+            logDeliveryError("messagePartiallyDelivered", event);
+        }
+        protected void logDeliveryError (String what, TransportEvent event) {
+            log.warning(what + ": " + event,
+                        "invalidAddresses", event.getInvalidAddresses(),
+                        "validUnsentAddresses", event.getValidUnsentAddresses(),
+                        "message", event.getMessage());
+        }
+    };
 
     /** Originally formulated by lambert@nas.nasa.gov. */
     protected static final String EMAIL_REGEX = "^([-A-Za-z0-9_.!%+]+@" +

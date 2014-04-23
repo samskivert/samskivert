@@ -50,6 +50,17 @@ public class Randoms
     }
 
     /**
+     * An interface for weighing pickable elements.
+     */
+    public interface Weigher<T>
+    {
+        /**
+         * Get the weight of the specified value.
+         */
+        public double getWeight (T value);
+    }
+
+    /**
      * Returns a pseudorandom, uniformly distributed <code>int</code> value between <code>0</code>
      * (inclusive) and <code>high</code> (exclusive).
      *
@@ -209,45 +220,59 @@ public class Randoms
      */
     public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)
     {
+        Map.Entry<? extends T, ? extends Number> pick = pick(
+                weightMap.entrySet(), null, new Weigher<Map.Entry<?, ? extends Number>>() {
+                    public double getWeight (Map.Entry<?, ? extends Number> entry) {
+                        return entry.getValue().doubleValue();
+                    }
+                });
+        return (pick == null) ? ifEmpty : pick.getKey();
+    }
+
+    /**
+     * Pick a random element from the specified iterable, or return
+     * <code>ifEmpty</code> if no element has a weight greater than <code>0</code>.
+     *
+     * <p><b>Implementation note:</b> a random number is generated for every entry with a
+     * non-zero weight after the first such entry.
+     *
+     * @throws NullPointerException if values is null.
+     * @throws IllegalArgumentException if any weight is less than 0.
+     */
+    public <T> T pick (Iterable<? extends T> values, T ifEmpty, Weigher<? super T> weigher)
+    {
+        return pick(values.iterator(), ifEmpty, weigher);
+    }
+
+    /**
+     * Pick a random element from the specified iterator, or return
+     * <code>ifEmpty</code> if no element has a weight greater than <code>0</code>.
+     *
+     * <p><b>Implementation note:</b> a random number is generated for every entry with a
+     * non-zero weight after the first such entry.
+     *
+     * @throws NullPointerException if values is null.
+     * @throws IllegalArgumentException if any weight is less than 0.
+     */
+    public <T> T pick (Iterator<? extends T> values, T ifEmpty, Weigher<? super T> weigher)
+    {
         T pick = ifEmpty;
         double total = 0.0;
-        for (Map.Entry<? extends T, ? extends Number> entry : weightMap.entrySet()) {
-            double weight = entry.getValue().doubleValue();
+        while (values.hasNext()) {
+            T val = values.next();
+            double weight = weigher.getWeight(val);
             if (weight > 0.0) {
                 total += weight;
                 if ((total == weight) || ((_r.nextDouble() * total) < weight)) {
-                    pick = entry.getKey();
+                    pick = val;
                 }
             } else if (weight < 0.0) {
-                throw new IllegalArgumentException("Weight less than 0: " + entry);
-            } // else: weight == 0.0 is OK
+                throw new IllegalArgumentException("Weight less than 0: " + val);
+            }
+            // else: weight == 0.0 is OK
         }
         return pick;
     }
-
-//    public <T> T pick (
-//        Iterable<? extends T> iterable, Function<? super T, ? extends Number> weightFunction,
-//        T ifEmpty)
-//    {
-//        T pick = ifEmpty;
-//        double total = 0.0;
-//        for (T element : iterable) {
-//            double weight = weightFunction.apply(element).doubleValue();
-//            // The rest is like the current pick(Map)
-//        }
-//        return pick;
-//    }
-//
-//    public <T> T pick (Map<? extends T, ? extends Number> weightMap, T ifEmpty)
-//    {
-//        Map.Entry<? extends T, ? extends Number> pick = pick(weightMap.entrySet(),
-//            new Function<Map.Entry<?, ? extends Number>, Number>() {
-//                public Number apply (Map.Entry<?, ? extends Number> entry) {
-//                    return entry.getValue();
-//                }
-//            }, null);
-//        return (pick != null) ? pick.getKey() : ifEmpty;
-//    }
 
     /**
      * Pluck (remove) a random element from the specified Iterable, or return <code>ifEmpty</code>

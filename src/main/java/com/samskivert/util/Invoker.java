@@ -83,11 +83,12 @@ public class Invoker extends LoopingThread
 
         /**
          * Returns the duration beyond which this invoker unit will be considered to be running too
-         * long and result in a warning being logged. The default is 500ms.
+         * long, or 0 to use the default value. If performance tracking is enabled and this unit
+         * runs to long, a warning will be logged.
          */
         public long getLongThreshold ()
         {
-            return _defaultLongThreshold;
+            return 0L;
         }
 
         /**
@@ -112,6 +113,7 @@ public class Invoker extends LoopingThread
      * Configures the default duration (in milliseconds) for an invoker unit to be reported as
      * "long". Long units will result in a warning message written to the log.
      */
+    @Deprecated
     public static void setDefaultLongThreshold (long millis)
     {
         _defaultLongThreshold = millis;
@@ -124,6 +126,15 @@ public class Invoker extends LoopingThread
     {
         super(name);
         _receiver = resultReceiver;
+    }
+
+    /**
+     * Set the long threshold for this Invoker. Units that do not specify their own threshold
+     * will be reported as "long" if their duration exceeds this time.
+     */
+    public void setLongThreshold (long millis)
+    {
+        _longThreshold = millis;
     }
 
     /**
@@ -271,9 +282,16 @@ public class Invoker extends LoopingThread
             recordMetrics(key, duration);
 
             // report long runners
-            if (duration > unit.getLongThreshold()) {
+            long thresh = unit.getLongThreshold();
+            if (thresh == 0) {
+                // TODO: remove _defaultLongThreshold
+                thresh = (_longThreshold == 0)
+                    ? _defaultLongThreshold
+                    : _longThreshold;
+            }
+            if (duration > thresh) {
                 StringBuilder msg = new StringBuilder();
-                msg.append((duration >= 10*unit.getLongThreshold()) ? "Really long" : "Long");
+                msg.append((duration >= 10*thresh) ? "Really long" : "Long");
                 msg.append(" invoker unit [unit=").append(unit);
                 msg.append(" (").append(key).append("), time=").append(duration).append("ms");
                 if (unit.getDetail() != null) {
@@ -335,7 +353,11 @@ public class Invoker extends LoopingThread
     /** Default number of buckets to use when profiling unit times. */
     protected int _profileBucketCount = 10;
 
+    /** The long threshold for this particular invoker. */
+    protected long _longThreshold = 0L; // unset
+
     /** The duration of time after which we consider a unit to be delinquent and log a warning. */
+    @Deprecated
     protected static long _defaultLongThreshold = 500L;
 
     /** True after {@link #shutdown} has been called but before the invoker has finished processing

@@ -61,10 +61,5 @@ public interface ResultListener<T>
 
     /** @deprecated This cannot be type safe so don't use it. */
     @Deprecated
-    public ResultListener<Object> NOOP = new ResultListener<Object>() {
-        public void requestCompleted (Object result) {
-        }
-        public void requestFailed (Exception cause) {
-        }
-    };
+    public ResultListener<Object> NOOP = new NOOP<Object>();
 }

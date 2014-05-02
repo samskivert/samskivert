@@ -129,9 +129,11 @@ public class HsqldbLiaison extends BaseLiaison
 
         // note the set of single column unique constraints already provided (see method comment)
         Set<String> seenUniques = new HashSet<String>();
-        for (List<String> udef : uniqueColumns) {
-            if (udef.size() == 1) {
-                seenUniques.addAll(udef);
+        if (uniqueColumns != null) {
+            for (List<String> udef : uniqueColumns) {
+                if (udef.size() == 1) {
+                    seenUniques.addAll(udef);
+                }
             }
         }
         // primary key columns are also considered implicitly unique as of HSQL 2.2.4, and it will

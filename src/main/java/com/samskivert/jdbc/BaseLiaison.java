@@ -48,7 +48,10 @@ public abstract class BaseLiaison implements DatabaseLiaison
     {
         // if this JDBC driver supports getGeneratedKeys, use it!
         if (istmt != null && conn.getMetaData().supportsGetGeneratedKeys()) {
-            return istmt.getGeneratedKeys().getInt(column);
+            ResultSet rs = istmt.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(column);
+            }
         }
         return null;
     }

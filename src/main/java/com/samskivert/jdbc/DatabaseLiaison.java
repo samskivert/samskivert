@@ -55,8 +55,9 @@ public interface DatabaseLiaison
      *
      * @param istmt the insert statement that generated the keys. May be null if the ORM doesn't
      * have the statement handy.
+     * @return the requested inserted id, or null if no last inserted id can be obtained.
      */
-    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
+    public Integer lastInsertedId (Connection conn, Statement istmt, String table, String column)
         throws SQLException;
 
     /**

@@ -38,18 +38,19 @@ public abstract class BaseLiaison implements DatabaseLiaison
 
     @Deprecated
     public int lastInsertedId (Connection conn, String table, String column) throws SQLException {
-        return lastInsertedId(conn, null, table, column);
+        Integer id = lastInsertedId(conn, null, table, column);
+        return (id == null) ? -1 : id;
     }
 
     // from DatabaseLiaison
-    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
+    public Integer lastInsertedId (Connection conn, Statement istmt, String table, String column)
         throws SQLException
     {
         // if this JDBC driver supports getGeneratedKeys, use it!
         if (istmt != null && conn.getMetaData().supportsGetGeneratedKeys()) {
             return istmt.getGeneratedKeys().getInt(column);
         }
-        return -1;
+        return null;
     }
 
     // from DatabaseLiaison

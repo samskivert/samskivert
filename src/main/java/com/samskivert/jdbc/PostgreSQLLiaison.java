@@ -35,12 +35,12 @@ public class PostgreSQLLiaison extends BaseLiaison
     }
 
     // from DatabaseLiaison
-    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
+    public Integer lastInsertedId (Connection conn, Statement istmt, String table, String column)
         throws SQLException
     {
         // try the default first, which uses JDBC's getGeneratedKeys mechanism
-        int id = super.lastInsertedId(conn, istmt, table, column);
-        if (id >= 0) return id;
+        Integer id = super.lastInsertedId(conn, istmt, table, column);
+        if (id != null) return id;
 
         // PostgreSQL's support for auto-generated ID's comes in the form of appropriately named
         // sequences and DEFAULT nextval(sequence) modifiers in the ID columns. To get the next ID,
@@ -50,7 +50,7 @@ public class PostgreSQLLiaison extends BaseLiaison
         try {
             ResultSet rs = stmt.executeQuery(
                 "select currval('\"" + table + "_" + column + "_seq\"')");
-            return rs.next() ? rs.getInt(1) :-1;
+            return rs.next() ? rs.getInt(1) : null;
         } finally {
             JDBCUtil.close(stmt);
         }

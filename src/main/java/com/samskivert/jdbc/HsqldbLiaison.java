@@ -73,11 +73,11 @@ public class HsqldbLiaison extends BaseLiaison
     }
 
     @Override // from DatabaseLiaison
-    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
+    public Integer lastInsertedId (Connection conn, Statement istmt, String table, String column)
         throws SQLException
     {
-        int id = super.lastInsertedId(conn, istmt, table, column);
-        if (id >= 0) return id;
+        Integer id = super.lastInsertedId(conn, istmt, table, column);
+        if (id != null) return id;
 
         // HSQL does not keep track of per-table-and-column insertion data, so we are pretty much
         // going on blind faith here that we're fetching the right ID. In the overwhelming number
@@ -86,7 +86,7 @@ public class HsqldbLiaison extends BaseLiaison
          try {
              stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("call IDENTITY()");
-             return rs.next() ? rs.getInt(1) : -1;
+             return rs.next() ? rs.getInt(1) : null;
          } finally {
              JDBCUtil.close(stmt);
          }

@@ -50,14 +50,14 @@ public class MySQLLiaison extends BaseLiaison
     }
 
     @Override // from DatabaseLiaison
-    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
+    public Integer lastInsertedId (Connection conn, Statement istmt, String table, String column)
         throws SQLException
     {
         // MySQL hackily reports the last inserted key as GENERATED_KEY, so we call super with that
         // "column name"; but if that doesn't work (we're using an old JDBC driver without support
         // for returning generated keys), fall back to the old old method
-        int id = super.lastInsertedId(conn, istmt, table, "GENERATED_KEY");
-        if (id >= 0) return id;
+        Integer id = super.lastInsertedId(conn, istmt, table, "GENERATED_KEY");
+        if (id != null) return id;
 
         // MySQL does not keep track of per-table-and-column insertion data, so we are pretty much
         // going on blind faith here that we're fetching the right ID. In the overwhelming number
@@ -66,7 +66,7 @@ public class MySQLLiaison extends BaseLiaison
         try {
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
-            return rs.next() ? rs.getInt(1) : -1;
+            return rs.next() ? rs.getInt(1) : null;
         } finally {
             JDBCUtil.close(stmt);
         }

@@ -50,7 +50,7 @@ public abstract class JORARepository extends SimpleRepository
                 throws SQLException, PersistenceException
             {
                 table.insert(conn, object);
-                return liaison.lastInsertedId(conn, table.getName(), "TODO");
+                return liaison.lastInsertedId(conn, null, table.getName(), "TODO");
             }
         });
     }
@@ -250,7 +250,7 @@ public abstract class JORARepository extends SimpleRepository
             {
                 if (table.update(conn, object) == 0) {
                     table.insert(conn, object);
-                    return liaison.lastInsertedId(conn, table.getName(), "TODO");
+                    return liaison.lastInsertedId(conn, null, table.getName(), "TODO");
                 }
                 return -1;
             }

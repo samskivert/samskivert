@@ -73,8 +73,12 @@ public class HsqldbLiaison extends BaseLiaison
     }
 
     @Override // from DatabaseLiaison
-    public int lastInsertedId (Connection conn, String table, String column) throws SQLException
+    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
+        throws SQLException
     {
+        int id = super.lastInsertedId(conn, istmt, table, column);
+        if (id >= 0) return id;
+
         // HSQL does not keep track of per-table-and-column insertion data, so we are pretty much
         // going on blind faith here that we're fetching the right ID. In the overwhelming number
         // of cases that will be so, but it's still not pretty.

@@ -36,9 +36,21 @@ public abstract class BaseLiaison implements DatabaseLiaison
     // from DatabaseLiaison
     public abstract boolean isTransientException (SQLException sqe);
 
+    @Deprecated
+    public int lastInsertedId (Connection conn, String table, String column) throws SQLException {
+        return lastInsertedId(conn, null, table, column);
+    }
+
     // from DatabaseLiaison
-    public abstract int lastInsertedId (Connection conn, String table, String column)
-        throws SQLException;
+    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
+        throws SQLException
+    {
+        // if this JDBC driver supports getGeneratedKeys, use it!
+        if (istmt != null && conn.getMetaData().supportsGetGeneratedKeys()) {
+            return istmt.getGeneratedKeys().getInt(column);
+        }
+        return -1;
+    }
 
     // from DatabaseLiaison
     public boolean tableExists (Connection conn, String name) throws SQLException

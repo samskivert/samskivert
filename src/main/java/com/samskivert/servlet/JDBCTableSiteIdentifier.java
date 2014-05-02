@@ -246,7 +246,7 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
                         if (1 != stmt.executeUpdate()) {
                             throw new PersistenceException("Not inserted " + site);
                         }
-                        site.siteId = liaison.lastInsertedId(conn, "sites", "siteId");
+                        site.siteId = liaison.lastInsertedId(conn, stmt, "sites", "siteId");
 
                     } finally {
                         JDBCUtil.close(stmt);

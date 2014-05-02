@@ -5,6 +5,7 @@
 
 package com.samskivert.jdbc;
 
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -43,12 +44,19 @@ public interface DatabaseLiaison
      */
     public boolean isTransientException (SQLException sqe);
 
+    /** @deprecated Use version that takes the insert statement. */
+    @Deprecated
+    public int lastInsertedId (Connection conn, String table, String column) throws SQLException;
+
     /**
      * Attempts as dialect-agnostic an interface as possible to the ability of certain databases to
      * auto-generated numerical values for i.e. key columns; there is MySQL's AUTO_INCREMENT and
      * PostgreSQL's DEFAULT nextval(sequence), for example.
+     *
+     * @param istmt the insert statement that generated the keys. May be null if the ORM doesn't
+     * have the statement handy.
      */
-    public int lastInsertedId (Connection conn, String table, String column)
+    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
         throws SQLException;
 
     /**

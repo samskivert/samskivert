@@ -47,13 +47,6 @@ public class DefaultLiaison extends BaseLiaison
     }
 
     @Override // from DatabaseLiaison
-    public int lastInsertedId (Connection conn, String table, String column)
-        throws SQLException
-    {
-        return -1;
-    }
-
-    @Override // from DatabaseLiaison
     public String columnSQL (String column)
     {
         return column;

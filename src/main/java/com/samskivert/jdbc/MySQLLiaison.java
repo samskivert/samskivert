@@ -49,16 +49,19 @@ public class MySQLLiaison extends BaseLiaison
         // AUTO_INCREMENT does not create any database entities that we need to delete
     }
 
-    @Override // from DatabaseLiaison
-    public Integer lastInsertedId (Connection conn, Statement istmt, String table, String column)
+    @Override // from BaseLiaison
+    public int lastInsertedId (Connection conn, Statement istmt, String table, String column)
         throws SQLException
     {
-        // MySQL hackily reports the last inserted key as GENERATED_KEY, so we call super with that
-        // "column name"; but if that doesn't work (we're using an old JDBC driver without support
-        // for returning generated keys), fall back to the old old method
-        Integer id = super.lastInsertedId(conn, istmt, table, "GENERATED_KEY");
-        if (id != null) return id;
+        // MySQL uses "GENERATED_KEY" as the column name for the last inserted key, so we have to
+        // hackily pass that to our super method to get things to work
+        return super.lastInsertedId(conn, istmt, table, "GENERATED_KEY");
+    }
 
+    @Override
+    protected int fetchLastInsertedId (Connection conn, String table, String column)
+        throws SQLException
+    {
         // MySQL does not keep track of per-table-and-column insertion data, so we are pretty much
         // going on blind faith here that we're fetching the right ID. In the overwhelming number
         // of cases that will be so, but it's still not pretty.
@@ -66,7 +69,7 @@ public class MySQLLiaison extends BaseLiaison
         try {
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("select LAST_INSERT_ID()");
-            return rs.next() ? rs.getInt(1) : null;
+            return rs.next() ? rs.getInt(1) : super.fetchLastInsertedId(conn, table, column);
         } finally {
             JDBCUtil.close(stmt);
         }

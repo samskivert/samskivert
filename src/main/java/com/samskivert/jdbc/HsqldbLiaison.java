@@ -72,13 +72,10 @@ public class HsqldbLiaison extends BaseLiaison
         // HSQL's IDENTITY() does not create any database entities that we need to delete
     }
 
-    @Override // from DatabaseLiaison
-    public Integer lastInsertedId (Connection conn, Statement istmt, String table, String column)
+    @Override
+    protected int fetchLastInsertedId (Connection conn, String table, String column)
         throws SQLException
     {
-        Integer id = super.lastInsertedId(conn, istmt, table, column);
-        if (id != null) return id;
-
         // HSQL does not keep track of per-table-and-column insertion data, so we are pretty much
         // going on blind faith here that we're fetching the right ID. In the overwhelming number
         // of cases that will be so, but it's still not pretty.
@@ -86,7 +83,7 @@ public class HsqldbLiaison extends BaseLiaison
          try {
              stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("call IDENTITY()");
-             return rs.next() ? rs.getInt(1) : null;
+             return rs.next() ? rs.getInt(1) : super.fetchLastInsertedId(conn, table, column);
          } finally {
              JDBCUtil.close(stmt);
          }

@@ -178,6 +178,17 @@ public abstract class Logger
             System.err.println("Unable to instantiate Log4JLogger: " + t);
         }
 
+        // create and a log4j2 logger if the log4j2 configuration system property is set
+        try {
+            if (factory == null && System.getProperty("log4j.configurationFile") != null) {
+                factory = (Factory)Class.forName("com.samskivert.util.Log4J2Logger").newInstance();
+            }
+        } catch (SecurityException se) {
+            // in a sandbox, no biggie
+        } catch (Throwable t) {
+            System.err.println("Unable to instantiate Log4J2Logger: " + t);
+        }
+
         // lastly, fall back to the Java logging system
         if (factory == null) {
             factory = new JDK14Logger();

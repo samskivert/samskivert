@@ -149,6 +149,7 @@ public class RuntimeAdjust
         public BooleanAdjust (String descrip, String name, PrefsConfig config, boolean defval)
         {
             super(descrip, name, config);
+            _defval = defval;
             _value = _config.getValue(_name, defval);
         }
 
@@ -176,11 +177,22 @@ public class RuntimeAdjust
 
         public void propertyChange (PropertyChangeEvent evt)
         {
-            _value = ((Boolean)evt.getNewValue()).booleanValue();
+            _value = toValue(evt.getNewValue());
             adjusted(_value);
             if (_valbox != null) {
                 _valbox.setSelected(_value);
             }
+        }
+
+        protected boolean toValue (Object o)
+        {
+            if (o instanceof Boolean) {
+                return ((Boolean)o).booleanValue();
+            }
+            if (o instanceof String) {
+                return Boolean.parseBoolean((String)o); // never throws!
+            }
+            return _defval;
         }
 
         protected void adjusted (boolean newValue)
@@ -188,6 +200,7 @@ public class RuntimeAdjust
 //             Log.info(_name + " => " + newValue);
         }
 
+        protected final boolean _defval;
         protected boolean _value;
         protected JCheckBox _valbox;
     }
@@ -198,6 +211,7 @@ public class RuntimeAdjust
         public IntAdjust (String descrip, String name, PrefsConfig config, int defval)
         {
             super(descrip, name, config);
+            _defval = defval;
             _value = _config.getValue(_name, defval);
         }
 
@@ -228,12 +242,26 @@ public class RuntimeAdjust
 
         public void propertyChange (PropertyChangeEvent evt)
         {
-            _value = ((Integer)evt.getNewValue()).intValue();
-            Integer oval = (Integer)evt.getOldValue();
-            adjusted(_value, (oval == null ? -1 : oval.intValue()));
+            _value = toValue(evt.getNewValue());
+            adjusted(_value, toValue(evt.getOldValue()));
             if (_valbox != null) {
                 _valbox.setText("" + _value);
             }
+        }
+
+        protected int toValue (Object o)
+        {
+            if (o instanceof Integer) {
+                return ((Integer)o).intValue();
+            }
+            if (o instanceof String) {
+                try {
+                    return Integer.parseInt((String)o);
+                } catch (NumberFormatException nfe) {
+                    // fall through
+                }
+            }
+            return _defval;
         }
 
         protected void adjusted (int newValue, int oldValue)
@@ -241,6 +269,7 @@ public class RuntimeAdjust
 //             Log.info(_name + " => " + newValue);
         }
 
+        protected final int _defval;
         protected int _value;
     }
 

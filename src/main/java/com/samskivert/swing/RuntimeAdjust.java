@@ -190,7 +190,9 @@ public class RuntimeAdjust
                 return ((Boolean)o).booleanValue();
             }
             if (o instanceof String) {
-                return Boolean.parseBoolean((String)o); // never throws!
+                // Oh my god: this is how Config parses booleans
+                return !((String)o).equalsIgnoreCase("false");
+                // What you'd expect: return Boolean.parseBoolean((String)o); // never throws
             }
             return _defval;
         }

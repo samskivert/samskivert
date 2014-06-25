@@ -10,7 +10,7 @@
   <groupId>com.samskivert</groupId>
   <artifactId>samskivert</artifactId>
   <packaging>jar</packaging>
-  <version>1.9-SNAPSHOT</version>
+  <version>1.8.2</version>
 
   <name>samskivert</name>
   <description>A collection of Java utilities.</description>

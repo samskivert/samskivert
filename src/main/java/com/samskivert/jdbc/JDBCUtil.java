@@ -136,7 +136,7 @@ public class JDBCUtil
      * Issues a query with a potentially large number of keys in batches.  For example, you might
      * have 10,000 ids that you wish to use in an "in" clause, but don't trust the database to be
      * smart about optimizing that many keys, so instead you use batchQuery like so:
-     * <pre>
+     * <pre>{@code
      *    Collection<Integer> keys = ...;
      *    String query = "select NAME from USERS where USER_ID in (#KEYS)";
      *    JDBCUtil.BatchProcessor proc = new JDBCUtil.BatchProcessor() {
@@ -146,7 +146,7 @@ public class JDBCUtil
      *        }
      *    };
      *    JDBCUtil.batchQuery(conn, query, keys, false, 500, proc);
-     * </pre>
+     * }</pre>
      *
      * @param query the SQL query to run for each batch with the string <code>#KEYS#</code> in the
      * place where the batch of keys should be substituted.

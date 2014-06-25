@@ -13,10 +13,8 @@ import java.util.NoSuchElementException;
 import com.samskivert.annotation.ReplacedBy;
 
 /**
- * Arbitrates membership.
- *
- * Example usage:
- * Find the best kind of peanut butter:
+ * Arbitrates membership. Example usage. Find the best kind of peanut butter:
+ * <pre>{@code
  * public Iterator<PeanutButter> findBestKinds (Collection<PeanutButter> pbs)
  * {
  *     return new Predicate<PeanutButter>() {
@@ -26,7 +24,7 @@ import com.samskivert.annotation.ReplacedBy;
  *         }
  *     }.filter(pbs.iterator());
  * }
- *
+ * }</pre>
  * An interface like this may someday be in the Java library, but until then...
  */
 @ReplacedBy("com.google.common.base.Predicate")

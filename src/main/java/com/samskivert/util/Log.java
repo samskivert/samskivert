@@ -103,11 +103,11 @@ public final class Log
      * warning and error messages would be logged because info and debug
      * messages have a 'lower' log level.
      *
-     * <p/> Note: the log provider implementation may choose to propagate
+     * <p> Note: the log provider implementation may choose to propagate
      * the supplied level to all modules that are contained by this module
      * in the module hierarchy. For example, setting the "swing.util"
      * module to debug could also set the "swing.util.TaskMaster" level to
-     * debug because it is contained by the specified module.
+     * debug because it is contained by the specified module. </p>
      */
     public static void setLevel (String moduleName, int level)
     {

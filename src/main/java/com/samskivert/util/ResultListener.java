@@ -17,7 +17,7 @@ package com.samskivert.util;
  * <p> The following contrived example will hopefully communicate its use
  * more clearly than the previous paragraph of flowery prose:
  *
- * <pre>
+ * <pre>{@code
  * public void doSomeStuff (ResultListener<String> listener)
  * {
  *     Runnable run = new Runnable () {
@@ -32,7 +32,7 @@ package com.samskivert.util;
  *     };
  *     new Thread(run).start();
  * }
- * </pre>
+ * }</pre>
  *
  * @see IntResultListener
  */

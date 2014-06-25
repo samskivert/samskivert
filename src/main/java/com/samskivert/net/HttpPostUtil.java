@@ -30,7 +30,7 @@ public class HttpPostUtil
      * <code>"Content-Type" = "application/x-www-form-urlencoded"</code>.
      *
      * @param url from which to make the request.
-     * @param submission the entire submission eg "foo=bar&baz=boo&futz=foo".
+     * @param submission the entire submission eg {@code foo=bar&baz=boo&futz=foo}.
      * @param timeout time to wait for the response, in seconds, or -1 for forever.
      */
     public static String httpPost (URL url, String submission, int timeout)
@@ -45,7 +45,7 @@ public class HttpPostUtil
      * thread, but this thread blocks until the results are returned or it times out.
      *
      * @param url from which to make the request.
-     * @param submission the entire submission eg "foo=bar&baz=boo&futz=foo".
+     * @param submission the entire submission eg {@code foo=bar&baz=boo&futz=foo}.
      * @param timeout time to wait for the response, in seconds, or -1 for forever.
      * @param requestProps additional request properties.
      */

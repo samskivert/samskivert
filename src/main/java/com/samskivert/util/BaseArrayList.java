@@ -16,9 +16,9 @@ import java.lang.reflect.Array;
 /**
  * Provides a base for extending the standard Java {@link ArrayList}
  * functionality (which we'd just extend directly if those pig fuckers hadn't
- * made the instance variables private).<p/>
+ * made the instance variables private).
  *
- * <em>Note:</em> Does not support null elements.
+ * <p><em>Note:</em> Does not support null elements.</p>
  */
 public abstract class BaseArrayList<E> extends AbstractList<E>
     implements RandomAccess, Cloneable, Serializable

@@ -18,7 +18,7 @@ import static com.samskivert.swing.Log.log;
  * application can safely manipulate its user interface in response to the
  * results of the task.
  *
- * <p/> Each task is run in it's own thread. Tasks are assumed to be
+ * <p> Each task is run in it's own thread. Tasks are assumed to be
  * infrequently run and expensive, so the overhead of creating a new
  * thread to run each task is considered acceptable. If the need arises,
  * the task master can be extended to support more sophisticated thread

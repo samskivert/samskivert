@@ -99,7 +99,7 @@ public class Cursor<V>
      * clause: <CODE>record.table.Select("where name='xyz' for
      * update");</CODE><P>
      *
-     * <I><B>Attention!</I></B> Not all database drivers support update
+     * <I><B>Attention!</B></I> Not all database drivers support update
      * operation with cursor. This method will not work with such database
      * drivers.
      */
@@ -122,7 +122,7 @@ public class Cursor<V>
      * clause: <CODE>record.table.Select("where name='xyz' for
      * update");</CODE><P>
      *
-     * <I><B>Attention!</I></B> Not all database drivers support delete
+     * <I><B>Attention!</B></I> Not all database drivers support delete
      * operation with cursor.  This method will not work with such database
      * drivers.
      */

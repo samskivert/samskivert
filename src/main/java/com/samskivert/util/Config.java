@@ -24,42 +24,35 @@ import static com.samskivert.util.UtilLog.log;
  * singleton class containing a config object that is configured to load its data from a single
  * configuration file. For example:
  *
- * <pre>
- * public class FooConfig
- * {
+ * <pre>{@code
+ * public class FooConfig {
  *     public static final String FIDDLES = "fiddles";
- *
  *     public static Config config = new Config("com/fribitz/foo");
  * }
- * </pre>
+ * }</pre>
  *
  * which would look for <code>com/fribitz/foo.properties</code> in the classpath and serve up those
  * configuration values when requests were made from <code>FooConfig.config</code>. For example:
  *
- * <pre>
+ * <pre>{@code
  *     int fiddles = FooConfig.config.getValue(FooConfig.FIDDLES, 0);
  *     for (int ii = 0; ii < fiddles; ii++) {
  *         fiddle();
  *     }
- * </pre>
+ * }</pre>
  *
  * An even better approach involves creating accessors for all defined configuration properties:
  *
- * <pre>
- * public class FooConfig
- * {
+ * <pre>{@code
+ * public class FooConfig {
  *     public static final String FIDDLES = "fiddles";
- *
  *     public static Config config = new Config("com/fribitz/foo");
- *
- *     public static int getFiddles ()
- *     {
+ *     public static int getFiddles () {
  *         return config.getValue(FIDDLES, FIDDLES_DEFAULT);
  *     }
- *
  *     protected static final int FIDDLES_DEFAULT = 0;
  * }
- * </pre>
+ * }</pre>
  *
  * This allows the default value for <code>fiddles</code> to be specified in one place and
  * simplifies life for the caller who can now simply request <code>FooConfig.getFiddles()</code>.

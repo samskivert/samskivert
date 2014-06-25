@@ -11,12 +11,10 @@ import java.util.Comparator;
 import com.samskivert.annotation.ReplacedBy;
 
 /**
- * Provides a mechanism ({@link #sort}) for sorting the contents of the list
- * that doesn't involve creating two object arrays. Two copies of the elements
- * array are made if you called {@link java.util.Collections#sort}</code> (the
- * first is when {@link #toArray} is called on the collection and the second is
- * when {@link Arrays#sort} clones the supplied array so that it can do a merge
- * sort).
+ * Provides a mechanism ({@link #sort}) for sorting the contents of the list that doesn't involve
+ * creating two object arrays. Two copies of the elements array are made if you called {@link
+ * java.util.Collections#sort} (the first is when {@link #toArray} is called on the collection and
+ * the second is when {@link Arrays#sort} clones the supplied array so that it can do a merge sort).
  */
 @ReplacedBy(
     value="java.util.ArrayList, java.util.TreeSet, or com.google.common.collect.TreeMultiset",

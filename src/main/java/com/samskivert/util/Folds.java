@@ -7,6 +7,7 @@ package com.samskivert.util;
 
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Various useful folds over iterables.

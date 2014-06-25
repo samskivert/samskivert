@@ -43,7 +43,7 @@ public class IntSets
     }
 
     /**
-     * Create a new IntSet, initially containing the ints in the specified Collection<Integer>.
+     * Create a new IntSet, initially containing the ints in the specified collection.
      */
     public static IntSet create (Collection<Integer> from)
     {

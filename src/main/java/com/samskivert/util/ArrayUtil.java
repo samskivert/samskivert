@@ -430,7 +430,7 @@ public class ArrayUtil
 
     /**
      * Creates and returns a new array sized to fit and populated with the
-     * subset of values from indexes <code>0</code> to </code>offset -
+     * subset of values from indexes <code>0</code> to <code>offset -
      * 1</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -447,7 +447,7 @@ public class ArrayUtil
     /**
      * Creates and returns a new array sized to fit and populated with the
      * concatenated subset of values from indexes <code>0</code> to
-     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>offset - 1</code>, and <code>offset + length</code> to
      * <code>values.length</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -487,7 +487,7 @@ public class ArrayUtil
 
     /**
      * Creates and returns a new array sized to fit and populated with the
-     * subset of values from indexes <code>0</code> to </code>offset -
+     * subset of values from indexes <code>0</code> to <code>offset -
      * 1</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -504,7 +504,7 @@ public class ArrayUtil
     /**
      * Creates and returns a new array sized to fit and populated with the
      * concatenated subset of values from indexes <code>0</code> to
-     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>offset - 1</code>, and <code>offset + length</code> to
      * <code>values.length</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -544,7 +544,7 @@ public class ArrayUtil
 
     /**
      * Creates and returns a new array sized to fit and populated with the
-     * subset of values from indexes <code>0</code> to </code>offset -
+     * subset of values from indexes <code>0</code> to <code>offset -
      * 1</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -561,7 +561,7 @@ public class ArrayUtil
     /**
      * Creates and returns a new array sized to fit and populated with the
      * concatenated subset of values from indexes <code>0</code> to
-     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>offset - 1</code>, and <code>offset + length</code> to
      * <code>values.length</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -601,7 +601,7 @@ public class ArrayUtil
 
     /**
      * Creates and returns a new array sized to fit and populated with the
-     * subset of values from indexes <code>0</code> to </code>offset -
+     * subset of values from indexes <code>0</code> to <code>offset -
      * 1</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -618,7 +618,7 @@ public class ArrayUtil
     /**
      * Creates and returns a new array sized to fit and populated with the
      * concatenated subset of values from indexes <code>0</code> to
-     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>offset - 1</code>, and <code>offset + length</code> to
      * <code>values.length</code> (inclusive) in the supplied array. The
      * type of the array is preserved.
      *
@@ -660,7 +660,7 @@ public class ArrayUtil
 
     /**
      * Creates and returns a new array sized to fit and populated with the
-     * subset of values from indexes <code>0</code> to </code>offset -
+     * subset of values from indexes <code>0</code> to <code>offset -
      * 1</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.
@@ -677,7 +677,7 @@ public class ArrayUtil
     /**
      * Creates and returns a new array sized to fit and populated with the
      * concatenated subset of values from indexes <code>0</code> to
-     * </code>offset - 1</code>, and <code>offset + length</code> to
+     * <code>offset - 1</code>, and <code>offset + length</code> to
      * <code>values.length</code> (inclusive) in the supplied array.
      *
      * @param values the array of values to splice.

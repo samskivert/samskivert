@@ -110,13 +110,13 @@ public class Invoker extends LoopingThread
     }
 
     /**
-     * Configures the default duration (in milliseconds) for an invoker unit to be reported as
-     * "long". Long units will result in a warning message written to the log.
+     * Deprecated, non-functional method that previously set the default long threshold for
+     * all invokers. That didn't make sense. Use setLongThreshold() on each invoker.
      */
     @Deprecated
     public static void setDefaultLongThreshold (long millis)
     {
-        _defaultLongThreshold = millis;
+        // no op
     }
 
     /**
@@ -284,10 +284,7 @@ public class Invoker extends LoopingThread
             // report long runners
             long thresh = unit.getLongThreshold();
             if (thresh == 0) {
-                // TODO: remove _defaultLongThreshold
-                thresh = (_longThreshold == 0)
-                    ? _defaultLongThreshold
-                    : _longThreshold;
+                thresh = _longThreshold;
             }
             if (duration > thresh) {
                 StringBuilder msg = new StringBuilder();
@@ -354,11 +351,7 @@ public class Invoker extends LoopingThread
     protected int _profileBucketCount = 10;
 
     /** The long threshold for this particular invoker. */
-    protected long _longThreshold = 0L; // unset
-
-    /** The duration of time after which we consider a unit to be delinquent and log a warning. */
-    @Deprecated
-    protected static long _defaultLongThreshold = 500L;
+    protected long _longThreshold = 500L;
 
     /** True after {@link #shutdown} has been called but before the invoker has finished processing
      * any remaining queued units. */

@@ -37,7 +37,7 @@ public interface ConnectionProvider
      * @exception PersistenceException thrown if a problem occurs trying to open the requested
      * connection.
      */
-    public Connection getConnection (String ident, boolean readOnly)
+    Connection getConnection (String ident, boolean readOnly)
         throws PersistenceException;
 
     /**
@@ -49,7 +49,7 @@ public interface ConnectionProvider
      * @param conn the connection to release (back into the pool or to be closed if pooling is not
      * going on).
      */
-    public void releaseConnection (String ident, boolean readOnly, Connection conn);
+    void releaseConnection (String ident, boolean readOnly, Connection conn);
 
     /**
      * Called by the repository if a failure occurred on the connection.  It is expected that the
@@ -63,19 +63,18 @@ public interface ConnectionProvider
      * @param error the error thrown by the connection (which may be used to determine if the
      * connection should be closed or can be reused).
      */
-    public void connectionFailed (String ident, boolean readOnly, Connection conn,
-                                  SQLException error);
+    void connectionFailed (String ident, boolean readOnly, Connection conn, SQLException error);
 
     /**
      * Returns the URL associated with this database identifier. This should be the same value that
      * would be used if {@link #getConnection} were called.
      */
-    public String getURL (String ident);
+    String getURL (String ident);
 
     /**
      * Shuts down this connection provider, closing all connections currently in the pool. This
      * should only be called once all active connections have been released with {@link
      * #releaseConnection}.
      */
-    public void shutdown ();
+    void shutdown ();
 }

@@ -101,82 +101,20 @@ public class StaticConnectionProvider implements ConnectionProvider
         return props.getProperty("url");
     }
 
-    // documentation inherited
+    // from ConnectionProvider
     public Connection getConnection (String ident, boolean readOnly)
         throws PersistenceException
     {
-        String mapkey = ident + ":" + readOnly;
-        Mapping conmap = _idents.get(mapkey);
-
-        // open the connection if we haven't already
-        if (conmap == null) {
-            Properties props = PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
-
-            // get the JDBC configuration info
-            String err = "No driver class specified [ident=" + ident + "].";
-            String driver = requireProp(props, "driver", err);
-            err = "No driver URL specified [ident=" + ident + "].";
-            String url = requireProp(props, "url", err);
-            err = "No driver username specified [ident=" + ident + "].";
-            String username = requireProp(props, "username", err);
-            String password = props.getProperty("password", "");
-            String autoCommit = props.getProperty("autocommit");
-
-            // if this is a read-only connection, we cache connections by username+url+readOnly to
-            // avoid making more that one connection to a particular database server
-            String key = username + "@" + url + ":" + readOnly;
-            conmap = _keys.get(key);
-            if (conmap == null) {
-                log.debug("Creating " + key + " for " + ident + ".");
-                conmap = new Mapping();
-                conmap.key = key;
-                conmap.connection = openConnection(driver, url, username, password);
-
-                // if we were requested to configure auto-commit, then do so
-                if (autoCommit != null) {
-                    try {
-                        conmap.connection.setAutoCommit(Boolean.valueOf(autoCommit));
-                    } catch (SQLException sqe) {
-                        closeConnection(ident, conmap.connection);
-                        err = "Failed to configure auto-commit [key=" + key +
-                            ", ident=" + ident + ", autoCommit=" + autoCommit + "].";
-                        throw new PersistenceException(err, sqe);
-                    }
-                }
-
-                // make the connection read-only to let the JDBC driver know that it can and should
-                // use the read-only mirror(s)
-                if (readOnly) {
-                    try {
-                        conmap.connection.setReadOnly(true);
-                    } catch (SQLException sqe) {
-                        closeConnection(ident, conmap.connection);
-                        err = "Failed to make connection read-only [key=" + key +
-                            ", ident=" + ident + "].";
-                        throw new PersistenceException(err, sqe);
-                    }
-                }
-                _keys.put(key, conmap);
-
-            } else {
-                log.debug("Reusing " + key + " for " + ident + ".");
-            }
-
-            // cache the connection
-            conmap.idents.add(mapkey);
-            _idents.put(mapkey, conmap);
-        }
-
-        return conmap.connection;
+        return getMapping(ident, readOnly).getConnection(ident);
     }
 
-    // documentation inherited
+    // from ConnectionProvider
     public void releaseConnection (String ident, boolean readOnly, Connection conn)
     {
         // nothing to do here, all is well
     }
 
-    // documentation inherited
+    // from ConnectionProvider
     public void connectionFailed (
         String ident, boolean readOnly, Connection conn, SQLException error)
     {
@@ -184,17 +122,28 @@ public class StaticConnectionProvider implements ConnectionProvider
         Mapping conmap = _idents.get(mapkey);
         if (conmap == null) {
             log.warning("Unknown connection failed!?", "key", mapkey);
-            return;
+        } else {
+            conmap.closeConnection(ident);
         }
+    }
 
-        // attempt to close the connection
-        closeConnection(ident, conmap.connection);
+    // from ConnectionProvider
+    public Connection getTxConnection (String ident, boolean readOnly) throws PersistenceException
+    {
+        return getMapping(ident, readOnly).openConnection(ident, null);
+    }
 
-        // clear it from our mapping tables
-        for (int ii = 0; ii < conmap.idents.size(); ii++) {
-            _idents.remove(conmap.idents.get(ii));
-        }
-        _keys.remove(conmap.key);
+    // from ConnectionProvider
+    public void releaseTxConnection (String ident, boolean readOnly, Connection conn)
+    {
+        close(conn, ident);
+    }
+
+    // from ConnectionProvider
+    public void txConnectionFailed (
+        String ident, boolean readOnly, Connection conn, SQLException error)
+    {
+        close(conn, ident);
     }
 
     // from ConnectionProvider
@@ -202,12 +151,7 @@ public class StaticConnectionProvider implements ConnectionProvider
     {
         // close all of the connections
         for (Map.Entry<String, Mapping> entry : _keys.entrySet()) {
-            Mapping conmap = entry.getValue();
-            try {
-                conmap.connection.close();
-            } catch (SQLException sqe) {
-                log.warning("Error shutting down connection", "key", entry.getKey(), "err", sqe);
-            }
+            entry.getValue().closeConnection(entry.getKey());
         }
 
         // clear out our mapping tables
@@ -215,34 +159,33 @@ public class StaticConnectionProvider implements ConnectionProvider
         _idents.clear();
     }
 
-    protected Connection openConnection (String driver, String url, String username, String passwd)
-        throws PersistenceException
-    {
-        // create an instance of the driver
-        Driver jdriver;
-        try {
-            jdriver = (Driver)Class.forName(driver).newInstance();
-        } catch (Exception e) {
-            String err = "Error loading driver [class=" + driver + "].";
-            throw new PersistenceException(err, e);
+    protected Mapping getMapping (String ident, boolean readOnly) throws PersistenceException {
+        String mapkey = ident + ":" + readOnly;
+        Mapping conmap = _idents.get(mapkey);
+        if (conmap != null) return conmap;
+
+        Properties props = PropertiesUtil.getSubProperties(_props, ident, DEFAULTS_KEY);
+        Info info = new Info(ident, props);
+
+        // if this is a read-only connection, we cache connections by username+url+readOnly to
+        // avoid making more that one connection to a particular database server
+        String key = info.username + "@" + info.url + ":" + readOnly;
+        conmap = _keys.get(key);
+        if (conmap == null) {
+            log.debug("Creating " + key + " for " + ident + ".");
+            _keys.put(key, conmap = new Mapping(key, info, readOnly));
+
+        } else {
+            log.debug("Reusing " + key + " for " + ident + ".");
         }
 
-        // create the connection
-        try {
-            Properties props = new Properties();
-            props.put("user", username);
-            props.put("password", passwd);
-            return jdriver.connect(url, props);
+        // cache the connection
+        _idents.put(mapkey, conmap);
 
-        } catch (SQLException sqe) {
-            String err = "Error creating database connection [driver=" + driver + ", url=" + url +
-                ", username=" + username + "].";
-            throw new PersistenceException(err, sqe);
-        }
+        return conmap;
     }
 
-    protected void closeConnection (String ident, Connection conn)
-    {
+    protected static void close (Connection conn, String ident) {
         try {
             conn.close();
         } catch (SQLException sqe) {
@@ -250,30 +193,119 @@ public class StaticConnectionProvider implements ConnectionProvider
         }
     }
 
-    protected static String requireProp (Properties props, String name, String errmsg)
-        throws PersistenceException
-    {
-        String value = props.getProperty(name);
-        if (StringUtil.isBlank(value)) {
-            errmsg = "Unable to get connection. " + errmsg; // augment the error message
-            throw new PersistenceException(errmsg);
+    protected static class Info {
+        public final String ident, driver, url, username, password;
+        public final Boolean autoCommit;
+
+        public Info (String ident, Properties props) throws PersistenceException {
+            this.ident = ident;
+            this.driver = requireProp(props, "driver", "No driver class specified");
+            this.url = requireProp(props, "url", "No driver URL specified");
+            this.username = requireProp(props, "username", "No driver username specified");
+            this.password = props.getProperty("password", "");
+            String ac = props.getProperty("autocommit");
+            this.autoCommit = (ac == null) ? null : Boolean.valueOf(ac);
         }
-        return value;
+
+        protected String requireProp (Properties props, String name,
+                                      String errmsg) throws PersistenceException {
+            String value = props.getProperty(name);
+            if (StringUtil.isBlank(value)) {
+                errmsg = "Unable to get connection. " + errmsg + " [ident=" + ident + "]";
+                throw new PersistenceException(errmsg);
+            }
+            return value;
+        }
     }
 
     /** Contains information on a particular connection to which any number of database identifiers
-     * can be mapped. */
+      * can be mapped. */
     protected static class Mapping
     {
         /** The combination of username and JDBC url that uniquely identifies our database
          * connection. */
-        public String key;
+        public final String key;
 
-        /** The connection itself. */
-        public Connection connection;
+        public Mapping (String key, Info info, boolean readOnly) {
+            this.key = key;
+            _info = info;
+            _readOnly = readOnly;
+        }
 
-        /** The database identifiers that are mapped to this connection. */
-        public List<String> idents = new ArrayList<String>();
+        /** Returns the main connection for this mapping, (re)opening it if necessary. */
+        public Connection getConnection (String ident) throws PersistenceException {
+            if (_conn == null) _conn = openConnection(ident, _info.autoCommit);
+            return _conn;
+        }
+
+        /** Opens and returns a new connection to this mapping's database. */
+        public Connection openConnection (String ident, Boolean autoCommit)
+            throws PersistenceException {
+            // create an instance of the driver
+            Driver jdriver;
+            try {
+                jdriver = (Driver)Class.forName(_info.driver).newInstance();
+            } catch (Exception e) {
+                throw new PersistenceException(
+                  "Error loading driver [class=" + _info.driver + "].", e);
+            }
+
+            // create the connection
+            Connection conn;
+            try {
+                Properties props = new Properties();
+                props.put("user", _info.username);
+                props.put("password", _info.password);
+                conn = jdriver.connect(_info.url, props);
+
+            } catch (SQLException sqe) {
+                throw new PersistenceException(
+                    "Error creating database connection [driver=" + _info.driver +
+                    ", url=" + _info.url + ", username=" + _info.username + "].", sqe);
+            }
+
+            // if we were requested to configure auto-commit, then do so
+            if (autoCommit != null) {
+                try {
+                    conn.setAutoCommit(autoCommit);
+                } catch (SQLException sqe) {
+                    close(conn, ident);
+                    throw new PersistenceException(
+                        "Failed to configure auto-commit [key=" + key + ", ident=" + ident +
+                        ", autoCommit=" + autoCommit + "].", sqe);
+                }
+            }
+
+            // make the connection read-only to let the JDBC driver know that it can and should
+            // use the read-only mirror(s)
+            if (_readOnly) {
+                try {
+                    conn.setReadOnly(true);
+                } catch (SQLException sqe) {
+                    close(conn, ident);
+                    throw new PersistenceException(
+                        "Failed to make connection read-only [key=" + key + ", ident=" + ident +
+                        "].", sqe);
+                }
+            }
+            return conn;
+        }
+
+        /**
+         * Closes the main connection for this mapping, causing it to be reopened on the next call
+         * to {@link #getConnection}.
+         * @param ident the ident on behalf of which we are operating.
+         */
+        public void closeConnection (String ident) {
+            if (_conn != null) {
+                close(_conn, ident);
+                _conn = null;
+            }
+        }
+
+        protected final Info _info;
+        protected final boolean _readOnly;
+        protected Connection _conn;
     }
 
     /** Our configuration in the form of a properties object. */

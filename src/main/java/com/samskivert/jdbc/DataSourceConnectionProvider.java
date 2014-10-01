@@ -15,7 +15,8 @@ import static com.samskivert.jdbc.Log.log;
 
 /**
  * Provides connections using a pair of {@link DataSource} instances (one for read-only operations
- * and one for read-write operations).
+ * and one for read-write operations). Note: if transactions are going to be used, the data sources
+ * must be pooled data sources, otherwise bad things will happen.
  */
 public class DataSourceConnectionProvider implements ConnectionProvider
 {
@@ -36,7 +37,7 @@ public class DataSourceConnectionProvider implements ConnectionProvider
         _writeSource = writeSource;
     }
 
-    // from interface ConnectionProvider
+    // from ConnectionProvider
     public Connection getConnection (String ident, boolean readOnly)
         throws PersistenceException
     {
@@ -55,7 +56,7 @@ public class DataSourceConnectionProvider implements ConnectionProvider
         }
     }
 
-    // from interface ConnectionProvider
+    // from ConnectionProvider
     public void releaseConnection (String ident, boolean readOnly, Connection conn)
     {
         try {
@@ -66,7 +67,7 @@ public class DataSourceConnectionProvider implements ConnectionProvider
         }
     }
 
-    // from interface ConnectionProvider
+    // from ConnectionProvider
     public void connectionFailed (String ident, boolean readOnly, Connection conn,
                                   SQLException error)
     {
@@ -78,13 +79,36 @@ public class DataSourceConnectionProvider implements ConnectionProvider
         }
     }
 
-    // from interface ConnectionProvider
+    // from ConnectionProvider
+    public Connection getTxConnection (String ident, boolean readOnly)
+        throws PersistenceException
+    {
+        // our connections are pooled, so we can just get them normally
+        return getConnection(ident, readOnly);
+    }
+
+    // from ConnectionProvider
+    public void releaseTxConnection (String ident, boolean readOnly, Connection conn)
+    {
+        // our connections are pooled, so we can just release them normally
+        releaseConnection(ident, readOnly, conn);
+    }
+
+    // from ConnectionProvider
+    public void txConnectionFailed (String ident, boolean readOnly, Connection conn,
+                                    SQLException error)
+    {
+        // our connections are pooled, so we can just fail them normally
+        connectionFailed(ident, readOnly, conn, error);
+    }
+
+    // from ConnectionProvider
     public String getURL (String ident)
     {
         return _url;
     }
 
-    // from interface ConnectionProvider
+    // from ConnectionProvider
     public void shutdown ()
     {
         // nothing doing, the caller has to shutdown the datasources

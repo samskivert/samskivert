@@ -66,6 +66,23 @@ public interface ConnectionProvider
     void connectionFailed (String ident, boolean readOnly, Connection conn, SQLException error);
 
     /**
+     * Returns a connection that can be used in a transaction. See {@link #getConnection}.
+     */
+    Connection getTxConnection (String ident, boolean readOnly)
+        throws PersistenceException;
+
+    /**
+     * Releases a connection obtained by {@link #getTxConnection}. See {@link #releaseConnection}.
+     */
+    void releaseTxConnection (String ident, boolean readOnly, Connection conn);
+
+    /**
+     * Reports failure of a connection obtained by {@link #getTxConnection}. See {@link
+     * #connectionFailed}.
+     */
+    void txConnectionFailed (String ident, boolean readOnly, Connection conn, SQLException error);
+
+    /**
      * Returns the URL associated with this database identifier. This should be the same value that
      * would be used if {@link #getConnection} were called.
      */

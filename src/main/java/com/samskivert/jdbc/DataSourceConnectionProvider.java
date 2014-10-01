@@ -41,19 +41,7 @@ public class DataSourceConnectionProvider implements ConnectionProvider
     public Connection getConnection (String ident, boolean readOnly)
         throws PersistenceException
     {
-        try {
-            Connection conn;
-            if (readOnly) {
-                conn = _readSource.getConnection();
-                conn.setReadOnly(true);
-            } else {
-                conn = _writeSource.getConnection();
-            }
-            return conn;
-
-        } catch (SQLException sqe) {
-            throw new PersistenceException(sqe);
-        }
+        return getConnection(ident, readOnly, null);
     }
 
     // from ConnectionProvider
@@ -83,7 +71,7 @@ public class DataSourceConnectionProvider implements ConnectionProvider
     public Connection getTxConnection (String ident) throws PersistenceException
     {
         // our connections are pooled, so we can just get them normally
-        return getConnection(ident, false);
+        return getConnection(ident, false, false);
     }
 
     // from ConnectionProvider
@@ -110,6 +98,25 @@ public class DataSourceConnectionProvider implements ConnectionProvider
     public void shutdown ()
     {
         // nothing doing, the caller has to shutdown the datasources
+    }
+
+    protected Connection getConnection (String ident, boolean readOnly, Boolean autoCommit)
+        throws PersistenceException
+    {
+        try {
+            Connection conn;
+            if (readOnly) {
+                conn = _readSource.getConnection();
+                conn.setReadOnly(true);
+            } else {
+                conn = _writeSource.getConnection();
+            }
+            if (autoCommit != null) conn.setAutoCommit(autoCommit);
+            return conn;
+
+        } catch (SQLException sqe) {
+            throw new PersistenceException(sqe);
+        }
     }
 
     protected String _url;

@@ -130,7 +130,7 @@ public class StaticConnectionProvider implements ConnectionProvider
     // from ConnectionProvider
     public Connection getTxConnection (String ident) throws PersistenceException
     {
-        return getMapping(ident, false).openConnection(ident, null);
+        return getMapping(ident, false).openConnection(ident, false);
     }
 
     // from ConnectionProvider

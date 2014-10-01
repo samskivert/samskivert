@@ -128,20 +128,19 @@ public class StaticConnectionProvider implements ConnectionProvider
     }
 
     // from ConnectionProvider
-    public Connection getTxConnection (String ident, boolean readOnly) throws PersistenceException
+    public Connection getTxConnection (String ident) throws PersistenceException
     {
-        return getMapping(ident, readOnly).openConnection(ident, null);
+        return getMapping(ident, false).openConnection(ident, null);
     }
 
     // from ConnectionProvider
-    public void releaseTxConnection (String ident, boolean readOnly, Connection conn)
+    public void releaseTxConnection (String ident, Connection conn)
     {
         close(conn, ident);
     }
 
     // from ConnectionProvider
-    public void txConnectionFailed (
-        String ident, boolean readOnly, Connection conn, SQLException error)
+    public void txConnectionFailed (String ident, Connection conn, SQLException error)
     {
         close(conn, ident);
     }

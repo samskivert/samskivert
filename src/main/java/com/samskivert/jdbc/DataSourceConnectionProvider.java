@@ -80,26 +80,24 @@ public class DataSourceConnectionProvider implements ConnectionProvider
     }
 
     // from ConnectionProvider
-    public Connection getTxConnection (String ident, boolean readOnly)
-        throws PersistenceException
+    public Connection getTxConnection (String ident) throws PersistenceException
     {
         // our connections are pooled, so we can just get them normally
-        return getConnection(ident, readOnly);
+        return getConnection(ident, false);
     }
 
     // from ConnectionProvider
-    public void releaseTxConnection (String ident, boolean readOnly, Connection conn)
+    public void releaseTxConnection (String ident, Connection conn)
     {
         // our connections are pooled, so we can just release them normally
-        releaseConnection(ident, readOnly, conn);
+        releaseConnection(ident, false, conn);
     }
 
     // from ConnectionProvider
-    public void txConnectionFailed (String ident, boolean readOnly, Connection conn,
-                                    SQLException error)
+    public void txConnectionFailed (String ident, Connection conn, SQLException error)
     {
         // our connections are pooled, so we can just fail them normally
-        connectionFailed(ident, readOnly, conn, error);
+        connectionFailed(ident, false, conn, error);
     }
 
     // from ConnectionProvider

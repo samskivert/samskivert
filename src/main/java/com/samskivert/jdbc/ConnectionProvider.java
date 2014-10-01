@@ -66,21 +66,21 @@ public interface ConnectionProvider
     void connectionFailed (String ident, boolean readOnly, Connection conn, SQLException error);
 
     /**
-     * Returns a connection that can be used in a transaction. See {@link #getConnection}.
+     * Returns a connection that can be used in a transaction. See {@link #getConnection}. Note:
+     * transaction connections are never read-only. What would be the point?
      */
-    Connection getTxConnection (String ident, boolean readOnly)
-        throws PersistenceException;
+    Connection getTxConnection (String ident) throws PersistenceException;
 
     /**
      * Releases a connection obtained by {@link #getTxConnection}. See {@link #releaseConnection}.
      */
-    void releaseTxConnection (String ident, boolean readOnly, Connection conn);
+    void releaseTxConnection (String ident, Connection conn);
 
     /**
      * Reports failure of a connection obtained by {@link #getTxConnection}. See {@link
      * #connectionFailed}.
      */
-    void txConnectionFailed (String ident, boolean readOnly, Connection conn, SQLException error);
+    void txConnectionFailed (String ident, Connection conn, SQLException error);
 
     /**
      * Returns the URL associated with this database identifier. This should be the same value that

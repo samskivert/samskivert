@@ -13,7 +13,6 @@ import static org.junit.Assert.*;
 
 import org.apache.commons.digester.Digester;
 
-import com.samskivert.test.TestUtil;
 import com.samskivert.util.StringUtil;
 
 public class SetFieldRuleTest
@@ -52,8 +51,8 @@ public class SetFieldRuleTest
         digester.addRule("object/stringArrayField", new SetFieldRule("stringArrayField"));
 
         try {
-            String xmlpath = TestUtil.getResourcePath("xml/setfieldtest.xml");
-            InputStream input = new FileInputStream(xmlpath);
+            InputStream input = getClass().getClassLoader().getResourceAsStream(
+                "xml/setfieldtest.xml");
             digester.parse(input);
             input.close();
         } catch (Exception e) {

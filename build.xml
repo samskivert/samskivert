@@ -65,7 +65,6 @@
         <path refid="built.classpath"/>
         <fileset dir="lib/test" includes="*.jar"/>
       </classpath>
-      <sysproperty key="test_dir" value="${tclasses.dir}"/>
       <formatter type="brief" usefile="false"/>
       <formatter type="xml"/>
       <batchtest todir="${deploy.dir}/test-reports">

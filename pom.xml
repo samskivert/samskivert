@@ -149,9 +149,6 @@
           <excludes>
             <exclude>com/samskivert/swing/TestComboButtonBox*</exclude>
           </excludes>
-          <systemProperties>
-            <property><name>test_dir</name><value>target/test-classes</value></property>
-          </systemProperties>
           <additionalClasspathElements>
             <additionalClasspathElement>lib/test/test.jar</additionalClasspathElement>
             <additionalClasspathElement>lib/test/test-al.jar</additionalClasspathElement>

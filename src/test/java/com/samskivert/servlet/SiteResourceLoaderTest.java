@@ -21,6 +21,11 @@ import com.samskivert.test.TestUtil;
 
 public class SiteResourceLoaderTest
 {
+    @BeforeClass
+    public static void setTestDir () {
+        System.setProperty("test_dir", "target/test-classes");
+    }
+
     @Test
     public void runTest ()
     {
@@ -39,7 +44,7 @@ public class SiteResourceLoaderTest
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            fail("Caught exception while testing resource loader.");
+            fail("Caught exception while testing resource loader: " + ioe);
         }
     }
 

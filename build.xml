@@ -2,7 +2,7 @@
 <project name="samskivert" default="compile" basedir="." xmlns:artifact="urn:maven-artifact-ant">
   <property name="src.dir"      value="src/main/java"/>
   <property name="test.dir"     value="src/test/java"/>
-  <property name="deploy.dir"   value="dist"/>
+  <property name="deploy.dir"   value="target"/>
   <property name="classes.dir"  value="${deploy.dir}/classes"/>
   <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
   <property name="javadoc.dir"  value="${deploy.dir}/docs"/>

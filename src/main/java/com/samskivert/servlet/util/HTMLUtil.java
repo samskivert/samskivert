@@ -17,8 +17,8 @@ import com.samskivert.util.StringUtil;
 public class HTMLUtil
 {
     /**
-     * Converts instances of {@code<, >, & and "} into their
-     * entified equivalents: {@code&lt;, &gt;, &amp; and &quot;}.
+     * Converts instances of {@code <, >, & and "} into their
+     * entified equivalents: {@code &lt;, &gt;, &amp; and &quot;}.
      * These characters are mentioned in the HTML spec as being common
      * candidates for entification.
      *
@@ -43,7 +43,7 @@ public class HTMLUtil
     }
 
     /**
-     * Inserts a @{code <p>} tag between every two consecutive newlines.
+     * Inserts a {@code <p>} tag between every two consecutive newlines.
      */
     public static String makeParagraphs (String text)
     {

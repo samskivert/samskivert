@@ -77,7 +77,7 @@ Artifacts
 
 A jar artifact is published to Maven Central, and can be depended upon via:
 
-    com.samskivert:samskivert:1.3
+    com.samskivert:samskivert:1.9
 
 If you prefer to download a jar file, that can be done
 [here](http://repo2.maven.org/maven2/com/samskivert/samskivert/).

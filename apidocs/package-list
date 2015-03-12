@@ -1,4 +1,3 @@
-com.samskivert
 com.samskivert.annotation
 com.samskivert.io
 com.samskivert.jdbc
@@ -12,7 +11,6 @@ com.samskivert.swing
 com.samskivert.swing.dnd
 com.samskivert.swing.event
 com.samskivert.swing.util
-com.samskivert.test
 com.samskivert.text
 com.samskivert.util
 com.samskivert.velocity

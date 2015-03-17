@@ -10,6 +10,5 @@ cache:
   directories:
     - '$HOME/.m2/repository'
 
-script:
-  - mvn test
+after_script:
   - rm -rf $HOME/.m2/repository/com/samskivert

@@ -1,5 +1,14 @@
+sudo: false
+
 language: java
 
 jdk:
   - openjdk7
   - oraclejdk8
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+
+script:
+  - rm -rf $HOME/.m2/repository/com/samskivert

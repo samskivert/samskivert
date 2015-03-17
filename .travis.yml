@@ -11,4 +11,5 @@ cache:
     - '$HOME/.m2/repository'
 
 script:
+  - mvn test
   - rm -rf $HOME/.m2/repository/com/samskivert

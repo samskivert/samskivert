@@ -108,6 +108,10 @@ public class WeakObserverList<T> extends ObserverList<T>
             return observer != null && _op.apply(observer);
         }
 
+        @Override public String toString () {
+            return "DerefOp:" + _op;
+        }
+
         /** The wrapped op. */
         protected ObserverOp<T> _op;
     }
@@ -127,6 +131,10 @@ public class WeakObserverList<T> extends ObserverList<T>
                 if (_list.get(ii).get() == value) { return ii; }
             }
             return -1;
+        }
+
+        @Override protected Object observerForLog (WeakReference<T> ref) {
+            return ref.get();
         }
     }
 

@@ -191,6 +191,30 @@ public abstract class ObserverList<T>
         return size() == 0;
     }
 
+    /**
+     * Applies the operation to the observer, catching and logging any exceptions thrown in the
+     * process.
+     */
+    protected boolean checkedApply (ObserverOp<T> obop, T obs)
+    {
+        try {
+            return obop.apply(obs);
+        } catch (Throwable thrown) {
+            log.warning("ObserverOp choked during notification",
+                    "op", obop, "obs", observerForLog(obs), thrown);
+            // if they booched it, definitely don't remove them
+            return true;
+        }
+    }
+
+    /**
+     * Get the object that should be logged as the observer.
+     */
+    protected Object observerForLog (T observer)
+    {
+        return observer;
+    }
+
     protected static class Impl<T> extends ObserverList<T> {
         protected Impl (Policy notifyPolicy) {
             _policy = notifyPolicy;
@@ -273,8 +297,8 @@ public abstract class ObserverList<T>
         protected boolean isDuplicate (T obs) {
             // make sure we're not violating the list constraints
             if (indexOf(obs) >= 0) {
-                log.warning("Observer attempted to observe list it's already observing!", "obs", obs,
-                            new Exception());
+                log.warning("Observer attempted to observe list it's already observing!",
+                        "obs", obs, new Exception());
                 return true;
             }
             return false;
@@ -283,20 +307,5 @@ public abstract class ObserverList<T>
         protected Policy _policy;
         protected List<T> _list;
         protected boolean _checkDups = true;
-    }
-
-    /**
-     * Applies the operation to the observer, catching and logging any exceptions thrown in the
-     * process.
-     */
-    protected static <T> boolean checkedApply (ObserverOp<T> obop, T obs)
-    {
-        try {
-            return obop.apply(obs);
-        } catch (Throwable thrown) {
-            log.warning("ObserverOp choked during notification", "op", obop, "obs", obs, thrown);
-            // if they booched it, definitely don't remove them
-            return true;
-        }
     }
 }

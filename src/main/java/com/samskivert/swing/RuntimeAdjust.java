@@ -304,7 +304,7 @@ public class RuntimeAdjust
 
         @Override protected void populateEditor (JPanel editor)
         {
-            editor.add(_valbox = new JComboBox(_values), GroupLayout.FIXED);
+            editor.add(_valbox = new JComboBox<Object>(_values), GroupLayout.FIXED);
             _valbox.addActionListener(this);
             _valbox.setSelectedItem(getValue());
         }
@@ -330,7 +330,7 @@ public class RuntimeAdjust
 
         protected String _value;
         protected String[] _values;
-        protected JComboBox _valbox;
+        protected JComboBox<Object> _valbox;
     }
 
     /** Provides runtime adjustable file path variables. */

@@ -40,7 +40,7 @@ public class ComboButtonBox extends JPanel
      */
     public ComboButtonBox (int orientation)
     {
-        this(orientation, new DefaultComboBoxModel());
+        this(orientation, new DefaultComboBoxModel<Object>());
     }
 
     /**
@@ -49,7 +49,7 @@ public class ComboButtonBox extends JPanel
      * be used to populate the buttons (see {@link #setModel} for more
      * details).
      */
-    public ComboButtonBox (int orientation, ComboBoxModel model)
+    public ComboButtonBox (int orientation, ComboBoxModel<?> model)
     {
         // set up our layout
         setOrientation(orientation);
@@ -76,7 +76,7 @@ public class ComboButtonBox extends JPanel
      * icons for the buttons. Otherwise the button text will contain the
      * string representation of the elements in the model.
      */
-    public void setModel (ComboBoxModel model)
+    public void setModel (ComboBoxModel<?> model)
     {
         // if we had a previous model, unregister ourselves from it
         if (_model != null) {
@@ -106,7 +106,7 @@ public class ComboButtonBox extends JPanel
     /**
      * Returns the model in use by the button box.
      */
-    public ComboBoxModel getModel ()
+    public ComboBoxModel<?> getModel ()
     {
         return _model;
     }
@@ -369,7 +369,7 @@ public class ComboButtonBox extends JPanel
     }
 
     /** The contents of the box. */
-    protected ComboBoxModel _model;
+    protected ComboBoxModel<?> _model;
 
     /** The index of the selected button. */
     protected int _selectedIndex = -1;

@@ -55,17 +55,6 @@ The main Javadoc index can be found
 Building
 --------
 
-The library is built using Ant or Maven, pick your poison. Dependencies are
-automatically fetched regardless of whether you use Ant or Maven.
-
-Invoke Ant with any of the following targets:
-
-    all: builds the class files and javadoc documentation
-    compile: builds only the class files (dist/classes)
-    javadoc: builds only the javadoc documentation (dist/docs)
-    tests: builds and runs the unit tests
-    dist: builds the distribution jar file (dist/samskivert.jar)
-
 Invoke Maven with any of the following targets:
 
     mvn test: builds the code and runs the tests

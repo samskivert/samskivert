@@ -170,7 +170,8 @@ public abstract class Logger
         // create and a log4j logger if the log4j configuration system property is set
         try {
             if (factory == null && System.getProperty("log4j.configuration") != null) {
-                factory = (Factory)Class.forName("com.samskivert.util.Log4JLogger").newInstance();
+                factory = (Factory)Class.forName("com.samskivert.util.Log4JLogger").
+                    getDeclaredConstructor().newInstance();
             }
         } catch (SecurityException se) {
             // in a sandbox, no biggie
@@ -181,7 +182,8 @@ public abstract class Logger
         // create and a log4j2 logger if the log4j2 configuration system property is set
         try {
             if (factory == null && System.getProperty("log4j.configurationFile") != null) {
-                factory = (Factory)Class.forName("com.samskivert.util.Log4J2Logger").newInstance();
+                factory = (Factory)Class.forName("com.samskivert.util.Log4J2Logger").
+                    getDeclaredConstructor().newInstance();
             }
         } catch (SecurityException se) {
             // in a sandbox, no biggie
@@ -212,7 +214,7 @@ public abstract class Logger
         }
         if (!StringUtil.isBlank(implClass)) {
             try {
-                return (Factory)Class.forName(implClass).newInstance();
+                return (Factory)Class.forName(implClass).getDeclaredConstructor().newInstance();
             } catch (Throwable t) {
                 System.err.println("Unable to instantiate logging implementation: " + implClass);
                 t.printStackTrace(System.err);

@@ -336,7 +336,7 @@ public class Config
     public Object instantiateValue (String name, String defcname)
         throws Exception
     {
-        return Class.forName(getValue(name, defcname)).newInstance();
+        return Class.forName(getValue(name, defcname)).getDeclaredConstructor().newInstance();
     }
 
     /**

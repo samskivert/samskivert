@@ -75,7 +75,7 @@ public class AttachableURLFactory implements URLStreamHandlerFactory
         Class<? extends URLStreamHandler> handler = _handlers.get(protocol.toLowerCase());
         if (handler != null) {
             try {
-                return handler.newInstance();
+                return handler.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 log.warning("Unable to instantiate URLStreamHandler", "protocol", protocol,
                             "cause", e);

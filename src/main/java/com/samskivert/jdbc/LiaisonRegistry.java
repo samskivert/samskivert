@@ -63,7 +63,7 @@ public class LiaisonRegistry
     {
         // create a new instance and stick it on our list
         try {
-            _liaisons.add(lclass.newInstance());
+            _liaisons.add(lclass.getDeclaredConstructor().newInstance());
         } catch (Exception e) {
             log.warning("Unable to instantiate liaison", "class", lclass.getName(), "error", e);
         }

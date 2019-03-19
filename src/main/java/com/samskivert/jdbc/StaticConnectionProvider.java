@@ -243,7 +243,8 @@ public class StaticConnectionProvider implements ConnectionProvider
             // create an instance of the driver
             Driver jdriver;
             try {
-                jdriver = (Driver)Class.forName(_info.driver).newInstance();
+                jdriver = (Driver)Class.forName(_info.driver).
+                    getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new PersistenceException(
                   "Error loading driver [class=" + _info.driver + "].", e);

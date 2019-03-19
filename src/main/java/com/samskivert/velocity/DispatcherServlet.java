@@ -186,7 +186,7 @@ public class DispatcherServlet extends HttpServlet
             return new Application();
         } else {
             Class<?> appclass = Class.forName(appcl);
-            return (Application)appclass.newInstance();
+            return (Application)appclass.getDeclaredConstructor().newInstance();
         }
     }
 
@@ -597,7 +597,7 @@ public class DispatcherServlet extends HttpServlet
     protected Logic instantiateLogic (String path, String lclass) {
         try {
             Class<?> pcl = Class.forName(lclass);
-            return (Logic)pcl.newInstance();
+            return (Logic)pcl.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException cnfe) {
             // nothing interesting to report
         } catch (Throwable t) {

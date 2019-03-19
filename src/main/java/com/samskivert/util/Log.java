@@ -199,7 +199,7 @@ public final class Log
             provider = System.getProperty("log_provider");
             if (provider != null) {
                 Class<?> lpclass = Class.forName(provider);
-                _provider = (LogProvider)lpclass.newInstance();
+                _provider = (LogProvider)lpclass.getDeclaredConstructor().newInstance();
             }
 
         } catch (SecurityException se) {

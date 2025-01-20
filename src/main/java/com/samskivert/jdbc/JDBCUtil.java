@@ -315,7 +315,7 @@ public class JDBCUtil
         throws SQLException
     {
         boolean matched = false;
-        ResultSet rs = conn.getMetaData().getTables("", "", name, null);
+        ResultSet rs = conn.getMetaData().getTables(null, null, name, null);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             if (name.equals(tname)) {

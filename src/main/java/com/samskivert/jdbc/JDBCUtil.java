@@ -315,7 +315,7 @@ public class JDBCUtil
         throws SQLException
     {
         boolean matched = false;
-        ResultSet rs = conn.getMetaData().getTables(null, null, name, null);
+        ResultSet rs = conn.getMetaData().getTables(conn.getCatalog(), null, name, null);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             if (name.equals(tname)) {
@@ -334,7 +334,7 @@ public class JDBCUtil
         throws SQLException
     {
         boolean matched = false;
-        ResultSet rs = conn.getMetaData().getColumns(null, null, table, column);
+        ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), null, table, column);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             String cname = rs.getString("COLUMN_NAME");
@@ -356,7 +356,7 @@ public class JDBCUtil
         throws SQLException
     {
         boolean matched = false;
-        ResultSet rs = conn.getMetaData().getIndexInfo(null, null, table, false, true);
+        ResultSet rs = conn.getMetaData().getIndexInfo(conn.getCatalog(), null, table, false, true);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             String cname = rs.getString("COLUMN_NAME");
@@ -379,7 +379,7 @@ public class JDBCUtil
         throws SQLException
     {
         boolean matched = false;
-        ResultSet rs = conn.getMetaData().getPrimaryKeys(null, null, table);
+        ResultSet rs = conn.getMetaData().getPrimaryKeys(conn.getCatalog(), null, table);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             String cname = rs.getString("COLUMN_NAME");
@@ -397,7 +397,7 @@ public class JDBCUtil
                                        String column)
         throws SQLException
     {
-        ResultSet rs = conn.getMetaData().getIndexInfo(null, null, table, false, true);
+        ResultSet rs = conn.getMetaData().getIndexInfo(conn.getCatalog(), null, table, false, true);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             String cname = rs.getString("COLUMN_NAME");
@@ -631,7 +631,7 @@ public class JDBCUtil
     protected static ResultSet getColumnMetaData (Connection conn, String table, String column)
         throws SQLException
     {
-        ResultSet rs = conn.getMetaData().getColumns(null, null, table, column);
+        ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), null, table, column);
         while (rs.next()) {
             String tname = rs.getString("TABLE_NAME");
             String cname = rs.getString("COLUMN_NAME");

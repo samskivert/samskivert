@@ -187,12 +187,20 @@ public class JDBCTableSiteIdentifier implements SiteIdentifier
             throws PersistenceException
         {
             // we are the operation!
-            execute(this);
+            executeUpdate(this);
         }
 
         public Object invoke (Connection conn, DatabaseLiaison liaison)
             throws PersistenceException, SQLException
         {
+            JDBCUtil.createTableIfMissing(conn, "sites", new String[] {
+                "siteId INTEGER UNSIGNED NOT NULL",
+                "siteString VARCHAR(255) NOT NULL",
+            }, "");
+            JDBCUtil.createTableIfMissing(conn, "domains", new String[] {
+                "domain VARCHAR(255) NOT NULL",
+                "siteId INTEGER UNSIGNED NOT NULL",
+            }, "");
             Statement stmt = conn.createStatement();
             try {
                 // first load up the list of sites

@@ -33,7 +33,7 @@ public class TestComboButtonBox
         JFrame frame = new JFrame("Test ComboButtonBox");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        DefaultComboBoxModel<Image> model = new DefaultComboBoxModel<Image>();
         model.addElement(createImage(Color.blue));
         model.addElement(createImage(Color.green));
         model.addElement(createImage(Color.red));

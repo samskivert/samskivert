@@ -219,6 +219,40 @@ public class Table<T>
     }
 
     /**
+     * Insert new record in the table. Values of inserted record fields are taken from specified
+     * object. Returns the auto-generated key assigned by the database to the new row. Note: this
+     * only works for tables with a single primary key and relies on the caller to indicate the type
+     * of the key (`Integer`, `String`, etc) via the generic method parameter.
+     *
+     * @param obj object specifying values of inserted record fields
+     * @return the auto-generated key created by the database.
+     */
+    public synchronized <K> K insertGetKey (Connection conn, T obj) throws SQLException
+    {
+        if (primaryKeys.length > 1) throw new UnsupportedOperationException(
+            "Table must have exactly one primary-key column. This table has " + primaryKeys.length);
+        StringBuilder sql = new StringBuilder(
+            "insert into " + name + " (" + listOfFields + ") values (?");
+        for (int i = 1; i < nColumns; i++) {
+            sql.append(",?");
+        }
+        sql.append(")");
+        PreparedStatement insertStmt = conn.prepareStatement(
+            sql.toString(), Statement.RETURN_GENERATED_KEYS);
+        bindUpdateVariables(insertStmt, obj, null);
+        insertStmt.executeUpdate();
+        ResultSet rs = insertStmt.getGeneratedKeys();
+        Object rawKey = null;
+        if (rs.next()) {
+            rawKey = rs.getObject(primaryKeys[0]);
+        }
+        @SuppressWarnings("unchecked")
+        K key = (K)rawKey;
+        insertStmt.close();
+        return key;
+    }
+
+    /**
      * Insert several new records in the table. Values of inserted records
      * fields are taken from objects of specified array.
      *

@@ -299,6 +299,7 @@ public class UserManager
         }
         acookie.setPath("/");
         acookie.setMaxAge((expires > 0) ? (expires*24*60*60) : -1);
+        acookie.setHttpOnly(true);
         if (USERMGR_DEBUG) {
             log.info("Setting cookie " + acookie + ".");
         }

@@ -244,7 +244,7 @@ public class Table<T>
         ResultSet rs = insertStmt.getGeneratedKeys();
         Object rawKey = null;
         if (rs.next()) {
-            rawKey = rs.getObject(primaryKeys[0]);
+            rawKey = rs.getObject(1);
         }
         @SuppressWarnings("unchecked")
         K key = (K)rawKey;

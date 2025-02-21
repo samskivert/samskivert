@@ -25,7 +25,6 @@ import static com.samskivert.jdbc.Log.log;
  * <p> The configuration properties file should contain the following information:
  *
  * <pre>
- * IDENT.driver=[jdbc driver class]
  * IDENT.url=[jdbc driver url]
  * IDENT.username=[jdbc username]
  * IDENT.password=[jdbc password]
@@ -42,7 +41,6 @@ import static com.samskivert.jdbc.Log.log;
  * defaults. For example:
  *
  * <pre>
- * default.driver=[jdbc driver class]
  * default.url=[jdbc driver class]
  *
  * IDENT1.username=[jdbc username]
@@ -59,7 +57,6 @@ public class StaticConnectionProvider implements ConnectionProvider
     /** Creates a provider for testing, using HSQLDB. */
     public static ConnectionProvider forTest (String dbname) {
         Properties props = new Properties();
-        props.setProperty("default.driver", "org.hsqldb.jdbcDriver");
         props.setProperty("default.username", "sa");
         props.setProperty("default.password", "none");
         props.setProperty("default.url", "jdbc:hsqldb:mem:" + dbname);
@@ -193,14 +190,13 @@ public class StaticConnectionProvider implements ConnectionProvider
     }
 
     protected static class Info {
-        public final String ident, driver, url, username, password;
+        public final String ident, url, username, password;
         public final Boolean autoCommit;
 
         public Info (String ident, Properties props) throws PersistenceException {
             this.ident = ident;
-            this.driver = requireProp(props, "driver", "No driver class specified");
-            this.url = requireProp(props, "url", "No driver URL specified");
-            this.username = requireProp(props, "username", "No driver username specified");
+            this.url = requireProp(props, "url", "No database URL specified");
+            this.username = requireProp(props, "username", "No database username specified");
             this.password = props.getProperty("password", "");
             String ac = props.getProperty("autocommit");
             this.autoCommit = (ac == null) ? null : Boolean.valueOf(ac);
@@ -240,28 +236,14 @@ public class StaticConnectionProvider implements ConnectionProvider
         /** Opens and returns a new connection to this mapping's database. */
         public Connection openConnection (String ident, Boolean autoCommit)
             throws PersistenceException {
-            // create an instance of the driver
-            Driver jdriver;
-            try {
-                jdriver = (Driver)Class.forName(_info.driver).
-                    getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                throw new PersistenceException(
-                  "Error loading driver [class=" + _info.driver + "].", e);
-            }
-
             // create the connection
             Connection conn;
             try {
-                Properties props = new Properties();
-                props.put("user", _info.username);
-                props.put("password", _info.password);
-                conn = jdriver.connect(_info.url, props);
-
+                conn = DriverManager.getConnection(_info.url, _info.username, _info.password);
             } catch (SQLException sqe) {
                 throw new PersistenceException(
-                    "Error creating database connection [driver=" + _info.driver +
-                    ", url=" + _info.url + ", username=" + _info.username + "].", sqe);
+                    "Error creating database connection [url=" + _info.url +
+                        ", username=" + _info.username + "].", sqe);
             }
 
             // if we were requested to configure auto-commit, then do so

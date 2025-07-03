@@ -161,10 +161,6 @@
           <quiet>true</quiet>
           <show>public</show>
           <additionalparam>-Xdoclint:all -Xdoclint:-missing</additionalparam>
-          <links>
-            <link>http://java.sun.com/products/javamail/javadocs/</link>
-            <link>http://download.oracle.com/javaee/1.2.1/api/</link>
-          </links>
         </configuration>
       </plugin>
 
@@ -248,12 +244,38 @@
     </profile>
 
     <profile>
-      <id>release-sign-artifacts</id>
+      <id>release-extras</id>
       <activation>
         <property><name>performRelease</name><value>true</value></property>
       </activation>
       <build>
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.1.2</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
@@ -291,6 +313,5 @@
         </snapshotRepository>
       </distributionManagement>
     </profile>
-
   </profiles>
 </project>

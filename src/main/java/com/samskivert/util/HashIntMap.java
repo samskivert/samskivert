@@ -482,7 +482,7 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     }
 
     /**
-     * Reconstitute the <tt>HashIntMap</tt> instance from a stream (i.e.,
+     * Reconstitute the {@code HashIntMap} instance from a stream (i.e.,
      * deserialize it).
      */
     private void readObject (ObjectInputStream s)

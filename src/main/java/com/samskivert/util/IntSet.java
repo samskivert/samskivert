@@ -17,11 +17,11 @@ import java.util.Set;
 public interface IntSet extends Set<Integer>, Interable
 {
     /**
-     * Returns <tt>true</tt> if this set contains the specified element.
+     * Returns {@code true} if this set contains the specified element.
      *
      * @param value element whose presence in this set is to be tested.
      *
-     * @return <tt>true</tt> if this set contains the specified element.
+     * @return {@code true} if this set contains the specified element.
      */
     public boolean contains (int value);
 
@@ -29,23 +29,23 @@ public interface IntSet extends Set<Integer>, Interable
      * Adds the specified element to this set if it is not already present
      * (optional operation). If this set already contains the specified
      * element, the call leaves this set unchanged and returns
-     * <tt>false</tt>.  In combination with the restriction on
+     * {@code false}.  In combination with the restriction on
      * constructors, this ensures that sets never contain duplicate
      * elements.
      *
      * @param value element to be added to this set.
      *
-     * @return <tt>true</tt> if this set did not already contain the
+     * @return {@code true} if this set did not already contain the
      * specified element.
      *
-     * @throws UnsupportedOperationException if the <tt>add</tt> method is
+     * @throws UnsupportedOperationException if the {@code add} method is
      * not supported by this set.
      */
     public boolean add (int value);
 
     /**
      * Removes the specified element from this set if it is present
-     * (optional operation).  Returns <tt>true</tt> if the set contained
+     * (optional operation).  Returns {@code true} if the set contained
      * the specified element (or equivalently, if the set changed as a
      * result of the call).  (The set will not contain the specified
      * element once the call returns.)
@@ -54,7 +54,7 @@ public interface IntSet extends Set<Integer>, Interable
      *
      * @return true if the set contained the specified element.
      *
-     * @throws UnsupportedOperationException if the <tt>remove</tt> method
+     * @throws UnsupportedOperationException if the {@code remove} method
      * is not supported by this set.
      */
     public boolean remove (int value);
@@ -66,7 +66,7 @@ public interface IntSet extends Set<Integer>, Interable
 
     /**
      * Returns an array containing all of the elements in this set.  Obeys
-     * the general contract of the <tt>Collection.toArray</tt> method.
+     * the general contract of the {@code Collection.toArray} method.
      *
      * @return an array containing all of the elements in this set.
      */

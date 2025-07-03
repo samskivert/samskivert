@@ -32,24 +32,24 @@ public interface IntMap<V> extends Map<Integer,V>
     }
 
     /**
-     * Returns <tt>true</tt> if this map contains a mapping for the
+     * Returns {@code true} if this map contains a mapping for the
      * specified key.
      *
      * @param key key whose presence in this map is to be tested.
      *
-     * @return <tt>true</tt> if this map contains a mapping for the
+     * @return {@code true} if this map contains a mapping for the
      * specified key.
      */
     public boolean containsKey (int key);
 
     /**
      * Returns the value to which this map maps the specified key.  Returns
-     * <tt>null</tt> if the map contains no mapping for this key.
+     * {@code null} if the map contains no mapping for this key.
      *
      * @param key key whose associated value is to be returned.
      *
      * @return the value to which this map maps the specified key, or
-     * <tt>null</tt> if the map contains no mapping for this key.
+     * {@code null} if the map contains no mapping for this key.
      */
     public V get (int key);
 
@@ -62,7 +62,7 @@ public interface IntMap<V> extends Map<Integer,V>
      * @param value value to be associated with the specified key.
      *
      * @return previous value associated with specified key, or
-     * <tt>null</tt> if there was no mapping for key.
+     * {@code null} if there was no mapping for key.
      */
     public V put (int key, V value);
 
@@ -72,7 +72,7 @@ public interface IntMap<V> extends Map<Integer,V>
      * @param key key whose mapping is to be removed from the map.
      *
      * @return previous value associated with specified key, or
-     * <tt>null</tt> if there was no mapping for key.
+     * {@code null} if there was no mapping for key.
      */
     public V remove (int key);
 

@@ -409,7 +409,7 @@ public class IntIntMap
     }
 
     /**
-     * Reconstitute the <tt>IntIntMap</tt> instance from a stream (i.e.,
+     * Reconstitute the {@code IntIntMap} instance from a stream (i.e.,
      * deserialize it).
      */
     private void readObject (ObjectInputStream s)

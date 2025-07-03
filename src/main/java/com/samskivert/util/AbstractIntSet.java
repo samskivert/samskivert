@@ -10,14 +10,14 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * A base class for {@link IntSet} implementations.<p>
+ * A base class for {@link IntSet} implementations.
  *
- * All you really need to do is implement <tt>interable</tt>, but you'll almost certainly want
- * to implement <tt>size</tt> and <tt>contains</tt> for enhanced performance.<p>
+ * All you really need to do is implement {@code interable}, but you'll almost certainly want
+ * to implement {@code size} and {@code contains} for enhanced performance.
  *
  * To implement a modifiable IntSet, the programmer must additionally override this class's
- * <tt>add</tt> and <tt>remove</tt> methods, which will otherwise throw an
- * <tt>UnsupportedOperationException</tt>.<p>
+ * {@code add} {@code remove} methods, which will otherwise throw an
+ * {@code UnsupportedOperationException}.
  */
 public abstract class AbstractIntSet extends AbstractSet<Integer>
     implements IntSet
@@ -27,7 +27,7 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
      *
      * @param values elements to be added to this set.
      *
-     * @return <tt>true</tt> if this set did not already contain all of the specified elements.
+     * @return {@code true} if this set did not already contain all of the specified elements.
      */
     public boolean add (int[] values)
     {
@@ -45,7 +45,7 @@ public abstract class AbstractIntSet extends AbstractSet<Integer>
      *
      * @param values elements to be removed from the set.
      *
-     * @return <tt>true</tt> if this set contained any of the specified elements (which will have
+     * @return {@code true} if this set contained any of the specified elements (which will have
      * been removed).
      */
     public boolean remove (int[] values)

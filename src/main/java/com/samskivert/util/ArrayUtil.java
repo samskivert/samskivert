@@ -363,7 +363,7 @@ public class ArrayUtil
      * to the specified Comparable key. Note that the array elements can implement
      * {@link Comparable} and the key can be of the same type, or the key can be a completely
      * different class that can compare the element type.
-     * <b>All comparisons will be called as <tt>key.compareTo(element)</tt></b>.
+     * <b>All comparisons will be called as {@code key.compareTo(element)}</b>.
      *
      * @param array the array to be searched.
      * @param offset the index of the first element in the array to be considered.

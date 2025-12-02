@@ -185,7 +185,8 @@ public class DispatcherServlet extends HttpServlet
         if (StringUtil.isBlank(appcl)) {
             return new Application();
         } else {
-            Class<?> appclass = Class.forName(appcl);
+            ClassLoader servletClassLoader = Thread.currentThread().getContextClassLoader();
+            Class<?> appclass = servletClassLoader.loadClass(appcl);
             return (Application)appclass.getDeclaredConstructor().newInstance();
         }
     }
@@ -202,7 +203,8 @@ public class DispatcherServlet extends HttpServlet
                                   "in the servlet configuration.");
         }
         // config util loads properties files from the classpath
-        Properties props = ConfigUtil.loadProperties(propsPath);
+        ClassLoader servletClassLoader = Thread.currentThread().getContextClassLoader();
+        Properties props = ConfigUtil.loadProperties(propsPath, servletClassLoader);
         if (props == null) {
             throw new IOException("Unable to load velocity properties " +
                                   "from file '" + INIT_PROPS_KEY + "'.");
@@ -596,7 +598,8 @@ public class DispatcherServlet extends HttpServlet
      */
     protected Logic instantiateLogic (String path, String lclass) {
         try {
-            Class<?> pcl = Class.forName(lclass);
+            ClassLoader servletClassLoader = Thread.currentThread().getContextClassLoader();
+            Class<?> pcl = servletClassLoader.loadClass(lclass);
             return (Logic)pcl.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException cnfe) {
             // nothing interesting to report

@@ -5,7 +5,7 @@
 
 package com.samskivert.velocity;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.samskivert.servlet.util.HTMLUtil;
 import com.samskivert.servlet.util.ParameterUtil;

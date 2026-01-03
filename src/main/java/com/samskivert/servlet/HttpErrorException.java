@@ -5,7 +5,7 @@
 
 package com.samskivert.servlet;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * An http error exception is thrown by servlet services when they wish to fail

@@ -8,7 +8,7 @@ package com.samskivert.servlet;
 import java.util.Collections;
 import java.util.Iterator;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * {@link SiteIdentifier} utility methods.

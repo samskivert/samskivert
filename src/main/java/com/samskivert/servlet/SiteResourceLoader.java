@@ -15,7 +15,7 @@ import java.security.PrivilegedAction;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.samskivert.util.HashIntMap;
 

@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.samskivert.io.PersistenceException;
 

@@ -6,7 +6,7 @@
 package com.samskivert.servlet;
 
 import java.util.Iterator;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Responsible for determining the unique site identifier based on information available in the

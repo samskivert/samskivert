@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;

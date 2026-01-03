@@ -167,6 +167,19 @@ public abstract class Logger
         // if a custom class was specified as a system property, use that
         Factory factory = createConfiguredFactory();
 
+        // favor SLF4J if it's available since it's more modern and flexible
+        try {
+            if (factory == null) {
+                Class.forName("org.slf4j.LoggerFactory");
+                factory = (Factory)Class.forName("com.samskivert.util.Slf4jLogger").
+                    getDeclaredConstructor().newInstance();
+            }
+        } catch (ClassNotFoundException cnfe) {
+            // Slf4j not available, no biggie
+        } catch (Throwable t) {
+            System.err.println("Unable to instantiate Slf4jLogger: " + t);
+        }
+
         // create and a log4j logger if the log4j configuration system property is set
         try {
             if (factory == null && System.getProperty("log4j.configuration") != null) {

@@ -32,7 +32,8 @@ public class MySQLLiaison extends BaseLiaison
         String msg = sqe.getMessage();
         return (msg != null && (msg.indexOf("Lost connection") != -1 ||
                                 msg.indexOf("link failure") != -1 ||
-                                msg.indexOf("Broken pipe") != -1));
+                                msg.indexOf("Broken pipe") != -1 ||
+                                msg.indexOf("The last packet successfully received") != -1));
     }
 
     @Override // from DatabaseLiaison

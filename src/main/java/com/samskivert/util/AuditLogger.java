@@ -36,16 +36,29 @@ public class AuditLogger
     }
 
     /**
-     * Creates an audit logger that logs to the specified file.
+     * Creates an audit logger that logs to the specified file. The log will be rolled over daily.
      */
     public AuditLogger (File fullpath)
     {
+        this(fullpath, 1);
+    }
+
+    /**
+     * Creates an audit logger that logs to the specified file. The log will be rolled over every
+     * {@code rolloverDays} days. If {@code rolloverDays} is zero (or less than zero) the log will
+     * never be rolled over.
+     */
+    public AuditLogger (File fullpath, int rolloverDays)
+    {
         _logPath = fullpath;
+        _rolloverDays = rolloverDays;
         openLog(true);
 
-        // update the day format
-        _dayStamp = _dayFormat.format(new Date());
-        scheduleNextRolloverCheck();
+        if (rolloverDays > 0) {
+            // update the day stamp
+            _dayStamp = _dayFormat.format(new Date());
+            scheduleNextRolloverCheck();
+        }
     }
 
     /**
@@ -129,7 +142,7 @@ public class AuditLogger
         String newDayStamp = _dayFormat.format(new Date());
 
         // hey! we need to roll it over!
-        if (!newDayStamp.equals(_dayStamp)) {
+        if (!newDayStamp.equals(_dayStamp) && daysSince(_dayStamp) >= _rolloverDays) {
             log("log_closed");
             _logWriter.close();
             _logWriter = null;
@@ -148,6 +161,20 @@ public class AuditLogger
         }
 
         scheduleNextRolloverCheck();
+    }
+
+    /**
+     * Returns the number of days elapsed since the given day stamp.
+     */
+    protected int daysSince (String dayStamp)
+    {
+        try {
+            long stampTime = _dayFormat.parse(dayStamp).getTime();
+            long nowTime = new Date().getTime();
+            return (int)((nowTime - stampTime) / (24L * 60L * 60L * 1000L));
+        } catch (java.text.ParseException pe) {
+            return Integer.MAX_VALUE; // trigger rollover on parse failure
+        }
     }
 
     /**
@@ -174,6 +201,9 @@ public class AuditLogger
 
     /** The path to our log file. */
     protected File _logPath;
+
+    /** The number of days between log rollovers. */
+    protected int _rolloverDays;
 
     /** We actually write to this feller here. */
     protected PrintWriter _logWriter;

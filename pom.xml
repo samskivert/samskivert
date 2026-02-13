@@ -5,7 +5,7 @@
   <groupId>com.samskivert</groupId>
   <artifactId>samskivert</artifactId>
   <packaging>jar</packaging>
-  <version>1.11.2</version>
+  <version>1.12-SNAPSHOT</version>
 
   <name>samskivert</name>
   <description>A collection of Java utilities.</description>
@@ -34,7 +34,7 @@
     <connection>scm:git:git://github.com/samskivert/samskivert.git</connection>
     <developerConnection>scm:git:git@github.com:samskivert/samskivert.git</developerConnection>
     <url>http://github.com/samskivert/samskivert/</url>
-    <tag>samskivert-1.11.2</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>

@@ -89,6 +89,7 @@ public class StaticConnectionProvider implements ConnectionProvider
     public StaticConnectionProvider (Properties props)
     {
         _props = props;
+        _maxIdleMillis = Long.parseLong(props.getProperty("max_idle_minutes", "60")) * 60 * 1000L;
     }
 
     // from ConnectionProvider
@@ -108,7 +109,13 @@ public class StaticConnectionProvider implements ConnectionProvider
     // from ConnectionProvider
     public void releaseConnection (String ident, boolean readOnly, Connection conn)
     {
-        // nothing to do here, all is well
+        String mapkey = ident + ":" + readOnly;
+        Mapping conmap = _idents.get(mapkey);
+        if (conmap != null) {
+            conmap.markLastUsed();
+        } else {
+            log.warning("Unknown connection released?", "key", mapkey);
+        }
     }
 
     // from ConnectionProvider
@@ -169,7 +176,7 @@ public class StaticConnectionProvider implements ConnectionProvider
         conmap = _keys.get(key);
         if (conmap == null) {
             log.debug("Creating " + key + " for " + ident + ".");
-            _keys.put(key, conmap = new Mapping(key, info, readOnly));
+            _keys.put(key, conmap = new Mapping(key, info, readOnly, _maxIdleMillis));
 
         } else {
             log.debug("Reusing " + key + " for " + ident + ".");
@@ -221,16 +228,31 @@ public class StaticConnectionProvider implements ConnectionProvider
          * connection. */
         public final String key;
 
-        public Mapping (String key, Info info, boolean readOnly) {
+        public Mapping (String key, Info info, boolean readOnly, long maxIdleMillis) {
             this.key = key;
             _info = info;
             _readOnly = readOnly;
+            _maxIdleMillis = maxIdleMillis;
         }
 
         /** Returns the main connection for this mapping, (re)opening it if necessary. */
         public Connection getConnection (String ident) throws PersistenceException {
-            if (_conn == null) _conn = openConnection(ident, _info.autoCommit);
+            long idleMillis = _lastUsed > 0 ? System.currentTimeMillis() - _lastUsed : 0L;
+            if (_conn != null && _maxIdleMillis > 0 && idleMillis > _maxIdleMillis) {
+                log.debug("Closing idle connection", "key", key, "ident", ident,
+                          "idleMillis", idleMillis);
+                closeConnection(ident);
+            }
+            if (_conn == null) {
+                _conn = openConnection(ident, _info.autoCommit);
+                markLastUsed();
+            }
             return _conn;
+        }
+
+        /** Marks the connection as having just been used. */
+        public void markLastUsed () {
+            _lastUsed = System.currentTimeMillis();
         }
 
         /** Opens and returns a new connection to this mapping's database. */
@@ -287,11 +309,16 @@ public class StaticConnectionProvider implements ConnectionProvider
 
         protected final Info _info;
         protected final boolean _readOnly;
+        protected final long _maxIdleMillis;
         protected Connection _conn;
+        protected long _lastUsed;
     }
 
     /** Our configuration in the form of a properties object. */
     protected Properties _props;
+
+    /** The maximum time in milliseconds a connection can remain idle before being recycled. */
+    protected long _maxIdleMillis;
 
     /** A mapping from database identifier to connection records. */
     protected HashMap<String,Mapping> _idents = new HashMap<String,Mapping>();

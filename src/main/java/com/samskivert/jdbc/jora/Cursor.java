@@ -44,6 +44,13 @@ public class Cursor<V>
                 _table.bindQueryVariables(qbeStmt, _qbeObject, _qbeMask);
                 _result = qbeStmt.executeQuery();
                 _stmt = qbeStmt;
+            } else if (_params != null) {
+                PreparedStatement pstmt = _conn.prepareStatement(_query);
+                for (int ii = 0; ii < _params.length; ii++) {
+                    pstmt.setObject(ii + 1, _params[ii]);
+                }
+                _result = pstmt.executeQuery();
+                _stmt = pstmt;
             } else {
                 if (_stmt == null) {
                     _stmt = _conn.createStatement();
@@ -194,8 +201,15 @@ public class Cursor<V>
         _query = query;
     }
 
-    protected Cursor (Table<V> table, Connection conn, V obj,
-                      FieldMask mask, boolean like)
+    protected Cursor (Table<V> table, Connection conn, String query, Object[] params)
+    {
+        _table = table;
+        _conn = conn;
+        _query = query;
+        _params = params;
+    }
+
+    protected Cursor (Table<V> table, Connection conn, V obj, FieldMask mask, boolean like)
     {
         _table = table;
         _conn = conn;
@@ -213,6 +227,7 @@ public class Cursor<V>
     protected Statement _stmt;
     protected V _currObject, _qbeObject;
     protected FieldMask _qbeMask;
+    protected Object[] _params;
     protected boolean _like;
 }
 

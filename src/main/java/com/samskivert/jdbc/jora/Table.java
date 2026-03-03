@@ -20,8 +20,7 @@ import com.samskivert.util.StringUtil;
 public class Table<T>
 {
     /**
-     * Constructor for table object. Make association between Java class and
-     * database table.
+     * Constructor for table object. Make association between Java class and database table.
      *
      * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
@@ -30,16 +29,14 @@ public class Table<T>
      * @param mixedCaseConvert whether or not to convert mixed case field
      * names into underscore separated uppercase column names.
      */
-    public Table (Class<T> clazz, String tableName, String key,
-                  boolean mixedCaseConvert)
+    public Table (Class<T> clazz, String tableName, String key, boolean mixedCaseConvert)
     {
         String[] keys = {key};
         init(clazz, tableName, keys, mixedCaseConvert);
     }
 
     /**
-     * Constructor for table object. Make association between Java class and
-     * database table.
+     * Constructor for table object. Make association between Java class and database table.
      *
      * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
@@ -52,8 +49,7 @@ public class Table<T>
     }
 
     /**
-     * Constructor for table object. Make association between Java class and
-     * database table.
+     * Constructor for table object. Make association between Java class and database table.
      *
      * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
@@ -66,8 +62,7 @@ public class Table<T>
     }
 
     /**
-     * Constructor for table object. Make association between Java class and
-     * database table.
+     * Constructor for table object. Make association between Java class and database table.
      *
      * @param clazz the class that represents a row entry.
      * @param tableName name of database table mapped on this Java class
@@ -76,8 +71,7 @@ public class Table<T>
      * @param mixedCaseConvert whether or not to convert mixed case field
      * names into underscore separated uppercase column names.
      */
-    public Table (Class<T> clazz, String tableName, String[] keys,
-                  boolean mixedCaseConvert)
+    public Table (Class<T> clazz, String tableName, String[] keys, boolean mixedCaseConvert)
     {
         init(clazz, tableName, keys, mixedCaseConvert);
     }
@@ -98,64 +92,85 @@ public class Table<T>
      */
     public final Cursor<T> select (Connection conn, String condition)
     {
-        String query = "select " + listOfFields + " from " + name +
+        String query = "select " + listOfFields + " from " + name + " " + condition;
+        return new Cursor<T>(this, conn, query);
+    }
+
+    /**
+     * Select records from database table according to search condition using a parameterized query.
+     *
+     * @param condition valid SQL condition expression started with WHERE, using ? placeholders for
+     * parameters.
+     * @param params parameter values to bind to the ? placeholders.
+     */
+    public final Cursor<T> selectParams (Connection conn, String condition, Object... params)
+    {
+        String query = "select " + listOfFields + " from " + name + " " + condition;
+        return new Cursor<T>(this, conn, query, params);
+    }
+
+    /**
+     * Select records from database table according to search condition including the specified
+     * (comma separated) extra tables into the SELECT clause to facilitate a join in determining the
+     * key, using a parameterized query.
+     *
+     * @param tables the (comma separated) names of extra tables to include in the SELECT clause.
+     * @param condition valid SQL condition expression started with WHERE, using ? placeholders for
+     * parameters.
+     * @param params parameter values to bind to the ? placeholders.
+     */
+    public final Cursor<T> selectParams (Connection conn, String tables, String condition,
+                                         Object... params)
+    {
+        String query = "select " + qualifiedListOfFields + " from " + name + "," + tables +
+            " " + condition;
+        return new Cursor<T>(this, conn, query, params);
+    }
+
+    /**
+     * Select records from database table according to search condition including the specified
+     * (comma separated) extra tables into the SELECT clause to facilitate a join in determining the
+     * key.
+     *
+     * @param tables the (comma separated) names of extra tables to include in the SELECT clause.
+     * @param condition valid SQL condition expression started with WHERE.
+     */
+    public final Cursor<T> select (Connection conn, String tables, String condition)
+    {
+        String query = "select " + qualifiedListOfFields + " from " + name + "," + tables +
             " " + condition;
         return new Cursor<T>(this, conn, query);
     }
 
     /**
-     * Select records from database table according to search condition
-     * including the specified (comma separated) extra tables into the SELECT
-     * clause to facilitate a join in determining the key.
+     * Select records from database table according to search condition including the specified
+     * (comma separated) extra tables into the SELECT clause to facilitate a join in determining the
+     * key. To facilitate situations where data from multiple tables is being combined into a single
+     * object, the fields will not be qualified with the primary table name.
      *
-     * @param tables the (comma separated) names of extra tables to include in
-     * the SELECT clause.
+     * @param tables the (comma separated) names of extra tables to include in the SELECT clause.
      * @param condition valid SQL condition expression started with WHERE.
      */
-    public final Cursor<T> select (Connection conn, String tables,
-                                   String condition)
+    public final Cursor<T> join (Connection conn, String tables, String condition)
     {
-        String query = "select " + qualifiedListOfFields +
-            " from " + name + "," + tables + " " + condition;
-        return new Cursor<T>(this, conn, query);
-    }
-
-    /**
-     * Select records from database table according to search condition
-     * including the specified (comma separated) extra tables into the SELECT
-     * clause to facilitate a join in determining the key. To facilitate
-     * situations where data from multiple tables is being combined into a
-     * single object, the fields will not be qualified with the primary table
-     * name.
-     *
-     * @param tables the (comma separated) names of extra tables to include in
-     * the SELECT clause.
-     * @param condition valid SQL condition expression started with WHERE.
-     */
-    public final Cursor<T> join (Connection conn, String tables,
-                                 String condition)
-    {
-        String query = "select " + listOfFields +
-            " from " + name + "," + tables + " " + condition;
+        String query = "select " + listOfFields + " from " + name + "," + tables + " " + condition;
         return new Cursor<T>(this, conn, query);
     }
 
     /**
      * Like {@link #join} but does a straight join with the specified table.
      */
-    public final Cursor<T> straightJoin (Connection conn, String table,
-                                         String condition)
+    public final Cursor<T> straightJoin (Connection conn, String table, String condition)
     {
-        String query = "select " + listOfFields +
-            " from " + name + " straight_join " + table + " " + condition;
+        String query = "select " + listOfFields + " from " + name + " straight_join " + table +
+            " " + condition;
         return new Cursor<T>(this, conn, query);
     }
 
     /**
      * Select records from database table using <I>obj</I> object as template.
      *
-     * @param obj example object for search: selected objects should match all
-     * non-null fields.
+     * @param obj example object for search: selected objects should match all non-null fields.
      */
     public final Cursor<T> queryByExample (Connection conn, T obj)
     {
@@ -163,23 +178,20 @@ public class Table<T>
     }
 
     /**
-     * Select records from database table using <I>obj</I> object as template
-     * for selection.
+     * Select records from database table using <I>obj</I> object as template for selection.
      *
      * @param obj example object for search.
-     * @param mask field mask indicating which fields in the example object
-     * should be used when building the query.
+     * @param mask field mask indicating which fields in the example object should be used when
+     * building the query.
      */
-    public final Cursor<T> queryByExample (Connection conn, T obj,
-                                           FieldMask mask)
+    public final Cursor<T> queryByExample (Connection conn, T obj, FieldMask mask)
     {
         return new Cursor<T>(this, conn, obj, mask, false);
     }
 
     /**
-     * The same as the queryByExample, but string fields for the obj are
-     * matched using 'like' instead of equals, which allows you to send % in to
-     * do matching.
+     * The same as the queryByExample, but string fields for the obj are matched using 'like'
+     * instead of equals, which allows you to send % in to do matching.
      */
     public final Cursor<T> queryByLikeExample (Connection conn, T obj)
     {
@@ -187,19 +199,17 @@ public class Table<T>
     }
 
     /**
-     * The same as the queryByExample, but string fields for the obj are
-     * matched using 'like' instead of equals, which allows you to send % in to
-     * do matching.
+     * The same as the queryByExample, but string fields for the obj are matched using 'like'
+     * instead of equals, which allows you to send % in to do matching.
      */
-    public final Cursor<T> queryByLikeExample (Connection conn, T obj,
-                                               FieldMask mask)
+    public final Cursor<T> queryByLikeExample (Connection conn, T obj, FieldMask mask)
     {
         return new Cursor<T>(this, conn, obj, mask, true);
     }
 
     /**
-     * Insert new record in the table.  Values of inserted record fields are
-     * taken from specified object.
+     * Insert new record in the table. Values of inserted record fields are taken from specified
+     * object.
      *
      * @param obj object specifying values of inserted record fields
      */
@@ -253,11 +263,10 @@ public class Table<T>
     }
 
     /**
-     * Insert several new records in the table. Values of inserted records
-     * fields are taken from objects of specified array.
+     * Insert several new records in the table. Values of inserted records fields are taken from
+     * objects of specified array.
      *
-     * @param objects array with objects specifying values of inserted record
-     * fields
+     * @param objects array with objects specifying values of inserted record fields
      */
     public synchronized void insert (Connection conn, T[] objects)
         throws SQLException
@@ -278,8 +287,8 @@ public class Table<T>
     }
 
     /**
-     * Returns a field mask that can be configured and used to update subsets
-     * of entire objects via calls to {@link #update(Connection,Object,FieldMask)}.
+     * Returns a field mask that can be configured and used to update subsets of entire objects via
+     * calls to {@link #update(Connection,Object,FieldMask)}.
      */
     public FieldMask getFieldMask ()
     {
@@ -287,12 +296,10 @@ public class Table<T>
     }
 
     /**
-     * Update record in the table using table's primary key to locate record in
-     * the table and values of fields of specified object <I>obj</I> to alter
-     * record fields.
+     * Update record in the table using table's primary key to locate record in the table and values
+     * of fields of specified object <I>obj</I> to alter record fields.
      *
-     * @param obj object specifying value of primary key and new values of
-     * updated record fields
+     * @param obj object specifying value of primary key and new values of updated record fields
      *
      * @return number of objects actually updated
      */
@@ -303,15 +310,13 @@ public class Table<T>
     }
 
     /**
-     * Update record in the table using table's primary key to locate record in
-     * the table and values of fields of specified object <I>obj</I> to alter
-     * record fields. Only the fields marked as modified in the supplied field
-     * mask will be updated in the database.
+     * Update record in the table using table's primary key to locate record in the table and values
+     * of fields of specified object <I>obj</I> to alter record fields. Only the fields marked as
+     * modified in the supplied field mask will be updated in the database.
      *
-     * @param obj object specifying value of primary key and new values of
-     * updated record fields
-     * @param mask a {@link FieldMask} instance configured to indicate which of
-     * the object's fields are modified and should be written to the database.
+     * @param obj object specifying value of primary key and new values of updated record fields
+     * @param mask a {@link FieldMask} instance configured to indicate which of the object's fields
+     * are modified and should be written to the database.
      *
      * @return number of objects actually updated
      */
@@ -334,12 +339,11 @@ public class Table<T>
     }
 
     /**
-     * Update set of records in the table using table's primary key to locate
-     * record in the table and values of fields of objects from specified array
-     * <I>objects</I> to alter record fields.
+     * Update set of records in the table using table's primary key to locate record in the table
+     * and values of fields of objects from specified array <I>objects</I> to alter record fields.
      *
-     * @param objects array of objects specifying primary keys and and new
-     * values of updated record fields
+     * @param objects array of objects specifying primary keys and and new values of updated record
+     * fields
      *
      * @return number of objects actually updated
      */
@@ -352,15 +356,13 @@ public class Table<T>
         }
 
         int nUpdated = 0;
-        String sql = "update " + name + " set " + listOfAssignments +
-            buildUpdateWhere();
+        String sql = "update " + name + " set " + listOfAssignments + buildUpdateWhere();
         PreparedStatement updateStmt = conn.prepareStatement(sql);
         for (int i = 0; i < objects.length; i++) {
             int column = bindUpdateVariables(updateStmt, objects[i], null);
             for (int j = 0; j < primaryKeys.length; j++) {
                 int fidx = primaryKeyIndices[j];
-                fields[fidx].bindVariable(
-                    updateStmt, objects[i], column+1+j);
+                fields[fidx].bindVariable(updateStmt, objects[i], column+1+j);
             }
             updateStmt.addBatch();
         }
@@ -381,8 +383,7 @@ public class Table<T>
         throws SQLException
     {
         if (primaryKeys == null) {
-            throw new IllegalStateException(
-                "No primary key for table " + name + ".");
+            throw new IllegalStateException("No primary key for table " + name + ".");
         }
         int nDeleted = 0;
         StringBuilder sql = new StringBuilder(
@@ -410,8 +411,7 @@ public class Table<T>
         throws SQLException
     {
         if (primaryKeys == null) {
-            throw new IllegalStateException(
-                "No primary key for table " + name + ".");
+            throw new IllegalStateException("No primary key for table " + name + ".");
         }
         int nDeleted = 0;
         StringBuilder sql = new StringBuilder(
@@ -422,8 +422,7 @@ public class Table<T>
         PreparedStatement deleteStmt = conn.prepareStatement(sql.toString());
         for (int i = 0; i < objects.length; i++) {
             for (int j = 0; j < primaryKeys.length; j++) {
-                fields[primaryKeyIndices[j]].bindVariable(
-                    deleteStmt, objects[i], j+1);
+                fields[primaryKeyIndices[j]].bindVariable(deleteStmt, objects[i], j+1);
             }
             deleteStmt.addBatch();
         }
@@ -438,15 +437,13 @@ public class Table<T>
     @Override
     public String toString ()
     {
-        return "[name=" + name +
-            ", primaryKeys=" + StringUtil.toString(primaryKeys) + "]";
+        return "[name=" + name + ", primaryKeys=" + StringUtil.toString(primaryKeys) + "]";
     }
 
     /**
-     * Separator of name components of compound field. For example, if Java
-     * class contains component "location" of Point class, which has two
-     * components "x" and "y", then database table should have columns
-     * "location_x" and "location_y" (if '_' is used as separator).
+     * Separator of name components of compound field. For example, if Java class contains component
+     * "location" of Point class, which has two components "x" and "y", then database table should
+     * have columns "location_x" and "location_y" (if '_' is used as separator).
      */
     public static final String fieldSeparator = "_";
 
@@ -460,8 +457,7 @@ public class Table<T>
         listOfFields = "";
         qualifiedListOfFields = "";
         listOfAssignments = "";
-        ArrayList<FieldDescriptor> fieldsVector =
-            new ArrayList<FieldDescriptor>();
+        ArrayList<FieldDescriptor> fieldsVector = new ArrayList<FieldDescriptor>();
         nFields = buildFieldsList(fieldsVector, _rowClass, "");
         fields = fieldsVector.toArray(new FieldDescriptor[nFields]);
         fMask = new FieldMask(fields);
@@ -478,16 +474,14 @@ public class Table<T>
                 while (--i >= 0) {
                     if (fields[i].name.equals(keys[j])) {
                         if (!fields[i].isAtomic()) {
-                            throw new IllegalArgumentException(
-                                "Non-atomic primary key provided");
+                            throw new IllegalArgumentException("Non-atomic primary key provided");
                         }
                         primaryKeyIndices[j] = i;
                         break;
                     }
                 }
                 if (i < 0) {
-                    throw new NoSuchFieldError("No such field '" + keys[j]
-                                               + "' in table " + name);
+                    throw new NoSuchFieldError("No such field '" + keys[j] + "' in table " + name);
                 }
             }
         }
@@ -502,8 +496,8 @@ public class Table<T>
         }
     }
 
-    protected final int buildFieldsList (ArrayList<FieldDescriptor> buf,
-                                         Class<?> _rowClass, String prefix)
+    protected final int buildFieldsList (ArrayList<FieldDescriptor> buf, Class<?> _rowClass,
+                                         String prefix)
     {
         Field[] f = _rowClass.getDeclaredFields();
 
@@ -511,8 +505,7 @@ public class Table<T>
         while ((superclass = superclass.getSuperclass()) != null) {
             Field[] inheritedFields = superclass.getDeclaredFields();
             Field[] allFields = new Field[inheritedFields.length + f.length];
-            System.arraycopy(inheritedFields, 0, allFields, 0,
-                             inheritedFields.length);
+            System.arraycopy(inheritedFields, 0, allFields, 0, inheritedFields.length);
             System.arraycopy(f,0, allFields, inheritedFields.length, f.length);
             f = allFields;
         }
@@ -529,8 +522,7 @@ public class Table<T>
 
         int n = 0;
         for (int i = 0; i < f.length; i++) {
-            if ((f[i].getModifiers()&(Modifier.TRANSIENT|Modifier.STATIC))==0)
-            {
+            if ((f[i].getModifiers()&(Modifier.TRANSIENT|Modifier.STATIC))==0) {
                 String name = f[i].getName();
                 Class<?> fieldClass = f[i].getType();
                 String fullName = prefix + convertName(name);
@@ -548,49 +540,29 @@ public class Table<T>
                 else if (c.equals("float")) type = FieldDescriptor.t_float;
                 else if (c.equals("double")) type = FieldDescriptor.t_double;
                 else if (c.equals("boolean")) type = FieldDescriptor.t_boolean;
-                else if (c.equals("java.lang.Byte"))
-                    type = FieldDescriptor.tByte;
-                else if (c.equals("java.lang.Short"))
-                    type = FieldDescriptor.tShort;
-                else if (c.equals("java.lang.Integer"))
-                    type = FieldDescriptor.tInteger;
-                else if (c.equals("java.lang.Long"))
-                    type = FieldDescriptor.tLong;
-                else if (c.equals("java.lang.Float"))
-                    type = FieldDescriptor.tFloat;
-                else if (c.equals("java.lang.Double"))
-                    type = FieldDescriptor.tDouble;
-                else if (c.equals("java.lang.Boolean"))
-                    type = FieldDescriptor.tBoolean;
-                else if (c.equals("java.math.BigDecimal"))
-                    type = FieldDescriptor.tDecimal;
-                else if (c.equals("java.lang.String"))
-                    type = FieldDescriptor.tString;
-                else if (fieldClass.equals(BYTE_PROTO.getClass()))
-                    type = FieldDescriptor.tBytes;
-                else if (c.equals("java.sql.Date"))
-                    type = FieldDescriptor.tDate;
-                else if (c.equals("java.sql.Time"))
-                    type = FieldDescriptor.tTime;
-                else if (c.equals("java.sql.Timestamp"))
-                    type = FieldDescriptor.tTimestamp;
-                else if (c.equals("java.lang.InputStream"))
-                    type = FieldDescriptor.tStream;
-                else if (c.equals("java.sql.BlobLocator"))
-                    type = FieldDescriptor.tBlob;
-                else if (c.equals("java.sql.ClobLocator"))
-                    type = FieldDescriptor.tClob;
-                else if (serializableClass.isAssignableFrom(fieldClass))
-                    type = FieldDescriptor.tClosure;
+                else if (c.equals("java.lang.Byte")) type = FieldDescriptor.tByte;
+                else if (c.equals("java.lang.Short")) type = FieldDescriptor.tShort;
+                else if (c.equals("java.lang.Integer")) type = FieldDescriptor.tInteger;
+                else if (c.equals("java.lang.Long")) type = FieldDescriptor.tLong;
+                else if (c.equals("java.lang.Float")) type = FieldDescriptor.tFloat;
+                else if (c.equals("java.lang.Double")) type = FieldDescriptor.tDouble;
+                else if (c.equals("java.lang.Boolean")) type = FieldDescriptor.tBoolean;
+                else if (c.equals("java.math.BigDecimal")) type = FieldDescriptor.tDecimal;
+                else if (c.equals("java.lang.String")) type = FieldDescriptor.tString;
+                else if (fieldClass.equals(BYTE_PROTO.getClass())) type = FieldDescriptor.tBytes;
+                else if (c.equals("java.sql.Date")) type = FieldDescriptor.tDate;
+                else if (c.equals("java.sql.Time")) type = FieldDescriptor.tTime;
+                else if (c.equals("java.sql.Timestamp")) type = FieldDescriptor.tTimestamp;
+                else if (c.equals("java.lang.InputStream")) type = FieldDescriptor.tStream;
+                else if (c.equals("java.sql.BlobLocator")) type = FieldDescriptor.tBlob;
+                else if (c.equals("java.sql.ClobLocator")) type = FieldDescriptor.tClob;
+                else if (serializableClass.isAssignableFrom(fieldClass)) type = FieldDescriptor.tClosure;
                 else {
-                    int nComponents = buildFieldsList(buf, fieldClass,
-                                                      fd.name+fieldSeparator);
-                    fd.inType = fd.outType =
-                        FieldDescriptor.tCompound + nComponents;
+                    int nComponents = buildFieldsList(buf, fieldClass, fd.name+fieldSeparator);
+                    fd.inType = fd.outType = FieldDescriptor.tCompound + nComponents;
 
                     try {
-                        fd.constructor =
-                            fieldClass.getDeclaredConstructor(new Class<?>[0]);
+                        fd.constructor = fieldClass.getDeclaredConstructor(new Class<?>[0]);
                         setBypass.invoke(fd.constructor, bypassFlag);
                     } catch(Exception ex) {}
 
@@ -647,20 +619,17 @@ public class Table<T>
         return obj;
     }
 
-    protected final int load (
-        Object obj, int i, int end, int column, ResultSet result)
+    protected final int load (Object obj, int i, int end, int column, ResultSet result)
         throws SQLException
     {
         try {
             while (i < end) {
                 FieldDescriptor fd = fields[i++];
                 if (!fd.loadVariable(result, obj, ++column)) {
-                    Object component =
-                        fd.constructor.newInstance(constructorArgs);
+                    Object component = fd.constructor.newInstance(constructorArgs);
                     fd.field.set(obj, component);
                     int nComponents = fd.inType - FieldDescriptor.tCompound;
-                    column = load(component, i, i + nComponents,
-                                  column-1, result);
+                    column = load(component, i, i + nComponents, column-1, result);
                     i += nComponents;
                 }
             }
@@ -673,17 +642,13 @@ public class Table<T>
         return column;
     }
 
-    protected final int bindUpdateVariables(PreparedStatement pstmt,
-                                            T            obj,
-                                            FieldMask         mask)
+    protected final int bindUpdateVariables(PreparedStatement pstmt, T obj, FieldMask mask)
         throws SQLException
     {
         return bindUpdateVariables(pstmt, obj, 0, nFields, 0, mask);
     }
 
-    protected final void bindQueryVariables(PreparedStatement pstmt,
-                                            T            obj,
-                                            FieldMask         mask)
+    protected final void bindQueryVariables(PreparedStatement pstmt, T obj, FieldMask mask)
         throws SQLException
     {
         bindQueryVariables(pstmt, obj, 0, nFields, 0, mask);

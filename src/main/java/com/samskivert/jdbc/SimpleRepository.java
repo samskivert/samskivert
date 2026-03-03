@@ -267,6 +267,34 @@ public class SimpleRepository extends Repository
     }
 
     /**
+     * Executes the supplied parameterized update query in this repository, returning the number of
+     * rows modified.
+     *
+     * @param query the SQL update/insert/delete statement with ? placeholders.
+     * @param params parameter values to bind to the ? placeholders.
+     */
+    protected int updateParams (final String query, final Object... params)
+        throws PersistenceException
+    {
+        return executeUpdate(new Operation<Integer>() {
+            public Integer invoke (Connection conn, DatabaseLiaison liaison)
+                throws SQLException, PersistenceException
+            {
+                PreparedStatement stmt = null;
+                try {
+                    stmt = conn.prepareStatement(query);
+                    for (int ii = 0; ii < params.length; ii++) {
+                        stmt.setObject(ii + 1, params[ii]);
+                    }
+                    return stmt.executeUpdate();
+                } finally {
+                    JDBCUtil.close(stmt);
+                }
+            }
+        });
+    }
+
+    /**
      * Executes the supplied update query in this repository, throwing an exception if the
      * modification count is not equal to the specified count.
      */

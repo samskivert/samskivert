@@ -7,6 +7,7 @@ package com.samskivert.servlet.user;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -86,7 +87,7 @@ public class UserRepository extends JORARepository
     public User loadUser (String username)
         throws PersistenceException
     {
-        return loadUserWhere("where username = " + JDBCUtil.escape(username));
+        return loadUserWhereParams("where username = ?", username);
     }
 
     /**
@@ -109,8 +110,9 @@ public class UserRepository extends JORARepository
     public User loadUserBySession (String sessionKey)
         throws PersistenceException
     {
-        User user = load(_utable, "sessions", "where authcode = '" + sessionKey + "' " +
-                         "AND sessions.userId = users.userId");
+        User user = loadParams(_utable, "sessions",
+                               "where authcode = ? AND sessions.userId = users.userId",
+                               sessionKey);
         if (user != null) {
             user.setDirtyMask(_utable.getFieldMask());
         }
@@ -145,7 +147,7 @@ public class UserRepository extends JORARepository
     public ArrayList<User> lookupUsersByEmail (String email)
         throws PersistenceException
     {
-        return loadAll(_utable, "where email = " + JDBCUtil.escape(email));
+        return loadAllParams(_utable, "where email = ?", email);
     }
 
     /**
@@ -251,14 +253,16 @@ public class UserRepository extends JORARepository
         throws PersistenceException
     {
         // look for an existing session for this user
-        final String query = "select authcode from sessions where userId = " + user.userId;
+        final int userId = user.userId;
         String authcode = execute(new Operation<String>() {
             public String invoke (Connection conn, DatabaseLiaison liaison)
                 throws PersistenceException, SQLException
             {
-                Statement stmt = conn.createStatement();
+                PreparedStatement stmt = conn.prepareStatement(
+                    "select authcode from sessions where userId = ?");
                 try {
-                    ResultSet rs = stmt.executeQuery(query);
+                    stmt.setInt(1, userId);
+                    ResultSet rs = stmt.executeQuery();
                     while (rs.next()) {
                         return rs.getString(1);
                     }
@@ -276,13 +280,12 @@ public class UserRepository extends JORARepository
 
         // if we found one, update its expires time and reuse it
         if (authcode != null) {
-            update("update sessions set expires = '" + expires + "' where " +
-                   "authcode = '" + authcode + "'");
+            updateParams("update sessions set expires = ? where authcode = ?", expires, authcode);
         } else {
             // otherwise create a new one and insert it into the table
             authcode = UserUtil.genAuthCode(user);
-            update("insert into sessions (authcode, userId, expires) values('" + authcode + "', " +
-                   user.userId + ", '" + expires + "')");
+            updateParams("insert into sessions (authcode, userId, expires) values(?, ?, ?)",
+                         authcode, user.userId, expires);
         }
 
         return authcode;
@@ -302,8 +305,8 @@ public class UserRepository extends JORARepository
         Date expires = new Date(cal.getTime().getTime());
 
         // attempt to update an existing session row, returning true if we found and updated it
-        return (update("update sessions set expires = '" + expires + "' " +
-                       "where authcode = " + JDBCUtil.escape(sessionKey)) == 1);
+        return (updateParams("update sessions set expires = ? where authcode = ?",
+                             expires, sessionKey) == 1);
     }
 
     /**
@@ -423,6 +426,23 @@ public class UserRepository extends JORARepository
         throws PersistenceException
     {
         User user = load(_utable, where);
+        if (user != null) {
+            user.setDirtyMask(_utable.getFieldMask());
+        }
+        return user;
+    }
+
+    /**
+     * Loads up a user record that matches the specified parameterized where clause. Returns null
+     * if no record matches.
+     *
+     * @param where a WHERE clause using ? placeholders for parameters.
+     * @param params parameter values to bind to the ? placeholders.
+     */
+    protected User loadUserWhereParams (String where, Object... params)
+        throws PersistenceException
+    {
+        User user = loadParams(_utable, where, params);
         if (user != null) {
             user.setDirtyMask(_utable.getFieldMask());
         }

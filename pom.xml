@@ -79,6 +79,10 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
   <build>
     <!-- we include a few source files in our main jar for use by GWT -->
     <resources>

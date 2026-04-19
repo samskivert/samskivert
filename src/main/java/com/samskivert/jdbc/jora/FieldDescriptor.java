@@ -8,8 +8,6 @@ package com.samskivert.jdbc.jora;
 import java.sql.*;
 import java.math.*;
 import java.lang.reflect.*;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 class FieldDescriptor
 {
@@ -101,7 +99,7 @@ class FieldDescriptor
                 pstmt.setTime(column, (java.sql.Time)field.get(obj));
                 break;
             case tTimestamp:
-                pstmt.setTimestamp(column, (java.sql.Timestamp)field.get(obj), UTC_CALENDAR);
+                pstmt.setTimestamp(column, (java.sql.Timestamp)field.get(obj));
                 break;
             case tStream:
                 java.io.InputStream in = (java.io.InputStream)field.get(obj);
@@ -327,7 +325,7 @@ class FieldDescriptor
             field.set(obj, result.getTime(column));
             break;
         case tTimestamp:
-            field.set(obj, result.getTimestamp(column, UTC_CALENDAR));
+            field.set(obj, result.getTimestamp(column));
             break;
         case tStream:
             field.set(obj, result.getBinaryStream(column));
@@ -419,7 +417,4 @@ class FieldDescriptor
         Types.VARCHAR,       // tAsString
         Types.LONGVARBINARY  // tClosure
     };
-
-    /** A UTC calendar used to ensure timezone-correct Timestamp binding and loading. */
-    private static final Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 }

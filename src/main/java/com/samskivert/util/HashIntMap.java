@@ -229,7 +229,8 @@ public class HashIntMap<V> extends AbstractMap<Integer,V>
     public void ensureCapacity (int minCapacity)
     {
         int size = _buckets.length;
-        while (minCapacity > (int) (size * _loadFactor)) {
+        // the cap keeps `size *= 2` from overflowing and causing an infinite loop
+        while (minCapacity > (int) (size * _loadFactor) && size < (1 << 30)) {
             size *= 2;
         }
         if (size != _buckets.length) {

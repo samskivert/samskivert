@@ -272,8 +272,7 @@ public class IntListUtil
         }
 
         int[] nlist = new int[lcount];
-        int n = 0;
-        for (int i = 0; i < llength; i++) {
+        for (int i = 0, n = 0; n < lcount; i++) {
             if (list[i] != 0) {
                 nlist[n++] = list[i];
             }

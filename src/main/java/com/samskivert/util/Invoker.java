@@ -5,8 +5,6 @@
 
 package com.samskivert.util;
 
-import java.util.HashMap;
-
 import java.util.concurrent.Executor;
 
 import static com.samskivert.util.UtilLog.log;
@@ -25,6 +23,11 @@ import static com.samskivert.util.UtilLog.log;
  * to ensure that code running on separate invokers properly synchronizes access to shared
  * information. Where possible, complete isolation of the services provided by a particular invoker
  * is desirable.
+ *
+ * <p> The base invoker keeps itself lean: with performance tracking disabled (see
+ * {@link #setPerfTrack}) it simply runs each unit. With tracking enabled (the default) it times
+ * units and warns about long runners; richer per-unit profiling lives in
+ * {@link com.threerings.presents.server.ReportingInvoker}.
  */
 public class Invoker extends LoopingThread
     implements Executor, RunQueue
@@ -130,11 +133,23 @@ public class Invoker extends LoopingThread
 
     /**
      * Set the long threshold for this Invoker. Units that do not specify their own threshold
-     * will be reported as "long" if their duration exceeds this time.
+     * will be reported as "long" if their duration exceeds this time. Only has an effect while
+     * performance tracking is enabled (see {@link #setPerfTrack}).
      */
     public void setLongThreshold (long millis)
     {
         _longThreshold = millis;
+    }
+
+    /**
+     * Configures whether this invoker tracks unit timing. When disabled, {@link #iterate} does no
+     * timing work at all and simply runs each unit; when enabled it times units and warns about
+     * long runners (and {@link com.threerings.presents.server.ReportingInvoker} additionally
+     * profiles them). Enabled by default (see {@link #PERF_TRACK_DEFAULT}).
+     */
+    public void setPerfTrack (boolean perfTrack)
+    {
+        _perfTrack = perfTrack;
     }
 
     /**
@@ -195,15 +210,8 @@ public class Invoker extends LoopingThread
         // pop the next item off of the queue
         Unit unit = _queue.get();
 
-        long start;
-        if (PERF_TRACK) {
-            // record the time spent on the queue as a special unit
-            start = System.currentTimeMillis();
-            // record the time spent on the queue as a special unit
-            recordMetrics("queue_wait_time", start - unit.queueStamp);
-        } else {
-            start = 0L;
-        }
+        // if we're tracking performance, note when we start so we can flag long runners
+        long start = _perfTrack ? System.currentTimeMillis() : 0L;
 
         try {
             willInvokeUnit(unit, start);
@@ -211,10 +219,14 @@ public class Invoker extends LoopingThread
                 // if it returned true, post it to the receiver thread for result processing
                 _receiver.execute(unit);
             }
-            didInvokeUnit(unit, start);
 
         } catch (Throwable t) {
             log.warning("Invocation unit failed", "unit", unit, t);
+
+        } finally {
+            // run even if the unit threw, so per-unit tracking (e.g. the "current unit" in
+            // ReportingInvoker) stays balanced against willInvokeUnit
+            didInvokeUnit(unit, start);
         }
     }
 
@@ -235,18 +247,6 @@ public class Invoker extends LoopingThread
     }
 
     /**
-     * Sets the parameters of the unit profiling histogram. This only affects unit lasses that have
-     * not yet been run, so should be called early on in program initialization.
-     * @param bucketWidthMs size of time buckets, in milliseconds
-     * @param bucketCount number of time buckets
-     */
-    public void setProfilingParameters (int bucketWidthMs, int bucketCount)
-    {
-        _profileBucketWidth = bucketWidthMs;
-        _profileBucketCount = bucketCount;
-    }
-
-    /**
      * Returns true if {@link #shutdown} has been called. {@link #isRunning} may still return true
      * until the shutdown unit is reached and processed by the invoker thread.
      */
@@ -256,83 +256,47 @@ public class Invoker extends LoopingThread
     }
 
     /**
-     * Called before we process an invoker unit.
+     * Called before we process an invoker unit. A hook for subclasses; does nothing by default.
      *
      * @param unit the unit about to be invoked.
-     * @param start a timestamp recorded immediately before invocation if {@link #PERF_TRACK} is
-     * enabled, 0L otherwise.
+     * @param start a timestamp recorded immediately before invocation if performance tracking is
+     * enabled for this invoker, 0L otherwise.
      */
     protected void willInvokeUnit (Unit unit, long start)
     {
     }
 
     /**
-     * Called before we process an invoker unit.
+     * Called after we process an invoker unit, whether or not it threw. The base implementation
+     * warns about units that ran longer than their threshold when performance tracking is enabled.
      *
-     * @param unit the unit about to be invoked.
-     * @param start a timestamp recorded immediately before invocation if {@link #PERF_TRACK} is
-     * enabled, 0L otherwise.
+     * @param unit the unit that was invoked.
+     * @param start a timestamp recorded immediately before invocation if performance tracking is
+     * enabled for this invoker, 0L otherwise.
      */
     protected void didInvokeUnit (Unit unit, long start)
     {
-        // track some performance metrics
-        if (PERF_TRACK) {
-            long duration = System.currentTimeMillis() - start;
-            Object key = unit.getClass();
-            recordMetrics(key, duration);
+        if (!_perfTrack) {
+            return;
+        }
 
-            // report long runners
-            long thresh = unit.getLongThreshold();
-            if (thresh == 0) {
-                thresh = _longThreshold;
+        // report long runners
+        long duration = System.currentTimeMillis() - start;
+        long thresh = unit.getLongThreshold();
+        if (thresh == 0) {
+            thresh = _longThreshold;
+        }
+        if (duration > thresh) {
+            StringBuilder msg = new StringBuilder();
+            msg.append((duration >= 10*thresh) ? "Really long" : "Long");
+            msg.append(" invoker unit [unit=").append(unit);
+            msg.append(" (").append(unit.getClass()).append("), time=").append(duration);
+            msg.append("ms");
+            if (unit.getDetail() != null) {
+                msg.append(", detail=").append(unit.getDetail());
             }
-            if (duration > thresh) {
-                StringBuilder msg = new StringBuilder();
-                msg.append((duration >= 10*thresh) ? "Really long" : "Long");
-                msg.append(" invoker unit [unit=").append(unit);
-                msg.append(" (").append(key).append("), time=").append(duration).append("ms");
-                if (unit.getDetail() != null) {
-                    msg.append(", detail=").append(unit.getDetail());
-                }
-                log.warning(msg.append("].").toString());
-            }
+            log.warning(msg.append("].").toString());
         }
-    }
-
-    protected void recordMetrics (Object key, long duration)
-    {
-        UnitProfile prof = _tracker.get(key);
-        if (prof == null) {
-            _tracker.put(key, prof = new UnitProfile(_profileBucketWidth, _profileBucketCount));
-        }
-        prof.record(duration);
-    }
-
-    /** Used to track profile information on invoked units. */
-    protected static class UnitProfile
-    {
-        public UnitProfile (int bucketWidth, int bucketCount) {
-            _histo = new Histogram(0, bucketWidth, bucketCount);
-        }
-
-        public void record (long duration) {
-            _totalElapsed += duration;
-            _histo.addValue((int)duration);
-        }
-
-        public void clear () {
-            _totalElapsed = 0L;
-            _histo.clear();
-        }
-
-        @Override public String toString () {
-            int count = _histo.size();
-            return _totalElapsed + "ms/" + count + " = " + (_totalElapsed/count) + "ms avg " +
-                StringUtil.toString(_histo.getBuckets());
-        }
-
-        protected Histogram _histo;
-        protected long _totalElapsed;
     }
 
     /** The invoker's queue of units to be executed. */
@@ -341,22 +305,19 @@ public class Invoker extends LoopingThread
     /** The result receiver with which we're working. */
     protected Executor _receiver;
 
-    /** Tracks the counts of invocations by unit's class. */
-    protected HashMap<Object,UnitProfile> _tracker = new HashMap<Object,UnitProfile>();
-
-    /** Default size of buckets to use when profiling unit times. */
-    protected int _profileBucketWidth = 50;
-
-    /** Default number of buckets to use when profiling unit times. */
-    protected int _profileBucketCount = 10;
-
     /** The long threshold for this particular invoker. */
     protected long _longThreshold = 500L;
+
+    /** Whether this invoker times units: long-runner warnings here, plus profiling in
+     * {@link com.threerings.presents.server.ReportingInvoker}. Toggle with {@link #setPerfTrack}. */
+    protected boolean _perfTrack = PERF_TRACK_DEFAULT;
 
     /** True after {@link #shutdown} has been called but before the invoker has finished processing
      * any remaining queued units. */
     protected volatile boolean _shutdownRequested;
 
-    /** Whether or not to track invoker unit performance. */
-    protected static final boolean PERF_TRACK = true;
+    /** The default for {@link #_perfTrack}: on unless the system property
+     * {@code com.samskivert.util.Invoker.perfTrack} is set to "false". */
+    protected static final boolean PERF_TRACK_DEFAULT =
+        !"false".equalsIgnoreCase(System.getProperty("com.samskivert.util.Invoker.perfTrack"));
 }

@@ -101,6 +101,14 @@ public class AuditLogger
      */
     public synchronized void close ()
     {
+        closeLog();
+    }
+
+    /**
+     * Closes the current log writer, if one is open, after noting the closure in the log.
+     */
+    protected void closeLog ()
+    {
         if (_logWriter != null) {
             log("log_closed");
             _logWriter.close();
@@ -143,9 +151,7 @@ public class AuditLogger
 
         // hey! we need to roll it over!
         if (!newDayStamp.equals(_dayStamp) && daysSince(_dayStamp) >= _rolloverDays) {
-            log("log_closed");
-            _logWriter.close();
-            _logWriter = null;
+            closeLog();
 
             // rename the old file
             String npath = _logPath.getPath() + "." + _dayStamp;

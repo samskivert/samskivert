@@ -119,25 +119,31 @@ public class ServiceWaiter<T>
     public boolean waitForResponse ()
         throws TimeoutException
     {
-        if (_success == 0) {
-            synchronized (this) {
-                try {
-                    // wait for the response, timing out after a while
-                    if (_timeout == NO_TIMEOUT) {
+        synchronized (this) {
+            try {
+                if (_timeout == NO_TIMEOUT) {
+                    // wait until a response arrives, looping to ignore spurious wakeups
+                    while (_success == 0) {
                         wait();
+                    }
 
-                    } else {
-                        wait(1000L * _timeout);
+                } else {
+                    // wait until a response arrives or our deadline passes;
+                    // spurious wakeups report no false timeout nor restart the full timeout
+                    long remaining = 1000L * _timeout;
+                    long deadline = System.currentTimeMillis() + remaining;
+                    while (_success == 0 && remaining > 0) {
+                        wait(remaining);
+                        remaining = deadline - System.currentTimeMillis();
                     }
                     // if we get here without some sort of response, then we've timed out
                     if (_success == 0) {
                         throw new TimeoutException();
                     }
-
-                } catch (InterruptedException ie) {
-                    throw (TimeoutException)
-                        new TimeoutException().initCause(ie);
                 }
+
+            } catch (InterruptedException ie) {
+                throw (TimeoutException)new TimeoutException().initCause(ie);
             }
         }
 

@@ -30,7 +30,8 @@ public class MySQLLiaison extends BaseLiaison
     public boolean isTransientException (SQLException sqe)
     {
         String msg = sqe.getMessage();
-        return (msg != null && (msg.indexOf("Lost connection") != -1 ||
+        return (msg != null && (msg.indexOf(IDLE_DISCONNECT) != -1 ||
+                                msg.indexOf("Lost connection") != -1 ||
                                 msg.indexOf("link failure") != -1 ||
                                 msg.indexOf("Broken pipe") != -1 ||
                                 msg.indexOf("The last packet successfully received") != -1));
@@ -143,4 +144,11 @@ public class MySQLLiaison extends BaseLiaison
     {
         return "`" + index + "`";
     }
+
+    /** What MySQL 8.0.24 and later say on closing a connection left idle past wait_timeout.
+     * Connector/J reports it with error code 0 and SQLState 08S01. Nothing ran on the connection,
+     * so a retry on a fresh one is safe; 08S01 as a whole is not, as a write may have landed
+     * before the link dropped. */
+    protected static final String IDLE_DISCONNECT =
+        "disconnected by the server because of inactivity";
 }
